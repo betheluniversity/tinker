@@ -1,0 +1,154 @@
+{% extends "foundation_base.html" %}
+
+{% block title %}{{title}}{% endblock %}
+
+
+
+    {% block body_content %}
+        <!-- Nav Bar -->
+
+          <div class="row">
+            <div class="large-12 columns">
+              <div class="nav-bar right">
+               <ul class="button-group">
+                 <li><a href="#" class="button">Link 1</a></li>
+                 <li><a href="#" class="button">Link 2</a></li>
+                 <li><a href="#" class="button">Link 3</a></li>
+                 <li><a href="#" class="button">Link 4</a></li>
+                </ul>
+              </div>
+              <h1>Events and things <small></small></h1>
+              <hr />
+            </div>
+          </div>
+
+          <!-- End Nav -->
+
+
+          <!-- Main Page Content and Sidebar -->
+
+          <div class="row">
+
+            <!-- Main Blog Content -->
+            <div class="large-9 columns" role="content">
+
+              <div id="wufoo-forms-container">
+                  {% block formsdropdown %}
+                  {% endblock %}
+              </div>
+            </div>
+
+            <!-- End Main Content -->
+
+
+            <!-- Sidebar -->
+
+            <aside class="large-3 columns">
+              {% block bannersync %}
+              {% endblock %}
+            </aside>
+
+            <aside class="large-3 columns">
+              {% block paypalsync %}
+              {% endblock %}
+            </aside>
+
+            <!-- End Sidebar -->
+          </div>
+
+          <!-- End Main Content and Sidebar -->
+
+
+          <!-- Footer -->
+
+          <footer class="row">
+            <div class="large-12 columns">
+              <hr />
+              <div class="row">
+                <div class="large-6 columns">
+                  <p>&copy; Copyright no one at all. Go to town.</p>
+                </div>
+              </div>
+            </div>
+          </footer>
+    {% endblock %}
+
+
+
+
+    {% block scripts %}
+        <script src="{{ url_for('static', filename='moment.js') }}"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+        <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+        <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+        <script type="text/javascript">
+
+         function newFieldset(id){
+                var start = 'start' + id;
+                var end = 'start' + id;
+                var node = $('<fieldset>').addClass('date-fieldset');
+                node.append($("<legend>").html("Date " + id));
+                node.append($("<label>").attr('for', start).html("Start Date"));
+                node.append($("<input type='text'>").attr('name', start).attr('id', start).addClass("datepicker"));
+                node.append($("<label>").attr('for', end).html("End Date"));
+                node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
+                return node;
+         }
+
+          $( document ).ready(function() {
+              $('.datepicker').each(function( index ) {
+                    var picker = new Pikaday({
+                      field: this,
+                      format: 'MMMM Do YYYY, h:mm a',
+                      showTime: true,
+                      onSelect: function() {
+                          console.log(this.getMoment().format('MMMM Do YYYY, h:mm a'));
+                          debugger;
+                      }
+                  });
+              });
+
+              $("#add_date_button").click(function(){
+                var fieldsets = $(".date-fieldset");
+                var last = fieldsets.last();
+                var old_num = last.children()[0].textContent.substr(-1);
+                var new_num = (parseInt(old_num) + 1);
+                var new_date = newFieldset(new_num);
+                new_date.insertAfter(last);
+              })
+
+              $("#location").change(function(){
+                var val = this.options[this.selectedIndex].innerHTML;
+                if(val == "Off Campus"){
+                  $("#off_location_wrap").show();
+                }
+                else{
+                  $("#off_location_wrap").hide();
+                }
+              });
+
+              $( "#eventform" ).submit(function( event ) {
+                debugger;
+              });
+
+
+          });
+
+        </script>
+
+    {% endblock %}
+
+
+
+    {% macro datetime_fieldset() -%}
+      <fieldset class="date-fieldset">
+        <legend>Date 1</legend>
+          <label for="start1">Start Date</label>
+            <input type="text" name="start1" id="start1" class="datepicker"/>
+
+          <label for="end1">End Date</label>
+            <input type="text" name="end1" id="end1" class="datepicker"/>
+
+      </fieldset>
+      <a href="javascript:void(0);" id="add_date_button" class="button tiny">Add Date</a>
+    {%- endmacro  %}

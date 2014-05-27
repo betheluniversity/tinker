@@ -1,0 +1,51 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Admin | Wufoo Preload{% endblock %}
+
+{% block styles %}
+  <style type="text/css">
+    .largeselect {
+      height: 100px;
+      font-size:14px;
+    }
+
+  </style>
+{% endblock %}
+
+{% block formsdropdown %}
+
+<div class="row">
+  <div class="large-12 columns">
+    <form id="eventform" action="/submit" method="post">
+        {{ form.hidden_tag() }}
+
+        {% for field in form if field.widget.input_type != 'hidden' %}
+
+            {% if field.type == "SelectMultipleField" %}
+              {{ field.label }} {{ field(size=10, class="largeselect") }}
+
+            {% elif field.type == "SelectField" %}
+              {{ field.label }} {{ field }}
+
+            {% elif field.type == "DateTimeField" %}
+              {# do the entire date field in here for now #}
+              {{ datetime_fieldset() }}
+
+            {% elif field.name == "off_location" %}
+              <div id="off_location_wrap" style="display:none;">
+                {{ field.label }} {{ field }}
+              </div>
+
+            {% else %}
+                {{ field.label }} {{ field(size=20) }}
+            {% endif %}
+
+        {% endfor %}
+        <button type="submit" class="button postfix">Submit</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+
