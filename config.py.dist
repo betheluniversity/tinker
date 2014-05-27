@@ -1,6 +1,14 @@
 import os
 _basedir = os.path.abspath(os.path.dirname(__file__))
 
+##Foundation configs
+FOUNDATION_USE_MINIFIED = False
+FOUNDATION_USE_CDN = True
 
-API_KEYS = ['key1', 'key2']
+BASE_URL = base_url
 
+secret_key = "superdupersecret"
+SECRET_KEY = "superdupersecret"
+
+
+CASCADE_LOGIN = {'username': 'username', 'password': 'password'}
