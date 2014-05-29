@@ -2,8 +2,6 @@
 
 {% block title %}{{title}}{% endblock %}
 
-
-
     {% block body_content %}
         <!-- Nav Bar -->
 
@@ -78,6 +76,7 @@
 
     {% block scripts %}
         <script src="{{ url_for('static', filename='moment.js') }}"></script>
+        <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
         <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
         <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
         <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
@@ -85,28 +84,31 @@
 
          function newFieldset(id){
                 var start = 'start' + id;
-                var end = 'start' + id;
+                var end = 'end' + id;
+                var all = 'allday' + id;
                 var node = $('<fieldset>').addClass('date-fieldset');
                 node.append($("<legend>").html("Date " + id));
+                node.append($("<input type='checkbox'>").attr('name', all).attr('id', all).attr('class', 'alldaycheck'));
+                node.append($("<label>").attr('for', all).html("All Day"));
                 node.append($("<label>").attr('for', start).html("Start Date"));
                 node.append($("<input type='text'>").attr('name', start).attr('id', start).addClass("datepicker"));
                 node.append($("<label>").attr('for', end).html("End Date"));
-                node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
+                node.append($("<input type='text'>").attr('name', all).attr('id', all).addClass("datepicker"));
+
                 return node;
          }
 
           $( document ).ready(function() {
-              $('.datepicker').each(function( index ) {
-                    var picker = new Pikaday({
-                      field: this,
-                      format: 'MMMM Do YYYY, h:mm a',
-                      showTime: true,
-                      onSelect: function() {
-                          console.log(this.getMoment().format('MMMM Do YYYY, h:mm a'));
-                          debugger;
-                      }
+
+              function createPickers() {
+                $('.datepicker').each(function (index) {
+                  var picker = new Pikaday({
+                    field: this,
+                    format: 'MMMM Do YYYY, h:mm a',
+                    showTime: true
                   });
-              });
+                });
+              }
 
               $("#add_date_button").click(function(){
                 var fieldsets = $(".date-fieldset");
@@ -115,7 +117,19 @@
                 var new_num = (parseInt(old_num) + 1);
                 var new_date = newFieldset(new_num);
                 new_date.insertAfter(last);
-              })
+                $("#remove_date_button").show();
+                createPickers();
+              });
+
+              $("#remove_date_button").click(function(){
+                var list = $(".date-fieldset");
+                var length = list.length;
+                //Hide remove button if there will only be one date left
+                if (length == 2){
+                  $("#remove_date_button").hide();
+                }
+                list.last().remove();
+              });
 
               $("#location").change(function(){
                 var val = this.options[this.selectedIndex].innerHTML;
@@ -127,9 +141,7 @@
                 }
               });
 
-              $( "#eventform" ).submit(function( event ) {
-                debugger;
-              });
+              createPickers();
 
 
           });
@@ -139,10 +151,12 @@
     {% endblock %}
 
 
-
     {% macro datetime_fieldset() -%}
       <fieldset class="date-fieldset">
         <legend>Date 1</legend>
+
+          <input id="allday1" name="allday1" class="alldaycheck" type="checkbox" value="True"><label for="allday1">All Day</label>
+
           <label for="start1">Start Date</label>
             <input type="text" name="start1" id="start1" class="datepicker"/>
 
@@ -151,4 +165,5 @@
 
       </fieldset>
       <a href="javascript:void(0);" id="add_date_button" class="button tiny">Add Date</a>
+      <a href="javascript:void(0);" id="remove_date_button" style="display:none" class="button tiny alert">Remove Date</a>
     {%- endmacro  %}

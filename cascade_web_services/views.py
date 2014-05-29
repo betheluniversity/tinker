@@ -1,15 +1,17 @@
 #python
 import datetime
-import time
+import re
+
 #flask
 from flask import render_template
 from flask import request
 from cascade_web_services import app
 
-from suds.client import Client
 
 #local
 from forms import EventForm
+
+from tools import get_client
 
 
 @app.route("/")
@@ -22,55 +24,76 @@ def form_index():
 @app.route("/read")
 def read_page():
 
-    soap_url = "http://cms-origin.bethel.edu/ws/services/AssetOperationService"
-    wsdl_url = 'http://cms-origin.bethel.edu/ws/services/AssetOperationService?wsdl'
-
-    client = Client(url=wsdl_url, location=soap_url)
+    client = get_client()
     return "<pre>" + readPage(client) + "</pre>"
 
 
-@app.route("/submit", methods=['POST'])
-def submit_form():
+def get_add_data(lists, form):
 
     ##A dict to populate with all the interesting data.
     add_data = {}
 
-    ##get the form
+    for key in form.keys():
+        if key in lists:
+            add_data[key] = form.getlist(key)
+        else:
+            add_data[key] = form[key]
+
+    ##Create the system-name from title, all lowercase
+    system_name = add_data['title'].lower().replace(' ', '-')
+
+    ##Now remove any non a-z, A-Z, 0-9
+    system_name = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+
+    add_data['system_name'] = system_name
+
+    return add_data
+
+
+def get_dates(add_data):
+
+    dates = []
+
+    ##format the dates
+    for i in range(1, 200):
+        i = str(i)
+        try:
+            start = 'start' + i
+            end = 'end' + i
+            all_day = 'allday' + i
+
+            start = add_data[start]
+            end = add_data[end]
+            all_day = all_day in add_data.keys()
+
+        except KeyError:
+            ##This will break once we run out of dates
+            break
+
+        #Get rid of the facy formatting so we just have normal numbers
+        start = start.replace('th', '').replace('st', '').replace('rd', '')
+        end = end.replace('th', '').replace('st', '').replace('rd', '')
+
+        # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
+        # which use milliseconds instead of seconds
+        start = int(datetime.datetime.strptime(start, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+        end = int(datetime.datetime.strptime(end, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+
+        dates.append(eventDate(start, end, all_day))
+
+    return dates
+
+@app.route("/submit", methods=['POST'])
+def submit_form():
+
     form = request.form
-    req = request
-    ##get the multiselect values
-    add_data['general'] = form.getlist('general')
-    add_data['academics'] = form.getlist('academics')
-    add_data['offices'] = form.getlist('offices')
-    add_data['internal'] = form.getlist('internal')
 
-    ##get the normal things
-    add_data['featuring'] = form['featuring']
-    add_data['location'] = form['location']
-    add_data['directions'] = form['directions']
-    add_data['sponsors'] = form['sponsors']
-    add_data['cost'] = form['cost']
-    add_data['details'] = form['details']
-    add_data['refunds'] = form['refunds']
-    add_data['description'] = form['description']
-    add_data['questions'] = form['questions']
-    add_data['heading'] = form['heading']
+    #Get all the form data
+    add_data = get_add_data(['general', 'academics', 'offices', 'internal'], form)
 
-    ##Create a list of dates
-    start = form['start1']
-    end = form['end1']
+    dates = get_dates(add_data)
 
-    start = start.replace(' GMT-0500 (UTC)', '')
-    end = end.replace(' GMT-0500 (UTC)', '')
-
-    start = int(datetime.datetime.strptime(start, '%a %b %d %Y %H:%M:%S').strftime("%s"))
-    end = int(datetime.datetime.strptime(end, '%a %b %d %Y %H:%M:%S').strftime("%s"))
-
-    dates = [
-        eventDate(start, end, True)
-    ]
-
-    ##Add it to the dict
+    ##Add it to the dict, we can just ignore the old entries
     add_data['dates'] = dates
 
     resp = create_new_event(add_data)
@@ -80,11 +103,11 @@ def submit_form():
 
 
 def create_new_event(add_data):
+    """
+     Could this be cleaned up at all?
+    """
 
-    soap_url = "http://cms-origin.bethel.edu/ws/services/AssetOperationService"
-    wsdl_url = 'http://cms-origin.bethel.edu/ws/services/AssetOperationService?wsdl'
-
-    client = Client(url=wsdl_url, location=soap_url)
+    client = get_client()
 
     ## Create a list of all the data nodes
     structured_data = [
@@ -124,7 +147,7 @@ def create_new_event(add_data):
     #put it all into the final asset with the rest of the SOAP structure
     asset = {
         'page': {
-            'name': "test-event",
+            'name': add_data['system_name'],
             'siteId': "ba134ac58c586513100ee2a7cec27f4a",
             'parentFolderPath': "testing",
             'metadataSetPath': "/Event",
@@ -133,10 +156,10 @@ def create_new_event(add_data):
             ## Break this out more once its defined in the form
             'structuredData': structured_data,
             'metadata': {
-                'title': "Test",
+                'title': add_data['title'],
                 'displayName': "Testing",
-                'metaDescription': add_data['description'],
                 'summary': 'summary',
+                'author': "ejc84332",  # replace this with the CAS user eventually.
                 'dynamicFields': dynamic_fields,
             }
         }

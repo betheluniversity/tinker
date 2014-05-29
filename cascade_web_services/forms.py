@@ -1,26 +1,21 @@
+#python
+import datetime
+
 #modules
 from flask.ext.wtf import Form
 from wtforms import TextField
-from wtforms import HiddenField
 from wtforms import TextAreaField
 from wtforms import SelectMultipleField
 from wtforms import SelectField
 from wtforms import RadioField
 from wtforms import DateTimeField
-from wtforms.validators import DataRequired
-from suds.client import Client
-
-#python
-import datetime
 
 #local
 from cascade_web_services import app
+from tools import get_client
 
 
-def read_metadata():
-
-    soap_url = "http://cms-origin.bethel.edu/ws/services/AssetOperationService"
-    wsdl_url = 'http://cms-origin.bethel.edu/ws/services/AssetOperationService?wsdl'
+def get_md():
 
     auth = app.config['CASCADE_LOGIN']
 
@@ -32,18 +27,9 @@ def read_metadata():
         'type': 'metadataset',
     }
 
-    client = Client(url=wsdl_url, location=soap_url)
-    response = client.service.read(auth, identifier)
-
-    return response
-
-
-def get_md():
-
-    md = read_metadata()
-    data = md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
-
-    return data
+    client = get_client()
+    md = client.service.read(auth, identifier)
+    return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
 
 
 def get_choices():
@@ -54,7 +40,6 @@ def get_choices():
     offices_list = data[1].possibleValues.possibleValue
     academics_list = data[2].possibleValues.possibleValue
     internal_list = data[3].possibleValues.possibleValue
-
 
     general = []
     for item in general_list:
@@ -74,7 +59,12 @@ def get_choices():
 
     return {'general': general, 'offices': offices, 'academics': academics, 'internal': internal}
 
-#class StartEndDateField()
+
+##Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
+##aside from be a marker label
+class CKEditorTextAreaField(TextAreaField):
+    pass
+
 
 class EventForm(Form):
 
@@ -87,17 +77,19 @@ class EventForm(Form):
     location_choices = (('On Campus', 'On Campus'), ('Off Campus', 'Off Campus'))
     heading_choices = (('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
+    title = TextField('Title')
     featuring = TextField('Featuring')
     location = SelectField('Location', choices=location_choices)
     off_location = TextField("Off Campus Location")
-    directions = TextAreaField('Directions')
+    directions = CKEditorTextAreaField('Directions')
     sponsors = TextAreaField('Sponsors')
     cost = TextAreaField('Cost')
     heading = RadioField('Heading', choices=heading_choices)
-    details = TextAreaField('Registration/ticketing details')
+    details = CKEditorTextAreaField('Registration/ticketing details')
     refunds = TextAreaField('Cancellations and refunds')
-    description = TextAreaField('Event description')
-    questions = TextAreaField('Questions')
+    description = CKEditorTextAreaField('Event description')
+    questions = CKEditorTextAreaField('Questions')
+    wufoo = TextField('Approved Wufoo Hash Code')
 
     start = DateTimeField("Start Date", default=datetime.datetime.now)
     general = SelectMultipleField('General Categories', choices=general_choices)
