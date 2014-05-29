@@ -5,6 +5,7 @@ import re
 #flask
 from flask import render_template
 from flask import request
+from flask import redirect
 from cascade_web_services import app
 
 
@@ -98,6 +99,10 @@ def submit_form():
 
     resp = create_new_event(add_data)
 
+    id = resp['createdAssetId']
+
+    url = 'https://cms.bethel.edu/entity/open.act?id=' + id + '&type=page&'
+    return redirect(url, code=302)
     ##Just print the response for now
     return resp
 
