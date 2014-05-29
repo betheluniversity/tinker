@@ -119,9 +119,11 @@ def create_new_event(add_data):
         structuredDataNode("cost", add_data['cost']),
         structuredDataNode("sponsors", add_data['sponsors']),
         structuredDataNode("maps-directions", add_data['directions']),
-        structuredDataNode("off-campus-location", "off-campus-location from Python"),
+        structuredDataNode("off-campus-location", add_data['off_location']),
         structuredDataNode("location", add_data['location']),
         structuredDataNode("featuring", add_data['featuring']),
+        structuredDataNode("wufoo-code", add_data['wufoo']),
+
 
     ]
     ## Add the dates at the end of the data
@@ -157,7 +159,7 @@ def create_new_event(add_data):
             'structuredData': structured_data,
             'metadata': {
                 'title': add_data['title'],
-                'displayName': "Testing",
+                'displayName': add_data['title'],
                 'summary': 'summary',
                 'author': "ejc84332",  # replace this with the CAS user eventually.
                 'dynamicFields': dynamic_fields,
