@@ -99,12 +99,12 @@ def submit_form():
 
     resp = create_new_event(add_data)
 
-    id = resp['createdAssetId']
+    code = re.search('createdAssetId = "(.*?)"', resp).group(1)
 
-    url = 'https://cms.bethel.edu/entity/open.act?id=' + id + '&type=page&'
+    url = 'https://cms.bethel.edu/entity/open.act?id=' + code + '&type=page&'
     return redirect(url, code=302)
     ##Just print the response for now
-    return resp
+    ##return resp
 
 
 def create_new_event(add_data):
