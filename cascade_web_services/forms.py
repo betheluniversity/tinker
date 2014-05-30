@@ -9,7 +9,7 @@ from wtforms import SelectMultipleField
 from wtforms import SelectField
 from wtforms import RadioField
 from wtforms import DateTimeField
-
+from wtforms.validators import Required
 #local
 from cascade_web_services import app
 from tools import get_client
@@ -77,24 +77,24 @@ class EventForm(Form):
     location_choices = (('On Campus', 'On Campus'), ('Off Campus', 'Off Campus'))
     heading_choices = (('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
-    title = TextField('Title')
-    featuring = TextField('Featuring')
-    location = SelectField('Location', choices=location_choices)
+    title = TextField('Title', validators=[Required()])
+    featuring = TextField('Featuring', validators=[Required()])
+    location = SelectField('Location', choices=location_choices, validators=[Required()])
     off_location = TextField("Off Campus Location")
     directions = CKEditorTextAreaField('Directions')
     sponsors = TextAreaField('Sponsors')
     cost = TextAreaField('Cost')
     heading = RadioField('Heading', choices=heading_choices)
-    details = CKEditorTextAreaField('Registration/ticketing details')
+    details = CKEditorTextAreaField('Registration/ticketing details', validators=[Required()])
     refunds = TextAreaField('Cancellations and refunds')
-    description = CKEditorTextAreaField('Event description')
-    questions = CKEditorTextAreaField('Questions')
+    description = CKEditorTextAreaField('Event description', validators=[Required()])
+    questions = CKEditorTextAreaField('Questions', validators=[Required()])
     wufoo = TextField('Approved Wufoo Hash Code')
 
     start = DateTimeField("Start Date", default=datetime.datetime.now)
-    general = SelectMultipleField('General Categories', choices=general_choices)
-    offices = SelectMultipleField('Offices', choices=offices_choices)
-    academics = SelectMultipleField('Academics', choices=academics_choices)
-    internal = SelectMultipleField('Internal Only', choices=internal_choices)
+    general = SelectMultipleField('General Categories', choices=general_choices, validators=[Required()])
+    offices = SelectMultipleField('Offices', choices=offices_choices, validators=[Required()])
+    academics = SelectMultipleField('Academics', choices=academics_choices, validators=[Required()])
+    internal = SelectMultipleField('Internal Only', choices=internal_choices, validators=[Required()])
 
 

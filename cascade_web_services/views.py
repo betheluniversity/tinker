@@ -77,8 +77,14 @@ def get_dates(add_data):
 
         # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
         # which use milliseconds instead of seconds
-        start = int(datetime.datetime.strptime(start, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
-        end = int(datetime.datetime.strptime(end, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+        try:
+            start = int(datetime.datetime.strptime(start, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+        except ValueError:
+            start = None
+        try:
+            end = int(datetime.datetime.strptime(end, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+        except ValueError:
+            end = None
 
         dates.append(eventDate(start, end, all_day))
 
@@ -87,8 +93,11 @@ def get_dates(add_data):
 @app.route("/submit", methods=['POST'])
 def submit_form():
 
-    form = request.form
+    form = EventForm()
+    if not form.validate_on_submit():
+        return render_template('admin.html', form=form)
 
+    form = request.form
     #Get all the form data
     add_data = get_add_data(['general', 'academics', 'offices', 'internal'], form)
 
