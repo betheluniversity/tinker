@@ -1,0 +1,38 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Home | Wufoo Preload{% endblock %}
+
+{% block styles %}
+  <style type="text/css">
+
+  </style>
+{% endblock %}
+
+{% block formsdropdown %}
+
+<div class="row">
+  <div class="large-12 columns">
+
+   {% for form in forms%}
+    <div class="row">
+      <div class="large-8 columns">
+        <p>
+          <a href={{ form.path }}>{{ form.title }}</a>
+        </p>
+      </div>
+      <div class="large-4 columns small-3">
+        <ul class="button-group">
+          <li><a href="#" class="small button">Edit</a></li>
+          <li><a href="#" class="small button alert">Delete</a></li>
+         </ul>
+      </div>
+      <hr/>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+
+{% endblock %}
+
+

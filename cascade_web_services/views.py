@@ -1,6 +1,9 @@
 #python
 import datetime
 import re
+import xml.etree
+from xml.etree import ElementTree as ET
+import urllib2
 
 #flask
 from flask import render_template
@@ -9,10 +12,19 @@ from flask import redirect
 from cascade_web_services import app
 
 
+
 #local
 from forms import EventForm
 
 from tools import get_client
+
+
+@app.route('/home')
+def show_hope():
+    ## index page for adding events and things
+    forms = get_forms_for_user('ejc84332')
+
+    return render_template('home.html', **locals())
 
 
 @app.route("/")
@@ -25,8 +37,7 @@ def form_index():
 @app.route("/read")
 def read_page():
 
-    client = get_client()
-    return "<pre>" + readPage(client) + "</pre>"
+    return "<pre>" + read_event_index() + "</pre>"
 
 
 def get_add_data(lists, form):
@@ -99,7 +110,7 @@ def submit_form():
 
     form = request.form
     #Get all the form data
-    add_data = get_add_data(['general', 'academics', 'offices', 'internal'], form)
+    add_data = get_add_data(['general', 'offices', 'academics_dates', 'cas_departments', 'internal'], form)
 
     dates = get_dates(add_data)
 
@@ -155,7 +166,8 @@ def create_new_event(add_data):
         'dynamicField': [
             dynamicField('general', add_data['general']),
             dynamicField('offices', add_data['offices']),
-            dynamicField('academics', add_data['academics']),
+            dynamicField('academic-dates', add_data['academics_dates']),
+            dynamicField('cas-departments', add_data['cas_departments']),
             dynamicField('internal', add_data['internal']),
         ],
     }
@@ -173,9 +185,9 @@ def create_new_event(add_data):
             'structuredData': structured_data,
             'metadata': {
                 'title': add_data['title'],
-                'displayName': add_data['title'],
                 'summary': 'summary',
                 'author': "ejc84332",  # replace this with the CAS user eventually.
+                'metaDescription': add_data['teaser'],  # replace this with the CAS user eventually.
                 'dynamicFields': dynamic_fields,
             }
         }
@@ -187,20 +199,87 @@ def create_new_event(add_data):
     return str(response)
 
 
-def readPage(client):
+def traverse_folder(traverse_xml, username):
+    ## Travserse an XML folder, adding system-pages to a dict of matches
 
-    auth = app.config['CASCADE_LOGIN']
+    matches = []
+    for child in traverse_xml:
+        if child.tag == 'system-page':
+            try:
+                author = child.find('author').text
+            except AttributeError:
+                continue
+            if author == username:
+                page_values = {
+                    'author': child.find('author').text,
+                    'id': child.attrib['id'] or None,
+                    'title': child.find('title').text or None,
+                    'created-on': child.find('created-on').text or None,
+                    'path': 'http://staging.bethel.edu' + child.find('path').text or None
+                }
+                ## This is a match, add it to array
+                matches.append(page_values)
+
+        elif child.tag is 'system-folder':
+            ##recurse into the page
+            matches.extend(traverse_folder(child, username))
+    return matches
+
+
+def get_forms_for_user(username):
+
+    response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/events.xml')
+    form_xml = ET.fromstring(response.read())
+    matches = traverse_folder(form_xml, username)
+
+    return matches
+
+
+def read_event_index():
+
+    client = get_client()
 
     identifier = {
         'path': {
-            'path': '/testing/test-event',
+            'path': '/testing',
+            'siteName': 'Public'
+        },
+        'type': 'folder',
+    }
+
+    auth = app.config['CASCADE_LOGIN']
+
+    response = client.service.read(auth, identifier)
+    ## get the event folders children
+    children = response.asset.folder.children.child
+    authors = []
+    for child in children:
+        path = child.path.path
+
+        if child.type == 'page':
+            author = get_page_author(path)
+
+            authors.append( {path: author} )
+
+    return str(authors)
+
+def get_page_author(path):
+
+    client = get_client()
+
+    identifier = {
+        'path': {
+            'path': path,
             'siteName': 'Public'
         },
         'type': 'page',
     }
 
+    auth = app.config['CASCADE_LOGIN']
+
     response = client.service.read(auth, identifier)
-    return str(response)
+    author = response.asset.page.metadata.author
+    return author
 
 
 def dynamicField(name, values):

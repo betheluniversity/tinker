@@ -77,6 +77,7 @@
     {% block scripts %}
         <script src="{{ url_for('static', filename='moment.js') }}"></script>
         <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+
         <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
         <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
         <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
@@ -99,7 +100,7 @@
          }
 
           $( document ).ready(function() {
-
+            CKEDITOR.config.format_tags = 'h4;h5';
               function createPickers() {
                 $('.datepicker').each(function (index) {
                   var picker = new Pikaday({
@@ -164,6 +165,6 @@
             <input type="text" name="end1" id="end1" class="datepicker"/>
 
       </fieldset>
-      <a href="javascript:void(0);" id="add_date_button" class="button tiny">Add Date</a>
+      <a href="javascript:void(0);" id="add_date_button" class="button tiny">Add Another Date</a>
       <a href="javascript:void(0);" id="remove_date_button" style="display:none" class="button tiny alert">Remove Date</a>
     {%- endmacro  %}
