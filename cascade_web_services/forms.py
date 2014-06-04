@@ -117,17 +117,17 @@ class EventForm(Form):
     location_choices = (('On Campus', 'On Campus'), ('Off Campus', 'Off Campus'))
     heading_choices = (('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
-    what = HeadingField(label="What?")
+    what = HeadingField(label="What is your event?")
     title = TextField('Event Name', validators=[Required()])
     teaser = TextField('Teaser', validators=[Required()])
     featuring = TextField('Featuring', validators=[Required()])
     sponsors = TextAreaField('Sponsors')
     description = CKEditorTextAreaField('Event description', validators=[Required()])
 
-    when = HeadingField(label="When?")
+    when = HeadingField(label="When is your event?")
     start = DateTimeField("Start Date", default=datetime.datetime.now)
 
-    where = HeadingField(label="Where?")
+    where = HeadingField(label="Where is your event?")
     location = SelectField('Location', choices=location_choices, validators=[Required()])
     off_location = TextField("Off Campus Location")
     directions = CKEditorTextAreaField('Directions')

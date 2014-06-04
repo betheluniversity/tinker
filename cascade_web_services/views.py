@@ -1,7 +1,6 @@
 #python
 import datetime
 import re
-import xml.etree
 from xml.etree import ElementTree as ET
 import urllib2
 
@@ -11,23 +10,26 @@ from flask import request
 from flask import redirect
 from cascade_web_services import app
 
-
-
 #local
 from forms import EventForm
 
 from tools import get_client
 
+@app.route('/delete/<page_id>')
+def remove_page(page_id):
+    resp = delete(page_id)
+    return str(resp)
 
-@app.route('/home')
-def show_hope():
+
+@app.route('/')
+def show_home():
     ## index page for adding events and things
     forms = get_forms_for_user('ejc84332')
 
     return render_template('home.html', **locals())
 
 
-@app.route("/")
+@app.route("/add")
 def form_index():
 
     form = EventForm()
@@ -97,7 +99,7 @@ def get_dates(add_data):
         except ValueError:
             end = None
 
-        dates.append(eventDate(start, end, all_day))
+        dates.append(event_date(start, end, all_day))
 
     return dates
 
@@ -121,8 +123,7 @@ def submit_form():
 
     code = re.search('createdAssetId = "(.*?)"', resp).group(1)
 
-    url = 'https://cms.bethel.edu/entity/open.act?id=' + code + '&type=page&'
-    return redirect(url, code=302)
+    return redirect('/', code=302)
     ##Just print the response for now
     ##return resp
 
@@ -136,18 +137,18 @@ def create_new_event(add_data):
 
     ## Create a list of all the data nodes
     structured_data = [
-        structuredDataNode("main-content", add_data['description']),
-        structuredDataNode("questions", add_data['questions']),
-        structuredDataNode("cancellations", add_data['refunds']),
-        structuredDataNode("registration-details", add_data['details']),
-        structuredDataNode("registration-heading", add_data['heading']),
-        structuredDataNode("cost", add_data['cost']),
-        structuredDataNode("sponsors", add_data['sponsors']),
-        structuredDataNode("maps-directions", add_data['directions']),
-        structuredDataNode("off-campus-location", add_data['off_location']),
-        structuredDataNode("location", add_data['location']),
-        structuredDataNode("featuring", add_data['featuring']),
-        structuredDataNode("wufoo-code", add_data['wufoo']),
+        structured_data_node("main-content", add_data['description']),
+        structured_data_node("questions", add_data['questions']),
+        structured_data_node("cancellations", add_data['refunds']),
+        structured_data_node("registration-details", add_data['details']),
+        structured_data_node("registration-heading", add_data['heading']),
+        structured_data_node("cost", add_data['cost']),
+        structured_data_node("sponsors", add_data['sponsors']),
+        structured_data_node("maps-directions", add_data['directions']),
+        structured_data_node("off-campus-location", add_data['off_location']),
+        structured_data_node("location", add_data['location']),
+        structured_data_node("featuring", add_data['featuring']),
+        structured_data_node("wufoo-code", add_data['wufoo']),
 
 
     ]
@@ -164,11 +165,11 @@ def create_new_event(add_data):
     #create the dynamic metadata dict
     dynamic_fields = {
         'dynamicField': [
-            dynamicField('general', add_data['general']),
-            dynamicField('offices', add_data['offices']),
-            dynamicField('academic-dates', add_data['academics_dates']),
-            dynamicField('cas-departments', add_data['cas_departments']),
-            dynamicField('internal', add_data['internal']),
+            dynamic_field('general', add_data['general']),
+            dynamic_field('offices', add_data['offices']),
+            dynamic_field('academic-dates', add_data['academics_dates']),
+            dynamic_field('cas-departments', add_data['cas_departments']),
+            dynamic_field('internal', add_data['internal']),
         ],
     }
 
@@ -196,6 +197,10 @@ def create_new_event(add_data):
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.create(auth, asset)
+
+    ##publish the xml file so the new event shows up
+    publish_event_xml()
+
     return str(response)
 
 
@@ -215,7 +220,7 @@ def traverse_folder(traverse_xml, username):
                     'id': child.attrib['id'] or None,
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
-                    'path': 'http://staging.bethel.edu' + child.find('path').text or None
+                    'path': 'http://staging.bethel.edu' + child.find('path').text or None,
                 }
                 ## This is a match, add it to array
                 matches.append(page_values)
@@ -235,54 +240,24 @@ def get_forms_for_user(username):
     return matches
 
 
-def read_event_index():
+def delete(page_id):
 
     client = get_client()
 
     identifier = {
-        'path': {
-            'path': '/testing',
-            'siteName': 'Public'
-        },
-        'type': 'folder',
-    }
-
-    auth = app.config['CASCADE_LOGIN']
-
-    response = client.service.read(auth, identifier)
-    ## get the event folders children
-    children = response.asset.folder.children.child
-    authors = []
-    for child in children:
-        path = child.path.path
-
-        if child.type == 'page':
-            author = get_page_author(path)
-
-            authors.append( {path: author} )
-
-    return str(authors)
-
-def get_page_author(path):
-
-    client = get_client()
-
-    identifier = {
-        'path': {
-            'path': path,
-            'siteName': 'Public'
-        },
+        'id': page_id,
         'type': 'page',
     }
 
     auth = app.config['CASCADE_LOGIN']
 
-    response = client.service.read(auth, identifier)
-    author = response.asset.page.metadata.author
-    return author
+    response = client.service.delete(auth, identifier)
+    ## Publish the XML so the event is gone
+    publish_event_xml()
+    return response
 
 
-def dynamicField(name, values):
+def dynamic_field(name, values):
 
     values_list = []
     for value in values:
@@ -297,7 +272,7 @@ def dynamicField(name, values):
     return node
 
 
-def structuredDataNode(id, text, node_type=None):
+def structured_data_node(id, text, node_type=None):
 
     if not node_type:
         node_type = "text"
@@ -311,14 +286,15 @@ def structuredDataNode(id, text, node_type=None):
 
     return node
 
-def eventDate(start, end, all_day=False):
+
+def event_date(start, end, all_day=False):
 
     list = [
-        structuredDataNode("start-date", start),
-        structuredDataNode("end-date", end),
+        structured_data_node("start-date", start),
+        structured_data_node("end-date", end),
         ]
     if all_day:
-        list.append(structuredDataNode("all-day", "::CONTENT-XML-CHECKBOX::Yes"))
+        list.append(structured_data_node("all-day", "::CONTENT-XML-CHECKBOX::Yes"))
 
     node = {
         'type': "group",
@@ -330,4 +306,20 @@ def eventDate(start, end, all_day=False):
 
     return node
 
+@app.route('/publish')
+def publish_event_xml():
 
+    client = get_client()
+
+    publishinformation = {
+        'identifier': {
+            'id': '4eea96d18c5865135b5a2d9e155b78a9',
+            'type': 'page'
+        }
+    }
+
+    auth = app.config['CASCADE_LOGIN']
+
+    response = client.service.publish(auth, publishinformation)
+
+    return str(response)
