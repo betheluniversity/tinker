@@ -3,37 +3,30 @@
 {% block title %}{{title}}{% endblock %}
 
     {% block body_content %}
-        <!-- Nav Bar -->
 
           <div class="row">
             <div class="large-12 columns">
               <div class="nav-bar right">
                <ul class="button-group">
                  <li><a href="/" class="button">Home</a></li>
-                 <li><a href="/add" class="button">Add New Event</a></li>
-                 <li><a href="#" class="button">Link 3</a></li>
-                 <li><a href="#" class="button">Link 4</a></li>
+                 <li><a href="/add" class="button">New Event</a></li>
+                 <li><a href="/facutly-bio" class="button">Edit Bio</a></li>
+                 <li><a href="/wufoo" class="button">Wufoo</a></li>
+
                 </ul>
               </div>
-              <h1>Events and things <small></small></h1>
+              <h1>{% block page_title %}{% endblock %}<small></small></h1>
               <hr />
             </div>
           </div>
-
-          <!-- End Nav -->
-
-
-          <!-- Main Page Content and Sidebar -->
 
           <div class="row">
 
             <!-- Main Blog Content -->
             <div class="large-9 columns" role="content">
 
-              <div id="wufoo-forms-container">
-                  {% block formsdropdown %}
+                  {% block main_content %}
                   {% endblock %}
-              </div>
             </div>
 
             <!-- End Main Content -->

@@ -39,7 +39,19 @@ def form_index():
 @app.route("/read")
 def read_page():
 
-    return "<pre>" + read_event_index() + "</pre>"
+    client = get_client()
+
+    identifier = {
+        'id': '68642e898c58651317cf8e744929837b',
+        'type': 'page'
+    }
+
+
+    auth = app.config['CASCADE_LOGIN']
+
+    response = client.service.read(auth, identifier)
+
+    return "<pre>" + str(response) + "</pre>"
 
 
 def get_add_data(lists, form):
