@@ -11,16 +11,14 @@ from tools import get_client
 from web_services import *
 
 
-def create_new_event(add_data):
+def get_event_structure(add_data, event_id=None):
     """
      Could this be cleaned up at all?
     """
 
-    client = get_client()
-
     ## Create a list of all the data nodes
     structured_data = [
-        structured_data_node("main-content", add_data['main-content']),
+        structured_data_node("main-content", add_data['main_content']),
         structured_data_node("questions", add_data['questions']),
         structured_data_node("cancellations", add_data['cancellations']),
         structured_data_node("registration-details", add_data['registration_details']),
@@ -71,20 +69,39 @@ def create_new_event(add_data):
                 'title': add_data['title'],
                 'summary': 'summary',
                 'author': "ejc84332",  # replace this with the CAS user eventually.
-                'metaDescription': add_data['teaser'],  # replace this with the CAS user eventually.
+                'metaDescription': add_data['teaser'],
                 'dynamicFields': dynamic_fields,
             }
         }
     }
-    ##Create the Auth list. Need a real username and password eventually
-    auth = app.config['CASCADE_LOGIN']
 
+    if event_id:
+        asset['page']['id'] = event_id
+
+    return asset
+
+
+def create(asset):
+    auth = app.config['CASCADE_LOGIN']
+    client = get_client()
     response = client.service.create(auth, asset)
 
     ##publish the xml file so the new event shows up
     publish(app.config['EVENT_XML_ID'])
 
-    return str(response)
+    return response
+
+
+def edit(asset):
+
+    auth = app.config['CASCADE_LOGIN']
+    client = get_client()
+    response = client.service.edit(auth, asset)
+
+    ##publish the xml file so the new event shows up
+    publish(app.config['EVENT_XML_ID'])
+
+    return response
 
 
 def traverse_event_folder(traverse_xml, username):

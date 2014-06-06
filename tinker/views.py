@@ -31,7 +31,7 @@ def show_home():
 def form_index():
 
     form = EventForm()
-
+    add_form = True
     return render_template('event-form.html', **locals())
 
 
@@ -41,7 +41,7 @@ def read_page():
     client = get_client()
 
     identifier = {
-        'id': '68642e898c58651317cf8e744929837b',
+        'id': '72aca6118c58651317cf8e74f03f11ab',
         'type': 'page'
     }
 
@@ -86,8 +86,10 @@ def edit_event_page(event_id):
 
     #now metadata dynamic fields
     for field in dynamic_fields:
-        items = [item.value for item in field.fieldValues.fieldValue]
-        edit_data[field.name.replace('-', '_')] = items
+        #This will fail if no metadata is set. It should be required but just in case
+        if field.fieldValues:
+            items = [item.value for item in field.fieldValues.fieldValue]
+            edit_data[field.name.replace('-', '_')] = items
 
     ## Add the rest of the fields. Can't loop over these kinds of metadata
     edit_data['title'] = metadata.title
@@ -95,6 +97,7 @@ def edit_event_page(event_id):
 
     #Create an EventForm object with our data
     form = EventForm(**edit_data)
+    form.event_id = event_id
 
     return render_template('event-form.html', **locals())
 
@@ -104,23 +107,51 @@ def submit_form():
 
     form = EventForm()
     if not form.validate_on_submit():
-        return render_template('event-form.html', form=form)
+        event_id = request.form['event_id']
+        return render_template('event-form.html', **locals())
 
     form = request.form
     #Get all the form data
-    add_data = get_add_data(['general', 'offices', 'academics_dates', 'cas_departments', 'internal'], form)
+    add_data = get_add_data(['general', 'offices', 'academic_dates', 'cas_departments', 'internal'], form)
 
     dates = get_dates(add_data)
 
     ##Add it to the dict, we can just ignore the old entries
     add_data['dates'] = dates
 
-    resp = create_new_event(add_data)
+    asset = get_event_structure(add_data)
 
-    code = re.search('createdAssetId = "(.*?)"', resp).group(1)
+    resp = create(asset)
+
+    code = re.search('createdAssetId = "(.*?)"', str(resp)).group(1)
 
     return redirect('/', code=302)
     ##Just print the response for now
     ##return resp
+
+
+@app.route("/submit-edit", methods=['post'])
+def submit_edit_form():
+
+    form = EventForm()
+    if not form.validate_on_submit():
+        event_id = request.form['event_id']
+        return render_template('event-form.html', **locals())
+
+    form = request.form
+    add_data = get_add_data(['general', 'offices', 'academic_dates', 'cas_departments', 'internal'], form)
+    dates = get_dates(add_data)
+    add_data['dates'] = dates
+
+    asset = get_event_structure(add_data, event_id=form['event_id'])
+
+    resp = edit(asset)
+
+    publish(form['event_id'])
+    publish(app.config['EVENT_XML_ID'])
+
+    #return str(resp)
+    return redirect('/', code=302)
+
 
 
