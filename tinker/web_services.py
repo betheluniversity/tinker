@@ -1,5 +1,5 @@
 
-from cascade_web_services import app
+from tinker import app
 
 #local
 

@@ -1,0 +1,9 @@
+Flask
+Flask-Cache
+Flask-Foundation
+Flask-Script
+Flask-WTF
+suds
+simplejson
+lxml
+WTFrorms

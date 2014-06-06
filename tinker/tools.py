@@ -4,7 +4,7 @@
 from suds.client import Client
 
 #local
-from cascade_web_services import app
+from tinker import app
 
 
 def get_client():

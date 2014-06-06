@@ -1,5 +1,4 @@
 #python
-import re
 
 #flask
 from flask import render_template
@@ -8,12 +7,14 @@ from flask import redirect
 
 #local
 from forms import EventForm
-from web_services import *
 from cascade_events import *
 from tools import get_client
 
+from tinker import app
+
+
 @app.route('/delete/<page_id>')
-def remove_page(page_id):
+def delete_page(page_id):
     resp = delete(page_id)
     return str(resp)
 
@@ -33,6 +34,7 @@ def form_index():
 
     return render_template('event-form.html', **locals())
 
+
 @app.route("/read")
 def read_page():
 
@@ -43,12 +45,12 @@ def read_page():
         'type': 'page'
     }
 
-
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.read(auth, identifier)
 
     return "<pre>" + str(response) + "</pre>"
+
 
 @app.route('/edit/event/<event_id>')
 def edit_event_page(event_id):
