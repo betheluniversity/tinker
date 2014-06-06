@@ -43,7 +43,7 @@ def get_choices():
 
     general_list = data[0].possibleValues.possibleValue
     offices_list = data[1].possibleValues.possibleValue
-    academics_dates_list = data[2].possibleValues.possibleValue
+    academic_dates_list = data[2].possibleValues.possibleValue
     cas_departments_list = data[3].possibleValues.possibleValue
     internal_list = data[4].possibleValues.possibleValue
 
@@ -55,9 +55,9 @@ def get_choices():
     for item in offices_list:
         offices.append((item.value, item.value))
 
-    academics_dates = []
-    for item in academics_dates_list:
-        academics_dates.append((item.value, item.value))
+    academic_dates = []
+    for item in academic_dates_list:
+        academic_dates.append((item.value, item.value))
 
     internal = []
     for item in internal_list:
@@ -67,7 +67,7 @@ def get_choices():
     for item in cas_departments_list:
         cas_departments.append((item.value, item.value))
 
-    return {'general': general, 'offices': offices, 'academics_dates': academics_dates,
+    return {'general': general, 'offices': offices, 'academics_dates': academic_dates,
             'internal': internal, 'cas_departments': cas_departments}
 
 
@@ -110,7 +110,7 @@ class EventForm(Form):
     choices = get_choices()
     general_choices = choices['general']
     offices_choices = choices['offices']
-    academics_dates_choices = choices['academics_dates']
+    academic_dates_choices = choices['academics_dates']
     internal_choices = choices['internal']
     cas_departments_choices = choices['cas_departments']
 
@@ -122,22 +122,22 @@ class EventForm(Form):
     teaser = TextField('Teaser', validators=[Required()])
     featuring = TextField('Featuring', validators=[Required()])
     sponsors = TextAreaField('Sponsors')
-    description = CKEditorTextAreaField('Event description', validators=[Required()])
+    main_content = CKEditorTextAreaField('Event description', validators=[Required()])
 
     when = HeadingField(label="When is your event?")
     start = DateTimeField("Start Date", default=datetime.datetime.now)
 
     where = HeadingField(label="Where is your event?")
     location = SelectField('Location', choices=location_choices, validators=[Required()])
-    off_location = TextField("Off Campus Location")
-    directions = CKEditorTextAreaField('Directions')
+    off_campus_location = TextField("Off Campus Location")
+    maps_directions = CKEditorTextAreaField('Directions')
 
     why = HeadingField(label="Does your event require registration or payment?")
-    heading = RadioField('Heading', choices=heading_choices)
-    details = CKEditorTextAreaField('Registration/ticketing details', validators=[Required()])
-    wufoo = TextField('Approved Wufoo Hash Code')
+    registration_heading = RadioField('Heading', choices=heading_choices)
+    registration_details = CKEditorTextAreaField('Registration/ticketing details', validators=[Required()])
+    wufoo_code = TextField('Approved Wufoo Hash Code')
     cost = TextAreaField('Cost')
-    refunds = TextAreaField('Cancellations and refunds')
+    cancellations = TextAreaField('Cancellations and refunds')
 
     other = HeadingField(label="Who should folks contact with questions?")
     questions = CKEditorTextAreaField('Questions', validators=[Required()])
@@ -146,7 +146,7 @@ class EventForm(Form):
 
     general = SelectMultipleField('General Categories', choices=general_choices, validators=[Required()])
     offices = SelectMultipleField('Offices', choices=offices_choices, validators=[Required()])
-    academics_dates = SelectMultipleField('Academics Dates', choices=academics_dates_choices, validators=[Required()])
+    academic_dates = SelectMultipleField('Academic Dates', choices=academic_dates_choices, validators=[Required()])
     cas_departments = SelectMultipleField('CAS Academic Department', choices=cas_departments_choices, validators=[Required()])
     internal = SelectMultipleField('Internal Only', choices=internal_choices, validators=[Required()])
 

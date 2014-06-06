@@ -1,4 +1,4 @@
-{% extends "admin_base.html" %}
+{% extends "event-form-base.html" %}
 
 {% block title %}Home | Wufoo Preload{% endblock %}
 
@@ -16,23 +16,31 @@
   <div class="large-12 columns">
 
    {% for form in forms%}
-    <div class="row">
-      <div class="large-7 columns">
-        <p>
-          <a href={{ form.path }}>{{ form.title }}</a>
-          <br/>
-          <small><a href={{ form.path }}>{{ form.path }}</a></small>
-        </p>
+      <div class="row">
+        <div class="large-6 columns">
+          <p>
+            {% if form.is_published %}
+              <a href={{ form.path }}>{{ form.title }}</a>
+            {% else %}
+              {{ form.title }}
+            {% endif %}
+            <br/>
+            {% if form.is_published %}<small><a href={{ form.path }}>{{ form.path }}</a></small>{% endif %}
+          </p>
+        </div>
+        <div class="large-6 columns small-3">
+          <ul class="button-group">
+            {% if form.is_published %}
+              <li><a href="{{ form.path }}" class="small button success">View</a></li>
+            {% else %}
+              <li><a class="small button success">Not Approved</a></li>
+            {% endif %}
+            <li><a href="/edit/event/{{ form.id }}" class="small button">Edit</a></li>
+            <li><a href="/delete/{{ form.id }}" class="small button alert">Delete</a></li>
+           </ul>
+        </div>
+        <hr/>
       </div>
-      <div class="large-5 columns small-3">
-        <ul class="button-group">
-          <li><a href="{{ form.path }}" class="small button success">View</a></li>
-          <li><a href="#" class="small button">Edit</a></li>
-          <li><a href="/delete/{{ form.id }}" class="small button alert">Delete</a></li>
-         </ul>
-      </div>
-      <hr/>
-    </div>
     {% endfor %}
 
   </div>
