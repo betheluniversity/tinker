@@ -6,4 +6,4 @@ Flask-WTF
 suds
 simplejson
 lxml
-WTFrorms
+--allow-external WTFrorms
