@@ -17,3 +17,5 @@ app.config.from_object('config')
 #Import routes
 import views
 
+#Import error handling
+import error
