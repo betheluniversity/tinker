@@ -81,11 +81,12 @@ def edit_event_page(event_id):
         if node_type == "text":
             edit_data[node_identifier] = node.text
         elif node_type == 'group':
-            ## These are the event dates
+            ## These are the event dates. Create a dict so we can convert to JSON later.
             node_data = node.structuredDataNodes.structuredDataNode
             date_data = {}
             for date in node_data:
                 date_data[date.identifier] = date.text
+            ##If there is no date, these will fail
             try:
                 date_data['start-date'] = java_unix_to_date(date_data['start-date'])
             except TypeError:
@@ -113,7 +114,7 @@ def edit_event_page(event_id):
     form = EventForm(**edit_data)
     form.event_id = event_id
 
-    #convert dates to json
+    #convert dates to json so we can use Javascript to create custom DateTime fields on the form
     dates = fjson.dumps(dates)
 
     return render_template('event-form.html', **locals())
