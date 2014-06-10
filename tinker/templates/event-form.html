@@ -11,7 +11,13 @@
   </style>
 {% endblock %}
 
-{% block page_title %} Add a new event {% endblock %}
+{% block page_title %}
+  {% if add_form %}
+    Add a new event
+  {% else %}
+    Edit your event
+  {% endif %}
+{% endblock %}
 
 {% block main_content %}
 

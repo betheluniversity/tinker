@@ -124,7 +124,8 @@ def submit_form():
 
     form = EventForm()
     if not form.validate_on_submit():
-        event_id = request.form['event_id']
+        if 'event_id' in request.form.keys():
+            event_id = request.form['event_id']
         return render_template('event-form.html', **locals())
 
     form = request.form
