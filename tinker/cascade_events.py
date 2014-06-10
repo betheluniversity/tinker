@@ -169,6 +169,16 @@ def get_add_data(lists, form):
     return add_data
 
 
+def date_to_java_unix(date):
+
+    return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+
+
+def java_unix_to_date(date):
+
+    return datetime.datetime.fromtimestamp(int(date) / 1000).strftime('%B %d  %Y, %I:%M %p')
+
+
 def get_dates(add_data):
 
     dates = []
@@ -190,17 +200,17 @@ def get_dates(add_data):
             break
 
         #Get rid of the facy formatting so we just have normal numbers
-        start = start.replace('th', '').replace('st', '').replace('rd', '')
-        end = end.replace('th', '').replace('st', '').replace('rd', '')
+        start = start.replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+        end = end.replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
 
         # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
         # which use milliseconds instead of seconds
         try:
-            start = int(datetime.datetime.strptime(start, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+            start = date_to_java_unix(start)
         except ValueError:
             start = None
         try:
-            end = int(datetime.datetime.strptime(end, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+            end = date_to_java_unix(end)
         except ValueError:
             end = None
 

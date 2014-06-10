@@ -1,5 +1,8 @@
 #python
+import simplejson
 
+
+from flask import json as fjson
 #flask
 from flask import render_template
 from flask import request
@@ -69,7 +72,8 @@ def edit_event_page(event_id):
     dynamic_fields = metadata.dynamicFields.dynamicField
     #This dict will populate our EventForm object
     edit_data = {}
-
+    date_count = 0
+    dates = {}
     #Start with structuredDataNodes (data def content)
     for node in s_data:
         node_identifier = node.identifier.replace('-', '_')
@@ -82,7 +86,17 @@ def edit_event_page(event_id):
             date_data = {}
             for date in node_data:
                 date_data[date.identifier] = date.text
-            edit_data[node_identifier] = date_data
+            try:
+                date_data['start-date'] = java_unix_to_date(date_data['start-date'])
+            except TypeError:
+                pass
+            try:
+                date_data['end-date'] = java_unix_to_date(date_data['end-date'])
+            except TypeError:
+                pass
+
+            dates[date_count] = date_data
+            date_count += 1
 
     #now metadata dynamic fields
     for field in dynamic_fields:
@@ -98,6 +112,9 @@ def edit_event_page(event_id):
     #Create an EventForm object with our data
     form = EventForm(**edit_data)
     form.event_id = event_id
+
+    #convert dates to json
+    dates = fjson.dumps(dates)
 
     return render_template('event-form.html', **locals())
 

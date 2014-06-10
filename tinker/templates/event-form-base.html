@@ -68,6 +68,7 @@
 
 
     {% block scripts %}
+
         <script src="{{ url_for('static', filename='moment.js') }}"></script>
         <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
 
@@ -87,9 +88,21 @@
                 node.append($("<label>").attr('for', start).html("Start Date"));
                 node.append($("<input type='text'>").attr('name', start).attr('id', start).addClass("datepicker"));
                 node.append($("<label>").attr('for', end).html("End Date"));
-                node.append($("<input type='text'>").attr('name', all).attr('id', all).addClass("datepicker"));
+                node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
 
                 return node;
+         }
+
+         function populateFieldset(id, allday, start, end){
+          var startid = '#start' + id;
+          var endid = '#end' + id;
+          var alldayid = '#allday' + id;
+          $(startid).val(start);
+          $(endid).val(end);
+          if(allday){
+            $(alldayid).prop('checked', true);
+          }
+
          }
 
           $( document ).ready(function() {
@@ -103,6 +116,39 @@
                   });
                 });
               }
+
+            {% if dates %}
+              var dates = {{ dates|safe }};
+              var i = 0;
+              while (i < 200){
+
+                date = dates[i];
+                if (!date){
+                  break;
+                }
+                //Convert to correct value
+                id = i + 1;
+
+                //If this is not the first node, create it before we can populate it and insert after the last one.
+                //show the remove buton
+                if(i != 0){
+                  var last = $(".date-fieldset").last();
+                  var new_date = newFieldset(id);
+                  new_date.insertAfter(last);
+                  $("#remove_date_button").show();
+                }
+                //Now populate the fieldset
+                var allday = date['all-day'];
+                if( allday && allday.substr(-3) == "Yes" ){
+                  allday = true;
+                }
+                populateFieldset(id, allday, date['start-date'], date['end-date']);
+                //no infinite loops today
+                i++;
+
+              }
+
+            {% endif %}
 
               $("#add_date_button").click(function(){
                 var fieldsets = $(".date-fieldset");
