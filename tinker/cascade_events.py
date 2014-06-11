@@ -1,14 +1,13 @@
 #python
 import re
 import datetime
-from datetime import date
 
 
 from xml.etree import ElementTree as ET
 import urllib2
 
 #local
-from tools import get_client
+from tools import get_folder_path
 from web_services import *
 
 
@@ -60,7 +59,7 @@ def get_event_structure(add_data, username, event_id=None):
         'page': {
             'name': add_data['system_name'],
             'siteId': "ba134ac58c586513100ee2a7cec27f4a",
-            'parentFolderPath': "events/%s" % date.today().year,
+            'parentFolderPath': get_folder_path(add_data),
             'metadataSetPath': "/Event",
             'contentTypePath': "/Event",
             'configurationSetPath': "/Event",
