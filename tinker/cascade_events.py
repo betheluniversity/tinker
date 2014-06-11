@@ -68,7 +68,7 @@ def get_event_structure(add_data, username, event_id=None):
             'metadata': {
                 'title': add_data['title'],
                 'summary': 'summary',
-                'author': "ejc84332",  # replace this with the CAS user eventually.
+                'author': username,
                 'metaDescription': add_data['teaser'],
                 'dynamicFields': dynamic_fields,
             }
