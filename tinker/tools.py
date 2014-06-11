@@ -30,7 +30,10 @@ def get_folder_path(data):
     path = "/events/%s" % date.today().year
 
     academic_dates = data['academic_dates']
-    if len(academic_dates) > 0:
+    if len(academic_dates) > 1:
+        return path + "/academic-dates"
+
+    if len(academic_dates) == 1 and academic_dates[0] != "None":
         return path + "/academic-dates"
 
     general = data['general']
