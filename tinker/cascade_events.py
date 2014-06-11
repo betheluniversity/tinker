@@ -133,7 +133,7 @@ def traverse_event_folder(traverse_xml, username):
                 ## This is a match, add it to array
                 matches.append(page_values)
 
-        elif child.tag is 'system-folder':
+        elif child.tag == 'system-folder':
             ##recurse into the page
             matches.extend(traverse_event_folder(child, username))
     return matches
