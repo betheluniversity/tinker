@@ -144,11 +144,9 @@ def submit_form():
 
     resp = create(asset)
 
-    code = re.search('createdAssetId = "(.*?)"', str(resp)).group(1)
-
     return redirect('/', code=302)
     ##Just print the response for now
-    ##return resp
+    #return str(resp)
 
 
 @app.route("/submit-edit", methods=['post'])

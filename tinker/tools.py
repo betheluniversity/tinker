@@ -27,7 +27,7 @@ def get_user():
 def get_folder_path(data):
     #Check to see if this event should go in a specific folder
 
-    path = "/events/%s" % date.today().year
+    path = "events/%s" % date.today().year
 
     academic_dates = data['academic_dates']
     if len(academic_dates) > 1:
