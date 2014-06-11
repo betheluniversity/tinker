@@ -11,7 +11,7 @@ from flask import redirect
 #local
 from forms import EventForm
 from cascade_events import *
-from tools import get_client
+from tools import get_client, get_user
 
 from tinker import app
 
@@ -25,8 +25,8 @@ def delete_page(page_id):
 @app.route('/')
 def show_home():
     ## index page for adding events and things
-    forms = get_forms_for_user('ejc84332')
-
+    username = get_user()
+    forms = get_forms_for_user(username)
     return render_template('home.html', **locals())
 
 
@@ -138,7 +138,9 @@ def submit_form():
     ##Add it to the dict, we can just ignore the old entries
     add_data['dates'] = dates
 
-    asset = get_event_structure(add_data)
+    username = get_user()
+
+    asset = get_event_structure(add_data, username)
 
     resp = create(asset)
 
@@ -162,7 +164,9 @@ def submit_edit_form():
     dates = get_dates(add_data)
     add_data['dates'] = dates
 
-    asset = get_event_structure(add_data, event_id=form['event_id'])
+    username = get_user()
+
+    asset = get_event_structure(add_data, username, event_id=form['event_id'])
 
     resp = edit(asset)
 

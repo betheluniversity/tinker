@@ -10,5 +10,7 @@ BASE_URL = base_url
 secret_key = "superdupersecret"
 SECRET_KEY = "superdupersecret"
 
+ENVIRON = "test"
+TEST_USER = 'username'
 
 CASCADE_LOGIN = {'username': 'username', 'password': 'password'}

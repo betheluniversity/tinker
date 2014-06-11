@@ -11,7 +11,7 @@ from tools import get_client
 from web_services import *
 
 
-def get_event_structure(add_data, event_id=None):
+def get_event_structure(add_data, username, event_id=None):
     """
      Could this be cleaned up at all?
     """

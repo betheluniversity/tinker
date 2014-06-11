@@ -1,6 +1,6 @@
 {% extends "foundation_base.html" %}
 
-{% block title %}{{title}}{% endblock %}
+{% block title %}{{title}} | Tinker{% endblock %}
 
     {% block body_content %}
 
@@ -15,7 +15,8 @@
 
                 </ul>
               </div>
-              <h1>{% block page_title %}{% endblock %}<small></small></h1>
+              <h1>{% block page_title %}{% endblock %}</h1>
+              <small>Hello {{ username }}</small>
               <hr />
             </div>
           </div>
@@ -94,16 +95,26 @@
          }
 
          function populateFieldset(id, allday, start, end){
-          var startid = '#start' + id;
-          var endid = '#end' + id;
-          var alldayid = '#allday' + id;
-          $(startid).val(start);
-          $(endid).val(end);
-          if(allday){
-            $(alldayid).prop('checked', true);
-          }
-
+            var startid = '#start' + id;
+            var endid = '#end' + id;
+            var alldayid = '#allday' + id;
+            $(startid).val(start);
+            $(endid).val(end);
+            if(allday){
+              $(alldayid).prop('checked', true);
+            }
          }
+
+         function testOffCampusLocation(){
+            var location = $("#location")[0];
+            var val = location.options[location.selectedIndex].innerHTML;
+            if(val == "Off Campus"){
+              $("#off_location_wrap").show();
+            }
+            else{
+              $("#off_location_wrap").hide();
+            }
+          }
 
           $( document ).ready(function() {
             CKEDITOR.config.format_tags = 'h4;h5';
@@ -170,18 +181,13 @@
                 }
                 list.last().remove();
               });
-
               $("#location").change(function(){
-                var val = this.options[this.selectedIndex].innerHTML;
-                if(val == "Off Campus"){
-                  $("#off_location_wrap").show();
-                }
-                else{
-                  $("#off_location_wrap").hide();
-                }
+                testOffCampusLocation();
               });
 
               createPickers();
+              //Test this right away if we are editing because the callback won't fire
+              testOffCampusLocation();
 
 
           });

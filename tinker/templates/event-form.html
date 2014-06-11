@@ -1,6 +1,6 @@
 {% extends "event-form-base.html" %}
 
-{% block title %}Admin | Wufoo Preload{% endblock %}
+{% block title %}Event Form{% endblock %}
 
 {% block styles %}
   <style type="text/css">
@@ -44,7 +44,7 @@
           {% endfor %}
 
           {# print the label #}
-          {% if field.name != "off_location" %}
+          {% if field.name != "off_campus_location" %}
             <label for="{{ field.name }}">
               {{ field.label.text }}
               {% if field.flags.required %} <small>required</small> {% endif %}
@@ -68,7 +68,7 @@
             {# do the entire date field in here for now #}
             {{ datetime_fieldset() }}
 
-          {% elif field.name == "off_location" %}
+          {% elif field.name == "off_campus_location" %}
             <div id="off_location_wrap" style="display:none;">
               {{ field.label }}{{ field }}
             </div>
