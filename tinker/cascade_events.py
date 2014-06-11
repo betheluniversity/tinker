@@ -1,6 +1,7 @@
 #python
 import re
 import datetime
+from datetime import date
 
 
 from xml.etree import ElementTree as ET
@@ -59,7 +60,7 @@ def get_event_structure(add_data, username, event_id=None):
         'page': {
             'name': add_data['system_name'],
             'siteId': "ba134ac58c586513100ee2a7cec27f4a",
-            'parentFolderPath': "testing",
+            'parentFolderPath': "events/%s" % date.today().year,
             'metadataSetPath': "/Event",
             'contentTypePath': "/Event",
             'configurationSetPath': "/Event",
