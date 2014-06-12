@@ -7,7 +7,7 @@ from xml.etree import ElementTree as ET
 import urllib2
 
 #local
-from tools import get_folder_path
+from tools import *
 from web_services import *
 
 

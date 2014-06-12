@@ -7,6 +7,7 @@ from flask import request
 
 #local
 from tinker import app
+from cascade_events import java_unix_to_date
 
 
 def get_client():
@@ -24,8 +25,32 @@ def get_user():
     return user
 
 
+def read_date_from_structureddata(node):
+    node_data = node.structuredDataNodes.structuredDataNode
+    date_data = {}
+    for date in node_data:
+        date_data[date.identifier] = date.text
+    ##If there is no date, these will fail
+    try:
+        date_data['start-date'] = java_unix_to_date(date_data['start-date'])
+    except TypeError:
+        pass
+    try:
+        date_data['end-date'] = java_unix_to_date(date_data['end-date'])
+    except TypeError:
+        pass
+
+    return date_data
+
+
 def get_folder_path(data):
     #Check to see if this event should go in a specific folder
+
+    #Find the year we want
+    dates = data['dates']
+    for node in dates:
+        date_data = read_date_from_structureddata(node)
+        x = 1
 
     path = "events/%s" % date.today().year
 

@@ -11,7 +11,7 @@ from flask import redirect
 #local
 from forms import EventForm
 from cascade_events import *
-from tools import get_client, get_user
+from tools import get_client, get_user, read_date_from_structureddata
 
 from tinker import app
 
@@ -82,20 +82,7 @@ def edit_event_page(event_id):
             edit_data[node_identifier] = node.text
         elif node_type == 'group':
             ## These are the event dates. Create a dict so we can convert to JSON later.
-            node_data = node.structuredDataNodes.structuredDataNode
-            date_data = {}
-            for date in node_data:
-                date_data[date.identifier] = date.text
-            ##If there is no date, these will fail
-            try:
-                date_data['start-date'] = java_unix_to_date(date_data['start-date'])
-            except TypeError:
-                pass
-            try:
-                date_data['end-date'] = java_unix_to_date(date_data['end-date'])
-            except TypeError:
-                pass
-
+            date_data = read_date_from_structureddata(node)
             dates[date_count] = date_data
             date_count += 1
 
@@ -147,9 +134,9 @@ def submit_form():
 
     resp = create(asset)
 
-    return redirect('/', code=302)
+    #return redirect('/', code=302)
     ##Just print the response for now
-    #return str(resp)
+    return str(resp)
 
 
 @app.route("/submit-edit", methods=['post'])
