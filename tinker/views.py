@@ -127,6 +127,9 @@ def submit_form():
     if not form.validate_on_submit():
         if 'event_id' in request.form.keys():
             event_id = request.form['event_id']
+        else:
+            #This error came from the add form because event_id wasn't set
+            add_form = True
         return render_template('event-form.html', **locals())
 
     form = request.form
@@ -144,9 +147,9 @@ def submit_form():
 
     resp = create(asset)
 
-    return redirect('/', code=302)
+    ##return redirect('/', code=302)
     ##Just print the response for now
-    #return str(resp)
+    return str(resp)
 
 
 @app.route("/submit-edit", methods=['post'])
