@@ -260,7 +260,11 @@ def get_year_folder_value(data):
     for node in dates:
         date_data = read_date_data_dict(node[0])
         end_date = string_to_datetime(date_data['end-date'])
-        year = end_date.year
+        try:
+            year = end_date.year
+        except AttributeError:
+            #if end_date is none and this fails, revert to current year.
+            year = datetime.date.today().year
         if year > max_year:
             max_year = year
 

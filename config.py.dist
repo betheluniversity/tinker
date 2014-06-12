@@ -10,6 +10,9 @@ BASE_URL = base_url
 secret_key = "superdupersecret"
 SECRET_KEY = "superdupersecret"
 
+EVENT_XML_ID = "xmlid"
+
+
 ENVIRON = "test"
 TEST_USER = 'username'
 

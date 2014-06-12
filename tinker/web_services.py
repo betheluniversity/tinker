@@ -148,7 +148,10 @@ def java_unix_to_date(date):
 
 def string_to_datetime(date_str):
 
-    return datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
+    try:
+        return datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
+    except TypeError:
+        return None
 
 
 def read_date_data_dict(node):
