@@ -18,8 +18,8 @@ from tinker import app
 
 @app.route('/delete/<page_id>')
 def delete_page(page_id):
-    resp = delete(page_id)
-    return str(resp)
+    delete(page_id)
+    return redirect('/', 302)
 
 
 @app.route('/')
