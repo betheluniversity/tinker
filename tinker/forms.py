@@ -17,7 +17,7 @@ from wtforms import Label
 from wtforms.validators import Required
 #local
 from tinker import app
-from tools import get_client
+from tinker.web_services import get_client
 
 
 def get_md():

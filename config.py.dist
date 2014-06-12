@@ -13,4 +13,6 @@ SECRET_KEY = "superdupersecret"
 ENVIRON = "test"
 TEST_USER = 'username'
 
+SITE_ID = "site_id_hash"
+
 CASCADE_LOGIN = {'username': 'username', 'password': 'password'}

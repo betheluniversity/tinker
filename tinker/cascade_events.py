@@ -1,13 +1,11 @@
 #python
 import re
-import datetime
-
 
 from xml.etree import ElementTree as ET
 import urllib2
 
 #local
-from tools import *
+from tinker.web_services import read_date_data_dict, string_to_datetime, read
 from web_services import *
 
 
@@ -58,8 +56,8 @@ def get_event_structure(add_data, username, event_id=None):
     asset = {
         'page': {
             'name': add_data['system_name'],
-            'siteId': "ba134ac58c586513100ee2a7cec27f4a",
-            'parentFolderPath': get_folder_path(add_data),
+            'siteId': app.config['SITE_ID'],
+            'parentFolderPath': get_event_folder_path(add_data),
             'metadataSetPath': "/Event",
             'contentTypePath': "/Event",
             'configurationSetPath': "/Event",
@@ -85,18 +83,6 @@ def create(asset):
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
     response = client.service.create(auth, asset)
-
-    ##publish the xml file so the new event shows up
-    publish(app.config['EVENT_XML_ID'])
-
-    return response
-
-
-def edit(asset):
-
-    auth = app.config['CASCADE_LOGIN']
-    client = get_client()
-    response = client.service.edit(auth, asset)
 
     ##publish the xml file so the new event shows up
     publish(app.config['EVENT_XML_ID'])
@@ -169,16 +155,6 @@ def get_add_data(lists, form):
     return add_data
 
 
-def date_to_java_unix(date):
-
-    return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
-
-
-def java_unix_to_date(date):
-
-    return datetime.datetime.fromtimestamp(int(date) / 1000).strftime('%B %d  %Y, %I:%M %p')
-
-
 def get_dates(add_data):
 
     dates = []
@@ -217,3 +193,83 @@ def get_dates(add_data):
         dates.append(event_date(start, end, all_day))
 
     return dates
+
+
+def event_date(start, end, all_day=False):
+
+    list = [
+        structured_data_node("start-date", start),
+        structured_data_node("end-date", end),
+        ]
+    if all_day:
+        list.append(structured_data_node("all-day", "::CONTENT-XML-CHECKBOX::Yes"))
+
+    node = {
+        'type': "group",
+        'identifier': "event-dates",
+        'structuredDataNodes': {
+            'structuredDataNode': list,
+        },
+    },
+
+    return node
+
+
+def get_event_folder_path(data):
+    #Check to see if this event should go in a specific folder
+
+    #Find the year we want
+    max_year = get_year_folder_value(data)
+
+    path = "events/%s" % max_year
+
+    academic_dates = data['academic_dates']
+    if len(academic_dates) > 1:
+        return path + "/academic-dates"
+
+    if len(academic_dates) == 1 and academic_dates[0] != "None":
+        return path + "/academic-dates"
+
+    general = data['general']
+    if 'Athletics' in general:
+        return path + "/athletics"
+
+    offices = data['offices']
+    if 'Bethel Student Government' in offices:
+        return path + "/bsg"
+
+    if 'Career Development' in offices:
+        return path + "/career-development-calling"
+
+    if 'Library' in general:
+        return path + "/library"
+
+
+def move_event_year(event_id, data):
+
+    new_path = get_event_folder_path(data)
+
+    resp = move(event_id, new_path)
+
+    return resp
+
+
+def get_year_folder_value(data):
+    dates = data['dates']
+    max_year = 0
+    for node in dates:
+        date_data = read_date_data_dict(node[0])
+        end_date = string_to_datetime(date_data['end-date'])
+        year = end_date.year
+        if year > max_year:
+            max_year = year
+
+    return max_year
+
+
+def get_current_year_folder(event_id):
+    ##read in te page and find the current year
+    asset = read(event_id)
+    path = asset.asset.page.path
+    year = re.search('events/(\d{4})/', path).group(1)
+    return int(year)

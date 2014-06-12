@@ -1,19 +1,17 @@
 #python
-import simplejson
 
 
 from flask import json as fjson
 #flask
 from flask import render_template
-from flask import request
 from flask import redirect
 
 #local
 from forms import EventForm
 from cascade_events import *
-from tools import get_client, get_user, read_date_from_structureddata
-
 from tinker import app
+from cascade_events import get_year_folder_value
+from tinker.cascade_events import get_current_year_folder
 
 
 @app.route('/delete/<page_id>')
@@ -82,7 +80,7 @@ def edit_event_page(event_id):
             edit_data[node_identifier] = node.text
         elif node_type == 'group':
             ## These are the event dates. Create a dict so we can convert to JSON later.
-            date_data = read_date_from_structureddata(node)
+            date_data = read_date_data_structure(node)
             dates[date_count] = date_data
             date_count += 1
 
@@ -151,14 +149,21 @@ def submit_edit_form():
     add_data = get_add_data(['general', 'offices', 'academic_dates', 'cas_departments', 'internal'], form)
     dates = get_dates(add_data)
     add_data['dates'] = dates
+    event_id = form['event_id']
 
     username = get_user()
 
-    asset = get_event_structure(add_data, username, event_id=form['event_id'])
+    asset = get_event_structure(add_data, username, event_id=event_id)
+
+    current_year = get_current_year_folder(event_id)
+    new_year = get_year_folder_value(add_data)
 
     resp = edit(asset)
 
-    publish(form['event_id'])
+    if new_year > current_year:
+        resp = move_event_year(event_id, add_data)
+
+    publish(event_id)
     publish(app.config['EVENT_XML_ID'])
 
     #return str(resp)
