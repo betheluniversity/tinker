@@ -6,3 +6,4 @@ Flask-WTF
 suds
 simplejson
 --allow-external WTFrorms
+requests

@@ -2,10 +2,8 @@
 import re
 
 from xml.etree import ElementTree as ET
-import urllib2
 
 #local
-from tinker.web_services import read_date_data_dict, string_to_datetime, read
 from web_services import *
 
 
@@ -25,6 +23,8 @@ def get_event_structure(add_data, username, event_id=None):
         structured_data_node("sponsors", add_data['sponsors']),
         structured_data_node("maps-directions", add_data['maps_directions']),
         structured_data_node("off-campus-location", add_data['off_campus_location']),
+        structured_data_node("on-campus-location", add_data['on_campus_location']),
+        structured_data_node("other-on-campus", add_data['other_on_campus']),
         structured_data_node("location", add_data['location']),
         structured_data_node("featuring", add_data['featuring']),
         structured_data_node("wufoo-code", add_data['wufoo_code']),
@@ -197,18 +197,18 @@ def get_dates(add_data):
 
 def event_date(start, end, all_day=False):
 
-    list = [
+    date_list = [
         structured_data_node("start-date", start),
         structured_data_node("end-date", end),
-        ]
+    ]
     if all_day:
-        list.append(structured_data_node("all-day", "::CONTENT-XML-CHECKBOX::Yes"))
+        date_list.append(structured_data_node("all-day", "::CONTENT-XML-CHECKBOX::Yes"))
 
     node = {
         'type': "group",
         'identifier': "event-dates",
         'structuredDataNodes': {
-            'structuredDataNode': list,
+            'structuredDataNode': date_list,
         },
     },
 

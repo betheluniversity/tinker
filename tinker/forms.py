@@ -15,9 +15,10 @@ from wtforms import FormField
 from wtforms import Field
 from wtforms import Label
 from wtforms.validators import Required
+
 #local
 from tinker import app
-from tinker.web_services import get_client
+from tinker.web_services import get_client, read
 
 
 def get_md():
@@ -67,8 +68,24 @@ def get_choices():
     for item in cas_departments_list:
         cas_departments.append((item.value, item.value))
 
+    ## Get the building choices from the block
+    building_choices = get_buildings()
+
     return {'general': general, 'offices': offices, 'academics_dates': academic_dates,
-            'internal': internal, 'cas_departments': cas_departments}
+            'internal': internal, 'cas_departments': cas_departments, 'buildings': building_choices}
+
+
+def get_buildings():
+    page = read('ba1355ea8c586513100ee2a725b9ebea', type="block")
+    buildings = page.asset.xhtmlDataDefinitionBlock.structuredData.structuredDataNodes.structuredDataNode[0].structuredDataNodes.structuredDataNode
+    labels = []
+    labels.append((None, '-select-'))
+    for building in buildings:
+        label = building.structuredDataNodes.structuredDataNode[0].text
+        labels.append((label, label))
+
+    return labels
+
 
 
 ##Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
@@ -113,9 +130,11 @@ class EventForm(Form):
     academic_dates_choices = choices['academics_dates']
     internal_choices = choices['internal']
     cas_departments_choices = choices['cas_departments']
+    building_choices = choices['buildings']
 
     location_choices = (('On Campus', 'On Campus'), ('Off Campus', 'Off Campus'))
     heading_choices = (('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
+
 
     what = HeadingField(label="What is your event?")
     title = TextField('Event Name', validators=[Required()])
@@ -129,6 +148,8 @@ class EventForm(Form):
 
     where = HeadingField(label="Where is your event?")
     location = SelectField('Location', choices=location_choices, validators=[Required()])
+    on_campus_location = SelectField('On campus location', choices=building_choices)
+    other_on_campus = TextField('Other on campus location')
     off_campus_location = TextField("Off Campus Location")
     maps_directions = CKEditorTextAreaField('Directions')
 

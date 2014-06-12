@@ -5,17 +5,23 @@ _basedir = os.path.abspath(os.path.dirname(__file__))
 FOUNDATION_USE_MINIFIED = False
 FOUNDATION_USE_CDN = True
 
-BASE_URL = base_url
+secret_key = ''
+SECRET_KEY = ''
 
-secret_key = "superdupersecret"
-SECRET_KEY = "superdupersecret"
-
-EVENT_XML_ID = "xmlid"
+EVENT_XML_ID = ''
 
 
-ENVIRON = "test"
-TEST_USER = 'username'
+ENVIRON = ''
+TEST_USER = ''
 
-SITE_ID = "site_id_hash"
+SITE_ID = ''
 
 CASCADE_LOGIN = {'username': 'username', 'password': 'password'}
+
+API_USERNAME = ''
+API_PASSWORD = ''
+
+BASE_URL = ""
+SOAP_URL = ""
+WSDL_URL = ''
+API_URL = ''

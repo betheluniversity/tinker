@@ -9,14 +9,16 @@
               <div class="nav-bar right">
                <ul class="button-group">
                  <li><a href="/" class="button">Home</a></li>
-                 <li><a href="/add" class="button">New Event</a></li>
-                 <li><a href="/facutly-bio" class="button">Edit Bio</a></li>
+                 <li><a href="/add-event" class="button">New Event</a></li>
+                 {% if 'FACULTY' in session['roles'] %}
+                  <li><a href="/facutly-bio" class="button">Edit Bio</a></li>
+                 {% endif %}
                  <li><a href="/wufoo" class="button">Wufoo</a></li>
 
                 </ul>
               </div>
               <h1>{% block page_title %}{% endblock %}</h1>
-              <small>Hello {{ username }}</small>
+              <small>Hello {{ session['username'] }}</small>
               <hr />
             </div>
           </div>
@@ -110,9 +112,13 @@
             var val = location.options[location.selectedIndex].innerHTML;
             if(val == "Off Campus"){
               $("#off_location_wrap").show();
+              $("#on_campus_wrap").hide();
+              $("#other_wrap").hide();
             }
             else{
               $("#off_location_wrap").hide();
+              $("#on_campus_wrap").show();
+              $("#other_wrap").show();
             }
           }
 

@@ -1,7 +1,12 @@
 #python
 import datetime
+import urllib2
+import requests
+
 #flask
 from flask import request
+from flask import session
+from flask import json as fjson
 
 #modules
 from suds.client import Client
@@ -193,11 +198,29 @@ def read_date_data_structure(node):
 def get_user():
 
     if app.config['ENVIRON'] == 'prod':
-        user = request.environ.get('REMOTE_USER')
+        username = request.environ.get('REMOTE_USER')
     else:
-        user = app.config['TEST_USER']
+        username = app.config['TEST_USER']
+        session['username'] = username
+        get_roles(username)
+    return username
 
-    return user
+
+def get_roles(username):
+
+    url = app.config['API_URL'] + "/username/%s/roles" % username
+    r = requests.get(url, auth=(app.config['API_USERNAME'], app.config['API_PASSWORD']))
+    roles = fjson.loads(r.content)
+    ret = []
+    for key in roles.keys():
+        ret.append(roles[key]['userRole'])
+
+    if username == 'ejc84332':
+        ret.append('FACULTY')
+
+    session['roles'] = ret
+
+    return ret
 
 
 def get_client():

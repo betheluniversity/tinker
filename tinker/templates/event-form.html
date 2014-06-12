@@ -44,12 +44,14 @@
           {% endfor %}
 
           {# print the label #}
-          {% if field.name != "off_campus_location" %}
+          {% if field.name not in ["off_campus_location", "on_campus_location", "other_on_campus"] %}
             <label for="{{ field.name }}">
               {{ field.label.text }}
               {% if field.flags.required %} <small>required</small> {% endif %}
              </label>
           {% endif %}
+
+
 
           {# Print the field #}
           {% if field.type == "SelectMultipleField" %}
@@ -57,6 +59,22 @@
 
           {% elif field.type == "HeadingField" %}
             <h3>{{ field.label }}</h3>
+
+          {% elif field.name == "off_campus_location" %}
+            <div id="off_location_wrap" style="display:none;">
+              {{ field.label }}{{ field }}
+            </div>
+
+          {% elif field.name == "on_campus_location" %}
+            <div id="on_campus_wrap" style="display:none;">
+              {{ field.label }}{{ field }}
+            </div>
+
+          {% elif field.name == "other_on_campus" %}
+            <div id="other_wrap" style="display:none;">
+              {{ field.label }}{{ field }}
+            </div>
+
 
           {% elif field.type == "SelectField" %}
             {{ field }}
@@ -67,11 +85,6 @@
           {% elif field.type == "DateTimeField" %}
             {# do the entire date field in here for now #}
             {{ datetime_fieldset() }}
-
-          {% elif field.name == "off_campus_location" %}
-            <div id="off_location_wrap" style="display:none;">
-              {{ field.label }}{{ field }}
-            </div>
 
           {% else %}
               {{ field(size=20) }}

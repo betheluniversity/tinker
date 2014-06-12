@@ -1,8 +1,8 @@
 #python
 
 
-from flask import json as fjson
 #flask
+from flask import json as fjson
 from flask import render_template
 from flask import redirect
 
@@ -10,8 +10,6 @@ from flask import redirect
 from forms import EventForm
 from cascade_events import *
 from tinker import app
-from cascade_events import get_year_folder_value
-from tinker.cascade_events import get_current_year_folder
 
 
 @app.route('/delete/<page_id>')
@@ -28,9 +26,9 @@ def show_home():
     return render_template('home.html', **locals())
 
 
-@app.route("/add")
+@app.route("/add-event")
 def form_index():
-
+    username = get_user()
     form = EventForm()
     add_form = True
     return render_template('event-form.html', **locals())
@@ -38,7 +36,7 @@ def form_index():
 
 @app.route("/read")
 def read_page():
-
+    get_user()
     client = get_client()
 
     identifier = {
@@ -55,7 +53,7 @@ def read_page():
 
 @app.route('/edit/event/<event_id>')
 def edit_event_page(event_id):
-
+    username = get_user()
     #Get the event data from cascade
     event_data = read(event_id)
 
@@ -107,7 +105,7 @@ def edit_event_page(event_id):
 
 @app.route("/submit", methods=['POST'])
 def submit_form():
-
+    username = get_user()
     form = EventForm()
     if not form.validate_on_submit():
         if 'event_id' in request.form.keys():
@@ -139,7 +137,7 @@ def submit_form():
 
 @app.route("/submit-edit", methods=['post'])
 def submit_edit_form():
-
+    username = get_user()
     form = EventForm()
     if not form.validate_on_submit():
         event_id = request.form['event_id']
@@ -168,6 +166,4 @@ def submit_edit_form():
 
     #return str(resp)
     return redirect('/', code=302)
-
-
 
