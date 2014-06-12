@@ -147,9 +147,9 @@ def submit_form():
 
     resp = create(asset)
 
-    ##return redirect('/', code=302)
+    return redirect('/', code=302)
     ##Just print the response for now
-    return str(resp)
+    #return str(resp)
 
 
 @app.route("/submit-edit", methods=['post'])
