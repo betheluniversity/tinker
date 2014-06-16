@@ -1,10 +1,15 @@
 #python
 import re
-
 from xml.etree import ElementTree as ET
+
+#flask
+from flask.ext.cache import Cache
 
 #local
 from web_services import *
+
+from tinker import app
+from tinker import cache
 
 
 def get_event_structure(add_data, username, event_id=None):
@@ -85,9 +90,20 @@ def create(asset):
     response = client.service.create(auth, asset)
 
     ##publish the xml file so the new event shows up
-    publish(app.config['EVENT_XML_ID'])
+    publish_event_xml()
 
     return response
+
+
+def publish_event_xml():
+
+    #publish the event XML page
+    publish(app.config['EVENT_XML_ID'])
+
+    #clear Flask-Cache
+
+    with app.app_context():
+        cache.clear()
 
 
 def traverse_event_folder(traverse_xml, username):
@@ -124,6 +140,7 @@ def traverse_event_folder(traverse_xml, username):
     return matches
 
 
+@cache.memoize(timeout=300)
 def get_forms_for_user(username):
 
     response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/events.xml')

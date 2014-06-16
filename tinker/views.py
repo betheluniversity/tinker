@@ -8,7 +8,10 @@ from flask import redirect
 
 #local
 from forms import EventForm
+
+from web_services import *
 from cascade_events import *
+
 from tinker import app
 
 
@@ -162,7 +165,7 @@ def submit_edit_form():
         resp = move_event_year(event_id, add_data)
 
     publish(event_id)
-    publish(app.config['EVENT_XML_ID'])
+    publish_event_xml()
 
     #return str(resp)
     return redirect('/', code=302)

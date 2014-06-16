@@ -13,6 +13,7 @@ from suds.client import Client
 
 #local
 from tinker import app
+from cascade_events import publish_event_xml
 
 
 def delete(page_id):
@@ -28,7 +29,7 @@ def delete(page_id):
 
     response = client.service.delete(auth, identifier)
     ## Publish the XML so the event is gone
-    publish(app.config['EVENT_XML_ID'])
+    publish_event_xml()
     return response
 
 
@@ -62,13 +63,13 @@ def structured_data_node(id, text, node_type=None):
     return node
 
 
-def publish(id):
+def publish(page_id):
 
     client = get_client()
 
     publishinformation = {
         'identifier': {
-            'id': id,
+            'id': page_id,
             'type': 'page'
         }
     }
@@ -77,7 +78,7 @@ def publish(id):
 
     response = client.service.publish(auth, publishinformation)
 
-    return str(response)
+    return response
 
 
 def read(read_id, type="page"):
@@ -104,7 +105,7 @@ def edit(asset):
     response = client.service.edit(auth, asset)
 
     ##publish the xml file so the new event shows up
-    publish(app.config['EVENT_XML_ID'])
+    publish_event_xml()
 
     return response
 
@@ -136,7 +137,7 @@ def move(page_id, destination_path):
     response = client.service.move(auth, identifier, moveParameters)
 
     ##publish the xml file so the new event shows up
-    publish(app.config['EVENT_XML_ID'])
+    publish_event_xml()
 
     return response
 

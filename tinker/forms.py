@@ -18,6 +18,7 @@ from wtforms.validators import Required
 
 #local
 from tinker import app
+from tinker import cache
 from tinker.web_services import get_client, read
 
 
@@ -38,6 +39,8 @@ def get_md():
     return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
 
 
+#Cache for one day
+@cache.cached(timeout=86400, key_prefix='get_choices')
 def get_choices():
 
     data = get_md()
@@ -85,7 +88,6 @@ def get_buildings():
         labels.append((label, label))
 
     return labels
-
 
 
 ##Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything

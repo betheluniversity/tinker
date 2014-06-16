@@ -11,8 +11,10 @@ from flask.ext.cache import Cache
 
 app = Flask(__name__)
 Foundation(app)
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 app.config.from_object('config')
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+
+cache.init_app(app)
 
 #Import routes
 import views
