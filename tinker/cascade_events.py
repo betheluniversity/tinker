@@ -8,6 +8,10 @@ from flask.ext.cache import Cache
 #local
 from web_services import *
 
+#these weren't importing?
+from web_services import date_to_java_unix
+from web_services import java_unix_to_date
+
 from tinker import app
 from tinker import cache
 

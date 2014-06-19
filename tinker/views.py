@@ -37,6 +37,23 @@ def form_index():
     return render_template('event-form.html', **locals())
 
 
+@app.route('/test')
+def test():
+    get_user()
+    client = get_client()
+
+    identifier = {
+        'id': 'aab8e27c8c5865131315e7c4e7a092a5',
+        'type': 'page'
+    }
+
+    auth = app.config['CASCADE_LOGIN']
+
+    response = client.service.read(auth, identifier)
+
+    return "%s" % str(response)
+
+
 @app.route("/read")
 def read_page():
     get_user()
