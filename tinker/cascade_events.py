@@ -3,7 +3,6 @@ import re
 from xml.etree import ElementTree as ET
 
 #flask
-from flask.ext.cache import Cache
 
 #local
 from web_services import *
@@ -11,7 +10,7 @@ from web_services import *
 from tinker import app
 from tinker import cache
 
-
+#just duplicate a bunch for now
 def string_to_datetime(date_str):
 
     try:
@@ -55,6 +54,7 @@ def read_date_data_structure(node):
 
     return date_data
 
+
 def dynamic_field(name, values):
 
     values_list = []
@@ -85,7 +85,6 @@ def structured_data_node(id, text, node_type=None):
     return node
 
 
-#just duplicate for now
 def date_to_java_unix(date):
 
     return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
@@ -177,17 +176,6 @@ def create(asset):
     publish_event_xml()
 
     return response
-
-
-def publish_event_xml():
-
-    #publish the event XML page
-    publish(app.config['EVENT_XML_ID'])
-
-    #clear Flask-Cache
-
-    with app.app_context():
-        cache.clear()
 
 
 def traverse_event_folder(traverse_xml, username):

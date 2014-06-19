@@ -12,8 +12,7 @@ from flask import json as fjson
 from suds.client import Client
 
 #local
-from tinker import app
-from cascade_events import publish_event_xml
+from tinker import app, cache
 
 
 def delete(page_id):
@@ -197,3 +196,14 @@ def get_roles(username):
 def get_client():
 
     return Client(url=app.config['WSDL_URL'], location=app.config['SOAP_URL'])
+
+
+def publish_event_xml():
+
+    #publish the event XML page
+    publish(app.config['EVENT_XML_ID'])
+
+    #clear Flask-Cache
+
+    with app.app_context():
+        cache.clear()
