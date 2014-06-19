@@ -12,6 +12,49 @@ from tinker import app
 from tinker import cache
 
 
+def string_to_datetime(date_str):
+
+    try:
+        return datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
+    except TypeError:
+        return None
+
+
+def read_date_data_dict(node):
+    node_data = node['structuredDataNodes']['structuredDataNode']
+    date_data = {}
+    for date in node_data:
+        date_data[date['identifier']] = date['text']
+    ##If there is no date, these will fail
+    try:
+        date_data['start-date'] = java_unix_to_date(date_data['start-date'])
+    except TypeError:
+        pass
+    try:
+        date_data['end-date'] = java_unix_to_date(date_data['end-date'])
+    except TypeError:
+        pass
+
+    return date_data
+
+
+def read_date_data_structure(node):
+    node_data = node.structuredDataNodes.structuredDataNode
+    date_data = {}
+    for date in node_data:
+        date_data[date.identifier] = date.text
+    ##If there is no date, these will fail
+    try:
+        date_data['start-date'] = java_unix_to_date(date_data['start-date'])
+    except TypeError:
+        pass
+    try:
+        date_data['end-date'] = java_unix_to_date(date_data['end-date'])
+    except TypeError:
+        pass
+
+    return date_data
+
 def dynamic_field(name, values):
 
     values_list = []
