@@ -15,6 +15,7 @@ from wtforms import FormField
 from wtforms import Field
 from wtforms import Label
 from wtforms.validators import Required
+from wtforms.validators import Optional
 
 #local
 from tinker import app
@@ -82,7 +83,7 @@ def get_buildings():
     page = read('ba1355ea8c586513100ee2a725b9ebea', type="block")
     buildings = page.asset.xhtmlDataDefinitionBlock.structuredData.structuredDataNodes.structuredDataNode[0].structuredDataNodes.structuredDataNode
     labels = []
-    labels.append((None, '-select-'))
+    labels.append(("none", '-select-'))
     for building in buildings:
         label = building.structuredDataNodes.structuredDataNode[0].text
         labels.append((label, label))
