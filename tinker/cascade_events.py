@@ -211,8 +211,6 @@ def traverse_event_folder(traverse_xml, username):
             matches.extend(traverse_event_folder(child, username))
     return matches
 
-
-@cache.memoize(timeout=300)
 def get_forms_for_user(username):
 
     response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/events.xml')

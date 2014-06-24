@@ -29,7 +29,14 @@
       <form id="eventform" action="/submit-edit" method="post">
       <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
     {% endif %}
-
+        {% if form.errors %}
+          <div class="alert alert-error">
+            <div data-alert class="alert-box alert radius">
+              {{ error }}
+                <a href="#" class="close">&times;</a>
+              </div>
+            </div>
+        {% endif %}
         {{ form.hidden_tag() }}
         {% for field in form if field.widget.input_type != 'hidden' %}
 
