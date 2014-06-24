@@ -331,6 +331,8 @@ def get_event_folder_path(data):
     if 'Library' in general:
         return path + "/library"
 
+    return path
+
 
 def move_event_year(event_id, data):
 
