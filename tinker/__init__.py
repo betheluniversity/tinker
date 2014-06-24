@@ -20,7 +20,7 @@ cache.init_app(app)
 if not app.debug:
     import logging
     from logging import FileHandler
-    file_handler = FileHandler('error.log')
+    file_handler = FileHandler(app.config['INSTALL_LOCATION'] + '/error.log')
     file_handler.setLevel(logging.WARNING)
     app.logger.addHandler(file_handler)
 
