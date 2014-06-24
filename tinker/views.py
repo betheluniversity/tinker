@@ -1,5 +1,5 @@
 #python
-
+import time
 
 #flask
 from flask import render_template
@@ -147,7 +147,7 @@ def submit_form():
     asset = get_event_structure(add_data, username)
 
     resp = create(asset)
-    app.logger.warn("new event submission " + str(resp))
+    app.logger.warn(time.strftime("%c") + ": new event submission " + str(resp))
     return redirect('/', code=302)
     ##Just print the response for now
 
@@ -175,9 +175,11 @@ def submit_edit_form():
     new_year = get_year_folder_value(add_data)
 
     resp = edit(asset)
+    app.logger.warn(time.strftime("%c") + ": event edit submission " + str(resp))
 
     if new_year > current_year:
         resp = move_event_year(event_id, add_data)
+        app.logger.warn(time.strftime("%c") + ": event movesubmission " + str(resp))
 
     publish(event_id)
     publish_event_xml()

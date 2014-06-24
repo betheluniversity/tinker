@@ -1,6 +1,6 @@
 #python
 import datetime
-import urllib2
+import time
 import requests
 
 #flask
@@ -27,6 +27,7 @@ def delete(page_id):
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.delete(auth, identifier)
+    app.logger.warn(time.strftime("%c") + ": Deleted " + str(response))
     ## Publish the XML so the event is gone
     publish_event_xml()
     return response
@@ -46,6 +47,7 @@ def publish(page_id):
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.publish(auth, publishinformation)
+    app.logger.warn(time.strftime("%c") + ": Published " + str(response))
 
     return response
 
@@ -72,7 +74,7 @@ def edit(asset):
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
     response = client.service.edit(auth, asset)
-
+    app.logger.warn(time.strftime("%c") + ": Edit " + str(response))
     ##publish the xml file so the new event shows up
     publish_event_xml()
 
@@ -104,7 +106,7 @@ def move(page_id, destination_path):
     }
 
     response = client.service.move(auth, identifier, moveParameters)
-
+    app.logger.warn(time.strftime("%c") + ": Moved " + str(response))
     ##publish the xml file so the new event shows up
     publish_event_xml()
 
