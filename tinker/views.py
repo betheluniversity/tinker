@@ -147,10 +147,10 @@ def submit_form():
     asset = get_event_structure(add_data, username)
 
     resp = create(asset)
-
-    ##return redirect('/', code=302)
+    app.logger.warn("new event submission " + str(resp))
+    return redirect('/', code=302)
     ##Just print the response for now
-    return str(resp)
+
 
 
 @app.route("/submit-edit", methods=['post'])

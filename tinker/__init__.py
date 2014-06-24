@@ -16,6 +16,15 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 cache.init_app(app)
 
+#create logging
+if not app.debug:
+    import logging
+    from logging import FileHandler
+    file_handler = FileHandler('error.log')
+    file_handler.setLevel(logging.WARNING)
+    app.logger.addHandler(file_handler)
+
+
 #Import routes
 import views
 
