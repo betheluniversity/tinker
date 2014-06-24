@@ -141,12 +141,12 @@ class EventForm(Form):
     what = HeadingField(label="What is your event?")
     title = TextField('Event Name', validators=[Required()])
     teaser = TextField('Teaser', validators=[Required()])
-    featuring = TextField('Featuring', validators=[Required()])
+    featuring = TextField('Featuring')
     sponsors = TextAreaField('Sponsors')
     main_content = CKEditorTextAreaField('Event description', validators=[Required()])
 
     when = HeadingField(label="When is your event?")
-    start = DateTimeField("Start Date", default=datetime.datetime.now)
+    start = DateTimeField("", default=datetime.datetime.now)
 
     where = HeadingField(label="Where is your event?")
     location = SelectField('Location', choices=location_choices, validators=[Required()])
@@ -156,8 +156,8 @@ class EventForm(Form):
     maps_directions = CKEditorTextAreaField('Directions')
 
     why = HeadingField(label="Does your event require registration or payment?")
-    registration_heading = RadioField('Heading', choices=heading_choices)
-    registration_details = CKEditorTextAreaField('Registration/ticketing details', validators=[Required()])
+    registration_heading = RadioField('Select a heading for the registration section', choices=heading_choices)
+    registration_details = CKEditorTextAreaField('Registration/ticketing details')
     wufoo_code = TextField('Approved Wufoo Hash Code')
     cost = TextAreaField('Cost')
     cancellations = TextAreaField('Cancellations and refunds')
