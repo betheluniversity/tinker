@@ -141,20 +141,20 @@ class EventForm(Form):
 
     what = HeadingField(label="What is your event?")
     title = TextField('Event Name', validators=[Required()])
-    teaser = TextField('Teaser', validators=[Required()])
+    teaser = TextField('Teaser')
     featuring = TextField('Featuring')
     sponsors = TextAreaField('Sponsors')
-    main_content = CKEditorTextAreaField('Event description', validators=[Required()])
+    main_content = CKEditorTextAreaField('Event description')
 
     when = HeadingField(label="When is your event?")
     start = DateTimeField("", default=datetime.datetime.now)
 
     where = HeadingField(label="Where is your event?")
-    location = SelectField('Location', choices=location_choices, validators=[Required()])
+    location = SelectField('Location', choices=location_choices)
     on_campus_location = SelectField('On campus location', choices=building_choices)
     other_on_campus = TextField('Other on campus location')
     off_campus_location = TextField("Off Campus Location")
-    maps_directions = CKEditorTextAreaField('Directions')
+    maps_directions = CKEditorTextAreaField('Directions', description="")
 
     why = HeadingField(label="Does your event require registration or payment?")
     registration_heading = RadioField('Select a heading for the registration section', choices=heading_choices)
@@ -164,7 +164,7 @@ class EventForm(Form):
     cancellations = TextAreaField('Cancellations and refunds')
 
     other = HeadingField(label="Who should folks contact with questions?")
-    questions = CKEditorTextAreaField('Questions', validators=[Required()])
+    questions = CKEditorTextAreaField('Questions')
 
     categories = HeadingField(label="Categories")
 
