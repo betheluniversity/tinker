@@ -136,7 +136,7 @@ class EventForm(Form):
     building_choices = choices['buildings']
 
     location_choices = (('On Campus', 'On Campus'), ('Off Campus', 'Off Campus'))
-    heading_choices = (('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
+    heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
 
     what = HeadingField(label="What is your event?")
@@ -157,7 +157,7 @@ class EventForm(Form):
     maps_directions = CKEditorTextAreaField('Directions', description="")
 
     why = HeadingField(label="Does your event require registration or payment?")
-    registration_heading = RadioField('Select a heading for the registration section', choices=heading_choices)
+    registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices)
     registration_details = CKEditorTextAreaField('Registration/ticketing details')
     wufoo_code = TextField('Approved Wufoo Hash Code')
     cost = TextAreaField('Cost')
