@@ -125,7 +125,11 @@ def edit_event_page(event_id):
 def submit_form():
     username = get_user()
     form = EventForm()
-    if not form.validate_on_submit():
+
+    #check event dates here?
+    dates_good = True
+
+    if not form.validate_on_submit() and dates_good:
         if 'event_id' in request.form.keys():
             event_id = request.form['event_id']
         else:

@@ -228,6 +228,34 @@
                 testOffCampusLocation();
               });
 
+{#              $("#eventform").submit(function(){#}
+{#                var dates = $(".date-fieldset");#}
+{#                var allgood = true;#}
+{#                $(dates).each(function(){#}
+{#                  var inputs = $(this).find('input');#}
+{#                  var allday = $(inputs[0]).is(':checked');#}
+{#                  var start = inputs[1].value;#}
+{#                  var end = inputs[2].value;#}
+{#                  if (allday || start && end){#}
+{#                    var good = true;#}
+{#                  }else{#}
+{#                    var good = false;#}
+{#                  }#}
+{##}
+{#                  if (!good){#}
+{#                    allgood = false;#}
+{#                  }#}
+{##}
+{#                });#}
+{##}
+{#                debugger;#}
+{#                if (!allgood){#}
+{##}
+{#                }#}
+{##}
+{##}
+{#              });#}
+
               createPickers();
               //Test this right away if we are editing because the callback won't fire
               testOffCampusLocation();

@@ -306,6 +306,11 @@ def event_date(start, end, all_day=False):
 def get_event_folder_path(data):
     #Check to see if this event should go in a specific folder
 
+    def common_elements(list1, list2):
+        #helper function to see if two lists share items
+        return [element for element in list1 if element in list2]
+
+
     #Find the year we want
     max_year = get_year_folder_value(data)
 
@@ -321,6 +326,15 @@ def get_event_folder_path(data):
     general = data['general']
     if 'Athletics' in general:
         return path + "/athletics"
+
+    if common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'],  general):
+        return "events/arts/galleries/exhibits"
+
+    if 'Music Concerts' in general:
+        return "events/arts/music"
+
+    if 'Theatre' in general:
+        return 'events/arts/theatre'
 
     offices = data['offices']
     if 'Bethel Student Government' in offices:
