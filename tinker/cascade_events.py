@@ -271,11 +271,13 @@ def get_dates(add_data):
         # which use milliseconds instead of seconds
         try:
             start = date_to_java_unix(start)
-        except ValueError:
+        except ValueError as e:
+            app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
             start = None
         try:
             end = date_to_java_unix(end)
-        except ValueError:
+        except ValueError as e:
+            app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
             end = None
 
         dates.append(event_date(start, end, all_day))
@@ -379,5 +381,8 @@ def get_current_year_folder(event_id):
     ##read in te page and find the current year
     asset = read(event_id)
     path = asset.asset.page.path
-    year = re.search('events/(\d{4})/', path).group(1)
-    return int(year)
+    try:
+        year = re.search('events/(\d{4})/', path).group(1)
+        return int(year)
+    except AttributeError:
+        return None

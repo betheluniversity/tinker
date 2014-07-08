@@ -20,7 +20,6 @@
 {% endblock %}
 
 {% block main_content %}
-
   <div class="row">
   <div class="large-12 columns">
     {% if add_form %}
@@ -204,6 +203,32 @@
 
             {% endif %}
 
+            {% if dates_good == False %}
+              $( '<div data-alert="" class="alert-box alert radius">Event Dates are Required<a href="#" class="close">×</a></div>' ).insertBefore(".date-fieldset");
+            {% endif %}
+
+            {% if form.errors %}
+
+              debugger;
+              var tt = {{ num_dates }};
+              for (var i = 1; i < {{ num_dates + 1}}; i++){
+                if(i == 1){
+                  $('#allday1').prop('checked', '{{ event_dates['allday1'] }}');
+                  $('#start1').val('{{ event_dates['start1'] }}');
+                  $('#end1').val('{{ event_dates['end1'] }}');
+                }else{
+                  newFieldset(i);
+                  var fieldsets = $(".date-fieldset");
+                  var last = fieldsets.last();
+                  newFieldset(i).insertAfter(last);
+                  $('#allday'+i).prop('checked', '{{ event_dates['allday'+i] }}');
+                  $('#start'+i).val('{{ event_dates['start'+i] }}');
+                  $('#end'+i).val('{{ event_dates['end'+i] }}');
+                }
+              }
+
+            {% endif %}
+
               $("#add_date_button").click(function(){
                 var fieldsets = $(".date-fieldset");
                 var last = fieldsets.last();
@@ -228,33 +253,14 @@
                 testOffCampusLocation();
               });
 
-{#              $("#eventform").submit(function(){#}
-{#                var dates = $(".date-fieldset");#}
-{#                var allgood = true;#}
-{#                $(dates).each(function(){#}
-{#                  var inputs = $(this).find('input');#}
-{#                  var allday = $(inputs[0]).is(':checked');#}
-{#                  var start = inputs[1].value;#}
-{#                  var end = inputs[2].value;#}
-{#                  if (allday || start && end){#}
-{#                    var good = true;#}
-{#                  }else{#}
-{#                    var good = false;#}
-{#                  }#}
-{##}
-{#                  if (!good){#}
-{#                    allgood = false;#}
-{#                  }#}
-{##}
-{#                });#}
-{##}
-{#                debugger;#}
-{#                if (!allgood){#}
-{##}
-{#                }#}
-{##}
-{##}
-{#              });#}
+              $("#eventform").submit(function(){
+                //add a hidden field with the number of dates
+                var dates = $(".date-fieldset");
+                var input = $("<input>").attr("type", "hidden").attr("name", "num_dates").val(dates.length);
+                $("#eventform").append(input);
+                return true;
+
+              });
 
               createPickers();
               //Test this right away if we are editing because the callback won't fire

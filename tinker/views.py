@@ -125,11 +125,38 @@ def edit_event_page(event_id):
 def submit_form():
     username = get_user()
     form = EventForm()
+    rform = request.form
 
     #check event dates here?
-    dates_good = True
+    dates_good = False
+    num_dates = int(rform['num_dates'])
+    #create a dict of date values so we can access them in Jinja later.
+    #they aren't part of the form so we can't just do form.start1, etc...
+    event_dates = {}
 
-    if not form.validate_on_submit() and dates_good:
+    dates = []
+
+    for x in range(1, num_dates+1):  # the page doesn't use 0-based indexing
+
+        i = str(x)
+        start_l = 'start' + i
+        end_l = 'end' + i
+        all_day_l = 'allday' + i
+
+        start = rform[start_l]
+        end = rform[end_l]
+        all_day = all_day_l in rform.keys()
+
+        event_dates[start_l] = start
+        event_dates[end_l] = end
+        event_dates[all_day_l] = all_day
+
+        start_and_end = start is not '' and end is not ''
+
+        if all_day or start_and_end:
+            dates_good = True
+
+    if not form.validate_on_submit() or not dates_good:
         if 'event_id' in request.form.keys():
             event_id = request.form['event_id']
         else:
@@ -137,7 +164,7 @@ def submit_form():
             add_form = True
         return render_template('event-form.html', **locals())
 
-    form = request.form
+    form = rform
     #Get all the form data
     add_data = get_add_data(['general', 'offices', 'academic_dates', 'cas_departments', 'internal'], form)
 
