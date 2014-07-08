@@ -139,6 +139,7 @@
             $(startid).val(start);
             $(endid).val(end);
             if(allday){
+              debugger;
               $(alldayid).prop('checked', true);
             }
          }
@@ -207,23 +208,23 @@
               $( '<div data-alert="" class="alert-box alert radius">Event Dates are Required<a href="#" class="close">×</a></div>' ).insertBefore(".date-fieldset");
             {% endif %}
 
-            {% if form.errors %}
-
+            {% if form.errors or not dates_good and num_dates %}
               debugger;
+              var event_dates = {{ event_dates|safe }};
               var tt = {{ num_dates }};
               for (var i = 1; i < {{ num_dates + 1}}; i++){
                 if(i == 1){
-                  $('#allday1').prop('checked', '{{ event_dates['allday1'] }}');
-                  $('#start1').val('{{ event_dates['start1'] }}');
-                  $('#end1').val('{{ event_dates['end1'] }}');
+                  $('#allday1').prop('checked', event_dates['allday1']);
+                  $('#start1').val(event_dates['start1']);
+                  $('#end1').val(event_dates['end1']);
                 }else{
                   newFieldset(i);
                   var fieldsets = $(".date-fieldset");
                   var last = fieldsets.last();
                   newFieldset(i).insertAfter(last);
-                  $('#allday'+i).prop('checked', '{{ event_dates['allday'+i] }}');
-                  $('#start'+i).val('{{ event_dates['start'+i] }}');
-                  $('#end'+i).val('{{ event_dates['end'+i] }}');
+                  $('#allday'+i).prop('checked', event_dates['allday'+i]);
+                  $('#start'+i).val(event_dates['start'+i] );
+                  $('#end'+i).val(event_dates['end'+i] );
                 }
               }
 

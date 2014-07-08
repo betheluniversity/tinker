@@ -1,5 +1,5 @@
 #python
-import time
+import json
 
 #flask
 from flask import render_template
@@ -121,21 +121,11 @@ def edit_event_page(event_id):
     return render_template('event-form.html', **locals())
 
 
-@app.route("/submit", methods=['POST'])
-def submit_form():
-    username = get_user()
-    form = EventForm()
-    rform = request.form
+def check_event_dates(form):
 
-    #check event dates here?
-    dates_good = False
-    num_dates = int(rform['num_dates'])
-    #create a dict of date values so we can access them in Jinja later.
-    #they aren't part of the form so we can't just do form.start1, etc...
     event_dates = {}
-
-    dates = []
-
+    dates_good = False
+    num_dates = int(form['num_dates'])
     for x in range(1, num_dates+1):  # the page doesn't use 0-based indexing
 
         i = str(x)
@@ -143,18 +133,35 @@ def submit_form():
         end_l = 'end' + i
         all_day_l = 'allday' + i
 
-        start = rform[start_l]
-        end = rform[end_l]
-        all_day = all_day_l in rform.keys()
+        start = form[start_l]
+        end = form[end_l]
+        all_day = all_day_l in form.keys()
 
         event_dates[start_l] = start
         event_dates[end_l] = end
         event_dates[all_day_l] = all_day
 
-        start_and_end = start is not '' and end is not ''
+        start_and_end = start and end
 
-        if all_day or start_and_end:
+        if start_and_end:
             dates_good = True
+
+    #convert event dates to JSON
+    return json.dumps(event_dates), dates_good, num_dates
+
+@app.route("/submit", methods=['POST'])
+def submit_form():
+    username = get_user()
+    form = EventForm()
+    rform = request.form
+
+    #check event dates here?
+
+    #create a dict of date values so we can access them in Jinja later.
+    #they aren't part of the form so we can't just do form.start1, etc...
+    event_dates, dates_good, num_dates = check_event_dates(rform)
+
+    dates = []
 
     if not form.validate_on_submit() or not dates_good:
         if 'event_id' in request.form.keys():
@@ -183,16 +190,19 @@ def submit_form():
     ##Just print the response for now
 
 
-
 @app.route("/submit-edit", methods=['post'])
 def submit_edit_form():
     username = get_user()
     form = EventForm()
-    if not form.validate_on_submit():
+    rform = request.form
+
+    event_dates, dates_good, num_dates = check_event_dates(rform)
+
+    if not form.validate_on_submit()or not dates_good:
         event_id = request.form['event_id']
         return render_template('event-form.html', **locals())
 
-    form = request.form
+    form = rform
     add_data = get_add_data(['general', 'offices', 'academic_dates', 'cas_departments', 'internal'], form)
     dates = get_dates(add_data)
     add_data['dates'] = dates
