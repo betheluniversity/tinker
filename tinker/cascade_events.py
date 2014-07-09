@@ -330,7 +330,7 @@ def get_event_folder_path(data):
         return path + "/athletics"
 
     if common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'],  general):
-        return "events/arts/galleries/exhibits"
+        return "events/arts/galleries/exhibits/%s" % max_year
 
     if 'Music Concerts' in general:
         return 'events/arts/music/%s' % max_year
