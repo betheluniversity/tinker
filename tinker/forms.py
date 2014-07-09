@@ -137,7 +137,7 @@ class EventForm(Form):
     cas_departments_choices = choices['cas_departments']
     building_choices = choices['buildings']
 
-    location_choices = (('On Campus', 'On Campus'), ('Off Campus', 'Off Campus'))
+    location_choices = ((None, "-select-"), ('On Campus', 'On Campus'), ('Off Campus', 'Off Campus'))
     heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
 
