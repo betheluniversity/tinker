@@ -27,6 +27,11 @@ def show_home():
     return render_template('home.html', **locals())
 
 
+@app.route('/confirm')
+def confirm():
+    return render_template('/confirm/submit-confirm.html', **locals())
+
+
 @app.route("/add-event")
 def form_index():
     username = get_user()
@@ -186,7 +191,7 @@ def submit_form():
 
     resp = create(asset)
     app.logger.warn(time.strftime("%c") + ": new event submission " + str(resp))
-    return redirect('/', code=302)
+    return redirect('/confirm', code=302)
     ##Just print the response for now
 
 
