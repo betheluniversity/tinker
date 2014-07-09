@@ -10,11 +10,15 @@
 {% block page_title %}Tinker{% endblock %}
 
 {% block main_content %}
+<div class="row">
+  <div class="large-12 columns">
 
-
+    <p>Your event page needs to be approved before it’s live on our website. This will happen within 2-3 business days.</p>
+  </div>
+ </div>
 <div class="row">
 
-  <div class="large-8 columns">
+  <div class="large-12 columns">
 
    {% for form in forms%}
       <div class="row">
@@ -43,11 +47,6 @@
         <hr/>
       </div>
     {% endfor %}
-
-  </div>
-  <div class="large-4 columns">
-
-    <p>Your event page needs to be approved before it’s live on our website. This will happen within 2-3 business days.</p>
 
   </div>
 </div>

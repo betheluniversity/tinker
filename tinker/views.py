@@ -227,7 +227,6 @@ def submit_edit_form():
         resp = move_event_year(event_id, add_data)
         app.logger.warn(time.strftime("%c") + ": event movesubmission " + str(resp))
 
-    publish(event_id)
     publish_event_xml()
 
     #return str(resp)
