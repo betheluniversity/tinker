@@ -333,10 +333,10 @@ def get_event_folder_path(data):
         return "events/arts/galleries/exhibits"
 
     if 'Music Concerts' in general:
-        return "events/arts/music"
+        return 'events/arts/music/%s' % max_year
 
     if 'Theatre' in general:
-        return 'events/arts/theatre'
+        return 'events/arts/theatre/%s' % max_year
 
     offices = data['offices']
     if 'Bethel Student Government' in offices:
