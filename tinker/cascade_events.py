@@ -96,7 +96,7 @@ def java_unix_to_date(date):
     return datetime.datetime.fromtimestamp(int(date) / 1000).strftime('%B %d  %Y, %I:%M %p')
 
 
-def get_event_structure(add_data, username, event_id=None):
+def get_event_structure(add_data, username, workflow=None, event_id=None):
     """
      Could this be cleaned up at all?
     """
@@ -159,7 +159,8 @@ def get_event_structure(add_data, username, event_id=None):
                 'metaDescription': add_data['teaser'],
                 'dynamicFields': dynamic_fields,
             }
-        }
+        },
+        'workflowConfiguration': workflow
     }
 
     if event_id:
@@ -169,9 +170,28 @@ def get_event_structure(add_data, username, event_id=None):
 
 
 def create(asset):
-    auth = app.config['CASCADE_LOGIN']
+    auth = app.config['CASCADE_CREATE_LOGIN']
     client = get_client()
+
     response = client.service.create(auth, asset)
+
+    """
+
+    <complexType name="workflow-configuration">
+  <sequence>
+    <element maxOccurs="1" minOccurs="1" name="workflowName" type="xsd:string"/>
+    <choice>
+      <element maxOccurs="1" minOccurs="1" name="workflowDefinitionId" type="xsd:string"/>
+      <element maxOccurs="1" minOccurs="1" name="workflowDefinitionPath" type="xsd:string"/>
+    </choice>
+    <element maxOccurs="1" minOccurs="1" name="workflowComments" type="xsd:string"/>
+    <element maxOccurs="1" minOccurs="0" name="workflowStepConfigurations" type="impl:workflow-step-configurations"/>
+  </sequence>
+</complexType>
+
+    """
+
+
 
     ##publish the xml file so the new event shows up
     publish_event_xml()

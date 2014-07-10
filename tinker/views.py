@@ -187,7 +187,13 @@ def submit_form():
 
     username = get_user()
 
-    asset = get_event_structure(add_data, username)
+    workflow = {
+        "workflowName": "Send for approval - Kelsey",
+        "workflowDefinitionId": "ba13d3ef8c586513100ee2a760ebe762",
+        "workflowComments": "New event submission"
+    }
+
+    asset = get_event_structure(add_data, username, workflow)
 
     resp = create(asset)
     app.logger.warn(time.strftime("%c") + ": new event submission " + str(resp))
