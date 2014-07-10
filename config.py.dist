@@ -17,7 +17,6 @@ TEST_USER = ''
 SITE_ID = ''
 
 CASCADE_LOGIN = {'username': 'username', 'password': 'password'}
-CASCADE_CREATE_LOGIN = {'username': 'username', 'password': 'password'}
 
 API_USERNAME = ''
 API_PASSWORD = ''

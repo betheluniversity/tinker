@@ -170,7 +170,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
 
 
 def create(asset):
-    auth = app.config['CASCADE_CREATE_LOGIN']
+    auth = app.config['CASCADE_LOGIN']
     client = get_client()
 
     response = client.service.create(auth, asset)
