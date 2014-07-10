@@ -9,7 +9,7 @@ from xml.etree import ElementTree as ET
 from web_services import *
 
 from tinker import app
-from tinker import cache
+##from tinker import cache
 
 #just duplicate a bunch for now
 def string_to_datetime(date_str):
@@ -194,7 +194,7 @@ def create(asset):
 
 
     ##publish the xml file so the new event shows up
-    publish_event_xml()
+    ##publish_event_xml()
 
     return response
 
@@ -232,10 +232,14 @@ def traverse_event_folder(traverse_xml, username):
             matches.extend(traverse_event_folder(child, username))
     return matches
 
+
 def get_forms_for_user(username):
 
-    response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/events.xml')
-    form_xml = ET.fromstring(response.read())
+    if app.config['ENVIRON'] != "prod":
+        response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/events.xml')
+        form_xml = ET.fromstring(response.read())
+    else:
+        form_xml = ET.parse('/var/www/staging/public/_shared-content/xml/events.xml').getroot()
     matches = traverse_event_folder(form_xml, username)
 
     return matches
@@ -406,3 +410,24 @@ def get_current_year_folder(event_id):
         return int(year)
     except AttributeError:
         return None
+
+
+def get_event_delete_workflow():
+
+    workflow = {
+        "workflowName": "Delete and unpublish event",
+        "workflowDefinitionId": "2099e7f98c586513742d45fdf45eb6e5",
+        "workflowComments": "Event Deletion"
+    }
+
+    return workflow
+
+
+def get_event_publish_workflow():
+    workflow = {
+        "workflowName": "Send event for approval",
+        "workflowDefinitionId": "1ca9794e8c586513742d45fd39c5ffe3",
+        "workflowComments": "New event submission"
+    }
+
+    return workflow

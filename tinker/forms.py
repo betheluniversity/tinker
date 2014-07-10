@@ -3,7 +3,6 @@
 #python
 import datetime
 
-
 #modules
 from flask.ext.wtf import Form
 from wtforms import TextField
@@ -21,7 +20,7 @@ from wtforms.validators import Optional
 
 #local
 from tinker import app
-from tinker import cache
+##from tinker import cache
 from tinker.web_services import get_client, read
 
 
@@ -43,7 +42,7 @@ def get_md():
 
 
 #Cache for one day
-@cache.cached(timeout=86400, key_prefix='get_choices')
+##@cache.cached(timeout=86400, key_prefix='get_choices')
 def get_choices():
 
     data = get_md()

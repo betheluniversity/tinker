@@ -5,9 +5,6 @@ import json
 from flask import render_template
 from flask import redirect
 
-#local
-from forms import EventForm
-
 from cascade_events import *
 
 from tinker import app
@@ -15,7 +12,8 @@ from tinker import app
 
 @app.route('/delete/<page_id>')
 def delete_page(page_id):
-    delete(page_id)
+    workflow = get_event_delete_workflow()
+    delete(page_id, workflow)
     return redirect('/', 302)
 
 
@@ -34,6 +32,11 @@ def confirm():
 
 @app.route("/add-event")
 def form_index():
+
+    ##import this here so we dont load all the content
+    ##from cascade during hoempage load
+    from forms import EventForm
+
     username = get_user()
     form = EventForm()
     add_form = True
@@ -76,6 +79,11 @@ def read_page():
 
 @app.route('/edit/event/<event_id>')
 def edit_event_page(event_id):
+
+    ##import this here so we dont load all the content
+    ##from cascade during hoempage load
+    from forms import EventForm
+
     username = get_user()
     #Get the event data from cascade
     event_data = read(event_id)
@@ -156,9 +164,15 @@ def check_event_dates(form):
 
 @app.route("/submit", methods=['POST'])
 def submit_form():
+
+    ##import this here so we dont load all the content
+    ##from cascade during hoempage load
+    from forms import EventForm
+
     username = get_user()
     form = EventForm()
     rform = request.form
+    workflow = get_event_publish_workflow()
 
     #check event dates here?
 
@@ -187,12 +201,6 @@ def submit_form():
 
     username = get_user()
 
-    workflow = {
-        "workflowName": "Send for approval - Kelsey",
-        "workflowDefinitionId": "ba13d3ef8c586513100ee2a760ebe762",
-        "workflowComments": "New event submission"
-    }
-
     asset = get_event_structure(add_data, username, workflow)
 
     resp = create(asset)
@@ -203,9 +211,15 @@ def submit_form():
 
 @app.route("/submit-edit", methods=['post'])
 def submit_edit_form():
+
+    ##import this here so we dont load all the content
+    ##from cascade during hoempage load
+    from forms import EventForm
+
     username = get_user()
     form = EventForm()
     rform = request.form
+    workflow = get_event_publish_workflow()
 
     event_dates, dates_good, num_dates = check_event_dates(rform)
 
@@ -221,7 +235,7 @@ def submit_edit_form():
 
     username = get_user()
 
-    asset = get_event_structure(add_data, username, event_id=event_id)
+    asset = get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
 
     current_year = get_current_year_folder(event_id)
     new_year = get_year_folder_value(add_data)
@@ -233,7 +247,6 @@ def submit_edit_form():
         resp = move_event_year(event_id, add_data)
         app.logger.warn(time.strftime("%c") + ": event movesubmission " + str(resp))
 
-    publish_event_xml()
 
     #return str(resp)
     return redirect('/', code=302)

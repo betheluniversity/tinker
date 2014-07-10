@@ -12,10 +12,10 @@ from flask import json as fjson
 from suds.client import Client
 
 #local
-from tinker import app, cache
+from tinker import app ##, cache
 
 
-def delete(page_id):
+def delete(page_id, workflow=None):
 
     client = get_client()
 
@@ -25,6 +25,11 @@ def delete(page_id):
     }
 
     auth = app.config['CASCADE_LOGIN']
+
+    stat = unpublish(page_id)
+
+    #dirty. Fix later
+    time.sleep(5.5)
 
     response = client.service.delete(auth, identifier)
     app.logger.warn(time.strftime("%c") + ": Deleted " + str(response))
@@ -40,14 +45,35 @@ def publish(page_id):
     publishinformation = {
         'identifier': {
             'id': page_id,
-            'type': 'page'
-        }
+            'type': 'page',
+
+        },
     }
 
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.publish(auth, publishinformation)
     app.logger.warn(time.strftime("%c") + ": Published " + str(response))
+
+    return response
+
+
+def unpublish(page_id):
+
+    client = get_client()
+
+    publishinformation = {
+        'identifier': {
+            'id': page_id,
+            'type': 'page'
+        },
+        'unpublish': True
+    }
+
+    auth = app.config['CASCADE_LOGIN']
+
+    response = client.service.publish(auth, publishinformation)
+    app.logger.warn(time.strftime("%c") + ": Unpublished " + str(response))
 
     return response
 
@@ -207,5 +233,5 @@ def publish_event_xml():
 
     #clear Flask-Cache
 
-    with app.app_context():
-        cache.clear()
+    ##with app.app_context():
+    ##    cache.clear()
