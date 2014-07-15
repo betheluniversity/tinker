@@ -288,8 +288,13 @@ def get_dates(add_data):
             break
 
         #Get rid of the facy formatting so we just have normal numbers
-        start = start.replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
-        end = end.replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+        start = start.split(' ')
+        end = end.split(' ')
+        start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+        end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+
+        start = " ".join(start)
+        end = " ".join(end)
 
         # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
         # which use milliseconds instead of seconds
