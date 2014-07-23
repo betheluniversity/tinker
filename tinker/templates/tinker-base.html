@@ -1,5 +1,28 @@
 {% extends "foundation_base.html" %}
 
+{% block head_add %}
+
+  <style>
+
+   .button-group>li>.button-nav {
+     background-color: #0069AA;
+   }
+   .button-group>li>.button-nav:hover {
+     background-color: #0F2C52;
+   }
+
+    .button.small, .button.small.success, .button.tiny, .button.postfix{
+      background-color: #0069AA;
+    }
+
+    .button.small:hover, .button.small.success:hover, .button.tiny:hover, .button.postfix:hover{
+      background-color: #0F2C52;
+    }
+
+  </style>
+
+{% endblock %}
+
 {% block title %}{{title}} | Tinker{% endblock %}
 
 {% block body_content %}
@@ -8,8 +31,8 @@
     <div class="large-12 columns">
       <div class="nav-bar right">
        <ul class="button-group">
-         <li><a href="/" class="button">Home</a></li>
-         <li><a href="/add-event" class="button">New Event</a></li>
+         <li><a href="/" class="button button-nav">Home</a></li>
+         <li><a href="/add-event" class="button button-nav">New Event</a></li>
 {#         {% if 'FACULTY' in session['roles'] %}#}
 {#          <li><a href="/facutly-bio" class="button">Edit Bio</a></li>#}
 {#         {% endif %}#}
