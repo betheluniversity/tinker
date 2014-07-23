@@ -159,17 +159,30 @@
             }
           }
 
+         function createPicker(fieldset){
+            // fieldset is a "Date x" fieldset from the form.
+            var picker = new Pikaday({
+              field: fieldset.find('.datepicker')[0],
+              format: 'MMMM Do YYYY, h:mm a',
+              showTime: true
+            });
+            var picker = new Pikaday({
+              field: fieldset.find('.datepicker')[1],
+              format: 'MMMM Do YYYY, h:mm a',
+              showTime: true
+            });
+         }
+
           $( document ).ready(function() {
             CKEDITOR.config.format_tags = 'h4;h5';
-              function createPickers() {
-                $('.datepicker').each(function (index) {
-                  var picker = new Pikaday({
-                    field: this,
-                    format: 'MMMM Do YYYY, h:mm a',
-                    showTime: true
-                  });
-                });
-              }
+            $('.datepicker').each(function (index) {
+              var picker = new Pikaday({
+                field: this,
+                format: 'MMMM Do YYYY, h:mm a',
+                showTime: true
+              });
+            });
+
 
             {% if dates %}
               var dates = {{ dates|safe }};
@@ -209,7 +222,6 @@
             {% endif %}
 
             {% if form.errors or not dates_good and num_dates %}
-              debugger;
               var event_dates = {{ event_dates|safe }};
               var tt = {{ num_dates }};
               for (var i = 1; i < {{ num_dates + 1}}; i++){
@@ -238,7 +250,7 @@
                 var new_date = newFieldset(new_num);
                 new_date.insertAfter(last);
                 $("#remove_date_button").show();
-                createPickers();
+                createPicker(new_date);
               });
 
               $("#remove_date_button").click(function(){
@@ -263,7 +275,6 @@
 
               });
 
-              createPickers();
               //Test this right away if we are editing because the callback won't fire
               testOffCampusLocation();
 
