@@ -148,8 +148,8 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
             'siteId': app.config['SITE_ID'],
             'parentFolderPath': get_event_folder_path(add_data),
             'metadataSetPath': "/Event",
-            'contentTypePath': "/Event",
-            'configurationSetPath': "/Event",
+            'contentTypePath': "/Event No Nav",
+            'configurationSetPath': "/Event No Nav",
             ## Break this out more once its defined in the form
             'structuredData': structured_data,
             'metadata': {
