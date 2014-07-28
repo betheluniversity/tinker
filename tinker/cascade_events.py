@@ -142,14 +142,16 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
     }
 
     #put it all into the final asset with the rest of the SOAP structure
+    paths = get_event_folder_path(add_data)
+
     asset = {
         'page': {
             'name': add_data['system_name'],
             'siteId': app.config['SITE_ID'],
-            'parentFolderPath': get_event_folder_path(add_data),
+            'parentFolderPath': paths[1],
             'metadataSetPath': "/Event",
-            'contentTypePath': "/Event No Nav",
-            'configurationSetPath': "/Event No Nav",
+            'contentTypePath': paths[0],
+            'configurationSetPath': paths[0],
             ## Break this out more once its defined in the form
             'structuredData': structured_data,
             'metadata': {
@@ -333,7 +335,7 @@ def event_date(start, end, all_day=False):
 
     return node
 
-
+#Returns (content/config path, parent path)
 def get_event_folder_path(data):
     #Check to see if this event should go in a specific folder
 
@@ -346,38 +348,40 @@ def get_event_folder_path(data):
     max_year = get_year_folder_value(data)
 
     path = "events/%s" % max_year
+    content_config_no_nav_path = "Event No Nav"
+    content_config_with_nav_path = "Event With Nav"
 
     academic_dates = data['academic_dates']
     if len(academic_dates) > 1:
-        return path + "/academic-dates"
+        return [content_config_no_nav_path, path + "/academic-dates"]
 
     if len(academic_dates) == 1 and academic_dates[0] != "None":
-        return path + "/academic-dates"
+        return [content_config_no_nav_path, path + "/academic-dates"]
 
     general = data['general']
     if 'Athletics' in general:
-        return path + "/athletics"
+        return [content_config_no_nav_path, path + "/athletics"]
 
     if common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'],  general):
-        return "events/arts/galleries/exhibits/%s" % max_year
+        return [content_config_with_nav_path, "events/arts/galleries/exhibits/%s" % max_year]
 
     if 'Music Concerts' in general:
-        return 'events/arts/music/%s' % max_year
+        return [content_config_with_nav_path, 'events/arts/music/%s' % max_year]
 
     if 'Theatre' in general:
-        return 'events/arts/theatre/%s' % max_year
+        return [content_config_with_nav_path, 'events/arts/theatre/%s' % max_year]
 
     offices = data['offices']
     if 'Bethel Student Government' in offices:
-        return path + "/bsg"
+        return [content_config_no_nav_path, path + "/bsg"]
 
     if 'Career Development' in offices:
-        return path + "/career-development-calling"
+        return [content_config_no_nav_path, path + "/career-development-calling"]
 
     if 'Library' in general:
-        return path + "/library"
+        return [content_config_no_nav_path, path + "/library"]
 
-    return path
+    return [content_config_no_nav_path, path]
 
 
 def move_event_year(event_id, data):
