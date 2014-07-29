@@ -245,7 +245,7 @@
               $("#add_date_button").click(function(){
                 var fieldsets = $(".date-fieldset");
                 var last = fieldsets.last();
-                var old_num = last.children()[0].textContent.substr(-1);
+                var old_num = last.children()[0].textContent.replace("Date ", ""); // "Date X" is the variable name, where X is an integer.
                 var new_num = (parseInt(old_num) + 1);
                 var new_date = newFieldset(new_num);
                 new_date.insertAfter(last);
