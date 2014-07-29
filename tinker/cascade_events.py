@@ -1,6 +1,7 @@
 #python
 import re
 import urllib2
+import HTMLParser
 from xml.etree import ElementTree as ET
 
 #flask
@@ -95,26 +96,26 @@ def java_unix_to_date(date):
 
     return datetime.datetime.fromtimestamp(int(date) / 1000).strftime('%B %d  %Y, %I:%M %p')
 
-def escape_wysiwyg_content(content):
-    import HTMLParser
-    h = HTMLParser.HTMLParser()
-    return h.unescape(content)
+def escape_wysiwyg_content(parser, content):
+
+    return parser.unescape(content)
 
 def get_event_structure(add_data, username, workflow=None, event_id=None):
     """
      Could this be cleaned up at all?
     """
+    parser = HTMLParser.HTMLParser()
 
     ## Create a list of all the data nodes
     structured_data = [
-        structured_data_node("main-content", escape_wysiwyg_content(add_data['main_content'])),
-        structured_data_node("questions", escape_wysiwyg_content(add_data['questions'])),
+        structured_data_node("main-content", escape_wysiwyg_content(parser, add_data['main_content'])),
+        structured_data_node("questions", escape_wysiwyg_content(parser, add_data['questions'])),
         structured_data_node("cancellations", add_data['cancellations']),
-        structured_data_node("registration-details", escape_wysiwyg_content(add_data['registration_details'])),
+        structured_data_node("registration-details", escape_wysiwyg_content(parser, add_data['registration_details'])),
         structured_data_node("registration-heading", add_data['registration_heading']),
         structured_data_node("cost", add_data['cost']),
         structured_data_node("sponsors", add_data['sponsors']),
-        structured_data_node("maps-directions", escape_wysiwyg_content(add_data['maps_directions'])),
+        structured_data_node("maps-directions", escape_wysiwyg_content(parser, add_data['maps_directions'])),
         structured_data_node("off-campus-location", add_data['off_campus_location']),
         structured_data_node("on-campus-location", add_data['on_campus_location']),
         structured_data_node("other-on-campus", add_data['other_on_campus']),
