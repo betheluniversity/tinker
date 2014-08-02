@@ -1,7 +1,6 @@
 #python
 import datetime
 import time
-import requests
 
 #flask
 from flask import request
@@ -12,7 +11,7 @@ from flask import json as fjson
 from suds.client import Client
 
 #local
-from tinker import app ##, cache
+from tinker import app
 
 
 def delete(page_id, workflow=None):
@@ -34,7 +33,7 @@ def delete(page_id, workflow=None):
     response = client.service.delete(auth, identifier)
     app.logger.warn(time.strftime("%c") + ": Deleted " + str(response))
     ## Publish the XML so the event is gone
-    publish_event_xml()
+
     return response
 
 
@@ -102,7 +101,7 @@ def edit(asset):
     response = client.service.edit(auth, asset)
     app.logger.warn(time.strftime("%c") + ": Edit " + str(response))
     ##publish the xml file so the new event shows up
-    publish_event_xml()
+
 
     return response
 
@@ -134,7 +133,7 @@ def move(page_id, destination_path):
     response = client.service.move(auth, identifier, moveParameters)
     app.logger.warn(time.strftime("%c") + ": Moved " + str(response))
     ##publish the xml file so the new event shows up
-    publish_event_xml()
+
 
     return response
 
@@ -193,45 +192,6 @@ def read_date_data_structure(node):
     return date_data
 
 
-def get_user():
-
-    if app.config['ENVIRON'] == 'prod':
-        username = request.environ.get('REMOTE_USER')
-    else:
-        username = app.config['TEST_USER']
-        session['username'] = username
-        get_roles(username)
-    return username
-
-
-def get_roles(username):
-
-    url = app.config['API_URL'] + "/username/%s/roles" % username
-    r = requests.get(url, auth=(app.config['API_USERNAME'], app.config['API_PASSWORD']))
-    roles = fjson.loads(r.content)
-    ret = []
-    for key in roles.keys():
-        ret.append(roles[key]['userRole'])
-
-    if username == 'ejc84332':
-        ret.append('FACULTY')
-
-    session['roles'] = ret
-
-    return ret
-
-
 def get_client():
 
     return Client(url=app.config['WSDL_URL'], location=app.config['SOAP_URL'])
-
-
-def publish_event_xml():
-
-    #publish the event XML page
-    publish(app.config['EVENT_XML_ID'])
-
-    #clear Flask-Cache
-
-    ##with app.app_context():
-    ##    cache.clear()

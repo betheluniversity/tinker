@@ -6,10 +6,11 @@ from xml.etree import ElementTree as ET
 #flask
 
 #local
-from web_services import *
+from tinker.web_services import *
 
 from tinker import app
 ##from tinker import cache
+
 
 #just duplicate a bunch for now
 def string_to_datetime(date_str):
@@ -95,10 +96,12 @@ def java_unix_to_date(date):
 
     return datetime.datetime.fromtimestamp(int(date) / 1000).strftime('%B %d  %Y, %I:%M %p')
 
+
 def escape_wysiwyg_content(content):
     import HTMLParser
     h = HTMLParser.HTMLParser()
     return h.unescape(content)
+
 
 def get_event_structure(add_data, username, workflow=None, event_id=None):
     """
@@ -339,6 +342,7 @@ def event_date(start, end, all_day=False):
 
     return node
 
+
 #Returns (content/config path, parent path)
 def get_event_folder_path(data):
     #Check to see if this event should go in a specific folder
@@ -444,3 +448,14 @@ def get_event_publish_workflow():
     }
 
     return workflow
+
+
+def publish_event_xml():
+
+    #publish the event XML page
+    publish(app.config['EVENT_XML_ID'])
+
+    #clear Flask-Cache
+
+    ##with app.app_context():
+    ##    cache.clear()
