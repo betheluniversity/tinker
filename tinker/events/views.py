@@ -15,25 +15,23 @@ from tinker import tools
 event_blueprint = Blueprint('event', __name__,
                         template_folder='templates')
 
+
 @event_blueprint.route('/delete/<page_id>')
 def delete_page(page_id):
     workflow = get_event_delete_workflow()
     delete(page_id, workflow)
     publish_event_xml()
-    return redirect('/', 302)
+    return redirect('/event/delete-confirm', code=302)
 
 
-# @event_blueprint.route('/')
-# def show_home():
-#     ## index page for adding events and things
-#     username = tools.get_user()
-#     forms = get_forms_for_user(username)
-#     return render_template('home.html', **locals())
+@event_blueprint.route('/delete-confirm')
+def delete_confirm():
+    return render_template('delete-confirm.html', **locals())
 
 
 @event_blueprint.route('/confirm')
 def confirm():
-    return render_template('/confirm/submit-confirm.html', **locals())
+    return render_template('submit-confirm.html', **locals())
 
 
 @event_blueprint.route("/add")
@@ -194,7 +192,7 @@ def submit_form():
 
     resp = create(asset)
     app.logger.warn(time.strftime("%c") + ": new event submission " + str(resp))
-    return redirect('/confirm', code=302)
+    return redirect('/event/confirm', code=302)
     ##Just print the response for now
 
 

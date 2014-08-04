@@ -40,11 +40,11 @@
           <ul class="button-group">
             {% if form.is_published %}
               <li><a href="{{ form.path }}" class="small button success">View</a></li>
-              <li><a href="/edit/event/{{ form.id }}" class="small button">Edit</a></li>
+              <li><a href="/event/edit/{{ form.id }}" class="small button">Edit</a></li>
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
-            <li><a href="/delete/{{ form.id }}" class="small button alert">Delete</a></li>
+            <li><a href="#" data-reveal-id="confirmModal" id="delete-press" data-event-id="{{ form.id }}" class="small button alert">Delete</a></li>
            </ul>
         </div>
         <hr/>
@@ -54,6 +54,26 @@
   </div>
 </div>
 
+
+{#Delete confirm modal#}
+<div id="confirmModal" class="reveal-modal" data-reveal>
+  <h2>Are you sure you want to delete?</h2>
+  <p class="lead">Your event page will be unpublished and removed from the calendar.</p>
+  <a class="modal-confirm" id="modal-confirm" href="/delete/formid">Delete</a>
+  <a class="close-reveal-modal">&#215;</a>
+</div>
+
 {% endblock %}
 
+{% block scripts %}
 
+{#  Script to update the modal submit to delete the correct form#}
+  <script type="text/javascript">
+    $("#delete-press").click(function(){
+      debugger;
+      $("#modal-confirm").attr("href", "/event/delete/" + $(this).data('event-id'));
+    });
+  $(document).foundation();
+  </script>
+
+{% endblock %}
