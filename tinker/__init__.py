@@ -20,6 +20,7 @@ app.config.from_object('config')
 db = SQLAlchemy(app)
 
 from tinker.wufoo import models
+from tinker.redirects import models
 
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
