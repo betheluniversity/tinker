@@ -7,3 +7,5 @@ suds
 simplejson
 --allow-external WTFrorms
 requests
+Flask-SQLAlchemy
+SQLAlchemy-migrate
