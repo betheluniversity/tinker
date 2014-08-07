@@ -5,6 +5,12 @@ import os
 from flask import Flask
 from tinker.tools import TinkerTools
 
+from flask.ext.sqlalchemy import SQLAlchemy
+
+#flask extensions
+from flask.ext.foundation import Foundation
+##from flask.ext.cache import Cache
+
 #flask extensions
 from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -17,7 +23,6 @@ from tinker.wufoo import models
 
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
-
 
 #create logging
 if not app.debug:
@@ -33,8 +38,10 @@ tools = TinkerTools(app.config)
 import views
 from tinker.events.views import event_blueprint
 from tinker.wufoo.views import wufoo_blueprint
+from tinker.redirects.views import redirect_blueprint
 app.register_blueprint(event_blueprint, url_prefix='/event')
 app.register_blueprint(wufoo_blueprint, url_prefix='/wufoo')
+app.register_blueprint(redirect_blueprint, url_prefix='/redirect')
 
 #Import error handling
 import error
