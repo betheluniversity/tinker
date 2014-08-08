@@ -96,7 +96,11 @@ printFieldMap = function(field, dom, preloadData, labelattr, iterate) {
 function loadFormPreloads(data){
     //clear out the old junk
     $("#preload-config").empty();
-    preloadData = jQuery.parseJSON(data['info']['preload_info']);
+    var form_info = data['info'];
+    if (form_info)
+        preloadData = jQuery.parseJSON(form_info['preload_info']);
+    else
+        preloadData = null;
     form = jQuery.parseJSON(data['form']);
     var   d = document,
           df = d.createDocumentFragment(),
@@ -142,20 +146,17 @@ function loadFormPreloads(data){
       block.attr("class", className);
       dom.append(block);
     }
-    var input = $(d.createElement('button'));
-    input.html('Save');
+    var input = $(d.createElement('input'));
+    input.attr('value', 'Save');
+    input.attr('type', 'button');
     input.attr('class', 'button postfix');
     input.click(function(event) {
       // when 'save' is clicked, gather the field mappings and send those
       // to the wufoo-silva app for storage
-      addStatusMsg('saving preload mappings.');
       var fieldMappings = $(this.form).serializeArray(),
-           url = baseurl + '++rest++wufoo-preload-save';
+           url = '/wufoo/preload-save';
       $.post(url,
-            fieldMappings,
-            function() {
-              addStatusMsg("saved preload mappings.");
-            }
+            fieldMappings
       );
     });
     dom.append(input);

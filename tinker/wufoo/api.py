@@ -19,7 +19,10 @@ def get_form_list():
 def load_form(formhash, form_info=None, api='fields'):
 
     response = call_api(form=formhash, api=api)
-    return jsonify({"form": response, "info": form_info.serialize()})
+    if form_info:
+        form_info = form_info.serialize()
+
+    return jsonify({"form": response, "info": form_info})
 
 
 def call_api(form, api='forms', format='json', extra_params={}, unquote_plus=False):

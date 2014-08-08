@@ -1,5 +1,8 @@
+#python
+import json
+
 #flask
-from flask import Blueprint, render_template, jsonify
+from flask import request, Blueprint, render_template, jsonify
 
 #Tinker
 from tinker import app
@@ -33,6 +36,37 @@ def load_form(formhash):
     info = FormInfo.query.get(formhash)
 
     return api.load_form(formhash, form_info=info)
+
+
+@wufoo_blueprint.route('/preload-save', methods=['POST'])
+def preload_save():
+    mappings = request.form
+    sync_fields = {}
+    form_hash = ''
+    form_name = ''
+    keys = mappings.keys()
+    for key in keys:
+        value = mappings[key]
+        if key.startswith('Field') and value:
+            sync_fields[key] = value
+        elif key == 'wufoo-form-hash':
+            form_hash, form_name = mappings[key].split(":")
+
+    preload_info = json.dumps(sync_fields)
+
+    ##Check if there is an entry in the DB for this form yet
+    dbrecord = FormInfo.query.get(form_hash)
+
+    if dbrecord:
+        #update existing
+        dbrecord.preload_info = preload_info
+        db.session.merge(dbrecord)
+        db.session.commit()
+    else:
+        #create new
+        info = FormInfo(hash=hash, preload_info=preload_info, paypal_name=None, paypal_budget_number=None, sync_status=False)
+        db.session.add(info)
+        db.session.commit()
 
 
 @wufoo_blueprint.route('/get-preload-options')

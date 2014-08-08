@@ -4,6 +4,7 @@
 
 {% block page_title %}Redirects{% endblock %}
 
+{% block row_width %}12{% endblock %}
 
 {% block main_content %}
 <div class="row">
@@ -14,6 +15,23 @@
 <hr/>
 <div class="row">
   </div>
+
+    <table width="900">
+      <thead>
+        <tr>
+          <th width="400">From Path</th>
+          <th width="400">To URL</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          {% for redirect in redirects %}
+            <td>{{ redirect.from_path }}</td>
+            <td>{{ redirect.to_url }}</td>
+          {% endfor %}
+        </tr>
+      </tbody>
+    </table>
 
 
   </div>

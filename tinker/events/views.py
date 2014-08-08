@@ -7,9 +7,7 @@ from flask import render_template
 from flask import redirect
 
 from tinker.events.cascade_events import *
-
 from tinker import app
-
 from tinker import tools
 
 event_blueprint = Blueprint('event', __name__,
