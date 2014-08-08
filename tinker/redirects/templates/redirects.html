@@ -14,6 +14,35 @@
 </div>
 <hr/>
 <div class="row">
+  <div class="large-12 columns">
+    <form action="." id="new-redirect-form">
+      <input type="text" id="new-redirect-from"/>
+      <input type="text" id="new-redirect-to"/>
+      <script type="text/javascript">
+
+        $(document).ready(function () {
+            var d = document;
+            var input = $(d.createElement('input'));
+            input.attr('value', 'Save');
+            input.attr('type', 'button');
+            input.attr('class', 'button postfix');
+            input.click(function (event) {
+              // when 'save' is clicked, gather the field mappings and send those
+              // to the wufoo-silva app for storage
+              var fieldMappings = $(this.form).serializeArray(),
+                      url = '/redirect/new-redirect-submit';
+              $.post(url,
+                      fieldMappings
+              );
+            });
+            $("#new-redirect-form").append(input);
+        });
+        </script>
+
+    </form>
+  </div>
+</div>
+<div class="row">
   </div>
 
     <table width="900">

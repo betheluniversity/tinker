@@ -1,6 +1,6 @@
 __author__ = 'ejc84332'
 
-from flask import Blueprint, render_template, abort
+from flask import Blueprint, render_template, abort, request
 from flask.ext.sqlalchemy import SQLAlchemy
 
 from tinker import app, db
@@ -17,3 +17,15 @@ def show():
     redirects = BethelRedirect.query.all()
 
     return render_template('redirects.html', **locals())
+
+
+@redirect_blueprint.route('/new-redirect-submit', methods=['post'])
+def new_redirect_submti():
+
+    form = request.form
+    from_path = form['new-redirect-from']
+    to_url = form['new-redirect-to']
+    redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+
+    db.session.add(redirect)
+    db.session.commit()
