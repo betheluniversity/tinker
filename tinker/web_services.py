@@ -7,6 +7,8 @@ from flask import request
 from flask import session
 from flask import json as fjson
 
+from tinker.cascade_tools import *
+
 #modules
 from suds.client import Client
 

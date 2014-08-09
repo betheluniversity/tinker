@@ -16,8 +16,8 @@
 <div class="row">
   <div class="large-12 columns">
     <form action="." id="new-redirect-form">
-      <input type="text" id="new-redirect-from"/>
-      <input type="text" id="new-redirect-to"/>
+      <input type="text" name="new-redirect-from" id="new-redirect-from"/>
+      <input type="text" name="new-redirect-to" id="new-redirect-to"/>
       <script type="text/javascript">
 
         $(document).ready(function () {
@@ -30,10 +30,11 @@
               // when 'save' is clicked, gather the field mappings and send those
               // to the wufoo-silva app for storage
               var fieldMappings = $(this.form).serializeArray(),
-                      url = '/redirect/new-redirect-submit';
-              $.post(url,
-                      fieldMappings
-              );
+                      url = '/redirect/new- -submit';
+              $.post(url, fieldMappings, function(data) {
+                loadTable();
+              });
+
             });
             $("#new-redirect-form").append(input);
         });
@@ -52,13 +53,8 @@
           <th width="400">To URL</th>
         </tr>
       </thead>
-      <tbody>
-        <tr>
-          {% for redirect in redirects %}
-            <td>{{ redirect.from_path }}</td>
-            <td>{{ redirect.to_url }}</td>
-          {% endfor %}
-        </tr>
+      <tbody id="redirects-table">
+
       </tbody>
     </table>
 
@@ -66,5 +62,23 @@
   </div>
 </div>
 
+<script type="text/javascript">
+  $(document).ready(function(){
+    function updateTable(data){
+      $("#redirects-table").html(data);
+    }
+    function loadTable(){
+      $.ajax({
+        url: "/redirect/load-redirects",
+        context: document.body
+      }).done(function(data) {
+        updateTable(data);
+      });
+    }
+    loadTable();
+   });
+
+</script>
 
 {% endblock %}
+

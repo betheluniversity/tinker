@@ -25,7 +25,7 @@ from tinker.web_services import get_client, read
 
 
 def get_md():
-
+    ## use methd from web_services.py
     auth = app.config['CASCADE_LOGIN']
 
     identifier = {

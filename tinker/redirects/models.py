@@ -1,4 +1,4 @@
-from tinker import  db
+from tinker import db
 
 class BethelRedirect(db.Model):
     id = db.Column(db.Integer, primary_key=True)

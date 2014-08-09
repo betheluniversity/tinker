@@ -1,0 +1,6 @@
+{% for redirect in redirects %}
+  <tr>
+    <td>{{ redirect.from_path }}</td>
+    <td>{{ redirect.to_url }}</td>
+  </tr>
+{% endfor %}

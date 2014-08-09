@@ -51,7 +51,7 @@ def read_page():
     client = get_client()
 
     identifier = {
-        'id': '72aca6118c58651317cf8e74f03f11ab',
+        'id': 'ac24f5e98c58651375fc4ed2efd9b82d',
         'type': 'page'
     }
 

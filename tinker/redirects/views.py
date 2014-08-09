@@ -29,3 +29,21 @@ def new_redirect_submti():
 
     db.session.add(redirect)
     db.session.commit()
+
+
+@redirect_blueprint.route('/load-redirects')
+def load_redirects():
+
+    ret = ""
+
+    redirects = BethelRedirect.query.all()
+
+    # for redirect in redirects:
+    #     ret += "<tr>"
+    #     ret += "<td>" + redirect.from_path + "</td>"
+    #     ret += "<td>" + redirect.to_url + "</td>"
+    #     ret += "</tr>"
+    #
+    # return ret
+
+    return render_template('redirect-ajax.html', **locals())
