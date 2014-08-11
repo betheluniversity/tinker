@@ -1,5 +1,9 @@
 {% extends "foundation_base.html" %}
 
+{% block styles %}
+  <script src="{{ url_for('static', filename='jquery.js') }}"></script>
+{% endblock  %}
+
 {% block head_add %}
 
   <style>
@@ -20,6 +24,7 @@
     }
 
   </style>
+
 
 {% endblock %}
 

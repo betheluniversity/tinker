@@ -1,8 +1,7 @@
 from tinker import db
 
 class BethelRedirect(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    from_path = db.Column(db.String(256), unique=True)
+    from_path = db.Column(db.String(256), primary_key=True)
     to_url = db.Column(db.String(256))
 
     def __init__(self, from_path, to_url):

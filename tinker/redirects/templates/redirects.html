@@ -17,29 +17,7 @@
   <div class="large-12 columns">
     <form action="." id="new-redirect-form">
       <input type="text" name="new-redirect-from" id="new-redirect-from"/>
-      <input type="text" name="new-redirect-to" id="new-redirect-to"/>
-      <script type="text/javascript">
-
-        $(document).ready(function () {
-            var d = document;
-            var input = $(d.createElement('input'));
-            input.attr('value', 'Save');
-            input.attr('type', 'button');
-            input.attr('class', 'button postfix');
-            input.click(function (event) {
-              // when 'save' is clicked, gather the field mappings and send those
-              // to the wufoo-silva app for storage
-              var fieldMappings = $(this.form).serializeArray(),
-                      url = '/redirect/new- -submit';
-              $.post(url, fieldMappings, function(data) {
-                loadTable();
-              });
-
-            });
-            $("#new-redirect-form").append(input);
-        });
-        </script>
-
+      <input type="text" name="new-redirect-to" id="new-redirect-to" />
     </form>
   </div>
 </div>
@@ -57,28 +35,105 @@
 
       </tbody>
     </table>
-
-
   </div>
 </div>
 
-<script type="text/javascript">
-  $(document).ready(function(){
-    function updateTable(data){
-      $("#redirects-table").html(data);
-    }
-    function loadTable(){
+  <script type="text/javascript">
+
+  function loadTable(){
       $.ajax({
-        url: "/redirect/load-redirects",
+        url: "/redirect/load",
         context: document.body
       }).done(function(data) {
         updateTable(data);
       });
-    }
-    loadTable();
-   });
+  }
+  function updateTable(data){
+      $("#redirects-table").html(data);
+      $('#new-redirect-to').attr("disabled", false)
+      //should the inputs be disabled?
+      var search_val = $("#new-redirect-from").val();
+      $(".from_path").each(function(){
+        var this_val = $(this).html();
+        if (search_val == this_val){
+          $('#new-redirect-to').attr("disabled", true)
+          return false;
+        }
+      });
+      $( ".redirect-row" ).on('click', function(){
+        $("#modal-confirm").attr("data-delete-path", $(this).find('.from_path').html());
+        $(document).foundation();
+        $("#confirmModal").foundation('reveal', 'open');
+      });
+  }
+
+  function showAdd(){
+    $("#new-redirect-to").show();
+    $("#redirect-add").show();
+  }
+
+  function loadTableForSearch(from_path){
+    var from_path = {"from_path": from_path};
+    var url = "/redirect/search";
+     $.post(url, from_path, function(data) {
+        updateTable(data);
+      });
+  }
+
+
+  $("#new-redirect-from").keyup(function(){
+     // search the DB for currrent path
+    loadTableForSearch($(this).val());
+  });
+
+  $(document).ready(function(){
+
+    var d = document;
+    var input = $(d.createElement('input'));
+    input.attr('value', 'Save');
+    input.attr('type', 'button');
+    input.attr('id', 'redirect-add');
+    input.attr('class', 'button postfix');
+{#    input.attr('style', 'display:none');#}
+    input.click(function (event) {
+        // when 'save' is clicked, gather the field mappings and send those
+        // to the wufoo-silva app for storage
+      var fieldMappings = $(this.form).serializeArray(),
+              url = '/redirect/new-submit';
+      $.post(url, fieldMappings, function(data) {
+          loadTableForSearch($("#new-redirect-from").val());
+      });
+
+    });
+    $("#new-redirect-form").append(input);
+
+    $("#modal-confirm").click(function(){
+      var from_path = {"from_path": $(this).data('delete-path')};
+      var url = '/redirect/delete';
+      $.post(url, from_path, function(data) {
+        if (data){
+          loadTableForSearch($("#new-redirect-from").val());
+          $("#confirmModal").foundation('reveal', 'close');
+        }
+      });
+    });
+
+
+
+
+{#    loadTable();#}
+
+  });
 
 </script>
 
-{% endblock %}
+{#Delete confirm modal#}
+<div id="confirmModal" class="reveal-modal" data-reveal>
+  <h2>Are you sure you want to delete?</h2>
+  <p class="lead">The redirect will be gone forever and forever.</p>
 
+  <button class="modal-confirm" id="modal-confirm" data-delete-path="/delete/path">Delete</button>
+  <a class="close-reveal-modal">&#215;</a>
+</div>
+
+{% endblock %}
