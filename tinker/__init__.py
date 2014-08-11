@@ -17,7 +17,7 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config.from_object('config')
-Foundation(app)
+#Foundation(app)
 db = SQLAlchemy(app)
 
 from tinker.wufoo import models
