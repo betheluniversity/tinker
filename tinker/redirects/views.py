@@ -1,7 +1,7 @@
 __author__ = 'ejc84332'
 
 from flask import Blueprint, render_template, abort, request
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.sqlalchemy import SQLAlchemy, Session
 
 from tinker import app, db
 
@@ -21,13 +21,15 @@ def show():
 
 @redirect_blueprint.route('/search', methods=['post'])
 def search():
+    #todo: limit results to...100?
+    from_path = request.form['from_path'] + "%"
 
-    from_path = "%" + request.form['from_path'] + "%"
+    if from_path == "%":
+        return ""
 
-    redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(from_path)).all()
-
+    redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(from_path)).limit(100).all()
+    redirects.sort()
     return render_template('redirect-ajax.html', **locals())
-
 
 
 @redirect_blueprint.route('/new-submit', methods=['post'])
@@ -69,16 +71,21 @@ def delete_redirect():
 @redirect_blueprint.route('/load')
 def load_redirects():
 
-    ret = ""
+    from sqlalchemy.exc import IntegrityError
 
-    redirects = BethelRedirect.query.all()
+    url_file = open('/Users/ejc84332/Desktop/rewrites.txt', 'r')
+    lines = [line.strip() for line in url_file.readlines()]
 
-    # for redirect in redirects:
-    #     ret += "<tr>"
-    #     ret += "<td>" + redirect.from_path + "</td>"
-    #     ret += "<td>" + redirect.to_url + "</td>"
-    #     ret += "</tr>"
-    #
-    # return ret
+    for line in lines:
+        if line.startswith("#"):
+            continue
+        try:
+            from_path, to_url = line.split()
+            redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+            db.session.add(redirect)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
 
-    return render_template('redirect-ajax.html', **locals())
+
+    return "done"

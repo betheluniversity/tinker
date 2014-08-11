@@ -2,6 +2,12 @@
 
 {% block styles %}
   <script src="{{ url_for('static', filename='jquery.js') }}"></script>
+    <style>
+    .table-hover:hover{
+      background-color: #dddddd;
+      cursor: pointer;
+    }
+  </style>
 {% endblock  %}
 
 {% block head_add %}
