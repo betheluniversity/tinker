@@ -13,8 +13,7 @@
 <div class="row">
   <div class="large-12 columns">
 
-    <p>All events need to be reviewed and approved by Conference and Event Services. This will happen between 2-3 business days.<br/>
-      When your event has been approved, you'll receive an email and the text in the green box will say "View Event".
+    <p>Here are the bios that you are able to edit.
     </p>
   </div>
  </div>
@@ -40,7 +39,7 @@
           <ul class="button-group">
             {% if form.is_published %}
               <li><a href="{{ form.path }}" class="small button success">View</a></li>
-              <li><a href="/event/edit/{{ form.id }}" class="small button">Edit</a></li>
+              <li><a href="/faculty-bio/edit/{{ form.id }}" class="small button">Edit</a></li>
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
@@ -50,6 +49,8 @@
         <hr/>
       </div>
     {% endfor %}
+      <a href="/faculty-bio/edit/new" class="small button success">Create New</a>
+
 
   </div>
 </div>

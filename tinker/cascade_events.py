@@ -97,8 +97,11 @@ def java_unix_to_date(date):
     return datetime.datetime.fromtimestamp(int(date) / 1000).strftime('%B %d  %Y, %I:%M %p')
 
 def escape_wysiwyg_content(parser, content):
-
-    return parser.unescape(content)
+    # from xml.sax.saxutils import escape
+    # content =  escape(content)
+    # content1 = content.replace( "&", "&amp;")
+    content2 = parser.unescape(content)
+    return content2
 
 def get_event_structure(add_data, username, workflow=None, event_id=None):
     """

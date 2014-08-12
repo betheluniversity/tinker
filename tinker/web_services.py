@@ -35,6 +35,7 @@ def delete(page_id, workflow=None):
     app.logger.warn(time.strftime("%c") + ": Deleted " + str(response))
     ## Publish the XML so the event is gone
     publish_event_xml()
+    publish_faculty_bio_xml()
     return response
 
 
@@ -57,6 +58,15 @@ def publish(page_id):
 
     return response
 
+# def get_user_group(page_id):
+#
+#     client = get_client()
+#
+#     auth = app.config['CASCADE_LOGIN']
+#
+#     response = client.service.publish(auth, publishinformation)
+#
+#     return response
 
 def unpublish(page_id):
 
@@ -109,7 +119,7 @@ def edit(asset):
 
 def move(page_id, destination_path):
     """ Move a page with page_id to folder with path destination_path """
-
+    app.logger.warn(time.strftime("%c") + ": Moved " + str(destination_path))
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
 
@@ -120,8 +130,8 @@ def move(page_id, destination_path):
 
     destFolderIdentifier = {
         'path': {
-            'path': destination_path,
-            'siteId': app.config['SITE_ID']
+            'siteId': app.config['SITE_ID'],
+            'path': destination_path[1],
         },
         'type': 'folder'
     }
@@ -192,7 +202,6 @@ def read_date_data_structure(node):
 
     return date_data
 
-
 def get_user():
 
     if app.config['ENVIRON'] == 'prod':
@@ -216,6 +225,9 @@ def get_roles(username):
     if username == 'ejc84332':
         ret.append('FACULTY')
 
+    if username == 'ces55739':
+        ret.append('FACULTY')
+
     session['roles'] = ret
 
     return ret
@@ -230,6 +242,16 @@ def publish_event_xml():
 
     #publish the event XML page
     publish(app.config['EVENT_XML_ID'])
+
+    #clear Flask-Cache
+
+    ##with app.app_context():
+    ##    cache.clear()
+
+def publish_faculty_bio_xml():
+
+    #publish the event XML page
+    publish(app.config['FACULTY_BIO_XML_ID'])
 
     #clear Flask-Cache
 
