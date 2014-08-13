@@ -51,7 +51,7 @@ def read_page():
     client = get_client()
 
     identifier = {
-        'id': 'ac24f5e98c58651375fc4ed2efd9b82d',
+        'id': 'cbfdf36b8c58651375fc4ed2f9c5d70b',
         'type': 'page'
     }
 
@@ -59,8 +59,8 @@ def read_page():
 
     response = client.service.read(auth, identifier)
 
-    return "<pre>" + str(response) + "</pre>"
-
+    # return "<pre>" + str(response) + "</pre>"
+    return str(response)
 
 @event_blueprint.route('/edit/<event_id>')
 def edit_event_page(event_id):

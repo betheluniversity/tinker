@@ -47,6 +47,9 @@ def new_redirect_submti():
     db.session.add(redirect)
     db.session.commit()
 
+    ##Update the file after every submit?
+    create_redirect_text_file()
+
     return str(redirect)
 
 
@@ -68,24 +71,43 @@ def delete_redirect():
     return "deleted %s" % resp
 
 
-@redirect_blueprint.route('/load')
-def load_redirects():
+@redirect_blueprint.route('/compile')
+def compile_redirects():
+    create_redirect_text_file()
 
-    from sqlalchemy.exc import IntegrityError
 
-    url_file = open('/Users/ejc84332/Desktop/rewrites.txt', 'r')
-    lines = [line.strip() for line in url_file.readlines()]
+def create_redirect_text_file():
+    from subprocess import call
 
-    for line in lines:
-        if line.startswith("#"):
-            continue
-        try:
-            from_path, to_url = line.split()
-            redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-            db.session.add(redirect)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
+    map_file = open(app.config['REDIRECT_FILE_PATH'], 'w')
+    redirects = BethelRedirect.query.all()
 
+    for item in redirects:
+        map_file.write("%s  %s\n" % (item.from_path, item.to_url))
+
+    if app.config['ENVIRON'] == "prod":
+        call(["httxt2dbm:", "-i", app.config['REDIRECT_FILE_PATH'], "-o", app.config['REDIRECT_MAP_PATH']])
 
     return "done"
+
+# @redirect_blueprint.route('/load')
+# def load_redirects():
+#
+#     from sqlalchemy.exc import IntegrityError
+#
+#     url_file = open('/Users/ejc84332/Desktop/rewrites.txt', 'r')
+#     lines = [line.strip() for line in url_file.readlines()]
+#
+#     for line in lines:
+#         if line.startswith("#"):
+#             continue
+#         try:
+#             from_path, to_url = line.split()
+#             redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+#             db.session.add(redirect)
+#             db.session.commit()
+#         except IntegrityError:
+#             db.session.rollback()
+#
+#
+#     return "done"

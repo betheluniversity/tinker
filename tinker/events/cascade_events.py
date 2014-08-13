@@ -100,8 +100,8 @@ def java_unix_to_date(date):
 
 def escape_wysiwyg_content(parser, content):
 
-    return parser.unescape(content)
-
+    # return parser.unescape(content)
+    return content.replace("<p>&#160;</p>", "")
 
 def get_event_structure(add_data, username, workflow=None, event_id=None):
     """
