@@ -53,6 +53,15 @@ def new_redirect_submti():
     return str(redirect)
 
 
+# @redirect_blueprint.route('/delete-all')
+# def delete_all():
+#     redirects = BethelRedirect.query.all()
+#     for redirect in redirects:
+#         db.session.delete(redirect)
+#         db.session.commit()
+#
+#     return 'done'
+
 @redirect_blueprint.route('/delete', methods=['post'])
 def delete_redirect():
 
@@ -73,8 +82,8 @@ def delete_redirect():
 
 @redirect_blueprint.route('/compile')
 def compile_redirects():
-    create_redirect_text_file()
-
+    resp = create_redirect_text_file()
+    return resp
 
 def create_redirect_text_file():
     from subprocess import call
@@ -83,10 +92,10 @@ def create_redirect_text_file():
     redirects = BethelRedirect.query.all()
 
     for item in redirects:
-        map_file.write("%s  %s\n" % (item.from_path, item.to_url))
+        map_file.write("%s %s\n" % (item.from_path, item.to_url))
 
     if app.config['ENVIRON'] == "prod":
-        call(["httxt2dbm:", "-i", app.config['REDIRECT_FILE_PATH'], "-o", app.config['REDIRECT_MAP_PATH']])
+        call(["httxt2dbm", "-i", "/opt/tinker/tinker/redirects.txt", "-o", "/opt/tinker/tinker/test.map"])
 
     return "done"
 
