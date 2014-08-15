@@ -23,7 +23,6 @@ class TinkerTools():
 
 
     def get_roles(self, username):
-
         url = self.config['API_URL'] + "/username/%s/roles" % username
         r = requests.get(url, auth=(self.config['API_USERNAME'], self.config['API_PASSWORD']))
         roles = fjson.loads(r.content)
