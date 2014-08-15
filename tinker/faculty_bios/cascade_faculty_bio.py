@@ -199,7 +199,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
             'metadata': {
                 'title': add_data['title'],
                 'summary': 'summary',
-                'author': username,
+                'author': add_data['author'],
                 'dynamicFields': dynamic_fields,
             }
         }
