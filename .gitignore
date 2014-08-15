@@ -4,3 +4,4 @@ workspace.xml
 tasks.xml
 error.log
 redirects.txt
+app.db
