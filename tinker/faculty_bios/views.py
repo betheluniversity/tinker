@@ -113,6 +113,7 @@ def faculty_bio_edit_form(faculty_bio_id):
 
     ## Add the rest of the fields. Can't loop over these kinds of metadata
     edit_data['title'] = metadata.title
+    edit_data['author'] = metadata.author
 
     #Create an EventForm object with our data
     form = FacultyBioForm(**edit_data)
