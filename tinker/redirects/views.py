@@ -60,6 +60,8 @@ def new_api_submit():
     redirect = ""
     for line in body:
         if line.startswith('redirect:'):
+            line = line.replace('redirect:', '').lstrip()
+
             from_url, to_url = line.split(" ")
             from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
             redirect = BethelRedirect(from_path=from_path, to_url=to_url)
