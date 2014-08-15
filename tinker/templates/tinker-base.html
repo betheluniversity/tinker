@@ -59,13 +59,13 @@
            <li><a href="/event" class="button button-nav">Event Homepage</a></li>
        {% endif %}
 
-       {% if 'FACULTY' in session['roles'] %}
+      {# {% if 'FACULTY' in session['roles'] %} #}
            {% if '/faculty-bios/' in request.path %}
              <li><a href="/faculty-bios" class="button button-nav active">Faculty Bios</a></li>
            {% else %}
                <li><a href="/faculty-bios" class="button button-nav">Faculty Bios</a></li>
            {% endif %}
-       {% endif %}
+       {# {% endif %} #}
 
     {#
        {% if request.path == '/wufoo/' %}
