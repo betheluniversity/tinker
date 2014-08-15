@@ -19,6 +19,10 @@ class TinkerTools():
             username = self.config['TEST_USER']
             session['username'] = username
             self.get_roles(username)
+
+	if 'roles' not in session.keys():
+	    self.get_roles(username)
+
         return username
 
 
@@ -32,8 +36,8 @@ class TinkerTools():
             ret.append(roles[key]['userRole'])
 
         ## Manually give 'faculty' privileges.
-        if username == 'ejc84332':
-            ret.append('FACULTY')
+        #if username == 'ejc84332':
+        #    ret.append('FACULTY')
         if username == 'ces55739':
             ret.append('FACULTY')
         if username == 'celanna':
