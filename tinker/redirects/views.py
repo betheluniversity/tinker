@@ -97,7 +97,7 @@ def create_redirect_text_file():
 
     if app.config['ENVIRON'] == "prod":
         from subprocess import call
-        resp = call(["httxt2dbm", "-i", "/opt/tinker/tinker/redirects.txt", "-o", "/opt/tinker/tinker/redirects.dbm"])
+        resp = call(["/opt/tinker/tinker/txt2dbm.pl", "/opt/tinker/tinker/redirects.txt", "/opt/tinker/tinker/redirects.dbm"])
     else:
         resp = 'done'
     return str(resp)
