@@ -73,6 +73,7 @@ def delete_redirect():
         redirect = BethelRedirect.query.get(path)
         db.session.delete(redirect)
         db.session.commit()
+        resp = create_redirect_text_file()
 
     except:
         return "fail"
@@ -86,7 +87,7 @@ def compile_redirects():
     return resp
 
 def create_redirect_text_file():
-    from subprocess import call
+
 
     map_file = open(app.config['REDIRECT_FILE_PATH'], 'w')
     redirects = BethelRedirect.query.all()
@@ -95,9 +96,11 @@ def create_redirect_text_file():
         map_file.write("%s %s\n" % (item.from_path, item.to_url))
 
     if app.config['ENVIRON'] == "prod":
-        call(["httxt2dbm", "-i", "/opt/tinker/tinker/redirects.txt", "-o", "/opt/tinker/tinker/test.map"])
-
-    return "done"
+        from subprocess import call
+        resp = call(["httxt2dbm", "-i", "/opt/tinker/tinker/redirects.txt", "-o", "/opt/tinker/tinker/redirects.dbm"])
+    else:
+        resp = 'done'
+    return resp
 
 # @redirect_blueprint.route('/load')
 # def load_redirects():
