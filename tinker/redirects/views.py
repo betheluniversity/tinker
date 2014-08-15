@@ -53,6 +53,11 @@ def new_redirect_submti():
     return str(redirect)
 
 
+@redirect_blueprint.route('/api-submit', methods=['get', 'post'])
+def new_api_submit():
+    return "got request"
+
+
 # @redirect_blueprint.route('/delete-all')
 # def delete_all():
 #     redirects = BethelRedirect.query.all()
