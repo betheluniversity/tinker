@@ -22,12 +22,11 @@ class TinkerTools():
 
 	if 'roles' not in session.keys():
 	    self.get_roles(username)
-
+        
         return username
 
 
     def get_roles(self, username):
-
         url = self.config['API_URL'] + "/username/%s/roles" % username
         r = requests.get(url, auth=(self.config['API_USERNAME'], self.config['API_PASSWORD']))
         roles = fjson.loads(r.content)
