@@ -20,9 +20,9 @@
   <div class="large-12 columns">
 
     {% if add_form %}
-      <form id="facultybioform" action="/faculty_bios/submit" method="post">
+      <form id="facultybioform" action="/faculty-bios/submit" method="post">
     {% else %}
-      <form id="facultybioform" action="/faculty_bios/submit" method="post">
+      <form id="facultybioform" action="/faculty-bios/submit" method="post">
       <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
     {% endif %}
       <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
