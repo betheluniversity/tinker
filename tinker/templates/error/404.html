@@ -1,24 +1,7 @@
-{% extends "foundation_base.html" %}
+{% extends "tinker-base.html" %}
 
 
-{% block body_content %}
-
-
-  <div class="row">
-      <div class="large-12 columns">
-        <div class="nav-bar right">
-         <ul class="button-group">
-           <li><a href="/" class="button">Home</a></li>
-           <li><a href="/add-event" class="button">New Event</a></li>
-           <li><a href="/facutly-bio" class="button">Edit Bio</a></li>
-           <li><a href="/wufoo" class="button">Wufoo</a></li>
-
-          </ul>
-        </div>
-        <h1>Not Found</h1>
-        <hr />
-      </div>
-    </div>
+{% block main_content %}
 
    <div class="row">
 
@@ -30,7 +13,7 @@
       <ul>
        <li><a href="/" class="">Home</a></li>
        <li><a href="/add-event" class="">New Event</a></li>
-       <li><a href="/facutly-bio" class="">Edit Bio</a></li>
+       <li><a href="/faculty_bios" class="">Faculty Bio</a></li>
        <li><a href="/wufoo" class="">Wufoo</a></li>
        </ul>
       </div>
@@ -44,6 +27,30 @@
             </div>
 
    </div>
+
+
+{% endblock %}
+
+{% block head_add %}
+
+  <style>
+
+   .button-group>li>.button-nav {
+     background-color: #0069AA;
+   }
+   .button-group>li>.button-nav:hover {
+     background-color: #0F2C52;
+   }
+
+    .button.small, .button.small.success, .button.tiny, .button.postfix, .input.postfix{
+      background-color: #0069AA;
+    }
+
+    .button.small:hover, .button.small.success:hover, .button.tiny:hover, .button.postfix:hover{
+      background-color: #0F2C52;
+    }
+
+  </style>
 
 
 {% endblock %}

@@ -1,0 +1,6 @@
+{% for redirect in redirects %}
+  <tr class="redirect-row table-hover">
+    <td class="from_path">{{ redirect.from_path }}</td>
+    <td class="to_url">{{ redirect.to_url }}</td>
+  </tr>
+{% endfor %}

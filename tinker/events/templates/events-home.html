@@ -1,0 +1,85 @@
+{% extends "tinker-base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block styles %}
+  <style type="text/css">
+  </style>
+{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+<div class="row">
+  <div class="large-12 columns">
+
+    <p>All events will be reviewed and approved within 2-3 business days by Conference and Event Services. You'll receive an email to let you know when your event has been approved.</p>
+
+    <p>If you have any questions, please contact Conference and Event Services at 651.638.6090.</p>
+
+
+  </div>
+ </div>
+<hr/>
+<div class="row">
+
+  <div class="large-12 columns">
+    {% if forms %}
+      <h3>Your Events</h3>
+      <hr />
+      {% endif %}
+   {% for form in forms%}
+      <div class="row">
+        <div class="large-6 columns">
+          <p>
+            {% if form.is_published %}
+              <a href={{ form.path }}>{{ form.title }}</a>
+            {% else %}
+              {{ form.title }}
+            {% endif %}
+            <br/>
+            {% if form.is_published %}<small><a href={{ form.path }}>{{ form.path }}</a></small>{% endif %}
+          </p>
+        </div>
+        <div class="large-6 columns small-3">
+          <ul class="button-group">
+            {% if form.is_published %}
+              <li><a href="{{ form.path }}" class="small button success">View</a></li>
+              <li><a href="/event/edit/{{ form.id }}" class="small button">Edit</a></li>
+            {% else %}
+              <li><a class="small button success">Not Approved</a></li>
+            {% endif %}
+            <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-event-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
+           </ul>
+        </div>
+        <hr/>
+      </div>
+    {% endfor %}
+    <a href="add" class="small button success">Create New</a>
+  </div>
+</div>
+
+
+{#Delete confirm modal#}
+<div id="confirmModal" class="reveal-modal" data-reveal>
+  <h2>Are you sure you want to delete?</h2>
+  <p class="lead">Your event page will be unpublished and removed from the calendar.</p>
+  <a class="modal-confirm" id="modal-confirm" href="/delete/formid">Delete</a>
+  <a class="close-reveal-modal">&#215;</a>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+{#  Script to update the modal submit to delete the correct form#}
+  <script type="text/javascript">
+    $(".delete-press").click(function(){
+    alert($(this).data('event-id'));
+      $("#modal-confirm").attr("href", "/event/delete/" + $(this).data('event-id'));
+
+    });
+  $(document).foundation();
+  </script>
+
+{% endblock %}

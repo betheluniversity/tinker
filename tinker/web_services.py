@@ -1,18 +1,19 @@
 #python
 import datetime
 import time
-import requests
 
 #flask
 from flask import request
 from flask import session
 from flask import json as fjson
 
+from tinker.cascade_tools import *
+
 #modules
 from suds.client import Client
 
 #local
-from tinker import app ##, cache
+from tinker import app
 
 
 def delete(page_id, workflow=None):
@@ -34,8 +35,10 @@ def delete(page_id, workflow=None):
     response = client.service.delete(auth, identifier)
     app.logger.warn(time.strftime("%c") + ": Deleted " + str(response))
     ## Publish the XML so the event is gone
+
     publish_event_xml()
     publish_faculty_bio_xml()
+
     return response
 
 
@@ -58,15 +61,6 @@ def publish(page_id):
 
     return response
 
-# def get_user_group(page_id):
-#
-#     client = get_client()
-#
-#     auth = app.config['CASCADE_LOGIN']
-#
-#     response = client.service.publish(auth, publishinformation)
-#
-#     return response
 
 def unpublish(page_id):
 
@@ -112,7 +106,7 @@ def edit(asset):
     response = client.service.edit(auth, asset)
     app.logger.warn(time.strftime("%c") + ": Edit " + str(response))
     ##publish the xml file so the new event shows up
-    publish_event_xml()
+
 
     return response
 
@@ -144,7 +138,7 @@ def move(page_id, destination_path):
     response = client.service.move(auth, identifier, moveParameters)
     app.logger.warn(time.strftime("%c") + ": Moved " + str(response))
     ##publish the xml file so the new event shows up
-    publish_event_xml()
+
 
     return response
 
@@ -202,37 +196,6 @@ def read_date_data_structure(node):
 
     return date_data
 
-def get_user():
-
-    if app.config['ENVIRON'] == 'prod':
-        username = request.environ.get('REMOTE_USER')
-    else:
-        username = app.config['TEST_USER']
-        session['username'] = username
-        get_roles(username)
-    return username
-
-
-def get_roles(username):
-
-    url = app.config['API_URL'] + "/username/%s/roles" % username
-    r = requests.get(url, auth=(app.config['API_USERNAME'], app.config['API_PASSWORD']))
-    roles = fjson.loads(r.content)
-    ret = []
-    for key in roles.keys():
-        ret.append(roles[key]['userRole'])
-
-    if username == 'ejc84332':
-        ret.append('FACULTY')
-
-    if username == 'ces55739':
-        ret.append('FACULTY')
-
-    session['roles'] = ret
-
-    return ret
-
-
 def get_client():
 
     return Client(url=app.config['WSDL_URL'], location=app.config['SOAP_URL'])
@@ -257,3 +220,17 @@ def publish_faculty_bio_xml():
 
     ##with app.app_context():
     ##    cache.clear()
+
+def get_user_group(username):
+
+    client = get_client()
+
+    auth = app.config['CASCADE_LOGIN']
+
+    ## Get username
+    ##
+
+
+    response = client.service.user(username, auth, "false", )
+
+    return response

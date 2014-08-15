@@ -4,56 +4,42 @@
 
 {% block styles %}
   <style type="text/css">
+      .home-button{
+            height: 180px;
+            width: 180px;
+            margin: 10px;
+      }
   </style>
 {% endblock %}
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
-<div class="row">
-  <div class="large-12 columns">
+    <div>
+        Welcome to Tinker!
+    </div>
 
-    <p>All events need to be reviewed and approved by Conference and Event Services. This will happen between 2-3 business days.<br/>
-      When your event has been approved, you'll receive an email and the text in the green box will say "View Event".
-    </p>
-  </div>
- </div>
-<hr/>
-<div class="row">
+    <hr />
 
-  <div class="large-12 columns">
+    <div class="row">
+        <div class="large-12 columns">
 
-   {% for form in forms%}
-      <div class="row">
-        <div class="large-6 columns">
-          <p>
-            {% if form.is_published %}
-              <a href={{ form.path }}>{{ form.title }}</a>
-            {% else %}
-              {{ form.title }}
+            <a class="home-button button" href="/event">Events</a>
+
+            {% if 'FACULTY' in session['roles'] %}
+                <a href="/faculty-bios" class="home-button button">Faculty Bios</a>
             {% endif %}
-            <br/>
-            {% if form.is_published %}<small><a href={{ form.path }}>{{ form.path }}</a></small>{% endif %}
-          </p>
-        </div>
-        <div class="large-6 columns small-3">
-          <ul class="button-group">
-            {% if form.is_published %}
-              <li><a href="{{ form.path }}" class="small button success">View</a></li>
-              <li><a href="/event/edit/{{ form.id }}" class="small button">Edit</a></li>
-            {% else %}
-              <li><a class="small button success">Not Approved</a></li>
-            {% endif %}
-            <li><a href="/delete/{{ form.id }}" class="small button alert">Delete</a></li>
-           </ul>
-        </div>
-        <hr/>
-      </div>
-    {% endfor %}
 
-  </div>
-</div>
+            {#
+            <a class="home-button button" href="/wufoo">Wufoo Forms</a>
+            #}
 
+            {#
+            <a class="home-button button">Other Forms</a>
+            #}
+
+        </div>
+    </div>
 {% endblock %}
 
 

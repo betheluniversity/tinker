@@ -1,0 +1,397 @@
+{% extends "tinker-base.html" %}
+
+{% block title %}Faculty Bio Form{% endblock %}
+
+{% block styles %}
+  <style type="text/css">
+    .largeselect {
+      height: 100px;
+      font-size:14px;
+    }
+  </style>
+{% endblock %}
+
+{% block page_title %}
+    Edit your Bio
+{% endblock %}
+
+{% block main_content %}
+  <div class="row">
+  <div class="large-12 columns">
+
+    {% if add_form %}
+      <form id="facultybioform" action="/faculty_bios/submit" method="post">
+    {% else %}
+      <form id="facultybioform" action="/faculty_bios/submit" method="post">
+      <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
+    {% endif %}
+      <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
+
+        {% if form.errors %}
+          <div class="alert alert-error">
+            <div data-alert class="alert-box alert radius">
+                There were errors with your form.
+                <a href="#" class="close">&times;</a>
+              </div>
+            </div>
+        {% endif %}
+        {{ form.hidden_tag() }}
+        {% for field in form if field.widget.input_type != 'hidden' %}
+
+        {# Print any errors for this field#}
+          {% for error in form.errors[field.name] %}
+            <div class="alert alert-error">
+              <div data-alert class="alert-box alert radius">
+                {{ error }}
+                <a href="#" class="close">&times;</a>
+              </div>
+            </div>
+          {% endfor %}
+
+          {# print the label #}
+          {% if field.name not in ["areas", "research_interests", "teaching_specialty"] %}
+            <label for="{{ field.name }}">
+              {{ field.label.text }}
+              {% if field.flags.required %} <small>required</small> {% endif %}
+             </label>
+            <small>{{ field.description }}</small>
+          {% endif %}
+
+          {# Print the field #}
+          {% if field.name == "degree" %}
+            {{ degree_fieldset() }}
+
+          {% elif field.name == "areas" %}
+            <div id="areas_wrap" style="display:none;">
+            {{field.label}}{{ field }}
+            </div>
+          {% elif field.name == "research_interests" %}
+            <div id="research_interests_wrap" style="display:none;">
+            {{field.label}}{{ field }}
+            </div>
+          {% elif field.name == "teaching_specialty" %}
+            <div id="teaching_speciality_wrap" style="display:none;">
+            {{field.label}}{{ field }}
+            </div>
+
+
+          {% elif field.type == "SelectMultipleField" %}
+            {{ field(size=10, class="largeselect") }}
+
+          {% elif field.type == "HeadingField" %}
+            <h3>{{ field.label }}</h3>
+
+          {% elif field.name == "job_titles" %}
+            {{ job_title_fieldset() }}
+
+          {% elif field.type == "SelectField" %}
+            {{ field }}
+
+          {% elif field.type == "CKEditorTextAreaField" %}
+            {{ field(class="ckeditor") }}
+
+          {% else %}
+              {{ field(size=20) }}
+          {% endif %}
+
+        {% endfor %}
+        <button type="submit" id="faculty-bio-submit-btn" class="button postfix">Submit</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script src="{{ url_for('static', filename='moment.js') }}"></script>
+<script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+
+<script type="text/javascript">
+
+    function testExpertise(){
+            var heading = $("#heading")[0];
+            var val = heading.options[heading.selectedIndex].innerHTML;
+            if(val == "Areas of expertise"){
+              $("#areas_wrap").show();
+              $("#research_interests_wrap").hide();
+              $("#teaching_speciality_wrap").hide();
+            }
+            else if( val == "Research interests"){
+              $("#areas_wrap").hide();
+              $("#research_interests_wrap").show();
+              $("#teaching_speciality_wrap").hide();
+            }
+            else if( val == "Teaching speciality"){
+              $("#areas_wrap").hide();
+              $("#research_interests_wrap").hide();
+              $("#teaching_speciality_wrap").show();
+            }
+          }
+
+    function newFieldset(id){
+            var school = 'school' + id;
+            var degree = 'degree-earned' + id;
+            var year = 'year' + id;
+            var node = $('<fieldset>').addClass('degree-fieldset');
+            node.append($("<legend>").html("Degree " + id));
+            node.append($("<label>").attr('for', school).html("School"));
+            node.append($("<input type='text'>").attr('name', school).attr('id', school));
+            node.append($("<label>").attr('for', degree).html("Degree Earned"));
+            node.append($("<input type='text'>").attr('name', degree).attr('id', degree));
+            node.append($("<label>").attr('for', year).html("Year completed"));
+            node.append($("<input type='text'>").attr('name', year).attr('id', year));
+
+            return node;
+     }
+
+     function populateDegreeFieldset(id, school, degree, year){
+        var schoolid = '#school' + id;
+        var degreeid = '#degree-earned' + id;
+        var yearid = '#year' + id;
+        $(schoolid).val(school);
+        $(degreeid).val(degree);
+        $(yearid).val(year);
+     }
+
+     function newJobTitleFieldset(id){
+            var title = 'job-title' + id;
+            var node = $('<fieldset>').addClass('job-fieldset');
+            node.append($("<legend>").html("Job Title " + id));
+            node.append($("<input type='text'>").attr('name', title).attr('id', title));
+
+            return node;
+     }
+
+     function newDegreeTitleFieldset(id){
+            var school = 'school' + id;
+            var degree = 'degree-earned' + id;
+            var year = 'year' + id;
+            var node = $('<fieldset>').addClass('date-fieldset');
+            node.append($("<legend>").html("Degree " + id));
+            node.append($("<label>").attr('for', school).html("School"));
+            node.append($("<input type='text'>").attr('name', school).attr('id', school).addClass("datepicker"));
+            node.append($("<label>").attr('for', degree).html("Degree Earned"));
+            node.append($("<input type='text'>").attr('name', degree).attr('id', degree).addClass("datepicker"));
+            node.append($("<label>").attr('for', year).html("Year"));
+            node.append($("<input type='text'>").attr('name', year).attr('id', year).addClass("datepicker"));
+
+            return node;
+     }
+
+     function populateJobTitleFieldset(id, value){
+        var titleid = '#job-title' + id;
+        $(titleid).val(value);
+     }
+
+      $( document ).ready(function() {
+
+        {% if degree %}
+
+          var degrees = {{ degree|safe }};
+          var i = 0;
+          while (i < 200){
+
+            degree = degrees[i];
+            if (!degree){
+              break;
+            }
+            //Convert to correct value
+            id = i + 1;
+
+            //If this is not the first node, create it before we can populate it and insert after the last one.
+            //show the remove buton
+            if(i != 0){
+              var last = $(".degree-fieldset").last();
+              var new_degree = newDegreeTitleFieldset(id);
+              new_degree.insertAfter(last);
+              $("#remove_jdegree_button").show();
+            }
+            //Now populate the fieldset
+            populateDegreeTitleFieldset(id, degree);
+            //no infinite loops today
+            i++;
+
+          }
+
+        {% endif %}
+
+        {#  Optional. But later if you want to make a degreee required here is where you do it.
+
+            {% if degrees_good == False %}
+              $( '<div data-alert="" class="alert-box alert radius">A Degree is Required<a href="#" class="close">×</a></div>' ).insertBefore(".job-fieldset");
+            {% endif %}
+
+        #}
+
+        {% if form.errors or not degrees_good and num_degrees %}
+          var degrees = {{ degrees|safe }};
+          var tt = {{ num_degrees }};
+          for (var i = 1; i < {{ num_degrees + 1}}; i++){
+            if(i == 1){
+              $('#school1').val(degrees['school1']);
+              $('#degree-earned1').val(degrees['degree-earned1']);
+              $('#year1').val(degrees['year1']);
+            }else{
+              newDegreeTitleFieldset(i);
+              var fieldsets = $(".degree-fieldset");
+              var last = fieldsets.last();
+              newDegreeTitleFieldset(i).insertAfter(last);
+
+              $('#school'+i).val(degrees['school'+i] );
+              $('#degree-earned'+i).val(degrees['degree-earned'+i] );
+              $('#year'+i).val(degrees['year'+i] );
+            }
+          }
+
+        {% endif %}
+
+
+
+      ////////// JOB TITLES //////////
+
+
+
+
+        {% if job_titles %}
+
+          var jobs = {{ job_titles|safe }};
+          var i = 0;
+          while (i < 200){
+
+            job = jobs[i];
+            if (!job){
+              break;
+            }
+            //Convert to correct value
+            id = i + 1;
+
+            //If this is not the first node, create it before we can populate it and insert after the last one.
+            //show the remove buton
+            if(i != 0){
+              var last = $(".job-fieldset").last();
+              var new_job = newJobTitleFieldset(id);
+              new_job.insertAfter(last);
+              $("#remove_job_button").show();
+            }
+            //Now populate the fieldset
+            populateJobTitleFieldset(id, job);
+            //no infinite loops today
+            i++;
+
+          }
+
+        {% endif %}
+
+        {% if jobs_good == False %}
+          $( '<div data-alert="" class="alert-box alert radius">A Job Title is Required<a href="#" class="close">×</a></div>' ).insertBefore(".job-fieldset");
+        {% endif %}
+
+        {% if form.errors or not jobs_good and num_jobs %}
+          var jobs = {{ jobs|safe }};
+          var tt = {{ num_jobs }};
+          for (var i = 1; i < {{ num_jobs + 1}}; i++){
+            if(i == 1){
+              $('#job-title1').val(jobs['job-title1']);
+            }else{
+              newJobTitleFieldset(i);
+              var fieldsets = $(".job-fieldset");
+              var last = fieldsets.last();
+              newJobTitleFieldset(i).insertAfter(last);
+              $('#job-title'+i).val(jobs['job-title'+i] );
+            }
+          }
+
+        {% endif %}
+
+
+        $("#add_degree_button").click(function(){
+            var fieldsets = $(".degree-fieldset");
+            var last = fieldsets.last();
+            var old_num = last.children()[0].textContent.replace("Degree ", ""); // "Degree X" is the variable name, where X is an integer.
+            var new_num = (parseInt(old_num) + 1);
+            var new_degree = newFieldset(new_num);
+            new_degree.insertAfter(last);
+            $("#remove_degree_button").show();
+          });
+
+          $("#remove_degree_button").click(function(){
+            var list = $(".degree-fieldset");
+            var length = list.length;
+            //Hide remove button if there will only be one degree left
+            if (length == 2){
+              $("#remove_degree_button").hide();
+            }
+            list.last().remove();
+          });
+
+          $("#add_job_button").click(function(){
+            var fieldsets = $(".job-fieldset");
+            var last = fieldsets.last();
+            var old_num = last.children()[0].textContent.replace("Job Title ", ""); // "Degree X" is the variable name, where X is an integer.
+            var new_num = (parseInt(old_num) + 1);
+            var new_job = newJobTitleFieldset(new_num);
+            new_job.insertAfter(last);
+            $("#remove_job_button").show();
+          });
+
+          $("#remove_job_button").click(function(){
+            var list = $(".job-fieldset");
+            var length = list.length;
+            //Hide remove button if there will only be one degree left
+            if (length == 2){
+              $("#remove_job_button").hide();
+            }
+            list.last().remove();
+          });
+
+          $("#facultybioform").submit(function(){
+            //add a hidden field with the number of jobs
+            var jobs = $(".job-fieldset");
+            var input = $("<input>").attr("type", "hidden").attr("name", "num_jobs").val(jobs.length);
+            $("#facultybioform").append(input);
+
+            //add a hidden field with the number of degrees
+            var degrees = $(".degree-fieldset");
+            var input = $("<input>").attr("type", "hidden").attr("name", "num_degrees").val(degrees.length);
+            $("#facultybioform").append(input);
+
+            return true;
+
+          });
+
+           $("#heading").change(function(){
+                testExpertise();
+              });
+          testExpertise();
+      });
+</script>
+
+{% endblock %}
+
+{% macro degree_fieldset() -%}
+  <fieldset class="degree-fieldset">
+    <legend>Degree 1</legend>
+      <label for="school1">School</label>
+        <input type="text" name="school1" id="school1"/>
+
+      <label for="degree-earned1">Degree earned</label>
+        <input type="text" name="degree-earned1" id="degree-earned1"/>
+
+      <label for="year1">Year completed</label>
+        <input type="text" name="year1" id="year1"/>
+
+  </fieldset>
+  <a href="javascript:void(0);" id="add_degree_button" class="button tiny">Add Another Degree</a>
+  <a href="javascript:void(0);" id="remove_degree_button" style="display:none" class="button tiny alert">Remove Degree</a>
+{%- endmacro  %}
+
+{% macro job_title_fieldset() -%}
+  <fieldset class="job-fieldset">
+    <legend>Job Title 1</legend>
+      <input type="text" name="job-title1" id="job-title1"/>
+  </fieldset>
+  <a href="javascript:void(0);" id="add_job_button" class="button tiny">Add Another Job Title</a>
+  <a href="javascript:void(0);" id="remove_job_button" style="display:none" class="button tiny alert">Remove Job Title</a>
+{%- endmacro  %}

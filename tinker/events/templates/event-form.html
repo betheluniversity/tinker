@@ -22,10 +22,11 @@
 {% block main_content %}
   <div class="row">
   <div class="large-12 columns">
+      <p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>
     {% if add_form %}
-      <form id="eventform" action="/submit" method="post">
+      <form id="eventform" action="/event/submit" method="post">
     {% else %}
-      <form id="eventform" action="/submit-edit" method="post">
+      <form id="eventform" action="/event/submit-edit" method="post">
       <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
     {% endif %}
         {% if form.errors %}
@@ -139,7 +140,6 @@
             $(startid).val(start);
             $(endid).val(end);
             if(allday){
-              debugger;
               $(alldayid).prop('checked', true);
             }
          }
@@ -175,6 +175,7 @@
 
           $( document ).ready(function() {
             CKEDITOR.config.format_tags = 'h4;h5';
+            CKEDITOR.config.disableNativeSpellChecker = false;
             $('.datepicker').each(function (index) {
               var picker = new Pikaday({
                 field: this,

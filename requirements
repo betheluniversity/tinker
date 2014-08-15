@@ -5,5 +5,7 @@ Flask-Script
 Flask-WTF
 suds
 simplejson
---allow-external WTFrorms
+--allow-external WTForms
 requests
+Flask-SQLAlchemy
+SQLAlchemy-migrate

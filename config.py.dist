@@ -5,11 +5,13 @@ _basedir = os.path.abspath(os.path.dirname(__file__))
 FOUNDATION_USE_MINIFIED = False
 FOUNDATION_USE_CDN = True
 
+
+#Cascade / Events
 secret_key = ''
 SECRET_KEY = ''
 
+FACULTY_BIO_XML_ID = ''
 EVENT_XML_ID = ''
-
 
 ENVIRON = ''
 TEST_USER = ''
@@ -29,3 +31,8 @@ API_URL = ''
 CACHE_DEFAULT_TIMEOUT = 300
 
 INSTALL_LOCATION = ''
+
+
+##Wufoo
+API_KEYS = ['key1', 'key2']
+WUFOO_BASE_URL = ''
