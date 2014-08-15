@@ -55,7 +55,17 @@ def new_redirect_submti():
 
 @redirect_blueprint.route('/api-submit', methods=['get', 'post'])
 def new_api_submit():
-    return "got request"
+
+    body = request.form['body'].split('\n')
+    redirect = ""
+    for line in body:
+        if line.startswith('redirect:'):
+            from_url, to_url = line.split(" ")
+            from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
+            redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+            db.session.add(redirect)
+            db.session.commit()
+    return str(redirect)
 
 
 # @redirect_blueprint.route('/delete-all')
