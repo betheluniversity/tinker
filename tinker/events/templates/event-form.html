@@ -110,15 +110,7 @@
 {% block scripts %}
 
         <script src="{{ url_for('static', filename='moment.js') }}"></script>
-{#        <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>#}
-
-        <script src="https://cms.bethel.edu/javascript/tiny_mce-3.5.8/tiny_mce.js?v=7_10_2-05222014"></script>
-        <script>
-                tinymce.init({
-                  mode : "specific_textareas",
-                  editor_selector : "tinyMCE"
-                });
-        </script>
+        <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
 
         <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
         <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
