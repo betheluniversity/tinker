@@ -75,7 +75,6 @@
 {#  Script to update the modal submit to delete the correct form#}
   <script type="text/javascript">
     $(".delete-press").click(function(){
-    alert($(this).data('event-id'));
       $("#modal-confirm").attr("href", "/event/delete/" + $(this).data('event-id'));
 
     });

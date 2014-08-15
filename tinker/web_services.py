@@ -34,8 +34,8 @@ def delete(page_id, workflow=None):
 
     response = client.service.delete(auth, identifier)
     app.logger.warn(time.strftime("%c") + ": Deleted " + str(response))
-    ## Publish the XML so the event is gone
 
+    ## Publish the XMLs
     publish_event_xml()
     publish_faculty_bio_xml()
 

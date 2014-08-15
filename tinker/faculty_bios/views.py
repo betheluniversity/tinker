@@ -25,8 +25,7 @@ def faculty_bio_home():
 @faculty_bio_blueprint.route('/delete/<page_id>')
 def delete_page(page_id):
     delete(page_id)
-    publish_faculty_bio_xml()
-    return redirect('/faculty_bios/delete-confirm', code=302)
+    return redirect('/faculty-bios/delete-confirm', code=302)
 
 @faculty_bio_blueprint.route('/delete-confirm')
 def delete_confirm():
@@ -179,7 +178,7 @@ def submit_faculty_bio_form():
         resp = create_faculty_bio(asset)
         app.logger.warn(time.strftime("%c") + ": new faculty bio submission " + str(resp))
 
-    return redirect('/faculty_bios/confirm', code=302)
+    return redirect('/faculty-bios/confirm', code=302)
     ##Just print the response for now
 
 
