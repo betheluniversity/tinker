@@ -105,7 +105,6 @@ def escape_wysiwyg_content(parser, content):
     content2 = parser.unescape(content)
     return content2
 
-
 def get_event_structure(add_data, username, workflow=None, event_id=None):
     """
      Could this be cleaned up at all?

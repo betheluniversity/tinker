@@ -47,8 +47,20 @@ def new_redirect_submti():
     db.session.add(redirect)
     db.session.commit()
 
+    ##Update the file after every submit?
+    create_redirect_text_file()
+
     return str(redirect)
 
+
+# @redirect_blueprint.route('/delete-all')
+# def delete_all():
+#     redirects = BethelRedirect.query.all()
+#     for redirect in redirects:
+#         db.session.delete(redirect)
+#         db.session.commit()
+#
+#     return 'done'
 
 @redirect_blueprint.route('/delete', methods=['post'])
 def delete_redirect():
@@ -61,6 +73,7 @@ def delete_redirect():
         redirect = BethelRedirect.query.get(path)
         db.session.delete(redirect)
         db.session.commit()
+        resp = create_redirect_text_file()
 
     except:
         return "fail"
@@ -68,24 +81,45 @@ def delete_redirect():
     return "deleted %s" % resp
 
 
-@redirect_blueprint.route('/load')
-def load_redirects():
+@redirect_blueprint.route('/compile')
+def compile_redirects():
+    resp = create_redirect_text_file()
+    return resp
 
-    from sqlalchemy.exc import IntegrityError
-
-    url_file = open('/Users/ejc84332/Desktop/rewrites.txt', 'r')
-    lines = [line.strip() for line in url_file.readlines()]
-
-    for line in lines:
-        if line.startswith("#"):
-            continue
-        try:
-            from_path, to_url = line.split()
-            redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-            db.session.add(redirect)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
+def create_redirect_text_file():
 
 
-    return "done"
+    map_file = open(app.config['REDIRECT_FILE_PATH'], 'w')
+    redirects = BethelRedirect.query.all()
+
+    for item in redirects:
+        map_file.write("%s %s\n" % (item.from_path, item.to_url))
+
+    if app.config['ENVIRON'] == "prod":
+        from subprocess import call
+        resp = call(["/opt/tinker/tinker/txt2dbm.pl", "/opt/tinker/tinker/redirects.txt", "/opt/tinker/tinker/redirects.dbm"])
+    else:
+        resp = 'done'
+    return str(resp)
+
+# @redirect_blueprint.route('/load')
+# def load_redirects():
+#
+#     from sqlalchemy.exc import IntegrityError
+#
+#     url_file = open('/Users/ejc84332/Desktop/rewrites.txt', 'r')
+#     lines = [line.strip() for line in url_file.readlines()]
+#
+#     for line in lines:
+#         if line.startswith("#"):
+#             continue
+#         try:
+#             from_path, to_url = line.split()
+#             redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+#             db.session.add(redirect)
+#             db.session.commit()
+#         except IntegrityError:
+#             db.session.rollback()
+#
+#
+#     return "done"
