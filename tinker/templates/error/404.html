@@ -12,9 +12,11 @@
       <h5>Go <a href="/"> home </a> or try an item below</h5>
       <ul>
        <li><a href="/" class="">Home</a></li>
-       <li><a href="/add-event" class="">New Event</a></li>
-       <li><a href="/faculty_bios" class="">Faculty Bio</a></li>
-       <li><a href="/wufoo" class="">Wufoo</a></li>
+       <li><a href="/event" class="">Events</a></li>
+      {% if 'FACULTY' in session['roles'] %}
+           <li><a href="/faculty-bios" class="">Faculty Bios</a></li>
+      {% endif %}
+      {# <li><a href="/wufoo" class="">Wufoo</a></li> #}
        </ul>
       </div>
       </div>
@@ -27,8 +29,6 @@
             </div>
 
    </div>
-
-    {{ session['roles'] }}
 {% endblock %}
 
 {% block head_add %}
