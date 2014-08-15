@@ -105,6 +105,7 @@ def escape_wysiwyg_content(parser, content):
     content2 = parser.unescape(content)
     return content2
 
+
 def get_event_structure(add_data, username, workflow=None, event_id=None):
     """
      Could this be cleaned up at all?
@@ -449,7 +450,6 @@ def get_event_publish_workflow():
         "workflowDefinitionId": "1ca9794e8c586513742d45fd39c5ffe3",
         "workflowComments": "New event submission"
     }
-
     return workflow
 
 
