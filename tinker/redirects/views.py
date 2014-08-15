@@ -100,7 +100,7 @@ def create_redirect_text_file():
         resp = call(["httxt2dbm", "-i", "/opt/tinker/tinker/redirects.txt", "-o", "/opt/tinker/tinker/redirects.dbm"])
     else:
         resp = 'done'
-    return resp
+    return str(resp)
 
 # @redirect_blueprint.route('/load')
 # def load_redirects():
