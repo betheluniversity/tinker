@@ -43,13 +43,13 @@
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
-            <li><a href="delete/{{ form.id }}" class="small button alert">Delete</a></li>
+            <li><a href="/faculty-bios/delete/{{ form.id }}" class="small button alert">Delete</a></li>
            </ul>
         </div>
         <hr/>
       </div>
     {% endfor %}
-      <a href="edit/new" class="small button success">Create New</a>
+      <a href="/faculty-bios/edit/new" class="small button success">Create New</a>
 
 
   </div>

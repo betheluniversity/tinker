@@ -34,10 +34,8 @@ class TinkerTools():
         ## Manually give 'faculty' privileges.
         if username == 'ejc84332':
             ret.append('FACULTY')
-
         if username == 'ces55739':
             ret.append('FACULTY')
-
         if username == 'celanna':
             ret.append('FACULTY')
 
