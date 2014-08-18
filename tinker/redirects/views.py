@@ -62,7 +62,7 @@ def new_api_submit():
         line = line.lstrip().rstrip()
         if line.startswith('redirect:'):
             line = line.replace('redirect:', '').lstrip().rstrip()
-            from_url, to_url = line.split(" ")
+            from_url, to_url = line.split()
             from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
             redirect = BethelRedirect(from_path=from_path, to_url=to_url)
             db.session.add(redirect)
