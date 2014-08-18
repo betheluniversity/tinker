@@ -59,10 +59,11 @@ def new_api_submit():
     body = request.form['body'].split('\n')
     redirect = ""
     for line in body:
+        print "line: %s" % str(line)
         if line.startswith('redirect:'):
             line = line.replace('redirect:', '').lstrip().rstrip()
             from_url, to_url = line.split(" ")
-            print "line: %s" % str(line)
+
             print "from_url: %s" % from_url
             print "to_url: %s" % to_url
             from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
