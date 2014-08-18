@@ -9,3 +9,4 @@ simplejson
 requests
 Flask-SQLAlchemy
 SQLAlchemy-migrate
+BeautifulSoup
