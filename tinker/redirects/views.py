@@ -1,5 +1,7 @@
 __author__ = 'ejc84332'
 
+import re
+
 from flask import Blueprint, render_template, abort, request
 from flask.ext.sqlalchemy import SQLAlchemy, Session
 from BeautifulSoup import BeautifulSoup
