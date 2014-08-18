@@ -120,8 +120,8 @@ def get_faculty_bio_choices():
 
 class FacultyBioForm(Form):
 
-    title = TextField('Faculty Name', validators=[Required()], description="This will be the title of your webpage")
-    author = TextField("Faculty Member's username", validators=[Required()], description="This username will become the author of the page.")
+    title = TextField('Faculty name', validators=[Required()], description="This will be the title of your webpage")
+    author = TextField("Faculty member's username", validators=[Required()], description="This username will become the author of the page.")
 
     job_titles = TextField('')
 
@@ -140,12 +140,12 @@ class FacultyBioForm(Form):
     biography = CKEditorTextAreaField('Biography')
     awards = CKEditorTextAreaField('Awards')
     publications = CKEditorTextAreaField('Publications')
-    certificates = CKEditorTextAreaField('Certificates and Licenses')
-    hobbies = CKEditorTextAreaField('Hobbies and Interests')
+    certificates = CKEditorTextAreaField('Certificates and licenses')
+    hobbies = CKEditorTextAreaField('Hobbies and interests')
 
     quote = TextField('Quote')
 
-    website = TextField('Professional Website or Blog')
+    website = TextField('Professional website or blog')
 
 
 

@@ -141,7 +141,7 @@ class EventForm(Form):
 
 
     what = HeadingField(label="What is your event?")
-    title = TextField('Event Name', validators=[Required()], description="This will be the title of your webpage")
+    title = TextField('Event name', validators=[Required()], description="This will be the title of your webpage")
     teaser = TextField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.')
     featuring = TextField('Featuring')
     sponsors = TextAreaField('Sponsors')
@@ -154,13 +154,13 @@ class EventForm(Form):
     location = SelectField('Location', choices=location_choices)
     on_campus_location = SelectField('On campus location', choices=building_choices)
     other_on_campus = TextField('Other on campus location')
-    off_campus_location = TextField("Off Campus Location")
+    off_campus_location = TextField("Off campus location")
     maps_directions = CKEditorTextAreaField('Directions', description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")
 
     why = HeadingField(label="Does your event require registration or payment?")
     registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices)
     registration_details = CKEditorTextAreaField('Registration/ticketing details', description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
-    wufoo_code = TextField('Approved Wufoo Hash Code')
+    wufoo_code = TextField('Approved wufoo hash code')
     cost = TextAreaField('Cost')
     cancellations = TextAreaField('Cancellations and refunds')
 
@@ -169,8 +169,8 @@ class EventForm(Form):
 
     categories = HeadingField(label="Categories")
 
-    general = SelectMultipleField('General Categories', choices=general_choices, validators=[Required()])
+    general = SelectMultipleField('General categories', choices=general_choices, validators=[Required()])
     offices = SelectMultipleField('Offices', choices=offices_choices, validators=[Required()])
-    academic_dates = SelectMultipleField('Academic Dates', choices=academic_dates_choices, validators=[Required()])
-    cas_departments = SelectMultipleField('CAS Academic Department', choices=cas_departments_choices, validators=[Required()])
-    internal = SelectMultipleField('Internal Only', choices=internal_choices, validators=[Required()])
+    academic_dates = SelectMultipleField('Academic dates', choices=academic_dates_choices, validators=[Required()])
+    cas_departments = SelectMultipleField('CAS academic department', choices=cas_departments_choices, validators=[Required()])
+    internal = SelectMultipleField('Internal only', choices=internal_choices, validators=[Required()])
