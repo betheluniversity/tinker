@@ -59,17 +59,16 @@ def new_api_submit():
     body = request.form['body'].split('\n')
     redirect = ""
     for line in body:
-        print "line: %s" % str(line)
         if line.startswith('redirect:'):
             line = line.replace('redirect:', '').lstrip().rstrip()
             from_url, to_url = line.split(" ")
-
-            print "from_url: %s" % from_url
-            print "to_url: %s" % to_url
             from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
             redirect = BethelRedirect(from_path=from_path, to_url=to_url)
             db.session.add(redirect)
             db.session.commit()
+
+    if redirect:
+        create_redirect_text_file()
     return str(redirect)
 
 
@@ -105,6 +104,7 @@ def delete_redirect():
 def compile_redirects():
     resp = create_redirect_text_file()
     return resp
+
 
 def create_redirect_text_file():
 
