@@ -8,6 +8,9 @@
       height: 100px;
       font-size:14px;
     }
+    .large-text-area {
+        height:150px;
+    }
   </style>
 {% endblock %}
 
@@ -63,15 +66,15 @@
 
           {% elif field.name == "areas" %}
             <div id="areas_wrap" style="display:none;">
-            {{field.label}}{{ field }}
+            {{field.label}}{{ field(class="large-text-area") }}
             </div>
           {% elif field.name == "research_interests" %}
             <div id="research_interests_wrap" style="display:none;">
-            {{field.label}}{{ field }}
+            {{field.label}}{{ field(class="large-text-area") }}
             </div>
           {% elif field.name == "teaching_specialty" %}
             <div id="teaching_speciality_wrap" style="display:none;">
-            {{field.label}}{{ field }}
+            {{field.label}}{{ field(class="large-text-area") }}
             </div>
 
 
@@ -186,10 +189,12 @@
      }
 
       $( document ).ready(function() {
+        CKEDITOR.config.format_tags = 'h4;h5';
+        CKEDITOR.config.disableNativeSpellChecker = false;
 
-        {% if degree %}
+        {% if degrees %}
 
-          var degrees = {{ degree|safe }};
+          var degrees = {{ degrees|safe }};
           var i = 0;
           while (i < 200){
 
@@ -209,7 +214,7 @@
               $("#remove_jdegree_button").show();
             }
             //Now populate the fieldset
-            populateDegreeTitleFieldset(id, degree);
+            populateDegreeFieldset(id, degree['school'], degree['degree-earned'], degree['year'] )
             //no infinite loops today
             i++;
 
@@ -226,7 +231,7 @@
         #}
 
         {% if form.errors or not degrees_good and num_degrees %}
-          var degrees = {{ degrees|safe }};
+          var degrees = {{ old_degrees|safe }};
           var tt = {{ num_degrees }};
           for (var i = 1; i < {{ num_degrees + 1}}; i++){
             if(i == 1){
