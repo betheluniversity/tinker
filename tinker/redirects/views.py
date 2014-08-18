@@ -64,7 +64,7 @@ def new_api_submit():
 
             from_url, to_url = line.split(" ")
             from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
-            redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+            redirect = BethelRedirect(from_path=str(from_path), to_url=str(to_url))
             db.session.add(redirect)
             db.session.commit()
     return str(redirect)
