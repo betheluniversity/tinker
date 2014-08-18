@@ -57,7 +57,9 @@ def new_redirect_submti():
 @redirect_blueprint.route('/api-submit', methods=['get', 'post'])
 def new_api_submit():
 
-    soup = BeautifulSoup(a)
+    body = request.form['body']
+
+    soup = BeautifulSoup(body)
     all_text = ''.join(soup.findAll(text=True))
     redirects = re.findall("(redirect.*)", all_text)
     redirect = ""
