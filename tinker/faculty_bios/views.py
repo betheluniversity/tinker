@@ -153,7 +153,7 @@ def submit_faculty_bio_form():
     form = rform
 
     #Get all the form data
-    add_data = get_add_data(['school', 'department'], form)
+    add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
     expertise = get_expertise(add_data)
     add_a_degree = get_add_a_degree(add_data)
     add_to_bio = get_add_to_bio(add_data)
@@ -174,7 +174,7 @@ def submit_faculty_bio_form():
     ## ALSO, this can be modified to have separate returned templates (or redirects )
     if faculty_bio_id:
         resp = edit(asset)
-        app.logger.warn(time.strftime("%c") + ": event edit submission " + str(resp))
+        app.logger.warn(time.strftime("%c") + ": faculty bio edit submission " + str(resp))
     else:
         resp = create_faculty_bio(asset)
         app.logger.warn(time.strftime("%c") + ": new faculty bio submission " + str(resp))

@@ -90,33 +90,50 @@ def get_faculty_bio_choices():
 
     school_list = data[4].possibleValues.possibleValue
     department_list = data[7].possibleValues.possibleValue
+    caps_list = data[8].possibleValues.possibleValue
+    gs_list = data[9].possibleValues.possibleValue
+    sem_list = data[10].possibleValues.possibleValue
 
     school = []
     for item in school_list:
-        school.append((item.value, item.value))
+        if item.value != "Bethel University":
+            school.append((item.value, item.value))
 
     department = []
     for item in department_list:
         department.append((item.value, item.value))
 
-    return {'school': school, 'department': department}
+    adult_undergrad_program = []
+    for item in caps_list:
+        adult_undergrad_program.append((item.value, item.value))
+
+    graduate_program = []
+    for item in gs_list:
+        graduate_program.append((item.value, item.value))
+
+    seminary_program = []
+    for item in sem_list:
+        seminary_program.append((item.value, item.value))
+
+
+    return {'school': school, 'department': department, 'adult_undergrad_program': adult_undergrad_program, 'graduate_program': graduate_program, 'seminary_program': seminary_program}
 
 class FacultyBioForm(Form):
 
-    title = TextField('Faculty Bio Name', validators=[Required()], description="This will be the title of your webpage")
-    author = TextField("Faculty Member's username", validators=[Required()])
+    title = TextField('Faculty Name', validators=[Required()], description="This will be the title of your webpage")
+    author = TextField("Faculty Member's username", validators=[Required()], description="This username will become the author of the page.")
 
     job_titles = TextField('')
 
-    email = TextField('Email', validators=[Required()], description="Enter your email")
-    started_at_bethel = TextField('Started at Bethel in', validators=[Required()])
+    email = TextField('Email', validators=[Required()])
+    started_at_bethel = TextField('Started at Bethel in', validators=[Required()], description="Enter a year")
 
     heading_choices = (('', "-select-"), ('Areas of expertise', 'Areas of expertise'), ('Research interests', 'Research interests'), ('Teaching speciality', 'Teaching speciality'))
 
     heading = SelectField('Choose a heading that best fits your discipline', choices=heading_choices)
-    areas = TextField('Areas of expertise')
-    research_interests = TextField('Research interests')
-    teaching_specialty = TextField('Teaching speciality')
+    areas = TextAreaField('Areas of expertise')
+    research_interests = TextAreaField('Research interests')
+    teaching_specialty = TextAreaField('Teaching speciality')
 
     degree = DummyField('')
 
@@ -136,6 +153,12 @@ class FacultyBioForm(Form):
     choices = get_faculty_bio_choices()
     school_choices = choices['school']
     department_choices = choices['department']
+    caps_choices = choices['adult_undergrad_program']
+    gs_choices = choices['graduate_program']
+    sem_choices = choices['seminary_program']
 
     school = SelectMultipleField('School', choices=school_choices, validators=[Required()])
     department = SelectMultipleField('Undergraduate Departments', choices=department_choices, validators=[Required()])
+    adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', choices=caps_choices, validators=[Required()])
+    graduate_program = SelectMultipleField('Graduate Programs', choices=gs_choices, validators=[Required()])
+    seminary_program = SelectMultipleField('Seminary Programs', choices=sem_choices, validators=[Required()])

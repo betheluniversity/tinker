@@ -68,8 +68,8 @@ def get_add_a_degree(add_data):
     for i in range(1, 200):
         i = str(i)
         try:
-            degree = 'degree' + i
             school = 'school' + i
+            degree = 'degree-earned' + i
             year = 'year' + i
 
             degree = add_data[degree]
@@ -80,7 +80,7 @@ def get_add_a_degree(add_data):
             ##This will break once we run out of dates
             break
 
-        date_list = [
+        data_list = [
             structured_data_node("school", school),
             structured_data_node("degree-earned", degree),
             structured_data_node("year", year),
@@ -90,7 +90,7 @@ def get_add_a_degree(add_data):
             'type': "group",
             'identifier': "add-degree",
             'structuredDataNodes': {
-                'structuredDataNode': date_list,
+                'structuredDataNode': data_list,
             },
         },
 
@@ -182,7 +182,10 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
     dynamic_fields = {
         'dynamicField': [
             dynamic_field('school', add_data['school']),
-            dynamic_field('department', add_data['department'])
+            dynamic_field('department', add_data['department']),
+            dynamic_field('adult-undergrad-program', add_data['adult_undergrad_program']),
+            dynamic_field('graduate-program', add_data['graduate_program']),
+            dynamic_field('seminary-program', add_data['seminary_program'])
         ],
     }
 
