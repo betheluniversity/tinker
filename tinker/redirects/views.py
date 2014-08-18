@@ -2,6 +2,7 @@ __author__ = 'ejc84332'
 
 from flask import Blueprint, render_template, abort, request
 from flask.ext.sqlalchemy import SQLAlchemy, Session
+from BeautifulSoup import BeautifulSoup
 
 from tinker import app, db
 
@@ -56,9 +57,11 @@ def new_redirect_submti():
 @redirect_blueprint.route('/api-submit', methods=['get', 'post'])
 def new_api_submit():
 
-    body = request.form['body'].split('\n')
+    soup = BeautifulSoup(a)
+    all_text = ''.join(soup.findAll(text=True))
+    redirects = re.findall("(redirect.*)", all_text)
     redirect = ""
-    for line in body:
+    for line in redirects:
         line = line.lstrip().rstrip()
         if line.startswith('redirect:'):
             line = line.replace('redirect:', '').lstrip().rstrip()
