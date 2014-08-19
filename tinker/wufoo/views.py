@@ -23,6 +23,12 @@ def show_manage():
     return render_template('index.html', **locals())
 
 
+@wufoo_blueprint.route('/all-preload')
+def all_preload():
+    return "<pre>%s</pre>" % str(FormInfo.query.all())
+
+
+
 @wufoo_blueprint.route("/get-forms") #, methods=['POST'])
 @cache.cached(timeout=500)
 def get_forms():

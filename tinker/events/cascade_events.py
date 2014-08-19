@@ -444,9 +444,11 @@ def get_event_delete_workflow():
     return workflow
 
 
-def get_event_publish_workflow():
+def get_event_publish_workflow(title=""):
+    if title:
+        title = "-- %s" % title
     workflow = {
-        "workflowName": "Send event for approval",
+        "workflowName": "Send event for approval %s" % title,
         "workflowDefinitionId": "1ca9794e8c586513742d45fd39c5ffe3",
         "workflowComments": "New event submission"
     }
