@@ -10,6 +10,7 @@ from xml.etree import ElementTree as ET
 from tinker.web_services import *
 
 from tinker import app
+from tinker import tools
 ##from tinker import cache
 
 
@@ -186,8 +187,10 @@ def create(asset):
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
 
-    response = client.service.create(auth, asset)
+    username = tools.get_user()
 
+    response = client.service.create(auth, asset)
+    response = app.logger.warn(time.strftime("%c") + ": New event submission by " + username + " " + str(response))
     """
 
     <complexType name="workflow-configuration">

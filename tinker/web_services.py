@@ -8,6 +8,7 @@ from flask import session
 from flask import json as fjson
 
 from tinker.cascade_tools import *
+from tinker import tools
 
 #modules
 from suds.client import Client
@@ -32,8 +33,10 @@ def delete(page_id, workflow=None):
     #dirty. Fix later
     time.sleep(5.5)
 
+    username = tools.get_user()
+
     response = client.service.delete(auth, identifier)
-    app.logger.warn(time.strftime("%c") + ": Deleted " + str(response))
+    app.logger.warn(time.strftime("%c") + ": Deleted by " + username + " " + str(response))
 
     ## Publish the XMLs
     publish_event_xml()
@@ -103,10 +106,8 @@ def edit(asset):
 
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
-    response = client.service.edit(auth, asset)
-    app.logger.warn(time.strftime("%c") + ": Edit " + str(response))
-    ##publish the xml file so the new event shows up
 
+    response = client.service.edit(auth, asset)
 
     return response
 

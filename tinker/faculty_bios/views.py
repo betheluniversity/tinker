@@ -174,10 +174,10 @@ def submit_faculty_bio_form():
     ## ALSO, this can be modified to have separate returned templates (or redirects )
     if faculty_bio_id:
         resp = edit(asset)
-        app.logger.warn(time.strftime("%c") + ": faculty bio edit submission " + str(resp))
+        app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " " + str(resp))
     else:
         resp = create_faculty_bio(asset)
-        app.logger.warn(time.strftime("%c") + ": new faculty bio submission " + str(resp))
+
 
     return redirect('/faculty-bios/confirm', code=302)
     ##Just print the response for now
