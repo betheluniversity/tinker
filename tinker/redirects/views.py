@@ -82,13 +82,11 @@ def new_api_submit():
             sender = 'tinker@bethel.edu'
             receivers = ['e-jameson@bethel.edu']
 
-
-            try:
-               smtpObj = smtplib.SMTP('localhost')
-               smtpObj.sendmail(sender, receivers, message)
-               print "Successfully sent email"
-            except SMTPException:
-               print "Error: unable to send email"
+            smtpObj = smtplib.SMTP('localhost')
+            smtpObj.sendmail(sender, receivers, message)
+            print "Successfully sent email"
+            db.session.rollback()
+            return "sent email notice"
 
     if redirect:
         create_redirect_text_file()
