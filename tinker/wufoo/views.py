@@ -1,5 +1,6 @@
 #python
 import json
+import requests
 
 #flask
 from flask import request, Blueprint, render_template, jsonify
@@ -25,9 +26,32 @@ def show_manage():
 
 @wufoo_blueprint.route('/all-preload')
 def all_preload():
-    return "<pre>%s</pre>" % str(FormInfo.query.all())
+    forms = json.loads(get_forms())['Forms']
+    url = "https://editor.its.bethel.edu/silva/wufoo/wufoo-manager/++rest++wufoo-preload-info?skip-bethel-auth=1&site=betheluniversity&form=%s"
+    username = "wufoo-upgrade"
+    password = "password"
+    site="betheluniversity"
+    ret = []
+    for form in forms:
+        x = 1
+        hash = form['Hash']
+        request_url = url % hash
+        resp = requests.get(request_url, auth=(username, password))
+        preload_info = resp.content
+        db_row = FormInfo(hash=hash, preload_info=preload_info, paypal_name=None, paypal_budget_number=None, sync_status=False)
+        try:
+            db.session.add(db_row)
+            db.session.commit()
+        except:
+            db.session.rollback()
+            db.session.merge(db_row)
+            db.session.commit()
+        ret.append(db_row)
+    resp = ""
+    for item in ret:
+        resp += str(item) + "\n"
 
-
+    return "<pre>%s</pre>" % resp
 
 @wufoo_blueprint.route("/get-forms") #, methods=['POST'])
 @cache.cached(timeout=500)
