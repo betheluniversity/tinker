@@ -13,7 +13,7 @@ class FormInfo(db.Model):
     sync_status = db.Column(db.Boolean, default=False)
 
     def __repr__(self):
-        return '<FormInfo %r>' % self.hash
+        return '<FormInfo %r>' % self.hash + " " + self.preload_info
 
     def serialize(self):
         """Return object data in easily serializeable format"""

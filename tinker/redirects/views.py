@@ -1,6 +1,8 @@
 __author__ = 'ejc84332'
 
+#python
 import re
+import smtplib
 
 from flask import Blueprint, render_template, abort, request
 from flask.ext.sqlalchemy import SQLAlchemy, Session
@@ -66,14 +68,27 @@ def new_api_submit():
     redirects = re.findall("(redirect.*)", all_text)
     redirect = ""
     for line in redirects:
-        line = line.lstrip().rstrip()
-        if line.startswith('redirect:'):
-            line = line.replace('redirect:', '').lstrip().rstrip()
-            from_url, to_url = line.split()
-            from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
-            redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-            db.session.add(redirect)
-            db.session.commit()
+        try:
+            line = line.lstrip().rstrip()
+            if line.startswith('redirect:'):
+                line = line.replace('redirect:', '').lstrip().rstrip()
+                from_url, to_url = line.split()
+                from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
+                redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+                db.session.add(redirect)
+                db.session.commit()
+        except IntegretyError, e:
+            message = str(e) + "for line %s" % line
+            sender = 'tinker@bethel.edu'
+            receivers = ['e-jameson@bethel.edu']
+
+
+            try:
+               smtpObj = smtplib.SMTP('localhost')
+               smtpObj.sendmail(sender, receivers, message)
+               print "Successfully sent email"
+            except SMTPException:
+               print "Error: unable to send email"
 
     if redirect:
         create_redirect_text_file()
@@ -82,7 +97,7 @@ def new_api_submit():
 
 # @redirect_blueprint.route('/delete-all')
 # def delete_all():
-#     redirects = BethelRedirect.query.all()
+#     redirects =we BethelRedirect.query.all()
 #     for redirect in redirects:
 #         db.session.delete(redirect)
 #         db.session.commit()
