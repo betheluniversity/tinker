@@ -77,8 +77,8 @@ def new_api_submit():
                 redirect = BethelRedirect(from_path=from_path, to_url=to_url)
                 db.session.add(redirect)
                 db.session.commit()
-        except IntegretyError, e:
-            message = str(e) + "for line %s" % line
+        except:
+            message = "redirect from %s to %s already exists" % (from_url, to_url)
             sender = 'tinker@bethel.edu'
             receivers = ['e-jameson@bethel.edu']
 
