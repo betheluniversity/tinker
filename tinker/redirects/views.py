@@ -1,6 +1,8 @@
 __author__ = 'ejc84332'
 
+#python
 import re
+import smtplib
 
 from flask import Blueprint, render_template, abort, request
 from flask.ext.sqlalchemy import SQLAlchemy, Session
@@ -76,7 +78,17 @@ def new_api_submit():
                 db.session.add(redirect)
                 db.session.commit()
         except IntegretyError, e:
-            print str(e) + "for line %s" % line
+            message = str(e) + "for line %s" % line
+            sender = 'tinker@bethel.edu'
+            receivers = ['e-jameson@bethel.edu']
+
+
+            try:
+               smtpObj = smtplib.SMTP('localhost')
+               smtpObj.sendmail(sender, receivers, message)
+               print "Successfully sent email"
+            except SMTPException:
+               print "Error: unable to send email"
 
     if redirect:
         create_redirect_text_file()
