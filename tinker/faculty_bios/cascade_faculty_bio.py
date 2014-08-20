@@ -11,6 +11,7 @@ from tinker.web_services import *
 
 from tinker.cascade_tools import *
 from tinker import app
+from tinker import tools
 ##from tinker import cache
 
 
@@ -217,8 +218,10 @@ def create_faculty_bio(asset):
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
 
-    response = client.service.create(auth, asset)
+    username = tools.get_user()
 
+    response = client.service.create(auth, asset)
+    response = app.logger.warn(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))
 
     ##publish the xml file so the new event shows up
     publish_faculty_bio_xml()

@@ -191,7 +191,7 @@ def submit_form():
     asset = get_event_structure(add_data, username, workflow)
 
     resp = create(asset)
-    app.logger.warn(time.strftime("%c") + ": new event submission " + str(resp))
+    
     return redirect('/event/confirm', code=302)
     ##Just print the response for now
 
@@ -229,11 +229,11 @@ def submit_edit_form():
     new_year = get_year_folder_value(add_data)
 
     resp = edit(asset)
-    app.logger.warn(time.strftime("%c") + ": event edit submission " + str(resp))
+    app.logger.warn(time.strftime("%c") + ": Event edit submission by " + username + " " + str(resp))
 
     if new_year > current_year:
         resp = move_event_year(event_id, add_data)
-        app.logger.warn(time.strftime("%c") + ": event movesubmission " + str(resp))
+        app.logger.warn(time.strftime("%c") + ": Event movesubmission by " + username + " " + str(resp))
 
 
     #return str(resp)
