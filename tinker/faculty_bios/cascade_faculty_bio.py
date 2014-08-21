@@ -95,6 +95,14 @@ def get_add_a_degree(add_data):
             },
         },
 
+        node = {
+            'type': "group",
+            'identifier': "education",
+            'structuredDataNodes': {
+                'structuredDataNode': node,
+            },
+        },
+
         degrees.append(node)
 
     return degrees
