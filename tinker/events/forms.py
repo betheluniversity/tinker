@@ -25,7 +25,7 @@ from tinker.web_services import get_client, read
 
 
 def get_md(metadata_path):
-
+    ##todo this should be in web_services.py.At least getting. The "return" traversal can be here.
     auth = app.config['CASCADE_LOGIN']
 
     identifier = {
@@ -169,8 +169,8 @@ class EventForm(Form):
 
     categories = HeadingField(label="Categories")
 
-    general = SelectMultipleField('General categories', choices=general_choices, validators=[Required()])
-    offices = SelectMultipleField('Offices', choices=offices_choices, validators=[Required()])
-    academic_dates = SelectMultipleField('Academic dates', choices=academic_dates_choices, validators=[Required()])
-    cas_departments = SelectMultipleField('CAS academic department', choices=cas_departments_choices, validators=[Required()])
-    internal = SelectMultipleField('Internal only', choices=internal_choices, validators=[Required()])
+    general = SelectMultipleField('General categories', choices=general_choices, default=['None'], validators=[Required()])
+    offices = SelectMultipleField('Offices', choices=offices_choices, default=['None'], validators=[Required()])
+    academic_dates = SelectMultipleField('Academic dates', default=['None'], choices=academic_dates_choices, validators=[Required()])
+    cas_departments = SelectMultipleField('CAS academic department', default=['None'], choices=cas_departments_choices, validators=[Required()])
+    internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices, validators=[Required()])

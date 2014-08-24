@@ -5,3 +5,5 @@ tasks.xml
 error.log
 redirects.txt
 app.db
+.idea
+.idea/tinker.iml
