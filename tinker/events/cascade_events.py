@@ -452,7 +452,7 @@ def get_event_publish_workflow(title="", username=""):
     if title:
         title = "-- %s" % title
     workflow = {
-        "workflowName": "%s -- %s at %s (%s)" %
+        "workflowName": "%s, %s at %s (%s)" %
                         (title, time.strftime("%m-%d-%Y"), time.strftime("%I:%M %p"), username),
         "workflowDefinitionId": "1ca9794e8c586513742d45fd39c5ffe3",
         "workflowComments": "New event submission"
