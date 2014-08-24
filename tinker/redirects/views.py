@@ -80,7 +80,7 @@ def new_api_submit():
         except:
             message = "redirect from %s to %s already exists" % (from_url, to_url)
             sender = 'tinker@bethel.edu'
-            receivers = ['e-jameson@bethel.edu']
+            receivers = ['e-jameson@bethel.edu', 'a-vennerstrom@bethel.edu']
 
             smtpObj = smtplib.SMTP('localhost')
             smtpObj.sendmail(sender, receivers, message)
@@ -136,12 +136,12 @@ def create_redirect_text_file():
     for item in redirects:
         map_file.write("%s %s\n" % (item.from_path, item.to_url))
 
-    if app.config['ENVIRON'] == "prod":
-        from subprocess import call
-        resp = call(["/opt/tinker/tinker/txt2dbm.pl", "/opt/tinker/tinker/redirects.txt", "/opt/tinker/tinker/redirects.dbm"])
-    else:
-        resp = 'done'
-    return str(resp)
+    # if app.config['ENVIRON'] == "prod":
+    #     from subprocess import call
+    #     resp = call(["/opt/tinker/tinker/txt2dbm.pl", "/opt/tinker/tinker/redirects.txt", "/opt/tinker/tinker/redirects.dbm"])
+    # else:
+    resp = 'done'
+    return resp
 
 # @redirect_blueprint.route('/load')
 # def load_redirects():
