@@ -9,23 +9,17 @@ from wtforms import TextField
 from wtforms import TextAreaField
 from wtforms import SelectMultipleField
 from wtforms import SelectField
-from wtforms import RadioField
 from wtforms import DateTimeField
-from wtforms import FieldList
-from wtforms import FormField
 from wtforms import Field
-from wtforms import Label
 from wtforms.validators import Required
-from wtforms.validators import Optional
 
 #local
 from tinker import app
-##from tinker import cache
 from tinker.web_services import get_client, read
 
 
 def get_md(metadata_path):
-
+    ##todo this should be in web_services.py.At least getting. The "return" traversal can be here.
     auth = app.config['CASCADE_LOGIN']
 
     identifier = {
@@ -139,7 +133,6 @@ class EventForm(Form):
     location_choices = (('', "-select-"), ('On Campus', 'On Campus'), ('Off Campus', 'Off Campus'))
     heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
-
     what = HeadingField(label="What is your event?")
     title = TextField('Event name', validators=[Required()], description="This will be the title of your webpage")
     teaser = TextField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.')
@@ -169,8 +162,8 @@ class EventForm(Form):
 
     categories = HeadingField(label="Categories")
 
-    general = SelectMultipleField('General categories', choices=general_choices, validators=[Required()])
-    offices = SelectMultipleField('Offices', choices=offices_choices, validators=[Required()])
-    academic_dates = SelectMultipleField('Academic dates', choices=academic_dates_choices, validators=[Required()])
-    cas_departments = SelectMultipleField('CAS academic department', choices=cas_departments_choices, validators=[Required()])
-    internal = SelectMultipleField('Internal only', choices=internal_choices, validators=[Required()])
+    general = SelectMultipleField('General categories', choices=general_choices, default=['None'], validators=[Required()])
+    offices = SelectMultipleField('Offices', choices=offices_choices, default=['None'], validators=[Required()])
+    academic_dates = SelectMultipleField('Academic dates', default=['None'], choices=academic_dates_choices, validators=[Required()])
+    cas_departments = SelectMultipleField('CAS academic department', default=['None'], choices=cas_departments_choices, validators=[Required()])
+    internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices, validators=[Required()])
