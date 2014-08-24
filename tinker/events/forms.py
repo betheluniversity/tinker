@@ -9,18 +9,12 @@ from wtforms import TextField
 from wtforms import TextAreaField
 from wtforms import SelectMultipleField
 from wtforms import SelectField
-from wtforms import RadioField
 from wtforms import DateTimeField
-from wtforms import FieldList
-from wtforms import FormField
 from wtforms import Field
-from wtforms import Label
 from wtforms.validators import Required
-from wtforms.validators import Optional
 
 #local
 from tinker import app
-##from tinker import cache
 from tinker.web_services import get_client, read
 
 
@@ -138,7 +132,6 @@ class EventForm(Form):
 
     location_choices = (('', "-select-"), ('On Campus', 'On Campus'), ('Off Campus', 'Off Campus'))
     heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
-
 
     what = HeadingField(label="What is your event?")
     title = TextField('Event name', validators=[Required()], description="This will be the title of your webpage")
