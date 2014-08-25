@@ -7,3 +7,7 @@ redirects.txt
 app.db
 .idea
 .idea/tinker.iml
+
+.idea/inspectionProfiles/profiles_settings.xml
+
+.idea/modules.xml
