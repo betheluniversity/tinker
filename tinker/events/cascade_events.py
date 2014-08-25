@@ -253,10 +253,10 @@ def traverse_event_folder(traverse_xml, username):
 def get_forms_for_user(username):
 
     if app.config['ENVIRON'] != "prod":
-        response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/events.xml')
+        response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/events/events.xml')
         form_xml = ET.fromstring(response.read())
     else:
-        form_xml = ET.parse('/var/www/staging/public/_shared-content/xml/events.xml').getroot()
+        form_xml = ET.parse('/var/www/staging/public/_shared-content/xml/events/events.xml').getroot()
     matches = traverse_event_folder(form_xml, username)
 
     return matches
