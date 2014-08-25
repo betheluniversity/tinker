@@ -9,6 +9,11 @@
             width: 180px;
             margin: 10px;
       }
+      .button-image{
+            padding: 5px;
+            height: 150px;
+            width: 150px;
+      }
   </style>
 {% endblock %}
 
@@ -22,31 +27,28 @@
     <hr />
 
     <div class="row">
-        <div class="large-10 columns">
+        <div class="large-6 columns">
 
-            <a class="button expand" href="/event">Manage events</a>
+            <a class="button expand" href="/event"><img src="get-image/events-icon.png" class="button-image" /><br />Manage events</a>
         </div>
+
+        {% if 'FACULTY' in session['roles'] %}
+            <div class="large-6 columns">
+
+              <a href="/faculty-bios" class="button expand"><img src="get-image/faculty-bio-icon.png" class="button-image" /><br />Edit your faculty bio page</a>
+            </div>
+        {% endif %}
     </div>
-    {% if 'FACULTY' in session['roles'] %}
-      <div class="row">
-        <div class="large-10 columns">
-          <a href="/faculty-bios" class="button expand">Edit your faculty bio page</a>
-        </div>
-      </div>
-    {% endif %}
+
 
     {% if username in ['ejc84332', 'ces55739'] %}
       <div class="row">
-        <div class="large-10 columns">
-          <a href="/redirects" class="button expand">Manage Redirects</a>
+        <div class="large-6 columns">
+          <a href="/redirects" class="button expand"><img src="get-image/redirect-icon.png" class="button-image" /><br />Manage Redirects</a>
         </div>
-      </div>
-    {% endif %}
 
-    {% if username in ['ejc84332', 'ces55739'] %}
-      <div class="row">
-        <div class="large-10 columns">
-          <a href="/wufoo" class="button expand">Manage wufoo</a>
+        <div class="large-6 columns">
+          <a href="/wufoo" class="button expand"><img src="get-image/wufoo-icon.png" class="button-image" /><br />Manage wufoo</a>
         </div>
       </div>
     {% endif %}
