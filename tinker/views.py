@@ -18,6 +18,10 @@ def home():
 
     return render_template('home.html', **locals())
 
+@app.route('/about')
+def about():
+    return render_template('about-page.html', **locals())
+
 @app.route('/get-image/<image_name>')
 def get_image(image_name):
     return send_file('images/' + image_name, mimetype='image/png')

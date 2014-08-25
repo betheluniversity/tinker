@@ -104,7 +104,7 @@ def escape_wysiwyg_content(parser, content):
     # from xml.sax.saxutils import escape
     # content =  escape(content)
     # content1 = content.replace( "&", "&amp;")
-    content2 = parser.unescape(content)
+    content2 = parser.escape(content)
     return content2
 
 
