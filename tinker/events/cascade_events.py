@@ -251,7 +251,7 @@ def traverse_event_folder(traverse_xml, username):
 
 
 def get_forms_for_user(username):
-
+    #todo: move this to config
     if app.config['ENVIRON'] != "prod":
         response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/events.xml')
         form_xml = ET.fromstring(response.read())
