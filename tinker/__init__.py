@@ -3,15 +3,8 @@ import os
 
 
 #flask
-from flask import request
 from flask import Flask
 from tinker.tools import TinkerTools
-
-from flask.ext.sqlalchemy import SQLAlchemy
-
-#flask extensions
-from flask.ext.foundation import Foundation
-##from flask.ext.cache import Cache
 
 #flask extensions
 from flask.ext.cache import Cache

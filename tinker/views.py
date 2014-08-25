@@ -1,18 +1,16 @@
-#flask
-from flask import render_template
-
+#python
 import json
 
 #flask
+from flask import render_template
 
-
-
-from tinker import app
+#tinker
 from tinker import tools
+from tinker import app
 
 
 @app.route('/')
-def show_home():
+def home():
     ## index page for adding events and things
     username = tools.get_user()
 
