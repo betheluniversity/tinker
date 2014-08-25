@@ -22,13 +22,34 @@
     <hr />
 
     <div class="row">
-        <div class="large-12 columns">
+        <div class="large-10 columns">
 
-            <a class="home-button button" href="/event">Events</a>
+            <a class="button expand" href="/event">Manage events</a>
+        </div>
+    </div>
+    {% if 'FACULTY' in session['roles'] %}
+      <div class="row">
+        <div class="large-10 columns">
+          <a href="/faculty-bios" class="button expand">Edit your faculty bio page</a>
+        </div>
+      </div>
+    {% endif %}
 
-            {% if 'FACULTY' in session['roles'] %}
-                <a href="/faculty-bios" class="home-button button">Edit Your Bio page</a>
-            {% endif %}
+    {% if session['username'] in ['ejc84332', 'ces55739'] %}
+      <div class="row">
+        <div class="large-10 columns">
+          <a href="/redirects" class="button expand">Manage Redirects</a>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if session['username'] in ['ejc84332', 'ces55739'] %}
+      <div class="row">
+        <div class="large-10 columns">
+          <a href="/wufoo" class="button expand">Manage wufoo</a>
+        </div>
+      </div>
+    {% endif %}
 
             {#
             <a class="home-button button" href="/wufoo">Wufoo Forms</a>
@@ -38,8 +59,7 @@
             <a class="home-button button">Other Forms</a>
             #}
 
-        </div>
-    </div>
+          </div>
 {% endblock %}
 
 
