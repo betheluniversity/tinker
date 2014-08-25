@@ -107,6 +107,7 @@ def get_add_a_degree(add_data):
 
     return degrees
 
+
 def get_add_to_bio(add_data):
 
     options = []
@@ -159,8 +160,11 @@ def get_add_to_bio(add_data):
     return node
 
 def escape_wysiwyg_content(parser, content):
-
-    return parser.unescape(content)
+    from xml.sax.saxutils import escape
+    content =  escape(content)
+    # content = parser.unescape(content)
+    app.logger.warn("Faculty Bio TEXT: " + str(content))
+    return content
 
 def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
     """
@@ -176,9 +180,9 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
 
     ]
 
-    structured_data.extend(add_data['expertise'])
-    structured_data.extend(add_data['add-degree'])
-    structured_data.extend(add_data['add-to-bio'])
+    structured_data.extend( get_expertise(add_data) )
+    structured_data.extend( get_add_a_degree(add_data) )
+    structured_data.extend( get_add_to_bio(add_data) )
 
     ## Wrap in the required structure for SOAP
     structured_data = {

@@ -157,13 +157,13 @@ def submit_faculty_bio_form():
 
     #Get all the form data
     add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
-    expertise = get_expertise(add_data)
-    add_a_degree = get_add_a_degree(add_data)
-    add_to_bio = get_add_to_bio(add_data)
-
-    add_data['expertise'] = expertise
-    add_data['add-degree'] = add_a_degree
-    add_data['add-to-bio'] = add_to_bio
+    # expertise = get_expertise(add_data)
+    # add_a_degree = get_add_a_degree(add_data)
+    # add_to_bio = get_add_to_bio(add_data)
+    #
+    # add_data['expertise'] = expertise
+    # add_data['add-degree'] = add_a_degree
+    # add_data['add-to-bio'] = add_to_bio
 
     username = tools.get_user()
 
