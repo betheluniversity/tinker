@@ -9,11 +9,13 @@ from tinker.tools import TinkerTools
 #flask extensions
 from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
+from flask.ext.cors import CORS
 
 app = Flask(__name__)
 app.config.from_object('config')
 #Foundation(app)
 db = SQLAlchemy(app)
+cors = CORS(app)
 
 from tinker.wufoo import models
 from tinker.redirects import models
