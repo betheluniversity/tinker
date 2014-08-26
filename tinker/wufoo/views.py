@@ -59,7 +59,7 @@ def get_forms():
 
 @wufoo_blueprint.route('/embed-form/<formhash>')
 def embed_form(formhash):
-    formash = """
+    formhash = """
     <div id="wufoo-qo8j30m1rat7u1">
 Fill out my <a href="https://betheluniversity.wufoo.com/forms/qo8j30m1rat7u1">online form</a>.
 </div>
