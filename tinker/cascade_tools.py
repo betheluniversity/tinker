@@ -38,7 +38,7 @@ def escape_wysiwyg_content(content):
 
     content = escape(content)
 
-    content = content.replace('&amp;nbsp;', '')
+    content = content.replace('&amp;nbsp;', ' ')
 
     return content
 
