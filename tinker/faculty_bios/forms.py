@@ -123,7 +123,7 @@ class FacultyBioForm(Form):
     title = TextField('Faculty name', validators=[Required()], description="This will be the title of your webpage")
     author = TextField("Faculty member's username", validators=[Required()], description="This username will become the author of the page.")
 
-    job_titles = TextField('')
+    job_titles = TextField('', validators=[Required()])
 
     email = TextField('Email', validators=[Required()])
     started_at_bethel = TextField('Started at Bethel in', validators=[Required()], description="Enter a year")

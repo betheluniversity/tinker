@@ -103,7 +103,6 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
     """
      Could this be cleaned up at all?
     """
-    parser = HTMLParser.HTMLParser()
 
     ## Create a list of all the data nodes
     structured_data = [

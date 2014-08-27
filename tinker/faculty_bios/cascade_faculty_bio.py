@@ -196,6 +196,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
         ],
     }
 
+    authors = get_author_groups_by_metadata(add_data['department'])
+
     asset = {
         'page': {
             'name': add_data['system_name'],
@@ -209,7 +211,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
             'metadata': {
                 'title': add_data['title'],
                 'summary': 'summary',
-                'author': add_data['author'],
+                'author': add_data['author'] + authors,
                 'dynamicFields': dynamic_fields,
             }
         }
@@ -219,6 +221,63 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
         asset['page']['id'] = faculty_bio_id
 
     return asset
+
+
+## A lengthy hardcoded list that maps the metadata values to the Groups on Cascade.
+def get_author_groups_by_metadata(departmentMetadata):
+    addAuthors = ""
+
+    if any("Anthropology, Sociology, & Reconciliation" in check for check in departmentMetadata):
+        addAuthors += ", Anthropology Sociology"
+    if any("Art & Design" in check for check in departmentMetadata):
+        addAuthors += ", Art"
+    if any("Biblical & Theological Studies" in check for check in departmentMetadata):
+        addAuthors += ", Biblical Theological"
+    if any("Biological Sciences" in check for check in departmentMetadata):
+        addAuthors += ", Biology"
+    if any("Business & Economics" in check for check in departmentMetadata):
+        addAuthors += ", Business Economics"
+    if any("Chemistry" in check for check in departmentMetadata):
+        addAuthors += ", Chemistry"
+    if any("Communication Studies" in check for check in departmentMetadata):
+        addAuthors += ", Communication"
+    if any("Education" in check for check in departmentMetadata):
+        addAuthors += ", Education"
+    if any("English" in check for check in departmentMetadata):
+        addAuthors += ", English"
+    if any("Environmental Studies" in check for check in departmentMetadata):
+        addAuthors += ", Environmental Studies"
+    if any("General Education" in check for check in departmentMetadata):
+        addAuthors += ", General Education"
+    if any("History" in check for check in departmentMetadata):
+        addAuthors += ", History"
+    if any("Honors" in check for check in departmentMetadata):
+        addAuthors += ", Honors"
+    if any("Human Kinetics & Applied Health Science" in check for check in departmentMetadata):
+        addAuthors += ", Human Kinetics"
+    if any("Math & Computer Science" in check for check in departmentMetadata):
+        addAuthors += ", Math CS"
+    if any("Modern World Languages" in check for check in departmentMetadata):
+        addAuthors += ", World Languages"
+    if any("Music" in check for check in departmentMetadata):
+        addAuthors += ", Music"
+    if any("Nursing" in check for check in departmentMetadata):
+        addAuthors += ", Anthropology Sociology"
+    if any("Philosophy" in check for check in departmentMetadata):
+        addAuthors += ", Philosophy"
+    if any("Physics & Engineering" in check for check in departmentMetadata):
+        addAuthors += ", Physics"
+    if any("Political Science" in check for check in departmentMetadata):
+        addAuthors += ", Political Science"
+    if any("Psychology" in check for check in departmentMetadata):
+        addAuthors += ", Psychology"
+    if any("Social Work" in check for check in departmentMetadata):
+        addAuthors += ", Social Work"
+    if any("Theatre Arts" in check for check in departmentMetadata):
+        addAuthors += ", Theatre"
+
+    return addAuthors
+
 
 def create_faculty_bio(asset):
     auth = app.config['CASCADE_LOGIN']
