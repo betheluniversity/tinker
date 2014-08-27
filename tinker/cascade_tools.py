@@ -1,3 +1,6 @@
+#escape tool
+from xml.sax.saxutils import escape
+
 def dynamic_field(name, values):
 
     values_list = []
@@ -27,4 +30,15 @@ def structured_data_node(id, text, node_type=None):
 
     return node
 
+
+## This is pretty crazy. We need to escape the WYSIWYG content, since
+## Cascade unescapes the content it receives. We then have to remove the
+## escaped non-breaking whitespace ( &amp;nbsp; ).
+def escape_wysiwyg_content(content):
+
+    content = escape(content)
+
+    content = content.replace('&amp;nbsp;', '')
+
+    return content
 

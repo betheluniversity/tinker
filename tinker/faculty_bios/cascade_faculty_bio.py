@@ -139,11 +139,11 @@ def get_add_to_bio(add_data):
 
     data_list = [
         structured_data_node("options", options),
-        structured_data_node("biography", biography),
-        structured_data_node("awards", awards),
-        structured_data_node("publications", publications),
-        structured_data_node("certificates", certificates),
-        structured_data_node("hobbies", hobbies),
+        structured_data_node("biography", escape_wysiwyg_content(biography) ),
+        structured_data_node("awards", escape_wysiwyg_content(awards) ),
+        structured_data_node("publications", escape_wysiwyg_content(publications) ),
+        structured_data_node("certificates", escape_wysiwyg_content(certificates) ),
+        structured_data_node("hobbies", escape_wysiwyg_content(hobbies) ),
         structured_data_node("quote", quote),
         structured_data_node("website", website),
 
@@ -159,18 +159,12 @@ def get_add_to_bio(add_data):
 
     return node
 
-def escape_wysiwyg_content(parser, content):
-    from xml.sax.saxutils import escape
-    content =  escape(content)
-    # content = parser.unescape(content)
-    app.logger.warn("Faculty Bio TEXT: " + str(content))
-    return content
 
 def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
     """
      Could this be cleaned up at all?
     """
-    parser = HTMLParser.HTMLParser()
+
 
     ## Create a list of all the data nodes
     structured_data = [
