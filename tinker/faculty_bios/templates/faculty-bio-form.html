@@ -162,6 +162,7 @@
             var title = 'job-title' + id;
             var node = $('<fieldset>').addClass('job-fieldset');
             node.append($("<legend>").html("Job Title " + id));
+            node.append('<small>Required</small>');
             node.append($("<input type='text'>").attr('name', title).attr('id', title));
 
             return node;
@@ -231,7 +232,7 @@
         #}
 
         {% if form.errors or not degrees_good and num_degrees %}
-          var degrees = {{ old_degrees|safe }};
+          var degrees = {{ degrees|safe }};
           var tt = {{ num_degrees }};
           for (var i = 1; i < {{ num_degrees + 1}}; i++){
             if(i == 1){
@@ -395,6 +396,7 @@
 {% macro job_title_fieldset() -%}
   <fieldset class="job-fieldset">
     <legend>Job Title 1</legend>
+      <small>Required</small>
       <input type="text" name="job-title1" id="job-title1"/>
   </fieldset>
   <a href="javascript:void(0);" id="add_job_button" class="button tiny">Add Another Job Title</a>
