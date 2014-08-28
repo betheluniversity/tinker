@@ -143,7 +143,7 @@ def submit_faculty_bio_form():
     jobs, jobs_good, num_jobs = check_jobs(rform)
     degrees, degrees_good, num_degrees = check_degrees(rform)
 
-    if not form.validate_on_submit():
+    if not form.validate_on_submit() or not jobs_good:
         if 'faculty_bio_id' in request.form.keys():
             faculty_bio_id = request.form['faculty_bio_id']
         else:

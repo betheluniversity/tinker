@@ -121,9 +121,9 @@ def get_faculty_bio_choices():
 class FacultyBioForm(Form):
 
     title = TextField('Faculty name', validators=[Required()], description="This will be the title of your webpage")
-    author = TextField("Faculty member's username", validators=[Required()], description="This username will become the author of the page.")
+    # author = TextField("Faculty member's username", validators=[Required()], description="This username will become the author of the page.")
 
-    job_titles = TextField('', validators=[Required()])
+    job_titles = TextField('')
 
     email = TextField('Email', validators=[Required()])
     started_at_bethel = TextField('Started at Bethel in', validators=[Required()], description="Enter a year")
@@ -157,8 +157,8 @@ class FacultyBioForm(Form):
     gs_choices = choices['graduate_program']
     sem_choices = choices['seminary_program']
 
-    school = SelectMultipleField('School', choices=school_choices, validators=[Required()])
-    department = SelectMultipleField('Undergraduate Departments', choices=department_choices, validators=[Required()])
-    adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', choices=caps_choices, validators=[Required()])
-    graduate_program = SelectMultipleField('Graduate Programs', choices=gs_choices, validators=[Required()])
-    seminary_program = SelectMultipleField('Seminary Programs', choices=sem_choices, validators=[Required()])
+    school = SelectMultipleField('School', choices=school_choices, default=['Select'], validators=[Required()])
+    department = SelectMultipleField('Undergraduate Departments', default=['Select'], choices=department_choices, validators=[Required()])
+    adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['Select'], choices=caps_choices, validators=[Required()])
+    graduate_program = SelectMultipleField('Graduate Programs', default=['Select'], choices=gs_choices, validators=[Required()])
+    seminary_program = SelectMultipleField('Seminary Programs', default=['Select'], choices=sem_choices, validators=[Required()])
