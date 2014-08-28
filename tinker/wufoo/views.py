@@ -60,13 +60,13 @@ def get_forms():
 @wufoo_blueprint.route('/embed-form/<formhash>')
 def embed_form(formhash):
     formhash = """
-    <div id="wufoo-qo8j30m1rat7u1">
-Fill out my <a href="https://betheluniversity.wufoo.com/forms/qo8j30m1rat7u1">online form</a>.
+    <div id="wufoo-%s">
+Fill out my <a href="https://betheluniversity.wufoo.com/forms/%s">online form</a>.
 </div>
-<script type="text/javascript">var qo8j30m1rat7u1;(function(d, t) {
+<script type="text/javascript">var %s;(function(d, t) {
 var s = d.createElement(t), options = {
 'userName':'betheluniversity',
-'formHash':'qo8j30m1rat7u1',
+'formHash':'%s',
 'autoResize':true,
 'height':'781',
 'async':true,
@@ -76,10 +76,10 @@ var s = d.createElement(t), options = {
 s.src = ('https:' == d.location.protocol ? 'https://' : 'http://') + 'www.wufoo.com/scripts/embed/form.js';
 s.onload = s.onreadystatechange = function() {
 var rs = this.readyState; if (rs) if (rs != 'complete') if (rs != 'loaded') return;
-try { qo8j30m1rat7u1 = new WufooForm();qo8j30m1rat7u1.initialize(options);qo8j30m1rat7u1.display(); } catch (e) {}};
+try { %s = new WufooForm();%s.initialize(options);%s.display(); } catch (e) {}};
 var scr = d.getElementsByTagName(t)[0], par = scr.parentNode; par.insertBefore(s, scr);
 })(document, 'script');</script>
-    """
+    """ % (formhash, formhash, formhash, formhash, formhash, formhash, formhash)
     return formhash
 
 
