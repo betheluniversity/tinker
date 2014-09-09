@@ -52,16 +52,16 @@ def read_page():
     client = get_client()
 
     identifier = {
-        'id': 'cbfdf36b8c58651375fc4ed2f9c5d70b',
-        'type': 'page'
+        'id': 'ces55739',
+        'type': 'user'
     }
 
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.read(auth, identifier)
 
-    # return "<pre>" + str(response) + "</pre>"
-    return str(response)
+    return "<pre>" + str(response) + "</pre>"
+    # return str(response)
 
 @event_blueprint.route('/edit/<event_id>')
 def edit_event_page(event_id):

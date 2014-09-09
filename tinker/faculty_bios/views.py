@@ -19,7 +19,7 @@ def faculty_bio_home():
     username = tools.get_user()
 
     forms = get_faculty_bios_for_user(username)
-
+    # return forms
     return render_template('faculty-bio-home.html', **locals())
 
 @faculty_bio_blueprint.route('/delete/<page_id>')
@@ -116,7 +116,12 @@ def faculty_bio_edit_form(faculty_bio_id):
 
     ## Add the rest of the fields. Can't loop over these kinds of metadata
     edit_data['title'] = metadata.title
-    edit_data['author'] = metadata.author
+
+
+    ## only take the first element
+    authors = metadata.author
+    authors = authors.split(", ")
+    edit_data['author'] = authors[0]
 
     #Create an EventForm object with our data
     form = FacultyBioForm(**edit_data)
@@ -156,7 +161,7 @@ def submit_faculty_bio_form():
     form = rform
 
     #Get all the form data
-    add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
+    add_data = get_add_data(['school', 'department'], form) ##, 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
     # expertise = get_expertise(add_data)
     # add_a_degree = get_add_a_degree(add_data)
     # add_to_bio = get_add_to_bio(add_data)
