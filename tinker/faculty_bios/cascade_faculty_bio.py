@@ -190,13 +190,11 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
         'dynamicField': [
             dynamic_field('school', add_data['school']),
             dynamic_field('department', add_data['department']),
-            dynamic_field('adult-undergrad-program', add_data['adult_undergrad_program']),
-            dynamic_field('graduate-program', add_data['graduate_program']),
-            dynamic_field('seminary-program', add_data['seminary_program'])
+            # dynamic_field('adult-undergrad-program', add_data['adult_undergrad_program']),
+            # dynamic_field('graduate-program', add_data['graduate_program']),
+            # dynamic_field('seminary-program', add_data['seminary_program'])
         ],
     }
-
-    authors = get_author_groups_by_metadata(add_data['department'])
 
     asset = {
         'page': {
@@ -211,7 +209,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
             'metadata': {
                 'title': add_data['title'],
                 'summary': 'summary',
-                'author': add_data['author'] + authors,
+                'author': add_data['author'] + get_author_groups_by_metadata(add_data['department']),
                 'dynamicFields': dynamic_fields,
             }
         }
@@ -307,6 +305,9 @@ def get_faculty_bios_for_user(username):
 
 def traverse_faculty_folder(traverse_xml, username):
     ## Travserse an XML folder, adding system-pages to a dict of matches
+    user = read( username , "user")
+    allowedGroups = user.asset.user.groups
+    allowedGroups = allowedGroups.split(";")
 
     matches = []
     for child in traverse_xml:
@@ -322,6 +323,8 @@ def traverse_faculty_folder(traverse_xml, username):
             except AttributeError:
                 is_published = False
 
+
+
             for author in authors:
 
                 if author == username:
@@ -335,14 +338,11 @@ def traverse_faculty_folder(traverse_xml, username):
                     }
                     ## This is a match, add it to array
                     matches.append(page_values)
-                else: ## Check if the author given is a 'group'
-                    group = read( author , "group")
-                    if not group.asset:
-                        break
-                    allowedUsers = group.asset.group.users
-                    allowedUsers = allowedUsers.split(";")
-                    for allowedUser in allowedUsers:
-                        if allowedUser == username:
+                else:
+                    for allowedGroup in allowedGroups:
+                        if allowedGroup == author:
+
+
                             page_values = {
                                 'author': child.find('author').text,
                                 'id': child.attrib['id'] or None,
@@ -353,7 +353,6 @@ def traverse_faculty_folder(traverse_xml, username):
                             }
                             ## This is a match, add it to array
                             matches.append(page_values)
-
 
 
         elif child.tag == 'system-folder':

@@ -89,6 +89,7 @@ def read(read_id, type="page"):
 
     client = get_client()
 
+
     identifier = {
         'id': read_id,
         'type': type
