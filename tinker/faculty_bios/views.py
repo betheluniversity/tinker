@@ -175,9 +175,9 @@ def submit_faculty_bio_form():
     username = tools.get_user()
 
     faculty_bio_id = form['faculty_bio_id']
-
+    if faculty_bio_id:
+        workflow = None
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
-
 
 
     ## Depending on the type of submit, return a different error message.
