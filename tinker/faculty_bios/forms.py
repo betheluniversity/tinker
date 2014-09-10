@@ -149,7 +149,7 @@ class FacultyBioForm(Form):
 
 
 
-    categories = HeadingField(label="Categories ( Which categories do we want? )")
+    categories = HeadingField(label="Categories")
     choices = get_faculty_bio_choices()
     school_choices = choices['school']
     department_choices = choices['department']
