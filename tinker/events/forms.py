@@ -137,7 +137,7 @@ class EventForm(Form):
     title = TextField('Event name', validators=[Required()], description="This will be the title of your webpage")
     teaser = TextField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.')
     featuring = TextField('Featuring')
-    sponsors = TextAreaField('Sponsors')
+    sponsors = CKEditorTextAreaField('Sponsors')
     main_content = CKEditorTextAreaField('Event description')
 
     when = HeadingField(label="When is your event?")
