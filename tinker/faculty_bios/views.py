@@ -179,7 +179,6 @@ def submit_faculty_bio_form():
         workflow = None
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 
-
     ## Depending on the type of submit, return a different error message.
     ## ALSO, this can be modified to have separate returned templates (or redirects )
     if faculty_bio_id:
