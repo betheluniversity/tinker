@@ -332,21 +332,21 @@ def get_page_values_from_xml(page, authors_text ):
     path_text = ""
     if len(page.getElementsByTagName('path')) > 0:
         path = page.getElementsByTagName('path')[0].toxml()
-        path_text = path.replace('<path>','').replace('</path>','')
+        path_text = 'http://staging.bethel.edu' + path.replace('<path>','').replace('</path>','')
 
     is_published_text = True
     if len(page.getElementsByTagName('last-published-on')) > 0:
         published = page.getElementsByTagName('last-published-on')[0].toxml()
-        is_published_text = True
     else:
-        is_published = False
+        is_published_text = False
+        path_text = ""
 
     page_values = {
         'author': authors_text,
         'id': page.getAttribute('id') or None,
         'title': title_text or None,
         'created-on': created_text or None,
-        'path': 'http://staging.bethel.edu' + path_text or None,
+        'path': path_text or '',
         'is_published': is_published_text
     }
     return page_values

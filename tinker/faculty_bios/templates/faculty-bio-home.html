@@ -26,18 +26,18 @@
       <div class="row">
         <div class="large-6 columns">
           <p>
-            {% if form.is_published %}
+            {% if form.path != '' %}
               <a href={{ form.path }}>{{ form.title }}</a>
             {% else %}
               {{ form.title }}
             {% endif %}
             <br/>
-            {% if form.is_published %}<small><a href={{ form.path }}>{{ form.path }}</a></small>{% endif %}
+            {% if form.path != '' %}<small><a href={{ form.path }}>{{ form.path }}</a></small>{% endif %}
           </p>
         </div>
         <div class="large-6 columns small-3">
           <ul class="button-group">
-            {% if form.is_published %}
+            {% if form.path != '' %}
               <li><a href="{{ form.path }}" class="small button success">View</a></li>
               <li><a href="/faculty-bios/edit/{{ form.id }}" class="small button">Edit</a></li>
             {% else %}
