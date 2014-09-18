@@ -4,11 +4,11 @@ __author__ = 'ejc84332'
 import re
 import smtplib
 
-from flask import Blueprint, render_template, abort, request
+from flask import Blueprint, render_template, abort, request, redirect
 from flask.ext.sqlalchemy import SQLAlchemy, Session
 from BeautifulSoup import BeautifulSoup
 
-from tinker import app, db
+from tinker import app, db, tools
 
 from tinker.redirects.models import BethelRedirect
 
@@ -16,9 +16,15 @@ redirect_blueprint = Blueprint('redirect_blueprint', __name__,
                                template_folder='templates')
 
 
+def check_redirect_groups():
+    groups = tools.get_groups_for_user()
+    if 'Redirects' not in groups:
+        abort(403)
+
+
 @redirect_blueprint.route('/')
 def show():
-
+    check_redirect_groups()
     redirects = BethelRedirect.query.all()
 
     return render_template('redirects.html', **locals())
@@ -26,6 +32,7 @@ def show():
 
 @redirect_blueprint.route('/search', methods=['post'])
 def search():
+    check_redirect_groups()
     #todo: limit results to...100?
     from_path = request.form['from_path'] + "%"
 
@@ -39,7 +46,7 @@ def search():
 
 @redirect_blueprint.route('/new-submit', methods=['post'])
 def new_redirect_submti():
-
+    check_redirect_groups()
     form = request.form
     from_path = form['new-redirect-from']
     to_url = form['new-redirect-to']
@@ -60,7 +67,7 @@ def new_redirect_submti():
 
 @redirect_blueprint.route('/api-submit', methods=['get', 'post'])
 def new_api_submit():
-
+    check_redirect_groups()
     body = request.form['body']
 
     soup = BeautifulSoup(body)
@@ -104,7 +111,7 @@ def new_api_submit():
 
 @redirect_blueprint.route('/delete', methods=['post'])
 def delete_redirect():
-
+    check_redirect_groups()
     path = request.form['from_path']
 
     resp = str(path)
@@ -123,12 +130,12 @@ def delete_redirect():
 
 @redirect_blueprint.route('/compile')
 def compile_redirects():
+    check_redirect_groups()
     resp = create_redirect_text_file()
     return resp
 
 
 def create_redirect_text_file():
-
 
     map_file = open(app.config['REDIRECT_FILE_PATH'], 'w')
     redirects = BethelRedirect.query.all()
@@ -143,24 +150,24 @@ def create_redirect_text_file():
     resp = 'done'
     return resp
 
-# @redirect_blueprint.route('/load')
-# def load_redirects():
-#
-#     from sqlalchemy.exc import IntegrityError
-#
-#     url_file = open('/Users/ejc84332/Desktop/rewrites.txt', 'r')
-#     lines = [line.strip() for line in url_file.readlines()]
-#
-#     for line in lines:
-#         if line.startswith("#"):
-#             continue
-#         try:
-#             from_path, to_url = line.split()
-#             redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-#             db.session.add(redirect)
-#             db.session.commit()
-#         except IntegrityError:
-#             db.session.rollback()
-#
-#
-#     return "done"
+
+@redirect_blueprint.route('/test')
+def test():
+    f = open('/Users/ejc84332/Desktop/www-host.txt.map')
+    lines = f.readlines()
+    resp = ["<pre>"]
+    for line in lines:
+        if line.startswith('#') or line == "\n":
+            continue
+        from_path, to_url = line.split()
+        if 'bethel.edu' not in to_url:
+            continue
+        try:
+            to_path = to_url.split('.edu')[1]
+        except:
+            x = 2
+        if from_path == to_path:
+            resp.append("Found match %s : %s" % (from_path, to_path))
+    f.close()
+    resp.append("</pre>")
+    return '\n'.join(resp)
