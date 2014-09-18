@@ -144,6 +144,8 @@ def submit_faculty_bio_form():
     username = tools.get_user()
     form = FacultyBioForm()
     rform = request.form
+    title = rform['title']
+    workflow = get_bio_publish_workflow(title, username)
 
     jobs, jobs_good, num_jobs = check_jobs(rform)
     degrees, degrees_good, num_degrees = check_degrees(rform)
@@ -173,16 +175,16 @@ def submit_faculty_bio_form():
     username = tools.get_user()
 
     faculty_bio_id = form['faculty_bio_id']
-
-    asset = get_faculty_bio_structure(add_data, username, faculty_bio_id)
-
-
+    if faculty_bio_id:
+        workflow = None
+    asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 
     ## Depending on the type of submit, return a different error message.
     ## ALSO, this can be modified to have separate returned templates (or redirects )
     if faculty_bio_id:
         resp = edit(asset)
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " " + str(resp))
+        publish(faculty_bio_id)
     else:
         resp = create_faculty_bio(asset)
 

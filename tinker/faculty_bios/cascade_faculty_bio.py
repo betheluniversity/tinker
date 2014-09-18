@@ -174,7 +174,7 @@ def get_add_to_bio(add_data):
     return node
 
 
-def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
+def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=None):
     """
      Could this be cleaned up at all?
     """
@@ -226,7 +226,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None):
                 'author': add_data['author'],
                 'dynamicFields': dynamic_fields,
             }
-        }
+        },
+        'workflowConfiguration': workflow
     }
 
     if faculty_bio_id:
@@ -297,10 +298,10 @@ def create_faculty_bio(asset):
     username = tools.get_user()
 
     response = client.service.create(auth, asset)
-    response = app.logger.warn(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))
-
+    app.logger.warn(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))
     ##publish the xml file so the new event shows up
     publish_faculty_bio_xml()
+
 
     return response
 
@@ -424,3 +425,16 @@ def get_add_data(lists, form):
     add_data['system_name'] = system_name
 
     return add_data
+
+
+def get_bio_publish_workflow(title="", username=""):
+
+    name = "New Bio Submission"
+    if title:
+        name += ": " + title
+    workflow = {
+        "workflowName": name,
+        "workflowDefinitionId": "6085e51c8c5865135c5c083d467cbae5",
+        "workflowComments": "New Faculty Bio submission"
+    }
+    return workflow
