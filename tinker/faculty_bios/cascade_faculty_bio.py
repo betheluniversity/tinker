@@ -1,9 +1,7 @@
 #python
-import re
 import urllib2
-import HTMLParser
 from xml.etree import ElementTree as ET
-
+from xml.dom.minidom import parseString
 #flask
 
 #local
@@ -12,8 +10,24 @@ from tinker.web_services import *
 from tinker.cascade_tools import *
 from tinker import app
 from tinker import tools
+
 ##from tinker import cache
 
+def get_xml_bios(url):
+    file = urllib2.urlopen(url)
+
+    data = file.read()
+
+    file.close()
+
+    dom = parseString(data)
+
+    pages = dom.getElementsByTagName('system-page')
+
+
+    return pages
+
+    # print xmlData
 
 def get_job_titles( add_data):
     job_titles = []
@@ -209,7 +223,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             'metadata': {
                 'title': add_data['title'],
                 'summary': 'summary',
-                'author': add_data['author'] + get_author_groups_by_metadata(add_data['department']),
+                'author': add_data['author'],
                 'dynamicFields': dynamic_fields,
             }
         },
@@ -223,59 +237,58 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
 
 
 ## A lengthy hardcoded list that maps the metadata values to the Groups on Cascade.
-def get_author_groups_by_metadata(departmentMetadata):
-    addAuthors = ""
+def get_web_author_group(departmentMetadata):
 
-    if any("Anthropology, Sociology, & Reconciliation" in check for check in departmentMetadata):
-        addAuthors += ", Anthropology Sociology"
-    if any("Art & Design" in check for check in departmentMetadata):
-        addAuthors += ", Art"
-    if any("Biblical & Theological Studies" in check for check in departmentMetadata):
-        addAuthors += ", Biblical Theological"
-    if any("Biological Sciences" in check for check in departmentMetadata):
-        addAuthors += ", Biology"
-    if any("Business & Economics" in check for check in departmentMetadata):
-        addAuthors += ", Business Economics"
-    if any("Chemistry" in check for check in departmentMetadata):
-        addAuthors += ", Chemistry"
-    if any("Communication Studies" in check for check in departmentMetadata):
-        addAuthors += ", Communication"
-    if any("Education" in check for check in departmentMetadata):
-        addAuthors += ", Education"
-    if any("English" in check for check in departmentMetadata):
-        addAuthors += ", English"
-    if any("Environmental Studies" in check for check in departmentMetadata):
-        addAuthors += ", Environmental Studies"
-    if any("General Education" in check for check in departmentMetadata):
-        addAuthors += ", General Education"
-    if any("History" in check for check in departmentMetadata):
-        addAuthors += ", History"
-    if any("Honors" in check for check in departmentMetadata):
-        addAuthors += ", Honors"
-    if any("Human Kinetics & Applied Health Science" in check for check in departmentMetadata):
-        addAuthors += ", Human Kinetics"
-    if any("Math & Computer Science" in check for check in departmentMetadata):
-        addAuthors += ", Math CS"
-    if any("Modern World Languages" in check for check in departmentMetadata):
-        addAuthors += ", World Languages"
-    if any("Music" in check for check in departmentMetadata):
-        addAuthors += ", Music"
-    if any("Nursing" in check for check in departmentMetadata):
-        addAuthors += ", Anthropology Sociology"
-    if any("Philosophy" in check for check in departmentMetadata):
-        addAuthors += ", Philosophy"
-    if any("Physics & Engineering" in check for check in departmentMetadata):
-        addAuthors += ", Physics"
-    if any("Political Science" in check for check in departmentMetadata):
-        addAuthors += ", Political Science"
-    if any("Psychology" in check for check in departmentMetadata):
-        addAuthors += ", Psychology"
-    if any("Social Work" in check for check in departmentMetadata):
-        addAuthors += ", Social Work"
-    if any("Theatre Arts" in check for check in departmentMetadata):
-        addAuthors += ", Theatre"
+    if "Anthropology, Sociology, & Reconciliation" == departmentMetadata:
+        return "Anthropology Sociology"
+    if "Art & Design" == departmentMetadata:
+        return "Art"
+    if "Biblical & Theological Studies" == departmentMetadata:
+        return "Biblical Theological"
+    if "Biological Sciences" == departmentMetadata:
+        return "Biology"
+    if "Business & Economics" == departmentMetadata:
+        return "Business Economics"
+    if "Chemistry" == departmentMetadata:
+        return "Chemistry"
+    if "Communication Studies" == departmentMetadata:
+        return "Communication"
+    if "Education" == departmentMetadata:
+        return "Education"
+    if "English" == departmentMetadata:
+        return "English"
+    if "Environmental Studies" == departmentMetadata:
+        return "Environmental Studies"
+    if "General Education" == departmentMetadata:
+        return "General Education"
+    if "History" == departmentMetadata:
+        return "History"
+    if "Honors" == departmentMetadata:
+        return "Honors"
+    if "Human Kinetics & Applied Health Science" == departmentMetadata:
+        return "Human Kinetics"
+    if "Math & Computer Science" == departmentMetadata:
+        return "Math CS"
+    if "Modern World Languages" == departmentMetadata:
+        return "World Languages"
+    if "Music" == departmentMetadata:
+        return "Music"
+    if "Nursing" == departmentMetadata:
+        return "Anthropology Sociology"
+    if "Philosophy" == departmentMetadata:
+        return "Philosophy"
+    if "Physics & Engineering" == departmentMetadata:
+        return "Physics"
+    if "Political Science" == departmentMetadata:
+        return "Political Science"
+    if "Psychology" == departmentMetadata:
+        return "Psychology"
+    if "Social Work" == departmentMetadata:
+        return "Social Work"
+    if "Theatre Arts" == departmentMetadata:
+        return "Theatre"
 
-    return addAuthors
+    return ""
 
 
 def create_faculty_bio(asset):
@@ -304,61 +317,92 @@ def get_faculty_bios_for_user(username):
 
     return matches
 
+
+def get_page_values_from_xml(page, authors_text ):
+    title_text = ""
+    if len(page.getElementsByTagName('title')) > 0:
+        title = page.getElementsByTagName('title')[0].toxml()
+        title_text = title.replace('<title>','').replace('</title>','')
+
+    created_text = ""
+    if len(page.getElementsByTagName('created-on')) > 0:
+        created = page.getElementsByTagName('created-on')[0].toxml()
+        created_text = created.replace('<created-on>','').replace('</created-on>','')
+
+    path_text = ""
+    if len(page.getElementsByTagName('path')) > 0:
+        path = page.getElementsByTagName('path')[0].toxml()
+        path_text = 'http://staging.bethel.edu' + path.replace('<path>','').replace('</path>','')
+
+    is_published_text = True
+    if len(page.getElementsByTagName('last-published-on')) > 0:
+        published = page.getElementsByTagName('last-published-on')[0].toxml()
+    else:
+        is_published_text = False
+        path_text = ""
+
+    page_values = {
+        'author': authors_text,
+        'id': page.getAttribute('id') or None,
+        'title': title_text or None,
+        'created-on': created_text or None,
+        'path': path_text or '',
+        'is_published': is_published_text
+    }
+    return page_values
+
+
 def traverse_faculty_folder(traverse_xml, username):
-    ## Travserse an XML folder, adding system-pages to a dict of matches
+    ## Traverse an XML folder, adding system-pages to a dict of matches
     user = read( username , "user")
     allowedGroups = user.asset.user.groups
     allowedGroups = allowedGroups.split(";")
 
+    pages = get_xml_bios("http://www.bethel.edu/_shared-content/xml/faculty-bios.xml")
     matches = []
-    for child in traverse_xml:
-        if child.tag == 'system-page':
-            try:
-                authors = child.find('author').text
+
+    for page in pages:
+        added_page = False
+        try:
+
+            ## check if author matches
+            if len(page.getElementsByTagName('author')) > 0:
+                authors = page.getElementsByTagName('author')[0].toxml()
+                authors_text = authors.replace('<author>','').replace('</author>','')
+
                 authors = authors.split( ", ")
-            except AttributeError:
-                continue
 
-            try:
-                is_published = child.find('last-published-on').text
-            except AttributeError:
-                is_published = False
-
-
-
-            for author in authors:
-
-                if author == username:
-                    page_values = {
-                        'author': child.find('author').text,
-                        'id': child.attrib['id'] or None,
-                        'title': child.find('title').text or None,
-                        'created-on': child.find('created-on').text or None,
-                        'path': 'http://staging.bethel.edu' + child.find('path').text or None,
-                        'is_published': is_published
-                    }
-                    ## This is a match, add it to array
-                    matches.append(page_values)
-                else:
-                    for allowedGroup in allowedGroups:
-                        if allowedGroup == author:
+                for author in authors:
+                    if username == authors_text:
+                        page_values = get_page_values_from_xml(page, authors_text);
+                        ## This is a match, add it to array
+                        matches.append(page_values)
+                        added_page = True
+                        break
 
 
-                            page_values = {
-                                'author': child.find('author').text,
-                                'id': child.attrib['id'] or None,
-                                'title': child.find('title').text or None,
-                                'created-on': child.find('created-on').text or None,
-                                'path': 'http://staging.bethel.edu' + child.find('path').text or None,
-                                'is_published': is_published
-                            }
-                            ## This is a match, add it to array
-                            matches.append(page_values)
+            ## check if metadata matches
+            ## This got really nasty traversing and checking on the way down the list.
+            ## Todo: It is probably worth cleaning this up.
+            mds = page.getElementsByTagName('dynamic-metadata')
+            for md in mds:
+                if added_page != True:                                                                                  ## if you already added this page, skip this!
+                    if len(md.getElementsByTagName('name')) > 0 and len(md.getElementsByTagName('value')) > 0:          ## make sure the elements exist
+                        if md.getElementsByTagName('name')[0].toxml() == '<name>department</name>':                     ## make sure the metadata name is department
+                            dept_value = md.getElementsByTagName('value')[0].toxml()
+                            dept_value = dept_value.replace('<value>','').replace('</value>','').replace('amp;', '')
 
+                            if dept_value != 'Select':
+                                for allowedGroup in allowedGroups:
 
-        elif child.tag == 'system-folder':
-            ##recurse into the page
-            matches.extend(traverse_faculty_folder(child, username))
+                                    if allowedGroup == get_web_author_group(dept_value):
+                                        page_values = get_page_values_from_xml(page, authors_text);
+                                        matches.append(page_values)
+                                        added_page = True
+                                        break
+
+        except AttributeError:
+            continue
     return matches
 
 def get_add_data(lists, form):
