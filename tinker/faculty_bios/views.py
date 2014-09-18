@@ -190,8 +190,6 @@ def submit_faculty_bio_form():
     return redirect('/faculty-bios/confirm', code=302)
     ##Just print the response for now
 
-
-
 def check_jobs(form):
     jobs = {}
     jobs_good = False
