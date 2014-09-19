@@ -142,13 +142,12 @@ def create_redirect_text_file():
 
 @redirect_blueprint.route('/test')
 def test():
-    f = open('/Users/ejc84332/Desktop/www-host.txt.map')
-    lines = f.readlines()
+    redirects = BethelRedirect.query.all()
     resp = ["<pre>"]
-    for line in lines:
-        if line.startswith('#') or line == "\n":
-            continue
-        from_path, to_url = line.split()
+    for redirect in redirects:
+
+        from_path = redirect.from_path
+        to_url = redirect.to_url
 
         if 'bethel.edu' not in to_url:
             continue
@@ -157,13 +156,11 @@ def test():
         except:
             x = 2
         if from_path == to_path:
-            redirect = BethelRedirect.query.get(path)
             db.session.delete(redirect)
             db.session.commit()
             resp.append("deleted %s : %s" % (from_path, to_path))
 
     create_redirect_text_file()
-    f.close()
     resp.append("</pre>")
     return '\n'.join(resp)
 
