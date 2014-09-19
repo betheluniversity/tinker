@@ -100,15 +100,6 @@ def new_api_submit():
     return str(redirect)
 
 
-# @redirect_blueprint.route('/delete-all')
-# def delete_all():
-#     redirects =we BethelRedirect.query.all()
-#     for redirect in redirects:
-#         db.session.delete(redirect)
-#         db.session.commit()
-#
-#     return 'done'
-
 @redirect_blueprint.route('/delete', methods=['post'])
 def delete_redirect():
     check_redirect_groups()
@@ -138,15 +129,13 @@ def compile_redirects():
 def create_redirect_text_file():
 
     map_file = open(app.config['REDIRECT_FILE_PATH'], 'w')
+    map_file_back = open(app.config['REDIRECT_FILE_PATH'] + ".back", 'w')
     redirects = BethelRedirect.query.all()
 
     for item in redirects:
         map_file.write("%s %s\n" % (item.from_path, item.to_url))
+        map_file_back.write("%s %s\n" % (item.from_path, item.to_url))
 
-    # if app.config['ENVIRON'] == "prod":
-    #     from subprocess import call
-    #     resp = call(["/opt/tinker/tinker/txt2dbm.pl", "/opt/tinker/tinker/redirects.txt", "/opt/tinker/tinker/redirects.dbm"])
-    # else:
     resp = 'done'
     return resp
 
@@ -160,6 +149,7 @@ def test():
         if line.startswith('#') or line == "\n":
             continue
         from_path, to_url = line.split()
+
         if 'bethel.edu' not in to_url:
             continue
         try:
@@ -167,7 +157,35 @@ def test():
         except:
             x = 2
         if from_path == to_path:
-            resp.append("Found match %s : %s" % (from_path, to_path))
+            redirect = BethelRedirect.query.get(path)
+            db.session.delete(redirect)
+            db.session.commit()
+            resp.append("deleted %s : %s" % (from_path, to_path))
+
+    create_redirect_text_file()
     f.close()
     resp.append("</pre>")
     return '\n'.join(resp)
+
+
+# @redirect_blueprint.route('/load')
+# def load_redirects():
+#
+#     from sqlalchemy.exc import IntegrityError
+#
+#     url_file = open('/Users/ejc84332/Desktop/www-host.txt.map', 'r')
+#     lines = [line.strip() for line in url_file.readlines()]
+#
+#     for line in lines:
+#         if line.startswith("#") or line == "\n" or line == "":
+#             continue
+#         try:
+#             from_path, to_url = line.split()
+#             redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+#             db.session.add(redirect)
+#             db.session.commit()
+#         except IntegrityError:
+#             db.session.rollback()
+#
+#
+#     return "done"
