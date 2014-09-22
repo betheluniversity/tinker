@@ -16,8 +16,8 @@ class TinkerTools():
             username = request.environ.get('REMOTE_USER')
         else:
             username = self.config['TEST_USER']
-            session['username'] = username
-            self.get_roles(username)
+
+        session['username'] = username
 
 	if 'roles' not in session.keys():
 	    self.get_roles(username)

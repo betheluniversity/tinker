@@ -1,5 +1,6 @@
 #python
 import urllib2
+import re
 from xml.etree import ElementTree as ET
 from xml.dom.minidom import parseString
 #flask
