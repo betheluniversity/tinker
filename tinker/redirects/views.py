@@ -5,7 +5,8 @@ import re
 import smtplib
 
 from flask import Blueprint, render_template, abort, request, redirect
-from flask.ext.sqlalchemy import SQLAlchemy, Session
+from flask.ext.sqlalchemy import SQLAlchemy
+from flask import Session
 from BeautifulSoup import BeautifulSoup
 
 from tinker import app, db, tools

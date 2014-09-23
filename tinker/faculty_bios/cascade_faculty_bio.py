@@ -356,8 +356,11 @@ def get_page_values_from_xml(page, authors_text ):
 def traverse_faculty_folder(traverse_xml, username):
     ## Traverse an XML folder, adding system-pages to a dict of matches
     user = read(username, "user")
-    allowedGroups = user.asset.user.groups
-    allowedGroups = allowedGroups.split(";")
+    try:
+        allowedGroups = user.asset.user.groups
+        allowedGroups = allowedGroups.split(";")
+    except AttributeError:
+        allowedGroups = []
 
     pages = get_xml_bios("http://www.bethel.edu/_shared-content/xml/faculty-bios.xml")
     matches = []

@@ -19,8 +19,8 @@ class TinkerTools():
 
         session['username'] = username
 
-	if 'roles' not in session.keys():
-	    self.get_roles(username)
+        if 'roles' not in session.keys():
+            self.get_roles(username)
         
         return username
 
