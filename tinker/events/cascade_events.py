@@ -99,6 +99,7 @@ def java_unix_to_date(date):
 
     return datetime.datetime.fromtimestamp(int(date) / 1000).strftime('%B %d  %Y, %I:%M %p')
 
+
 def get_event_structure(add_data, username, workflow=None, event_id=None):
     """
      Could this be cleaned up at all?

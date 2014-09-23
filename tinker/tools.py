@@ -5,7 +5,6 @@ from flask import session
 from flask import json as fjson
 import requests
 
-
 class TinkerTools():
 
     def __init__(self, config):
@@ -17,13 +16,21 @@ class TinkerTools():
             username = request.environ.get('REMOTE_USER')
         else:
             username = self.config['TEST_USER']
-            session['username'] = username
-            self.get_roles(username)
 
-        if 'roles' not in session.keys():
-            self.get_roles(username)
+        session['username'] = username
+
+	if 'roles' not in session.keys():
+	    self.get_roles(username)
+        
         return username
 
+    def get_groups_for_user(self, username=None):
+        from web_services import read
+        if not username:
+            username = self.get_user()
+        user = read(username, "user")
+        allowed_groups = user.asset.user.groups
+        return allowed_groups.split(";")
 
     def get_roles(self, username):
         url = self.config['API_URL'] + "/username/%s/roles" % username
@@ -34,8 +41,9 @@ class TinkerTools():
             ret.append(roles[key]['userRole'])
 
         ## Manually give 'faculty' privileges.
-        if username == 'ejc84332':
-            ret.append('FACULTY')
+        #todo lets move this to a cascade group
+        #if username == 'ejc84332':
+        #    ret.append('FACULTY')
         if username == 'ces55739':
             ret.append('FACULTY')
         if username == 'celanna':

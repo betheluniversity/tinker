@@ -89,12 +89,10 @@ def read(read_id, type="page"):
 
     client = get_client()
 
-
     identifier = {
         'id': read_id,
         'type': type
     }
-
 
     auth = app.config['CASCADE_LOGIN']
 
@@ -198,6 +196,7 @@ def read_date_data_structure(node):
 
     return date_data
 
+
 def get_client():
 
     return Client(url=app.config['WSDL_URL'], location=app.config['SOAP_URL'])
@@ -213,6 +212,7 @@ def publish_event_xml():
     ##with app.app_context():
     ##    cache.clear()
 
+
 def publish_faculty_bio_xml():
 
     #publish the event XML page
@@ -222,6 +222,7 @@ def publish_faculty_bio_xml():
 
     ##with app.app_context():
     ##    cache.clear()
+
 
 def get_user_group(username):
 

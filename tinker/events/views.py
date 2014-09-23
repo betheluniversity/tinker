@@ -52,8 +52,8 @@ def read_page():
     client = get_client()
 
     identifier = {
-        'id': 'ces55739',
-        'type': 'user'
+        'id': 'c5fd04b28c58651375fc4ed26cf5f584',
+        'type': 'page'
     }
 
     auth = app.config['CASCADE_LOGIN']

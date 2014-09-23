@@ -122,7 +122,8 @@ var delay = (function(){
     $("#form-save-button").append(input);
 
     $("#modal-confirm").click(function(){
-      var from_path = {"from_path": $(this).data('delete-path')};
+      debugger;
+      var from_path = {"from_path": $(this).attr('data-delete-path')};
       var url = '/redirect/delete';
       $.post(url, from_path, function(data) {
         if (data){
