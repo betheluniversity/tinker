@@ -6,12 +6,14 @@ import time
 from flask import request
 from flask import session
 from flask import json as fjson
+from flask import abort
 
 from tinker.cascade_tools import *
 from tinker import tools
 
 #modules
 from suds.client import Client
+from suds.transport import TransportError
 
 #local
 from tinker import app
@@ -85,8 +87,14 @@ def unpublish(page_id):
     return response
 
 
-def read(read_id, type="page"):
+def read_identifier(identifier):
+    client = get_client()
+    auth = app.config['CASCADE_LOGIN']
+    response = client.service.read(auth, identifier)
+    return response
 
+
+def read(read_id, type="page"):
     client = get_client()
 
     identifier = {
@@ -97,7 +105,6 @@ def read(read_id, type="page"):
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.read(auth, identifier)
-
     return response
 
 
@@ -198,8 +205,11 @@ def read_date_data_structure(node):
 
 
 def get_client():
-
-    return Client(url=app.config['WSDL_URL'], location=app.config['SOAP_URL'])
+    try:
+        client = Client(url=app.config['WSDL_URL'], location=app.config['SOAP_URL'])
+        return client
+    except TransportError:
+        abort(503)
 
 
 def publish_event_xml():

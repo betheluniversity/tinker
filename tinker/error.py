@@ -14,3 +14,8 @@ def page_not_found(e):
 @app.errorhandler(403)
 def permission_denied(e):
     return render_template('error/403.html'), 403
+
+
+@app.errorhandler(503)
+def transport_error(e):
+    return render_template('error/503.html'), 503

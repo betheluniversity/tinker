@@ -15,12 +15,11 @@ from wtforms.validators import Required
 
 #local
 from tinker import app
-from tinker.web_services import get_client, read
+from tinker.web_services import get_client, read, read_identifier
 
 
 def get_md(metadata_path):
     ##todo this should be in web_services.py.At least getting. The "return" traversal can be here.
-    auth = app.config['CASCADE_LOGIN']
 
     identifier = {
         'path': {
@@ -30,8 +29,7 @@ def get_md(metadata_path):
         'type': 'metadataset',
     }
 
-    client = get_client()
-    md = client.service.read(auth, identifier)
+    md = read_identifier(identifier)
     return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
 
 

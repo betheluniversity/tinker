@@ -24,7 +24,7 @@ from tinker.web_services import get_client, read
 
 
 def get_md(metadata_path):
-
+    #todo move this to a read()
     auth = app.config['CASCADE_LOGIN']
 
     identifier = {
