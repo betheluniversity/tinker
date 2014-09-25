@@ -358,6 +358,7 @@ def traverse_faculty_folder(traverse_xml, username):
     allowedGroups = user.asset.user.groups
     allowedGroups = allowedGroups.split(";")
 
+    ## Todo: This function can be removed. The 'traverse_xml' variable above is already doing that.
     pages = get_xml_bios("http://www.bethel.edu/_shared-content/xml/faculty-bios.xml")
     matches = []
 
