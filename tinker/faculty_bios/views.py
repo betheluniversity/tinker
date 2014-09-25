@@ -17,7 +17,6 @@ faculty_bio_blueprint = Blueprint('faculty-bios', __name__,
 def faculty_bio_home():
     ## index page for adding events and things
     username = tools.get_user()
-
     forms = get_faculty_bios_for_user(username)
     # return forms
     return render_template('faculty-bio-home.html', **locals())
