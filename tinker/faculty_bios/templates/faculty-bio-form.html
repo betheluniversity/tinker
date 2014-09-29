@@ -189,10 +189,8 @@
         $(titleid).val(value);
      }
 
-      $( document ).ready(function() {
-        CKEDITOR.config.format_tags = 'h3;h4';
-        CKEDITOR.config.disableNativeSpellChecker = false;
 
+      $( document ).ready(function() {
         {% if degrees %}
 
           var degrees = {{ degrees|safe }};

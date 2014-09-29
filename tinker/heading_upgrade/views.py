@@ -99,6 +99,7 @@ def inspect_folder(folder_id):
         if child['type'] == 'page':
             resp.append(inspect_page(child['id']))
         elif child['type'] == 'folder':
+            resp.append("looking in folder %s" % child['path'])
             resp.append(inspect_folder(child['id']))
 
     return "<pre>" + "\n".join(resp) + "</pre>"
@@ -131,7 +132,7 @@ def check_page_id(page_id):
 @heading_upgrade.route('/')
 def show():
 
-    start_folder_id = 'ad5b322d8c5865133a5d3f8925737954'
+    start_folder_id = 'c1b35e288c5865133a5d3f893471aefd'
     # for page in pages:
     #     data = read_path('_testing/jmo/test-page')
 
