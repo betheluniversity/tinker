@@ -318,7 +318,7 @@ def get_faculty_bios_for_user(username):
 
     return matches
 
-
+## Function to get the values from xml.
 def get_page_values_from_xml(page, authors_text ):
     title_text = ""
     if len(page.getElementsByTagName('title')) > 0:
@@ -421,8 +421,12 @@ def get_add_data(lists, form):
         else:
             add_data[key] = form[key]
 
+    ##Make it lastname firstname
+    system_name = add_data['title'].split(" ", 1)
+    system_name = system_name[1] + " " + system_name[0]
+
     ##Create the system-name from title, all lowercase
-    system_name = add_data['title'].lower().replace(' ', '-')
+    system_name = system_name.lower().replace(' ', '-')
 
     ##Now remove any non a-z, A-Z, 0-9
     system_name = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
