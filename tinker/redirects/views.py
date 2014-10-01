@@ -72,7 +72,7 @@ def new_api_submit():
 
     soup = BeautifulSoup(body)
     all_text = ''.join(soup.findAll(text=True))
-    redirects = re.findall("(redirect.*)", all_text)
+    redirects = re.findall("(redirect: \S* \S*)", all_text)
     redirect = ""
     for line in redirects:
         try:
