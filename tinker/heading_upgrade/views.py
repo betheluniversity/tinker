@@ -13,6 +13,8 @@ heading_upgrade = Blueprint('heading_upgrade', __name__,
 
 def escape_wysiwyg_content(content):
 
+    if not content:
+        return ""
     content = content.replace("&rsquo;", "&#39;")
     content = content.replace("&nbsp;", " ")
     content = escape(content)
@@ -26,6 +28,8 @@ def upgrade_content(content):
     h4->h3
     h5->h4
     """
+    if not content:
+        return ""
     content = content.replace("<h3", "<h2").replace("</h3>", "</h2>")
     content = content.replace("<h4", "<h3").replace("</h4>", "</h3>")
     content = content.replace("<h5", "<h4").replace("</h5>", "</h4>")
@@ -54,7 +58,11 @@ def submit_upgrade_edit(asset):
 
 
 def upgrade_basic_page(page):
-    content = page['asset']['page']['structuredData']['structuredDataNodes']['structuredDataNode'][0]['text']
+    try:
+        content = page['asset']['page']['structuredData']['structuredDataNodes']['structuredDataNode'][0]['text']
+    except:
+        #no data
+        return ""
     new_content = upgrade_content(content)
     page['asset']['page']['structuredData']['structuredDataNodes']['structuredDataNode'][0]['text'] = new_content
     asset = {
@@ -77,7 +85,12 @@ def traverse_data_nodes(nodes):
 
 def upgrade_complex_page(page):
 
-    content = page['asset']['page']['structuredData']['structuredDataNodes']['structuredDataNode']
+    try:
+        content = page['asset']['page']['structuredData']['structuredDataNodes']['structuredDataNode']
+    except:
+        #no data
+        return ""
+
     for node in content:
         ##do the outer "text" entry.
         if node['text']:
@@ -93,16 +106,19 @@ def upgrade_complex_page(page):
 
 def inspect_folder(folder_id):
     folder = read(folder_id, type="folder")
-    children = folder['asset']['folder']['children']['child']
-    resp = []
-    for child in children:
-        if child['type'] == 'page':
-            resp.append(inspect_page(child['id']))
-        elif child['type'] == 'folder':
-            resp.append("looking in folder %s" % child['path'])
-            resp.append(inspect_folder(child['id']))
-
-    return "<pre>" + "\n".join(resp) + "</pre>"
+    children = folder['asset']['folder']['children']
+    if not children:
+        yield ""
+    else:
+        resp = []
+        for child in children['child']:
+            if child['type'] == 'page':
+                for item in inspect_page(child['id']):
+                    yield item
+            elif child['type'] == 'folder':
+                yield "looking in folder %s" % child['path']['path']
+                for item in inspect_folder(child['id']):
+                    yield item
 
 
 def inspect_page(page_id):
@@ -119,7 +135,13 @@ def inspect_page(page_id):
     elif page_type.startswith("Event"):
         resp = upgrade_complex_page(page)
 
-    return str(resp)
+    try:
+        if not resp:
+            resp = "skipping page type %s with id %s" % (page_id, page_type)
+        yield str(resp)
+    except:
+        yield ""
+
 
 
 def check_page_id(page_id):
@@ -129,15 +151,21 @@ def check_page_id(page_id):
         return page_id in page_ids
 
 
+def log_message_to_file(message):
+    with open("/Users/ejc84332/sites/tinker/upgrade.txt", "a") as id_file:
+        id_file.write(message + "\n")
+
+
 @heading_upgrade.route('/')
 def show():
 
-    start_folder_id = 'c1b35e288c5865133a5d3f893471aefd'
+    start_folder_id = 'ba134b8e8c586513100ee2a7637628a4'
     # for page in pages:
     #     data = read_path('_testing/jmo/test-page')
 
-    resp = inspect_folder(start_folder_id)
+    for message in inspect_folder(start_folder_id):
+        log_message_to_file(message)
 
-    return resp
+    return "done"
 
 
