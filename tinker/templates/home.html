@@ -32,7 +32,7 @@
             <a class="button expand" href="/event"><img src="get-image/events-icon.png" class="button-image" /><br />Manage events</a>
         </div>
 
-        {% if 'FACULTY' in session['roles'] %}
+        {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] %}
             <div class="large-6 columns">
 
               <a href="/faculty-bios" class="button expand"><img src="get-image/faculty-bio-icon.png" class="button-image" /><br />Faculty Bios</a>
@@ -41,7 +41,7 @@
     </div>
 
 
-    {% if username in ['ejc84332', 'ces55739'] %}
+    {% if 'Redirects' in session['groups'] %}
       <div class="row">
         <div class="large-6 columns">
           <a href="/redirect" class="button expand"><img src="get-image/redirect-icon.png" class="button-image" /><br />Manage Redirects</a>
