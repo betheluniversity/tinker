@@ -53,8 +53,8 @@ class TinkerTools():
         #    ret.append('FACULTY')
         # if username == 'ces55739':
         #     ret.append('FACULTY')
-        # if username == 'celanna':
-        #     ret.append('FACULTY')
+        if username == 'celanna':
+            ret.append('FACULTY')
 
         session['roles'] = ret
 
