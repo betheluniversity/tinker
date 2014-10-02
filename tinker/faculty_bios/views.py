@@ -145,7 +145,7 @@ def submit_faculty_bio_form():
     form = FacultyBioForm()
     rform = request.form
 
-    title = rform['first'] + rform['last']
+    title = rform['first'] + "-" + rform['last']
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)
 
