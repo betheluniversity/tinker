@@ -3,6 +3,7 @@ import json
 
 #flask
 from flask import render_template
+from flask import json as fjson
 from flask import request
 from flask import send_file
 
@@ -25,3 +26,15 @@ def about():
 @app.route('/get-image/<image_name>')
 def get_image(image_name):
     return send_file('images/' + image_name, mimetype='image/png')
+
+
+
+@app.route('/get-user-info', methods=['GET', 'POST'])
+def get_user_info():
+
+    #initialize user and roles
+    username = tools.get_user()
+    html = render_template('nav.html', **locals())
+    return fjson.jsonify({'html': html})
+
+

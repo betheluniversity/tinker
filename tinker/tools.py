@@ -21,7 +21,10 @@ class TinkerTools():
 
         if 'roles' not in session.keys():
             self.get_roles(username)
-        
+
+        if 'groups' not in session.keys():
+            self.get_groups_for_user(username)
+
         return username
 
     def get_groups_for_user(self, username=None):
@@ -30,6 +33,10 @@ class TinkerTools():
             username = self.get_user()
         user = read(username, "user")
         allowed_groups = user.asset.user.groups
+
+        if 'groups' not in session.keys():
+            session['groups'] = allowed_groups
+
         return allowed_groups.split(";")
 
     def get_roles(self, username):

@@ -61,12 +61,11 @@
     {% block scripts %}
     {% endblock %}
   {% endblock %}
-  <script type="text/javascript">
-  $( document ).ready(function() {
-        CKEDITOR.config.format_tags = 'h2;h3;h4';
-        CKEDITOR.config.disableNativeSpellChecker = false;
-  });
-  </script>
+
+  {% block endbody %}
+  {% endblock %}
+
+
   </body>
 {% endblock %}
 </html>

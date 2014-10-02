@@ -2,7 +2,6 @@
 
 {% block title  %} Whoops {% endblock %}
 
-
 {% block main_content %}
 
    <div class="row">
@@ -10,16 +9,7 @@
     <section id="oops">
       <div class="row">
       <div class="large-9 medium-9 small-12 columns small-centered">
-      <h1 class="oversized"> It's probably not a problem, probably.</h1>
-      <h5>Go <a href="/"> home </a> or try an item below</h5>
-      <ul>
-       <li><a href="/" class="">Home</a></li>
-       <li><a href="/event" class="">Events</a></li>
-      {% if 'FACULTY' in session['roles'] %}
-           <li><a href="/faculty-bios" class="">Faculty Bios</a></li>
-      {% endif %}
-      {# <li><a href="/wufoo" class="">Wufoo</a></li> #}
-       </ul>
+        <h1 class="oversized"> It's probably not a problem, probably.</h1>
       </div>
       </div>
      </section>

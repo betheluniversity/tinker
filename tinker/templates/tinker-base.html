@@ -44,48 +44,10 @@
 
   <div class="row">
     <div class="large-12 columns">
-      <div class="nav-bar right">
-       <ul class="button-group">
+      <div id="nav" class="nav-bar right">
 
-       {% if request.path == '/' %}
-         <li><a href="/" class="button button-nav active">Home</a></li>
-       {% else %}
-           <li><a href="/" class="button button-nav">Home</a></li>
-       {% endif %}
-
-       {% if '/event/' in request.path %}
-         <li><a href="/event" class="button button-nav active">Events</a></li>
-       {% else %}
-           <li><a href="/event" class="button button-nav">Events</a></li>
-       {% endif %}
-
-      {% if 'FACULTY' in session['roles'] %}
-           {% if '/faculty-bios/' in request.path %}
-             <li><a href="/faculty-bios" class="button button-nav active">Faculty Bios</a></li>
-           {% else %}
-               <li><a href="/faculty-bios" class="button button-nav">Faculty Bios</a></li>
-           {% endif %}
-      {% endif %}
-
-    {#
-       {% if request.path == '/wufoo/' %}
-         <li><a href="/wufoo" class="button button-nav active">Wufoo</a></li>
-       {% else %}
-           <li><a href="/wufoo" class="button button-nav">Wufoo</a></li>
-       {% endif %}
-    #}
-
-    {% if false %}
-       {% if request.path == '/redirect/' %}
-         <li><a href="/redirect" class="button button-nav active">Redirects</a></li>
-       {% else %}
-           <li><a href="/redirect" class="button button-nav">Redirects</a></li>
-       {% endif %}
-    {% endif %}
-
-        </ul>
       </div>
-      <h1>{% block page_title %}{% endblock %}</h1>
+      <h1>{% block page_title %}Bethel University Tinker{% endblock %}</h1>
       <hr />
     </div>
   </div>
@@ -126,3 +88,28 @@
           </footer>
     {% endblock %}
 
+
+  {% block endbody %}
+      <script type="text/javascript">
+  $( document ).ready(function() {
+
+      //check session storage
+      var nav = localStorage.getItem("nav");
+      if(!nav){
+          $.ajax({
+            url: "/get-user-info",
+          }).done(function(data) {
+              localStorage.setItem('nav', data['html']);
+              $("#nav").html(nav)
+          });
+      }else{
+          $("#nav").html(nav)
+      }
+      if (typeof(CKEDITOR) != "undefined"){
+        CKEDITOR.config.format_tags = 'h2;h3;h4';
+        CKEDITOR.config.disableNativeSpellChecker = false;
+      }
+  });
+  </script>
+
+  {% endblock %}
