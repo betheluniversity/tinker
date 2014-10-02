@@ -37,6 +37,7 @@ def escape_wysiwyg_content(content):
 
     content = content.replace("&rsquo;", "&#39;")
     content = content.replace("&nbsp;", " ")
+    content = content.replace("&mdash;", "&#8212;")
     content = escape(content)
 
     return content

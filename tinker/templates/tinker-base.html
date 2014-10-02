@@ -75,6 +75,14 @@
        {% endif %}
     #}
 
+
+       {% if request.path == '/redirect/' %}
+         <li><a href="/redirect" class="button button-nav active">Redirects</a></li>
+       {% else %}
+           <li><a href="/redirect" class="button button-nav">Redirects</a></li>
+       {% endif %}
+
+
         </ul>
       </div>
       <h1>{% block page_title %}{% endblock %}</h1>

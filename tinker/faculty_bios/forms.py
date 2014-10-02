@@ -120,7 +120,8 @@ def get_faculty_bio_choices():
 
 class FacultyBioForm(Form):
 
-    title = TextField('Faculty name', validators=[Required()], description="This will be the title of your webpage")
+    first = TextField('Faculty first name', validators=[Required()])
+    last = TextField('Faculty last name', validators=[Required()])
     author = TextField("Faculty member's username", validators=[Required()], description="This username will become the author of the page.")
 
     job_titles = TextField('')

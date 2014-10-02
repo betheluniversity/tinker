@@ -114,7 +114,10 @@ def faculty_bio_edit_form(faculty_bio_id):
             edit_data[field.name.replace('-', '_')] = items
 
     ## Add the rest of the fields. Can't loop over these kinds of metadata
-    edit_data['title'] = metadata.title
+
+
+    ## shouldn't need this now that we are splitting the fields into first/last names.
+    ### edit_data['title'] = metadata.title
 
 
     ## only take the first element
@@ -135,20 +138,18 @@ def faculty_bio_edit_form(faculty_bio_id):
 
 @faculty_bio_blueprint.route("/submit", methods=['POST'])
 def submit_faculty_bio_form():
-
     ##import this here so we dont load all the content
-    ##from cascade during hoempage load
+    ##from cascade during homepage load
     from forms import FacultyBioForm
-
     username = tools.get_user()
     form = FacultyBioForm()
     rform = request.form
-    title = rform['title']
+
+    title = rform['first'] + rform['last']
     workflow = get_bio_publish_workflow(title, username)
 
     jobs, jobs_good, num_jobs = check_jobs(rform)
     degrees, degrees_good, num_degrees = check_degrees(rform)
-
     if not form.validate_on_submit() or not jobs_good:
         if 'faculty_bio_id' in request.form.keys():
             faculty_bio_id = request.form['faculty_bio_id']
@@ -156,7 +157,6 @@ def submit_faculty_bio_form():
             #This error came from the add form because event_id wasn't set
             add_form = True
         return render_template('faculty-bio-form.html', **locals())
-
 
 
     form = rform
@@ -173,15 +173,16 @@ def submit_faculty_bio_form():
 
     username = tools.get_user()
 
+
     faculty_bio_id = form['faculty_bio_id']
     if faculty_bio_id:
         workflow = None
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
-
     ## Depending on the type of submit, return a different error message.
     ## ALSO, this can be modified to have separate returned templates (or redirects )
     if faculty_bio_id:
         resp = edit(asset)
+        moveresp = rename(faculty_bio_id, title)
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " " + str(resp))
         publish(faculty_bio_id)
     else:

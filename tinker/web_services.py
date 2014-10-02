@@ -118,6 +118,27 @@ def edit(asset):
     return response
 
 
+def rename(page_id, newname):
+    """ Rename a page with page_id to have new system-name = newname """
+    auth = app.config['CASCADE_LOGIN']
+    client = get_client()
+
+    identifier = {
+        'id': page_id,
+        'type': 'page'
+    }
+
+    moveParameters =  {
+        'doWorkflow': False,
+        'newName': newname
+    }
+
+    response = client.service.move(auth, identifier, moveParameters)
+    app.logger.warn(time.strftime("%c") + ": Moved " + str(response))
+    ##publish the xml file so the new event shows up
+    return response
+
+
 def move(page_id, destination_path):
     """ Move a page with page_id to folder with path destination_path """
     app.logger.warn(time.strftime("%c") + ": Moved " + str(destination_path))

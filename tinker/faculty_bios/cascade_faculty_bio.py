@@ -183,6 +183,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
 
     ## Create a list of all the data nodes
     structured_data = [
+        structured_data_node("first", add_data['first']),
+        structured_data_node("last", add_data['last']),
         structured_data_node("email", add_data['email']),
         structured_data_node("started-at-bethel", add_data['started_at_bethel']),
         get_job_titles(add_data),
@@ -222,7 +224,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             ## Break this out more once its defined in the form
             'structuredData': structured_data,
             'metadata': {
-                'title': add_data['title'],
+                'title': add_data['first'] + " " + add_data['last'],
                 'summary': 'summary',
                 'author': add_data['author'],
                 'dynamicFields': dynamic_fields,
@@ -320,10 +322,15 @@ def get_faculty_bios_for_user(username):
 
 ## Function to get the values from xml.
 def get_page_values_from_xml(page, authors_text ):
-    title_text = ""
-    if len(page.getElementsByTagName('title')) > 0:
-        title = page.getElementsByTagName('title')[0].toxml()
-        title_text = title.replace('<title>','').replace('</title>','')
+
+    if len(page.getElementsByTagName('first')) > 0:
+        first = page.getElementsByTagName('first')[0].toxml()
+        first_text = first.replace('<first>','').replace('</first>','')
+    if len(page.getElementsByTagName('last')) > 0:
+        last = page.getElementsByTagName('last')[0].toxml()
+        last_text = last.replace('<last>','').replace('</last>','')
+
+    title_text = first_text + " " + last_text
 
     created_text = ""
     if len(page.getElementsByTagName('created-on')) > 0:
@@ -422,8 +429,7 @@ def get_add_data(lists, form):
             add_data[key] = form[key]
 
     ##Make it lastname firstname
-    system_name = add_data['title'].split(" ", 1)
-    system_name = system_name[1] + " " + system_name[0]
+    system_name = add_data['last'] + " " + add_data['first']
 
     ##Create the system-name from title, all lowercase
     system_name = system_name.lower().replace(' ', '-')
