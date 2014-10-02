@@ -325,12 +325,16 @@ def get_page_values_from_xml(page, authors_text ):
 
     if len(page.getElementsByTagName('first')) > 0:
         first = page.getElementsByTagName('first')[0].toxml()
-        first_text = first.replace('<first>','').replace('</first>','')
+        first_text = first.replace('<first>','').replace('</first>','').replace('<first/>','')
+
     if len(page.getElementsByTagName('last')) > 0:
         last = page.getElementsByTagName('last')[0].toxml()
-        last_text = last.replace('<last>','').replace('</last>','')
+        last_text = last.replace('<last>','').replace('</last>','').replace('<last/>','')
 
-    title_text = first_text + " " + last_text
+    if first_text == "" and last_text == "":
+        title_text = "First and last names need to be updated!"
+    else:
+        title_text = first_text + " " + last_text
 
     created_text = ""
     if len(page.getElementsByTagName('created-on')) > 0:
