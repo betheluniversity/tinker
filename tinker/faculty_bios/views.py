@@ -146,6 +146,9 @@ def submit_faculty_bio_form():
     rform = request.form
 
     title = rform['first'] + rform['last']
+    title = title.lower().replace(' ', '-')
+    title = re.sub(r'[^a-zA-Z0-9-]', '', title)
+
     workflow = get_bio_publish_workflow(title, username)
 
     jobs, jobs_good, num_jobs = check_jobs(rform)

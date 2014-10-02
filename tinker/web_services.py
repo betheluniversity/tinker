@@ -255,6 +255,7 @@ def publish_faculty_bio_xml():
     ##    cache.clear()
 
 
+## is this used?
 def get_user_group(username):
 
     client = get_client()
@@ -268,3 +269,23 @@ def get_user_group(username):
     response = client.service.user(username, auth, "false", )
 
     return response
+
+
+
+def check_if_current_user_in_group(group):
+    username = tools.get_user()
+    user = read(username, "user")
+    try:
+        allowedGroups = user.asset.user.groups
+        allowedGroups = allowedGroups.split(";")
+    except AttributeError:
+        allowedGroups = []
+
+    if group in allowedGroups:
+        return True
+    else:
+        return False
+
+
+def check_if_user_in_redirects():
+    return check_if_current_user_in_group("Redirects")

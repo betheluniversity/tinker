@@ -42,6 +42,3 @@ def escape_wysiwyg_content(content):
 
     return content
 
-
-def check_if_user_in_group(username, group):
-    return
