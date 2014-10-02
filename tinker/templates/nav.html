@@ -12,7 +12,7 @@
            <li><a href="/event" class="button button-nav">Events</a></li>
        {% endif %}
 
-      {% if 'FACULTY' in session['roles'] %}
+      {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] %}
            {% if '/faculty-bios/' in request.path %}
              <li><a href="/faculty-bios" class="button button-nav active">Faculty Bios</a></li>
            {% else %}

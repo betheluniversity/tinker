@@ -51,13 +51,14 @@ class TinkerTools():
         #todo lets move this to a cascade group
         #if username == 'ejc84332':
         #    ret.append('FACULTY')
-        if username == 'ces55739':
-            ret.append('FACULTY')
-        if username == 'celanna':
-            ret.append('FACULTY')
+        # if username == 'ces55739':
+        #     ret.append('FACULTY')
+        # if username == 'celanna':
+        #     ret.append('FACULTY')
 
         session['roles'] = ret
 
         return ret
+
 
 
