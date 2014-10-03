@@ -94,13 +94,13 @@
   $( document ).ready(function() {
 
       //check session storage
-      var nav = localStorage.getItem("nav");
+      var nav = sessionStorage.getItem("nav");
       if(!nav){
           $.ajax({
             url: "/get-user-info",
           }).done(function(data) {
-              localStorage.setItem('nav', data['html']);
-              $("#nav").html(nav)
+              sessionStorage.setItem('nav', data['html']);
+              $("#nav").html(data['html']);
           });
       }else{
           $("#nav").html(nav)

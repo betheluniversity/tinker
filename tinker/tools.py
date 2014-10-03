@@ -16,13 +16,13 @@ class TinkerTools():
         else:
             username = self.config['TEST_USER']
 
-        session['username'] = username
+        if 'groups' not in session.keys():
+            session['username'] = username
 
         if 'roles' not in session.keys():
             self.get_roles(username)
 
-        if 'groups' not in session.keys():
-            self.get_groups_for_user(username)
+        self.get_groups_for_user(username)
 
         return username
 
@@ -33,8 +33,7 @@ class TinkerTools():
         user = read(username, "user")
         allowed_groups = user.asset.user.groups
 
-        if 'groups' not in session.keys():
-            session['groups'] = allowed_groups
+        session['groups'] = allowed_groups
 
         return allowed_groups.split(";")
 
@@ -50,13 +49,14 @@ class TinkerTools():
         #todo lets move this to a cascade group
         #if username == 'ejc84332':
         #    ret.append('FACULTY')
-        if username == 'ces55739':
-            ret.append('FACULTY')
+        # if username == 'ces55739':
+        #     ret.append('FACULTY')
         if username == 'celanna':
             ret.append('FACULTY')
 
         session['roles'] = ret
 
         return ret
+
 
 

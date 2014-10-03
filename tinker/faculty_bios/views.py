@@ -145,7 +145,7 @@ def submit_faculty_bio_form():
     form = FacultyBioForm()
     rform = request.form
 
-    title = rform['first'] + "-" + rform['last']
+    title = rform['last'] + "-" + rform['first']
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)
 
@@ -185,7 +185,7 @@ def submit_faculty_bio_form():
     ## ALSO, this can be modified to have separate returned templates (or redirects )
     if faculty_bio_id:
         resp = edit(asset)
-        moveresp = rename(faculty_bio_id, title)
+        # moveresp = rename(faculty_bio_id, title)
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " " + str(resp))
         publish(faculty_bio_id)
     else:
