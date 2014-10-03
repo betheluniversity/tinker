@@ -37,7 +37,8 @@ def escape_wysiwyg_content(content):
 
     uni = HTMLEntitiesToUnicode(content)
     htmlent = unicodeToHTMLEntities(uni)
-    return escape(htmlent)
+    return htmlent
+    #return escape(htmlent)
 
 
 #from:
