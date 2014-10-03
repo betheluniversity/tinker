@@ -11,7 +11,6 @@ class TinkerTools():
         self.config = config
 
     def get_user(self):
-
         if self.config['ENVIRON'] == 'prod':
             username = request.environ.get('REMOTE_USER')
         else:

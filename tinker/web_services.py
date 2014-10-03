@@ -271,7 +271,6 @@ def get_user_group(username):
     return response
 
 
-
 def check_if_current_user_in_group(group):
     username = tools.get_user()
     user = read(username, "user")
