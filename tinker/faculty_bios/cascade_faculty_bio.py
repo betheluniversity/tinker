@@ -10,27 +10,21 @@ from tinker.web_services import *
 
 from tinker.cascade_tools import *
 from tinker import app
-from tinker import tools
 
-##from tinker import cache
 
 def get_xml_bios(url):
     file = urllib2.urlopen(url)
-
     data = file.read()
-
     file.close()
-
     dom = parseString(data)
-
     pages = dom.getElementsByTagName('system-page')
-
 
     return pages
 
     # print xmlData
 
-def get_job_titles( add_data):
+
+def get_job_titles(add_data):
     job_titles = []
 
     ##format the dates
@@ -45,6 +39,7 @@ def get_job_titles( add_data):
         job_titles.append( structured_data_node("job-title", job_title ))
 
     return job_titles
+
 
 def get_expertise(add_data):
     areas = add_data['areas']
@@ -76,6 +71,7 @@ def get_expertise(add_data):
     },
 
     return node
+
 
 def get_add_a_degree(add_data):
     degrees = []
@@ -179,7 +175,6 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     """
      Could this be cleaned up at all?
     """
-
 
     ## Create a list of all the data nodes
     structured_data = [
@@ -305,7 +300,6 @@ def create_faculty_bio(asset):
     ##publish the xml file so the new event shows up
     publish_faculty_bio_xml()
 
-
     return response
 
 
@@ -319,6 +313,7 @@ def get_faculty_bios_for_user(username):
     matches = traverse_faculty_folder(form_xml, username)
 
     return matches
+
 
 ## Function to get the values from xml.
 def get_page_values_from_xml(page, authors_text ):
@@ -417,6 +412,7 @@ def traverse_faculty_folder(traverse_xml, username):
         except AttributeError:
             continue
     return matches
+
 
 def get_add_data(lists, form):
 
