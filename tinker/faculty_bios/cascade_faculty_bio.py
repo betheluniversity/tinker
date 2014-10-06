@@ -298,7 +298,7 @@ def create_faculty_bio(asset):
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
 
-    username = tools.get_user()
+    username = session['username']
 
     response = client.service.create(auth, asset)
     app.logger.warn(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))

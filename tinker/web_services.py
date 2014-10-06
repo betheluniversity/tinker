@@ -3,13 +3,8 @@ import datetime
 import time
 
 #flask
-from flask import request
 from flask import session
-from flask import json as fjson
 from flask import abort
-
-from tinker.cascade_tools import *
-from tinker import tools
 
 #modules
 from suds.client import Client
@@ -35,7 +30,7 @@ def delete(page_id, workflow=None):
     #dirty. Fix later
     time.sleep(5.5)
 
-    username = tools.get_user()
+    username = session['username']
 
     response = client.service.delete(auth, identifier)
     app.logger.warn(time.strftime("%c") + ": Deleted by " + username + " " + str(response))
@@ -255,24 +250,8 @@ def publish_faculty_bio_xml():
     ##    cache.clear()
 
 
-## is this used?
-def get_user_group(username):
-
-    client = get_client()
-
-    auth = app.config['CASCADE_LOGIN']
-
-    ## Get username
-    ##
-
-
-    response = client.service.user(username, auth, "false", )
-
-    return response
-
-
 def check_if_current_user_in_group(group):
-    username = tools.get_user()
+    username = session['username']
     user = read(username, "user")
     try:
         allowedGroups = user.asset.user.groups

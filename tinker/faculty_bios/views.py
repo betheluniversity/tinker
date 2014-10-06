@@ -8,15 +8,14 @@ from flask import redirect
 
 from tinker.faculty_bios.cascade_faculty_bio import *
 from tinker import app
-from tinker import tools
 
 faculty_bio_blueprint = Blueprint('faculty-bios', __name__,
                         template_folder='templates')
 
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
+    username = session['username']
     ## index page for adding events and things
-    username = tools.get_user()
     forms = get_faculty_bios_for_user(username)
     # return forms
     return render_template('faculty-bio-home.html', **locals())
@@ -36,8 +35,6 @@ def faculty_bio_new_form():
     ##from cascade during homepage load
     from forms import FacultyBioForm
 
-    username = tools.get_user()
-
     form = FacultyBioForm()
 
     add_form = True
@@ -53,8 +50,6 @@ def faculty_bio_edit_form(faculty_bio_id):
     ##import this here so we dont load all the content
     ##from cascade during homepage load
     from forms import FacultyBioForm
-
-    username = tools.get_user()
 
     form = FacultyBioForm()
 
@@ -74,7 +69,6 @@ def faculty_bio_edit_form(faculty_bio_id):
 
     job_titles = {}
     job_title_count = 0
-
 
     degrees = {}
     degree_count = 0
@@ -141,9 +135,9 @@ def submit_faculty_bio_form():
     ##import this here so we dont load all the content
     ##from cascade during homepage load
     from forms import FacultyBioForm
-    username = tools.get_user()
     form = FacultyBioForm()
     rform = request.form
+    username = session['username']
 
     title = rform['last'] + "-" + rform['first']
     title = title.lower().replace(' ', '-')
@@ -161,21 +155,10 @@ def submit_faculty_bio_form():
             add_form = True
         return render_template('faculty-bio-form.html', **locals())
 
-
     form = rform
 
     #Get all the form data
     add_data = get_add_data(['school', 'department'], form) ##, 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
-    # expertise = get_expertise(add_data)
-    # add_a_degree = get_add_a_degree(add_data)
-    # add_to_bio = get_add_to_bio(add_data)
-    #
-    # add_data['expertise'] = expertise
-    # add_data['add-degree'] = add_a_degree
-    # add_data['add-to-bio'] = add_to_bio
-
-    username = tools.get_user()
-
 
     faculty_bio_id = form['faculty_bio_id']
     if faculty_bio_id:
@@ -194,6 +177,7 @@ def submit_faculty_bio_form():
 
     return redirect('/faculty-bios/confirm', code=302)
     ##Just print the response for now
+
 
 def check_jobs(form):
     jobs = {}

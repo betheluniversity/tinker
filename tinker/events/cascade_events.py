@@ -179,7 +179,7 @@ def create(asset):
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
 
-    username = tools.get_user()
+    username = session['username']
 
     response = client.service.create(auth, asset)
     response = app.logger.warn(time.strftime("%c") + ": New event submission by " + username + " " + str(response))
