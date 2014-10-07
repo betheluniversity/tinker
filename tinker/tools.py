@@ -31,16 +31,17 @@ def get_user():
     else:
         username = current_app.config['TEST_USER']
     session['username'] = username
-    g.user = username
 
 
 def get_groups_for_user(username=None):
     from web_services import read
     if not username:
         username = session['username']
-    user = read(username, "user")
-    allowed_groups = user.asset.user.groups
-
+    try:
+        user = read(username, "user")
+        allowed_groups = user.asset.user.groups
+    except AttributeError:
+        allowed_groups = []
     session['groups'] = allowed_groups
 
     return allowed_groups.split(";")
