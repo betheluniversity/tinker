@@ -5,6 +5,7 @@ import json
 from flask import Blueprint
 from flask import render_template
 from flask import redirect
+from flask import request
 
 from tinker.events.cascade_events import *
 from tinker import app
