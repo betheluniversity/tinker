@@ -41,7 +41,7 @@ def get_groups_for_user(username=None):
         user = read(username, "user")
         allowed_groups = user.asset.user.groups
     except AttributeError:
-        allowed_groups = []
+        allowed_groups = ""
     session['groups'] = allowed_groups
 
     return allowed_groups.split(";")
