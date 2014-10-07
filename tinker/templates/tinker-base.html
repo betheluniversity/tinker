@@ -1,4 +1,5 @@
 {% extends "foundation_base.html" %}
+{% import 'nav.html' as nav %}
 
 {% block styles %}
   <script src="{{ url_for('static', filename='jquery.js') }}"></script>
@@ -45,7 +46,7 @@
   <div class="row">
     <div class="large-12 columns">
       <div id="nav" class="nav-bar right">
-
+        {{ nav.nav() }}
       </div>
       <h1>{% block page_title %}Bethel University Tinker{% endblock %}</h1>
       <hr />
@@ -92,19 +93,6 @@
   {% block endbody %}
       <script type="text/javascript">
   $( document ).ready(function() {
-
-      //check session storage
-      var nav = sessionStorage.getItem("nav");
-      if(!nav){
-          $.ajax({
-            url: "/get-user-info",
-          }).done(function(data) {
-              sessionStorage.setItem('nav', data['html']);
-              $("#nav").html(data['html']);
-          });
-      }else{
-          $("#nav").html(nav)
-      }
       if (typeof(CKEDITOR) != "undefined"){
         CKEDITOR.config.format_tags = 'h2;h3;h4';
         CKEDITOR.config.disableNativeSpellChecker = false;

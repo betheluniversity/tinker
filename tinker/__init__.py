@@ -4,7 +4,7 @@ import os
 
 #flask
 from flask import Flask
-from tinker.tools import TinkerTools
+from tinker import tools
 
 #flask extensions
 from flask.ext.cache import Cache
@@ -31,8 +31,6 @@ if not app.debug:
     file_handler.setLevel(logging.WARNING)
     app.logger.addHandler(file_handler)
 
-tools = TinkerTools(app.config)
-
 #Import routes
 import views
 from tinker.events.views import event_blueprint
@@ -48,3 +46,9 @@ app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 
 #Import error handling
 import error
+
+
+#ensure session before each request
+@app.before_request
+def before_request():
+    tools.init_user()

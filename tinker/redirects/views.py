@@ -19,7 +19,7 @@ redirect_blueprint = Blueprint('redirect_blueprint', __name__,
 
 def check_redirect_groups():
     groups = tools.get_groups_for_user()
-    if 'Redirects' not in groups:
+    if 'Tinker Redirects' not in groups:
         abort(403)
 
 

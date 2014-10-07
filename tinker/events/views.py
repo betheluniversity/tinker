@@ -16,8 +16,7 @@ event_blueprint = Blueprint('event', __name__,
 
 @event_blueprint.route('/')
 def home():
-    username = tools.get_user()
-    forms = get_forms_for_user(username)
+    forms = get_forms_for_user(session['username'])
     return render_template('events-home.html', **locals())
 
 @event_blueprint.route('/delete/<page_id>')
@@ -40,7 +39,6 @@ def form_index():
     ##from cascade during hoempage load
     from tinker.events.forms import EventForm
 
-    username = tools.get_user()
     form = EventForm()
     add_form = True
     return render_template('event-form.html', **locals())
@@ -52,8 +50,8 @@ def read_page():
     client = get_client()
 
     identifier = {
-        'id': 'ces55739',
-        'type': 'user'
+        'id': 'c5fd04b28c58651375fc4ed26cf5f584',
+        'type': 'page'
     }
 
     auth = app.config['CASCADE_LOGIN']
@@ -70,7 +68,6 @@ def edit_event_page(event_id):
     ##from cascade during hoempage load
     from tinker.events.forms import EventForm
 
-    username = tools.get_user()
     #Get the event data from cascade
     event_data = read(event_id)
 
@@ -155,10 +152,10 @@ def submit_form():
     ##from cascade during hoempage load
     from tinker.events.forms import EventForm
 
-    username = tools.get_user()
     form = EventForm()
     rform = request.form
     title = rform['title']
+    username = session['username']
     workflow = get_event_publish_workflow(title, username)
 
     #check event dates here?
@@ -186,12 +183,10 @@ def submit_form():
     ##Add it to the dict, we can just ignore the old entries
     add_data['dates'] = dates
 
-    username = tools.get_user()
-
     asset = get_event_structure(add_data, username, workflow)
 
     resp = create(asset)
-    
+
     return redirect('/event/confirm', code=302)
     ##Just print the response for now
 
@@ -203,10 +198,10 @@ def submit_edit_form():
     ##from cascade during hoempage load
     from tinker.events.forms import EventForm
 
-    username = tools.get_user()
     form = EventForm()
     rform = request.form
     title = rform['title']
+    username = session['username']
     workflow = get_event_publish_workflow(title, username)
 
     event_dates, dates_good, num_dates = check_event_dates(rform)
@@ -220,8 +215,6 @@ def submit_edit_form():
     dates = get_dates(add_data)
     add_data['dates'] = dates
     event_id = form['event_id']
-
-    username = tools.get_user()
 
     asset = get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
 

@@ -35,10 +35,25 @@ def structured_data_node(id, text, node_type=None):
 ## There are a few edge cases for sybmols it doesn't like.
 def escape_wysiwyg_content(content):
 
-    content = content.replace("&rsquo;", "&#39;")
-    content = content.replace("&nbsp;", " ")
-    content = content.replace("&mdash;", "&#8212;")
-    content = escape(content)
+    uni = HTMLEntitiesToUnicode(content)
+    htmlent = unicodeToHTMLEntities(uni)
+    return htmlent
+    #return escape(htmlent)
 
-    return content
 
+#from:
+#http://stackoverflow.com/questions/701704/convert-html-entities-to-unicode-and-vice-versa
+from BeautifulSoup import BeautifulStoneSoup
+import cgi
+
+
+def HTMLEntitiesToUnicode(text):
+    """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
+    text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
+    return text
+
+
+def unicodeToHTMLEntities(text):
+    """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
+    text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
+    return text
