@@ -341,7 +341,7 @@ def get_page_values_from_xml(page, authors_text ):
     path_text = ""
     if len(page.getElementsByTagName('path')) > 0:
         path = page.getElementsByTagName('path')[0].toxml()
-        path_text = 'http://staging.bethel.edu' + path.replace('<path>','').replace('</path>','')
+        path_text = 'https://www.bethel.edu' + path.replace('<path>','').replace('</path>','')
 
     is_published_text = True
     if len(page.getElementsByTagName('last-published-on')) > 0:

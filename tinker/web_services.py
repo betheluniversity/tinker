@@ -134,7 +134,7 @@ def rename(page_id, newname):
     }
 
     response = client.service.move(auth, identifier, moveParameters)
-    app.logger.warn(time.strftime("%c") + ": Moved " + str(response))
+    app.logger.warn(time.strftime("%c") + ": Renamed " + str(response))
     ##publish the xml file so the new event shows up
     return response
 
@@ -254,18 +254,3 @@ def publish_faculty_bio_xml():
     ##with app.app_context():
     ##    cache.clear()
 
-
-## is this used?
-def get_user_group(username):
-
-    client = get_client()
-
-    auth = app.config['CASCADE_LOGIN']
-
-    ## Get username
-    ##
-
-
-    response = client.service.user(username, auth, "false", )
-
-    return response

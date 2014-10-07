@@ -30,7 +30,7 @@ def delete_page(page_id):
 
 @event_blueprint.route('/delete-confirm')
 def delete_confirm():
-    return render_template('delete-confirm.html', **locals())
+    return render_template('events-delete-confirm.html', **locals())
 
 
 @event_blueprint.route("/add")

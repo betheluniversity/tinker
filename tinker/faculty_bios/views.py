@@ -28,7 +28,7 @@ def delete_page(page_id):
 
 @faculty_bio_blueprint.route('/delete-confirm')
 def delete_confirm():
-    return render_template('delete-confirm.html', **locals())
+    return render_template('faculty-bio-delete-confirm.html', **locals())
 
 @faculty_bio_blueprint.route("/edit/new")
 def faculty_bio_new_form():
@@ -114,13 +114,6 @@ def faculty_bio_edit_form(faculty_bio_id):
             edit_data[field.name.replace('-', '_')] = items
 
     ## Add the rest of the fields. Can't loop over these kinds of metadata
-
-
-    ## shouldn't need this now that we are splitting the fields into first/last names.
-    ### edit_data['title'] = metadata.title
-
-
-    ## only take the first element
     authors = metadata.author
     authors = authors.split(", ")
     edit_data['author'] = authors[0]
@@ -166,26 +159,16 @@ def submit_faculty_bio_form():
 
     #Get all the form data
     add_data = get_add_data(['school', 'department'], form) ##, 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
-    # expertise = get_expertise(add_data)
-    # add_a_degree = get_add_a_degree(add_data)
-    # add_to_bio = get_add_to_bio(add_data)
-    #
-    # add_data['expertise'] = expertise
-    # add_data['add-degree'] = add_a_degree
-    # add_data['add-to-bio'] = add_to_bio
 
     username = tools.get_user()
-
 
     faculty_bio_id = form['faculty_bio_id']
     if faculty_bio_id:
         workflow = None
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
-    ## Depending on the type of submit, return a different error message.
-    ## ALSO, this can be modified to have separate returned templates (or redirects )
+
     if faculty_bio_id:
         resp = edit(asset)
-        # moveresp = rename(faculty_bio_id, title)
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " " + str(resp))
         publish(faculty_bio_id)
     else:
