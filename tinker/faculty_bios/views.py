@@ -8,6 +8,7 @@ from flask import redirect
 
 from tinker.faculty_bios.cascade_faculty_bio import *
 from tinker import app
+from tinker.tools import *
 
 faculty_bio_blueprint = Blueprint('faculty-bios', __name__,
                         template_folder='templates')
@@ -152,8 +153,6 @@ def submit_faculty_bio_form():
 
     #Get all the form data
     add_data = get_add_data(['school', 'department'], form) ##, 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
-
-    username = tools.get_user()
 
     faculty_bio_id = form['faculty_bio_id']
     if faculty_bio_id:
