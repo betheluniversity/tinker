@@ -18,7 +18,7 @@ def init_user():
         get_groups_for_user()
 
     if 'roles' not in session.keys():
-        current_app.get_roles()
+        get_roles()
 
     if 'top_nav' not in session.keys():
         get_nav()
