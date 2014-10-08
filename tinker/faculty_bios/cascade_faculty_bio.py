@@ -446,7 +446,7 @@ def get_bio_publish_workflow(title="", username=""):
         name += ": " + title
     workflow = {
         "workflowName": name,
-        "workflowDefinitionId": "6085e51c8c5865135c5c083d467cbae5",
+        "workflowDefinitionId": "f1638f598c58651313b6fe6b5ed835c5",
         "workflowComments": "New Faculty Bio submission"
     }
     return workflow
