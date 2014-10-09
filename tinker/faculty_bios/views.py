@@ -99,7 +99,6 @@ def faculty_bio_edit_form(faculty_bio_id):
                             degree_identifier = degree.identifier.replace('-', '_')
                             degree_data[degree.identifier] = degree.text
                         degrees[degree_count] = degree_data
-                        app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + str(degree_data) )
                         degree_count += 1
 
     #now metadata dynamic fields

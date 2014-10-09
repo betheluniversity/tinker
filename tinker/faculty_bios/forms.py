@@ -8,6 +8,7 @@ from wtforms import TextField
 from wtforms import TextAreaField
 from wtforms import SelectMultipleField
 from wtforms import SelectField
+from wtforms import FileField
 from wtforms import RadioField
 from wtforms import DateTimeField
 from wtforms import FieldList
@@ -119,6 +120,10 @@ def get_faculty_bio_choices():
     return {'school': school, 'department': department, 'adult_undergrad_program': adult_undergrad_program, 'graduate_program': graduate_program, 'seminary_program': seminary_program}
 
 class FacultyBioForm(Form):
+
+    ## HIDE IF ANY COMMITS ##
+    ##image = FileField("Image name")
+    #########################
 
     first = TextField('Faculty first name', validators=[Required()])
     last = TextField('Faculty last name', validators=[Required()])
