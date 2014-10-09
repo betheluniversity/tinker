@@ -23,24 +23,6 @@ def get_xml_bios(url):
 
     # print xmlData
 
-
-def get_job_titles(add_data):
-    job_titles = []
-
-    ##format the dates
-    for i in range(1, 200):
-        i = str(i)
-        try:
-            job_title = add_data['job-title' + i]
-        except KeyError:
-            ##This will break once we run out of dates
-            break
-
-        job_titles.append( structured_data_node("job-title", job_title ))
-
-    return job_titles
-
-
 def get_expertise(add_data):
     areas = add_data['areas']
     interests = add_data['research_interests']
@@ -73,23 +55,35 @@ def get_expertise(add_data):
     return node
 
 
-def get_add_a_degree(add_data):
-    degrees = []
+def get_job_titles(add_data):
+    job_titles = []
 
     ##format the dates
     for i in range(1, 200):
         i = str(i)
         try:
-            school = 'school' + i
-            degree = 'degree-earned' + i
-            year = 'year' + i
-
-            degree = add_data[degree]
-            school = add_data[school]
-            year = add_data[year]
-
+            job_title = add_data['job-title' + i]
         except KeyError:
             ##This will break once we run out of dates
+            break
+
+        job_titles.append( structured_data_node("job-title", job_title ))
+
+    return job_titles
+
+
+def get_add_a_degree(add_data):
+    degrees=[]
+
+    ##format the dates
+    for i in range(1, 200):
+        i = str(i)
+        try:
+            school = add_data['school' + i]
+            degree = add_data['degree-earned' + i]
+            year = add_data['year' + i]
+        except KeyError:
+            ##This will break once we run out of degrees
             break
 
         data_list = [
@@ -106,17 +100,18 @@ def get_add_a_degree(add_data):
             },
         },
 
-        node = {
-            'type': "group",
-            'identifier': "education",
-            'structuredDataNodes': {
-                'structuredDataNode': node,
-            },
-        },
 
         degrees.append(node)
 
-    return degrees
+    finalNode = {
+            'type': "group",
+            'identifier': "education",
+            'structuredDataNodes': {
+                'structuredDataNode': degrees,
+            },
+        },
+
+    return finalNode
 
 
 def get_add_to_bio(add_data):

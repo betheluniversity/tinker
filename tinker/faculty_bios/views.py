@@ -91,15 +91,16 @@ def faculty_bio_edit_form(faculty_bio_id):
                     group_node_identifier = group_node.identifier.replace('-', '_')
                     edit_data[group_node_identifier] = group_node.text
             if node_identifier == "education":
-                node = node.structuredDataNodes.structuredDataNode[0]
-                node_identifier = node.identifier.replace('-', '_')
-                if node_identifier == "add_degree":
-                    degree_data = {}
-                    for degree in node.structuredDataNodes.structuredDataNode:
-                        degree_identifier = degree.identifier.replace('-', '_')
-                        degree_data[degree.identifier] = degree.text
+                for node in node.structuredDataNodes.structuredDataNode:
+                    node_identifier = node.identifier.replace('-', '_')
+                    if node_identifier == "add_degree":
+                        degree_data = {}
+                        for degree in node.structuredDataNodes.structuredDataNode:
+                            degree_identifier = degree.identifier.replace('-', '_')
+                            degree_data[degree.identifier] = degree.text
                         degrees[degree_count] = degree_data
-                    degree_count += 1
+                        app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + str(degree_data) )
+                        degree_count += 1
 
     #now metadata dynamic fields
     for field in dynamic_fields:

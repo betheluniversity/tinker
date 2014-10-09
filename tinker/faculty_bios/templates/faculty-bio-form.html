@@ -143,7 +143,7 @@
             node.append($("<input type='text'>").attr('name', school).attr('id', school));
             node.append($("<label>").attr('for', degree).html("Degree Earned"));
             node.append($("<input type='text'>").attr('name', degree).attr('id', degree));
-            node.append($("<label>").attr('for', year).html("Year completed"));
+            node.append($("<label>").attr('for', year).html("Year"));
             node.append($("<input type='text'>").attr('name', year).attr('id', year));
 
             return node;
@@ -172,7 +172,7 @@
             var school = 'school' + id;
             var degree = 'degree-earned' + id;
             var year = 'year' + id;
-            var node = $('<fieldset>').addClass('date-fieldset');
+            var node = $('<fieldset>').addClass('degree-fieldset');
             node.append($("<legend>").html("Degree " + id));
             node.append($("<label>").attr('for', school).html("School"));
             node.append($("<input type='text'>").attr('name', school).attr('id', school).addClass("datepicker"));
@@ -203,6 +203,7 @@
             }
             //Convert to correct value
             id = i + 1;
+
 
             //If this is not the first node, create it before we can populate it and insert after the last one.
             //show the remove buton
@@ -383,7 +384,7 @@
       <label for="degree-earned1">Degree earned</label>
         <input type="text" name="degree-earned1" id="degree-earned1"/>
 
-      <label for="year1">Year completed</label>
+      <label for="year1">Year</label>
         <input type="text" name="year1" id="year1"/>
 
   </fieldset>
