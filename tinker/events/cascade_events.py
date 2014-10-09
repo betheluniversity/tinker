@@ -229,7 +229,7 @@ def traverse_event_folder(traverse_xml, username):
                     'id': child.attrib['id'] or None,
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
-                    'path': 'http://staging.bethel.edu' + child.find('path').text or None,
+                    'path': 'https://www.bethel.edu' + child.find('path').text or None,
                     'is_published': is_published
                 }
                 ## This is a match, add it to array
