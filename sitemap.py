@@ -65,10 +65,10 @@ def sitemap():
     base_folder = "c1b35e288c5865133a5d3f893471aefd"
     ##base_folder = read(base_folder, type="folder")
     with open('/var/www/staging/public/_testing/jmo/sitemap.xml', 'w') as file:
-        file.write("{}\n".format('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'))
+        file.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
         for item in inspect_folder(base_folder):
-            file.write("{0}\n".format(item))
-        file.write("{0}\n".format('</urlset>'))
+            file.write(item)
+        file.write('</urlset>')
 
 
 if __name__ == "__main__":
