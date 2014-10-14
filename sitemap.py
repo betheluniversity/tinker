@@ -1,4 +1,4 @@
-#!/Users/ejc84332/envs/tinker/bin/python
+#!/opt/tinker/env/bin/python
 import os.path
 
 from tinker.web_services import *
