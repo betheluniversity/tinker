@@ -64,7 +64,7 @@ def sitemap():
     base_folder = "ba134b8e8c586513100ee2a7637628a4"
     base_folder = "c1b35e288c5865133a5d3f893471aefd"
     ##base_folder = read(base_folder, type="folder")
-    with open('/Users/ejc84332/Desktop/sitemap.xml', 'w') as file:
+    with open('/var/www/staging/public/_testing/jmo/sitemap.xml', 'w') as file:
         file.write("{}\n".format('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'))
         for item in inspect_folder(base_folder):
             file.write("{}\n".format(item))
