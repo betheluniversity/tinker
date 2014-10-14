@@ -133,7 +133,6 @@ def inspect_page(page_id):
         yield ""
 
 
-
 def check_page_id(page_id):
 
     with open("/Users/ejc84332/sites/tinker/upgrade.txt") as data:

@@ -1,10 +1,11 @@
 #python
-import os
 
 
 #flask
 from flask import Flask
+
 from tinker import tools
+
 
 #flask extensions
 from flask.ext.cache import Cache
