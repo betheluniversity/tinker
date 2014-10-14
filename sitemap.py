@@ -9,8 +9,11 @@ from flask import Response
 ###Just putting this here to work on it. Move out of tinker once the Cascade stuff is more portable
 def inspect_folder(folder_id):
     folder = read(folder_id, type="folder")
-    md = folder.asset.folder.metadata.dynamicFields
-    md = get_md_dict(md)
+    try:
+        md = folder.asset.folder.metadata.dynamicFields
+        md = get_md_dict(md)
+    except AttributeError:
+        return
     if ('hide-from-sitemap' in md.keys() and md['hide-from-sitemap'] == "Do not hide") or 'hide-from-sitemap' not in md.keys():
         children = folder.asset.folder.children
         if not children:
