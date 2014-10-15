@@ -71,7 +71,7 @@ def inspect_page(page_id):
 @app.route('/sitemap')
 def sitemap():
     base_folder = "ba134b8e8c586513100ee2a7637628a4"
-    base_folder = "c1b35e288c5865133a5d3f893471aefd"
+    #base_folder = "c1b35e288c5865133a5d3f893471aefd"
     ##base_folder = read(base_folder, type="folder")
     with open('/var/www/staging/public/_testing/jmo/sitemap.xml', 'w') as file:
         file.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
