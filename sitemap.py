@@ -9,11 +9,11 @@ from flask import Response
 ###Just putting this here to work on it. Move out of tinker once the Cascade stuff is more portable
 def inspect_folder(folder_id):
     folder = read(folder_id, type="folder")
-    try:
-        md = folder.asset.folder.metadata.dynamicFields
-        md = get_md_dict(md)
-    except AttributeError:
+    if not folder:
+        #typically a permision denied error from the Web Services read call.
         return
+    md = folder.asset.folder.metadata.dynamicFields
+    md = get_md_dict(md)
     if ('hide-from-sitemap' in md.keys() and md['hide-from-sitemap'] == "Do not hide") or 'hide-from-sitemap' not in md.keys():
         children = folder.asset.folder.children
         if not children:
@@ -44,7 +44,13 @@ def get_md_dict(md):
 
 
 def inspect_page(page_id):
-    page = read(page_id)
+    for i in range(1, 10):
+        try:
+            page = read(page_id)
+            break
+        except:
+            i += 1
+
     md = page.asset.page.metadata.dynamicFields
     md = get_md_dict(md)
     if 'hide-from-sitemap' in md.keys() and md['hide-from-sitemap'] == "Hide":
