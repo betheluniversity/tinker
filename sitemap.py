@@ -76,7 +76,8 @@ def sitemap():
     with open('/var/www/staging/public/_testing/jmo/sitemap.xml', 'w') as file:
         file.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
         for item in inspect_folder(base_folder):
-            file.write(item)
+            if item:
+                file.write(item)
         file.write('</urlset>')
 
 
