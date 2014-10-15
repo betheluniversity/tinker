@@ -56,7 +56,7 @@ def inspect_page(page_id):
     md = get_md_dict(md)
     if 'hide-from-sitemap' in md.keys() and md['hide-from-sitemap'] == "Hide":
         return
-    path = str(page.asset.page.path)
+    path = page.asset.page.path
 
     ##Is this page currently published to production?
     if not os.path.exists('/var/www/cms.pub/%s.php' % path):
@@ -64,7 +64,7 @@ def inspect_page(page_id):
 
     #check for index page
     if path.endswith('index'):
-        path = path.sub('index', '')
+        path = path.replace('index', '')
 
     ret = ["<url>"]
     ret.append("<loc>https://www.bethel.edu/%s</loc>" % path)
