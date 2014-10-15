@@ -5,6 +5,7 @@ from tinker.web_services import *
 from tinker import app
 from flask import Response
 
+##todo Add logic for index pages
 
 ###Just putting this here to work on it. Move out of tinker once the Cascade stuff is more portable
 def inspect_folder(folder_id):
@@ -56,9 +57,13 @@ def inspect_page(page_id):
     if 'hide-from-sitemap' in md.keys() and md['hide-from-sitemap'] == "Hide":
         return
     path = page.asset.page.path
+
     ##Is this page currently published to production?
     if not os.path.exists('/var/www/cms.pub/%s.php' % path):
         return
+    if path.endswith('index'):
+        path = path.sub('index', '')
+
     ret = ["<url>"]
     ret.append("<loc>https://www.bethel.edu/%s</loc>" % path)
     date = page.asset.page.lastModifiedDate
