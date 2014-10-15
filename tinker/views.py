@@ -22,3 +22,8 @@ def about():
 def get_image(image_name):
     return send_file('images/' + image_name, mimetype='image/png')
 
+
+@app.route('/test')
+def test():
+    x = "asdkfj"
+    x.sub('test', '')

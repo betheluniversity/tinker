@@ -1,0 +1,42 @@
+{% extends "tinker-base.html" %}
+
+{% block title  %} Whoops {% endblock %}
+
+{% block main_content %}
+
+   <div class="row">
+
+    <section id="oops">
+      <div class="row">
+        <div class="large-9 medium-9 small-12 columns small-centered">
+          <h1 class="oversized">Whoops! Tinker lost its connection.</h1>
+          <h5>We’re fixing the the loose wire right now. Check back soon!</h5>
+        </div>
+      </div>
+     </section>
+   </div>
+{% endblock %}
+
+{% block head_add %}
+
+  <style>
+
+   .button-group>li>.button-nav {
+     background-color: #0069AA;
+   }
+   .button-group>li>.button-nav:hover {
+     background-color: #0F2C52;
+   }
+
+    .button.small, .button.small.success, .button.tiny, .button.postfix, .input.postfix{
+      background-color: #0069AA;
+    }
+
+    .button.small:hover, .button.small.success:hover, .button.tiny:hover, .button.postfix:hover{
+      background-color: #0F2C52;
+    }
+
+  </style>
+
+
+{% endblock %}

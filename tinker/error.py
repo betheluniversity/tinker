@@ -19,3 +19,9 @@ def permission_denied(e):
 @app.errorhandler(503)
 def transport_error(e):
     return render_template('error/503.html'), 503
+
+
+@app.errorhandler(500)
+def server_error(e):
+    app.logger.error(type(e))
+    return render_template('error/500.html'), 500
