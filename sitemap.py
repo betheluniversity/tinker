@@ -56,7 +56,7 @@ def inspect_page(page_id):
     md = get_md_dict(md)
     if 'hide-from-sitemap' in md.keys() and md['hide-from-sitemap'] == "Hide":
         return
-    path = page.asset.page.path
+    path = str(page.asset.page.path)
 
     ##Is this page currently published to production?
     if not os.path.exists('/var/www/cms.pub/%s.php' % path):
