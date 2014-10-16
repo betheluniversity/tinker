@@ -23,9 +23,9 @@
   <div class="large-12 columns">
 
     {% if add_form %}
-      <form id="facultybioform" action="/faculty-bios/submit" method="post">
+      <form id="facultybioform" action="/faculty-bios/submit" method="post" enctype="multipart/form-data">
     {% else %}
-      <form id="facultybioform" action="/faculty-bios/submit" method="post">
+      <form id="facultybioform" action="/faculty-bios/submit" method="post" enctype="multipart/form-data">
       <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
     {% endif %}
       <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
@@ -39,62 +39,82 @@
             </div>
         {% endif %}
         {{ form.hidden_tag() }}
-        {% for field in form if field.widget.input_type != 'hidden' %}
+        {% for field in form %}
 
-        {# Print any errors for this field#}
-          {% for error in form.errors[field.name] %}
-            <div class="alert alert-error">
-              <div data-alert class="alert-box alert radius">
-                {{ error }}
-                <a href="#" class="close">&times;</a>
-              </div>
-            </div>
-          {% endfor %}
+          {% if field.widget.input_type != 'hidden' %}
+            {# Print any errors for this field#}
+              {% for error in form.errors[field.name] %}
+                <div class="alert alert-error">
+                  <div data-alert class="alert-box alert radius">
+                    {{ error }}
+                    <a href="#" class="close">&times;</a>
+                  </div>
+                </div>
+              {% endfor %}
 
-          {# print the label #}
-          {% if field.name not in ["areas", "research_interests", "teaching_specialty"] %}
-            <label for="{{ field.name }}">
-              {{ field.label.text }}
-              {% if field.flags.required %} <small>required</small> {% endif %}
-             </label>
-            <small>{{ field.description }}</small>
-          {% endif %}
+              {# print the label #}
+              {% if field.name not in ["areas", "research_interests", "teaching_specialty"] %}
+                <label for="{{ field.name }}">
+                  {{ field.label.text }}
+                  {% if field.flags.required %} <small>required</small> {% endif %}
+                 </label>
+                <small>{{ field.description }}</small>
+              {% endif %}
 
-          {# Print the field #}
-          {% if field.name == "degree" %}
-            {{ degree_fieldset() }}
+              {# Print the field #}
+              {% if field.name == "degree" %}
+                {{ degree_fieldset() }}
 
-          {% elif field.name == "areas" %}
-            <div id="areas_wrap" style="display:none;">
-            {{field.label}}{{ field(class="large-text-area") }}
-            </div>
-          {% elif field.name == "research_interests" %}
-            <div id="research_interests_wrap" style="display:none;">
-            {{field.label}}{{ field(class="large-text-area") }}
-            </div>
-          {% elif field.name == "teaching_specialty" %}
-            <div id="teaching_speciality_wrap" style="display:none;">
-            {{field.label}}{{ field(class="large-text-area") }}
-            </div>
+              {% elif field.name == "areas" %}
+                <div id="areas_wrap" style="display:none;">
+                {{field.label}}{{ field(class="large-text-area") }}
+                </div>
+              {% elif field.name == "research_interests" %}
+                <div id="research_interests_wrap" style="display:none;">
+                {{field.label}}{{ field(class="large-text-area") }}
+                </div>
+              {% elif field.name == "teaching_specialty" %}
+                <div id="teaching_speciality_wrap" style="display:none;">
+                {{field.label}}{{ field(class="large-text-area") }}
+                </div>
 
 
-          {% elif field.type == "SelectMultipleField" %}
-            {{ field(size=10, class="largeselect") }}
+              {% elif field.type == "SelectMultipleField" %}
+                {{ field(size=10, class="largeselect") }}
 
-          {% elif field.type == "HeadingField" %}
-            <h3>{{ field.label }}</h3>
+              {% elif field.type == "HeadingField" %}
+                <h3>{{ field.label }}</h3>
 
-          {% elif field.name == "job_titles" %}
-            {{ job_title_fieldset() }}
+              {% elif field.name == "job_titles" %}
+                {{ job_title_fieldset() }}
 
-          {% elif field.type == "SelectField" %}
-            {{ field }}
+              {% elif field.type == "SelectField" %}
+                {{ field }}
 
-          {% elif field.type == "CKEditorTextAreaField" %}
-            {{ field(class="ckeditor") }}
+              {% elif field.type == "CKEditorTextAreaField" %}
+                {{ field(class="ckeditor") }}
 
-          {% else %}
-              {{ field(size=20) }}
+              {% else %}
+                  {{ field(size=20) }}
+              {% endif %}
+
+
+          {% elif field.name == "image_url" %}
+            {# The image_url field is hidden. So get the image from this. #}
+            {{ form['image_url'] }}
+            <img id="display_image" src="" style="height:300px; "/>
+            <script type="text/javascript">
+
+                if( $("#image_url").val() == "" )
+                    $("#display_image").hide()
+                else
+                {
+                    $("#display_image").attr("src", "http://cdn1.bethel.edu/resize/unsafe/400x0/smart/http://www.bethel.edu/" + ($("#image_url").val()));
+                     $("#display_image").show()
+                }
+
+            </script>
+            <hr />
           {% endif %}
 
         {% endfor %}
@@ -371,6 +391,28 @@
               });
           testExpertise();
       });
+
+
+
+  // Dynamically render image
+  function readURL(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+
+        reader.onload = function (e) {
+            $('#display_image').attr('src', e.target.result);
+            $('#display_image').show();
+        }
+
+
+        reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+    $("#image").change(function(){
+        readURL(this);
+    });
+
 </script>
 
 {% endblock %}

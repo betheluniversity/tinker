@@ -1,6 +1,10 @@
 #python
 import urllib2
 import re
+import base64
+import httplib
+from requests import *
+
 from xml.etree import ElementTree as ET
 from xml.dom.minidom import parseString
 #flask
@@ -12,16 +16,6 @@ from tinker.cascade_tools import *
 from tinker import app
 
 
-def get_xml_bios(url):
-    file = urllib2.urlopen(url)
-    data = file.read()
-    file.close()
-    dom = parseString(data)
-    pages = dom.getElementsByTagName('system-page')
-
-    return pages
-
-    # print xmlData
 
 def get_expertise(add_data):
     areas = add_data['areas']
@@ -166,19 +160,54 @@ def get_add_to_bio(add_data):
     return node
 
 
+def structured_file_data_node(id, path, assetType="file"):
+
+    if not assetType == "file":
+        assetType="file"
+
+    node = {
+        'identifier': id,
+        'filePath': path,
+        'assetType': assetType,
+        'type': "asset"
+    }
+    return node
+
+
 def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=None):
     """
      Could this be cleaned up at all?
     """
 
+
+    ## Create Image asset
+    # if add_data['image_name'] != "":
+    #     image_structure = get_image_structure("/academics/faculty-images", add_data['image_name'])
+    #
+    #     conn = httplib.HTTPConnection("staging.bethel.edu")
+    #     conn.request('HEAD', '/academics/faculty-images/' + add_data['image_name'])
+    #     image_exists_response = conn.getresponse().status
+    #
+    #     if image_exists_response == '404':
+    #         create_image(image_structure)
+    #     else:
+    #         image_structure['file']['path'] = "academics/faculty-images/" + add_data['image_name']
+    #         edit_response = edit(image_structure)
+    #         app.logger.warn(time.strftime("%c") + ": Image edit by " + username + " " + str(edit_response))
+
+
+
+
+
+
     ## Create a list of all the data nodes
     structured_data = [
+        # structured_file_data_node('image', "/academics/faculty-images/" + add_data['image_name']),
         structured_data_node("first", add_data['first']),
         structured_data_node("last", add_data['last']),
         structured_data_node("email", add_data['email']),
         structured_data_node("started-at-bethel", add_data['started_at_bethel']),
         get_job_titles(add_data),
-
     ]
 
     structured_data.extend( get_expertise(add_data) )
@@ -225,6 +254,27 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
 
     if faculty_bio_id:
         asset['page']['id'] = faculty_bio_id
+
+    return asset
+
+## A test to see if we can create images in cascade.
+def get_image_structure(image_dest, image_name, faculty_bio_id=None, workflow=None):
+
+    file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
+    stream = file.read()
+    encoded_stream = base64.b64encode(stream)
+
+    asset = {
+        'file': {
+            'name': image_name,
+            'parentFolderPath': image_dest,
+            'metadataSetPath': "Images",
+            'siteId': app.config['SITE_ID'],
+            'siteName': 'Public',
+            'data': encoded_stream,
+        },
+        'workflowConfiguration': workflow
+    }
 
     return asset
 
@@ -291,9 +341,25 @@ def create_faculty_bio(asset):
     username = session['username']
 
     response = client.service.create(auth, asset)
+
     app.logger.warn(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))
     ##publish the xml file so the new event shows up
     publish_faculty_bio_xml()
+
+    return response
+
+
+def create_image(asset):
+    auth = app.config['CASCADE_LOGIN']
+    client = get_client()
+
+    username = session['username']
+
+    response = client.service.create(auth, asset)
+    app.logger.warn(time.strftime("%c") + ": Create image submission by " + username + " " + str(response))
+
+    ## Publish
+    publish(response.createdAssetId, "file")
 
     return response
 
@@ -310,47 +376,6 @@ def get_faculty_bios_for_user(username):
     return matches
 
 
-## Function to get the values from xml.
-def get_page_values_from_xml(page, authors_text ):
-
-    if len(page.getElementsByTagName('first')) > 0:
-        first = page.getElementsByTagName('first')[0].toxml()
-        first_text = first.replace('<first>','').replace('</first>','').replace('<first/>','')
-
-    if len(page.getElementsByTagName('last')) > 0:
-        last = page.getElementsByTagName('last')[0].toxml()
-        last_text = last.replace('<last>','').replace('</last>','').replace('<last/>','')
-
-    title_text = first_text + " " + last_text
-
-    created_text = ""
-    if len(page.getElementsByTagName('created-on')) > 0:
-        created = page.getElementsByTagName('created-on')[0].toxml()
-        created_text = created.replace('<created-on>','').replace('</created-on>','')
-
-    path_text = ""
-    if len(page.getElementsByTagName('path')) > 0:
-        path = page.getElementsByTagName('path')[0].toxml()
-        path_text = 'https://www.bethel.edu' + path.replace('<path>','').replace('</path>','')
-
-    is_published_text = True
-    if len(page.getElementsByTagName('last-published-on')) > 0:
-        published = page.getElementsByTagName('last-published-on')[0].toxml()
-    else:
-        is_published_text = False
-        path_text = ""
-
-    page_values = {
-        'author': authors_text,
-        'id': page.getAttribute('id') or None,
-        'title': title_text or "",
-        'created-on': created_text or None,
-        'path': path_text or '',
-        'is_published': is_published_text
-    }
-    return page_values
-
-
 def traverse_faculty_folder(traverse_xml, username):
     ## Traverse an XML folder, adding system-pages to a dict of matches
     user = read(username, "user")
@@ -361,51 +386,46 @@ def traverse_faculty_folder(traverse_xml, username):
         allowedGroups = []
 
     ## Todo: This function can be removed. The 'traverse_xml' variable above is already doing that.
-    pages = get_xml_bios("http://www.bethel.edu/_shared-content/xml/faculty-bios.xml")
+
     matches = []
+    for child in traverse_xml:
+        if child.tag == 'system-page':
+            try:
+                authors = child.find('author')
+                if authors is not None:
 
-    for page in pages:
-        added_page = False
-        try:
+                    dict_of_authors = authors.text.split( ", ")
 
-            ## check if author matches
-            if len(page.getElementsByTagName('author')) > 0:
-                authors = page.getElementsByTagName('author')[0].toxml()
-                authors_text = authors.replace('<author>','').replace('</author>','')
-
-                authors = authors.split( ", ")
-
-                for author in authors:
-                    if username == authors_text:
-                        page_values = get_page_values_from_xml(page, authors_text);
+                    if username in dict_of_authors:
+                        page_values = {
+                            'author': child.find('author').text,
+                            'id': child.attrib['id'] or "",
+                            'title': child.find('title').text or None,
+                            'created-on': child.find('created-on').text or None,
+                            'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                        }
                         ## This is a match, add it to array
                         matches.append(page_values)
-                        added_page = True
-                        break
+                        continue
+            finally:
+                for md in child.findall("dynamic-metadata"):
+                    if md.find('name').text == 'department' and md.find('value') is not None:
+                        for allowedGroup in allowedGroups:
+
+                            if allowedGroup == get_web_author_group(md.find('value').text):
+
+                                page_values = {
+                                    'author': child.find('author') or None,
+                                    'id': child.attrib['id'] or "",
+                                    'title': child.find('title').text or None,
+                                    'created-on': child.find('created-on').text or None,
+                                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                                }
+                                a=1
+                                matches.append(page_values)
+                                break
 
 
-            ## check if metadata matches
-            ## This got really nasty traversing and checking on the way down the list.
-            ## Todo: It is probably worth cleaning this up.
-            mds = page.getElementsByTagName('dynamic-metadata')
-            for md in mds:
-                if added_page != True:                                                                                  ## if you already added this page, skip this!
-                    if len(md.getElementsByTagName('name')) > 0 and len(md.getElementsByTagName('value')) > 0:          ## make sure the elements exist
-                        if md.getElementsByTagName('name')[0].toxml() == '<name>department</name>':                     ## make sure the metadata name is department
-                            dept_value = md.getElementsByTagName('value')[0].toxml()
-                            dept_value = dept_value.replace('<value>','').replace('</value>','').replace('amp;', '')
-
-                            if dept_value != 'Select':
-                                for allowedGroup in allowedGroups:
-
-                                    if allowedGroup == get_web_author_group(dept_value):
-                                        page_values = get_page_values_from_xml(page, authors_text);
-                                        matches.append(page_values)
-                                        added_page = True
-                                        break
-
-        except AttributeError:
-            continue
     return matches
 
 
