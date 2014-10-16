@@ -33,7 +33,7 @@ if not app.debug:
     app.logger.addHandler(file_handler)
 
     from logging.handlers import SMTPHandler
-    mail_handler = SMTPHandler(('127.0.0.1', '8080'),
+    mail_handler = SMTPHandler('127.0.0.1',
                                'tinker@bethel.edu',
                                app.config['ADMINS'], 'That was an unqualified, failure.')
     mail_handler.setLevel(logging.ERROR)
