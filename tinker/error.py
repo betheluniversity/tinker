@@ -23,5 +23,5 @@ def transport_error(e):
 
 @app.errorhandler(500)
 def server_error(e):
-    app.logger.error(type(e))
+    app.logger.error(e)
     return render_template('error/500.html'), 500

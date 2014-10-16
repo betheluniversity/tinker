@@ -5,6 +5,8 @@ _basedir = os.path.abspath(os.path.dirname(__file__))
 FOUNDATION_USE_MINIFIED = False
 FOUNDATION_USE_CDN = True
 
+##emails
+ADMINS = ['']
 
 #Cascade / Events
 secret_key = ''
