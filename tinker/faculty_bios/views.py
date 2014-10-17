@@ -1,10 +1,13 @@
 #python
 import json
+import os
 
 #flask
 from flask import Blueprint
 from flask import render_template
 from flask import redirect
+from flask import send_from_directory
+from flask import url_for
 
 from tinker.faculty_bios.cascade_faculty_bio import *
 from tinker import app
@@ -100,6 +103,9 @@ def faculty_bio_edit_form(faculty_bio_id):
                             degree_data[degree.identifier] = degree.text
                         degrees[degree_count] = degree_data
                         degree_count += 1
+        # elif node_type == 'asset':
+        #     edit_data['image'] = "test"
+        #     edit_data['image_url'] = node.filePath
 
     #now metadata dynamic fields
     for field in dynamic_fields:
@@ -141,7 +147,7 @@ def submit_faculty_bio_form():
 
     jobs, jobs_good, num_jobs = check_jobs(rform)
     degrees, degrees_good, num_degrees = check_degrees(rform)
-    if not form.validate_on_submit() or not jobs_good:
+    if not form.validate_on_submit() or not jobs_good or not degrees_good:
         if 'faculty_bio_id' in request.form.keys():
             faculty_bio_id = request.form['faculty_bio_id']
         else:
@@ -149,12 +155,31 @@ def submit_faculty_bio_form():
             add_form = True
         return render_template('faculty-bio-form.html', **locals())
 
-    form = rform
 
     #Get all the form data
-    add_data = get_add_data(['school', 'department'], form) ##, 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
+    add_data = get_add_data(['school', 'department'], rform) ##, 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
 
-    faculty_bio_id = form['faculty_bio_id']
+
+    #### Images #########
+    # image_name = form.image.data.filename
+    #
+    # if image_name != "":
+    #     image_name = rform['last'].lower() + "-" + rform['first'].lower() + ".jpg"
+    #     image_path = secure_filename(image_name)
+    #
+    #     form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
+    #     add_data['image_name'] = image_name
+    #     ##imageURL = url_for('uploaded_file', filename=filename)
+    # else:
+    #     add_data['image_name'] = ""
+    # #####################
+    # conn = httplib.HTTPConnection("www.bethel.edu")
+    # conn.request('HEAD', '/academics/faculty-images/wetzell-david.jpg')
+    # image_exists_response = conn.getresponse().status
+    # return str(image_exists_response)
+    # add_data['image_path'] = image_path
+
+    faculty_bio_id = rform['faculty_bio_id']
     if faculty_bio_id:
         workflow = None
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
@@ -162,13 +187,20 @@ def submit_faculty_bio_form():
     if faculty_bio_id:
         resp = edit(asset)
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " " + str(resp))
-        publish(faculty_bio_id)
+        # publish(faculty_bio_id)
     else:
         resp = create_faculty_bio(asset)
 
-
     return redirect('/faculty-bios/confirm', code=302)
     ##Just print the response for now
+
+
+
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+    # return send_from_directory("/Users/ces55739/Sites/Tinker/tinker/temp/images",filename)
 
 
 def check_jobs(form):

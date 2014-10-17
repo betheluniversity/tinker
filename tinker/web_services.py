@@ -42,14 +42,14 @@ def delete(page_id, workflow=None):
     return response
 
 
-def publish(page_id):
+def publish(page_id, type='page'):
 
     client = get_client()
 
     publishinformation = {
         'identifier': {
             'id': page_id,
-            'type': 'page',
+            'type': type,
 
         },
     }

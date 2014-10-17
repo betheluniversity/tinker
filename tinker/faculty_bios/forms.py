@@ -8,7 +8,9 @@ from wtforms import TextField
 from wtforms import TextAreaField
 from wtforms import SelectMultipleField
 from wtforms import SelectField
-from wtforms import FileField
+from wtforms import HiddenField
+from flask_wtf.file import FileField
+##from wtforms import FileField
 from wtforms import RadioField
 from wtforms import DateTimeField
 from wtforms import FieldList
@@ -122,7 +124,8 @@ def get_faculty_bio_choices():
 class FacultyBioForm(Form):
 
     ## HIDE IF ANY COMMITS ##
-    ##image = FileField("Image name")
+    # image = FileField("Image")
+    # image_url = HiddenField("Image URL")
     #########################
 
     first = TextField('Faculty first name', validators=[Required()])

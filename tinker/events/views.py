@@ -52,8 +52,9 @@ def read_page():
     client = get_client()
 
     identifier = {
-        'id': '8b9935b48c58651317cf8e74d1bc77b4',
-        'type': 'page'
+        # 'id': '0fb8d20c8c58651313b6fe6bb0f417a2',
+        'type': 'file',
+        'path': 'academics/faculty-images/caucutt-alex.jpg'
     }
 
     auth = app.config['CASCADE_LOGIN']
