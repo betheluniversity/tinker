@@ -311,7 +311,7 @@ def get_faculty_bios_for_user(username):
 
 
 ## Function to get the values from xml.
-def get_page_values_from_xml(page, authors_text ):
+def get_page_values_from_xml(page, authors_text):
 
     if len(page.getElementsByTagName('first')) > 0:
         first = page.getElementsByTagName('first')[0].toxml()
@@ -367,7 +367,6 @@ def traverse_faculty_folder(traverse_xml, username):
     for page in pages:
         added_page = False
         try:
-
             ## check if author matches
             if len(page.getElementsByTagName('author')) > 0:
                 authors = page.getElementsByTagName('author')[0].toxml()

@@ -87,5 +87,11 @@ def sitemap():
         file.write('</urlset>')
 
 
+def test():
+    import time
+    with open('/var/www/staging/public/_testing/jmo/cron.txt', 'a') as f:
+        f.write("%s -- being written from sitemap\n" % time.strftime("%Y-%m-%d %H:%M:%S"))
+
+
 if __name__ == "__main__":
     sitemap()
