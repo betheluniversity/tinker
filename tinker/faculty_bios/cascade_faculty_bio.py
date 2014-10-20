@@ -444,3 +444,12 @@ def get_bio_publish_workflow(title="", username=""):
         "workflowComments": "New Faculty Bio submission"
     }
     return workflow
+
+
+def check_publish_sets(school):
+    for item in school:
+        if item == "College of Arts & Sciences":
+            publish("f580ac758c58651313b6fe6bced65fea", "publishset")
+
+
+

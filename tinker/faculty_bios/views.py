@@ -191,6 +191,9 @@ def submit_faculty_bio_form():
     else:
         resp = create_faculty_bio(asset)
 
+    #publish corresponding pubish set
+    check_publish_sets(add_data['school'])
+
     return redirect('/faculty-bios/confirm', code=302)
     ##Just print the response for now
 

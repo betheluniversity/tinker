@@ -91,11 +91,11 @@ def get_faculty_bio_choices():
 
     data = get_md("/Robust")
 
-    school_list = data[4].possibleValues.possibleValue
-    department_list = data[7].possibleValues.possibleValue
-    caps_list = data[8].possibleValues.possibleValue
-    gs_list = data[9].possibleValues.possibleValue
-    sem_list = data[10].possibleValues.possibleValue
+    school_list = data[3].possibleValues.possibleValue
+    department_list = data[6].possibleValues.possibleValue
+    caps_list = data[7].possibleValues.possibleValue
+    gs_list = data[8].possibleValues.possibleValue
+    sem_list = data[9].possibleValues.possibleValue
 
     school = []
     for item in school_list:
@@ -168,6 +168,6 @@ class FacultyBioForm(Form):
 
     school = SelectMultipleField('School', choices=school_choices, default=['Select'], validators=[Required()])
     department = SelectMultipleField('Undergraduate Departments', default=['Select'], choices=department_choices, validators=[Required()])
-    # adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['Select'], choices=caps_choices, validators=[Required()])
-    # graduate_program = SelectMultipleField('Graduate Programs', default=['Select'], choices=gs_choices, validators=[Required()])
-    # seminary_program = SelectMultipleField('Seminary Programs', default=['Select'], choices=sem_choices, validators=[Required()])
+    adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['Select'], choices=caps_choices, validators=[Required()])
+    graduate_program = SelectMultipleField('Graduate Programs', default=['Select'], choices=gs_choices, validators=[Required()])
+    seminary_program = SelectMultipleField('Seminary Programs', default=['Select'], choices=sem_choices, validators=[Required()])

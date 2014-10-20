@@ -3,7 +3,6 @@ import os.path
 
 from tinker.web_services import *
 from tinker import app
-from flask import Response
 
 ##todo Add logic for index pages
 
