@@ -31,6 +31,20 @@ def structured_data_node(id, text, node_type=None):
     return node
 
 
+def structured_file_data_node(id, path, assetType="file"):
+
+    if not assetType == "file":
+        assetType="file"
+
+    node = {
+        'identifier': id,
+        'filePath': path,
+        'assetType': assetType,
+        'type': "asset"
+    }
+    return node
+
+
 ## Excape content so its Cascade WYSIWYG friendly
 ## There are a few edge cases for sybmols it doesn't like.
 def escape_wysiwyg_content(content):

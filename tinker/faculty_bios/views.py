@@ -157,7 +157,7 @@ def submit_faculty_bio_form():
 
 
     #Get all the form data
-    add_data = get_add_data(['school', 'department'], rform) ##, 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
+    add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
 
 
     #### Images #########
