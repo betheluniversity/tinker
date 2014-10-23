@@ -7,6 +7,7 @@
         'async':true,
         'host':'wufoo.com',
         'header':'show',
+        'defaultValues': {{ preload_options }},
         'ssl':true};
         s.src = ('https:' == d.location.protocol ? 'https://' : 'http://') + 'www.wufoo.com/scripts/embed/form.js';
         s.onload = s.onreadystatechange = function() {

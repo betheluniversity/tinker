@@ -58,7 +58,18 @@ def get_forms():
 
 
 @wufoo_blueprint.route('/embed-form/<formhash>')
-def embed_form(formhash):
+@wufoo_blueprint.route('/embed-form/<formhash>/<username>')
+def embed_form(formhash, username=None):
+    ##need to check preload if there is a username
+    if username:
+        info = FormInfo.query.get(formhash)
+        preload = info['preload_info']
+        preload_options = "field218=jameson&field217=216&field216=e-jameson@bethel.edu"
+    else:
+        preload_options = ""
+    ## Get the username?
+
+
     return render_template('embed_form.html', **locals())
 
 
