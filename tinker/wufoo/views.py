@@ -64,7 +64,7 @@ def embed_form(formhash, username=None):
     if username:
         ##info = FormInfo.query.get(formhash)
         ##preload = info['preload_info']
-        preload_options = "field218=jameson&field217=216&field216=e-jameson@bethel.edu"
+        preload_options = "Field218=jameson&Field217=eric&Field216=e-jameson@bethel.edu"
     else:
         preload_options = ""
     ## Get the username?
