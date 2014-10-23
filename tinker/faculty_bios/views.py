@@ -29,9 +29,11 @@ def delete_page(page_id):
     delete(page_id)
     return redirect('/faculty-bios/delete-confirm', code=302)
 
+
 @faculty_bio_blueprint.route('/delete-confirm')
 def delete_confirm():
     return render_template('faculty-bio-delete-confirm.html', **locals())
+
 
 @faculty_bio_blueprint.route("/edit/new")
 def faculty_bio_new_form():
@@ -44,9 +46,11 @@ def faculty_bio_new_form():
     add_form = True
     return render_template('faculty-bio-form.html', **locals())
 
+
 @faculty_bio_blueprint.route('/confirm')
 def submit_confirm():
     return render_template('faculty-bio-confirm.html', **locals())
+
 
 @faculty_bio_blueprint.route("/edit/<faculty_bio_id>")
 def faculty_bio_edit_form(faculty_bio_id):
@@ -155,10 +159,8 @@ def submit_faculty_bio_form():
             add_form = True
         return render_template('faculty-bio-form.html', **locals())
 
-
     #Get all the form data
     add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
-
 
     #### Images #########
     # image_name = form.image.data.filename
@@ -192,11 +194,8 @@ def submit_faculty_bio_form():
     else:
         resp = create_faculty_bio(asset)
 
-
     return redirect('/faculty-bios/confirm', code=302)
     ##Just print the response for now
-
-
 
 
 @app.route('/uploads/<filename>')
