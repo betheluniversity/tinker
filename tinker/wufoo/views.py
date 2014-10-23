@@ -59,28 +59,7 @@ def get_forms():
 
 @wufoo_blueprint.route('/embed-form/<formhash>')
 def embed_form(formhash):
-    formhash = """
-    <div id="wufoo-%s">
-        Fill out my <a href="https://betheluniversity.wufoo.com/forms/%s">online form</a>.
-        </div>
-        <script type="text/javascript">var %s;(function(d, t) {
-        var s = d.createElement(t), options = {
-        'userName':'betheluniversity',
-        'formHash':'%s',
-        'autoResize':true,
-        'height':'781',
-        'async':true,
-        'host':'wufoo.com',
-        'header':'show',
-        'ssl':true};
-        s.src = ('https:' == d.location.protocol ? 'https://' : 'http://') + 'www.wufoo.com/scripts/embed/form.js';
-        s.onload = s.onreadystatechange = function() {
-        var rs = this.readyState; if (rs) if (rs != 'complete') if (rs != 'loaded') return;
-        try { %s = new WufooForm();%s.initialize(options);%s.display(); } catch (e) {}};
-        var scr = d.getElementsByTagName(t)[0], par = scr.parentNode; par.insertBefore(s, scr);
-        })(document, 'script');</script>
-    """ % (formhash, formhash, formhash, formhash, formhash, formhash, formhash)
-    return formhash
+    return render_template('embed_form.html', **locals())
 
 
 @wufoo_blueprint.route('/load-form/<formhash>')
