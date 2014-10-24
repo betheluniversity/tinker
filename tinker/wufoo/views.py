@@ -108,7 +108,7 @@ def preload_save():
         db.session.commit()
     else:
         #create new
-        info = FormInfo(hash=hash, preload_info=preload_info, paypal_name=None, paypal_budget_number=None, sync_status=False)
+        info = FormInfo(hash=form_hash, preload_info=preload_info, paypal_name=None, paypal_budget_number=None, sync_status=False)
         db.session.add(info)
         db.session.commit()
 
