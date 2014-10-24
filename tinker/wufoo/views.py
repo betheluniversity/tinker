@@ -105,13 +105,14 @@ def preload_save():
         #update existing
         dbrecord.preload_info = preload_info
         db.session.merge(dbrecord)
-        db.session.commit()
+        status = db.session.commit()
+
     else:
         #create new
         info = FormInfo(hash=form_hash, preload_info=preload_info, paypal_name=None, paypal_budget_number=None, sync_status=False)
         db.session.add(info)
-        db.session.commit()
-
+        status = db.session.commit()
+    return status
 
 @wufoo_blueprint.route('/get-preload-options')
 def get_preload_options():
