@@ -115,37 +115,9 @@ def preload_save():
 
 @wufoo_blueprint.route('/get-preload-options')
 def get_preload_options():
-    supported_names = {'bethel_id': 'Bethel ID',
-                       'last_name': 'Last Name',
-                       'first_name': 'First Name',
-                       'middle_name': 'Middle Name',
-                       'bu_email': 'BU Email',
-                       'udc_id': 'UDC Id (unique identifier)',
-                       'phonetic': 'Phonetic',
-                       'majr1': 'Major 1',
-                       'majr2': 'Major 2',
-                       'majr3': 'Major 3',
-                       'majr4': 'Major 4',
-                       'majr5': 'Major 5',
-                       'department': 'Department',
-                       'begtime': 'Ceremony Begin Time',
-                       'cermdate': 'Ceremony Date',
-                       'CohortUG': 'CAPS Cohort',
-                       'CohortGS': 'GS Cohort',
-                       'CohortUG1415': 'CAPS Cohort',
-                       'CohortGS1415': 'GS Cohort',
-                       'Fall13CreditUG': 'CAPS Fall 13 Credit',
-                       'Spring14CreditUG': 'CAPS Spring 14 Credit',
-                       'Summer14CreditUG': 'CAPS Summer 14 Credit',
-                       'Fall13CreditGS': 'GS Fall 13 Credit',
-                       'Spring14CreditGS': 'GS Spring 14 Credit',
-                       'Summer14CreditGS': 'GS Summer 14 Credit',
-                       'Fall14CreditUG': 'CAPS Fall 14 Credit',
-                       'Spring15CreditUG': 'CAPS Spring 15 Credit',
-                       'Summer15CreditUG': 'CAPS Summer 15 Credit',
-                       'Fall14CreditGS': 'GS Fall 14 Credit',
-                       'Spring15CreditGS': 'GS Spring 15 Credit',
-                       'Summer15CreditGS': 'GS Summer 15 Credit'
+    supported_names = {
+                       'firstName': 'Last Name',
+                       'lastName': 'First Name',
                        }
 
     return jsonify(dict(supported_names))
