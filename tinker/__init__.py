@@ -32,6 +32,7 @@ if not app.debug:
     file_handler.setLevel(logging.WARNING)
     app.logger.addHandler(file_handler)
 
+if not app.debug and app.config['ENVIRON'] is not 'test':
     from logging.handlers import SMTPHandler
     mail_handler = SMTPHandler('127.0.0.1',
                                'tinker@bethel.edu',

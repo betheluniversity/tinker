@@ -6,6 +6,7 @@ import requests
 from flask import request, Blueprint, render_template, jsonify
 
 #Tinker
+from tinker import app
 from tinker import db
 from tinker import cache
 from tinker.wufoo.models import FormInfo
@@ -62,15 +63,38 @@ def get_forms():
 def embed_form(formhash, username=None):
     ##need to check preload if there is a username
     if username:
-        ##info = FormInfo.query.get(formhash)
-        ##preload = info['preload_info']
-        preload_options = "Field218=jameson&Field217=eric&Field216=e-jameson@bethel.edu"
+        info = FormInfo.query.get(formhash)
+        preload = info.preload_info
+        ## get preload values from api
+
+        preload_options = get_preload_values(preload, username)
     else:
         preload_options = ""
     ## Get the username?
 
-
     return render_template('embed_form.html', **locals())
+
+
+def get_preload_values(info, username):
+    info = json.loads(info)
+    values = set(info.values())
+    options = get_options()
+    common = set(options['common'])
+    rare = set(options['rare'])
+
+    payload = {'common': values & common, 'rare': values & rare}
+    preload_url = app.config['WUFOO_PRELOAD_URL'] % username
+    r = requests.post(preload_url, data=payload)
+    results = json.loads(r.content)
+    resp = ""
+    for key, value in info.items():
+        if value not in results:
+            continue
+        resp += "%s=%s&" % (key, results[value])
+
+    return resp
+
+
 
 
 @wufoo_blueprint.route('/load-form/<formhash>')
@@ -78,7 +102,6 @@ def load_form(formhash):
 
     #Load prelaod info for form
     info = FormInfo.query.get(formhash)
-
     return api.load_form(formhash, form_info=info)
 
 
@@ -116,9 +139,16 @@ def preload_save():
 
 @wufoo_blueprint.route('/get-preload-options')
 def get_preload_options():
-    supported_names = {
-                       'firstName': 'Last Name',
-                       'lastName': 'First Name',
-                       }
+    return jsonify(dict(get_options()))
 
-    return jsonify(dict(supported_names))
+
+def get_options():
+    return {
+        'common' : {
+           'firstName': 'First Name',
+           'lastName': 'Last Name',
+        },
+       'rare':  {
+            'GS Summer 15 Credit': 'Summer15CreditGS'
+        }
+    }
