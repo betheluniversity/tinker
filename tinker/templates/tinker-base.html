@@ -82,7 +82,7 @@
               <hr />
               <div class="row">
                 <div class="large-6 columns">
-                  <p>&copy; Bethel University </p>
+                  <p>&copy; Bethel University -- <a href="/about">About</a></p>
                 </div>
               </div>
             </div>
@@ -96,6 +96,8 @@
       if (typeof(CKEDITOR) != "undefined"){
         CKEDITOR.config.format_tags = 'h2;h3;h4';
         CKEDITOR.config.disableNativeSpellChecker = false;
+        CKEDITOR.config.removePlugins = 'indent,indentlist,indentblock';
+
       }
   });
   </script>
