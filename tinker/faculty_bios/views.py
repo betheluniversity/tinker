@@ -109,10 +109,10 @@ def faculty_bio_edit_form(faculty_bio_id):
                             degree_data[degree.identifier] = degree.text
                         degrees[degree_count] = degree_data
                         degree_count += 1
-        elif node_type == 'asset':
-            roles = get_roles()
-            if "FACULTY-CAS" in roles:
-                edit_data['image'] = ""
+        elif node_identifier == 'image':
+            groups = get_groups_for_user()
+            if "Tinker Redirects" in groups:
+                edit_data['image'] = node.text
                 edit_data['image_url'] = node.filePath
 
     #now metadata dynamic fields

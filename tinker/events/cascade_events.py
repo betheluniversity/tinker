@@ -469,3 +469,5 @@ def publish_event_xml():
 
     ##with app.app_context():
     ##    cache.clear()
+
+
