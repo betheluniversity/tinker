@@ -3,7 +3,7 @@ import urllib2
 import re
 import base64
 import httplib
-from requests import *
+import requests
 
 from xml.etree import ElementTree as ET
 from xml.dom.minidom import parseString
@@ -11,7 +11,7 @@ from xml.dom.minidom import parseString
 
 #local
 from tinker.web_services import *
-
+from tinker.tools import *
 from tinker.cascade_tools import *
 from tinker import app
 
@@ -164,26 +164,29 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
      Could this be cleaned up at all?
     """
 
-       ## Create Image asset
-    # if add_data['image_name'] != "":
-    #     image_structure = get_image_structure("/academics/faculty-images", add_data['image_name'])
-    #
-    #     conn = httplib.HTTPConnection("staging.bethel.edu")
-    #     conn.request('HEAD', '/academics/faculty-images/' + add_data['image_name'])
-    #     image_exists_response = conn.getresponse().status
-    #
-    #     if image_exists_response == '404':
-    #         create_image(image_structure)
-    #     else:
-    #         image_structure['file']['path'] = "academics/faculty-images/" + add_data['image_name']
-    #         edit_response = edit(image_structure)
-    #         app.logger.warn(time.strftime("%c") + ": Image edit by " + username + " " + str(edit_response))
+    ## Create Image asset
+    roles = get_roles()
+    if "FACULTY-CAS" in roles:
+        if add_data['image_name'] != "":
+            image_structure = get_image_structure("/academics/faculty-images", add_data['image_name'])
+
+            r = requests.get('https://www.bethel.edu/academics/faculty-images/' + add_data['image_name'])
+
+            if r.status_code == 404:
+                create_image(image_structure)
+            else:
+                image_structure['file']['path'] = "academics/faculty-images/" + add_data['image_name']
+                edit_response = edit(image_structure)
+                app.logger.warn(time.strftime("%c") + ": Image edit by " + username + " " + str(edit_response))
+        image = structured_file_data_node('image', "/academics/faculty-images/" + add_data['image_name'])
+    else:
+        image = None
 
 
 
     ## Create a list of all the data nodes
     structured_data = [
-        # structured_file_data_node('image', "/academics/faculty-images/" + add_data['image_name']),
+        image,
         structured_data_node("first", add_data['first']),
         structured_data_node("last", add_data['last']),
         structured_data_node("email", add_data['email']),

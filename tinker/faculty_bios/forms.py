@@ -20,8 +20,10 @@ from wtforms import Label
 from wtforms.validators import Required
 from wtforms.validators import Optional
 
+
 #local
 from tinker import app
+from tinker.tools import *
 ##from tinker import cache
 from tinker.web_services import get_client, read
 
@@ -123,10 +125,12 @@ def get_faculty_bio_choices():
 
 class FacultyBioForm(Form):
 
-    ## HIDE IF ANY COMMITS ##
-    # image = FileField("Image")
-    # image_url = HiddenField("Image URL")
-    #########################
+    roles = get_roles()
+    groups = get_groups_for_user()
+
+    if "FACULTY-CAS" in roles and "Tinker Redirects" in groups:
+        image = FileField("Image")
+        image_url = HiddenField("Image URL")
 
     first = TextField('Faculty first name', validators=[Required()])
     last = TextField('Faculty last name', validators=[Required()])

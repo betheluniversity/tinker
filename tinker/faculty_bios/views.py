@@ -2,6 +2,8 @@
 import json
 import os
 
+from werkzeug import secure_filename
+
 #flask
 from flask import Blueprint
 from flask import render_template
@@ -103,9 +105,11 @@ def faculty_bio_edit_form(faculty_bio_id):
                             degree_data[degree.identifier] = degree.text
                         degrees[degree_count] = degree_data
                         degree_count += 1
-        # elif node_type == 'asset':
-        #     edit_data['image'] = "test"
-        #     edit_data['image_url'] = node.filePath
+        elif node_type == 'asset':
+            roles = get_roles()
+            if "FACULTY-CAS" in roles:
+                edit_data['image'] = ""
+                edit_data['image_url'] = node.filePath
 
     #now metadata dynamic fields
     for field in dynamic_fields:
@@ -155,29 +159,28 @@ def submit_faculty_bio_form():
             add_form = True
         return render_template('faculty-bio-form.html', **locals())
 
-
     #Get all the form data
-    add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
+    add_data = get_add_data(['school', 'department'],rform) ##, 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
 
 
     #### Images #########
-    # image_name = form.image.data.filename
-    #
-    # if image_name != "":
-    #     image_name = rform['last'].lower() + "-" + rform['first'].lower() + ".jpg"
-    #     image_path = secure_filename(image_name)
-    #
-    #     form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
-    #     add_data['image_name'] = image_name
-    #     ##imageURL = url_for('uploaded_file', filename=filename)
-    # else:
-    #     add_data['image_name'] = ""
-    # #####################
-    # conn = httplib.HTTPConnection("www.bethel.edu")
-    # conn.request('HEAD', '/academics/faculty-images/wetzell-david.jpg')
-    # image_exists_response = conn.getresponse().status
-    # return str(image_exists_response)
-    # add_data['image_path'] = image_path
+    roles = get_roles()
+    if "FACULTY-CAS" in roles:
+        image_name = form.image.data.filename
+
+        if image_name != "":
+            image_name = rform['last'].lower() + "-" + rform['first'].lower() + ".jpg"
+            image_path = secure_filename(image_name)
+
+            form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
+            ##imageURL = url_for('uploaded_file', filename=filename)
+        else:
+            image_name = ""
+            image_path = ""
+        add_data['image_name'] = image_name
+        add_data['image_path'] = image_path
+
+    #####################
 
     faculty_bio_id = rform['faculty_bio_id']
     if faculty_bio_id:
@@ -192,7 +195,8 @@ def submit_faculty_bio_form():
         resp = create_faculty_bio(asset)
 
     #publish corresponding pubish set
-    check_publish_sets(add_data['school'])
+    ## Todo: uncomment this when you push!!
+    ##check_publish_sets(add_data['school'])
 
     return redirect('/faculty-bios/confirm', code=302)
     ##Just print the response for now
