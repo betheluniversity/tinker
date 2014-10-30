@@ -38,7 +38,12 @@
               {{ form.title }}
             {% endif %}
             <br/>
-            {% if form.is_published %}<small><a href={{ form.path }}>{{ form.path }}</a></small>{% endif %}
+            {% if form.is_published %}
+                <small>
+                    <p>{{ form.dates | safe }}</p>
+                    <a href={{ form.path }}>{{ form.path }}</a>
+                </small>
+            {% endif %}
           </p>
         </div>
         <div class="large-6 columns small-3">

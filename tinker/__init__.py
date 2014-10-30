@@ -3,6 +3,7 @@
 
 #flask
 from flask import Flask
+from flask import session
 
 from tinker import tools
 
@@ -61,3 +62,4 @@ import error
 @app.before_request
 def before_request():
     tools.init_user()
+
