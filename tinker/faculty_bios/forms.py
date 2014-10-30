@@ -125,10 +125,12 @@ def get_faculty_bio_choices():
 
 class FacultyBioForm(Form):
 
-    roles = get_roles()
+    ## We used to check if the user was not in the CAS faculty
+    ## roles = get_roles()
+    ## "FACULTY-CAS" not in roles
     groups = get_groups_for_user()
 
-    if "FACULTY-CAS" in roles and "Tinker Redirects" in groups:
+    if "Tinker Redirects" in groups:
         image = FileField("Image")
         image_url = HiddenField("Image URL")
 
