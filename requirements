@@ -11,3 +11,4 @@ Flask-SQLAlchemy
 SQLAlchemy-migrate
 BeautifulSoup
 Flask-Cors
+arrow

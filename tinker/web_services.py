@@ -1,6 +1,7 @@
 #python
 import datetime
 import time
+import arrow
 
 #flask
 from flask import session
@@ -171,9 +172,10 @@ def date_to_java_unix(date):
     return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
 
 
-def java_unix_to_date(date):
-
-    return datetime.datetime.fromtimestamp(int(date) / 1000).strftime('%B %d  %Y, %I:%M %p')
+def java_unix_to_date(date, format=None):
+    if not format:
+        format = "%B %d  %Y, %I:%M %p"
+    return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(format)
 
 
 def string_to_datetime(date_str):
@@ -182,6 +184,15 @@ def string_to_datetime(date_str):
         return datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
     except TypeError:
         return None
+
+
+def friendly_date_range(start, end):
+    start = arrow.get(start)
+    end = arrow.get(end)
+    if start.year == end.year and start.month == end.month and start.day == end.day:
+        return "%s - %s" % (start.format('MMM d, YYYY h:mm a'), end.format('h:mm a'))
+    else:
+        return "%s - %s" % (start.format('MMM d, YYYY h:mm a'), end.format('MMM d, YYYY h:mm a'))
 
 
 def read_date_data_dict(node):
