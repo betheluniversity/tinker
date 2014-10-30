@@ -31,9 +31,11 @@ def delete_page(page_id):
     delete(page_id)
     return redirect('/faculty-bios/delete-confirm', code=302)
 
+
 @faculty_bio_blueprint.route('/delete-confirm')
 def delete_confirm():
     return render_template('faculty-bio-delete-confirm.html', **locals())
+
 
 @faculty_bio_blueprint.route("/edit/new")
 def faculty_bio_new_form():
@@ -46,9 +48,11 @@ def faculty_bio_new_form():
     add_form = True
     return render_template('faculty-bio-form.html', **locals())
 
+
 @faculty_bio_blueprint.route('/confirm')
 def submit_confirm():
     return render_template('faculty-bio-confirm.html', **locals())
+
 
 @faculty_bio_blueprint.route("/edit/<faculty_bio_id>")
 def faculty_bio_edit_form(faculty_bio_id):
@@ -162,7 +166,6 @@ def submit_faculty_bio_form():
     #Get all the form data
     add_data = get_add_data(['school', 'department'],rform) ##, 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
 
-
     #### Images #########
     roles = get_roles()
     if "FACULTY-CAS" in roles:
@@ -190,18 +193,17 @@ def submit_faculty_bio_form():
     if faculty_bio_id:
         resp = edit(asset)
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " " + str(resp))
-        # publish(faculty_bio_id)
+        #publish corresponding pubish set to make sure corresponding pages get edits
+        check_publish_sets(add_data['school'], faculty_bio_id)
     else:
         resp = create_faculty_bio(asset)
 
     #publish corresponding pubish set
     ## Todo: uncomment this when you push!!
-    ##check_publish_sets(add_data['school'])
+    check_publish_sets(add_data['school'])
 
     return redirect('/faculty-bios/confirm', code=302)
     ##Just print the response for now
-
-
 
 
 @app.route('/uploads/<filename>')

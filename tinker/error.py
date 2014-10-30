@@ -1,6 +1,7 @@
 
 #flask
 from flask import render_template
+from flask import session
 
 #local
 from tinker import app
@@ -23,5 +24,5 @@ def transport_error(e):
 
 @app.errorhandler(500)
 def server_error(e):
-    app.logger.error(e)
+    app.logger.error("%s -- %s" %(session['username'], e))
     return render_template('error/500.html'), 500

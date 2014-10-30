@@ -224,13 +224,22 @@ def traverse_event_folder(traverse_xml, username):
                 is_published = False
 
             if author == username:
+                dates = child.find('system-data-structure').findall('event-dates')
+                dates_str = []
+                for date in dates:
+                    start = java_unix_to_date(date.find('start-date').text)
+                    end = java_unix_to_date(date.find('end-date').text)
+                    dates_str.append("%s - %s" % (start, end))
+
+
                 page_values = {
                     'author': child.find('author').text,
                     'id': child.attrib['id'] or None,
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
                     'path': 'https://www.bethel.edu' + child.find('path').text or None,
-                    'is_published': is_published
+                    'is_published': is_published,
+                    'dates': "<br/>".join(dates_str),
                 }
                 ## This is a match, add it to array
                 matches.append(page_values)

@@ -27,9 +27,15 @@ fieldcont.append(preloader);
 $.getJSON('/wufoo/get-preload-options', function(data) {
   preloadOptions = data,
   preloadOptions_loaded = true;
+  common = data['common'];
+  rare = data['rare'];
   //build the preloader field
-  for (var f in preloadOptions) {
-    preloader.append("<option value='"+f+"'>"+preloadOptions[f]+"</options>");
+  for (var f in common) {
+    preloader.append("<option value='"+f+"'>"+common[f]+"</options>");
+  }
+  //build the preloader field
+  for (var f in rare) {
+    preloader.append("<option value='"+f+"'>"+rare[f]+"</options>");
   }
 });
 

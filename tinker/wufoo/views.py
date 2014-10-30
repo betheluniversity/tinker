@@ -6,6 +6,7 @@ import requests
 from flask import request, Blueprint, render_template, jsonify
 
 #Tinker
+from tinker import app
 from tinker import db
 from tinker import cache
 from tinker.wufoo.models import FormInfo
@@ -58,29 +59,42 @@ def get_forms():
 
 
 @wufoo_blueprint.route('/embed-form/<formhash>')
-def embed_form(formhash):
-    formhash = """
-    <div id="wufoo-%s">
-Fill out my <a href="https://betheluniversity.wufoo.com/forms/%s">online form</a>.
-</div>
-<script type="text/javascript">var %s;(function(d, t) {
-var s = d.createElement(t), options = {
-'userName':'betheluniversity',
-'formHash':'%s',
-'autoResize':true,
-'height':'781',
-'async':true,
-'host':'wufoo.com',
-'header':'show',
-'ssl':true};
-s.src = ('https:' == d.location.protocol ? 'https://' : 'http://') + 'www.wufoo.com/scripts/embed/form.js';
-s.onload = s.onreadystatechange = function() {
-var rs = this.readyState; if (rs) if (rs != 'complete') if (rs != 'loaded') return;
-try { %s = new WufooForm();%s.initialize(options);%s.display(); } catch (e) {}};
-var scr = d.getElementsByTagName(t)[0], par = scr.parentNode; par.insertBefore(s, scr);
-})(document, 'script');</script>
-    """ % (formhash, formhash, formhash, formhash, formhash, formhash, formhash)
-    return formhash
+@wufoo_blueprint.route('/embed-form/<formhash>/<username>')
+def embed_form(formhash, username=None):
+    ##need to check preload if there is a username
+    if username:
+        info = FormInfo.query.get(formhash)
+        preload = info.preload_info
+        ## get preload values from api
+
+        preload_options = get_preload_values(preload, username)
+    else:
+        preload_options = ""
+    ## Get the username?
+
+    return render_template('embed_form.html', **locals())
+
+
+def get_preload_values(info, username):
+    info = json.loads(info)
+    values = set(info.values())
+    options = get_options()
+    common = set(options['common'])
+    rare = set(options['rare'])
+
+    payload = {'common': values & common, 'rare': values & rare}
+    preload_url = app.config['WUFOO_PRELOAD_URL'] % username
+    r = requests.post(preload_url, data=payload)
+    results = json.loads(r.content)
+    resp = ""
+    for key, value in info.items():
+        if value not in results:
+            continue
+        resp += "%s=%s&" % (key, results[value])
+
+    return resp
+
+
 
 
 @wufoo_blueprint.route('/load-form/<formhash>')
@@ -88,7 +102,6 @@ def load_form(formhash):
 
     #Load prelaod info for form
     info = FormInfo.query.get(formhash)
-
     return api.load_form(formhash, form_info=info)
 
 
@@ -116,46 +129,26 @@ def preload_save():
         dbrecord.preload_info = preload_info
         db.session.merge(dbrecord)
         db.session.commit()
+
     else:
         #create new
-        info = FormInfo(hash=hash, preload_info=preload_info, paypal_name=None, paypal_budget_number=None, sync_status=False)
+        info = FormInfo(hash=form_hash, preload_info=preload_info, paypal_name=None, paypal_budget_number=None, sync_status=False)
         db.session.add(info)
         db.session.commit()
-
+    return "done"
 
 @wufoo_blueprint.route('/get-preload-options')
 def get_preload_options():
-    supported_names = {'bethel_id': 'Bethel ID',
-                       'last_name': 'Last Name',
-                       'first_name': 'First Name',
-                       'middle_name': 'Middle Name',
-                       'bu_email': 'BU Email',
-                       'udc_id': 'UDC Id (unique identifier)',
-                       'phonetic': 'Phonetic',
-                       'majr1': 'Major 1',
-                       'majr2': 'Major 2',
-                       'majr3': 'Major 3',
-                       'majr4': 'Major 4',
-                       'majr5': 'Major 5',
-                       'department': 'Department',
-                       'begtime': 'Ceremony Begin Time',
-                       'cermdate': 'Ceremony Date',
-                       'CohortUG': 'CAPS Cohort',
-                       'CohortGS': 'GS Cohort',
-                       'CohortUG1415': 'CAPS Cohort',
-                       'CohortGS1415': 'GS Cohort',
-                       'Fall13CreditUG': 'CAPS Fall 13 Credit',
-                       'Spring14CreditUG': 'CAPS Spring 14 Credit',
-                       'Summer14CreditUG': 'CAPS Summer 14 Credit',
-                       'Fall13CreditGS': 'GS Fall 13 Credit',
-                       'Spring14CreditGS': 'GS Spring 14 Credit',
-                       'Summer14CreditGS': 'GS Summer 14 Credit',
-                       'Fall14CreditUG': 'CAPS Fall 14 Credit',
-                       'Spring15CreditUG': 'CAPS Spring 15 Credit',
-                       'Summer15CreditUG': 'CAPS Summer 15 Credit',
-                       'Fall14CreditGS': 'GS Fall 14 Credit',
-                       'Spring15CreditGS': 'GS Spring 15 Credit',
-                       'Summer15CreditGS': 'GS Summer 15 Credit'
-                       }
+    return jsonify(dict(get_options()))
 
-    return jsonify(dict(supported_names))
+
+def get_options():
+    return {
+        'common' : {
+           'firstName': 'First Name',
+           'lastName': 'Last Name',
+        },
+       'rare':  {
+            'GS Summer 15 Credit': 'Summer15CreditGS'
+        }
+    }

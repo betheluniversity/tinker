@@ -450,10 +450,11 @@ def get_bio_publish_workflow(title="", username=""):
     return workflow
 
 
-def check_publish_sets(school):
+def check_publish_sets(school, faculty_bio_id):
     for item in school:
         if item == "College of Arts & Sciences":
             publish("f580ac758c58651313b6fe6bced65fea", "publishset")
+            publish(faculty_bio_id)
         if item == "Graduate Schol":
             publish("2ecbad1a8c5865132b2dadea8cdcb2be", "publishset")
         if item == "College of Adult & Professional Studies":
