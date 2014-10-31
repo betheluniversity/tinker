@@ -200,7 +200,7 @@ def submit_faculty_bio_form():
 
     #publish corresponding pubish set
     ## Todo: uncomment this when you push!!
-    check_publish_sets(add_data['school'])
+    check_publish_sets(add_data['school'], faculty_bio_id)
 
     return redirect('/faculty-bios/confirm', code=302)
     ##Just print the response for now

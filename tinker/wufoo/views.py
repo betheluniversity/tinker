@@ -72,6 +72,12 @@ def embed_form(formhash, username=None):
         preload_options = ""
     ## Get the username?
 
+    url = 'https://betheluniversity.wufoo.com/embed/qo8j30m1rat7u1/'
+    html = requests.post(url=url)
+    html = html.text
+    html = html.replace('href="/', 'href="https://wufoo.com/')
+    html = html.replace('src="/', 'href="https://wufoo.com/')
+
     return render_template('embed_form.html', **locals())
 
 
