@@ -134,7 +134,7 @@ def preload_save():
         info = FormInfo(hash=form_hash, preload_info=preload_info, paypal_name=None, paypal_budget_number=None, sync_status=False)
         db.session.add(info)
         db.session.commit()
-    return "done"
+    return "Preload Mapping Saved"
 
 @wufoo_blueprint.route('/get-preload-options')
 def get_preload_options():

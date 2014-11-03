@@ -161,9 +161,11 @@ function loadFormPreloads(data){
       // to the wufoo-silva app for storage
       var fieldMappings = $(this.form).serializeArray(),
            url = '/wufoo/preload-save';
-      $.post(url,
-            fieldMappings
-      );
+      $.post(url, fieldMappings, function( data ) {
+        $( "#results-alert" ).html( data );
+        $("html, body").animate({ scrollTop: 0 }, "medium");
+        $("#results-alert").show().delay(3000).fadeOut(1000);
+    });
     });
     dom.append(input);
     $("#preload-config").append(df);

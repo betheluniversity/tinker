@@ -23,13 +23,15 @@ Wufoo Preload
         <input type="text" id="wufoo-dropdown-limit"/>
 
         <label for ="wufoo-form-hash">Select a form:</label>
+
         <select name="wufoo-form-hash" id="wufoo-form-hash" size="5">
   {#        {% for form in forms %}#}
   {#          <option value="{{ form.Hash }}:{{ form.Url }}"> {{ form.Name }} ( {{ form.Url }} ) </option>#}
   {#        {% endfor %}#}
         </select>
     </div>
-
+    <div id="results-alert" style="display:none" data-alert class="alert-box success radius">
+    </div>
     <div id="preload-config">
 
     </div>
