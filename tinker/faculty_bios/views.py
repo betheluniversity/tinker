@@ -140,6 +140,8 @@ def faculty_bio_edit_form(faculty_bio_id):
 
 @faculty_bio_blueprint.route("/submit", methods=['POST'])
 def submit_faculty_bio_form():
+
+
     ##import this here so we dont load all the content
     ##from cascade during homepage load
     from forms import FacultyBioForm
@@ -155,20 +157,25 @@ def submit_faculty_bio_form():
 
     jobs, jobs_good, num_jobs = check_jobs(rform)
     degrees, degrees_good, num_degrees = check_degrees(rform)
-    if not form.validate_on_submit() or not jobs_good or not degrees_good:
+
+    if not form.validate_on_submit() or (not jobs_good and not degrees_good):
         if 'faculty_bio_id' in request.form.keys():
             faculty_bio_id = request.form['faculty_bio_id']
         else:
             #This error came from the add form because event_id wasn't set
             add_form = True
+        app.logger.warn(time.strftime("%c") + ": Faculty bio submission failed by  " + username + ". Jobs or degrees failed.")
         return render_template('faculty-bio-form.html', **locals())
 
+
+
     #Get all the form data
-    add_data = get_add_data(['school', 'department'],rform) ##, 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
+    add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
 
     #### Images #########
-    roles = get_roles()
-    if "FACULTY-CAS" in roles:
+    groups = get_groups_for_user()
+
+    if "Tinker Redirects" in groups:
         image_name = form.image.data.filename
 
         if image_name != "":
