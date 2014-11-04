@@ -50,7 +50,7 @@
           <ul class="button-group">
             {% if form.is_published %}
               <li><a href="{{ form.path }}" class="small button success">View</a></li>
-              <li><a href="/event/edit/{{ form.id }}" class="small button">Edit</a></li>
+              <li><a href="/event/edit/{{ form.id }}#page-title" class="small button">Edit</a></li>
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
@@ -60,7 +60,7 @@
         <hr/>
       </div>
     {% endfor %}
-    <a href="add" class="small button success">Create New Event</a>
+    <a href="add#page-title" class="small button success">Create New Event</a>
   </div>
 </div>
 

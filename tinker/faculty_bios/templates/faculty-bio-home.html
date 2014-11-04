@@ -39,7 +39,7 @@
           <ul class="button-group">
             {% if form.path != '' %}
               <li><a href="{{ form.path }}" class="small button success">View</a></li>
-              <li><a href="/faculty-bios/edit/{{ form.id }}" class="small button">Edit</a></li>
+              <li><a href="/faculty-bios/edit/{{ form.id }}#page-title" class="small button">Edit</a></li>
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
@@ -49,7 +49,7 @@
         <hr/>
       </div>
     {% endfor %}
-      <a href="/faculty-bios/edit/new" class="small button success">Create New Bio</a>
+      <a href="/faculty-bios/edit/new#page-title" class="small button success">Create New Bio</a>
 
 
   </div>
