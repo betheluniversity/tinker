@@ -12,6 +12,7 @@ class FormInfo(db.Model):
     paypal_budget_number = db.Column(db.String(24))
     sync_status = db.Column(db.Boolean, default=False)
 
+
     def __repr__(self):
         return '<FormInfo %r>' % self.hash + " " + self.preload_info
 

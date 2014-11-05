@@ -67,33 +67,36 @@ def embed_form(formhash, username=None):
         preload = info.preload_info
         ## get preload values from api
 
+        #check if this thing needs to have a lookup field
+        mapping = json.loads(preload)
+        lookup = False
+        for value in mapping.values():
+            if value.endswith('-lookup'):
+                lookup = True
+                break
+        if lookup:
+            ##show the lookup form
+            ## what to do about the other preload values, if any?
+            return render_template('embed_lookup_form.html', **locals())
+
         preload_options = get_preload_values(preload, username)
+
     else:
         preload_options = ""
     ## Get the username?
     return render_template('embed_form.html', **locals())
 
 
-def get_preload_values(info, username):
-    info = json.loads(info)
-    values = set(info.values())
-    options = get_options()
-    common = set(options['common'])
-    rare = set(options['rare'])
+@wufoo_blueprint.route('/embed-lookup-form/<formhash>/<username>/<bid>')
+def lookup_embed_form(formhash, bid, username=None):
 
-    payload = {'common': values & common, 'rare': values & rare}
-    preload_url = app.config['WUFOO_PRELOAD_URL'] % username
-    r = requests.post(preload_url, data=payload)
-    results = json.loads(r.content)
-    resp = ""
-    for key, value in info.items():
-        if value not in results:
-            continue
-        resp += "%s=%s&" % (key, results[value])
+    ##create preload_options
+    info = FormInfo.query.get(formhash)
+    preload = info.preload_info
+    preload_options = get_preload_values(preload, username)
+    preload_options += "&%s" % get_lookup_values(preload, id)
 
-    return resp
-
-
+    return render_template('embed_form.html', **locals())
 
 
 @wufoo_blueprint.route('/load-form/<formhash>')
@@ -136,9 +139,74 @@ def preload_save():
         db.session.commit()
     return "Preload Mapping Saved"
 
+
 @wufoo_blueprint.route('/get-preload-options')
 def get_preload_options():
     return jsonify(dict(get_options()))
+
+
+def call_wsapi(values, search_type, search_param):
+    ##values is a set of fields to lookup
+    ##search_type is 'username' if search_param is a username,
+    ##bethel_id if otherwise
+    ##returns a json array of the response.
+    options = get_options()
+    common = set(options['common'])
+    rare = set(options['rare'])
+
+    payload = {'common': values & common, 'rare': values & rare}
+    preload_url = app.config['WUFOO_PRELOAD_URL'] % (search_type, search_param)
+    r = requests.post(preload_url, data=payload)
+    results = json.loads(r.content)
+    return results
+
+
+def get_preload_values(preload, username):
+    preload = json.loads(preload)
+    values = set(preload.values())
+
+    results = call_wsapi(values, 'username', username)
+    resp = ""
+    for key, value in preload.items():
+        if value not in results:
+            continue
+        resp += "%s=%s&" % (key, results[value])
+
+    return resp
+
+
+def get_lookup_values(preload, bethel_id):
+
+    preload = json.loads(preload)
+    values = set(preload.values())
+
+    ##only want to look up values for the "lookup" fields.
+    lookup_values = []
+    for value in values:
+        if value.endswith('-lookup'):
+            lookup_values.append(value.replace('-lookup', ''))
+
+    values = set(values)
+
+
+    results = call_wsapi(values, 'bethel_id', bethel_id)
+
+    ##build the return string
+    resp = ""
+    for key, value in preload.items():
+        #only inspect the lookup options
+        if not value.endswith('-lookup'):
+            continue
+        #it has lookup, but the request results don't, so strip it off now
+        value = value.replace('-lookup', '')
+        if value not in results:
+            continue
+        ##if it passes all the checks, add the value to the appropriate field
+        resp += "%s=%s&" % (key, results[value])
+
+    return resp
+
+
 
 
 def get_options():
@@ -146,6 +214,9 @@ def get_options():
         'common' : {
            'firstName': 'First Name',
            'lastName': 'Last Name',
+           'referer': 'Referer',
+           'firstName-lookup': 'First Name - Lookup',
+           'lastName-lookup': 'Last Name - Lookup'
         },
        'rare':  {
             'GS Summer 15 Credit': 'Summer15CreditGS'

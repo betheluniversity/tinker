@@ -19,50 +19,27 @@ Wufoo Preload
   <form method="post" name="wufoo-preload">
     <div>
 
-        <label for="wufoo-dropdown-limit"> Limit:</label>
+        <label for="wufoo-dropdown-limit"> Search:</label>
         <input type="text" id="wufoo-dropdown-limit"/>
 
         <label for ="wufoo-form-hash">Select a form:</label>
 
         <select name="wufoo-form-hash" id="wufoo-form-hash" size="5">
-  {#        {% for form in forms %}#}
-  {#          <option value="{{ form.Hash }}:{{ form.Url }}"> {{ form.Name }} ( {{ form.Url }} ) </option>#}
-  {#        {% endfor %}#}
         </select>
     </div>
     <div id="results-alert" style="display:none" data-alert class="alert-box success radius">
     </div>
+    <div style="display:none">
+        <h3>Form Options</h3>
+        <label>Lookup:
+            <input type="checkbox" id="lookup" name="lookup"/>
+        </label>
+    </div>
     <div id="preload-config">
-
     </div>
   </form>
 
 {% endblock %}
-
-{#{% block bannersync %}#}
-{##}
-{#  <h5>Preload</h5>#}
-{#  <ul class="side-nav">#}
-{#    <li><a href="#">News</a></li>#}
-{#    <li><a href="#">Code</a></li>#}
-{#    <li><a href="#">Design</a></li>#}
-{#    <li><a href="#">Fun</a></li>#}
-{#    <li><a href="#">Weasels</a></li>#}
-{#  </ul>#}
-{##}
-{#{% endblock %}#}
-{##}
-{#{% block paypalsync %}#}
-{##}
-{#  <h5>Preload</h5>#}
-{#  <ul class="side-nav">#}
-{#    <li><a href="#">News</a></li>#}
-{#    <li><a href="#">Code</a></li>#}
-{#    <li><a href="#">Design</a></li>#}
-{#    <li><a href="#">Fun</a></li>#}
-{#    <li><a href="#">Weasels</a></li>#}
-{#  </ul>#}
-{#{% endblock %}#}
 
 {% block scripts %}
 <script src="{{url_for('wufoo.static', filename='wufoo-preload.js')}}"></script>
