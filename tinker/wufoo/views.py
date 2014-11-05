@@ -58,8 +58,8 @@ def get_forms():
     return api.get_form_list()
 
 
-@wufoo_blueprint.route('/embed-form/<formhash>')
-@wufoo_blueprint.route('/embed-form/<formhash>/<username>')
+@wufoo_blueprint.route('/embed-form/<formhash>', methods=['GET', 'POST'])
+@wufoo_blueprint.route('/embed-form/<formhash>/<username>', methods=['GET', 'POST'])
 def embed_form(formhash, username=None):
     ##need to check preload if there is a username
     if username:
@@ -169,7 +169,7 @@ def get_preload_values(preload, username):
     resp = ""
     for key, value in preload.items():
         if value == 'referrer':
-            resp += "%s=%s&" % (key, request.referrer)
+            resp += "%s=%s&" % (key, request.form['referrer'])
         if value not in results:
             continue
         resp += "%s=%s&" % (key, results[value])
