@@ -168,6 +168,8 @@ def get_preload_values(preload, username):
     results = call_wsapi(values, 'username', username)
     resp = ""
     for key, value in preload.items():
+        if value == 'referrer':
+            resp += "%s=%s&" % (key, request.referrer)
         if value not in results:
             continue
         resp += "%s=%s&" % (key, results[value])
@@ -207,14 +209,12 @@ def get_lookup_values(preload, bethel_id):
     return resp
 
 
-
-
 def get_options():
     return {
         'common' : {
            'firstName': 'First Name',
            'lastName': 'Last Name',
-           'referer': 'Referer',
+           'referrer': 'Referrer',
            'firstName-lookup': 'First Name - Lookup',
            'lastName-lookup': 'Last Name - Lookup'
         },
