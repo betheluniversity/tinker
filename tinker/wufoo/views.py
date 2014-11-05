@@ -169,7 +169,10 @@ def get_preload_values(preload, username):
     resp = ""
     for key, value in preload.items():
         if value == 'referrer':
-            resp += "%s=%s&" % (key, request.form['referrer'])
+            try:
+                resp += "%s=%s&" % (key, request.form['referrer'])
+            except:
+                continue
         if value not in results:
             continue
         resp += "%s=%s&" % (key, results[value])
