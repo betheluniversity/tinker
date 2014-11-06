@@ -153,7 +153,7 @@ def submit_faculty_bio_form():
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)
 
-    workflow = get_bio_publish_workflow(title, username)
+
 
     jobs, jobs_good, num_jobs = check_jobs(rform)
     degrees, degrees_good, num_degrees = check_degrees(rform)
@@ -171,7 +171,7 @@ def submit_faculty_bio_form():
 
     #Get all the form data
     add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
-
+    workflow = get_bio_publish_workflow(title, username, add_data['school'])
     #### Images #########
     groups = get_groups_for_user()
 

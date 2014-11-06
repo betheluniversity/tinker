@@ -437,14 +437,20 @@ def get_add_data(lists, form):
     return add_data
 
 
-def get_bio_publish_workflow(title="", username=""):
+def get_bio_publish_workflow(title="", username="", school=[]):
+    if "College of Arts & Sciences" in school:
+        workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
+    elif "Graduate Schol" in school or "College of Adult & Professional Studies" in school:
+        workflow_id = '81dabbc78c5865130c130b3a2b567e75'
+    else:
+        workflow_id = ''
 
     name = "New Bio Submission"
     if title:
         name += ": " + title
     workflow = {
         "workflowName": name,
-        "workflowDefinitionId": "f1638f598c58651313b6fe6b5ed835c5",
+        "workflowDefinitionId": workflow_id,
         "workflowComments": "New Faculty Bio submission"
     }
     return workflow

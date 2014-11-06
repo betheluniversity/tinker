@@ -80,12 +80,10 @@ def embed_form(formhash, username=None):
             return render_template('embed_lookup_form.html', **locals())
 
         preload_options = get_preload_values(preload, username)
-
     else:
         preload_options = ""
-    ## Get the username?
-    return render_template('embed_form.html', **locals())
 
+    return render_template('embed_form.html', **locals())
 
 @wufoo_blueprint.route('/embed-lookup-form/<formhash>/<username>/<bid>')
 def lookup_embed_form(formhash, bid, username=None):
@@ -168,14 +166,12 @@ def get_preload_values(preload, username):
     results = call_wsapi(values, 'username', username)
     resp = ""
     for key, value in preload.items():
-        if value == 'referrer':
-            try:
-                resp += "%s=%s&" % (key, request.form['referrer'])
-            except:
-                continue
         if value not in results:
             continue
-        resp += "%s=%s&" % (key, results[value])
+        if value == 'referrer' and request.form['referrer']:
+            resp += "%s=%s&" % (key, request.form['referrer'])
+        else:
+            resp += "%s=%s&" % (key, results[value])
 
     return resp
 
@@ -193,21 +189,17 @@ def get_lookup_values(preload, bethel_id):
 
     values = set(values)
 
-
     results = call_wsapi(values, 'bethel_id', bethel_id)
 
     ##build the return string
     resp = ""
     for key, value in preload.items():
-        #only inspect the lookup options
-        if not value.endswith('-lookup'):
-            continue
-        #it has lookup, but the request results don't, so strip it off now
-        value = value.replace('-lookup', '')
-        if value not in results:
+        match_value = value.replace('-lookup', '')
+        #only inspect the lookup options whose match version are in the result set
+        if not value.endswith('-lookup') or match_value not in results:
             continue
         ##if it passes all the checks, add the value to the appropriate field
-        resp += "%s=%s&" % (key, results[value])
+        resp += "%s=%s&" % (key, results[match_value])
 
     return resp
 
