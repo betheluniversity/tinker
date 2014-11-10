@@ -444,7 +444,7 @@ def get_add_data(lists, form):
 def get_bio_publish_workflow(title="", username="", school=[]):
     if "College of Arts & Sciences" in school:
         workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
-    elif "Graduate Schol" in school or "College of Adult & Professional Studies" in school:
+    elif "Graduate School" in school or "College of Adult & Professional Studies" in school:
         workflow_id = '81dabbc78c5865130c130b3a2b567e75'
     else:
         workflow_id = ''
