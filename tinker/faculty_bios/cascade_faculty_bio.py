@@ -165,24 +165,23 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     """
 
     ## Create Image asset
-    roles = get_roles()
-    if "FACULTY-CAS" in roles:
+    if "FACULTY-CAS" not in session['roles'] or 'Tinker Redirects' in session['groups']:
         try:
             image = add_data['image_name']
         except KeyError:
             image = None
         if image:
-            image_structure = get_image_structure("/academics/faculty-images", add_data['image_name'])
+            image_structure = get_image_structure("/academics/faculty/images", add_data['image_name'])
 
-            r = requests.get('https://www.bethel.edu/academics/faculty-images/' + add_data['image_name'])
+            r = requests.get('https://www.bethel.edu/academics/faculty/images/' + add_data['image_name'])
 
             if r.status_code == 404:
                 create_image(image_structure)
             else:
-                image_structure['file']['path'] = "academics/faculty-images/" + add_data['image_name']
+                image_structure['file']['path'] = "academics/faculty/images/" + add_data['image_name']
                 edit_response = edit(image_structure)
                 app.logger.warn(time.strftime("%c") + ": Image edit by " + username + " " + str(edit_response))
-        image = structured_file_data_node('image', "/academics/faculty-images/" + add_data['image_name'])
+        image = structured_file_data_node('image', "/academics/faculty/images/" + add_data['image_name'])
     else:
         image = None
 
