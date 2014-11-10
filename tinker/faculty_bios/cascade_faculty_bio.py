@@ -167,7 +167,11 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     ## Create Image asset
     roles = get_roles()
     if "FACULTY-CAS" in roles:
-        if add_data['image_name'] != "":
+        try:
+            image = add_data['image_name']
+        except KeyError:
+            image = None
+        if image:
             image_structure = get_image_structure("/academics/faculty-images", add_data['image_name'])
 
             r = requests.get('https://www.bethel.edu/academics/faculty-images/' + add_data['image_name'])
