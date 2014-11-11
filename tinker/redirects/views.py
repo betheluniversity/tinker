@@ -140,6 +140,16 @@ def create_redirect_text_file():
     return resp
 
 
+@redirect_blueprint.route('/thumbor-clear')
+def clear_thumbor():
+    check_redirect_groups()
+    try:
+        tools.clear_image_cache()
+        return "success"
+    except:
+        return "error"
+
+
 @redirect_blueprint.route('/test')
 def test():
     redirects = BethelRedirect.query.all()
