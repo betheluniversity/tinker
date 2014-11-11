@@ -84,4 +84,5 @@ def get_nav():
 
 ##does this go here?
 def clear_image_cache():
-    return shutil.rmtree(config.THUMBOR_STORAGE_LOCATION)
+    from subprocess import call
+    return call(['rm', '-rf', config.THUMBOR_STORAGE_LOCATION])
