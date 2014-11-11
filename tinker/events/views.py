@@ -52,13 +52,13 @@ def read_page():
     client = get_client()
 
     identifier = {
-        # 'id': '0fb8d20c8c58651313b6fe6bb0f417a2',
-        'type': 'file',
-        'path': 'academics/faculty-images/caucutt-alex.jpg'
+        # 'id': '85d64f148c5865130c130b3a6d2babc5',
+        'type': 'folder',
+        'path': '/'
     }
 
-    auth = app.config['CASCADE_LOGIN']
 
+    auth = app.config['CASCADE_LOGIN']
     response = client.service.read(auth, identifier)
 
     return "<pre>" + str(response) + "</pre>"

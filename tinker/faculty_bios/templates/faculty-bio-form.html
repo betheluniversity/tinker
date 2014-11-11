@@ -79,7 +79,7 @@
 
 
               {% elif field.type == "SelectMultipleField" %}
-                {{ field(size=10, class="largeselect") }}
+                {{ field(class="largeselect") }}
 
               {% elif field.type == "HeadingField" %}
                 <h3>{{ field.label }}</h3>

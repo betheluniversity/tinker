@@ -259,3 +259,13 @@ def publish_faculty_bio_xml():
 
     ##with app.app_context():
     ##    cache.clear()
+
+def publish_e_announcement_xml():
+
+    #publish the event XML page
+    publish(app.config['E_ANNOUNCEMENTS_XML_ID'])
+
+    #clear Flask-Cache
+
+    ##with app.app_context():
+    ##    cache.clear()

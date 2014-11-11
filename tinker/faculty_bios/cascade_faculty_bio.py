@@ -370,8 +370,6 @@ def traverse_faculty_folder(traverse_xml, username):
     except AttributeError:
         allowedGroups = []
 
-    ## Todo: This function can be removed. The 'traverse_xml' variable above is already doing that.
-
     matches = []
     for child in traverse_xml:
         if child.tag == 'system-page':

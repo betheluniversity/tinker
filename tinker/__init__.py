@@ -47,11 +47,13 @@ from tinker.events.views import event_blueprint
 from tinker.faculty_bios.views import faculty_bio_blueprint
 from tinker.wufoo.views import wufoo_blueprint
 from tinker.redirects.views import redirect_blueprint
+from tinker.e_announcements.views import e_announcements_blueprint
 from tinker.heading_upgrade.views import heading_upgrade
 app.register_blueprint(event_blueprint, url_prefix='/event')
 app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bios')
 app.register_blueprint(wufoo_blueprint, url_prefix='/wufoo')
 app.register_blueprint(redirect_blueprint, url_prefix='/redirect')
+app.register_blueprint(e_announcements_blueprint, url_prefix='/e-announcements')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 
 #Import error handling

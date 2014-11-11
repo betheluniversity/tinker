@@ -1,0 +1,81 @@
+{% extends "tinker-base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block styles %}
+  <style type="text/css">
+  </style>
+{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+<div class="row">
+  <div class="large-12 columns">
+
+    <p>Below is a list of E-Announcements you have access to edit.
+    </p>
+  </div>
+ </div>
+<hr/>
+<div class="row">
+
+  <div class="large-12 columns">
+
+   {% for form in forms%}
+      <div class="row">
+        <div class="large-6 columns">
+          <p>
+            {% if form.path != '' %}
+              <a href={{ form.path }}>{{ form.title }}</a>
+            {% else %}
+              {{ form.title }}
+            {% endif %}
+            <br/>
+            {% if form.path != '' %}<small><a href={{ form.path }}>{{ form.path }}</a></small>{% endif %}
+          </p>
+        </div>
+        <div class="large-6 columns small-3">
+          <ul class="button-group">
+            {% if form.path != '' %}
+              <li><a href="{{ form.path }}" class="small button success">View</a></li>
+              <li><a href="/e-announcements/edit/{{ form.id }}" class="small button">Edit</a></li>
+            {% else %}
+              <li><a class="small button success">Not Approved</a></li>
+            {% endif %}
+            <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-e-announcement-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
+           </ul>
+        </div>
+        <hr/>
+      </div>
+    {% endfor %}
+      <a href="/e-announcements/edit/new" class="small button success">Create New E-Announcement</a>
+
+
+  </div>
+</div>
+
+
+{#Delete confirm modal#}
+<div id="confirmModal" class="reveal-modal" data-reveal>
+  <h2>Are you sure you want to delete?</h2>
+  <p class="lead">Your E-Announcement will removed.</p>
+  <a class="modal-confirm" id="modal-confirm" href="/e-announcements/delete/formid">Delete</a>
+  <a class="close-reveal-modal">&#215;</a>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+{#  Script to update the modal submit to delete the correct form#}
+  <script type="text/javascript">
+    $(".delete-press").click(function(){
+      $("#modal-confirm").attr("href", "/e-announcements/delete/" + $(this).data('e-announcement-id'));
+    });
+  $(document).foundation();
+  </script>
+
+{% endblock %}
+
+
