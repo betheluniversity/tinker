@@ -1,5 +1,9 @@
 __author__ = 'ejc84332'
 
+#python
+import shutil
+
+#flask
 from flask import request
 from flask import session
 from flask import current_app
@@ -8,6 +12,8 @@ from flask import render_template
 from flask import json as fjson
 import requests
 
+#tinker
+import config
 
 def init_user():
 
@@ -75,3 +81,8 @@ def get_nav():
     html = render_template('nav.html', **locals())
     session['top_nav'] = html
 
+
+##does this go here?
+def clear_image_cache():
+    from subprocess import call
+    return call(['rm', '-rf', config.THUMBOR_STORAGE_LOCATION])

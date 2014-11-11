@@ -5,9 +5,6 @@
 from flask import Flask
 from flask import session
 
-from tinker import tools
-
-
 #flask extensions
 from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
@@ -64,4 +61,5 @@ import error
 @app.before_request
 def before_request():
     tools.init_user()
+    app.logger.info(session['username'])
 

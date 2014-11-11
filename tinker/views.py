@@ -3,6 +3,7 @@
 #flask
 from flask import render_template
 from flask import json as fjson
+from flask import session
 from flask import send_file
 
 #tinker
@@ -25,5 +26,5 @@ def get_image(image_name):
 
 @app.route('/test')
 def test():
-    x = "asdkfj"
-    x.sub('test', '')
+    session.clear()
+    return "done"

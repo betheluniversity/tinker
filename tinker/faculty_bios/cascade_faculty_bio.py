@@ -165,20 +165,23 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     """
 
     ## Create Image asset
-    roles = get_roles()
-    if "FACULTY-CAS" in roles:
-        if add_data['image_name'] != "":
-            image_structure = get_image_structure("/academics/faculty-images", add_data['image_name'])
+    if "FACULTY-CAS" not in session['roles'] or 'Tinker Redirects' in session['groups']:
+        try:
+            image = add_data['image_name']
+        except KeyError:
+            image = None
+        if image:
+            image_structure = get_image_structure("/academics/faculty/images", add_data['image_name'])
 
-            r = requests.get('https://www.bethel.edu/academics/faculty-images/' + add_data['image_name'])
+            r = requests.get('https://www.bethel.edu/academics/faculty/images/' + add_data['image_name'])
 
             if r.status_code == 404:
                 create_image(image_structure)
             else:
-                image_structure['file']['path'] = "academics/faculty-images/" + add_data['image_name']
+                image_structure['file']['path'] = "academics/faculty/images/" + add_data['image_name']
                 edit_response = edit(image_structure)
                 app.logger.warn(time.strftime("%c") + ": Image edit by " + username + " " + str(edit_response))
-        image = structured_file_data_node('image', "/academics/faculty-images/" + add_data['image_name'])
+        image = structured_file_data_node('image', "/academics/faculty/images/" + add_data['image_name'])
     else:
         image = None
 
@@ -435,14 +438,20 @@ def get_add_data(lists, form):
     return add_data
 
 
-def get_bio_publish_workflow(title="", username=""):
+def get_bio_publish_workflow(title="", username="", school=[]):
+    if "College of Arts & Sciences" in school:
+        workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
+    elif "Graduate School" in school or "College of Adult & Professional Studies" in school:
+        workflow_id = '81dabbc78c5865130c130b3a2b567e75'
+    else:
+        workflow_id = ''
 
     name = "New Bio Submission"
     if title:
         name += ": " + title
     workflow = {
         "workflowName": name,
-        "workflowDefinitionId": "f1638f598c58651313b6fe6b5ed835c5",
+        "workflowDefinitionId": workflow_id,
         "workflowComments": "New Faculty Bio submission"
     }
     return workflow
