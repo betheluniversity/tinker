@@ -7,13 +7,12 @@ from flask import redirect
 from tinker.e_announcements.cascade_e_announcements import *
 from tinker.tools import *
 
-e_announcements_blueprint = Blueprint('e-announcements', __name__,
-                        template_folder='templates')
+e_announcements_blueprint = Blueprint('e-announcements', __name__, template_folder='templates')
+
 
 @e_announcements_blueprint.route("/")
 def e_announcements_home():
     username = session['username']
-
     forms = get_e_announcements_for_user(username)
     return render_template('e-announcements-home.html', **locals())
 
@@ -38,19 +37,15 @@ def e_announcements_submit_confirm():
 def e_announcements_new_form():
     ##import this here so we dont load all the content
     ##from cascade during homepage load
-
     from forms import EAnnouncementsForm
 
     form = EAnnouncementsForm()
-
     add_form = True
     return render_template('e-announcements-form.html', **locals())
 
 
 @e_announcements_blueprint.route("/submit", methods=['POST'])
 def submit_e_announcement_form():
-
-
     ##import this here so we dont load all the content
     ##from cascade during homepage load
     from forms import EAnnouncementsForm
@@ -60,7 +55,6 @@ def submit_e_announcement_form():
     title = rform['title']
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)
-
 
     workflow = get_e_announcement_publish_workflow(title, username)
 
@@ -73,19 +67,15 @@ def submit_e_announcement_form():
         app.logger.warn(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
         return render_template('e-announcements-form.html', **locals())
 
-
     #Get all the form data
     add_data = get_add_data(['audience'], rform)
 
     asset = get_e_announcement_structure(add_data, username, workflow=workflow)
-
     resp = create_e_announcement(asset)
-
     # publish("f580ac758c58651313b6fe6bced65fea", "publishset")
 
     return redirect('/e-announcements/confirm', code=302)
     ##Just print the response for now
-
 
 
 @e_announcements_blueprint.route('/edit/<e_announcement_id>')
@@ -110,7 +100,6 @@ def edit_e_announcement(e_announcement_id):
     #Start with structuredDataNodes (data def content)
     for node in s_data:
         node_identifier = node.identifier.replace('-', '_')
-
 
         if node_identifier == "first_date":
             node_identifier = "first"
@@ -138,7 +127,6 @@ def edit_e_announcement(e_announcement_id):
     #Create an EventForm object with our data
     form = EAnnouncementsForm(**edit_data)
     form.e_announcement_id = e_announcement_id
-
 
     return render_template('e-announcements-form.html', **locals())
 
