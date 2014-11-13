@@ -172,16 +172,19 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             image = None
         if image:
             image_structure = get_image_structure("/academics/faculty/images", add_data['image_name'])
-
             r = requests.get('https://www.bethel.edu/academics/faculty/images/' + add_data['image_name'])
 
+            #does this person have a live image already?
             if r.status_code == 404:
                 create_image(image_structure)
             else:
-                image_structure['file']['path'] = "academics/faculty/images/" + add_data['image_name']
+                #replace the image on the server already
+                image_structure['file']['path'] = "/academics/faculty/images/" + add_data['image_name']
                 edit_response = edit(image_structure)
                 app.logger.warn(time.strftime("%c") + ": Image edit by " + username + " " + str(edit_response))
-        image = structured_file_data_node('image', "/academics/faculty/images/" + add_data['image_name'])
+                ##clear the thumbor cache so the new image takes
+                clear_image_cache()
+            image = structured_file_data_node('image', "/academics/faculty/images/" + add_data['image_name'])
     else:
         image = None
 
@@ -189,14 +192,15 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
 
     ## Create a list of all the data nodes
     structured_data = [
-        image,
         structured_data_node("first", add_data['first']),
         structured_data_node("last", add_data['last']),
         structured_data_node("email", add_data['email']),
         structured_data_node("started-at-bethel", add_data['started_at_bethel']),
         get_job_titles(add_data),
-
     ]
+
+    if image:
+        structured_data.append(image)
 
     structured_data.extend( get_expertise(add_data) )
     structured_data.extend( get_add_a_degree(add_data) )

@@ -145,8 +145,6 @@ def faculty_bio_edit_form(faculty_bio_id):
 
 @faculty_bio_blueprint.route("/submit", methods=['POST'])
 def submit_faculty_bio_form():
-
-
     ##import this here so we dont load all the content
     ##from cascade during homepage load
     from forms import FacultyBioForm
@@ -157,8 +155,6 @@ def submit_faculty_bio_form():
     title = rform['last'] + "-" + rform['first']
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)
-
-
 
     jobs, jobs_good, num_jobs = check_jobs(rform)
     degrees, degrees_good, num_degrees = check_degrees(rform)
@@ -171,8 +167,6 @@ def submit_faculty_bio_form():
             add_form = True
         app.logger.warn(time.strftime("%c") + ": Faculty bio submission failed by  " + username + ". Jobs or degrees failed.")
         return render_template('faculty-bio-form.html', **locals())
-
-
 
     #Get all the form data
     add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
@@ -209,6 +203,7 @@ def submit_faculty_bio_form():
         check_publish_sets(add_data['school'], faculty_bio_id)
     else:
         resp = create_faculty_bio(asset)
+        faculty_bio_id = resp.createdAssetId
 
     #publish corresponding pubish set
     ## Todo: uncomment this when you push!!
