@@ -15,6 +15,7 @@ import requests
 #tinker
 import config
 
+
 def init_user():
 
     if 'username' not in session.keys():

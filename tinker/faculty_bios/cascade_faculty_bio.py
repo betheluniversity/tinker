@@ -321,7 +321,7 @@ def get_web_author_group(departmentMetadata):
     if "Music" == departmentMetadata:
         return "Music"
     if "Nursing" == departmentMetadata:
-        return "Anthropology Sociology"
+        return "Nursing"
     if "Philosophy" == departmentMetadata:
         return "Philosophy"
     if "Physics & Engineering" == departmentMetadata:

@@ -18,6 +18,7 @@ from tinker.tools import *
 faculty_bio_blueprint = Blueprint('faculty-bios', __name__,
                         template_folder='templates')
 
+
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
     username = session['username']
@@ -25,6 +26,7 @@ def faculty_bio_home():
     forms = get_faculty_bios_for_user(username)
     # return forms
     return render_template('faculty-bio-home.html', **locals())
+
 
 @faculty_bio_blueprint.route('/delete/<page_id>')
 def delete_page(page_id):
