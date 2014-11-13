@@ -126,8 +126,11 @@ def faculty_bio_edit_form(faculty_bio_id):
 
     ## Add the rest of the fields. Can't loop over these kinds of metadata
     authors = metadata.author
-    authors = authors.split(", ")
-    edit_data['author'] = authors[0]
+    try:
+        authors = authors.split(", ")
+        edit_data['author'] = authors[0]
+    except AttributeError:
+        edit_data['author'] = ''
 
     #Create an EventForm object with our data
     form = FacultyBioForm(**edit_data)

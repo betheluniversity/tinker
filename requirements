@@ -12,3 +12,4 @@ SQLAlchemy-migrate
 BeautifulSoup
 Flask-Cors
 arrow
+Pillow
