@@ -97,6 +97,7 @@ def edit_e_announcement(e_announcement_id):
     dynamic_fields = metadata.dynamicFields.dynamicField
     #This dict will populate our EventForm object
     edit_data = {}
+    dates = []
 
     #Start with structuredDataNodes (data def content)
     for node in s_data:
@@ -112,11 +113,13 @@ def edit_e_announcement(e_announcement_id):
         if node_type == "text":
             if node_identifier == "first" or node_identifier == "second":
                 edit_data[node_identifier] = datetime.datetime.strptime(node.text, "%m-%d-%Y")
+                dates.append(datetime.datetime.strptime(node.text, "%m-%d-%Y"))
             else:
                 edit_data[node_identifier] = node.text
 
     #now metadata dynamic fields
     for field in dynamic_fields:
+
         #This will fail if no metadata is set. It should be required but just in case
         if field.fieldValues:
             items = [item.value for item in field.fieldValues.fieldValue]
@@ -128,6 +131,9 @@ def edit_e_announcement(e_announcement_id):
     #Create an EventForm object with our data
     form = EAnnouncementsForm(**edit_data)
     form.e_announcement_id = e_announcement_id
+
+    #convert dates to json so we can use Javascript to create custom DateTime fields on the form
+    dates = fjson.dumps(dates)
 
     return render_template('e-announcements-form.html', **locals())
 
@@ -152,11 +158,11 @@ def submit_edit_form():
     form = rform
     e_announcement_id = form['e_announcement_id']
 
-    add_data = get_add_data(['audience'], form)
+    add_data = get_add_data(['banner_roles'], form)
     asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)
 
     resp = edit(asset)
-    app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp))
+    app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp)+ " " + ('id:' + e_announcement_id))
 
     ## Todo: Make sure to publish the page down the road!
 

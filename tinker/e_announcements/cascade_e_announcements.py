@@ -23,24 +23,35 @@ def get_e_announcements_for_user(username):
 
 def traverse_e_announcements_folder(traverse_xml, username):
     ## Traverse an XML folder, adding system-pages to a dict of matches
-    matches = []
-    for child in traverse_xml:
 
-        if child.tag == 'system-page':
-            try:
-                author = child.find('author').text
-                if author is not None and username == author:
-                    page_values = {
-                        'author': child.find('author').text,
-                        'id': child.attrib['id'] or "",
-                        'title': child.find('title').text or None,
-                        'created-on': child.find('created-on').text or None,
-                        'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                    }
-                    ## This is a match, add it to array
-                    matches.append(page_values)
-            except:
-                continue
+
+
+    matches = []
+    for child in traverse_xml.findall('.//system-page'):
+        try:
+            author = child.find('author').text
+
+            first = child.find('system-data-structure/first-date').text
+            second = child.find('system-data-structure/second-date').text
+            firstDate = datetime.datetime.strptime(first, '%m-%d-%Y').strftime('%A %B %d, %Y')
+            secondDate = datetime.datetime.strptime(second, '%m-%d-%Y').strftime('%A %B %d, %Y')
+
+
+            dates_str = firstDate + "<br/>" + secondDate
+
+            if author is not None and username == author:
+                page_values = {
+                    'author': child.find('author').text,
+                    'id': child.attrib['id'] or "",
+                    'title': child.find('title').text or None,
+                    'created-on': child.find('created-on').text or None,
+                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                    'dates': dates_str,
+                }
+                ## This is a match, add it to array
+                matches.append(page_values)
+        except:
+            continue
         if child.tag == 'system-folder':
             matches.extend(traverse_e_announcements_folder(child, username))
     return matches
@@ -91,7 +102,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
     #create the dynamic metadata dict
     dynamic_fields = {
         'dynamicField': [
-            dynamic_field('banner-roles', add_data['audience']),
+            dynamic_field('banner-roles', add_data['banner_roles']),
         ],
     }
 
@@ -171,16 +182,14 @@ def convert_month_num_to_name(month_num):
     if month_num == "12":
         return "december"
 
-## Todo: Once the publish set is created, add this!
 def get_e_announcement_publish_workflow(title="", username=""):
 
-    return None
-    # name = "New Bio Submission"
-    # if title:
-    #     name += ": " + title
-    # workflow = {
-    #     "workflowName": name,
-    #     "workflowDefinitionId": "f1638f598c58651313b6fe6b5ed835c5",
-    #     "workflowComments": "New Faculty Bio submission"
-    # }
+    name = "New E-announcement Submission"
+    if title:
+        name += ": " + title
+    workflow = {
+        "workflowName": name,
+        "workflowDefinitionId": "aae9f9678c5865130c130b3a0d785704",
+        "workflowComments": "Send e-announcement for approval"
+    }
     return workflow

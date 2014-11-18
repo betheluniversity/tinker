@@ -32,13 +32,14 @@
               {{ form.title }}
             {% endif %}
             <br/>
-            {% if form.path != '' %}<small><a href={{ form.path }}>{{ form.path }}</a></small>{% endif %}
+            <small>
+                <p>{{ form.dates | safe}}</p>
+            </small>
           </p>
         </div>
         <div class="large-6 columns small-3">
           <ul class="button-group">
             {% if form.path != '' %}
-              <li><a href="{{ form.path }}" class="small button success">View</a></li>
               <li><a href="/e-announcements/edit/{{ form.id }}" class="small button">Edit</a></li>
             {% else %}
               <li><a class="small button success">Not Approved</a></li>

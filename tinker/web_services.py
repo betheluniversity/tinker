@@ -189,6 +189,7 @@ def string_to_datetime(date_str):
 def friendly_date_range(start, end):
     start = arrow.get(start)
     end = arrow.get(end)
+
     if start.year == end.year and start.month == end.month and start.day == end.day:
         return "%s - %s" % (start.format('MMM d, YYYY h:mm a'), end.format('h:mm a'))
     else:
