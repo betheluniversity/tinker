@@ -21,6 +21,8 @@ faculty_bio_blueprint = Blueprint('faculty-bios', __name__,
 
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
+
+
     username = session['username']
     ## index page for adding events and things
     forms = get_faculty_bios_for_user(username)
@@ -194,6 +196,7 @@ def submit_faculty_bio_form():
     faculty_bio_id = rform['faculty_bio_id']
     if faculty_bio_id:
         workflow = None
+
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 
     if faculty_bio_id:
@@ -206,7 +209,6 @@ def submit_faculty_bio_form():
         faculty_bio_id = resp.createdAssetId
 
     #publish corresponding pubish set
-    ## Todo: uncomment this when you push!!
     check_publish_sets(add_data['school'], faculty_bio_id)
 
     return redirect('/faculty-bios/confirm', code=302)

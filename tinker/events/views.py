@@ -50,13 +50,14 @@ def form_index():
 def read_page():
     tools.get_user()
     client = get_client()
-
     identifier = {
-        # 'id': '85d64f148c5865130c130b3a6d2babc5',
-        'type': 'folder',
-        'path': '/'
+        # 'id': 'f66eb4be8c586513100ee2a7240ef051',
+        'type': 'page',
+        'path': {
+            'path': '/academics/faculty/adams-brent',
+            'siteId': app.config['SITE_ID']
+        }
     }
-
 
     auth = app.config['CASCADE_LOGIN']
     response = client.service.read(auth, identifier)

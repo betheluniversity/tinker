@@ -43,17 +43,27 @@ def delete(page_id, workflow=None):
     return response
 
 
-def publish(page_id, type='page'):
+def publish(page_id=None, type='page', path=None):
 
     client = get_client()
 
-    publishinformation = {
-        'identifier': {
-            'id': page_id,
-            'type': type,
-
-        },
-    }
+    if page_id:
+        publishinformation = {
+            'identifier': {
+                'id': page_id,
+                'type': type,
+            }
+        }
+    elif path:
+        publishinformation = {
+            'identifier': {
+                'type': type,
+                'path': {
+                    'path': path,
+                    'siteId': app.config['SITE_ID']
+                }
+            }
+        }
 
     auth = app.config['CASCADE_LOGIN']
 
@@ -90,13 +100,23 @@ def read_identifier(identifier):
     return response
 
 
-def read(read_id, type="page"):
+def read(read_id=None, type="page", path=None):
     client = get_client()
 
-    identifier = {
-        'id': read_id,
-        'type': type
-    }
+    if read_id:
+        identifier = {
+            'id': read_id,
+            'type': type,
+        }
+    elif path:
+        identifier = {
+            'type': type,
+            'path': {
+                'path': path,
+                'siteId': app.config['SITE_ID']
+            }
+        }
+
 
     auth = app.config['CASCADE_LOGIN']
 

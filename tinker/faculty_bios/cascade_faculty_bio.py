@@ -181,7 +181,10 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
                 #replace the image on the server already
                 image_structure['file']['path'] = "/academics/faculty/images/" + add_data['image_name']
                 edit_response = edit(image_structure)
-                app.logger.warn(time.strftime("%c") + ": Image edit by " + username + " " + str(edit_response))
+
+                publish(None,"file", image_structure['file']['path']) ## publish image
+                app.logger.warn(time.strftime("%c") + ": Image edit and published by " + username + " " + str(edit_response))
+
                 ##clear the thumbor cache so the new image takes
                 clear_image_cache()
             image = structured_file_data_node('image', "/academics/faculty/images/" + add_data['image_name'])
