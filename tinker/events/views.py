@@ -210,7 +210,7 @@ def submit_edit_form():
 
     event_dates, dates_good, num_dates = check_event_dates(rform)
 
-    if not form.validate_on_submit()or not dates_good:
+    if not form.validate_on_submit() or not dates_good:
         event_id = request.form['event_id']
         return render_template('event-form.html', **locals())
 

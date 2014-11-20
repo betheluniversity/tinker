@@ -173,6 +173,9 @@ def submit_faculty_bio_form():
     #Get all the form data
     add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
     workflow = get_bio_publish_workflow(title, username, add_data['school'])
+    workflow = None
+
+
     #### Images #########
     groups = get_groups_for_user()
 
@@ -184,7 +187,6 @@ def submit_faculty_bio_form():
             image_path = secure_filename(image_name)
 
             form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
-            ##imageURL = url_for('uploaded_file', filename=filename)
         else:
             image_name = ""
             image_path = ""
