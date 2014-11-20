@@ -43,25 +43,25 @@ def delete(page_id, workflow=None):
     return response
 
 
-def publish(page_id=None, type='page', path=None):
+def publish(pathOrId, type='page'):
 
     client = get_client()
 
-    if page_id:
-        publishinformation = {
-            'identifier': {
-                'id': page_id,
-                'type': type,
-            }
-        }
-    elif path:
+    if pathOrId[0] == "/":
         publishinformation = {
             'identifier': {
                 'type': type,
                 'path': {
-                    'path': path,
+                    'path': pathOrId,
                     'siteId': app.config['SITE_ID']
                 }
+            }
+        }
+    else:
+        publishinformation = {
+            'identifier': {
+                'id': pathOrId,
+                'type': type,
             }
         }
 
@@ -100,21 +100,21 @@ def read_identifier(identifier):
     return response
 
 
-def read(read_id=None, type="page", path=None):
+def read(pathOrId, type="page"):
     client = get_client()
 
-    if read_id:
-        identifier = {
-            'id': read_id,
-            'type': type,
-        }
-    elif path:
+    if pathOrId[0] == "/":
         identifier = {
             'type': type,
             'path': {
-                'path': path,
+                'path': pathOrId,
                 'siteId': app.config['SITE_ID']
             }
+        }
+    else:
+        identifier = {
+            'id': pathOrId,
+            'type': type,
         }
 
 

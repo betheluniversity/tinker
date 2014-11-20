@@ -182,7 +182,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
                 image_structure['file']['path'] = "/academics/faculty/images/" + add_data['image_name']
                 edit_response = edit(image_structure)
 
-                publish(None,"file", image_structure['file']['path']) ## publish image
+                publish(image_structure['file']['path'],"file" ) ## publish image
                 app.logger.warn(time.strftime("%c") + ": Image edit and published by " + username + " " + str(edit_response))
 
                 ##clear the thumbor cache so the new image takes
