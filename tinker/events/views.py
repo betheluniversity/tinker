@@ -96,8 +96,7 @@ def edit_event_page(event_id):
             edit_data[node_identifier] = node.text
         elif node_type == 'group':
             ## These are the event dates. Create a dict so we can convert to JSON later.
-            date_data = read_date_data_structure(node)
-            dates[date_count] = date_data
+            dates[date_count] = read_date_data_structure(node)
             date_count += 1
 
     #now metadata dynamic fields

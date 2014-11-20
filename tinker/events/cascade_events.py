@@ -46,7 +46,10 @@ def read_date_data_structure(node):
     node_data = node.structuredDataNodes.structuredDataNode
     date_data = {}
     for date in node_data:
-        date_data[date.identifier] = date.text
+        if date.identifier == "all-day" and date.text == "::CONTENT-XML-CHECKBOX::":
+            continue
+        else:
+            date_data[date.identifier] = date.text
     ##If there is no date, these will fail
     try:
         date_data['start-date'] = java_unix_to_date(date_data['start-date'])
@@ -56,6 +59,9 @@ def read_date_data_structure(node):
         date_data['end-date'] = java_unix_to_date(date_data['end-date'])
     except TypeError:
         pass
+
+
+
 
     return date_data
 
