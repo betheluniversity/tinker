@@ -63,6 +63,7 @@ def before_request():
     app.logger.info(session['username'])
 
 @app.route('/cache-test/<img_path>')
+@app.route('/cache-test')
 def cache_test(img_path=None):
     if not img_path:
         img_path = '/academics/faculty/images/lundberg-kelsey.jpg'

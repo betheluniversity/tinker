@@ -97,12 +97,19 @@ def clear_image_cache(image_path):
         digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
         path = "%s/%s/%s" % (config.THUMBOR_STORAGE_LOCATION.rstrip('/'), digest[:2], digest[2:])
         # remove the file at the path
-        if config.ENVIRON == "prod":
+        # if config.ENVIRON == "prod":
+        try:
             call(['rm', path])
-
+        except:
+            continue
     # now the result storage
     file_name = image_path.split('/')[-1]
     call_cmd = config.THUMBOR_CALL_CMD
     call_cmd[3] = file_name
-    if config.ENVIRON == "prod":
-        return call(call_cmd)
+
+    try:
+        call(call_cmd)
+    except:
+        pass
+
+    return "done"
