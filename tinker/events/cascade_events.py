@@ -307,7 +307,7 @@ def get_dates(add_data):
             end = add_data[end]
             all_day = all_day in add_data.keys()
             for key in add_data.keys():
-                app.logger.error(time.strftime("%c") + ": CALEB TEST: " + str(key))
+                app.logger.warn(time.strftime("%c") + ": CALEB TEST: " + str(key))
         except KeyError:
             ##This will break once we run out of dates
             break
