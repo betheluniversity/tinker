@@ -32,7 +32,7 @@ def upgrade_content(content):
 
 
 def log_id_to_file(id):
-    with open("/Users/ejc84332/sites/tinker/upgrade.txt", "a") as id_file:
+    with open("/opt/tinker/tinker/upgrade.txt", "a") as id_file:
         id_file.write(id + "\n")
 
 
@@ -135,13 +135,13 @@ def inspect_page(page_id):
 
 def check_page_id(page_id):
 
-    with open("/Users/ejc84332/sites/tinker/upgrade.txt") as data:
+    with open("/opt/tinker/tinker/upgrade.txt") as data:
         page_ids = (line.rstrip('\n') for line in data)
         return page_id in page_ids
 
 
 def log_message_to_file(message):
-    with open("/Users/ejc84332/sites/tinker/upgrade.txt", "a") as id_file:
+    with open("/opt/tinker/tinker/upgrade.txt", "a") as id_file:
         id_file.write(message + "\n")
 
 

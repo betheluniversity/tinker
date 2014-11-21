@@ -18,6 +18,7 @@ cors = CORS(app)
 
 from tinker.wufoo import models
 from tinker.redirects import models
+from tinker import tools
 
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
@@ -61,3 +62,6 @@ def before_request():
     tools.init_user()
     app.logger.info(session['username'])
 
+@app.route('/cache-test')
+def cache_test():
+    tools.clear_image_cache("/academics/faculty/images/lundberg-kelsey.jpg")

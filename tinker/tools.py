@@ -1,13 +1,12 @@
 __author__ = 'ejc84332'
 
 #python
-import shutil
+import hashlib
 
 #flask
 from flask import request
 from flask import session
 from flask import current_app
-from flask import g
 from flask import render_template
 from flask import json as fjson
 import requests
@@ -84,6 +83,22 @@ def get_nav():
 
 
 ##does this go here?
-def clear_image_cache():
+def clear_image_cache(image_path):
+
+    ##/academics/faculty/images/lundberg-kelsey.jpg"
+
+    ##Make sure image path starts with a slash
+    if not image_path.startwith('/'):
+        image_path = '/%s' % image_path
+
+    for prefix in ['http://www.bethel.edu', 'https://www.bethel.edu',
+                   'http://staging.bethel.edu', 'https://staging.bethel.edu']:
+        path = prefix + image_path
+        digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
+        path = "%s/%s/%s" % (config.THUMBOR_STORAGE_LOCATION.rstrip('/'), digest[:2], digest[2:])
+        #actually clear the path
+
+
+
     from subprocess import call
     return call(['rm', '-rf', config.THUMBOR_STORAGE_LOCATION])
