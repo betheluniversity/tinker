@@ -2,6 +2,7 @@ __author__ = 'ejc84332'
 
 #python
 import hashlib
+from subprocess import call
 
 #flask
 from flask import request
@@ -63,9 +64,9 @@ def get_roles(username=None):
     for key in roles.keys():
         ret.append(roles[key]['userRole'])
 
-    ## Manually give 'faculty' privileges.
-    #todo lets move this to a cascade group
-    #if username == 'ejc84332':
+    # Manually give 'faculty' privileges.
+    # todo lets move this to a cascade group
+    # if username == 'ejc84332':
     #    ret.append('FACULTY')
     # if username == 'ces55739':
     #     ret.append('FACULTY')
@@ -82,13 +83,12 @@ def get_nav():
     session['top_nav'] = html
 
 
-##does this go here?
+# does this go here?
 def clear_image_cache(image_path):
 
-    ##/academics/faculty/images/lundberg-kelsey.jpg"
-
-    ##Make sure image path starts with a slash
-    if not image_path.startwith('/'):
+    # /academics/faculty/images/lundberg-kelsey.jpg"
+    # Make sure image path starts with a slash
+    if not image_path.startswith('/'):
         image_path = '/%s' % image_path
 
     for prefix in ['http://www.bethel.edu', 'https://www.bethel.edu',
@@ -96,9 +96,13 @@ def clear_image_cache(image_path):
         path = prefix + image_path
         digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
         path = "%s/%s/%s" % (config.THUMBOR_STORAGE_LOCATION.rstrip('/'), digest[:2], digest[2:])
-        #actually clear the path
+        # remove the file at the path
+        if config.ENVIRON == "prod":
+            call(['rm', path])
 
-
-
-    from subprocess import call
-    return call(['rm', '-rf', config.THUMBOR_STORAGE_LOCATION])
+    # now the result storage
+    file_name = image_path.split('/')[-1]
+    call_cmd = config.THUMBOR_CALL_CMD
+    call_cmd[3] = file_name
+    if config.ENVIRON == "prod":
+        return call(call_cmd)

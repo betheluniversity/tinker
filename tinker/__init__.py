@@ -62,6 +62,8 @@ def before_request():
     tools.init_user()
     app.logger.info(session['username'])
 
-@app.route('/cache-test')
-def cache_test():
-    tools.clear_image_cache("/academics/faculty/images/lundberg-kelsey.jpg")
+@app.route('/cache-test/<img_path>')
+def cache_test(img_path=None):
+    if not img_path:
+        img_path = '/academics/faculty/images/lundberg-kelsey.jpg'
+    return tools.clear_image_cache(img_path)
