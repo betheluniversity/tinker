@@ -200,9 +200,9 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     if image:
         structured_data.append(image)
 
-    structured_data.extend(get_expertise(add_data))
-    structured_data.extend(get_add_a_degree(add_data))
-    structured_data.extend(get_add_to_bio(add_data))
+    structured_data.append(get_expertise(add_data))
+    structured_data.append(get_add_a_degree(add_data))
+    structured_data.append(get_add_to_bio(add_data))
     # Wrap in the required structure for SOAP
     structured_data = {
         'structuredDataNodes': {
