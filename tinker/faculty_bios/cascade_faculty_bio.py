@@ -1,15 +1,11 @@
-#python
+# python
 import urllib2
 import re
 import base64
-import httplib
-import requests
 
 from xml.etree import ElementTree as ET
-from xml.dom.minidom import parseString
-#flask
 
-#local
+# local
 from tinker.web_services import *
 from tinker.tools import *
 from tinker.cascade_tools import *
@@ -51,24 +47,24 @@ def get_expertise(add_data):
 def get_job_titles(add_data):
     job_titles = []
 
-    ##format the dates
+    # format the dates
     for i in range(1, 200):
         i = str(i)
         try:
             job_title = add_data['job-title' + i]
         except KeyError:
-            ##This will break once we run out of dates
+            # This will break once we run out of dates
             break
 
-        job_titles.append( structured_data_node("job-title", job_title ))
+        job_titles.append(structured_data_node("job-title", job_title))
 
     return job_titles
 
 
 def get_add_a_degree(add_data):
-    degrees=[]
+    degrees = []
 
-    ##format the dates
+    # format the dates
     for i in range(1, 200):
         i = str(i)
         try:
@@ -76,7 +72,7 @@ def get_add_a_degree(add_data):
             degree = add_data['degree-earned' + i]
             year = add_data['year' + i]
         except KeyError:
-            ##This will break once we run out of degrees
+            # This will break once we run out of degrees
             break
 
         data_list = [
@@ -93,16 +89,15 @@ def get_add_a_degree(add_data):
             },
         },
 
-
         degrees.append(node)
 
     finalNode = {
-            'type': "group",
-            'identifier': "education",
-            'structuredDataNodes': {
-                'structuredDataNode': degrees,
-            },
+        'type': "group",
+        'identifier': "education",
+        'structuredDataNodes': {
+            'structuredDataNode': degrees,
         },
+    }
 
     return finalNode
 
@@ -119,7 +114,7 @@ def get_add_to_bio(add_data):
     quote = add_data['quote']
     website = add_data['website']
 
-    if biography != "" :
+    if biography != "":
         options.append("::CONTENT-XML-CHECKBOX::Biography")
     if awards != "":
         options.append("::CONTENT-XML-CHECKBOX::Awards")
@@ -138,11 +133,11 @@ def get_add_to_bio(add_data):
 
     data_list = [
         structured_data_node("options", options),
-        structured_data_node("biography", escape_wysiwyg_content(biography) ),
-        structured_data_node("awards", escape_wysiwyg_content(awards) ),
-        structured_data_node("publications", escape_wysiwyg_content(publications) ),
-        structured_data_node("certificates", escape_wysiwyg_content(certificates) ),
-        structured_data_node("hobbies", escape_wysiwyg_content(hobbies) ),
+        structured_data_node("biography", escape_wysiwyg_content(biography)),
+        structured_data_node("awards", escape_wysiwyg_content(awards)),
+        structured_data_node("publications", escape_wysiwyg_content(publications)),
+        structured_data_node("certificates", escape_wysiwyg_content(certificates)),
+        structured_data_node("hobbies", escape_wysiwyg_content(hobbies)),
         structured_data_node("quote", quote),
         structured_data_node("website", website),
 
@@ -164,7 +159,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
      Could this be cleaned up at all?
     """
 
-    ## Create Image asset
+    # Create Image asset
     if "FACULTY-CAS" not in session['roles'] or 'Tinker Redirects' in session['groups']:
         try:
             image = add_data['image_name']
@@ -174,26 +169,25 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             image_structure = get_image_structure("/academics/faculty/images", add_data['image_name'])
             r = requests.get('https://www.bethel.edu/academics/faculty/images/' + add_data['image_name'])
 
-            #does this person have a live image already?
+            # does this person have a live image already?
             if r.status_code == 404:
                 create_image(image_structure)
             else:
-                #replace the image on the server already
+                # replace the image on the server already
                 image_structure['file']['path'] = "/academics/faculty/images/" + add_data['image_name']
                 edit_response = edit(image_structure)
 
-                publish(image_structure['file']['path'],"file" ) ## publish image
-                app.logger.warn(time.strftime("%c") + ": Image edit and published by " + username + " " + str(edit_response))
+                # publish image
+                publish(image_structure['file']['path'], "file")
+                app.logger.warn("%s: Image edit/publish: %s %s" % (time.strftime("%c"), username, str(edit_response)))
 
-                ##clear the thumbor cache so the new image takes
-                clear_image_cache()
+                # clear the thumbor cache so the new image takes
+                clear_image_cache(image_structure['file']['path'])
             image = structured_file_data_node('image', "/academics/faculty/images/" + add_data['image_name'])
     else:
         image = None
 
-
-
-    ## Create a list of all the data nodes
+    # Create a list of all the data nodes
     structured_data = [
         structured_data_node("first", add_data['first']),
         structured_data_node("last", add_data['last']),
@@ -205,18 +199,17 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     if image:
         structured_data.append(image)
 
-    structured_data.extend( get_expertise(add_data) )
-    structured_data.extend( get_add_a_degree(add_data) )
-    structured_data.extend( get_add_to_bio(add_data) )
-
-    ## Wrap in the required structure for SOAP
+    structured_data.extend(get_expertise(add_data))
+    structured_data.extend(get_add_a_degree(add_data))
+    structured_data.extend(get_add_to_bio(add_data))
+    # Wrap in the required structure for SOAP
     structured_data = {
         'structuredDataNodes': {
             'structuredDataNode': structured_data,
         }
     }
 
-    #create the dynamic metadata dict
+    # create the dynamic metadata dict
     dynamic_fields = {
         'dynamicField': [
             dynamic_field('school', add_data['school']),
@@ -235,7 +228,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             'metadataSetPath': "/Robust",
             'contentTypePath': "Academics/Faculty Bio",
             'configurationSetPath': "Faculty Bio",
-            ## Break this out more once its defined in the form
+            # Break this out more once its defined in the form
             'structuredData': structured_data,
             'metadata': {
                 'title': add_data['first'] + " " + add_data['last'],
@@ -253,11 +246,11 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     return asset
 
 
-## A test to see if we can create images in cascade.
+# A test to see if we can create images in cascade.
 def get_image_structure(image_dest, image_name, faculty_bio_id=None, workflow=None):
 
-    file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
-    stream = file.read()
+    image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
+    stream = image_file.read()
     encoded_stream = base64.b64encode(stream)
 
     asset = {
@@ -284,13 +277,13 @@ def create_image(asset):
     response = client.service.create(auth, asset)
     app.logger.warn(time.strftime("%c") + ": Create image submission by " + username + " " + str(response))
 
-    ## Publish
+    # Publish
     publish(response.createdAssetId, "file")
 
     return response
 
 
-## A lengthy hardcoded list that maps the metadata values to the Groups on Cascade.
+# A lengthy hardcoded list that maps the metadata values to the Groups on Cascade.
 def get_web_author_group(departmentMetadata):
 
     if "Anthropology, Sociology, & Reconciliation" == departmentMetadata:
@@ -353,7 +346,8 @@ def create_faculty_bio(asset):
 
     response = client.service.create(auth, asset)
     app.logger.warn(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))
-    ##publish the xml file so the new event shows up
+    #
+    # publish the xml file so the new event shows up
     publish_faculty_bio_xml()
 
     return response
@@ -372,7 +366,7 @@ def get_faculty_bios_for_user(username):
 
 
 def traverse_faculty_folder(traverse_xml, username):
-    ## Traverse an XML folder, adding system-pages to a dict of matches
+    # Traverse an XML folder, adding system-pages to a dict of matches
     user = read(username, "user")
     try:
         allowedGroups = user.asset.user.groups
@@ -387,7 +381,7 @@ def traverse_faculty_folder(traverse_xml, username):
                 authors = child.find('author')
                 if authors is not None:
 
-                    dict_of_authors = authors.text.split( ", ")
+                    dict_of_authors = authors.text.split(", ")
 
                     if username in dict_of_authors:
                         page_values = {
@@ -397,7 +391,7 @@ def traverse_faculty_folder(traverse_xml, username):
                             'created-on': child.find('created-on').text or None,
                             'path': 'https://www.bethel.edu' + child.find('path').text or "",
                         }
-                        ## This is a match, add it to array
+                        # This is a match, add it to array
                         matches.append(page_values)
                         continue
             finally:
@@ -414,7 +408,6 @@ def traverse_faculty_folder(traverse_xml, username):
                                     'created-on': child.find('created-on').text or None,
                                     'path': 'https://www.bethel.edu' + child.find('path').text or "",
                                 }
-                                a=1
                                 matches.append(page_values)
                                 break
     return matches
@@ -422,7 +415,7 @@ def traverse_faculty_folder(traverse_xml, username):
 
 def get_add_data(lists, form):
 
-    ##A dict to populate with all the interesting data.
+    # A dict to populate with all the interesting data.
     add_data = {}
 
     for key in form.keys():
@@ -431,13 +424,13 @@ def get_add_data(lists, form):
         else:
             add_data[key] = form[key]
 
-    ##Make it lastname firstname
+    # Make it lastname firstname
     system_name = add_data['last'] + " " + add_data['first']
 
-    ##Create the system-name from title, all lowercase
+    # Create the system-name from title, all lowercase
     system_name = system_name.lower().replace(' ', '-')
 
-    ##Now remove any non a-z, A-Z, 0-9
+    # Now remove any non a-z, A-Z, 0-9
     system_name = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
 
     add_data['system_name'] = system_name
@@ -475,7 +468,3 @@ def check_publish_sets(school, faculty_bio_id):
             publish("2ed0beef8c5865132b2dadea1ccf543e", "publishset")
         if item == "Bethel Seminary":
             publish("2ed19c8d8c5865132b2dadea60403657", "publishset")
-
-
-
-
