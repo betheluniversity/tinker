@@ -2,6 +2,8 @@ __author__ = 'ejc84332'
 
 #python
 import hashlib
+import os
+import fnmatch
 from subprocess import call
 
 #flask
@@ -102,9 +104,11 @@ def clear_image_cache(image_path):
 
     # now the result storage
     file_name = image_path.split('/')[-1]
-    call_cmd = config.THUMBOR_CALL_CMD
-    call_cmd[3] = file_name
+    matches = []
+    for root, dirnames, filenames in os.walk(config.THUMBOR_RESULT_STORAGE_LOCATION):
+        for filename in fnmatch.filter(filenames, file_name):
+            matches.append(os.path.join(root, filename))
+    for match in matches:
+        call(['rm', match])
 
-    call(call_cmd)
-
-    return "done"
+    return str(matches)
