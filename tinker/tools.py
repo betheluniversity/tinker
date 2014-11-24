@@ -1,12 +1,12 @@
 __author__ = 'ejc84332'
 
-#python
+# python
 import hashlib
 import os
 import fnmatch
 from subprocess import call
 
-#flask
+# flask
 from flask import request
 from flask import session
 from flask import current_app
@@ -14,7 +14,7 @@ from flask import render_template
 from flask import json as fjson
 import requests
 
-#tinker
+# tinker
 import config
 
 

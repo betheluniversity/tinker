@@ -182,7 +182,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
                 app.logger.warn("%s: Image edit/publish: %s %s" % (time.strftime("%c"), username, str(edit_response)))
 
                 # clear the thumbor cache so the new image takes
-                clear_image_cache(image_structure['file']['path'])
+                clear_resp = clear_image_cache(image_structure['file']['path'])
+                app.logger.warn("%s: Images Cleared: %s" % (time.strftime("%c"), clear_resp))
             image = structured_file_data_node('image', "/academics/faculty/images/" + add_data['image_name'])
     else:
         image = None

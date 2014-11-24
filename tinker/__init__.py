@@ -1,18 +1,14 @@
-#python
-
-
-#flask
+# flask
 from flask import Flask
 from flask import session
 
-#flask extensions
+# flask extensions
 from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
 
 app = Flask(__name__)
 app.config.from_object('config')
-#Foundation(app)
 db = SQLAlchemy(app)
 cors = CORS(app)
 
@@ -23,7 +19,7 @@ from tinker import tools
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
 
-#create logging
+# create logging
 if not app.debug:
     import logging
     from logging import FileHandler
@@ -39,7 +35,7 @@ if not app.debug and app.config['ENVIRON'] is not 'test':
     mail_handler.setLevel(logging.ERROR)
     app.logger.addHandler(mail_handler)
 
-#Import routes
+# Import routes
 import views
 from tinker.events.views import event_blueprint
 from tinker.faculty_bios.views import faculty_bio_blueprint
@@ -52,11 +48,11 @@ app.register_blueprint(wufoo_blueprint, url_prefix='/wufoo')
 app.register_blueprint(redirect_blueprint, url_prefix='/redirect')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 
-#Import error handling
+# Import error handling
 import error
 
 
-#ensure session before each request
+# ensure session before each request
 @app.before_request
 def before_request():
     tools.init_user()
