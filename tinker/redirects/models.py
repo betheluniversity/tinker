@@ -1,5 +1,6 @@
 from tinker import db
 
+
 class BethelRedirect(db.Model):
     from_path = db.Column(db.String(256), primary_key=True)
     to_url = db.Column(db.String(256))
@@ -11,7 +12,7 @@ class BethelRedirect(db.Model):
     def __repr__(self):
         return '<Redirect %s to %s>' % (self.from_path, self.to_url)
 
-    ##define less than and equal to so they can sort themselves
+    # define less than and equal to so they can sort themselves
     def __lt__(self, other):
         return len(self.from_path) < len(other.from_path)
 

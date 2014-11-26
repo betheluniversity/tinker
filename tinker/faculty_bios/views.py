@@ -1,30 +1,25 @@
-#python
+# python
 import json
-import os
 
 from werkzeug import secure_filename
 
-#flask
+# flask
 from flask import Blueprint
-from flask import render_template
 from flask import redirect
 from flask import send_from_directory
-from flask import url_for
 
 from tinker.faculty_bios.cascade_faculty_bio import *
 from tinker import app
 from tinker.tools import *
 
-faculty_bio_blueprint = Blueprint('faculty-bios', __name__,
-                        template_folder='templates')
+faculty_bio_blueprint = Blueprint('faculty-bios', __name__, template_folder='templates')
 
 
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
 
-
     username = session['username']
-    ## index page for adding events and things
+    # index page for adding events and things
     forms = get_faculty_bios_for_user(username)
     # return forms
     return render_template('faculty-bio-home.html', **locals())
@@ -43,8 +38,8 @@ def delete_confirm():
 
 @faculty_bio_blueprint.route("/edit/new")
 def faculty_bio_new_form():
-    ##import this here so we dont load all the content
-    ##from cascade during homepage load
+    # import this here so we dont load all the content
+    # from cascade during homepage load
     from forms import FacultyBioForm
 
     form = FacultyBioForm()
@@ -61,24 +56,24 @@ def submit_confirm():
 @faculty_bio_blueprint.route("/edit/<faculty_bio_id>")
 def faculty_bio_edit_form(faculty_bio_id):
 
-    ##import this here so we dont load all the content
-    ##from cascade during homepage load
+    # import this here so we dont load all the content
+    # from cascade during homepage load
     from forms import FacultyBioForm
 
     form = FacultyBioForm()
 
-    #Get the event data from cascade
+    # Get the event data from cascade
     faculty_data = read(faculty_bio_id)
 
-    #Get the different data sets from the response
+    # Get the different data sets from the response
     form_data = faculty_data.asset.page
-    #the stuff from the data def
+    # the stuff from the data def
     s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
-    #regular metadata
+    # regular metadata
     metadata = form_data.metadata
-    #dynamic metadata
+    # dynamic metadata
     dynamic_fields = metadata.dynamicFields.dynamicField
-    #This dict will populate our EventForm object
+    # This dict will populate our EventForm object
     edit_data = {}
 
     job_titles = {}
@@ -87,7 +82,8 @@ def faculty_bio_edit_form(faculty_bio_id):
     degrees = {}
     degree_count = 0
 
-    #Start with structuredDataNodes (data def content)
+    # Start with structuredDataNodes (data def content)
+    # todo rewrite this so each for loop isn't using 'node'
     for node in s_data:
         node_identifier = node.identifier.replace('-', '_')
         node_type = node.type
@@ -119,14 +115,14 @@ def faculty_bio_edit_form(faculty_bio_id):
                 edit_data['image'] = node.text
                 edit_data['image_url'] = node.filePath
 
-    #now metadata dynamic fields
+    # now metadata dynamic fields
     for field in dynamic_fields:
-        #This will fail if no metadata is set. It should be required but just in case
+        # This will fail if no metadata is set. It should be required but just in case
         if field.fieldValues:
             items = [item.value for item in field.fieldValues.fieldValue]
             edit_data[field.name.replace('-', '_')] = items
 
-    ## Add the rest of the fields. Can't loop over these kinds of metadata
+    # Add the rest of the fields. Can't loop over these kinds of metadata
     authors = metadata.author
     try:
         authors = authors.split(", ")
@@ -134,11 +130,11 @@ def faculty_bio_edit_form(faculty_bio_id):
     except AttributeError:
         edit_data['author'] = ''
 
-    #Create an EventForm object with our data
+    # Create an EventForm object with our data
     form = FacultyBioForm(**edit_data)
     form.faculty_bio_id = faculty_bio_id
 
-    #convert job titles and degrees to json so we can use Javascript to create custom DateTime fields on the form
+    # convert job titles and degrees to json so we can use Javascript to create custom DateTime fields on the form
     job_titles = fjson.dumps(job_titles)
     degrees = fjson.dumps(degrees)
 
@@ -147,8 +143,8 @@ def faculty_bio_edit_form(faculty_bio_id):
 
 @faculty_bio_blueprint.route("/submit", methods=['POST'])
 def submit_faculty_bio_form():
-    ##import this here so we dont load all the content
-    ##from cascade during homepage load
+    # import this here so we dont load all the content
+    # from cascade during homepage load
     from forms import FacultyBioForm
     form = FacultyBioForm()
     rform = request.form
@@ -165,23 +161,23 @@ def submit_faculty_bio_form():
         if 'faculty_bio_id' in request.form.keys():
             faculty_bio_id = request.form['faculty_bio_id']
         else:
-            #This error came from the add form because event_id wasn't set
+            # This error came from the add form because event_id wasn't set
             add_form = True
-        app.logger.warn(time.strftime("%c") + ": Faculty bio submission failed by  " + username + ". Jobs or degrees failed.")
+        app.logger.warn("%s: %s %s") % (time.strftime("%c"), username, ". Jobs or degrees failed.")
         return render_template('faculty-bio-form.html', **locals())
 
-    #Get all the form data
+    # Get all the form data
     add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
     workflow = get_bio_publish_workflow(title, username, add_data['school'])
 
-
-    #### Images #########
+    # Images
     groups = get_groups_for_user()
 
     if "Tinker Redirects" in groups:
         image_name = form.image.data.filename
 
         if image_name != "":
+            # todo strip whitespace
             image_name = rform['last'].lower() + "-" + rform['first'].lower() + ".jpg"
             image_path = secure_filename(image_name)
 
@@ -192,7 +188,7 @@ def submit_faculty_bio_form():
         add_data['image_name'] = image_name
         add_data['image_path'] = image_path
 
-    #####################
+    # End Images
 
     faculty_bio_id = rform['faculty_bio_id']
     if faculty_bio_id:
@@ -203,17 +199,17 @@ def submit_faculty_bio_form():
     if faculty_bio_id:
         resp = edit(asset)
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " " + str(resp))
-        #publish corresponding pubish set to make sure corresponding pages get edits
+        # publish corresponding pubish set to make sure corresponding pages get edits
         check_publish_sets(add_data['school'], faculty_bio_id)
     else:
         resp = create_faculty_bio(asset)
         faculty_bio_id = resp.createdAssetId
 
-    #publish corresponding pubish set
+    # publish corresponding pubish set
     check_publish_sets(add_data['school'], faculty_bio_id)
 
     return redirect('/faculty-bios/confirm', code=302)
-    ##Just print the response for now
+    # Just print the response for now
 
 
 @app.route('/uploads/<filename>')
@@ -237,11 +233,10 @@ def check_jobs(form):
 
         jobs[job_l] = job
 
-
         if job:
             jobs_good = True
 
-    #convert event dates to JSON
+    # convert event dates to JSON
     return json.dumps(jobs), jobs_good, num_jobs
 
 
@@ -272,5 +267,5 @@ def check_degrees(form):
         if check:
             degrees_good = True
 
-    #convert event dates to JSON
+    # convert event dates to JSON
     return json.dumps(degrees), degrees_good, num_degrees

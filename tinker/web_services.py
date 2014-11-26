@@ -1,17 +1,17 @@
-#python
+# python
 import datetime
 import time
 import arrow
 
-#flask
+# flask
 from flask import session
 from flask import abort
 
-#modules
+# modules
 from suds.client import Client
 from suds.transport import TransportError
 
-#local
+# local
 from tinker import app
 
 
@@ -26,9 +26,7 @@ def delete(page_id, workflow=None):
 
     auth = app.config['CASCADE_LOGIN']
 
-    stat = unpublish(page_id)
-
-    #dirty. Fix later
+    # dirty. Fix later
     time.sleep(5.5)
 
     username = session['username']
@@ -36,23 +34,23 @@ def delete(page_id, workflow=None):
     response = client.service.delete(auth, identifier)
     app.logger.warn(time.strftime("%c") + ": Deleted by " + username + " " + str(response))
 
-    ## Publish the XMLs
+    # Publish the XMLs
     publish_event_xml()
     publish_faculty_bio_xml()
 
     return response
 
 
-def publish(pathOrId, type='page'):
+def publish(path_or_id, type='page'):
 
     client = get_client()
 
-    if pathOrId[0] == "/":
+    if path_or_id[0] == "/":
         publishinformation = {
             'identifier': {
                 'type': type,
                 'path': {
-                    'path': pathOrId,
+                    'path': path_or_id,
                     'siteId': app.config['SITE_ID']
                 }
             }
@@ -60,7 +58,7 @@ def publish(pathOrId, type='page'):
     else:
         publishinformation = {
             'identifier': {
-                'id': pathOrId,
+                'id': path_or_id,
                 'type': type,
             }
         }
@@ -100,23 +98,22 @@ def read_identifier(identifier):
     return response
 
 
-def read(pathOrId, type="page"):
+def read(path_or_id, type="page"):
     client = get_client()
 
-    if pathOrId[0] == "/":
+    if path_or_id[0] == "/":
         identifier = {
             'type': type,
             'path': {
-                'path': pathOrId,
+                'path': path_or_id,
                 'siteId': app.config['SITE_ID']
             }
         }
     else:
         identifier = {
-            'id': pathOrId,
+            'id': path_or_id,
             'type': type,
         }
-
 
     auth = app.config['CASCADE_LOGIN']
 
@@ -144,14 +141,14 @@ def rename(page_id, newname):
         'type': 'page'
     }
 
-    moveParameters =  {
+    move_parameters = {
         'doWorkflow': False,
         'newName': newname
     }
 
-    response = client.service.move(auth, identifier, moveParameters)
+    response = client.service.move(auth, identifier, move_parameters)
     app.logger.warn(time.strftime("%c") + ": Renamed " + str(response))
-    ##publish the xml file so the new event shows up
+    # publish the xml file so the new event shows up
     return response
 
 
@@ -166,7 +163,7 @@ def move(page_id, destination_path):
         'type': 'page'
     }
 
-    destFolderIdentifier = {
+    dest_folder_identifier = {
         'path': {
             'siteId': app.config['SITE_ID'],
             'path': destination_path[1],
@@ -174,15 +171,14 @@ def move(page_id, destination_path):
         'type': 'folder'
     }
 
-    moveParameters =  {
-        'destinationContainerIdentifier': destFolderIdentifier,
+    move_parameters = {
+        'destinationContainerIdentifier': dest_folder_identifier,
         'doWorkflow': False
     }
 
-    response = client.service.move(auth, identifier, moveParameters)
+    response = client.service.move(auth, identifier, move_parameters)
     app.logger.warn(time.strftime("%c") + ": Moved " + str(response))
-    ##publish the xml file so the new event shows up
-
+    # publish the xml file so the new event shows up
 
     return response
 
@@ -192,10 +188,10 @@ def date_to_java_unix(date):
     return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
 
 
-def java_unix_to_date(date, format=None):
-    if not format:
-        format = "%B %d  %Y, %I:%M %p"
-    return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(format)
+def java_unix_to_date(date, date_format=None):
+    if not date_format:
+        date_format = "%B %d  %Y, %I:%M %p"
+    return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
 
 
 def string_to_datetime(date_str):
@@ -220,7 +216,7 @@ def read_date_data_dict(node):
     date_data = {}
     for date in node_data:
         date_data[date['identifier']] = date['text']
-    ##If there is no date, these will fail
+    # If there is no date, these will fail
     try:
         date_data['start-date'] = java_unix_to_date(date_data['start-date'])
     except TypeError:
@@ -238,7 +234,7 @@ def read_date_data_structure(node):
     date_data = {}
     for date in node_data:
         date_data[date.identifier] = date.text
-    ##If there is no date, these will fail
+    # If there is no date, these will fail
     try:
         date_data['start-date'] = java_unix_to_date(date_data['start-date'])
     except TypeError:
@@ -261,31 +257,17 @@ def get_client():
 
 def publish_event_xml():
 
-    #publish the event XML page
+    # publish the event XML page
     publish(app.config['EVENT_XML_ID'])
-
-    #clear Flask-Cache
-
-    ##with app.app_context():
-    ##    cache.clear()
 
 
 def publish_faculty_bio_xml():
 
-    #publish the event XML page
+    # publish the event XML page
     publish(app.config['FACULTY_BIO_XML_ID'])
 
-    #clear Flask-Cache
-
-    ##with app.app_context():
-    ##    cache.clear()
 
 def publish_e_announcement_xml():
 
-    #publish the event XML page
+    # publish the event XML page
     publish(app.config['E_ANNOUNCEMENTS_XML_ID'])
-
-    #clear Flask-Cache
-
-    ##with app.app_context():
-    ##    cache.clear()

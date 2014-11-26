@@ -58,6 +58,7 @@ def before_request():
     tools.init_user()
     app.logger.info(session['username'])
 
+
 @app.route('/cache-test/<path:img_path>')
 @app.route('/cache-test')
 def cache_test(img_path=None):

@@ -1,4 +1,4 @@
-### methods to interact directly with the wufoo api
+# methods to interact directly with the wufoo api
 import urllib2
 import base64
 import urllib
@@ -25,25 +25,27 @@ def load_form(formhash, form_info=None, api='fields'):
     return jsonify({"form": response, "info": form_info})
 
 
-def call_api(form, api='forms', format='json', extra_params={}, unquote_plus=False):
+def call_api(form, api='forms', call_format='json', extra_params=None, unquote_plus=False):
+    if not extra_params:
+        extra_params = {}
     params = None
     base_url = app.config['WUFOO_BASE_URL']
 
     if form and form != 'all':
         if api == 'forms':
-            #requesting form information for a single form
+            # requesting form information for a single form
             # this has a different URL format that the other form apis
-            url = base_url + 'api/v3/forms/%s.%s'%(form, format)
+            url = base_url + 'api/v3/forms/%s.%s' % (form, call_format)
         else:
-            url = base_url + 'api/v3/forms/%s/%s.%s'%(form, api, format)
+            url = base_url + 'api/v3/forms/%s/%s.%s' % (form, api, call_format)
     else:
-        #e.g. forms api -- to retrieve list of all forms
-        url = base_url + 'api/v3/%s.%s'%(api, format)
+        # e.g. forms api -- to retrieve list of all forms
+        url = base_url + 'api/v3/%s.%s' % (api, call_format)
     if extra_params:
         params = urllib.urlencode(extra_params)
         if unquote_plus:
-            #urlencode uses quote_plus(), when extra_params contains a wufoo filter
-            #the plus signs can not be encoded
+            # urlencode uses quote_plus(), when extra_params contains a wufoo filter
+            # the plus signs can not be encoded
             params = urllib.unquote_plus(params)
         if api != 'webhooks':
             url += '?' + params
@@ -61,8 +63,9 @@ def call_api(form, api='forms', format='json', extra_params={}, unquote_plus=Fal
         response = urllib2.urlopen(req, timeout=10)
     return ''.join(response.readlines())
 
-def call_and_load_json(site, form, api, api_key, format='json', extra_params={}, unquote_plus=False):
-    r = call_api(site, form, api, api_key, format, extra_params, unquote_plus)
+
+def call_and_load_json(site, form, api, api_key, load_format='json', extra_params={}, unquote_plus=False):
+    r = call_api(site, form, api, api_key, load_format, extra_params, unquote_plus)
     try:
         return simplejson.loads(r)
     except:
