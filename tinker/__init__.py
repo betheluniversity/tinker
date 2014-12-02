@@ -62,6 +62,12 @@ def before_request():
         app.logger.info("failed to init")
 
 
+@app.route('/peanut')
+def peanut():
+    from flask import render_template
+    return render_template('peanut.html')
+
+
 @app.route('/cache-test/<path:img_path>')
 @app.route('/cache-test')
 def cache_test(img_path=None):
