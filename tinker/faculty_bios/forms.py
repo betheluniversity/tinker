@@ -161,7 +161,7 @@ class FacultyBioForm(Form):
     gs_choices = choices['graduate_program']
     sem_choices = choices['seminary_program']
 
-    school = SelectField('School', choices=school_choices, default=['Select'], validators=[DataRequired()])
+    school = SelectMultipleField('School', choices=school_choices, default=['Select'], validators=[DataRequired()])
     department = SelectMultipleField('Undergraduate Departments', default=['None'], choices=department_choices, validators=[DataRequired()])
     adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['None'], choices=caps_choices, validators=[DataRequired()])
     graduate_program = SelectMultipleField('Graduate Programs', default=['None'], choices=gs_choices, validators=[DataRequired()])
