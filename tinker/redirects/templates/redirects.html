@@ -7,12 +7,6 @@
 {% block row_width %}12{% endblock %}
 
 {% block main_content %}
-<div class="row">
-  <div class="large-12 columns">
-    Info about redirects here?
-  </div>
-</div>
-<hr/>
 <form action="." id="new-redirect-form">
   <div class="row">
     <div class="large-6 columns">
@@ -21,8 +15,20 @@
       </label>
     </div>
     <div class="large-6 columns">
-      <label>to URL
+      <label>To URL
         <input type="text" name="new-redirect-to" id="new-redirect-to" />
+      </label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-6 columns">
+      <label> Expiration Date.
+          <input type="text" name="expiration-date" id="expiration-date" class="datepicker">
+      </label>
+    </div>
+    <div class="large-6 columns">
+      <label> Short URL
+          <input type="checkbox" name="short-url" id="short-url" />
       </label>
     </div>
   </div>
@@ -38,6 +44,7 @@
         <tr>
           <th width="400">From Path</th>
           <th width="400">To URL</th>
+          <th width="400">Expiration Date</th>
         </tr>
       </thead>
       <tbody id="redirects-table">
@@ -146,4 +153,17 @@ var delay = (function(){
   <a class="close-reveal-modal">&#215;</a>
 </div>
 
+{% endblock %}
+
+
+{% block scripts %}
+<link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+<script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+<script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+<script>
+$( document ).ready(function() {
+  var picker = new Pikaday({
+          field: document.getElementById('expiration-date')});
+});
+</script>
 {% endblock %}

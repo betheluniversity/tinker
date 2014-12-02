@@ -3,6 +3,7 @@ __author__ = 'ejc84332'
 # python
 import re
 import smtplib
+import datetime
 
 # flask
 from flask import Blueprint, render_template, abort, request
@@ -49,11 +50,17 @@ def new_redirect_submti():
     form = request.form
     from_path = form['new-redirect-from']
     to_url = form['new-redirect-to']
+    short_url = form.get('short-url') == 'on'
+    expiration_date = form.get('expiration-date')
+    if expiration_date:
+        expiration_date = datetime.datetime.strptime(expiration_date, "%a %b %d %Y")
+    else:
+        expiration_date = None
 
     if not from_path.startswith("/"):
         from_path = "/%s" % from_path
 
-    redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+    redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url, expiration_date=expiration_date)
 
     db.session.add(redirect)
     db.session.commit()
