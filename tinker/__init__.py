@@ -55,8 +55,11 @@ import error
 # ensure session before each request
 @app.before_request
 def before_request():
-    tools.init_user()
-    app.logger.info(session['username'])
+    try:
+        tools.init_user()
+        app.logger.info(session['username'])
+    except:
+        app.logger.info("failed to init")
 
 
 @app.route('/cache-test/<path:img_path>')
