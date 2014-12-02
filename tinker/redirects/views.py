@@ -22,6 +22,17 @@ def check_redirect_groups():
         abort(403)
 
 
+@redirect_blueprint.route('/expire')
+def delete_exipred_redirects():
+    today = datetime.datetime.utcnow()
+    redirects = BethelRedirect.query.filter(BethelRedirect.expiration_date < today).all()
+    for redirect in redirects:
+        db.session.delete(redirect)
+    db.session.commit()
+    create_redirect_text_file()
+    return 'done'
+
+
 @redirect_blueprint.route('/')
 def show():
     check_redirect_groups()
