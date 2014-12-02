@@ -221,6 +221,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         ],
     }
 
+    depts = [add_data['department'], add_data['adult_undergrad_program'], add_data['graduate_program'], add_data['seminary_program']]
+
     asset = {
         'page': {
             'name': add_data['system_name'],
@@ -234,6 +236,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             'metadata': {
                 'title': add_data['first'] + " " + add_data['last'],
                 'summary': 'summary',
+                'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + add_data['job-title1'] + " of " + get_description_text(depts) + ".",
                 'author': add_data['author'],
                 'dynamicFields': dynamic_fields,
             }
@@ -347,7 +350,7 @@ def create_faculty_bio(asset):
 
     response = client.service.create(auth, asset)
     app.logger.warn(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))
-    #
+
     # publish the xml file so the new event shows up
     publish_faculty_bio_xml()
 
@@ -469,3 +472,15 @@ def check_publish_sets(school, faculty_bio_id):
             publish("2ed0beef8c5865132b2dadea1ccf543e", "publishset")
         if item == "Bethel Seminary":
             publish("2ed19c8d8c5865132b2dadea60403657", "publishset")
+
+
+def get_description_text( depts):
+    final_dept = None
+
+    ## get depts
+    for dept in depts:
+        for item in dept:
+            if item != "None" and item != "Select":
+                final_dept = item
+
+    return final_dept

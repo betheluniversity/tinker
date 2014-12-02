@@ -54,7 +54,7 @@ def read_page():
         # 'id': 'f66eb4be8c586513100ee2a7240ef051',
         'type': 'page',
         'path': {
-            'path': '/academics/faculty/adams-brent',
+            'path': '/academics/faculty/hamre-alyssa',
             'siteId': app.config['SITE_ID']
         }
     }
