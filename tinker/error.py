@@ -1,9 +1,8 @@
-
-#flask
+# flask
 from flask import render_template
 from flask import session
 
-#local
+# local
 from tinker import app
 
 

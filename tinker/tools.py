@@ -93,11 +93,14 @@ def clear_image_cache(image_path):
     if not image_path.startswith('/'):
         image_path = '/%s' % image_path
 
+    resp = []
+
     for prefix in ['http://www.bethel.edu', 'https://www.bethel.edu',
                    'http://staging.bethel.edu', 'https://staging.bethel.edu']:
         path = prefix + image_path
         digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
         path = "%s/%s/%s" % (config.THUMBOR_STORAGE_LOCATION.rstrip('/'), digest[:2], digest[2:])
+        resp.append(path)
         # remove the file at the path
         # if config.ENVIRON == "prod":
         call(['rm', path])
@@ -110,5 +113,7 @@ def clear_image_cache(image_path):
             matches.append(os.path.join(root, filename))
     for match in matches:
         call(['rm', match])
+
+    matches.extend(resp)
 
     return str(matches)

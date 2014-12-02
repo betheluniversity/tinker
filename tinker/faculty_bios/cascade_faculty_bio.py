@@ -2,8 +2,7 @@
 import urllib2
 import re
 import base64
-
-from xml.etree import ElementTree as ET
+from xml.etree import ElementTree
 
 # local
 from tinker.web_services import *
@@ -17,7 +16,7 @@ def get_expertise(add_data):
     interests = add_data['research_interests']
     teaching = add_data['teaching_specialty']
 
-    if areas != "" :
+    if areas != "":
         select = "Areas of expertise"
     elif interests != "":
         select = "Research Interests"
@@ -39,7 +38,7 @@ def get_expertise(add_data):
         'structuredDataNodes': {
             'structuredDataNode': data_list,
         },
-    },
+    }
 
     return node
 
@@ -87,11 +86,11 @@ def get_add_a_degree(add_data):
             'structuredDataNodes': {
                 'structuredDataNode': data_list,
             },
-        },
+        }
 
         degrees.append(node)
 
-    finalNode = {
+    final_node = {
         'type': "group",
         'identifier': "education",
         'structuredDataNodes': {
@@ -99,7 +98,7 @@ def get_add_a_degree(add_data):
         },
     }
 
-    return finalNode
+    return final_node
 
 
 def get_add_to_bio(add_data):
@@ -149,7 +148,7 @@ def get_add_to_bio(add_data):
         'structuredDataNodes': {
             'structuredDataNode': data_list,
         },
-    },
+    }
 
     return node
 
@@ -251,7 +250,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
 
 
 # A test to see if we can create images in cascade.
-def get_image_structure(image_dest, image_name, faculty_bio_id=None, workflow=None):
+def get_image_structure(image_dest, image_name, workflow=None):
 
     image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
     stream = image_file.read()
@@ -288,55 +287,55 @@ def create_image(asset):
 
 
 # A lengthy hardcoded list that maps the metadata values to the Groups on Cascade.
-def get_web_author_group(departmentMetadata):
+def get_web_author_group(department_metadata):
 
-    if "Anthropology, Sociology, & Reconciliation" == departmentMetadata:
+    if "Anthropology, Sociology, & Reconciliation" == department_metadata:
         return "Anthropology Sociology"
-    if "Art & Design" == departmentMetadata:
+    if "Art & Design" == department_metadata:
         return "Art"
-    if "Biblical & Theological Studies" == departmentMetadata:
+    if "Biblical & Theological Studies" == department_metadata:
         return "Biblical Theological"
-    if "Biological Sciences" == departmentMetadata:
+    if "Biological Sciences" == department_metadata:
         return "Biology"
-    if "Business & Economics" == departmentMetadata:
+    if "Business & Economics" == department_metadata:
         return "Business Economics"
-    if "Chemistry" == departmentMetadata:
+    if "Chemistry" == department_metadata:
         return "Chemistry"
-    if "Communication Studies" == departmentMetadata:
+    if "Communication Studies" == department_metadata:
         return "Communication"
-    if "Education" == departmentMetadata:
+    if "Education" == department_metadata:
         return "Education"
-    if "English" == departmentMetadata:
+    if "English" == department_metadata:
         return "English"
-    if "Environmental Studies" == departmentMetadata:
+    if "Environmental Studies" == department_metadata:
         return "Environmental Studies"
-    if "General Education" == departmentMetadata:
+    if "General Education" == department_metadata:
         return "General Education"
-    if "History" == departmentMetadata:
+    if "History" == department_metadata:
         return "History"
-    if "Honors" == departmentMetadata:
+    if "Honors" == department_metadata:
         return "Honors"
-    if "Human Kinetics & Applied Health Science" == departmentMetadata:
+    if "Human Kinetics & Applied Health Science" == department_metadata:
         return "Human Kinetics"
-    if "Math & Computer Science" == departmentMetadata:
+    if "Math & Computer Science" == department_metadata:
         return "Math CS"
-    if "Modern World Languages" == departmentMetadata:
+    if "Modern World Languages" == department_metadata:
         return "World Languages"
-    if "Music" == departmentMetadata:
+    if "Music" == department_metadata:
         return "Music"
-    if "Nursing" == departmentMetadata:
+    if "Nursing" == department_metadata:
         return "Nursing"
-    if "Philosophy" == departmentMetadata:
+    if "Philosophy" == department_metadata:
         return "Philosophy"
-    if "Physics & Engineering" == departmentMetadata:
+    if "Physics & Engineering" == department_metadata:
         return "Physics"
-    if "Political Science" == departmentMetadata:
+    if "Political Science" == department_metadata:
         return "Political Science"
-    if "Psychology" == departmentMetadata:
+    if "Psychology" == department_metadata:
         return "Psychology"
-    if "Social Work" == departmentMetadata:
+    if "Social Work" == department_metadata:
         return "Social Work"
-    if "Theatre Arts" == departmentMetadata:
+    if "Theatre Arts" == department_metadata:
         return "Theatre"
 
     return ""
@@ -361,9 +360,9 @@ def get_faculty_bios_for_user(username):
 
     if app.config['ENVIRON'] != "prod":
         response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/faculty-bios.xml')
-        form_xml = ET.fromstring(response.read())
+        form_xml = ElementTree.fromstring(response.read())
     else:
-        form_xml = ET.parse('/var/www/staging/public/_shared-content/xml/faculty-bios.xml').getroot()
+        form_xml = ElementTree.parse('/var/www/staging/public/_shared-content/xml/faculty-bios.xml').getroot()
     matches = traverse_faculty_folder(form_xml, username)
 
     return matches
@@ -373,10 +372,10 @@ def traverse_faculty_folder(traverse_xml, username):
     # Traverse an XML folder, adding system-pages to a dict of matches
     user = read(username, "user")
     try:
-        allowedGroups = user.asset.user.groups
-        allowedGroups = allowedGroups.split(";")
+        allowed_groups = user.asset.user.groups
+        allowed_groups = allowed_groups.split(";")
     except AttributeError:
-        allowedGroups = []
+        allowed_groups = []
 
     matches = []
     for child in traverse_xml:
@@ -401,7 +400,7 @@ def traverse_faculty_folder(traverse_xml, username):
             finally:
                 for md in child.findall("dynamic-metadata"):
                     if md.find('name').text == 'department' and md.find('value') is not None:
-                        for allowedGroup in allowedGroups:
+                        for allowedGroup in allowed_groups:
 
                             if allowedGroup == get_web_author_group(md.find('value').text):
 
@@ -442,7 +441,9 @@ def get_add_data(lists, form):
     return add_data
 
 
-def get_bio_publish_workflow(title="", username="", school=[]):
+def get_bio_publish_workflow(title="", username="", school=None):
+    if not school:
+        school = []
     if "College of Arts & Sciences" in school:
         workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
     elif "Graduate School" in school or "College of Adult & Professional Studies" in school:
@@ -450,7 +451,7 @@ def get_bio_publish_workflow(title="", username="", school=[]):
     else:
         workflow_id = ''
 
-    name = "New Bio Submission"
+    name = "New Bio Submission - %s" % username
     if title:
         name += ": " + title
     workflow = {

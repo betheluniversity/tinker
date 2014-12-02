@@ -181,7 +181,7 @@ def get_lookup_values(preload, bethel_id):
     preload = json.loads(preload)
     values = set(preload.values())
 
-    ##only want to look up values for the "lookup" fields.
+    # only want to look up values for the "lookup" fields.
     lookup_values = []
     for value in values:
         if value.endswith('-lookup'):
@@ -191,14 +191,14 @@ def get_lookup_values(preload, bethel_id):
 
     results = call_wsapi(values, 'bethel_id', bethel_id)
 
-    ##build the return string
+    # build the return string
     resp = ""
     for key, value in preload.items():
         match_value = value.replace('-lookup', '')
-        #only inspect the lookup options whose match version are in the result set
+        # only inspect the lookup options whose match version are in the result set
         if not value.endswith('-lookup') or match_value not in results:
             continue
-        ##if it passes all the checks, add the value to the appropriate field
+        # if it passes all the checks, add the value to the appropriate field
         resp += "%s=%s&" % (key, results[match_value])
 
     return resp
@@ -206,14 +206,14 @@ def get_lookup_values(preload, bethel_id):
 
 def get_options():
     return {
-        'common' : {
-           'firstName': 'First Name',
-           'lastName': 'Last Name',
-           'referrer': 'Referrer',
-           'firstName-lookup': 'First Name - Lookup',
-           'lastName-lookup': 'Last Name - Lookup'
+        'common': {
+            'firstName': 'First Name',
+            'lastName': 'Last Name',
+            'referrer': 'Referrer',
+            'firstName-lookup': 'First Name - Lookup',
+            'lastName-lookup': 'Last Name - Lookup'
         },
-       'rare':  {
+        'rare':  {
             'GS Summer 15 Credit': 'Summer15CreditGS'
         }
     }

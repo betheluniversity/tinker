@@ -1,9 +1,8 @@
 # coding: utf-8
-
-#python
+# python
 import datetime
 
-#modules
+# modules
 from flask.ext.wtf import Form
 from wtforms import TextField
 from wtforms import TextAreaField
@@ -11,15 +10,14 @@ from wtforms import SelectMultipleField
 from wtforms import SelectField
 from wtforms import DateTimeField
 from wtforms import Field
-from wtforms.validators import Required
+from wtforms.validators import DataRequired
 
-#local
-from tinker import app
-from tinker.web_services import get_client, read, read_identifier
+# local
+from tinker.web_services import read, read_identifier
 
 
 def get_md(metadata_path):
-    ##todo this should be in web_services.py.At least getting. The "return" traversal can be here.
+    # todo this should be in web_services.py.At least getting. The "return" traversal can be here.
 
     identifier = {
         'path': {
@@ -33,15 +31,12 @@ def get_md(metadata_path):
     return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
 
 
-#Cache for one day
-##@cache.cached(timeout=86400, key_prefix='get_event_choices')
 def get_event_choices():
 
     data = get_md("/Event")
 
     general_list = data[0].possibleValues.possibleValue
     offices_list = data[1].possibleValues.possibleValue
-    academic_dates_list = data[2].possibleValues.possibleValue
     cas_departments_list = data[3].possibleValues.possibleValue
     internal_list = data[4].possibleValues.possibleValue
 
@@ -53,10 +48,6 @@ def get_event_choices():
     for item in offices_list:
         offices.append((item.value, item.value))
 
-    academic_dates = []
-    for item in academic_dates_list:
-        academic_dates.append((item.value, item.value))
-
     internal = []
     for item in internal_list:
         internal.append((item.value, item.value))
@@ -65,18 +56,17 @@ def get_event_choices():
     for item in cas_departments_list:
         cas_departments.append((item.value, item.value))
 
-    ## Get the building choices from the block
+    # Get the building choices from the block
     building_choices = get_buildings()
 
-    return {'general': general, 'offices': offices, 'academics_dates': academic_dates,
+    return {'general': general, 'offices': offices,
             'internal': internal, 'cas_departments': cas_departments, 'buildings': building_choices}
 
 
 def get_buildings():
     page = read('ba1355ea8c586513100ee2a725b9ebea', type="block")
     buildings = page.asset.xhtmlDataDefinitionBlock.structuredData.structuredDataNodes.structuredDataNode[0].structuredDataNodes.structuredDataNode
-    labels = []
-    labels.append(("none", '-select-'))
+    labels = [("none", '-select-')]
     for building in buildings:
         label = building.structuredDataNodes.structuredDataNode[0].text
         labels.append((label, label))
@@ -84,8 +74,8 @@ def get_buildings():
     return labels
 
 
-##Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
-##aside from be a marker label
+# Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
+# aside from be a marker label
 class CKEditorTextAreaField(TextAreaField):
     pass
 
@@ -123,7 +113,6 @@ class EventForm(Form):
     choices = get_event_choices()
     general_choices = choices['general']
     offices_choices = choices['offices']
-    academic_dates_choices = choices['academics_dates']
     internal_choices = choices['internal']
     cas_departments_choices = choices['cas_departments']
     building_choices = choices['buildings']
@@ -132,7 +121,7 @@ class EventForm(Form):
     heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
     what = HeadingField(label="What is your event?")
-    title = TextField('Event name', validators=[Required()], description="This will be the title of your webpage")
+    title = TextField('Event name', validators=[DataRequired()], description="This will be the title of your webpage")
     teaser = TextField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.')
     featuring = TextField('Featuring')
     sponsors = CKEditorTextAreaField('Sponsors')
@@ -160,8 +149,7 @@ class EventForm(Form):
 
     categories = HeadingField(label="Categories")
 
-    general = SelectMultipleField('General categories', choices=general_choices, default=['None'], validators=[Required()])
-    offices = SelectMultipleField('Offices', choices=offices_choices, default=['None'], validators=[Required()])
-    academic_dates = SelectMultipleField('Academic dates', default=['None'], choices=academic_dates_choices, validators=[Required()])
-    cas_departments = SelectMultipleField('CAS academic department', default=['None'], choices=cas_departments_choices, validators=[Required()])
-    internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices, validators=[Required()])
+    general = SelectMultipleField('General categories', choices=general_choices, default=['None'], validators=[DataRequired()])
+    offices = SelectMultipleField('Offices', choices=offices_choices, default=['None'], validators=[DataRequired()])
+    cas_departments = SelectMultipleField('CAS academic department', default=['None'], choices=cas_departments_choices, validators=[DataRequired()])
+    internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices, validators=[DataRequired()])

@@ -1,26 +1,36 @@
 __author__ = 'ejc84332'
 
-#python
+# python
 import re
 import smtplib
+import datetime
 
-from flask import Blueprint, render_template, abort, request, redirect
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask import Session
+# flask
+from flask import Blueprint, render_template, abort, request
 from BeautifulSoup import BeautifulSoup
 
+# tinker
 from tinker import app, db, tools
-
 from tinker.redirects.models import BethelRedirect
 
-redirect_blueprint = Blueprint('redirect_blueprint', __name__,
-                               template_folder='templates')
+redirect_blueprint = Blueprint('redirect_blueprint', __name__, template_folder='templates')
 
 
 def check_redirect_groups():
     groups = tools.get_groups_for_user()
     if 'Tinker Redirects' not in groups:
         abort(403)
+
+
+@redirect_blueprint.route('/expire')
+def delete_exipred_redirects():
+    today = datetime.datetime.utcnow()
+    redirects = BethelRedirect.query.filter(BethelRedirect.expiration_date < today).all()
+    for redirect in redirects:
+        db.session.delete(redirect)
+    db.session.commit()
+    create_redirect_text_file()
+    return 'done'
 
 
 @redirect_blueprint.route('/')
@@ -34,7 +44,7 @@ def show():
 @redirect_blueprint.route('/search', methods=['post'])
 def search():
     check_redirect_groups()
-    #todo: limit results to...100?
+    # todo: limit results to...100?
     from_path = request.form['from_path'] + "%"
 
     if from_path == "%":
@@ -51,16 +61,22 @@ def new_redirect_submti():
     form = request.form
     from_path = form['new-redirect-from']
     to_url = form['new-redirect-to']
+    short_url = form.get('short-url') == 'on'
+    expiration_date = form.get('expiration-date')
+    if expiration_date:
+        expiration_date = datetime.datetime.strptime(expiration_date, "%a %b %d %Y")
+    else:
+        expiration_date = None
 
     if not from_path.startswith("/"):
-        from_path = "/" + from_path
+        from_path = "/%s" % from_path
 
-    redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+    redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url, expiration_date=expiration_date)
 
     db.session.add(redirect)
     db.session.commit()
 
-    ##Update the file after every submit?
+    # Update the file after every submit?
     create_redirect_text_file()
 
     return str(redirect)
@@ -89,8 +105,8 @@ def new_api_submit():
             sender = 'tinker@bethel.edu'
             receivers = ['e-jameson@bethel.edu', 'a-vennerstrom@bethel.edu']
 
-            smtpObj = smtplib.SMTP('localhost')
-            smtpObj.sendmail(sender, receivers, message)
+            smtp_obj = smtplib.SMTP('localhost')
+            smtp_obj.sendmail(sender, receivers, message)
             print "Successfully sent email"
             db.session.rollback()
             return "sent email notice"
@@ -104,8 +120,6 @@ def new_api_submit():
 def delete_redirect():
     check_redirect_groups()
     path = request.form['from_path']
-
-    resp = str(path)
 
     try:
         redirect = BethelRedirect.query.get(path)

@@ -4,13 +4,15 @@ import os.path
 from tinker.web_services import *
 from tinker import app
 
-##todo Add logic for index pages
+# todo Add logic for index pages
+# todo is this file even used anymore?
 
-###Just putting this here to work on it. Move out of tinker once the Cascade stuff is more portable
+
+# Just putting this here to work on it. Move out of tinker once the Cascade stuff is more portable
 def inspect_folder(folder_id):
     folder = read(folder_id, type="folder")
     if not folder:
-        #typically a permision denied error from the Web Services read call.
+        # typically a permision denied error from the Web Services read call.
         return
     md = folder.asset.folder.metadata.dynamicFields
     md = get_md_dict(md)
@@ -57,14 +59,13 @@ def inspect_page(page_id):
         return
     path = page.asset.page.path
 
-    ##Is this page currently published to production?
+    # Is this page currently published to production?
     if not os.path.exists('/var/www/cms.pub/%s.php' % path):
         return
 
-    #check for index page
+    # check for index page
     if path.endswith('index'):
         path = path.replace('index', '')
-
     ret = ["<url>"]
     ret.append("<loc>https://www.bethel.edu/%s</loc>" % path)
     date = page.asset.page.lastModifiedDate
@@ -77,7 +78,7 @@ def inspect_page(page_id):
 @app.route('/sitemap')
 def sitemap():
     base_folder = "ba134b8e8c586513100ee2a7637628a4"
-    #base_folder = "c1b35e288c5865133a5d3f893471aefd"
+    # base_folder = "c1b35e288c5865133a5d3f893471aefd"
     with open('/var/www/staging/public/_testing/jmo/sitemap.xml', 'w') as file:
         file.write('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
         for item in inspect_folder(base_folder):
@@ -87,7 +88,6 @@ def sitemap():
 
 
 def test():
-    import time
     return "message from sitemap"
 
 

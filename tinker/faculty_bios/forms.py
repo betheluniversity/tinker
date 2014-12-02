@@ -1,8 +1,7 @@
 # coding: utf-8
+# python
 
-#python
-
-#modules
+# modules
 from flask.ext.wtf import Form
 from wtforms import TextField
 from wtforms import TextAreaField
@@ -10,26 +9,18 @@ from wtforms import SelectMultipleField
 from wtforms import SelectField
 from wtforms import HiddenField
 from flask_wtf.file import FileField
-##from wtforms import FileField
-from wtforms import RadioField
-from wtforms import DateTimeField
-from wtforms import FieldList
-from wtforms import FormField
 from wtforms import Field
-from wtforms import Label
-from wtforms.validators import Required
-from wtforms.validators import Optional
+from wtforms.validators import DataRequired
 
-
-#local
+# local
 from tinker import app
 from tinker.tools import *
-##from tinker import cache
+# from tinker import cache
 from tinker.web_services import get_client, read
 
 
 def get_md(metadata_path):
-    #todo move this to a read()
+    # todo move this to a read()
     auth = app.config['CASCADE_LOGIN']
 
     identifier = {
@@ -44,8 +35,9 @@ def get_md(metadata_path):
     md = client.service.read(auth, identifier)
     return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
 
-##Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
-##aside from be a marker label
+
+# Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
+# aside from be a marker label
 class CKEditorTextAreaField(TextAreaField):
     pass
 
@@ -79,16 +71,15 @@ class HeadingField(Field):
 
 
 #####################
-##Faculty Bio Forms
+# #Faculty Bio Forms
 #####################
 
-##Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
-##aside from be a marker label
+# Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
+# aside from be a marker label
 class DummyField(TextAreaField):
     pass
 
-#Cache for one day
-##@cache.cached(timeout=86400, key_prefix='get_faculty_bio_choices')
+
 def get_faculty_bio_choices():
 
     data = get_md("/Robust")
@@ -120,28 +111,28 @@ def get_faculty_bio_choices():
     for item in sem_list:
         seminary_program.append((item.value, item.value))
 
-
     return {'school': school, 'department': department, 'adult_undergrad_program': adult_undergrad_program, 'graduate_program': graduate_program, 'seminary_program': seminary_program}
+
 
 class FacultyBioForm(Form):
 
-    ## We used to check if the user was not in the CAS faculty
-    ## roles = get_roles()
-    ## "FACULTY-CAS" not in roles
+    # We used to check if the user was not in the CAS faculty
+    # roles = get_roles()
+    # "FACULTY-CAS" not in roles
     groups = get_groups_for_user()
 
     if "Tinker Redirects" in groups:
         image = FileField("Image")
         image_url = HiddenField("Image URL")
 
-    first = TextField('Faculty first name', validators=[Required()])
-    last = TextField('Faculty last name', validators=[Required()])
-    author = TextField("Faculty member's username", validators=[Required()], description="This username will become the author of the page.")
+    first = TextField('Faculty first name', validators=[DataRequired()])
+    last = TextField('Faculty last name', validators=[DataRequired()])
+    author = TextField("Faculty member's username", validators=[DataRequired()], description="This username will become the author of the page.")
 
     job_titles = TextField('')
 
-    email = TextField('Email', validators=[Required()])
-    started_at_bethel = TextField('Started at Bethel in', validators=[Required()], description="Enter a year")
+    email = TextField('Email', validators=[DataRequired()])
+    started_at_bethel = TextField('Started at Bethel in', validators=[DataRequired()], description="Enter a year")
 
     heading_choices = (('', "-select-"), ('Areas of expertise', 'Areas of expertise'), ('Research interests', 'Research interests'), ('Teaching speciality', 'Teaching speciality'))
 
@@ -162,8 +153,6 @@ class FacultyBioForm(Form):
 
     website = TextField('Professional website or blog')
 
-
-
     categories = HeadingField(label="Categories")
     choices = get_faculty_bio_choices()
     school_choices = choices['school']
@@ -172,8 +161,8 @@ class FacultyBioForm(Form):
     gs_choices = choices['graduate_program']
     sem_choices = choices['seminary_program']
 
-    school = SelectField('School', choices=school_choices, default=['Select'], validators=[Required()])
-    department = SelectMultipleField('Undergraduate Departments', default=['None'], choices=department_choices, validators=[Required()])
-    adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['None'], choices=caps_choices, validators=[Required()])
-    graduate_program = SelectMultipleField('Graduate Programs', default=['None'], choices=gs_choices, validators=[Required()])
-    seminary_program = SelectMultipleField('Seminary Programs', default=['None'], choices=sem_choices, validators=[Required()])
+    school = SelectField('School', choices=school_choices, default=['Select'], validators=[DataRequired()])
+    department = SelectMultipleField('Undergraduate Departments', default=['None'], choices=department_choices, validators=[DataRequired()])
+    adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['None'], choices=caps_choices, validators=[DataRequired()])
+    graduate_program = SelectMultipleField('Graduate Programs', default=['None'], choices=gs_choices, validators=[DataRequired()])
+    seminary_program = SelectMultipleField('Seminary Programs', default=['None'], choices=sem_choices, validators=[DataRequired()])
