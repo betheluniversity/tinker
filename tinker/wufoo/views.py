@@ -144,17 +144,17 @@ def get_preload_options():
 
 
 def call_wsapi(values, search_type, search_param):
-    ##values is a set of fields to lookup
-    ##search_type is 'username' if search_param is a username,
-    ##bethel_id if otherwise
-    ##returns a json array of the response.
+    # values is a set of fields to lookup
+    # search_type is 'username' if search_param is a username,
+    # bethel_id if otherwise
+    # returns a json array of the response.
     options = get_options()
     common = set(options['common'])
     rare = set(options['rare'])
 
-    payload = {'common': values & common, 'rare': values & rare}
+    payload = {'common': list(values & common), 'rare': list(values & rare)}
     preload_url = app.config['WUFOO_PRELOAD_URL'] % (search_type, search_param)
-    r = requests.post(preload_url, data=payload)
+    r = requests.post(preload_url, data=json.dumps(payload))
     results = json.loads(r.content)
     return results
 
