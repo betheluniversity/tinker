@@ -14,7 +14,6 @@ from tinker.tools import *
 
 faculty_bio_blueprint = Blueprint('faculty-bios', __name__, template_folder='templates')
 
-
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
 
