@@ -378,41 +378,40 @@ def traverse_faculty_folder(traverse_xml, username):
         allowed_groups = []
 
     matches = []
-    for child in traverse_xml:
-        if child.tag == 'system-page':
-            try:
-                authors = child.find('author')
-                if authors is not None:
+    for child in traverse_xml.findall('.//system-page'):
+        try:
+            authors = child.find('author')
+            if authors is not None:
 
-                    dict_of_authors = authors.text.split(", ")
+                dict_of_authors = authors.text.split(", ")
 
-                    if username in dict_of_authors:
-                        page_values = {
-                            'author': child.find('author').text,
-                            'id': child.attrib['id'] or "",
-                            'title': child.find('title').text or None,
-                            'created-on': child.find('created-on').text or None,
-                            'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                        }
-                        # This is a match, add it to array
-                        matches.append(page_values)
-                        continue
-            finally:
-                for md in child.findall("dynamic-metadata"):
-                    if md.find('name').text == 'department' and md.find('value') is not None:
-                        for allowedGroup in allowed_groups:
+                if username in dict_of_authors:
+                    page_values = {
+                        'author': child.find('author').text,
+                        'id': child.attrib['id'] or "",
+                        'title': child.find('title').text or None,
+                        'created-on': child.find('created-on').text or None,
+                        'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                    }
+                    # This is a match, add it to array
+                    matches.append(page_values)
+                    continue
+        finally:
+            for md in child.findall("dynamic-metadata"):
+                if md.find('name').text == 'department' and md.find('value') is not None:
+                    for allowedGroup in allowed_groups:
 
-                            if allowedGroup == get_web_author_group(md.find('value').text):
+                        if allowedGroup == get_web_author_group(md.find('value').text):
 
-                                page_values = {
-                                    'author': child.find('author') or None,
-                                    'id': child.attrib['id'] or "",
-                                    'title': child.find('title').text or None,
-                                    'created-on': child.find('created-on').text or None,
-                                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                                }
-                                matches.append(page_values)
-                                break
+                            page_values = {
+                                'author': child.find('author') or None,
+                                'id': child.attrib['id'] or "",
+                                'title': child.find('title').text or None,
+                                'created-on': child.find('created-on').text or None,
+                                'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                            }
+                            matches.append(page_values)
+                            break
     return matches
 
 

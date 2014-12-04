@@ -202,42 +202,38 @@ def traverse_event_folder(traverse_xml, username):
     # todo use xpath instead of calling this?
 
     matches = []
-    for child in traverse_xml:
-        if child.tag == 'system-page':
-            try:
-                author = child.find('author').text
-            except AttributeError:
-                continue
+    for child in traverse_xml.findall('.//system-page'):
+        try:
+            author = child.find('author').text
+        except AttributeError:
+            continue
 
-            try:
-                is_published = child.find('last-published-on').text
-            except AttributeError:
-                is_published = False
+        try:
+            is_published = child.find('last-published-on').text
+        except AttributeError:
+            is_published = False
 
-            if author == username:
-                dates = child.find('system-data-structure').findall('event-dates')
-                dates_str = []
-                for date in dates:
-                    start = int(date.find('start-date').text) / 1000
-                    end = int(date.find('end-date').text) / 1000
+        if author == username:
+            dates = child.find('system-data-structure').findall('event-dates')
+            dates_str = []
+            for date in dates:
+                start = int(date.find('start-date').text) / 1000
+                end = int(date.find('end-date').text) / 1000
 
-                    dates_str.append(friendly_date_range(start, end))
+                dates_str.append(friendly_date_range(start, end))
 
-                page_values = {
-                    'author': child.find('author').text,
-                    'id': child.attrib['id'] or None,
-                    'title': child.find('title').text or None,
-                    'created-on': child.find('created-on').text or None,
-                    'path': 'https://www.bethel.edu' + child.find('path').text or None,
-                    'is_published': is_published,
-                    'dates': "<br/>".join(dates_str),
-                }
-                # This is a match, add it to array
-                matches.append(page_values)
+            page_values = {
+                'author': child.find('author').text,
+                'id': child.attrib['id'] or None,
+                'title': child.find('title').text or None,
+                'created-on': child.find('created-on').text or None,
+                'path': 'https://www.bethel.edu' + child.find('path').text or None,
+                'is_published': is_published,
+                'dates': "<br/>".join(dates_str),
+            }
+            # This is a match, add it to array
+            matches.append(page_values)
 
-        elif child.tag == 'system-folder':
-            # recurse into the page
-            matches.extend(traverse_event_folder(child, username))
     return matches
 
 
