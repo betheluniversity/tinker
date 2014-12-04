@@ -223,6 +223,25 @@ def get_options():
             'lastName-lookup': 'Last Name - Lookup'
         },
         'rare':  {
-            'GS Summer 15 Credit': 'Summer15CreditGS'
+            'phonetic_name': 'Phonetic Name',
+            'majr1': 'Maror 1',
+            'majr2': 'Major 2',
+            'majr3': 'Major 3',
+            'majr4': 'Major 4',
+            'majr5': 'Major 5',
+            'department': 'Department',
+            'ceremony_begtime': 'Ceremony Begin Time',
+            'cermdate': 'Ceremony Date',
+            'paind': 'PA Indicator',
+            'cohortug': 'Cohort UG',
+            'cohortgs': 'Cohort GS',
+            'cohortug1415': 'Cohort UG 14-15',
+            'cohortgs1415': 'Cohort GS 14-15',
+            'fall14creditug': 'Fall 14 Credit UG',
+            'spring15creditug': 'Sprint 15 Credit UG',
+            'summer15creditug': 'Summer 15 Credit UG',
+            'fall14creditgs': 'Fall 14 Credit GS',
+            'spring15creditgs': 'Spring 15 Credit GS',
+            'summer15creditgs': 'Summer 15 Credit GS'
         }
     }
