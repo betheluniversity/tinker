@@ -24,8 +24,6 @@ def get_e_announcements_for_user(username):
 def traverse_e_announcements_folder(traverse_xml, username):
     ## Traverse an XML folder, adding system-pages to a dict of matches
 
-
-
     matches = []
     for child in traverse_xml.findall('.//system-page'):
         try:
@@ -35,7 +33,6 @@ def traverse_e_announcements_folder(traverse_xml, username):
             second = child.find('system-data-structure/second-date').text
             firstDate = datetime.datetime.strptime(first, '%m-%d-%Y').strftime('%A %B %d, %Y')
             secondDate = datetime.datetime.strptime(second, '%m-%d-%Y').strftime('%A %B %d, %Y')
-
 
             dates_str = firstDate + "<br/>" + secondDate
 
@@ -52,8 +49,6 @@ def traverse_e_announcements_folder(traverse_xml, username):
                 matches.append(page_values)
         except:
             continue
-        if child.tag == 'system-folder':
-            matches.extend(traverse_e_announcements_folder(child, username))
     return matches
 
 
