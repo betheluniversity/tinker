@@ -163,7 +163,12 @@ def get_preload_values(preload, username):
     preload = json.loads(preload)
     values = set(preload.values())
 
-    results = call_wsapi(values, 'username', username)
+    list_results = call_wsapi(values, 'username', username)
+    list_results = list_results['data']
+    results = {}
+    for result in list_results:
+        key, value = result.split(':')
+        results[key] = value
     resp = ""
     for key, value in preload.items():
         if value not in results:
@@ -207,8 +212,12 @@ def get_lookup_values(preload, bethel_id):
 def get_options():
     return {
         'common': {
-            'firstName': 'First Name',
-            'lastName': 'Last Name',
+            'first_name': 'First Name',
+            'last_name': 'Last Name',
+            'middle_name': 'Middle Name',
+            'bu_email': 'Email',
+            'bethel_id': 'Bethel ID',
+            'udc_id': 'UDC ID',
             'referrer': 'Referrer',
             'firstName-lookup': 'First Name - Lookup',
             'lastName-lookup': 'Last Name - Lookup'
