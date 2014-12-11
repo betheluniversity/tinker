@@ -1,8 +1,9 @@
-#python
+# python
 
-#flask
+# flask
 from flask import Blueprint
 from flask import redirect
+from flask import Response
 
 from tinker.e_announcements.cascade_e_announcements import *
 from tinker.tools import *
@@ -35,8 +36,8 @@ def e_announcements_submit_confirm():
 
 @e_announcements_blueprint.route("/edit/new")
 def e_announcements_new_form():
-    ##import this here so we dont load all the content
-    ##from cascade during homepage load
+    ## import this here so we dont load all the content
+    ## from cascade during homepage load
     from forms import EAnnouncementsForm
 
     form = EAnnouncementsForm()
@@ -46,8 +47,8 @@ def e_announcements_new_form():
 
 @e_announcements_blueprint.route("/submit", methods=['POST'])
 def submit_e_announcement_form():
-    ##import this here so we dont load all the content
-    ##from cascade during homepage load
+    ## import this here so we dont load all the content
+    ## from cascade during homepage load
     from forms import EAnnouncementsForm
     form = EAnnouncementsForm()
     rform = request.form
@@ -62,12 +63,12 @@ def submit_e_announcement_form():
         if 'e_announcement_id' in request.form.keys():
             e_announcement_id = request.form['e_announcement_id']
         else:
-            #This error came from the add form because e-annoucnements_id wasn't set
+            # This error came from the add form because e-annoucnements_id wasn't set
             add_form = True
         app.logger.warn(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
         return render_template('e-announcements-form.html', **locals())
 
-    #Get all the form data
+    # Get all the form data
     add_data = get_add_data(['audience'], rform)
 
     asset = get_e_announcement_structure(add_data, username, workflow=workflow)
@@ -75,31 +76,31 @@ def submit_e_announcement_form():
     # publish("f580ac758c58651313b6fe6bced65fea", "publishset")
 
     return redirect('/e-announcements/confirm', code=302)
-    ##Just print the response for now
+    ## Just print the response for now
 
 
 @e_announcements_blueprint.route('/edit/<e_announcement_id>')
 def edit_e_announcement(e_announcement_id):
     from tinker.e_announcements.forms import EAnnouncementsForm
 
-    #Get the event data from cascade
+    # Get the event data from cascade
     e_announcement_data = read(e_announcement_id)
 
-    #Get the different data sets from the response
+    # Get the different data sets from the response
 
     form_data = e_announcement_data.asset.page
 
-    #the stuff from the data def
+    # the stuff from the data def
     s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
-    #regular metadata
+    # regular metadata
     metadata = form_data.metadata
-    #dynamic metadata
+    # dynamic metadata
     dynamic_fields = metadata.dynamicFields.dynamicField
-    #This dict will populate our EventForm object
+    # This dict will populate our EventForm object
     edit_data = {}
     dates = []
 
-    #Start with structuredDataNodes (data def content)
+    # Start with structuredDataNodes (data def content)
     for node in s_data:
         node_identifier = node.identifier.replace('-', '_')
 
@@ -117,10 +118,10 @@ def edit_e_announcement(e_announcement_id):
             else:
                 edit_data[node_identifier] = node.text
 
-    #now metadata dynamic fields
+    # now metadata dynamic fields
     for field in dynamic_fields:
 
-        #This will fail if no metadata is set. It should be required but just in case
+        # This will fail if no metadata is set. It should be required but just in case
         if field.fieldValues:
             items = [item.value for item in field.fieldValues.fieldValue]
             edit_data[field.name.replace('-', '_')] = items
@@ -128,11 +129,11 @@ def edit_e_announcement(e_announcement_id):
     ## Add the rest of the fields. Can't loop over these kinds of metadata
     edit_data['title'] = metadata.title
 
-    #Create an EventForm object with our data
+    # Create an EventForm object with our data
     form = EAnnouncementsForm(**edit_data)
     form.e_announcement_id = e_announcement_id
 
-    #convert dates to json so we can use Javascript to create custom DateTime fields on the form
+    # convert dates to json so we can use Javascript to create custom DateTime fields on the form
     dates = fjson.dumps(dates)
 
     return render_template('e-announcements-form.html', **locals())
@@ -141,8 +142,8 @@ def edit_e_announcement(e_announcement_id):
 @e_announcements_blueprint.route("/submit-edit", methods=['post'])
 def submit_edit_form():
 
-    ##import this here so we dont load all the content
-    ##from cascade during hoempage load
+    ## import this here so we dont load all the content
+    ## from cascade during hoempage load
     from tinker.e_announcements.forms import EAnnouncementsForm
 
     form = EAnnouncementsForm()
@@ -166,5 +167,91 @@ def submit_edit_form():
 
     ## Todo: Make sure to publish the page down the road!
 
-    #return str(resp)
+    # return str(resp)
     return redirect('/e-announcements/confirm', code=302)
+
+
+@e_announcements_blueprint.route("/rss_feed", methods=['get'])
+def rss_feed():
+    ## Feed initialization
+    from feedformatter import Feed
+
+    # create the feed
+    rssfeed = Feed()
+
+    # Set the feed/channel level properties
+    rssfeed.feed["title"] = "E-announcements rss feed"
+    rssfeed.feed["link"] = "https://www.bethel.edu/_shared-content/xml/e-announcements.xml"
+    rssfeed.feed["language"] = "en-us"
+    rssfeed.feed["author"] = "Tinker"
+    rssfeed.feed["description"] = "E-announcements feed"
+
+    # GET variables
+    current_url = request.url
+    url_array = current_url.split("?")[1]
+    parameters = url_array.split("&")
+    roles = parameters[0].split("=")[1].split("_")
+    date = parameters[1].split("=")[1]
+
+    ## Get each of the matching e-announcements to put into new_matches
+    matches = get_e_announcements_for_user()
+    new_matches = []
+
+    ## For each e-announcement
+    for match in matches:
+        match = read(match['id']).asset.page
+
+        ### Gather the information
+        metadata = match.metadata
+        dynamic_fields = metadata.dynamicFields.dynamicField
+
+        # now metadata dynamic fields
+        for field in dynamic_fields:
+
+            #T his will fail if no metadata is set. It should be required but just in case
+            if field.fieldValues and field.name == "banner-roles":
+                banner_roles = [item.value for item in field.fieldValues.fieldValue]
+
+        edit_data = {}
+        date_matches = False
+        s_data = match.structuredData.structuredDataNodes.structuredDataNode
+        for node in s_data:
+            node_identifier = node.identifier.replace('-', '_')
+            node_type = node.type
+
+            if node_type == "text":
+                if node_identifier == "first_date" or node_identifier == "second_date":
+                    if str(datetime.datetime.strptime(date, "%m-%d-%Y")) == str(datetime.datetime.strptime(node.text, "%m-%d-%Y")):
+                        date_matches = True
+                    edit_data[node_identifier] = datetime.datetime.strptime(node.text, "%m-%d-%Y")
+                else:
+                    edit_data[node_identifier] = node.text
+
+        if not date_matches:
+            continue
+
+        ### Use the information
+        ## Check if an input role matches a role of the e-announcement
+        break_from_loop = False
+        for role in roles:
+            for banner_role in banner_roles:
+                if role == banner_role:
+                    new_matches.append(match)
+
+                    # Create an item
+                    item = {}
+                    item["title"] = match.metadata.title
+                    item["link"] = "https://www.bethel.edu/" + match.path
+                    item["description"] = edit_data['message'] + "<p>(" + ",".join(banner_roles ) + ")</p>"
+                    if match.lastPublishedDate != None:
+                        item["pubDate"] = match.lastPublishedDate
+                    item["guid"] = "https://www.bethel.edu/" + match.path
+
+                    rssfeed.items.append(item)
+
+                    break_from_loop = True
+                    break
+            if break_from_loop :
+                break
+
+    return Response(rssfeed.format_rss2_string(), mimetype='text/xml')

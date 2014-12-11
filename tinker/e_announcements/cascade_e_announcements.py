@@ -9,7 +9,7 @@ from tinker import app
 from tinker.cascade_tools import *
 
 
-def get_e_announcements_for_user(username):
+def get_e_announcements_for_user(username="get_all"):
 
     if app.config['ENVIRON'] != "prod":
         response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/e-announcements.xml')
@@ -21,7 +21,7 @@ def get_e_announcements_for_user(username):
     return matches
 
 
-def traverse_e_announcements_folder(traverse_xml, username):
+def traverse_e_announcements_folder(traverse_xml, username="get_all"):
     ## Traverse an XML folder, adding system-pages to a dict of matches
 
     matches = []
@@ -36,7 +36,7 @@ def traverse_e_announcements_folder(traverse_xml, username):
 
             dates_str = firstDate + "<br/>" + secondDate
 
-            if author is not None and username == author:
+            if (author is not None and username == author) or username == "get_all":
                 page_values = {
                     'author': child.find('author').text,
                     'id': child.attrib['id'] or "",
