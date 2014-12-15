@@ -1,11 +1,11 @@
-#python
+# python
 import json
 import requests
 
-#flask
+# flask
 from flask import request, Blueprint, render_template, jsonify
 
-#Tinker
+# Tinker
 from tinker import app
 from tinker import db
 from tinker import cache
@@ -61,13 +61,13 @@ def get_forms():
 @wufoo_blueprint.route('/embed-form/<formhash>', methods=['GET', 'POST'])
 @wufoo_blueprint.route('/embed-form/<formhash>/<username>', methods=['GET', 'POST'])
 def embed_form(formhash, username=None):
-    ##need to check preload if there is a username
+    # need to check preload if there is a username
     if username:
         info = FormInfo.query.get(formhash)
         preload = info.preload_info
-        ## get preload values from api
+        # get preload values from api
 
-        #check if this thing needs to have a lookup field
+        # check if this thing needs to have a lookup field
         mapping = json.loads(preload)
         lookup = False
         for value in mapping.values():
@@ -75,8 +75,8 @@ def embed_form(formhash, username=None):
                 lookup = True
                 break
         if lookup:
-            ##show the lookup form
-            ## what to do about the other preload values, if any?
+            # show the lookup form
+            # what to do about the other preload values, if any?
             return render_template('embed_lookup_form.html', **locals())
 
         preload_options = get_preload_values(preload, username)

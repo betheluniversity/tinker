@@ -35,25 +35,24 @@ def get_event_choices():
 
     data = get_md("/Event")
 
-    general_list = data[0].possibleValues.possibleValue
-    offices_list = data[1].possibleValues.possibleValue
-    cas_departments_list = data[3].possibleValues.possibleValue
-    internal_list = data[4].possibleValues.possibleValue
+    md = {}
+    for item in data:
+        md[item.name] = item.possibleValues.possibleValue
 
     general = []
-    for item in general_list:
+    for item in md['general']:
         general.append((item.value, item.value))
 
     offices = []
-    for item in offices_list:
+    for item in md['offices']:
         offices.append((item.value, item.value))
 
     internal = []
-    for item in internal_list:
+    for item in md['internal']:
         internal.append((item.value, item.value))
 
     cas_departments = []
-    for item in cas_departments_list:
+    for item in md['cas-departments']:
         cas_departments.append((item.value, item.value))
 
     # Get the building choices from the block
