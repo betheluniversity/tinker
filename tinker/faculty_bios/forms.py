@@ -84,31 +84,33 @@ def get_faculty_bio_choices():
 
     data = get_md("/Robust")
 
-    school_list = data[3].possibleValues.possibleValue
-    department_list = data[6].possibleValues.possibleValue
-    caps_list = data[7].possibleValues.possibleValue
-    gs_list = data[8].possibleValues.possibleValue
-    sem_list = data[9].possibleValues.possibleValue
+    md = {}
+    for item in data:
+        try:
+            md[item.name] = item.possibleValues.possibleValue
+        except AttributeError:
+            # this will fail for text fields w/o values. We don't want those anwyay
+            continue
 
     school = []
-    for item in school_list:
+    for item in md['school']:
         if item.value != "Bethel University":
             school.append((item.value, item.value))
 
     department = []
-    for item in department_list:
+    for item in md['department']:
         department.append((item.value, item.value))
 
     adult_undergrad_program = []
-    for item in caps_list:
+    for item in md['adult-undergrad-program']:
         adult_undergrad_program.append((item.value, item.value))
 
     graduate_program = []
-    for item in gs_list:
+    for item in md['graduate-program']:
         graduate_program.append((item.value, item.value))
 
     seminary_program = []
-    for item in sem_list:
+    for item in md['seminary-program']:
         seminary_program.append((item.value, item.value))
 
     return {'school': school, 'department': department, 'adult_undergrad_program': adult_undergrad_program, 'graduate_program': graduate_program, 'seminary_program': seminary_program}
