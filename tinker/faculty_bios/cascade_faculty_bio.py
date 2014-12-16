@@ -184,6 +184,11 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
                 clear_resp = clear_image_cache(image_structure['file']['path'])
                 app.logger.warn("%s: Images Cleared: %s" % (time.strftime("%c"), clear_resp))
             image = structured_file_data_node('image', "/academics/faculty/images/" + add_data['image_name'])
+        else:
+            # If you don't supply an Image Cascade will clear it out,
+            # so create a node out of the existing asset so it maintains the link
+            image_name = add_data['image_url'].split('/')[-1]
+            image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
     else:
         image = None
 

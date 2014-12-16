@@ -100,7 +100,7 @@ def lookup_embed_form(formhash, bid, username=None):
 @wufoo_blueprint.route('/load-form/<formhash>')
 def load_form(formhash):
 
-    #Load prelaod info for form
+    # Load prelaod info for form
     info = FormInfo.query.get(formhash)
     return api.load_form(formhash, form_info=info)
 
@@ -121,17 +121,17 @@ def preload_save():
 
     preload_info = json.dumps(sync_fields)
 
-    ##Check if there is an entry in the DB for this form yet
+    # Check if there is an entry in the DB for this form yet
     dbrecord = FormInfo.query.get(form_hash)
 
     if dbrecord:
-        #update existing
+        # update existing
         dbrecord.preload_info = preload_info
         db.session.merge(dbrecord)
         db.session.commit()
 
     else:
-        #create new
+        # create new
         info = FormInfo(hash=form_hash, preload_info=preload_info, paypal_name=None, paypal_budget_number=None, sync_status=False)
         db.session.add(info)
         db.session.commit()
