@@ -162,7 +162,6 @@ def submit_faculty_bio_form():
         else:
             # This error came from the add form because event_id wasn't set
             add_form = True
-        app.logger.warn("%s: %s %s") % (time.strftime("%c"), username, ". Jobs or degrees failed.")
         return render_template('faculty-bio-form.html', **locals())
 
     # Get all the form data
