@@ -61,8 +61,6 @@ def new_redirect_submti():
     form = request.form
     from_path = form['new-redirect-from']
     to_url = form['new-redirect-to']
-    # temporarily just do this. should we unescape?
-    to_url = to_url.replace('%23', '#')
     short_url = form.get('short-url') == 'on'
     expiration_date = form.get('expiration-date')
     if expiration_date:
