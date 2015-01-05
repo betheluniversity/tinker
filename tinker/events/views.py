@@ -181,7 +181,8 @@ def submit_form():
 
     form = rform
     # Get all the form data
-    add_data = get_add_data(['general', 'offices', 'cas_departments', 'internal'], form)
+    metadata_list = ['general', 'offices', 'cas_departments', 'internal']
+    add_data = get_add_data(metadata_list, form)
 
     dates = get_dates(add_data)
 

@@ -55,11 +55,30 @@ def get_event_choices():
     for item in md['cas-departments']:
         cas_departments.append((item.value, item.value))
 
+    adult_undergrad_program = []
+    for item in md['adult-undergrad-program']:
+        adult_undergrad_program.append((item.value, item.value))
+
+    graduate_program = []
+    for item in md['graduate-program']:
+        graduate_program.append((item.value, item.value))
+
+    seminary_program = []
+    for item in md['seminary-program']:
+        seminary_program.append((item.value, item.value))
+
     # Get the building choices from the block
     building_choices = get_buildings()
 
-    return {'general': general, 'offices': offices,
-            'internal': internal, 'cas_departments': cas_departments, 'buildings': building_choices}
+    return {'general': general,
+            'offices': offices,
+            'internal': internal,
+            'cas_departments': cas_departments,
+            'adult_undergrad_program': adult_undergrad_program,
+            'graduate_program': graduate_program,
+            'seminary_program': seminary_program,
+            'buildings': building_choices
+            }
 
 
 def get_buildings():
@@ -114,6 +133,9 @@ class EventForm(Form):
     offices_choices = choices['offices']
     internal_choices = choices['internal']
     cas_departments_choices = choices['cas_departments']
+    adult_undergrad_program_choices = choices['adult_undergrad_program']
+    graduate_program = choices['graduate_program']
+    seminary_program_choices = choices['seminary_program']
     building_choices = choices['buildings']
 
     location_choices = (('', "-select-"), ('On Campus', 'On Campus'), ('Off Campus', 'Off Campus'))
@@ -151,4 +173,9 @@ class EventForm(Form):
     general = SelectMultipleField('General categories', choices=general_choices, default=['None'], validators=[DataRequired()])
     offices = SelectMultipleField('Offices', choices=offices_choices, default=['None'], validators=[DataRequired()])
     cas_departments = SelectMultipleField('CAS academic department', default=['None'], choices=cas_departments_choices, validators=[DataRequired()])
+    adult_undergrad_programs = SelectMultipleField('CAPS programs', default=['None'], choices=adult_undergrad_program_choices, validators=[DataRequired()])
+    seminary_programs = SelectMultipleField('Seminary programs', default=['None'], choices=seminary_program_choices, validators=[DataRequired()])
+    graduate_programs = SelectMultipleField('GS Programs', default=['None'], choices=graduate_program, validators=[DataRequired()])
     internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices, validators=[DataRequired()])
+
+
