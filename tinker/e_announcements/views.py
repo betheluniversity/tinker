@@ -1,10 +1,14 @@
 # python
+from feedformatter import Feed
+import urlparse
+import calendar
 
 # flask
 from flask import Blueprint
 from flask import redirect
 from flask import Response
 
+# tinker
 from tinker.e_announcements.cascade_e_announcements import *
 from tinker.tools import *
 
@@ -173,10 +177,7 @@ def submit_edit_form():
 
 @e_announcements_blueprint.route("/rss_feed", methods=['get'])
 def rss_feed():
-    ## Feed initialization
-    from feedformatter import Feed
-
-    # create the feed
+    # Create the feed
     rssfeed = Feed()
 
     # Set the feed/channel level properties
@@ -186,12 +187,20 @@ def rss_feed():
     rssfeed.feed["author"] = "Tinker"
     rssfeed.feed["description"] = "E-announcements feed"
 
-    # GET variables
-    current_url = request.url
-    url_array = current_url.split("?")[1]
-    parameters = url_array.split("&")
-    roles = parameters[0].split("=")[1].split("_")
-    date = parameters[1].split("=")[1]
+    # get url variables
+    current_url = urlparse.urlparse(request.url)
+    parameters = urlparse.parse_qs(current_url.query)
+    if 'roles' in parameters:
+        roles = parameters['roles'][0].split('_')
+    else:
+        roles = {}
+    if 'date' in parameters:
+        try:
+            date = parameters['date'][0]
+        except ValueError:
+            raise ValueError("Incorrect date format. Use MM-DD-YYYY")
+    else:
+        date = datetime.datetime.now().strftime("%m-%d-%Y")
 
     ## Get each of the matching e-announcements to put into new_matches
     matches = get_e_announcements_for_user()
@@ -208,7 +217,7 @@ def rss_feed():
         # now metadata dynamic fields
         for field in dynamic_fields:
 
-            #T his will fail if no metadata is set. It should be required but just in case
+            # This will fail if no metadata is set. It should be required but just in case
             if field.fieldValues and field.name == "banner-roles":
                 banner_roles = [item.value for item in field.fieldValues.fieldValue]
 
@@ -242,10 +251,10 @@ def rss_feed():
                     item = {}
                     item["title"] = match.metadata.title
                     item["link"] = "https://www.bethel.edu/" + match.path
-                    item["description"] = edit_data['message'] + "<p>(" + ",".join(banner_roles ) + ")</p>"
-                    if match.lastPublishedDate != None:
-                        item["pubDate"] = match.lastPublishedDate
+                    item["description"] = edit_data['message'] + " <p>(" + ",".join(banner_roles ) + ")</p>"
                     item["guid"] = "https://www.bethel.edu/" + match.path
+                    if match.lastPublishedDate != None:
+                        item["pubDate"] = calendar.timegm(match.lastPublishedDate.utctimetuple())
 
                     rssfeed.items.append(item)
 
