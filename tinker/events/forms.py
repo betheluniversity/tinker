@@ -35,32 +35,50 @@ def get_event_choices():
 
     data = get_md("/Event")
 
-    general_list = data[0].possibleValues.possibleValue
-    offices_list = data[1].possibleValues.possibleValue
-    cas_departments_list = data[3].possibleValues.possibleValue
-    internal_list = data[4].possibleValues.possibleValue
+    md = {}
+    for item in data:
+        md[item.name] = item.possibleValues.possibleValue
 
     general = []
-    for item in general_list:
+    for item in md['general']:
         general.append((item.value, item.value))
 
     offices = []
-    for item in offices_list:
+    for item in md['offices']:
         offices.append((item.value, item.value))
 
     internal = []
-    for item in internal_list:
+    for item in md['internal']:
         internal.append((item.value, item.value))
 
     cas_departments = []
-    for item in cas_departments_list:
+    for item in md['cas-departments']:
         cas_departments.append((item.value, item.value))
+
+    adult_undergrad_program = []
+    for item in md['adult-undergrad-program']:
+        adult_undergrad_program.append((item.value, item.value))
+
+    graduate_program = []
+    for item in md['graduate-program']:
+        graduate_program.append((item.value, item.value))
+
+    seminary_program = []
+    for item in md['seminary-program']:
+        seminary_program.append((item.value, item.value))
 
     # Get the building choices from the block
     building_choices = get_buildings()
 
-    return {'general': general, 'offices': offices,
-            'internal': internal, 'cas_departments': cas_departments, 'buildings': building_choices}
+    return {'general': general,
+            'offices': offices,
+            'internal': internal,
+            'cas_departments': cas_departments,
+            'adult_undergrad_program': adult_undergrad_program,
+            'graduate_program': graduate_program,
+            'seminary_program': seminary_program,
+            'buildings': building_choices
+            }
 
 
 def get_buildings():
@@ -115,6 +133,9 @@ class EventForm(Form):
     offices_choices = choices['offices']
     internal_choices = choices['internal']
     cas_departments_choices = choices['cas_departments']
+    adult_undergrad_program_choices = choices['adult_undergrad_program']
+    graduate_program = choices['graduate_program']
+    seminary_program_choices = choices['seminary_program']
     building_choices = choices['buildings']
 
     location_choices = (('', "-select-"), ('On Campus', 'On Campus'), ('Off Campus', 'Off Campus'))
@@ -152,4 +173,9 @@ class EventForm(Form):
     general = SelectMultipleField('General categories', choices=general_choices, default=['None'], validators=[DataRequired()])
     offices = SelectMultipleField('Offices', choices=offices_choices, default=['None'], validators=[DataRequired()])
     cas_departments = SelectMultipleField('CAS academic department', default=['None'], choices=cas_departments_choices, validators=[DataRequired()])
+    adult_undergrad_programs = SelectMultipleField('CAPS programs', default=['None'], choices=adult_undergrad_program_choices, validators=[DataRequired()])
+    seminary_programs = SelectMultipleField('Seminary programs', default=['None'], choices=seminary_program_choices, validators=[DataRequired()])
+    graduate_programs = SelectMultipleField('GS Programs', default=['None'], choices=graduate_program, validators=[DataRequired()])
     internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices, validators=[DataRequired()])
+
+
