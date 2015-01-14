@@ -255,7 +255,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             'metadata': {
                 'title': add_data['first'] + " " + add_data['last'],
                 'summary': 'summary',
-                'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + add_data['job-title1'] + "at Bethel University.",
+                'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + add_data['job-title1'] + " at Bethel University.",
                 'author': add_data['author'],
                 'dynamicFields': dynamic_fields,
             }
