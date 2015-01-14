@@ -105,13 +105,28 @@ def get_add_to_bio(add_data):
 
     options = []
 
-    biography = add_data['biography']
-    awards = add_data['awards']
-    publications = add_data['publications']
-    certificates = add_data['certificates']
-    hobbies = add_data['hobbies']
-    quote = add_data['quote']
-    website = add_data['website']
+    biography = ""
+    awards = ""
+    publications = ""
+    certificates = ""
+    hobbies = ""
+    quote = ""
+    website = ""
+
+    if add_data['biography'] is not None:
+        biography = add_data['biography']
+    if add_data['awards'] is not None:
+        awards = add_data['awards']
+    if add_data['publications'] is not None:
+        publications = add_data['publications']
+    if add_data['certificates'] is not None:
+        certificates = add_data['certificates']
+    if add_data['hobbies'] is not None:
+        hobbies = add_data['hobbies']
+    if add_data['quote'] is not None:
+        quote = add_data['quote']
+    if add_data['website'] is not None:
+        website = add_data['website']
 
     if biography != "":
         options.append("::CONTENT-XML-CHECKBOX::Biography")
@@ -184,7 +199,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
                 clear_resp = clear_image_cache(image_structure['file']['path'])
                 app.logger.warn("%s: Images Cleared: %s" % (time.strftime("%c"), clear_resp))
             image = structured_file_data_node('image', "/academics/faculty/images/" + add_data['image_name'])
-        else:
+        elif add_data['image_url'] is not None:
             # If you don't supply an Image Cascade will clear it out,
             # so create a node out of the existing asset so it maintains the link
             image_name = add_data['image_url'].split('/')[-1]
@@ -374,6 +389,22 @@ def get_faculty_bios_for_user(username):
 
 
 def traverse_faculty_folder(traverse_xml, username):
+    ## if no username is given, then pass over ALL faculty bios
+    if username == None:
+        matches = []
+        for child in traverse_xml.findall('.//system-page'):
+
+            page_values = {
+                'author': child.find('author') or None,
+                'id': child.attrib['id'] or "",
+                'title': child.find('title') or None,
+                'created-on': child.find('created-on').text or None,
+                'path': 'https://www.bethel.edu' + child.find('path').text or "",
+            }
+            # This is a match, add it to array
+            matches.append(page_values)
+        return matches
+
     # Traverse an XML folder, adding system-pages to a dict of matches
     user = read(username, "user")
     try:
