@@ -430,8 +430,8 @@ def get_event_folder_path(data):
                             }
                         }
 
-    # create_folder(path, additionalMetadata)
-    create_folder(path)
+    create_folder(path, additionalMetadata)
+
     return [content_config_path, path]
 
 
