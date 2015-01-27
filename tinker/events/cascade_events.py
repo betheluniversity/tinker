@@ -197,7 +197,7 @@ def create(asset):
     return response
 
 
-def create_folder_if_not_exists(folder_path):
+def create_folder(folder_path, additionalMetadata=None):
     old_folder_asset = read("/" + folder_path, "folder")
 
     if 'success = "false"' in str(old_folder_asset):
@@ -209,7 +209,8 @@ def create_folder_if_not_exists(folder_path):
         asset = {
             'folder': {
                 'metadata':{
-                    'title': name
+                    'title': name,
+                    'dynamicFields': additionalMetadata,
                 },
                 'metadataSetPath': "Basic",
                 'name': name,
@@ -418,8 +419,19 @@ def get_event_folder_path(data):
         content_config_path = "Event With Nav"
         path = 'events/%s/admissions' % max_year
 
-    create_folder_if_not_exists(path)
+    additionalMetadata = {'dynamicField':{
+                                'name': 'skip-breadcrumb',
+                                'fieldValues': {
+                                    'fieldValue':
+                                    {
+                                        'value': 'Yes'
+                                    }
+                                }
+                            }
+                        }
 
+    # create_folder(path, additionalMetadata)
+    create_folder(path)
     return [content_config_path, path]
 
 

@@ -191,7 +191,7 @@ def submit_form():
 
     asset = get_event_structure(add_data, username, workflow)
 
-    resp = create(asset)
+    # resp = create(asset)
 
     return redirect('/event/confirm', code=302)
     # Just print the response for now
