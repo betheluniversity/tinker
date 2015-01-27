@@ -51,12 +51,12 @@ def read_page():
     tools.get_user()
     client = get_client()
     identifier = {
-        # 'id': 'f66eb4be8c586513100ee2a7240ef051',
-        'type': 'page',
-        'path': {
-            'path': '/academics/faculty/hamre-alyssa',
-            'siteId': app.config['SITE_ID']
-        }
+        'id': '11be41458c586513742d45fd69ba4e89',
+        'type': 'folder',
+        # 'path': {
+        #     'path': '/academics/faculty/hamre-alyssa',
+        #     'siteId': app.config['SITE_ID']
+        # }
     }
 
     auth = app.config['CASCADE_LOGIN']

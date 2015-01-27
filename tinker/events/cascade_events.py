@@ -197,6 +197,38 @@ def create(asset):
     return response
 
 
+def create_folder_if_not_exists(folder_path):
+    old_folder_asset = read(folder_path, "folder")
+
+    if 'success = "false"' in str(old_folder_asset):
+
+        array = folder_path.rsplit("/",1)
+        parentPath = array[0]
+        name = array[1]
+
+        asset = {
+            'folder': {
+                'metadata':{
+                    'title': name
+                },
+                'metadataSetPath': "Basic",
+                'name': name,
+                'parentFolderPath': parentPath,
+                'siteName': "Public"
+            }
+        }
+
+        auth = app.config['CASCADE_LOGIN']
+        client = get_client()
+
+        username = session['username']
+
+        response = client.service.create(auth, asset)
+        response = app.logger.warn(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
+
+    return
+
+
 def traverse_event_folder(traverse_xml, username):
     # Travserse an XML folder, adding system-pages to a dict of matches
     # todo use xpath instead of calling this?
@@ -286,8 +318,7 @@ def get_dates(add_data):
             start = add_data[start]
             end = add_data[end]
             all_day = all_day in add_data.keys()
-            for key in add_data.keys():
-                app.logger.warn(time.strftime("%c") + ": CALEB TEST: " + str(key))
+
         except KeyError:
             # This will break once we run out of dates
             break
@@ -351,33 +382,45 @@ def get_event_folder_path(data):
     max_year = get_year_folder_value(data)
 
     path = "events/%s" % max_year
-    content_config_no_nav_path = "Event No Nav"
-    content_config_with_nav_path = "Event With Nav"
+    content_config_path = "Event No Nav"
 
     general = data['general']
-    if 'Athletics' in general:
-        return [content_config_no_nav_path, path + "/athletics"]
-
-    if common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'],  general):
-        return [content_config_with_nav_path, "events/arts/galleries/exhibits/%s" % max_year]
-
-    if 'Music Concerts' in general:
-        return [content_config_with_nav_path, 'events/arts/music/%s' % max_year]
-
-    if 'Theatre' in general:
-        return [content_config_with_nav_path, 'events/arts/theatre/%s' % max_year]
-
     offices = data['offices']
-    if 'Bethel Student Government' in offices:
-        return [content_config_no_nav_path, path + "/bsg"]
 
-    if 'Career Development' in offices:
-        return [content_config_no_nav_path, path + "/career-development-calling"]
+    if 'Athletics' in general:
+        content_config_path = "Event No Nav"
+        path = "events/%s/athletics" % max_year
 
-    if 'Library' in general:
-        return [content_config_no_nav_path, path + "/library"]
+    elif common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'],  general):
+        content_config_path = "Event With Nav"
+        path = "events/arts/galleries/exhibits/%s" % max_year
 
-    return [content_config_no_nav_path, path]
+    elif 'Music Concerts' in general:
+        content_config_path = "Event With Nav"
+        path = 'events/arts/music/%s' % max_year
+
+    elif 'Theatre' in general:
+        content_config_path = "Event With Nav"
+        path = 'events/arts/theatre/%s' % max_year
+
+    elif any("Chapel" in s for s in general):
+        content_config_path = "Event With Nav"
+        path = 'events/%s/chapel' % max_year
+
+    elif 'Library' in general:
+        content_config_path = "Event No Nav"
+        path = "events/%s/library" % max_year
+
+    elif 'Bethel Student Government' in offices:
+        path = "events/%s/bsg" % max_year
+
+    elif any("Admissions" in s for s in offices):
+        content_config_path = "Event With Nav"
+        path = 'events/%s/admissions' % max_year
+
+    create_folder_if_not_exists(path)
+
+    return [content_config_path, path]
 
 
 def move_event_year(event_id, data):
