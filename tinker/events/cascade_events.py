@@ -198,7 +198,7 @@ def create(asset):
 
 
 def create_folder_if_not_exists(folder_path):
-    old_folder_asset = read(folder_path, "folder")
+    old_folder_asset = read("/" + folder_path, "folder")
 
     if 'success = "false"' in str(old_folder_asset):
 
