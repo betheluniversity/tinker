@@ -12,7 +12,6 @@ app.config.from_object('config')
 db = SQLAlchemy(app)
 cors = CORS(app)
 
-from tinker.wufoo import models
 from tinker.redirects import models
 from tinker import tools
 
@@ -66,3 +65,10 @@ def cache_test(img_path=None):
     if not img_path:
         img_path = '/academics/faculty/images/lundberg-kelsey.jpg'
     return tools.clear_image_cache(img_path)
+
+
+@app.route('/sherie')
+def peanut():
+    from flask import render_template
+    return render_template('sherie.html')
+
