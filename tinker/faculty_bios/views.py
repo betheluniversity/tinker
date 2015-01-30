@@ -205,7 +205,6 @@ def submit_faculty_bio_form():
         check_publish_sets(add_data['school'], faculty_bio_id)
         return redirect('/faculty-bios/confirm-edit', code=302)
     else:
-        print asset
         resp = create_faculty_bio(asset)
         faculty_bio_id = resp.createdAssetId
         # publish corresponding pubish set

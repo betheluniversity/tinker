@@ -216,7 +216,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         structured_data_node("started-at-bethel", add_data['started_at_bethel']),
         get_job_titles(add_data),
     ]
-    print image_name
+    
     if image_name:
         structured_data.append(image)
 
