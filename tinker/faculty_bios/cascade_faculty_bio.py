@@ -179,6 +179,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             image = add_data['image_name']
         except KeyError:
             image = None
+
         if image:
             image_structure = get_image_structure("/academics/faculty/images", add_data['image_name'])
             r = requests.get('https://www.bethel.edu/academics/faculty/images/' + add_data['image_name'])
@@ -215,8 +216,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         structured_data_node("started-at-bethel", add_data['started_at_bethel']),
         get_job_titles(add_data),
     ]
-
-    if image:
+    print image_name
+    if image_name:
         structured_data.append(image)
 
     structured_data.append(get_expertise(add_data))
@@ -484,7 +485,7 @@ def get_bio_publish_workflow(title="", username="", school=None):
     elif "Graduate School" in school or "College of Adult & Professional Studies" in school:
         workflow_id = '81dabbc78c5865130c130b3a2b567e75'
     else:
-        workflow_id = ''
+        return None
 
     name = "New Bio Submission - %s" % username
     if title:

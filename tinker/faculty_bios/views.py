@@ -47,9 +47,13 @@ def faculty_bio_new_form():
     return render_template('faculty-bio-form.html', **locals())
 
 
-@faculty_bio_blueprint.route('/confirm')
-def submit_confirm():
-    return render_template('faculty-bio-confirm.html', **locals())
+@faculty_bio_blueprint.route('/confirm-new')
+def submit_confirm_new():
+    return render_template('faculty-bio-confirm-new.html', **locals())
+
+@faculty_bio_blueprint.route('/confirm-edit')
+def submit_confirm_edit():
+    return render_template('faculty-bio-confirm-edit.html', **locals())
 
 
 @faculty_bio_blueprint.route("/edit/<faculty_bio_id>")
@@ -199,15 +203,15 @@ def submit_faculty_bio_form():
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " " + str(resp))
         # publish corresponding pubish set to make sure corresponding pages get edits
         check_publish_sets(add_data['school'], faculty_bio_id)
+        return redirect('/faculty-bios/confirm-edit', code=302)
     else:
+        print asset
         resp = create_faculty_bio(asset)
         faculty_bio_id = resp.createdAssetId
-
-    # publish corresponding pubish set
-    check_publish_sets(add_data['school'], faculty_bio_id)
-
-    return redirect('/faculty-bios/confirm', code=302)
-    # Just print the response for now
+        # publish corresponding pubish set
+        check_publish_sets(add_data['school'], faculty_bio_id)
+        return redirect('/faculty-bios/confirm-new', code=302)
+    return
 
 
 @app.route('/uploads/<filename>')
