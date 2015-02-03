@@ -45,9 +45,9 @@ app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bios')
 app.register_blueprint(redirect_blueprint, url_prefix='/redirect')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 
+
 # Import error handling
 import error
-
 
 # ensure session before each request
 @app.before_request

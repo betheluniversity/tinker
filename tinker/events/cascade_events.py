@@ -250,9 +250,10 @@ def traverse_event_folder(traverse_xml, username):
             dates = child.find('system-data-structure').findall('event-dates')
             dates_str = []
             for date in dates:
+                # start = int(date.find('start-date').text) / 1000
+                # end = int(date.find('end-date').text) / 1000
                 start = int(date.find('start-date').text) / 1000
                 end = int(date.find('end-date').text) / 1000
-
                 dates_str.append(friendly_date_range(start, end))
 
             page_values = {

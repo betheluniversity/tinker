@@ -203,12 +203,15 @@ def string_to_datetime(date_str):
 
 
 def friendly_date_range(start, end):
-    start = arrow.get(start)
-    end = arrow.get(end)
-    if start.year == end.year and start.month == end.month and start.day == end.day:
-        return "%s - %s" % (start.format('MMM d, YYYY h:mm a'), end.format('h:mm a'))
+    date_format = "%B %d, %Y %I:%M %p"
+
+    start_check = arrow.get(start)
+    end_check = arrow.get(end)
+
+    if start_check.year == end_check.year and start_check.month == end_check.month and start_check.day == end_check.day:
+        return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format), datetime.datetime.fromtimestamp(int(end)).strftime("%I:%M %p"))
     else:
-        return "%s - %s" % (start.format('MMM d, YYYY h:mm a'), end.format('MMM d, YYYY h:mm a'))
+        return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format), datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
 
 
 def read_date_data_dict(node):
