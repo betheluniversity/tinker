@@ -172,9 +172,10 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     """
      Could this be cleaned up at all?
     """
-    image = None
 
     # Create Image asset
+    image = None
+    image_name = None
     if "FACULTY-CAS" not in session['roles'] or 'Tinker Redirects' in session['groups']:
         try:
             image = add_data['image_name']
@@ -207,9 +208,6 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             # so create a node out of the existing asset so it maintains the link
             image_name = add_data['image_url'].split('/')[-1]
             image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
-    else:
-        image = None
-        image_name = None
 
     # Create a list of all the data nodes
     structured_data = [
