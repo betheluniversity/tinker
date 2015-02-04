@@ -175,20 +175,19 @@ def submit_faculty_bio_form():
     # Images
     groups = get_groups_for_user()
 
-    if "Tinker Redirects" in groups:
-        image_name = form.image.data.filename
-        # If there is a new image upload that
-        if image_name != "":
-            # Not sure how to treat a space in a name. just remove it?
-            first = rform['first'].lower().replace(' ', '').strip()
-            last = rform['last'].lower().replace(' ', '').strip()
-            image_name = '%s-%s.jpg' % (last, first)
-            image_path = secure_filename(image_name)
+    image_name = form.image.data.filename
+    # If there is a new image upload that
+    if image_name != "":
+        # Not sure how to treat a space in a name. just remove it?
+        first = rform['first'].lower().replace(' ', '').strip()
+        last = rform['last'].lower().replace(' ', '').strip()
+        image_name = '%s-%s.jpg' % (last, first)
+        image_path = secure_filename(image_name)
 
-            form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
+        form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
 
-            add_data['image_name'] = image_name
-            add_data['image_path'] = image_path
+        add_data['image_name'] = image_name
+        add_data['image_path'] = image_path
 
     # End Images
 

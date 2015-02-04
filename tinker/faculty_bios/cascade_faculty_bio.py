@@ -175,36 +175,34 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
 
     # Create Image asset
     image = None
-    image_name = None
-    if "FACULTY-CAS" not in session['roles'] or 'Tinker Redirects' in session['groups']:
 
-        if 'image_name' in add_data.keys():
+    if 'image_name' in add_data.keys():
 
-            image_name = add_data['image_name']
-            image_structure = get_image_structure("/academics/faculty/images", image_name)
-            r = requests.get('https://www.bethel.edu/academics/faculty/images/' + image_name)
+        image_name = add_data['image_name']
+        image_structure = get_image_structure("/academics/faculty/images", image_name)
+        r = requests.get('https://www.bethel.edu/academics/faculty/images/' + image_name)
 
-            # does this person have a live image already?
-            if r.status_code == 404:
-                create_image(image_structure)
-            else:
-                # replace the image on the server already
-                image_structure['file']['path'] = "/academics/faculty/images/" + image_name
-                edit_response = edit(image_structure)
+        # does this person have a live image already?
+        if r.status_code == 404:
+            create_image(image_structure)
+        else:
+            # replace the image on the server already
+            image_structure['file']['path'] = "/academics/faculty/images/" + image_name
+            edit_response = edit(image_structure)
 
-                # publish image
-                publish(image_structure['file']['path'], "file")
-                app.logger.warn("%s: Image edit/publish: %s %s" % (time.strftime("%c"), username, str(edit_response)))
+            # publish image
+            publish(image_structure['file']['path'], "file")
+            app.logger.warn("%s: Image edit/publish: %s %s" % (time.strftime("%c"), username, str(edit_response)))
 
-                # clear the thumbor cache so the new image takes
-                clear_resp = clear_image_cache(image_structure['file']['path'])
-                app.logger.warn("%s: Images Cleared: %s" % (time.strftime("%c"), clear_resp))
-            image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
-        elif add_data['image_url'] is not None:
-            # If you don't supply an Image Cascade will clear it out,
-            # so create a node out of the existing asset so it maintains the link
-            image_name = add_data['image_url'].split('/')[-1]
-            image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
+            # clear the thumbor cache so the new image takes
+            clear_resp = clear_image_cache(image_structure['file']['path'])
+            app.logger.warn("%s: Images Cleared: %s" % (time.strftime("%c"), clear_resp))
+        image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
+    elif add_data['image_url'] is not None:
+        # If you don't supply an Image Cascade will clear it out,
+        # so create a node out of the existing asset so it maintains the link
+        image_name = add_data['image_url'].split('/')[-1]
+        image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
 
     # Create a list of all the data nodes
     structured_data = [
