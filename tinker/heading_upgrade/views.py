@@ -96,6 +96,8 @@ def upgrade_complex_page(page):
 
 def inspect_folder(folder_id):
     folder = read(folder_id, type="folder")
+    if not folder:
+        yield ""
     children = folder['asset']['folder']['children']
     if not children:
         yield ""
