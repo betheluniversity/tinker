@@ -177,22 +177,19 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     image = None
     image_name = None
     if "FACULTY-CAS" not in session['roles'] or 'Tinker Redirects' in session['groups']:
-        try:
-            image = add_data['image_name']
-        except KeyError:
-            image = None
-            image_name = None
 
-        if image:
-            image_structure = get_image_structure("/academics/faculty/images", add_data['image_name'])
-            r = requests.get('https://www.bethel.edu/academics/faculty/images/' + add_data['image_name'])
+        if add_data['image_name']:
+
+            image_name = add_data['image_name']
+            image_structure = get_image_structure("/academics/faculty/images", image_name)
+            r = requests.get('https://www.bethel.edu/academics/faculty/images/' + image_name)
 
             # does this person have a live image already?
             if r.status_code == 404:
                 create_image(image_structure)
             else:
                 # replace the image on the server already
-                image_structure['file']['path'] = "/academics/faculty/images/" + add_data['image_name']
+                image_structure['file']['path'] = "/academics/faculty/images/" + image_name
                 edit_response = edit(image_structure)
 
                 # publish image
@@ -202,7 +199,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
                 # clear the thumbor cache so the new image takes
                 clear_resp = clear_image_cache(image_structure['file']['path'])
                 app.logger.warn("%s: Images Cleared: %s" % (time.strftime("%c"), clear_resp))
-            image = structured_file_data_node('image', "/academics/faculty/images/" + add_data['image_name'])
+            image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
         elif add_data['image_url'] is not None:
             # If you don't supply an Image Cascade will clear it out,
             # so create a node out of the existing asset so it maintains the link
@@ -218,7 +215,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         get_job_titles(add_data),
     ]
     
-    if image_name:
+    if image:
         structured_data.append(image)
 
     structured_data.append(get_expertise(add_data))
