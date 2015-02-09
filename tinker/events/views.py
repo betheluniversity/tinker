@@ -51,8 +51,8 @@ def read_page():
     tools.get_user()
     client = get_client()
     identifier = {
-        'id': '11be41458c586513742d45fd69ba4e89',
-        'type': 'folder',
+        'id': '81121cd38c58651317cf8e743509df52',
+        'type': 'page',
         # 'path': {
         #     'path': '/academics/faculty/hamre-alyssa',
         #     'siteId': app.config['SITE_ID']

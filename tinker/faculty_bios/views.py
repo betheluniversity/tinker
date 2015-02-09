@@ -146,12 +146,16 @@ def faculty_bio_edit_form(faculty_bio_id):
 
 @faculty_bio_blueprint.route("/submit", methods=['POST'])
 def submit_faculty_bio_form():
+
     # import this here so we dont load all the content
     # from cascade during homepage load
     from forms import FacultyBioForm
     form = FacultyBioForm()
+
     rform = request.form
+
     username = session['username']
+
 
     title = rform['last'] + "-" + rform['first']
     title = title.lower().replace(' ', '-')
@@ -175,19 +179,13 @@ def submit_faculty_bio_form():
     # Images
     groups = get_groups_for_user()
 
-    image_name = form.image.data.filename
-    # If there is a new image upload that
-    if image_name != "":
-        # Not sure how to treat a space in a name. just remove it?
-        first = rform['first'].lower().replace(' ', '').strip()
-        last = rform['last'].lower().replace(' ', '').strip()
-        image_name = '%s-%s.jpg' % (last, first)
-        image_path = secure_filename(image_name)
+    image_name = add_data['system_name'] + '.jpg'
+    image_path = secure_filename(image_name)
 
-        form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
+    form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
 
-        add_data['image_name'] = image_name
-        add_data['image_path'] = image_path
+    add_data['image_name'] = image_name
+    add_data['image_path'] = image_path
 
     # End Images
 
