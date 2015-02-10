@@ -179,13 +179,17 @@ def submit_faculty_bio_form():
     # Images
     groups = get_groups_for_user()
 
-    image_name = add_data['system_name'] + '.jpg'
-    image_path = secure_filename(image_name)
+    image_name = form.image.data.filename
 
-    form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
+    if image_name != "":
+        # Not sure how to treat a space in a name. just remove it?
+        image_name = add_data['system_name'] + '.jpg'
+        image_path = secure_filename(image_name)
 
-    add_data['image_name'] = image_name
-    add_data['image_path'] = image_path
+        form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
+
+        add_data['image_name'] = image_name
+        add_data['image_path'] = image_path
 
     # End Images
 

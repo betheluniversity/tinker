@@ -204,6 +204,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         image_name = add_data['image_url'].split('/')[-1]
         image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
 
+
     # Create a list of all the data nodes
     structured_data = [
         structured_data_node("first", add_data['first']),
