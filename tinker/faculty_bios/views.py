@@ -114,9 +114,8 @@ def faculty_bio_edit_form(faculty_bio_id):
                         degree_count += 1
         elif node_identifier == 'image':
             groups = get_groups_for_user()
-            if "Tinker Redirects" in groups:
-                edit_data['image'] = node.text
-                edit_data['image_url'] = node.filePath
+            edit_data['image'] = node.text
+            edit_data['image_url'] = node.filePath
 
     # now metadata dynamic fields
     for field in dynamic_fields:

@@ -177,7 +177,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     image = None
 
     if 'image_name' in add_data.keys():
-
+        
         image_name = add_data['image_name']
         image_structure = get_image_structure("/academics/faculty/images", image_name)
         r = requests.get('https://www.bethel.edu/academics/faculty/images/' + image_name)
