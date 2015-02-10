@@ -13,6 +13,12 @@ from suds.transport import TransportError
 
 # local
 from tinker import app
+from tinker import tools
+
+def email_tinker_admins(username, response):
+
+    if 'success = "false"' in response:
+        app.logger.error(time.strftime("%c") + ": Error occured by " + username + " " + str(response))
 
 
 def delete(page_id, workflow=None):
@@ -33,6 +39,8 @@ def delete(page_id, workflow=None):
 
     response = client.service.delete(auth, identifier)
     app.logger.warn(time.strftime("%c") + ": Deleted by " + username + " " + str(response))
+
+    email_tinker_admins(username, response)
 
     # Publish the XMLs
     publish_event_xml()
@@ -68,6 +76,9 @@ def publish(path_or_id, type='page'):
     response = client.service.publish(auth, publishinformation)
     app.logger.warn(time.strftime("%c") + ": Published " + str(response))
 
+    tools.get_user()
+    email_tinker_admins(session['username'], response)
+
     return response
 
 
@@ -88,6 +99,9 @@ def unpublish(page_id):
     response = client.service.publish(auth, publishinformation)
     app.logger.warn(time.strftime("%c") + ": Unpublished " + str(response))
 
+    tools.get_user()
+    email_tinker_admins(session['username'], response)
+
     return response
 
 
@@ -95,6 +109,10 @@ def read_identifier(identifier):
     client = get_client()
     auth = app.config['CASCADE_LOGIN']
     response = client.service.read(auth, identifier)
+
+    tools.get_user()
+    email_tinker_admins(session['username'], response)
+
     return response
 
 
@@ -118,6 +136,10 @@ def read(path_or_id, type="page"):
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.read(auth, identifier)
+
+    tools.get_user()
+    email_tinker_admins(session['username'], response)
+
     return response
 
 
@@ -127,6 +149,9 @@ def edit(asset):
     client = get_client()
 
     response = client.service.edit(auth, asset)
+
+    tools.get_user()
+    email_tinker_admins(session['username'], response)
 
     return response
 
@@ -148,7 +173,10 @@ def rename(page_id, newname):
 
     response = client.service.move(auth, identifier, move_parameters)
     app.logger.warn(time.strftime("%c") + ": Renamed " + str(response))
-    # publish the xml file so the new event shows up
+
+    tools.get_user()
+    email_tinker_admins(session['username'], response)
+
     return response
 
 
@@ -178,7 +206,9 @@ def move(page_id, destination_path):
 
     response = client.service.move(auth, identifier, move_parameters)
     app.logger.warn(time.strftime("%c") + ": Moved " + str(response))
-    # publish the xml file so the new event shows up
+
+    tools.get_user()
+    email_tinker_admins(session['username'], response)
 
     return response
 
