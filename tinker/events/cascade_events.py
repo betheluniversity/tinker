@@ -406,7 +406,7 @@ def get_event_folder_path(data):
         path = 'events/arts/theatre/%s' % max_year
 
     elif any("Chapel" in s for s in general):
-        content_config_path = "Event With Nav"
+        content_config_path = "Event No Nav"
         path = 'events/%s/chapel' % max_year
 
     elif 'Library' in general:
@@ -414,6 +414,7 @@ def get_event_folder_path(data):
         path = "events/%s/library" % max_year
 
     elif 'Bethel Student Government' in offices:
+        content_config_path = "Event No Nav"
         path = "events/%s/bsg" % max_year
 
     elif any("Admissions" in s for s in offices):
