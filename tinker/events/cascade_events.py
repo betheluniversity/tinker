@@ -417,7 +417,7 @@ def get_event_folder_path(data):
         path = "events/%s/bsg" % max_year
 
     elif any("Admissions" in s for s in offices):
-        content_config_path = "Event With Nav"
+        content_config_path = "Event No Nav"
         path = 'events/%s/admissions' % max_year
 
     additionalMetadata = {'dynamicField':{
