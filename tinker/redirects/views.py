@@ -117,16 +117,15 @@ def new_api_submit():
 
 
 @redirect_blueprint.route('/api-submit-asset-expiration', methods=['get', 'post'])
-def new_api_submit_job_posting_archive():
-    body = request.form['body']
-
-    soup = BeautifulSoup(body)
-    all_text = ''.join(soup.findAll(text=True))
+def new_api_submit_asset_expiration():
     app.logger.warn("TEST: Began api-submit-asset-expiration")
+
+    subject = request.form['subject']
+    soup = BeautifulSoup(subject)
+    all_text = ''.join(soup.findAll(text=True))
+
     try:
-        words = all_text.split(" ")
-        word = words[2].replace("Public:", "")
-        from_path = word
+        from_path = all_text.replace("Asset expiration notice for Public:", "") + "/"
         to_url = "/employment/openings/postings/job-closed"
         redirect = BethelRedirect(from_path=from_path, to_url=to_url)
         app.logger.warn("from: " + str(from_path) + " to: " + to_url)
@@ -145,8 +144,6 @@ def new_api_submit_job_posting_archive():
 
     if redirect:
         create_redirect_text_file()
-
-    db.session.rollback()
 
     return str(redirect)
 
