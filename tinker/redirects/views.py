@@ -122,12 +122,14 @@ def new_api_submit_job_posting_archive():
 
     soup = BeautifulSoup(body)
     all_text = ''.join(soup.findAll(text=True))
+    app.logger.warn("TEST: Began api-submit-asset-expiration")
     try:
         words = all_text.split(" ")
         word = words[2].replace("Public:", "")
         from_path = word
         to_url = "/employment/openings/postings/job-closed"
         redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+        app.logger.warn("from: " + str(from_path) + " to: " + to_url)
         db.session.add(redirect)
         db.session.commit()
     except:
