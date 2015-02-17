@@ -143,7 +143,6 @@ def new_api_submit_asset_expiration():
     if redirect:
         create_redirect_text_file()
 
-    return str(redirect)
     return "Test"
 
 
