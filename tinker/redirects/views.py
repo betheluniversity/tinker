@@ -118,34 +118,34 @@ def new_api_submit():
 
 @redirect_blueprint.route('/api-submit-asset-expiration', methods=['get', 'post'])
 def new_api_submit_asset_expiration():
-    app.logger.warn("TEST: Began api-submit-asset-expiration")
+    smtp_obj = smtplib.SMTP('localhost')
+    smtp_obj.sendmail("tinker@bethel.edu", ['ces55739@bethel.edu'], "TEST: Began api-submit-asset-expiration")
 
-    subject = request.form['subject']
-    soup = BeautifulSoup(subject)
-    all_text = ''.join(soup.findAll(text=True))
-
-    try:
-        from_path = all_text.replace("Asset expiration notice for Public:", "") + "/"
-        to_url = "/employment/openings/postings/job-closed"
-        redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-        app.logger.warn("from: " + str(from_path) + " to: " + to_url)
-        db.session.add(redirect)
-        db.session.commit()
-    except:
-        message = "redirect from %s to %s already exists" % (from_path, to_url)
-        sender = 'tinker@bethel.edu'
-        receivers = ['ces55739@bethel.edu']
-
-        smtp_obj = smtplib.SMTP('localhost')
-        smtp_obj.sendmail(sender, receivers, message)
-        print "Successfully sent email"
-        db.session.rollback()
-        return "sent email notice"
-
-    if redirect:
-        create_redirect_text_file()
-
-    return str(redirect)
+    # subject = request.form['subject']
+    # soup = BeautifulSoup(subject)
+    # all_text = ''.join(soup.findAll(text=True))
+    # try:
+    #     from_path = "/" + all_text.replace("Asset expiration notice for Public:", "")
+    #     to_url = "https://www.bethel.edu/employment/openings/postings/job-closed"
+    #     redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+    #     db.session.add(redirect)
+    #     db.session.commit()
+    # except:
+    #     message = "redirect from %s to %s already exists" % (from_path, to_url)
+    #     sender = 'tinker@bethel.edu'
+    #     receivers = ['ces55739@bethel.edu']
+    #
+    #     smtp_obj = smtplib.SMTP('localhost')
+    #     smtp_obj.sendmail(sender, receivers, message)
+    #     print "Successfully sent email"
+    #     db.session.rollback()
+    #     return "sent email notice"
+    #
+    # if redirect:
+    #     create_redirect_text_file()
+    #
+    # return str(redirect)
+    return "Test"
 
 
 @redirect_blueprint.route('/delete', methods=['post'])
