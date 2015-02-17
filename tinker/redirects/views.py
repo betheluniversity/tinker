@@ -117,14 +117,13 @@ def new_api_submit():
 
 @redirect_blueprint.route('/public/api-submit-asset-expiration', methods=['get', 'post'])
 def new_api_submit_asset_expiration():
-    smtp_obj = smtplib.SMTP('localhost')
-    smtp_obj.sendmail("tinker@bethel.edu", ['ces55739@bethel.edu'], "TEST: Began api-submit-asset-expiration")
-
     subject = request.form['subject']
     soup = BeautifulSoup(subject)
     all_text = ''.join(soup.findAll(text=True))
+
     try:
-        from_path = "/" + all_text.replace("Asset expiration notice for Public:", "")
+        lines = all_text.split("Asset expiration notice for Public:")
+        from_path = "/" + lines[1].lstrip().rstrip()
         to_url = "https://www.bethel.edu/employment/openings/postings/job-closed"
         redirect = BethelRedirect(from_path=from_path, to_url=to_url)
         db.session.add(redirect)
@@ -143,7 +142,7 @@ def new_api_submit_asset_expiration():
     if redirect:
         create_redirect_text_file()
 
-    return "Test"
+    return str(redirect)
 
 
 @redirect_blueprint.route('/delete', methods=['post'])
