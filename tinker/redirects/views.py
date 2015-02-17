@@ -131,7 +131,7 @@ def new_api_submit_job_posting_archive():
         to_url = "/employment/openings/postings/job-closed"
         redirect = BethelRedirect(from_path=from_path, to_url=to_url)
         db.session.add(redirect)
-        db.session.commit()
+        # db.session.commit()
     except:
         message = "redirect from %s to %s already exists" % (from_path, to_url)
         sender = 'tinker@bethel.edu'
@@ -145,6 +145,9 @@ def new_api_submit_job_posting_archive():
 
     if redirect:
         create_redirect_text_file()
+
+    db.session.rollback()
+
     return str(redirect)
 
 
