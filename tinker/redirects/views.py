@@ -116,6 +116,38 @@ def new_api_submit():
     return str(redirect)
 
 
+@redirect_blueprint.route('/api-submit-asset-expiration', methods=['get', 'post'])
+def new_api_submit_job_posting_archive():
+    body = request.form['body']
+
+    soup = BeautifulSoup(body)
+    all_text = ''.join(soup.findAll(text=True))
+    line = re.findall("(Public:employment/\S*)", all_text)
+    try:
+        line = line[0].lstrip().rstrip()
+        words = line.split(" ")
+        word = words[2].replace("Public:", "")
+        from_path = word
+        to_url = "/employment/openings/postings/job-closed"
+        redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+        db.session.add(redirect)
+        db.session.commit()
+    except:
+        message = "redirect from %s to %s already exists" % (from_path, to_url)
+        sender = 'tinker@bethel.edu'
+        receivers = ['ces55739@bethel.edu']
+
+        smtp_obj = smtplib.SMTP('localhost')
+        smtp_obj.sendmail(sender, receivers, message)
+        print "Successfully sent email"
+        db.session.rollback()
+        return "sent email notice"
+
+    if redirect:
+        create_redirect_text_file()
+    return str(redirect)
+
+
 @redirect_blueprint.route('/delete', methods=['post'])
 def delete_redirect():
     check_redirect_groups()
