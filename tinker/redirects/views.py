@@ -84,6 +84,9 @@ def new_redirect_submti():
 
 @redirect_blueprint.route('/api-submit', methods=['get', 'post'])
 def new_api_submit():
+    smtp_obj = smtplib.SMTP('localhost')
+    smtp_obj.sendmail("tinker@bethel.edu", ['ces55739@bethel.edu'], "TEST: Began api-submit-asset-expiration")
+    
     body = request.form['body']
 
     soup = BeautifulSoup(body)
