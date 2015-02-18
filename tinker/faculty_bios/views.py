@@ -178,8 +178,10 @@ def submit_faculty_bio_form():
     # Images
     groups = get_groups_for_user()
 
-    image_name = form.image.data.filename
-
+    try:
+        image_name = form.image.data.filename
+    except AttributeError:
+        image_name = ""
     if image_name != "":
         # Not sure how to treat a space in a name. just remove it?
         image_name = add_data['system_name'] + '.jpg'
