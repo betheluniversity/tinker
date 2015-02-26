@@ -11,7 +11,12 @@
     .large-text-area {
         height:150px;
     }
+
+    input[type="radio"] {
+        margin: 0 10px 10px 10px;
+    }
   </style>
+
 {% endblock %}
 
 {% block page_title %}
@@ -77,12 +82,17 @@
                 {{field.label}}{{ field(class="large-text-area") }}
                 </div>
 
+              {% elif field.name == "categories" %}
+                  <label for="categories">I need to change my school and programs that I teach.</label>
+                  <input id="categories_yes" type="radio" name="categories-show-hide" value="yes" onClick="showCategories()">Yes</input>
+                  <input id="categories_no" type="radio" name="categories-show-hide" value="no"  onClick="hideCategories()" checked>No</input>
+                  <h3 id="{{ field.id }}">{{ field.label }}</h3>
 
               {% elif field.type == "SelectMultipleField" %}
                 {{ field(class="largeselect") }}
 
               {% elif field.type == "HeadingField" %}
-                <h3>{{ field.label }}</h3>
+                <h3 id="{{ field.id }}">{{ field.label }}</h3>
 
               {% elif field.name == "job_titles" %}
                 {{ job_title_fieldset() }}
@@ -119,6 +129,7 @@
           {% endif %}
 
         {% endfor %}
+
         <button type="submit" id="faculty-bio-submit-btn" class="button postfix">Submit</button>
     </form>
   </div>
@@ -393,8 +404,6 @@
           testExpertise();
       });
 
-
-
   // Dynamically render image
   function readURL(input) {
     if (input.files && input.files[0]) {
@@ -413,6 +422,42 @@
     $("#image").change(function(){
         readURL(this);
     });
+
+
+    function hideCategories(){
+        $('#categories_heading').hide();
+        $('label[for="school"]').hide();
+        $("#school").hide();
+        $('label[for="department"]').hide();
+        $("#department").hide();
+        $('label[for="adult_undergrad_program"]').hide();
+        $("#adult_undergrad_program").hide();
+        $('label[for="graduate_program"]').hide();
+        $("#graduate_program").hide();
+        $('label[for="seminary_program"]').hide();
+        $("#seminary_program").hide();
+    }
+
+    function showCategories(){
+        $('#categories_heading').show();
+        $('label[for="school"]').show();
+        $("#school").show();
+        $('label[for="department"]').show();
+        $("#department").show();
+        $('label[for="adult_undergrad_program"]').show();
+        $("#adult_undergrad_program").show();
+        $('label[for="graduate_program"]').show();
+        $("#graduate_program").show();
+        $('label[for="seminary_program"]').show();
+        $("#seminary_program").show();
+    }
+
+    {% if form.errors %}
+        showCategories();
+        $('#categories_yes').prop("checked", true);
+    {% else %}
+        hideCategories();
+    {% endif %}
 
 </script>
 

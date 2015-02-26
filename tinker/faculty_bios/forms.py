@@ -154,8 +154,9 @@ class FacultyBioForm(Form):
 
     website = TextField('Professional website or blog')
 
-    categories = HeadingField(label="Categories")
+
     choices = get_faculty_bio_choices()
+    categories = HeadingField(label="Categories", id="categories_heading")
     school_choices = choices['school']
     department_choices = choices['department']
     caps_choices = choices['adult_undergrad_program']
