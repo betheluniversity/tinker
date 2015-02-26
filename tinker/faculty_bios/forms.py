@@ -119,9 +119,9 @@ def get_faculty_bio_choices():
 class FacultyBioForm(Form):
 
     roles = get_roles()
-    # if 'FACULTY-BSSD' not in roles and 'FACULTY-BSSP' not in roles:
-    #     image = FileField("Image")
-    #     image_url = HiddenField("Image URL")
+    if 'FACULTY-BSSD' not in roles and 'FACULTY-BSSP' not in roles:
+        image = FileField("Image")
+        image_url = HiddenField("Image URL")
 
     first = TextField('Faculty first name', validators=[DataRequired()])
     last = TextField('Faculty last name', validators=[DataRequired()])

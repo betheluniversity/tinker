@@ -195,7 +195,6 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     image = None
 
     if 'image_name' in add_data.keys():
-        
         image_name = add_data['image_name']
         image_structure = get_image_structure("/academics/faculty/images", image_name)
         r = requests.get('https://www.bethel.edu/academics/faculty/images/' + image_name)
@@ -216,7 +215,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             clear_resp = clear_image_cache(image_structure['file']['path'])
             app.logger.warn("%s: Images Cleared: %s" % (time.strftime("%c"), clear_resp))
         image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
-    elif 'image_url' in add_data.keys() and add_data['image_url'] is not None:
+    elif 'image_url' in add_data.keys() and add_data['image_url'] is not None and add_data['image_url'] != "":
         # If you don't supply an Image Cascade will clear it out,
         # so create a node out of the existing asset so it maintains the link
         image_name = add_data['image_url'].split('/')[-1]
