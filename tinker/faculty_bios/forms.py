@@ -142,9 +142,12 @@ class FacultyBioForm(Form):
     degree = DummyField('')
 
     biography = CKEditorTextAreaField('Biography')
+    courses = CKEditorTextAreaField('Courses Taught')
     awards = CKEditorTextAreaField('Awards')
     publications = CKEditorTextAreaField('Publications')
+    presentations = CKEditorTextAreaField('Presentations')
     certificates = CKEditorTextAreaField('Certificates and licenses')
+    organizations = CKEditorTextAreaField('Professional Organizations, Committees, and Boards')
     hobbies = CKEditorTextAreaField('Hobbies and interests')
 
     quote = TextField('Quote')

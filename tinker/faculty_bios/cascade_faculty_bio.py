@@ -107,8 +107,11 @@ def get_add_to_bio(add_data):
 
     biography = ""
     awards = ""
+    courses = ""
     publications = ""
+    presentations = ""
     certificates = ""
+    organizations = ""
     hobbies = ""
     quote = ""
     website = ""
@@ -117,10 +120,16 @@ def get_add_to_bio(add_data):
         biography = add_data['biography']
     if add_data['awards'] is not None:
         awards = add_data['awards']
+    if add_data['courses'] is not None:
+        courses = add_data['courses']
     if add_data['publications'] is not None:
         publications = add_data['publications']
+    if add_data['presentations'] is not None:
+        presentations = add_data['presentations']
     if add_data['certificates'] is not None:
         certificates = add_data['certificates']
+    if add_data['organizations'] is not None:
+        organizations = add_data['organizations']
     if add_data['hobbies'] is not None:
         hobbies = add_data['hobbies']
     if add_data['quote'] is not None:
@@ -132,10 +141,16 @@ def get_add_to_bio(add_data):
         options.append("::CONTENT-XML-CHECKBOX::Biography")
     if awards != "":
         options.append("::CONTENT-XML-CHECKBOX::Awards")
+    if courses != "":
+        options.append("::CONTENT-XML-CHECKBOX::Courses Taught")
     if publications != "":
         options.append("::CONTENT-XML-CHECKBOX::Publications")
+    if presentations != "":
+        options.append("::CONTENT-XML-CHECKBOX::Presentations")
     if certificates != "":
         options.append("::CONTENT-XML-CHECKBOX::Certificates and Licenses")
+    if organizations != "":
+        options.append("::CONTENT-XML-CHECKBOX::Professional Organizations, Committees, and Boards")
     if hobbies != "":
         options.append("::CONTENT-XML-CHECKBOX::Hobbies and Interests")
     if quote != "":
@@ -149,8 +164,11 @@ def get_add_to_bio(add_data):
         structured_data_node("options", options),
         structured_data_node("biography", escape_wysiwyg_content(biography)),
         structured_data_node("awards", escape_wysiwyg_content(awards)),
+        structured_data_node("courses", escape_wysiwyg_content(courses)),
         structured_data_node("publications", escape_wysiwyg_content(publications)),
+        structured_data_node("presentations", escape_wysiwyg_content(presentations)),
         structured_data_node("certificates", escape_wysiwyg_content(certificates)),
+        structured_data_node("organizations", escape_wysiwyg_content(organizations)),
         structured_data_node("hobbies", escape_wysiwyg_content(hobbies)),
         structured_data_node("quote", quote),
         structured_data_node("website", website),
