@@ -137,6 +137,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
             dynamic_field('offices', add_data['offices']),
             dynamic_field('cas-departments', add_data['cas_departments']),
             dynamic_field('internal', add_data['internal']),
+            dynamic_field('hide-from-nav', {"Hide"}),
         ],
     }
 

@@ -116,25 +116,25 @@ def get_add_to_bio(add_data):
     quote = ""
     website = ""
 
-    if add_data['biography'] is not None:
+    if 'biography' in add_data.keys():
         biography = add_data['biography']
-    if add_data['awards'] is not None:
+    if 'awards' in add_data.keys():
         awards = add_data['awards']
-    if add_data['courses'] is not None:
+    if 'courses' in add_data.keys():
         courses = add_data['courses']
-    if add_data['publications'] is not None:
+    if 'publications' in add_data.keys():
         publications = add_data['publications']
-    if add_data['presentations'] is not None:
+    if 'presentations' in add_data.keys():
         presentations = add_data['presentations']
-    if add_data['certificates'] is not None:
+    if 'certificates' in add_data.keys():
         certificates = add_data['certificates']
-    if add_data['organizations'] is not None:
+    if 'organizations' in add_data.keys():
         organizations = add_data['organizations']
-    if add_data['hobbies'] is not None:
+    if 'hobbies' in add_data.keys():
         hobbies = add_data['hobbies']
-    if add_data['quote'] is not None:
+    if 'quote' in add_data.keys():
         quote = add_data['quote']
-    if add_data['website'] is not None:
+    if 'website' in add_data.keys():
         website = add_data['website']
 
     if biography != "":
@@ -251,7 +251,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             dynamic_field('department', add_data['department']),
             dynamic_field('adult-undergrad-program', add_data['adult_undergrad_program']),
             dynamic_field('graduate-program', add_data['graduate_program']),
-            dynamic_field('seminary-program', add_data['seminary_program'])
+            dynamic_field('seminary-program', add_data['seminary_program']),
+            dynamic_field('hide-from-nav', {"Hide"}),
         ],
     }
 
