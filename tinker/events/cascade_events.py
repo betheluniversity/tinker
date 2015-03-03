@@ -388,7 +388,7 @@ def get_event_folder_path(data):
 
     path = "events/%s" % max_year
     content_config_path = "Event No Nav"
-    hide_from_nav = dynamic_field('hide-from-nav', ["Hide"])
+    hide_from_nav = dynamic_field('hide-site-nav', ["Hide"])
 
     general = data['general']
     offices = data['offices']
@@ -400,17 +400,17 @@ def get_event_folder_path(data):
     elif common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'],  general):
         content_config_path = "Event With Nav"
         path = "events/arts/galleries/exhibits/%s" % max_year
-        hide_from_nav = dynamic_field('hide-from-nav', ["Do not hide"])
+        hide_from_nav = dynamic_field('hide-site-nav', ["Do not hide"])
 
     elif 'Music Concerts' in general:
         content_config_path = "Event With Nav"
         path = 'events/arts/music/%s' % max_year
-        hide_from_nav = dynamic_field('hide-from-nav', ["Do not hide"])
+        hide_from_nav = dynamic_field('hide-site-nav', ["Do not hide"])
 
     elif 'Theatre' in general:
         content_config_path = "Event With Nav"
         path = 'events/arts/theatre/%s' % max_year
-        hide_from_nav = dynamic_field('hide-from-nav', ["Do not hide"])
+        hide_from_nav = dynamic_field('hide-site-nav', ["Do not hide"])
 
     elif any("Chapel" in s for s in general):
         content_config_path = "Event No Nav"

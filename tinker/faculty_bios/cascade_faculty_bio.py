@@ -252,7 +252,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             dynamic_field('adult-undergrad-program', add_data['adult_undergrad_program']),
             dynamic_field('graduate-program', add_data['graduate_program']),
             dynamic_field('seminary-program', add_data['seminary_program']),
-            dynamic_field('hide-from-nav', ["Hide"]),
+            dynamic_field('hide-site-nav', ["Hide"]),
+
         ],
     }
 
