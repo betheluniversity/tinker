@@ -131,7 +131,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
     }
 
     # put it all into the final asset with the rest of the SOAP structure
-    contentTypePath, parentFolderPath, hide_from_nav = get_event_folder_path(add_data)
+    contentTypePath, parentFolderPath = get_event_folder_path(add_data)
 
     # create the dynamic metadata dict
     dynamic_fields = {
@@ -140,7 +140,6 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
             dynamic_field('offices', add_data['offices']),
             dynamic_field('cas-departments', add_data['cas_departments']),
             dynamic_field('internal', add_data['internal']),
-            hide_from_nav,
         ],
     }
 
@@ -388,7 +387,6 @@ def get_event_folder_path(data):
 
     path = "events/%s" % max_year
     content_config_path = "Event No Nav"
-    hide_from_nav = dynamic_field('hide-site-nav', ["Hide"])
 
     general = data['general']
     offices = data['offices']
@@ -400,17 +398,14 @@ def get_event_folder_path(data):
     elif common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'],  general):
         content_config_path = "Event With Nav"
         path = "events/arts/galleries/exhibits/%s" % max_year
-        hide_from_nav = dynamic_field('hide-site-nav', ["Do not hide"])
 
     elif 'Music Concerts' in general:
         content_config_path = "Event With Nav"
         path = 'events/arts/music/%s' % max_year
-        hide_from_nav = dynamic_field('hide-site-nav', ["Do not hide"])
 
     elif 'Theatre' in general:
         content_config_path = "Event With Nav"
         path = 'events/arts/theatre/%s' % max_year
-        hide_from_nav = dynamic_field('hide-site-nav', ["Do not hide"])
 
     elif any("Chapel" in s for s in general):
         content_config_path = "Event No Nav"
@@ -441,7 +436,7 @@ def get_event_folder_path(data):
 
     create_folder(path, additionalMetadata)
 
-    return content_config_path, path, hide_from_nav
+    return content_config_path, path
 
 
 def move_event_year(event_id, data):
