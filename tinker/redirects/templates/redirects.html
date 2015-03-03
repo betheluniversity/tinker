@@ -88,24 +88,34 @@ var delay = (function(){
     $("#redirect-add").show();
   }
 
-  function loadTableForSearch(from_path){
-    var from_path = {"from_path": from_path};
+  function loadTableForSearch(search_value, type){
+    // type needs to be either 'from_path' or 'to_url'
+    var search = {'type': type, 'search': search_value};
     var url = "/redirect/search";
-     $.post(url, from_path, function(data) {
+     $.post(url, search, function(data) {
         updateTable(data);
       });
   }
 
+  $('#new-redirect-to').keyup(function() {
+    var input = $(this);
+    input.val(input.val().replace(/ /g,''));
+    var value = input.val();
+{#    delay(function(){#}
+{#      loadTableForSearch(value, 'to_url');#}
+{#    }, 300 );#}
+  });
+
   $('#new-redirect-from').keyup(function() {
     var input = $(this);
-    input.val(input.val().trim());
+    input.val(input.val().replace(/ /g,''));
     var value = input.val();
     if (value[0] != '/' && value.length > 0) {
       input.val("/" + value);
       value = input.val();
     }
     delay(function(){
-      loadTableForSearch(value);
+      loadTableForSearch(value, 'from_path');
     }, 300 );
   });
 

@@ -45,12 +45,16 @@ def show():
 def search():
     check_redirect_groups()
     # todo: limit results to...100?
-    from_path = request.form['from_path'] + "%"
+    search_type = request.form['type']
+    search_query = request.form['search'] + "%"
 
-    if from_path == "%":
+    if search == "%" or search_type not in ['from_path', 'to_url']:
         return ""
 
-    redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(from_path)).limit(100).all()
+    if search_type == 'from_path':
+        redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
+    else:
+        redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
     redirects.sort()
     return render_template('redirect-ajax.html', **locals())
 
