@@ -97,10 +97,12 @@ var delay = (function(){
   }
 
   $('#new-redirect-from').keyup(function() {
-    var value = $(this).val();
+    var input = $(this);
+    input.val(input.val().trim());
+    var value = input.val();
     if (value[0] != '/' && value.length > 0) {
-      $(this).val("/" + value);
-      value = $(this).val();
+      input.val("/" + value);
+      value = input.val();
     }
     delay(function(){
       loadTableForSearch(value);
@@ -129,7 +131,6 @@ var delay = (function(){
     $("#form-save-button").append(input);
 
     $("#modal-confirm").click(function(){
-      debugger;
       var from_path = {"from_path": $(this).attr('data-delete-path')};
       var url = '/redirect/delete';
       $.post(url, from_path, function(data) {
