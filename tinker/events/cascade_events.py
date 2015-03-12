@@ -133,6 +133,11 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
     # put it all into the final asset with the rest of the SOAP structure
     contentTypePath, parentFolderPath = get_event_folder_path(add_data)
 
+    if contentTypePath == "Event No Nav":
+        hide_site_nav = dynamic_field('hide-site-nav', ["Hide"])
+    else:
+        hide_site_nav = dynamic_field('hide-site-nav', ["Do not hide"])
+
     # create the dynamic metadata dict
     dynamic_fields = {
         'dynamicField': [
@@ -140,6 +145,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
             dynamic_field('offices', add_data['offices']),
             dynamic_field('cas-departments', add_data['cas_departments']),
             dynamic_field('internal', add_data['internal']),
+            hide_site_nav,
         ],
     }
 
