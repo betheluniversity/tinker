@@ -66,18 +66,18 @@ def read_page():
     return str(response)
 
 
-@event_blueprint.route('/in-workflow/<event_id>')
-def event_in_workflow(event_id):
-    if is_asset_in_workflow(event_id) == False:
-        return redirect('/event/edit/' + event_id, code=302)
-    return render_template('event-in-workflow.html', **locals())
+@event_blueprint.route('/in-workflow')
+def event_in_workflow():
+    # if is_asset_in_workflow(event_id) == False:
+    #     return redirect('/event/edit/' + event_id, code=302)
+    return render_template('event-in-workflow.html')
 
 @event_blueprint.route('/edit/<event_id>')
 def edit_event_page(event_id):
 
     # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
     if is_asset_in_workflow(event_id):
-        return redirect('/event/in-workflow/' + event_id, code=302)
+        return redirect('/event/in-workflow', code=302)
 
     # import this here so we dont load all the content
     # from cascade during hoempage load
