@@ -297,3 +297,23 @@ def publish_e_announcement_xml():
 
     # publish the event XML page
     publish(app.config['E_ANNOUNCEMENTS_XML_ID'])
+
+
+def is_asset_in_workflow(id, type="page"):
+
+    tools.get_user()
+    client = get_client()
+    identifier = {
+        'id': id,
+        'type': type,
+    }
+
+    auth = app.config['CASCADE_LOGIN']
+
+    response = client.service.readWorkflowInformation(auth, identifier)
+
+    if response.workflow is not None:
+        if str(response.workflow.currentStep) != "finish":
+            return True
+
+    return False

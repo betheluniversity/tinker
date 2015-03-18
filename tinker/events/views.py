@@ -51,7 +51,7 @@ def read_page():
     tools.get_user()
     client = get_client()
     identifier = {
-        'id': '81121cd38c58651317cf8e743509df52',
+        'id': '2dd06eba8c5865131d874c31c1a41716',
         'type': 'page',
         # 'path': {
         #     'path': '/academics/faculty/hamre-alyssa',
@@ -59,15 +59,25 @@ def read_page():
         # }
     }
 
+
     auth = app.config['CASCADE_LOGIN']
     response = client.service.read(auth, identifier)
 
-    return "<pre>" + str(response) + "</pre>"
-    # return str(response)
+    return str(response)
 
+
+@event_blueprint.route('/in-workflow/<event_id>')
+def event_in_workflow(event_id):
+    if is_asset_in_workflow(event_id) == False:
+        return redirect('/event/edit/' + event_id, code=302)
+    return render_template('event-in-workflow.html', **locals())
 
 @event_blueprint.route('/edit/<event_id>')
 def edit_event_page(event_id):
+
+    # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
+    if is_asset_in_workflow(event_id):
+        return redirect('/event/in-workflow/' + event_id, code=302)
 
     # import this here so we dont load all the content
     # from cascade during hoempage load
@@ -228,11 +238,11 @@ def submit_edit_form():
     new_year = get_year_folder_value(add_data)
 
     resp = edit(asset)
-    app.logger.warn(time.strftime("%c") + ": Event edit submission by " + username + " " + str(resp))
+    app.logger.warn(time.strftime("%c") + ": Event edit submission by " + username + " with id " + event_id + ". " + str(resp))
 
     if new_year > current_year:
         resp = move_event_year(event_id, add_data)
-        app.logger.warn(time.strftime("%c") + ": Event movesubmission by " + username + " " + str(resp))
+        app.logger.warn(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
 
     return redirect('/event/confirm', code=302)
 
