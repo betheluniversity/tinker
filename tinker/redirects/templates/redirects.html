@@ -93,7 +93,7 @@ var delay = (function(){
     var search = {'type': type, 'search': search_value};
     var url = "/redirect/search";
      $.post(url, search, function(data) {
-        updateTable(data);
+        delay(updateTable(data), 1000);
       });
   }
 

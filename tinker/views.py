@@ -1,5 +1,6 @@
 # python
 
+
 # flask
 from flask import render_template
 from flask import session
@@ -29,4 +30,3 @@ def get_image(image_name):
 def test():
     session.clear()
     return "done"
-
