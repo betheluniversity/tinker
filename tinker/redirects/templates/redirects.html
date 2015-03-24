@@ -93,7 +93,7 @@ var delay = (function(){
     var search = {'type': type, 'search': search_value};
     var url = "/redirect/search";
      $.post(url, search, function(data) {
-        delay(updateTable(data), 1000);
+        updateTable(data);
       });
   }
 
@@ -134,7 +134,7 @@ var delay = (function(){
       var fieldMappings = $(this.form).serializeArray(),
               url = '/redirect/new-submit';
       $.post(url, fieldMappings, function(data) {
-          loadTableForSearch($("#new-redirect-from").val());
+          loadTableForSearch($("#new-redirect-from").val(), 'from_path');
       });
 
     });
@@ -145,7 +145,7 @@ var delay = (function(){
       var url = '/redirect/delete';
       $.post(url, from_path, function(data) {
         if (data){
-          loadTableForSearch($("#new-redirect-from").val());
+          loadTableForSearch($("#new-redirect-from").val(), 'from_path');
           $("#confirmModal").foundation('reveal', 'close');
         }
       });
