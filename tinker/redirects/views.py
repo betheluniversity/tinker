@@ -106,8 +106,7 @@ def new_api_submit():
         except:
             message = "Caleb Test: redirect from %s to %s already exists" % (from_url, to_url)
             sender = 'tinker@bethel.edu'
-            # receivers = ['e-jameson@bethel.edu', 'a-vennerstrom@bethel.edu']
-            receivers = ['ces55739@bethel.edu']
+            receivers = ['e-jameson@bethel.edu', 'a-vennerstrom@bethel.edu', 'ces55739@bethel.edu']
             
             smtp_obj = smtplib.SMTP('localhost')
             smtp_obj.sendmail(sender, receivers, message)
