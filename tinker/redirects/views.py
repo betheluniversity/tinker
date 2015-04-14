@@ -60,7 +60,14 @@ def search():
 
 
 @redirect_blueprint.route('/new-submit', methods=['post'])
-def new_redirect_submti():
+def new_redirect_submit():
+    # Caleb Testing code
+    message = "Caleb Test on new-submit: TEST"
+    sender = 'tinker@bethel.edu'
+    receivers = ['ces55739@bethel.edu']
+    smtp_obj = smtplib.SMTP('localhost')
+    smtp_obj.sendmail(sender, receivers, message)
+
     check_redirect_groups()
     form = request.form
     from_path = form['new-redirect-from']
