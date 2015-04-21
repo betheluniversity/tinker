@@ -96,6 +96,13 @@ def new_api_submit():
     redirect = ""
     for line in redirects:
         try:
+            # Caleb test emails
+            message = line
+            sender = 'tinker@bethel.edu'
+            receivers = ['ces55739@bethel.edu']
+            smtp_obj = smtplib.SMTP('localhost')
+            smtp_obj.sendmail(sender, receivers, message)
+
             line = line.lstrip().rstrip()
             if line.startswith('redirect:'):
                 line = line.replace('redirect:', '').lstrip().rstrip()
@@ -105,7 +112,7 @@ def new_api_submit():
                 db.session.add(redirect)
                 db.session.commit()
         except:
-            message = "Caleb Test: redirect from %s to %s already exists" % (from_url, to_url)
+            message = "redirect from %s to %s already exists" % (from_url, to_url)
             sender = 'tinker@bethel.edu'
             receivers = ['e-jameson@bethel.edu', 'a-vennerstrom@bethel.edu', 'ces55739@bethel.edu']
             
