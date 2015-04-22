@@ -131,12 +131,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
     }
 
     # put it all into the final asset with the rest of the SOAP structure
-    contentTypePath, parentFolderPath = get_event_folder_path(add_data)
-
-    if contentTypePath == "Event No Nav":
-        hide_site_nav = dynamic_field('hide-site-nav', ["Hide"])
-    else:
-        hide_site_nav = dynamic_field('hide-site-nav', ["Do not hide"])
+    hide_site_nav, parentFolderPath = get_event_folder_path(add_data)
 
     # create the dynamic metadata dict
     dynamic_fields = {
@@ -145,7 +140,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
             dynamic_field('offices', add_data['offices']),
             dynamic_field('cas-departments', add_data['cas_departments']),
             dynamic_field('internal', add_data['internal']),
-            hide_site_nav,
+            dynamic_field('hide-site-nav', [hide_site_nav]),
         ],
     }
 
@@ -157,8 +152,8 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
             'siteId': app.config['SITE_ID'],
             'parentFolderPath': parentFolderPath,
             'metadataSetPath': "/Event",
-            'contentTypePath': contentTypePath,
-            'configurationSetPath': contentTypePath,
+            'contentTypePath': "Event",
+            'configurationSetPath': "Old/Event",
             # Break this out more once its defined in the form
             'structuredData': structured_data,
             'metadata': {
@@ -392,41 +387,41 @@ def get_event_folder_path(data):
     max_year = get_year_folder_value(data)
 
     path = "events/%s" % max_year
-    content_config_path = "Event No Nav"
+    hide_site_nav = "Hide"
 
     general = data['general']
     offices = data['offices']
 
     if 'Athletics' in general:
-        content_config_path = "Event No Nav"
+        hide_site_nav = "Hide"
         path = "events/%s/athletics" % max_year
 
     elif common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'],  general):
-        content_config_path = "Event With Nav"
+        hide_site_nav = "Do not hide"
         path = "events/arts/galleries/exhibits/%s" % max_year
 
     elif 'Music Concerts' in general:
-        content_config_path = "Event With Nav"
+        hide_site_nav = "Do not hide"
         path = 'events/arts/music/%s' % max_year
 
     elif 'Theatre' in general:
-        content_config_path = "Event With Nav"
+        hide_site_nav = "Do not hide"
         path = 'events/arts/theatre/%s' % max_year
 
     elif any("Chapel" in s for s in general):
-        content_config_path = "Event No Nav"
+        hide_site_nav = "Hide"
         path = 'events/%s/chapel' % max_year
 
     elif 'Library' in general:
-        content_config_path = "Event No Nav"
+        hide_site_nav = "Hide"
         path = "events/%s/library" % max_year
 
     elif 'Bethel Student Government' in offices:
-        content_config_path = "Event No Nav"
+        hide_site_nav = "Hide"
         path = "events/%s/bsg" % max_year
 
     elif any("Admissions" in s for s in offices):
-        content_config_path = "Event No Nav"
+        hide_site_nav = "Hide"
         path = 'events/%s/admissions' % max_year
 
     additionalMetadata = {'dynamicField':{
@@ -442,7 +437,7 @@ def get_event_folder_path(data):
 
     create_folder(path, additionalMetadata)
 
-    return content_config_path, path
+    return hide_site_nav, path
 
 
 def move_event_year(event_id, data):
