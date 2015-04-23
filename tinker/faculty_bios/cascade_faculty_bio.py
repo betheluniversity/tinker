@@ -525,6 +525,7 @@ def check_publish_sets(school, faculty_bio_id):
             publish("2ed0beef8c5865132b2dadea1ccf543e", "publishset")
         if item == "Bethel Seminary":
             publish("2ed19c8d8c5865132b2dadea60403657", "publishset")
+            publish(faculty_bio_id)
 
 
 def get_description_text( depts):
