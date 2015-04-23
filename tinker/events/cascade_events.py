@@ -237,6 +237,24 @@ def traverse_event_folder(traverse_xml, username):
     # Travserse an XML folder, adding system-pages to a dict of matches
     # todo use xpath instead of calling this?
 
+    if username == "":
+        matches = []
+        for child in traverse_xml.findall('.//system-page'):
+            author = None
+            if child.find('author'):
+                author = child.find('author').text
+
+            page_values = {
+                'author': author,
+                'id': child.attrib['id'] or None,
+                'title': child.find('title').text or None,
+                'created-on': child.find('created-on').text or None,
+            }
+            # This is a match, add it to array
+            matches.append(page_values)
+        return matches
+
+
     matches = []
     for child in traverse_xml.findall('.//system-page'):
         try:
@@ -389,8 +407,15 @@ def get_event_folder_path(data):
     path = "events/%s" % max_year
     hide_site_nav = "Hide"
 
-    general = data['general']
-    offices = data['offices']
+    if 'general' in data:
+        general = data['general']
+    else:
+        general = []
+
+    if 'offices' in data:
+        offices = data['offices']
+    else:
+        offices = []
 
     if 'Athletics' in general:
         hide_site_nav = "Hide"
