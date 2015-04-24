@@ -77,11 +77,11 @@ def new_redirect_submit():
         from_path = "/%s" % from_path
 
     # Caleb test emails '/new-submit'
-    message = from_path + " | " + to_url + " | " + short_url + " | " + expiration_date
-    sender = 'tinker@bethel.edu'
-    receivers = ['ces55739@bethel.edu']
-    smtp_obj = smtplib.SMTP('localhost')
-    smtp_obj.sendmail(sender, receivers, message)
+    # message = from_path + " | " + to_url + " | " + short_url + " | " + expiration_date
+    # sender = 'tinker@bethel.edu'
+    # receivers = ['ces55739@bethel.edu']
+    # smtp_obj = smtplib.SMTP('localhost')
+    # smtp_obj.sendmail(sender, receivers, message)
 
     redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url, expiration_date=expiration_date)
 
