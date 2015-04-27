@@ -183,7 +183,6 @@ def submit_faculty_bio_form():
     except AttributeError:
         image_name = ""
     if image_name != "":
-        # Not sure how to treat a space in a name. just remove it?
         image_name = add_data['system_name'] + '.jpg'
         image_path = secure_filename(image_name)
 

@@ -120,7 +120,11 @@ def get_faculty_bio_choices():
 class FacultyBioForm(Form):
 
     roles = get_roles()
-    if 'FACULTY-BSSD' not in roles and 'FACULTY-BSSP' not in roles:
+    ## if a cas faculty member, hide the image field.
+    if 'FACULTY-CAS' in roles:
+        image = HiddenField("Image")
+        image_url = HiddenField("Image URL")
+    else:
         image = FileField("Image")
         image_url = HiddenField("Image URL")
 

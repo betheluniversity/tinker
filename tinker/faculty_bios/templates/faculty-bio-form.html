@@ -103,31 +103,30 @@
               {% elif field.type == "CKEditorTextAreaField" %}
                 {{ field(class="ckeditor") }}
 
+              {% elif field.name == "image" %}
+                {# The image_url field is hidden. So get the image from this. #}
+
+                <p>Is your image a perfect square? Don't forget to crop it at <a href="http://www.croppola.com">croppola.com</a>. Thanks!</p>
+                {{ form['image'] }}
+                {{ form['image_url'] }}
+                <img id="display_image" src="" style="height:300px; "/>
+                <script type="text/javascript">
+
+                    if( $("#image_url").val() == "" )
+                        $("#display_image").hide()
+                    else
+                    {
+                        $("#display_image").attr("src", "http://cdn1.bethel.edu/resize/unsafe/400x0/smart/http://www.bethel.edu/" + ($("#image_url").val()));
+                         $("#display_image").show()
+                        $("#image").hide()
+                    }
+                </script>
+                <hr />
+
               {% else %}
                   {{ field(size=20) }}
               {% endif %}
-
-
-          {% elif field.name == "image_url" %}
-            {# The image_url field is hidden. So get the image from this. #}
-
-              <p>Is your image a perfect square? Don't forget to crop it at <a href="http://www.croppola.com">croppola.com</a>. Thanks!</p>
-            {{ form['image_url'] }}
-            <img id="display_image" src="" style="height:300px; "/>
-            <script type="text/javascript">
-
-                if( $("#image_url").val() == "" )
-                    $("#display_image").hide()
-                else
-                {
-                    $("#display_image").attr("src", "http://cdn1.bethel.edu/resize/unsafe/400x0/smart/http://www.bethel.edu/" + ($("#image_url").val()));
-                     $("#display_image").show()
-                    $("#image").hide()
-                }
-            </script>
-            <hr />
-          {% endif %}
-
+            {% endif %}
         {% endfor %}
 
         <button type="submit" id="faculty-bio-submit-btn" class="button postfix">Submit</button>
