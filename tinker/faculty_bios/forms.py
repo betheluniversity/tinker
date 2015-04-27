@@ -3,6 +3,7 @@
 
 # modules
 from flask.ext.wtf import Form
+from wtforms import ValidationError
 from wtforms import TextField
 from wtforms import TextAreaField
 from wtforms import SelectMultipleField
@@ -134,7 +135,7 @@ class FacultyBioForm(Form):
 
     heading_choices = (('', "-select-"), ('Areas of expertise', 'Areas of expertise'), ('Research interests', 'Research interests'), ('Teaching speciality', 'Teaching speciality'))
 
-    heading = SelectField('Choose a heading that best fits your discipline', choices=heading_choices)
+    heading = SelectField('Choose a heading that best fits your discipline', choices=heading_choices, validators=[DataRequired()])
     areas = TextAreaField('Areas of expertise')
     research_interests = TextAreaField('Research interests')
     teaching_specialty = TextAreaField('Teaching speciality')
@@ -168,3 +169,25 @@ class FacultyBioForm(Form):
     adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['None'], choices=caps_choices, validators=[DataRequired()])
     graduate_program = SelectMultipleField('Graduate Programs', default=['None'], choices=gs_choices, validators=[DataRequired()])
     seminary_program = SelectMultipleField('Seminary Programs', default=['None'], choices=sem_choices, validators=[DataRequired()])
+
+
+    ## Manually override validate, in order to check the 3 headers below
+    def validate(self):
+        if not Form.validate(self):
+            return False
+        result = True
+
+        if self.heading.data == "Areas of expertise":
+            if self.areas.data == "":
+                self.areas.errors.append('Area of expertise is required.')
+                result = False
+        elif self.heading.data == "Research interests":
+            if self.research_interests.data == "":
+                self.research_interests.append('Research interests is required.')
+                result = False
+        elif self.heading.data == "Teaching speciality":
+            if self.teaching_specialty.data == "":
+                self.teaching_specialty.errors.append('Teaching speciality is required.')
+                result = False
+
+        return result
