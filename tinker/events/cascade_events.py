@@ -200,7 +200,10 @@ def create(asset):
     return response
 
 
-def create_folder(folder_path, additionalMetadata=None):
+def create_event_folder(folder_path):
+    if folder_path[0] == "/":
+        folder_path = folder_path[1:] ## removes the extra "/"
+
     old_folder_asset = read("/" + folder_path, "folder")
 
     if 'success = "false"' in str(old_folder_asset):
@@ -213,7 +216,9 @@ def create_folder(folder_path, additionalMetadata=None):
             'folder': {
                 'metadata':{
                     'title': name,
-                    'dynamicFields': additionalMetadata,
+                    'dynamicFields': {
+                        'dynamicField': read_events_base_asset()
+                    }
                 },
                 'metadataSetPath': "Basic",
                 'name': name,
@@ -229,8 +234,42 @@ def create_folder(folder_path, additionalMetadata=None):
 
         response = client.service.create(auth, asset)
         response = app.logger.warn(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
+        return True
+    return False
 
-    return
+
+def read_events_base_asset():
+
+    base_asset = read("/_cascade/base-assets/folders/event-folder", "folder")
+    if 'success = "false"' in str(base_asset):
+        return None
+
+    asset = base_asset.asset.folder.metadata.dynamicFields.dynamicField
+
+    ## if there is no metadata, exit
+    if len( asset) == 0:
+        return None
+
+    dynamic_metadata = []
+    for field in asset:
+        ## Builds the value string of 1 value
+        field_value = None
+        if field.fieldValues[0][0].value is not None:
+            field_value = str(field.fieldValues[0][0].value)
+
+        ## create the dynamic metadata with values
+        dynamic_metadata.append(
+            {
+                'name': str(field.name),
+                'fieldValues': {
+                    'fieldValue':
+                    [{
+                        'value': field_value
+                    }]
+                }
+            })
+
+    return dynamic_metadata
 
 
 def traverse_event_folder(traverse_xml, username):
@@ -449,18 +488,7 @@ def get_event_folder_path(data):
         hide_site_nav = "Hide"
         path = 'events/%s/admissions' % max_year
 
-    additionalMetadata = {'dynamicField':{
-                                'name': 'skip-breadcrumb',
-                                'fieldValues': {
-                                    'fieldValue':
-                                    {
-                                        'value': 'Yes'
-                                    }
-                                }
-                            }
-                        }
-
-    create_folder(path, additionalMetadata)
+    create_event_folder(path)
 
     return hide_site_nav, path
 

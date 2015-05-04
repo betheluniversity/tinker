@@ -51,7 +51,7 @@ def read_page():
     tools.get_user()
     client = get_client()
     identifier = {
-        'id': '2dd06eba8c5865131d874c31c1a41716',
+        'id': 'c86a838d8c5865130c130b3a1430adc8',
         'type': 'page',
         # 'path': {
         #     'path': '/academics/faculty/hamre-alyssa',
@@ -63,7 +63,7 @@ def read_page():
     auth = app.config['CASCADE_LOGIN']
     response = client.service.read(auth, identifier)
 
-    return str(response)
+    return "<pre>" + str(response) + "</pre>"
 
 
 @event_blueprint.route('/in-workflow')
@@ -250,3 +250,9 @@ def submit_edit_form():
 @event_blueprint.route('/confirm')
 def confirm():
     return render_template('submit-confirm.html', **locals())
+
+
+@event_blueprint.route('/caleb')
+def caleb():
+    # return "<pre>" + str(read_events_base_asset()) + "</pre>"
+    return str(create_folder("_testing/caleb-schwarze/another-caleb-testing-folder/test"))

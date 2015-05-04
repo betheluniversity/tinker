@@ -68,7 +68,6 @@ def faculty_bio_edit_form(faculty_bio_id):
     # Get the event data from cascade
     faculty_data = read(faculty_bio_id)
 
-    # Get the different data sets from the response
     form_data = faculty_data.asset.page
     # the stuff from the data def
     s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
