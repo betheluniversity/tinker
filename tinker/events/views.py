@@ -250,9 +250,3 @@ def submit_edit_form():
 @event_blueprint.route('/confirm')
 def confirm():
     return render_template('submit-confirm.html', **locals())
-
-
-@event_blueprint.route('/caleb')
-def caleb():
-    # return "<pre>" + str(read_events_base_asset()) + "</pre>"
-    return str(create_folder("_testing/caleb-schwarze/another-caleb-testing-folder/test"))

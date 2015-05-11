@@ -493,10 +493,11 @@ def get_add_data(lists, form):
     return add_data
 
 
-def get_bio_publish_workflow(title="", username="", school=None):
+def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, school=None):
     if not school:
         school = []
-    if "College of Arts & Sciences" in school:
+    # only submit workflow if it is a new CAS
+    if "College of Arts & Sciences" in school and faculty_bio_id is None:
         workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
     elif "Graduate School" in school or "College of Adult & Professional Studies" in school:
         workflow_id = '81dabbc78c5865130c130b3a2b567e75'
@@ -511,27 +512,29 @@ def get_bio_publish_workflow(title="", username="", school=None):
         "workflowDefinitionId": workflow_id,
         "workflowComments": "New Faculty Bio submission"
     }
+
     return workflow
 
 
 def check_publish_sets(school, faculty_bio_id):
     for item in school:
+        # currently GS and CAPS go through a workflow, so those should NOT be published here.
         if item == "College of Arts & Sciences":
+            publish(faculty_bio_id)
             publish("f580ac758c58651313b6fe6bced65fea", "publishset")
-            publish(faculty_bio_id)
-        if item == "Graduate Schol":
+        elif item == "Graduate Schol":
             publish("2ecbad1a8c5865132b2dadea8cdcb2be", "publishset")
-        if item == "College of Adult & Professional Studies":
+        elif item == "College of Adult & Professional Studies":
             publish("2ed0beef8c5865132b2dadea1ccf543e", "publishset")
-        if item == "Bethel Seminary":
-            publish("2ed19c8d8c5865132b2dadea60403657", "publishset")
+        elif item == "Bethel Seminary":
             publish(faculty_bio_id)
+            publish("2ed19c8d8c5865132b2dadea60403657", "publishset")
 
 
 def get_description_text( depts):
     final_dept = None
 
-    ## get depts
+    # get depts
     for dept in depts:
         for item in dept:
             if item != "None" and item != "Select":

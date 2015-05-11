@@ -172,7 +172,7 @@ def submit_faculty_bio_form():
 
     # Get all the form data
     add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
-    workflow = get_bio_publish_workflow(title, username, add_data['school'])
+
 
     # Images
     groups = get_groups_for_user()
@@ -193,9 +193,8 @@ def submit_faculty_bio_form():
     # End Images
 
     faculty_bio_id = rform['faculty_bio_id']
-    if faculty_bio_id:
-        workflow = None
 
+    workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data['school'])
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 
     if faculty_bio_id:
