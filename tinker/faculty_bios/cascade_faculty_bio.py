@@ -510,7 +510,7 @@ def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, school=
     workflow = {
         "workflowName": name,
         "workflowDefinitionId": workflow_id,
-        "workflowComments": "New Faculty Bio submission"
+        "workflowComments": "Faculty Bio Approval Request"
     }
 
     return workflow

@@ -31,8 +31,3 @@ def test():
     session.clear()
     return "done"
 
-
-
-
-
-
