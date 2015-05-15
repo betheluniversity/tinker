@@ -196,7 +196,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
 
     if 'image_name' in add_data.keys():
         image_name = add_data['image_name']
-        image_structure = get_image_structure("/academics/faculty/images", image_name)
+        image_structure = get_image_structure(add_data, "/academics/faculty/images", image_name)
         r = requests.get('https://www.bethel.edu/academics/faculty/images/' + image_name)
 
         # does this person have a live image already?
@@ -287,7 +287,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
 
 
 # A test to see if we can create images in cascade.
-def get_image_structure(image_dest, image_name, workflow=None):
+def get_image_structure(add_data, image_dest, image_name, workflow=None):
 
     image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
     stream = image_file.read()
@@ -301,9 +301,14 @@ def get_image_structure(image_dest, image_name, workflow=None):
             'siteId': app.config['SITE_ID'],
             'siteName': 'Public',
             'data': encoded_stream,
+            'metadata' : {
+                'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + add_data['job-title1'] + " at Bethel University.",
+            }
+
         },
         'workflowConfiguration': workflow
     }
+
 
     return asset
 
@@ -379,6 +384,8 @@ def get_web_author_group(department_metadata):
 
 
 def create_faculty_bio(asset):
+
+
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
 
@@ -391,6 +398,7 @@ def create_faculty_bio(asset):
     publish_faculty_bio_xml()
 
     return response
+
 
 
 def get_faculty_bios_for_user(username):

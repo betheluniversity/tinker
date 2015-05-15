@@ -185,6 +185,7 @@ def submit_faculty_bio_form():
         image_name = add_data['system_name'] + '.jpg'
         image_path = secure_filename(image_name)
 
+
         form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
 
         add_data['image_name'] = image_name
