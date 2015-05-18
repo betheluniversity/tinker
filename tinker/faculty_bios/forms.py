@@ -129,7 +129,7 @@ def validate_username(form, field):
     content = req.content
     print content
     if content == str({}):
-        raise ValidationError("The username entered is not a valid username.")
+        raise ValidationError("Invalid username.")
 
 
 class FacultyBioForm(Form):
