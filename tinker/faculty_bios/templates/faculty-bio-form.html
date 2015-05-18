@@ -83,11 +83,42 @@
                 </div>
 
               {% elif field.name == "categories" %}
-                  <label for="categories">I need to change my school and programs that I teach.</label>
-                  <input id="categories_yes" type="radio" name="categories-show-hide" value="yes" onClick="showCategories()">Yes</input>
-                  <input id="categories_no" type="radio" name="categories-show-hide" value="no"  onClick="hideCategories()" checked>No</input>
-                  <h3 id="{{ field.id }}">{{ field.label }}</h3>
+                  {% if faculty_bio_id != "" %}
+                      <label for="categories">I need to change my school and programs that I teach.</label>
+                      <input id="categories_yes" type="radio" name="categories-show-hide" value="yes" onClick="showCategories()">Yes</input>
+                      <input id="categories_no" type="radio" name="categories-show-hide" value="no"  onClick="hideCategories()" checked>No</input>
 
+                      <script type="text/javascript">
+                        function hideCategories(){
+                            $('#categories_heading').hide();
+                            $('label[for="school"]').hide();
+                            $("#school").hide();
+                            $('label[for="department"]').hide();
+                            $("#department").hide();
+                            $('label[for="adult_undergrad_program"]').hide();
+                            $("#adult_undergrad_program").hide();
+                            $('label[for="graduate_program"]').hide();
+                            $("#graduate_program").hide();
+                            $('label[for="seminary_program"]').hide();
+                            $("#seminary_program").hide();
+                        }
+
+                        function showCategories(){
+                            $('#categories_heading').show();
+                            $('label[for="school"]').show();
+                            $("#school").show();
+                            $('label[for="department"]').show();
+                            $("#department").show();
+                            $('label[for="adult_undergrad_program"]').show();
+                            $("#adult_undergrad_program").show();
+                            $('label[for="graduate_program"]').show();
+                            $("#graduate_program").show();
+                            $('label[for="seminary_program"]').show();
+                            $("#seminary_program").show();
+                        }
+                      </script>
+                  {% endif %}
+                  <h3 id="{{ field.id }}">{{ field.label }}</h3>
               {% elif field.type == "SelectMultipleField" %}
                 {{ field(class="largeselect") }}
 
@@ -422,40 +453,14 @@
         readURL(this);
     });
 
-
-    function hideCategories(){
-        $('#categories_heading').hide();
-        $('label[for="school"]').hide();
-        $("#school").hide();
-        $('label[for="department"]').hide();
-        $("#department").hide();
-        $('label[for="adult_undergrad_program"]').hide();
-        $("#adult_undergrad_program").hide();
-        $('label[for="graduate_program"]').hide();
-        $("#graduate_program").hide();
-        $('label[for="seminary_program"]').hide();
-        $("#seminary_program").hide();
-    }
-
-    function showCategories(){
-        $('#categories_heading').show();
-        $('label[for="school"]').show();
-        $("#school").show();
-        $('label[for="department"]').show();
-        $("#department").show();
-        $('label[for="adult_undergrad_program"]').show();
-        $("#adult_undergrad_program").show();
-        $('label[for="graduate_program"]').show();
-        $("#graduate_program").show();
-        $('label[for="seminary_program"]').show();
-        $("#seminary_program").show();
-    }
-
-    {% if form.errors %}
-        showCategories();
-        $('#categories_yes').prop("checked", true);
-    {% else %}
-        hideCategories();
+    // only use this if it is an 'edit' bio
+    {% if faculty_bio_id %}
+        {% if form.errors %}
+            showCategories();
+            $('#categories_yes').prop("checked", true);
+        {% else %}
+            hideCategories();
+        {% endif %}
     {% endif %}
 
 </script>

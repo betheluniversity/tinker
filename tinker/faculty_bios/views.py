@@ -43,6 +43,8 @@ def faculty_bio_new_form():
 
     form = FacultyBioForm()
 
+    faculty_bio_id = ""
+
     add_form = True
     return render_template('faculty-bio-form.html', **locals())
 
