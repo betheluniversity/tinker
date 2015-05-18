@@ -11,7 +11,10 @@ from wtforms import SelectField
 from wtforms import HiddenField
 from flask_wtf.file import FileField
 from wtforms import Field
-from wtforms.validators import DataRequired
+from wtforms import validators
+from time import time
+
+from flask_hmacauth import hmac
 
 # local
 from tinker import app
@@ -117,6 +120,18 @@ def get_faculty_bio_choices():
     return {'school': school, 'department': department, 'adult_undergrad_program': adult_undergrad_program, 'graduate_program': graduate_program, 'seminary_program': seminary_program}
 
 
+def validate_username(form, field):
+    username = field.data
+    host = "http://wsapi.bethel.edu"
+    path = "/username/" + username + "/roles?TIMESTAMP="+str(int(time()))+"&ACCOUNT_ID=tinker"
+    sig=hmac.new(app.config['WSAPI_SECRET'], path, hashlib.sha1 ).hexdigest()
+    req = requests.get(host+path, headers={'X-Auth-Signature': sig})
+    content = req.content
+    print content
+    if content == str({}):
+        raise ValidationError("The username entered is not a valid username.")
+
+
 class FacultyBioForm(Form):
     roles = get_roles()
 
@@ -128,18 +143,18 @@ class FacultyBioForm(Form):
         image = FileField("Image")
         image_url = HiddenField("Image URL")
 
-    first = TextField('Faculty first name', validators=[DataRequired()])
-    last = TextField('Faculty last name', validators=[DataRequired()])
-    author = TextField("Faculty member's username", validators=[DataRequired()], description="This username will become the author of the page.")
+    first = TextField('Faculty first name', validators=[validators.DataRequired()])
+    last = TextField('Faculty last name', validators=[validators.DataRequired()])
+    author = TextField("Faculty member's username", validators=[validators.DataRequired(), validate_username], description="This username will become the author of the page.")
 
     job_titles = TextField('')
 
-    email = TextField('Email', validators=[DataRequired()])
-    started_at_bethel = TextField('Started at Bethel in', validators=[DataRequired()], description="Enter a year")
+    email = TextField('Email', validators=[validators.DataRequired()])
+    started_at_bethel = TextField('Started at Bethel in', validators=[validators.DataRequired()], description="Enter a year")
 
     heading_choices = (('', "-select-"), ('Areas of expertise', 'Areas of expertise'), ('Research interests', 'Research interests'), ('Teaching speciality', 'Teaching speciality'))
 
-    heading = SelectField('Choose a heading that best fits your discipline', choices=heading_choices, validators=[DataRequired()])
+    heading = SelectField('Choose a heading that best fits your discipline', choices=heading_choices, validators=[validators.DataRequired()])
     areas = TextAreaField('Areas of expertise')
     research_interests = TextAreaField('Research interests')
     teaching_specialty = TextAreaField('Teaching speciality')
@@ -168,11 +183,11 @@ class FacultyBioForm(Form):
     gs_choices = choices['graduate_program']
     sem_choices = choices['seminary_program']
 
-    school = SelectMultipleField('School', choices=school_choices, default=['Select'], validators=[DataRequired()])
-    department = SelectMultipleField('Undergraduate Departments', default=['None'], choices=department_choices, validators=[DataRequired()])
-    adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['None'], choices=caps_choices, validators=[DataRequired()])
-    graduate_program = SelectMultipleField('Graduate Programs', default=['None'], choices=gs_choices, validators=[DataRequired()])
-    seminary_program = SelectMultipleField('Seminary Programs', default=['None'], choices=sem_choices, validators=[DataRequired()])
+    school = SelectMultipleField('School', choices=school_choices, default=['Select'], validators=[validators.DataRequired()])
+    department = SelectMultipleField('Undergraduate Departments', default=['None'], choices=department_choices, validators=[validators.DataRequired()])
+    adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['None'], choices=caps_choices, validators=[validators.DataRequired()])
+    graduate_program = SelectMultipleField('Graduate Programs', default=['None'], choices=gs_choices, validators=[validators.DataRequired()])
+    seminary_program = SelectMultipleField('Seminary Programs', default=['None'], choices=sem_choices, validators=[validators.DataRequired()])
 
 
     ## Manually override validate, in order to check the 3 headers below
