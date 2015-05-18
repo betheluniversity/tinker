@@ -94,6 +94,12 @@
             {# do the entire date field in here for now #}
             {{ datetime_fieldset() }}
 
+          {% elif field.name == "link" %}
+            {{ field['link'] }}
+{#              <script type="text/javascript">#}
+{#                $("#link").hide()#}
+{#                </script>#}
+
           {% else %}
               {{ field(size=20) }}
           {% endif %}

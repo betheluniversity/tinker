@@ -8,12 +8,14 @@ from wtforms import TextField
 from wtforms import TextAreaField
 from wtforms import SelectMultipleField
 from wtforms import SelectField
+from wtforms import HiddenField
 from wtforms import DateTimeField
 from wtforms import Field
 from wtforms.validators import DataRequired
 
 # local
 from tinker.web_services import read, read_identifier
+from tinker import tools
 
 
 def get_md(metadata_path):
@@ -144,6 +146,12 @@ class EventForm(Form):
     what = HeadingField(label="What is your event?")
     title = TextField('Event name', validators=[DataRequired()], description="This will be the title of your webpage")
     teaser = TextField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.', validators=[DataRequired()])
+
+    # if 'Event Approver' in tools.get_groups_for_user():
+    #     link = TextField("External Link", description="This field only seen by 'Event Approvers'. An external link will redirect this event to the external link url.")
+    # else:
+    #     link = HiddenField("External Link")
+
     featuring = TextField('Featuring')
     sponsors = CKEditorTextAreaField('Sponsors')
     main_content = CKEditorTextAreaField('Event description')

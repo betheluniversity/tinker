@@ -76,13 +76,6 @@ def new_redirect_submit():
     if not from_path.startswith("/"):
         from_path = "/%s" % from_path
 
-    # Caleb test emails '/new-submit'
-    # message = from_path + " | " + to_url + " | " + short_url + " | " + expiration_date
-    # sender = 'tinker@bethel.edu'
-    # receivers = ['ces55739@bethel.edu']
-    # smtp_obj = smtplib.SMTP('localhost')
-    # smtp_obj.sendmail(sender, receivers, message)
-
     redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url, expiration_date=expiration_date)
 
     db.session.add(redirect)
@@ -103,13 +96,6 @@ def new_api_submit():
     redirect = ""
     for line in redirects:
         try:
-            # Caleb test emails '/public/api-submit'
-            message = line
-            sender = 'tinker@bethel.edu'
-            receivers = ['ces55739@bethel.edu']
-            smtp_obj = smtplib.SMTP('localhost')
-            smtp_obj.sendmail(sender, receivers, message)
-
             line = line.lstrip().rstrip()
             if line.startswith('redirect:'):
                 line = line.replace('redirect:', '').lstrip().rstrip()

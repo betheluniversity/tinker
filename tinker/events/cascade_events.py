@@ -107,6 +107,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
     structured_data = [
         structured_data_node("main-content", escape_wysiwyg_content(add_data['main_content'])),
         structured_data_node("questions", escape_wysiwyg_content(add_data['questions'])),
+        structured_data_node("link", escape_wysiwyg_content(add_data['link'])),
         structured_data_node("cancellations", add_data['cancellations']),
         structured_data_node("registration-details", escape_wysiwyg_content(add_data['registration_details'])),
         structured_data_node("registration-heading", add_data['registration_heading']),
@@ -121,7 +122,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
         structured_data_node("wufoo-code", add_data['wufoo_code']),
     ]
     # Add the dates at the end of the data
-    structured_data.extend(add_data['dates'])
+    structured_data.extend(add_data['event-dates'])
 
     # Wrap in the required structure for SOAP
     structured_data = {
@@ -323,7 +324,7 @@ def traverse_event_folder(traverse_xml, username):
                 'created-on': child.find('created-on').text or None,
                 'path': 'https://www.bethel.edu' + child.find('path').text or None,
                 'is_published': is_published,
-                'dates': "<br/>".join(dates_str),
+                'event-dates': "<br/>".join(dates_str),
             }
             # This is a match, add it to array
             matches.append(page_values)
@@ -339,6 +340,65 @@ def get_forms_for_user(username):
     else:
         form_xml = ET.parse('/var/www/staging/public/_shared-content/xml/events.xml').getroot()
     matches = traverse_event_folder(form_xml, username)
+
+    return matches
+
+
+def get_forms_for_event_approver():
+    # todo: move this to config
+    if app.config['ENVIRON'] != "prod":
+        response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/events.xml')
+        form_xml = ET.fromstring(response.read())
+    else:
+        form_xml = ET.parse('/var/www/staging/public/_shared-content/xml/events.xml').getroot()
+
+    # Travserse an XML folder, adding system-pages to a dict of matches
+    # todo use xpath instead of calling this?
+
+    matches = []
+    for child in form_xml.findall('.//system-page'):
+
+        try:
+            is_rental = False
+            for dynamic_field in child.findall("dynamic-metadata"):
+                if dynamic_field.find("name").text == "general":
+                    for value in dynamic_field.findall("value"):
+                        if value is not None and "Meetings, Conferences and Rentals" == value.text:
+                            is_rental = True
+
+        except AttributeError:
+            continue
+
+        try:
+            author = child.find('author').text
+        except AttributeError:
+            author = None
+        try:
+            is_published = child.find('last-published-on').text
+        except AttributeError:
+            is_published = False
+
+        if is_rental:
+            dates = child.find('system-data-structure').findall('event-dates')
+            dates_str = []
+            for date in dates:
+                # start = int(date.find('start-date').text) / 1000
+                # end = int(date.find('end-date').text) / 1000
+                start = int(date.find('start-date').text) / 1000
+                end = int(date.find('end-date').text) / 1000
+                dates_str.append(friendly_date_range(start, end))
+
+            page_values = {
+                'author': author,
+                'id': child.attrib['id'] or None,
+                'title': child.find('title').text or None,
+                'created-on': child.find('created-on').text or None,
+                'path': 'https://www.bethel.edu' + child.find('path').text or None,
+                'is_published': is_published,
+                'event-dates': "<br/>".join(dates_str),
+            }
+            # This is a match, add it to array
+            matches.append(page_values)
 
     return matches
 
@@ -503,7 +563,8 @@ def move_event_year(event_id, data):
 
 
 def get_year_folder_value(data):
-    dates = data['dates']
+    dates = data['event-dates']
+
     max_year = 0
     for node in dates:
         date_data = read_date_data_dict(node[0])

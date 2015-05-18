@@ -30,4 +30,3 @@ def get_image(image_name):
 def test():
     session.clear()
     return "done"
-

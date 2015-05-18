@@ -18,6 +18,8 @@ event_blueprint = Blueprint('event', __name__, template_folder='templates')
 @event_blueprint.route('/')
 def home():
     forms = get_forms_for_user(session['username'])
+    if 'Event Approver' in tools.get_groups_for_user():
+        forms = forms + get_forms_for_event_approver()
     return render_template('events-home.html', **locals())
 
 
@@ -197,7 +199,7 @@ def submit_form():
     dates = get_dates(add_data)
 
     # Add it to the dict, we can just ignore the old entries
-    add_data['dates'] = dates
+    add_data['event-dates'] = dates
 
     asset = get_event_structure(add_data, username, workflow)
 
@@ -229,7 +231,7 @@ def submit_edit_form():
     form = rform
     add_data = get_add_data(['general', 'offices', 'cas_departments', 'internal'], form)
     dates = get_dates(add_data)
-    add_data['dates'] = dates
+    add_data['event-dates'] = dates
     event_id = form['event_id']
 
     asset = get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
