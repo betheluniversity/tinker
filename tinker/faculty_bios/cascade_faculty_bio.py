@@ -539,7 +539,7 @@ def check_publish_sets(school, faculty_bio_id):
             publish("2ed19c8d8c5865132b2dadea60403657", "publishset")
 
 
-def get_description_text( depts):
+def get_description_text(depts):
     final_dept = None
 
     # get depts
