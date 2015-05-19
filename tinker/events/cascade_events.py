@@ -107,7 +107,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
     structured_data = [
         structured_data_node("main-content", escape_wysiwyg_content(add_data['main_content'])),
         structured_data_node("questions", escape_wysiwyg_content(add_data['questions'])),
-        structured_data_node("link", escape_wysiwyg_content(add_data['link'])),
+        # structured_data_node("link", escape_wysiwyg_content(add_data['link'])),
         structured_data_node("cancellations", add_data['cancellations']),
         structured_data_node("registration-details", escape_wysiwyg_content(add_data['registration_details'])),
         structured_data_node("registration-heading", add_data['registration_heading']),
