@@ -19,7 +19,7 @@ event_blueprint = Blueprint('event', __name__, template_folder='templates')
 def home():
     forms = get_forms_for_user(session['username'])
     if 'Event Approver' in tools.get_groups_for_user():
-        forms = forms + get_forms_for_event_approver()
+        event_approver_forms = get_forms_for_event_approver()
     return render_template('events-home.html', **locals())
 
 
@@ -120,10 +120,12 @@ def edit_event_page(event_id):
     # Add the rest of the fields. Can't loop over these kinds of metadata
     edit_data['title'] = metadata.title
     edit_data['teaser'] = metadata.metaDescription
+    author = metadata.author
 
     # Create an EventForm object with our data
     form = EventForm(**edit_data)
     form.event_id = event_id
+
 
     # convert dates to json so we can use Javascript to create custom DateTime fields on the form
     dates = fjson.dumps(dates)
@@ -230,6 +232,7 @@ def submit_edit_form():
     add_data = get_add_data(['general', 'offices', 'cas_departments', 'internal'], form)
     dates = get_dates(add_data)
     add_data['event-dates'] = dates
+    add_data['author'] = request.form['author']
     event_id = form['event_id']
 
     asset = get_event_structure(add_data, username, workflow=workflow, event_id=event_id)

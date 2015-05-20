@@ -145,7 +145,11 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
         ],
     }
 
-
+    # allows for multiple authors. If none set, default to username
+    if 'author' not in add_data or add_data['author'] == "":
+        author = username
+    else:
+        author = add_data['author']
 
     asset = {
         'page': {
@@ -160,7 +164,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
             'metadata': {
                 'title': add_data['title'],
                 'summary': 'summary',
-                'author': username,
+                'author': author,
                 'metaDescription': add_data['teaser'],
                 'dynamicFields': dynamic_fields,
             }
@@ -307,7 +311,10 @@ def traverse_event_folder(traverse_xml, username):
         except AttributeError:
             is_published = False
 
-        if author == username:
+        author = author.replace(" ", "")
+        author = author.split(",")
+
+        if username in author:
             dates = child.find('system-data-structure').findall('event-dates')
             dates_str = []
             for date in dates:
