@@ -82,7 +82,7 @@ def edit_event_page(event_id):
         return redirect('/event/in-workflow', code=302)
 
     # import this here so we dont load all the content
-    # from cascade during hoempage load
+    # from cascade during homepage load
     from tinker.events.forms import EventForm
 
     # Get the event data from cascade

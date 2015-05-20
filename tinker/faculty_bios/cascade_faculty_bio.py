@@ -528,9 +528,9 @@ def check_publish_sets(school, faculty_bio_id):
     for item in school:
         # currently GS and CAPS go through a workflow, so those should NOT be published here.
         if item == "College of Arts & Sciences":
-            publish(faculty_bio_id)
+            publish(faculty_bio_id, "page")
             publish("f580ac758c58651313b6fe6bced65fea", "publishset")
-        elif item == "Graduate Schol":
+        elif item == "Graduate School":
             publish("2ecbad1a8c5865132b2dadea8cdcb2be", "publishset")
         elif item == "College of Adult & Professional Studies":
             publish("2ed0beef8c5865132b2dadea1ccf543e", "publishset")
