@@ -4,7 +4,7 @@ import datetime
 
 # modules
 from flask.ext.wtf import Form
-from wtforms import TextField
+from wtforms import StringField
 from wtforms import TextAreaField
 from wtforms import SelectMultipleField
 from wtforms import SelectField
@@ -144,15 +144,15 @@ class EventForm(Form):
     heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
     what = HeadingField(label="What is your event?")
-    title = TextField('Event name', validators=[DataRequired()], description="This will be the title of your webpage")
-    teaser = TextField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.', validators=[DataRequired()])
+    title = StringField('Event name', validators=[DataRequired()], description="This will be the title of your webpage")
+    teaser = StringField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.', validators=[DataRequired()])
 
-    # if 'Event Approver' in tools.get_groups_for_user():
-    #     link = TextField("External Link", description="This field only seen by 'Event Approvers'. An external link will redirect this event to the external link url.")
-    # else:
-    #     link = HiddenField("External Link")
+    if 'Event Approver' in tools.get_groups_for_user():
+        link = StringField("External Link", description="This field only seen by 'Event Approvers'. An external link will redirect this event to the external link url.")
+    else:
+        link = HiddenField("External Link")
 
-    featuring = TextField('Featuring')
+    featuring = StringField('Featuring')
     sponsors = CKEditorTextAreaField('Sponsors')
     main_content = CKEditorTextAreaField('Event description')
 
@@ -162,14 +162,14 @@ class EventForm(Form):
     where = HeadingField(label="Where is your event?")
     location = SelectField('Location', choices=location_choices)
     on_campus_location = SelectField('On campus location', choices=building_choices)
-    other_on_campus = TextField('Other on campus location')
-    off_campus_location = TextField("Off campus location")
+    other_on_campus = StringField('Other on campus location')
+    off_campus_location = StringField("Off campus location")
     maps_directions = CKEditorTextAreaField('Directions', description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")
 
     why = HeadingField(label="Does your event require registration or payment?")
     registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices)
     registration_details = CKEditorTextAreaField('Registration/ticketing details', description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
-    wufoo_code = TextField('Approved wufoo hash code')
+    wufoo_code = StringField('Approved wufoo hash code')
     cost = TextAreaField('Cost')
     cancellations = TextAreaField('Cancellations and refunds')
 

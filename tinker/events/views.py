@@ -202,8 +202,13 @@ def submit_form():
     add_data['event-dates'] = dates
 
     asset = get_event_structure(add_data, username, workflow)
-
+    from tinker.redirects.views import new_redirect_submit
+    new_redirect_submit("/testing", "www.google.com")
+    return ("TESTING")
     resp = create(asset)
+
+    # Todo: Create a redirect here depending upon add_data['link']
+    # only do this is the creation succeeds
 
     return redirect('/event/confirm', code=302)
     # Just print the response for now
@@ -246,6 +251,9 @@ def submit_edit_form():
     if new_year > current_year:
         resp = move_event_year(event_id, add_data)
         app.logger.warn(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
+
+    # Todo: Create a redirect here depending upon add_data['link']
+    # only do this is the edit succeeds
 
     return redirect('/event/confirm', code=302)
 

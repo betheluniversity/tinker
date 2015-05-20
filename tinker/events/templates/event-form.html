@@ -84,7 +84,6 @@
               {{ field.label }}{{ field }}
             </div>
 
-
           {% elif field.type == "SelectField" %}
             {{ field }}
 
@@ -96,7 +95,8 @@
             {{ datetime_fieldset() }}
 
           {% elif field.name == "link" %}
-            {{ field['link'] }}
+              <!-- make sure this is legit -->
+            {{ field }}
 {#              <script type="text/javascript">#}
 {#                $("#link").hide()#}
 {#                </script>#}
