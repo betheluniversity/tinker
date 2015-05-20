@@ -202,13 +202,14 @@ def submit_form():
     add_data['event-dates'] = dates
 
     asset = get_event_structure(add_data, username, workflow)
-    from tinker.redirects.views import new_redirect_submit
-    new_redirect_submit("/testing", "www.google.com")
-    return "TESTING"
+
     resp = create(asset)
 
     # Todo: Create a redirect here depending upon add_data['link']
     # only do this is the creation succeeds
+    # from tinker.redirects.views import new_redirect_submit
+    # new_redirect_submit("/testing", "www.google.com")
+    # return "TESTING"
 
     return redirect('/event/confirm', code=302)
     # Just print the response for now

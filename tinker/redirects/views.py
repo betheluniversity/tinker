@@ -62,6 +62,7 @@ def search():
 @redirect_blueprint.route('/new-submit/<from_path>/<to_url>', methods=['post'])
 def new_redirect_submit(from_path, to_url):
     # added logic to have Tinker be able to internally create a redirect
+
     if from_path is None or to_url is None:
         check_redirect_groups()
         form = request.form
@@ -72,6 +73,7 @@ def new_redirect_submit(from_path, to_url):
     else:
         short_url = None
         expiration_date = None
+
     if expiration_date:
         expiration_date = datetime.datetime.strptime(expiration_date, "%a %b %d %Y")
     else:
