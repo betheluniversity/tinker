@@ -70,8 +70,6 @@ def read_page():
 
 @event_blueprint.route('/in-workflow')
 def event_in_workflow():
-    # if is_asset_in_workflow(event_id) == False:
-    #     return redirect('/event/edit/' + event_id, code=302)
     return render_template('event-in-workflow.html')
 
 @event_blueprint.route('/edit/<event_id>')

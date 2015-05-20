@@ -58,8 +58,17 @@ def submit_confirm_edit():
     return render_template('faculty-bio-confirm-edit.html', **locals())
 
 
+@faculty_bio_blueprint.route('/in-workflow')
+def faculty_bio_in_workflow():
+    return render_template('faculty-bio-in-workflow.html')
+
+
 @faculty_bio_blueprint.route("/edit/<faculty_bio_id>")
 def faculty_bio_edit_form(faculty_bio_id):
+
+    # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
+    if is_asset_in_workflow(faculty_bio_id):
+        return redirect('/faculty-bios/in-workflow', code=302)
 
     # import this here so we dont load all the content
     # from cascade during homepage load
@@ -202,7 +211,7 @@ def submit_faculty_bio_form():
 
     if faculty_bio_id:
         resp = edit(asset)
-        app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " " + str(resp))
+        app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " with id: " + faculty_bio_id + " " + str(resp))
         # publish corresponding pubish set to make sure corresponding pages get edits
         check_publish_sets(add_data['school'], faculty_bio_id)
         return redirect('/faculty-bios/confirm-edit', code=302)
