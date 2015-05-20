@@ -204,7 +204,7 @@ def submit_form():
     asset = get_event_structure(add_data, username, workflow)
     from tinker.redirects.views import new_redirect_submit
     new_redirect_submit("/testing", "www.google.com")
-    return ("TESTING")
+    return "TESTING"
     resp = create(asset)
 
     # Todo: Create a redirect here depending upon add_data['link']
