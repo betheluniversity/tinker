@@ -123,6 +123,7 @@ def new_api_submit():
 
 @redirect_blueprint.route('/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
 def new_internal_redirect_submit(from_path, to_url):
+    app.logger.warn(": Correctly called the function")
     # added logic to have Tinker be able to internally create a redirect
     check_redirect_groups()
 
@@ -130,19 +131,29 @@ def new_internal_redirect_submit(from_path, to_url):
         from_path = "/%s" % from_path
 
     # if one from the current from exists, remove it.
-    delete_redirect(from_path)
+    try:
+        redirect = BethelRedirect.query.get(from_path)
+        db.session.delete(redirect)
+        db.session.commit()
+        resp = create_redirect_text_file()
+        app.logger.warn(": Correctly deleted if necessary")
+    except:
+        print "no deletion was made"
 
     # create the redirect
     try:
         redirect = BethelRedirect(from_path=from_path, to_url=to_url)
         db.session.add(redirect)
         db.session.commit()
+        print "Successfully created a internal redirect"
+        app.logger.warn(": Correctly created a new one")
     except:
         db.session.rollback()
 
     # Update the file after every submit?
     create_redirect_text_file()
 
+    app.logger.warn(": Correctly finished")
     return str(redirect)
 
 
@@ -176,13 +187,10 @@ def new_api_submit_asset_expiration():
     return str(redirect)
 
 
-@redirect_blueprint.route('/delete/<from_path>', methods=['post'])
-def delete_redirect(from_path=None):
+@redirect_blueprint.route('/delete', methods=['post'])
+def delete_redirect():
     check_redirect_groups()
-    if from_path:
-        path = from_path
-    else:
-        path = request.form['from_path']
+    path = request.form['from_path']
 
     try:
         redirect = BethelRedirect.query.get(path)
