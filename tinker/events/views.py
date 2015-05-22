@@ -205,7 +205,8 @@ def submit_form():
 
     resp = create(asset)
 
-    if 'link' in add_data and str(resp) == "None" and add_data['link'] != "":
+    # 'link' must be a valid component
+    if 'link' in add_data and add_data['link'] != "":
         from tinker.redirects.views import new_internal_redirect_submit
         path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
         new_internal_redirect_submit(path, add_data['link'])
@@ -253,7 +254,8 @@ def submit_edit_form():
         resp = move_event_year(event_id, add_data)
         app.logger.warn(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
 
-    if 'link' in add_data and str(resp) == "None" and add_data['link'] != "":
+    # 'link' must be a valid component
+    if 'link' in add_data and add_data['link'] != "":
         from tinker.redirects.views import new_internal_redirect_submit
         path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
         new_internal_redirect_submit(path, add_data['link'])

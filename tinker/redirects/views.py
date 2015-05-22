@@ -123,7 +123,6 @@ def new_api_submit():
 
 @redirect_blueprint.route('/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
 def new_internal_redirect_submit(from_path, to_url):
-    app.logger.warn(": Correctly called the function")
     # added logic to have Tinker be able to internally create a redirect
     check_redirect_groups()
 
