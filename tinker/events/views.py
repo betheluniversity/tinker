@@ -205,9 +205,10 @@ def submit_form():
 
     resp = create(asset)
 
-    if 'link' in add_data and str(resp) == "None":
+    if 'link' in add_data and str(resp) == "None" and add_data['link'] != "":
         from tinker.redirects.views import new_internal_redirect_submit
-        new_internal_redirect_submit("/testing", "www.google.com")
+        path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
+        new_internal_redirect_submit(path, add_data['link'])
 
     return redirect('/event/confirm', code=302)
     # Just print the response for now
@@ -244,6 +245,7 @@ def submit_edit_form():
     current_year = get_current_year_folder(event_id)
     new_year = get_year_folder_value(add_data)
 
+
     resp = edit(asset)
     app.logger.warn(time.strftime("%c") + ": Event edit submission by " + username + " with id " + event_id + ". " + str(resp))
 
@@ -251,9 +253,10 @@ def submit_edit_form():
         resp = move_event_year(event_id, add_data)
         app.logger.warn(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
 
-    if 'link' in add_data and str(resp) == "None":
+    if 'link' in add_data and str(resp) == "None" and add_data['link'] != "":
         from tinker.redirects.views import new_internal_redirect_submit
-        new_internal_redirect_submit("/testing", "www.google.com")
+        path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
+        new_internal_redirect_submit(path, add_data['link'])
 
     return redirect('/event/confirm', code=302)
 
