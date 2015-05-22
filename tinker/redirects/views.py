@@ -23,7 +23,7 @@ def check_redirect_groups():
 
 
 @redirect_blueprint.route('/expire')
-def delete_exipred_redirects():
+def delete_expired_redirects():
     today = datetime.datetime.utcnow()
     redirects = BethelRedirect.query.filter(BethelRedirect.expiration_date < today).all()
     for redirect in redirects:
@@ -58,23 +58,6 @@ def search():
     redirects.sort()
     return render_template('redirect-ajax.html', **locals())
 
-
-@redirect_blueprint.route('/new-internal-submit/<from_path>/<to_url>', methods=['post'])
-def new_internal_redirect_submit(from_path, to_url):
-    # added logic to have Tinker be able to internally create a redirect
-
-    if not from_path.startswith("/"):
-        from_path = "/%s" % from_path
-
-    redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-
-    db.session.add(redirect)
-    db.session.commit()
-
-    # Update the file after every submit?
-    create_redirect_text_file()
-
-    return str(redirect)
 
 @redirect_blueprint.route('/new-submit', methods=['post'])
 def new_redirect_submit():
@@ -138,6 +121,31 @@ def new_api_submit():
     return str(redirect)
 
 
+@redirect_blueprint.route('/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
+def new_internal_redirect_submit(from_path, to_url):
+    # added logic to have Tinker be able to internally create a redirect
+    check_redirect_groups()
+
+    if not from_path.startswith("/"):
+        from_path = "/%s" % from_path
+
+    # if one from the current from exists, remove it.
+    delete_redirect(from_path)
+
+    # create the redirect
+    try:
+        redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+        db.session.add(redirect)
+        db.session.commit()
+    except:
+        db.session.rollback()
+
+    # Update the file after every submit?
+    create_redirect_text_file()
+
+    return str(redirect)
+
+
 @redirect_blueprint.route('/public/api-submit-asset-expiration', methods=['get', 'post'])
 def new_api_submit_asset_expiration():
     subject = request.form['subject']
@@ -168,10 +176,13 @@ def new_api_submit_asset_expiration():
     return str(redirect)
 
 
-@redirect_blueprint.route('/delete', methods=['post'])
-def delete_redirect():
+@redirect_blueprint.route('/delete/<from_path>', methods=['post'])
+def delete_redirect(from_path=None):
     check_redirect_groups()
-    path = request.form['from_path']
+    if from_path:
+        path = from_path
+    else:
+        path = request.form['from_path']
 
     try:
         redirect = BethelRedirect.query.get(path)
