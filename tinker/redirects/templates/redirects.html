@@ -8,6 +8,7 @@
 
 {% block main_content %}
 <form action="." id="new-redirect-form">
+  <img id="loading-image" src="http://www.ajaxload.info/cache/FF/FF/FF/00/00/00/1-0.gif" />
   <div class="row">
     <div class="large-6 columns">
       <label>From Path
@@ -129,12 +130,15 @@ var delay = (function(){
     input.attr('class', 'button postfix');
 {#    input.attr('style', 'display:none');#}
     input.click(function (event) {
+      document.getElementById('redirect-add').disabled = true;
         // when 'save' is clicked, gather the field mappings and send those
         // to the wufoo-silva app for storage
       var fieldMappings = $(this.form).serializeArray(),
               url = '/redirect/new-submit';
+
       $.post(url, fieldMappings, function(data) {
           loadTableForSearch($("#new-redirect-from").val(), 'from_path');
+          document.getElementById('redirect-add').disabled = false;
       });
 
     });

@@ -443,8 +443,8 @@ def traverse_faculty_folder(traverse_xml, username):
         try:
             authors = child.find('author')
             if authors is not None:
-
-                dict_of_authors = authors.text.split(", ")
+                authors = authors.replace(" ", "")
+                dict_of_authors = authors.split(",")
 
                 if username in dict_of_authors:
                     page_values = {
