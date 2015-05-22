@@ -201,19 +201,13 @@ def submit_form():
     # Add it to the dict, we can just ignore the old entries
     add_data['event-dates'] = dates
 
-    # asset = get_event_structure(add_data, username, workflow)
-
-    from tinker.redirects.views import new_internal_redirect_submit
-    new_internal_redirect_submit("/testing", "www.google.com")
-    return "TESTING"
+    asset = get_event_structure(add_data, username, workflow)
 
     resp = create(asset)
 
-    # Todo: Create a redirect here depending upon add_data['link']
-    # only do this is the creation succeeds
-    from tinker.redirects.views import new_internal_redirect_submit
-    new_internal_redirect_submit("/testing", "www.google.com")
-    return "TESTING"
+    if 'link' in add_data and str(resp) == "None":
+        from tinker.redirects.views import new_internal_redirect_submit
+        new_internal_redirect_submit("/testing", "www.google.com")
 
     return redirect('/event/confirm', code=302)
     # Just print the response for now
@@ -257,8 +251,9 @@ def submit_edit_form():
         resp = move_event_year(event_id, add_data)
         app.logger.warn(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
 
-    # Todo: Create a redirect here depending upon add_data['link']
-    # only do this is the edit succeeds
+    if 'link' in add_data and str(resp) == "None":
+        from tinker.redirects.views import new_internal_redirect_submit
+        new_internal_redirect_submit("/testing", "www.google.com")
 
     return redirect('/event/confirm', code=302)
 
