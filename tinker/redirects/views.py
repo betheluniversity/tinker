@@ -59,20 +59,31 @@ def search():
     return render_template('redirect-ajax.html', **locals())
 
 
-@redirect_blueprint.route('/new-submit/<from_path>/<to_url>', methods=['post'])
-def new_redirect_submit(from_path, to_url):
+@redirect_blueprint.route('/new-internal-submit/<from_path>/<to_url>', methods=['post'])
+def new_internal_redirect_submit(from_path, to_url):
     # added logic to have Tinker be able to internally create a redirect
 
-    if from_path is None or to_url is None:
-        check_redirect_groups()
-        form = request.form
-        from_path = form['new-redirect-from']
-        to_url = form['new-redirect-to']
-        short_url = form.get('short-url') == 'on'
-        expiration_date = form.get('expiration-date')
-    else:
-        short_url = None
-        expiration_date = None
+    if not from_path.startswith("/"):
+        from_path = "/%s" % from_path
+
+    redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+
+    db.session.add(redirect)
+    db.session.commit()
+
+    # Update the file after every submit?
+    create_redirect_text_file()
+
+    return str(redirect)
+
+@redirect_blueprint.route('/new-submit', methods=['post'])
+def new_redirect_submit():
+    check_redirect_groups()
+    form = request.form
+    from_path = form['new-redirect-from']
+    to_url = form['new-redirect-to']
+    short_url = form.get('short-url') == 'on'
+    expiration_date = form.get('expiration-date')
 
     if expiration_date:
         expiration_date = datetime.datetime.strptime(expiration_date, "%a %b %d %Y")
@@ -91,6 +102,7 @@ def new_redirect_submit(from_path, to_url):
     create_redirect_text_file()
 
     return str(redirect)
+
 
 @redirect_blueprint.route('/public/api-submit', methods=['get', 'post'])
 def new_api_submit():
