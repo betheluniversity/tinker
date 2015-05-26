@@ -126,8 +126,8 @@ def validate_username(form, field):
     path = "/username/" + username + "/roles?TIMESTAMP="+str(int(time()))+"&ACCOUNT_ID=tinker"
     sig=hmac.new(app.config['WSAPI_SECRET'], path, hashlib.sha1 ).hexdigest()
     req = requests.get(host+path, headers={'X-Auth-Signature': sig})
+    
     content = req.content
-    print content
     if content == str({}):
         raise ValidationError("Invalid username.")
 
@@ -155,9 +155,9 @@ class FacultyBioForm(Form):
     heading_choices = (('', "-select-"), ('Areas of expertise', 'Areas of expertise'), ('Research interests', 'Research interests'), ('Teaching speciality', 'Teaching speciality'))
 
     heading = SelectField('Choose a heading that best fits your discipline', choices=heading_choices, validators=[validators.DataRequired()])
-    areas = TextAreaField('Areas of expertise')
-    research_interests = TextAreaField('Research interests')
-    teaching_specialty = TextAreaField('Teaching speciality')
+    areas = TextAreaField('Areas of expertise', validators=[validators.length(max=350,message="Character limit exceeded. A max of 350 characters is allowed.")])
+    research_interests = TextAreaField('Research interests', validators=[validators.length(max=350,message="Character limit exceeded. A max of 350 characters is allowed.")])
+    teaching_specialty = TextAreaField('Teaching speciality', validators=[validators.length(max=350,message="Character limit exceeded. A max of 350 characters is allowed.")])
 
     degree = DummyField('')
 
