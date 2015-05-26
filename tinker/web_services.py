@@ -42,10 +42,6 @@ def delete(page_id, workflow=None):
 
     email_tinker_admins(response)
 
-    # Publish the XMLs
-    publish_event_xml()
-    publish_faculty_bio_xml()
-
     return response
 
 

@@ -98,7 +98,7 @@ def get_faculty_bio_choices():
 
     school = []
     for item in md['school']:
-        if item.value != "Bethel University":
+        if item.value != "Bethel University" and item.value != "Select":
             school.append((item.value, item.value))
 
     department = []
@@ -155,9 +155,9 @@ class FacultyBioForm(Form):
     heading_choices = (('', "-select-"), ('Areas of expertise', 'Areas of expertise'), ('Research interests', 'Research interests'), ('Teaching speciality', 'Teaching speciality'))
 
     heading = SelectField('Choose a heading that best fits your discipline', choices=heading_choices, validators=[validators.DataRequired()])
-    areas = TextAreaField('Areas of expertise', validators=[validators.length(max=350,message="Character limit exceeded. A max of 350 characters is allowed.")])
-    research_interests = TextAreaField('Research interests', validators=[validators.length(max=350,message="Character limit exceeded. A max of 350 characters is allowed.")])
-    teaching_specialty = TextAreaField('Teaching speciality', validators=[validators.length(max=350,message="Character limit exceeded. A max of 350 characters is allowed.")])
+    areas = TextAreaField('Areas of expertise', description="A max of 350 characters is permitted.", validators=[validators.length(max=350,message="Character limit exceeded. A max of 350 characters is allowed.")])
+    research_interests = TextAreaField('Research interests', description="A max of 350 characters is permitted.", validators=[validators.length(max=350,message="Character limit exceeded. A max of 350 characters is allowed.")])
+    teaching_specialty = TextAreaField('Teaching speciality', description="A max of 350 characters is permitted.", validators=[validators.length(max=350,message="Character limit exceeded. A max of 350 characters is allowed.")])
 
     degree = DummyField('')
 

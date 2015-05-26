@@ -27,6 +27,8 @@ def faculty_bio_home():
 @faculty_bio_blueprint.route('/delete/<page_id>')
 def delete_page(page_id):
     delete(page_id)
+
+    publish_faculty_bio_xml()
     return redirect('/faculty-bios/delete-confirm', code=302)
 
 
@@ -213,13 +215,11 @@ def submit_faculty_bio_form():
         resp = edit(asset)
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " with id: " + faculty_bio_id + " " + str(resp))
         # publish corresponding pubish set to make sure corresponding pages get edits
-        check_publish_sets(add_data['school'], faculty_bio_id)
+        check_publish_sets(add_data['school'], faculty_bio_id, False)
         return redirect('/faculty-bios/confirm-edit', code=302)
     else:
         resp = create_faculty_bio(asset)
         faculty_bio_id = resp.createdAssetId
-        # publish corresponding pubish set
-        check_publish_sets(add_data['school'], faculty_bio_id)
         return redirect('/faculty-bios/confirm-new', code=302)
     return
 
