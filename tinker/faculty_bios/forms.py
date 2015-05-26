@@ -126,7 +126,7 @@ def validate_username(form, field):
     path = "/username/" + username + "/roles?TIMESTAMP="+str(int(time()))+"&ACCOUNT_ID=tinker"
     sig=hmac.new(app.config['WSAPI_SECRET'], path, hashlib.sha1 ).hexdigest()
     req = requests.get(host+path, headers={'X-Auth-Signature': sig})
-    
+
     content = req.content
     if content == str({}):
         raise ValidationError("Invalid username.")
