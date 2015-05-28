@@ -70,15 +70,24 @@
 
               {% elif field.name == "areas" %}
                 <div id="areas_wrap" style="display:none;">
-                {{field.label}}{{ field(class="large-text-area") }}
+                    {{field.label}}
+                    <small>{{ field.description }}</small>
+                    <small id="areas_current_count">0</small>
+                    {{ field(class="large-text-area") }}
                 </div>
               {% elif field.name == "research_interests" %}
                 <div id="research_interests_wrap" style="display:none;">
-                {{field.label}}{{ field(class="large-text-area") }}
+                    {{field.label}}
+                    <small>{{ field.description }}</small>
+                    <small id="research_interests_current_count">0</small>
+                    {{ field(class="large-text-area") }}
                 </div>
               {% elif field.name == "teaching_specialty" %}
                 <div id="teaching_speciality_wrap" style="display:none;">
-                {{field.label}}{{ field(class="large-text-area") }}
+                    {{field.label}}
+                    <small>{{ field.description }}</small>
+                    <small id="teaching_speciality_current_count">0</small>
+                    {{ field(class="large-text-area") }}
                 </div>
 
               {% elif field.name == "categories" %}
@@ -181,16 +190,42 @@
               $("#areas_wrap").show();
               $("#research_interests_wrap").hide();
               $("#teaching_speciality_wrap").hide();
+
+                $('#areas').keyup(function() {
+                    var count = $(this).val().length;
+                    $('#areas_current_count').text(count);
+                    alert(count);
+                    if( count > 350)
+                        $('#areas_current_count').css("color", "#f04124");
+                    else
+                        $('#areas_current_count').css("color", "#000000");
+                });
             }
             else if( val == "Research interests"){
               $("#areas_wrap").hide();
               $("#research_interests_wrap").show();
               $("#teaching_speciality_wrap").hide();
+                $('#research_interests').keyup(function() {
+                    var count = $(this).val().length;
+                    $('#research_interests_current_count').text(count);
+                    if( count > 350)
+                        $('#research_interests_current_count').css("color", "#f04124");
+                    else
+                        $('#research_interests_current_count').css("color", "#000000");
+                });
             }
             else if( val == "Teaching speciality"){
               $("#areas_wrap").hide();
               $("#research_interests_wrap").hide();
               $("#teaching_speciality_wrap").show();
+                $('#teaching_specialty').keyup(function() {
+                    var count = $(this).val().length;
+                    $('#teaching_speciality_current_count').text(count);
+                    if( count > 350)
+                        $('#teaching_speciality_current_count').css("color", "#f04124");
+                    else
+                        $('#teaching_speciality_current_count').css("color", "#000000");
+                });
             }
           }
 
