@@ -534,6 +534,7 @@ def check_publish_sets(schools, faculty_bio_id, new_bio=False):
         # also, cas should only be published if its new
         if school == "College of Arts & Sciences" and new_bio == False:
             publish(faculty_bio_id, "page")
+            publish_faculty_bio_xml()
             publish("f580ac758c58651313b6fe6bced65fea", "publishset")
         # elif item == "Graduate School":
         #     publish("2ecbad1a8c5865132b2dadea8cdcb2be", "publishset")
@@ -541,6 +542,7 @@ def check_publish_sets(schools, faculty_bio_id, new_bio=False):
         #     publish("2ed0beef8c5865132b2dadea1ccf543e", "publishset")
         elif school == "Bethel Seminary":
             publish(faculty_bio_id)
+            publish_faculty_bio_xml()
             publish("2ed19c8d8c5865132b2dadea60403657", "publishset")
 
 

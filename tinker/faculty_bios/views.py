@@ -214,12 +214,14 @@ def submit_faculty_bio_form():
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 
     if faculty_bio_id:
+        # existing bio
         resp = edit(asset)
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " with id: " + faculty_bio_id + " " + str(resp))
         # publish corresponding pubish set to make sure corresponding pages get edits
         check_publish_sets(add_data['school'], faculty_bio_id, False)
         return render_template('faculty-bio-confirm-edit.html', **locals())
     else:
+        # new bio
         resp = create_faculty_bio(asset)
         faculty_bio_id = resp.createdAssetId
         return render_template('faculty-bio-confirm-new.html', **locals())
