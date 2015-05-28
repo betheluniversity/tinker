@@ -501,8 +501,9 @@ def get_add_data(lists, form):
 
 
 def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, school=None):
-    if not school:
+    if school is None:
         school = []
+
     # only submit workflow if it is a new CAS
     if "College of Arts & Sciences" in school and faculty_bio_id is None:
         workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
@@ -538,7 +539,7 @@ def check_publish_sets(schools, faculty_bio_id, new_bio=False):
         #     publish("2ecbad1a8c5865132b2dadea8cdcb2be", "publishset")
         # elif item == "College of Adult & Professional Studies":
         #     publish("2ed0beef8c5865132b2dadea1ccf543e", "publishset")
-        elif school == "Bethel Seminary" and new_bio == False:
+        elif school == "Bethel Seminary":
             publish(faculty_bio_id)
             publish("2ed19c8d8c5865132b2dadea60403657", "publishset")
 

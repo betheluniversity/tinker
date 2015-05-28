@@ -1,7 +1,7 @@
 # python
 import json
 
-from werkzeug import secure_filename
+from werkzeug.utils import secure_filename
 
 # flask
 from flask import Blueprint
@@ -207,6 +207,8 @@ def submit_faculty_bio_form():
     # End Images
 
     faculty_bio_id = rform['faculty_bio_id']
+    if faculty_bio_id == "":
+        faculty_bio_id = None
 
     workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data['school'])
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
@@ -216,11 +218,11 @@ def submit_faculty_bio_form():
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " with id: " + faculty_bio_id + " " + str(resp))
         # publish corresponding pubish set to make sure corresponding pages get edits
         check_publish_sets(add_data['school'], faculty_bio_id, False)
-        return redirect('/faculty-bios/confirm-edit', code=302)
+        return render_template('faculty-bio-confirm-edit.html', **locals())
     else:
         resp = create_faculty_bio(asset)
         faculty_bio_id = resp.createdAssetId
-        return redirect('/faculty-bios/confirm-new', code=302)
+        return render_template('faculty-bio-confirm-new.html', **locals())
     return
 
 

@@ -11,10 +11,13 @@
         <h1>Congrats!</h1>
         <p>
             You've successfully submitted your faculty bio. If you have any questions, feel free to contact your web author.
+            <br />
+            {% if workflow %}
+                <p>Your bio is currently in a workflow</p>
+            {% endif %}
             <br/>
           Thanks for creating your bio!
         </p>
-
 
     </div>
   </div>
