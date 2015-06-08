@@ -76,13 +76,21 @@ def new_redirect_submit():
     if not from_path.startswith("/"):
         from_path = "/%s" % from_path
 
-    redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url, expiration_date=expiration_date)
+    try:
+        redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url, expiration_date=expiration_date)
 
-    db.session.add(redirect)
-    db.session.commit()
+        db.session.add(redirect)
+        db.session.commit()
 
-    # Update the file after every submit?
-    create_redirect_text_file()
+        # Update the file after every submit?
+        create_redirect_text_file()
+    except:
+        # Currently we are unable to track down why multiple redirects are being created. This causes this error:
+        # (IntegrityError) column from_path is not unique u'INSERT INTO bethel_redirect (from_path, to_url, short_url, expiration_date)
+        # Our work around is to just ignore the issue.
+        # hopefully this will catch the error.
+        db.session.rollback()
+        return ""
 
     return str(redirect)
 

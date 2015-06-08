@@ -16,7 +16,6 @@ faculty_bio_blueprint = Blueprint('faculty-bios', __name__, template_folder='tem
 
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
-
     username = session['username']
     # index page for adding events and things
     forms = get_faculty_bios_for_user(username)
@@ -26,9 +25,9 @@ def faculty_bio_home():
 
 @faculty_bio_blueprint.route('/delete/<page_id>')
 def delete_page(page_id):
-    delete(page_id)
+    # send to this workflow instead: 7747ea478c5865130c130b3a1a05240e
+    delete(page_id, "7747ea478c5865130c130b3a1a05240e")
 
-    publish_faculty_bio_xml()
     return redirect('/faculty-bios/delete-confirm', code=302)
 
 
