@@ -9,7 +9,7 @@ from tinker.web_services import *
 from tinker.tools import *
 from tinker.cascade_tools import *
 from tinker import app
-
+from operator import itemgetter
 
 def get_expertise(add_data):
     areas = add_data['areas']
@@ -409,6 +409,7 @@ def get_faculty_bios_for_user(username):
     else:
         form_xml = ElementTree.parse('/var/www/staging/public/_shared-content/xml/faculty-bios.xml').getroot()
     matches = traverse_faculty_folder(form_xml, username)
+    matches = sorted(matches, key=itemgetter('title'), reverse=False)
 
     return matches
 

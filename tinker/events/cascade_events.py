@@ -1,11 +1,12 @@
 # python
 import re
 import urllib2
+
 from xml.etree import ElementTree as ET
+from operator import itemgetter
 
 # local
 from tinker.web_services import *
-
 from tinker import app
 from tinker.cascade_tools import *
 
@@ -347,6 +348,7 @@ def get_forms_for_user(username):
     else:
         form_xml = ET.parse('/var/www/staging/public/_shared-content/xml/events.xml').getroot()
     matches = traverse_event_folder(form_xml, username)
+    matches = sorted(matches, key=itemgetter('title'), reverse=False)
 
     return matches
 
@@ -407,6 +409,8 @@ def get_forms_for_event_approver():
             # This is a match, add it to array
             matches.append(page_values)
 
+
+    matches = sorted(matches, key=itemgetter('title'), reverse=False)
     return matches
 
 
