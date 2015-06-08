@@ -1,0 +1,16 @@
+Flask
+gunicorn
+Flask-Cache
+Flask-Foundation
+Flask-Script
+Flask-WTF
+flask-hmacauth
+suds
+simplejson
+--allow-external WTForms
+requests
+Flask-SQLAlchemy
+SQLAlchemy-migrate
+BeautifulSoup
+Flask-Cors
+arrow
