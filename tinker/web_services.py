@@ -15,7 +15,6 @@ from suds.transport import TransportError
 from tinker import app
 from tinker import tools
 
-# import thread
 
 def email_tinker_admins(response):
 
@@ -38,35 +37,10 @@ def delete(page_id, workflow=None):
         'type': 'page',
     }
 
-    # if workflow:
-    #     # unpublish
-    #
-    #     # start a thread that checks queue, deletes once finished
-    #     delete_after_unpublish(page_id)
-    #     response = client.service.delete(auth, identifier)
-    # else:
     response = client.service.delete(auth, identifier)
     app.logger.warn(time.strftime("%c") + ": " + page_id + " deleted by " + username + " " + str(response))
     email_tinker_admins(response)
     return response
-
-
-# def delete_after_unpublish(page_id):
-#     client = get_client()
-#     auth = app.config['CASCADE_LOGIN']
-#     username = session['username']
-#
-#     identifier = {
-#         'id': page_id,
-#         'type': 'page',
-#     }
-#
-#     # check if its in publish queue
-#
-#
-#     #
-#     response = client.service.delete(auth, identifier)
-#     app.logger.warn(time.strftime("%c") + ": " + page_id + " deleted by " + username + " " + str(response))
 
 def publish(path_or_id, type='page'):
 

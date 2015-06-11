@@ -26,7 +26,7 @@ def faculty_bio_home():
 @faculty_bio_blueprint.route('/delete/<page_id>')
 def delete_page(page_id):
     # send to this workflow instead: 7747ea478c5865130c130b3a1a05240e
-    delete(page_id, "7747ea478c5865130c130b3a1a05240e")
+    delete(page_id, workflow="7747ea478c5865130c130b3a1a05240e")
 
     return redirect('/faculty-bios/delete-confirm', code=302)
 

@@ -26,7 +26,7 @@ def home():
 @event_blueprint.route('/delete/<page_id>')
 def delete_page(page_id):
     workflow = get_event_delete_workflow()
-    delete(page_id, workflow)
+    delete(page_id, workflow=workflow)
     publish_event_xml()
     return redirect('/event/delete-confirm', code=302)
 
@@ -53,10 +53,10 @@ def read_page():
     tools.get_user()
     client = get_client()
     identifier = {
-        'id': 'e3a946ca8c58651324d9038d448f46c3',
-        'type': 'file',
+        'id': '3967ee858c58651337aebe3f9560b791',
+        'type': 'block',
         # 'path': {
-        #     'path': '/academics/faculty/hamre-alyssa',
+        #     'path': '/',
         #     'siteId': app.config['SITE_ID']
         # }
     }
