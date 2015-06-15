@@ -1,0 +1,103 @@
+{% extends "tinker-base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block styles %}
+  <style type="text/css">
+  </style>
+{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+<form action="." id="publish-search-form">
+  <div class="row">
+    <div class="large-6 columns">
+      <label>Search by Name
+        <input type="text" class="publish-search" name="publish-search-by-name" id="publish-search-by-name"/>
+      </label>
+    </div>
+  </div>
+    <div class="row">
+        <div class="large-6 columns">
+          <label>Search by Content
+            <input type="text" class="publish-search" name="publish-search-by-content" id="publish-search-by-content"/>
+          </label>
+        </div>
+      </div>
+    <div class="row">
+        <div class="large-6 columns">
+          <label>Search by Metadata
+            <input type="text" class="publish-search" name="publish-search-by-metadata" id="publish-search-by-metadata"/>
+          </label>
+        </div>
+      </div>
+</form>
+
+<div class="row">
+  <div class="large-12 columns">
+    <table >
+      <thead>
+        <tr>
+          <th width="200">Counter</th>
+          <th width="400">Page Type</th>
+          <th width="400">Page URL</th>
+          <th width="400">Publish</th>
+        </tr>
+      </thead>
+      <tbody id="publish-table">
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+var delay = (function(){
+  var timer = 0;
+  return function(callback, ms){
+    clearTimeout (timer);
+    timer = setTimeout(callback, ms);
+  };
+})();
+
+  function updateTable(data){
+      $("#publish-table").html(data);
+
+      // make a call to get more info...
+{#      $( ".redirect-row" ).on('click', function(){#}
+{#        $("#modal-confirm").attr("data-delete-path", $(this).find('.from_path').html());#}
+{#        $(document).foundation();#}
+{#        $("#confirmModal").foundation('reveal', 'open');#}
+{#      });#}
+  }
+
+
+  function loadTableForSearch(name_value, content_value, metadata_value){
+    var search = {'name': name_value, 'content': content_value, 'metadata': metadata_value};
+    var url = "/publish/search";
+     $.post(url, search, function(data) {
+        updateTable(data);
+      });
+  }
+
+  $('.publish-search').keyup(function() {
+      var name = $('#publish-search-by-name').val();
+      var content = $('#publish-search-by-content').val();
+      var metadata = $('#publish-search-by-metadata').val();
+      loadTableForSearch(name, content, metadata);
+  });
+
+  function publishResult(id){
+      var url = "/publish/publish";
+     $.post(url, search, function(data) {
+        updateTable(data);
+      });
+  }
+
+
+
+</script>
+
+{% endblock %}

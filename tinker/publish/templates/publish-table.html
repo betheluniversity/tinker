@@ -1,0 +1,18 @@
+{% set counter = 1 %}
+{% for result in results %}
+    <tr>
+        <td>
+            {{ counter }}
+        </td>
+        <td>
+            {{ result.type }}
+        </td>
+        <td>
+            <a href="https://cms.bethel.edu/entity/edit.act?id={{ result.id }}&type={{ result.type }}">{{ result.path.path }}</a>
+        </td>
+        <td>
+            <button>Publish</button>
+        </td>
+    </tr>
+    {% set counter = counter + 1 %}
+{% endfor %}
