@@ -12,10 +12,13 @@ publish_blueprint = Blueprint('publish', __name__, template_folder='templates')
 
 @publish_blueprint.route("/")
 def publish_home():
+    get_user()
+    username = session['username']
 
-
-
-    return render_template('publish-home.html', **locals())
+    if username == 'celanna' or username == 'ces55739':
+        return render_template('publish-home.html', **locals())
+    else:
+        abort(403)
 
 
 @publish_blueprint.route('/search', methods=['post'])
