@@ -330,3 +330,18 @@ def search(name_search="", content_search="", metadata_search=""):
     app.logger.warn(time.strftime("%c") + ": Unpublished " + str(response))
 
     return response
+
+
+def create_image(asset):
+    auth = app.config['CASCADE_LOGIN']
+    client = get_client()
+
+    username = session['username']
+
+    response = client.service.create(auth, asset)
+    app.logger.warn(time.strftime("%c") + ": Create image submission by " + username + " " + str(response))
+
+    # Publish
+    publish(response.createdAssetId, "file")
+
+    return response

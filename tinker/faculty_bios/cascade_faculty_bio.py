@@ -3,13 +3,13 @@ import urllib2
 import re
 import base64
 from xml.etree import ElementTree
+from operator import itemgetter
 
 # local
 from tinker.web_services import *
 from tinker.tools import *
 from tinker.cascade_tools import *
 from tinker import app
-from operator import itemgetter
 
 def get_expertise(add_data):
     areas = add_data['areas']
@@ -286,7 +286,6 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     return asset
 
 
-# A test to see if we can create images in cascade.
 def get_image_structure(add_data, image_dest, image_name, workflow=None):
 
     image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
@@ -311,21 +310,6 @@ def get_image_structure(add_data, image_dest, image_name, workflow=None):
 
 
     return asset
-
-
-def create_image(asset):
-    auth = app.config['CASCADE_LOGIN']
-    client = get_client()
-
-    username = session['username']
-
-    response = client.service.create(auth, asset)
-    app.logger.warn(time.strftime("%c") + ": Create image submission by " + username + " " + str(response))
-
-    # Publish
-    publish(response.createdAssetId, "file")
-
-    return response
 
 
 # A lengthy hardcoded list that maps the metadata values to the Groups on Cascade.

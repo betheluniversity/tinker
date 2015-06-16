@@ -1,3 +1,6 @@
+from tinker import app
+import base64
+
 def dynamic_field(name, values):
 
     values_list = []
@@ -29,9 +32,6 @@ def structured_data_node(node_id, text, node_type=None):
 
 
 def structured_file_data_node(node_id, path, asset_type="file"):
-
-    if not asset_type == "file":
-        asset_type="file"
 
     node = {
         'identifier': node_id,

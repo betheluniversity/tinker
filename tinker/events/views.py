@@ -1,5 +1,6 @@
 # python
 import json
+from werkzeug.utils import secure_filename
 
 # flask
 from flask import Blueprint
@@ -109,6 +110,8 @@ def edit_event_page(event_id):
             # These are the event dates. Create a dict so we can convert to JSON later.
             dates[date_count] = read_date_data_structure(node)
             date_count += 1
+        elif node_identifier == 'image':
+            edit_data['image'] = node.filePath
 
     # now metadata dynamic fields
     for field in dynamic_fields:

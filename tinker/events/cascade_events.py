@@ -9,7 +9,7 @@ from operator import itemgetter
 from tinker.web_services import *
 from tinker import app
 from tinker.cascade_tools import *
-
+from tinker.tools import *
 
 # just duplicate a bunch for now
 def string_to_datetime(date_str):
@@ -104,6 +104,17 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
      Could this be cleaned up at all?
     """
 
+    # Create Image asset
+    if 'image' in add_data.keys() and add_data['image'] is not None:
+        image_node = {
+            'identifier': "image",
+            'filePath': "/" + add_data['image'],
+            'assetType': "file",
+            'type': "asset"
+        }
+    else:
+        image_node = None
+
     # Create a list of all the data nodes
     structured_data = [
         structured_data_node("main-content", escape_wysiwyg_content(add_data['main_content'])),
@@ -121,6 +132,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
         structured_data_node("location", add_data['location']),
         structured_data_node("featuring", add_data['featuring']),
         structured_data_node("wufoo-code", add_data['wufoo_code']),
+        image_node,
     ]
     # Add the dates at the end of the data
     structured_data.extend(add_data['event-dates'])

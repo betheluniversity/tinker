@@ -8,6 +8,7 @@ from wtforms import StringField
 from wtforms import TextAreaField
 from wtforms import SelectMultipleField
 from wtforms import SelectField
+from wtforms import FileField
 from wtforms import HiddenField
 from wtforms import DateTimeField
 from wtforms import Field
@@ -19,7 +20,7 @@ from tinker import tools
 
 
 def get_md(metadata_path):
-    # todo this should be in web_services.py.At least getting. The "return" traversal can be here.
+    # todo this should be in web_services.py. At least getting. The "return" traversal can be here.
 
     identifier = {
         'path': {
@@ -130,6 +131,8 @@ class HeadingField(Field):
 
 class EventForm(Form):
 
+    image = HiddenField("Image path")
+
     choices = get_event_choices()
     general_choices = choices['general']
     offices_choices = choices['offices']
@@ -146,6 +149,8 @@ class EventForm(Form):
     what = HeadingField(label="What is your event?")
     title = StringField('Event name', validators=[DataRequired()], description="This will be the title of your webpage")
     teaser = StringField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.', validators=[DataRequired()])
+
+
 
     if 'Event Approver' in tools.get_groups_for_user():
         link = StringField("External Link", description="This field only seen by 'Event Approvers'. An external link will redirect this event to the external link url.")
