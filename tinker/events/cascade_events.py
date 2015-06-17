@@ -105,7 +105,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
     """
 
     # Create Image asset
-    if 'image' in add_data.keys() and add_data['image'] is not None:
+    if 'image' in add_data.keys() and add_data['image'] is not None and add_data['image'] != "":
         image_node = {
             'identifier': "image",
             'filePath': "/" + add_data['image'],
