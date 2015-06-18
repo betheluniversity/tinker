@@ -42,7 +42,25 @@ def delete(page_id, workflow=None):
     email_tinker_admins(response)
     return response
 
-def publish(path_or_id, type='page'):
+def get_destinations(destination):
+    # empty string means publish to all
+    if destination == '':
+        return {}
+    elif destination == 'staging.bethel.edu':
+        id = 'ba1381d58c586513100ee2a78fc41899'
+    elif destination == "Production bethel.edu":
+        id = '132207cb8c586513742d45fd62673fe4'
+    identifier = {'assetIdentifier': {
+                    'id': id,
+                    'type': 'destination',
+                    }
+                }
+    return identifier
+
+
+def publish(path_or_id, type='page', destination=""):
+
+    destination = get_destinations(destination)
 
     client = get_client()
 
@@ -54,14 +72,16 @@ def publish(path_or_id, type='page'):
                     'path': path_or_id,
                     'siteId': app.config['SITE_ID']
                 }
-            }
+            },
+            'destinations': destination
         }
     else:
         publishinformation = {
             'identifier': {
                 'id': path_or_id,
                 'type': type,
-            }
+            },
+            'destinations': destination
         }
 
     auth = app.config['CASCADE_LOGIN']
@@ -343,5 +363,33 @@ def create_image(asset):
 
     # Publish
     publish(response.createdAssetId, "file")
+
+    return response
+
+
+def list_relationships(id, type="page"):
+    auth = app.config['CASCADE_LOGIN']
+    client = get_client()
+
+    identifier = {
+        'id': id,
+        'type': type,
+    }
+
+    response = client.service.listSubscribers(auth, identifier)
+
+    return response
+
+
+def read_access_rights(id, type="page"):
+    auth = app.config['CASCADE_LOGIN']
+    client = get_client()
+
+    identifier = {
+        'id': id,
+        'type': type,
+    }
+
+    response = client.service.readAccessRights(auth, identifier)
 
     return response

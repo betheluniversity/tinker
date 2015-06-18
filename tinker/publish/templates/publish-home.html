@@ -12,37 +12,48 @@
 {% block main_content %}
 <form action="." id="publish-search-form">
   <div class="row">
+
     <div class="large-6 columns">
       <label>Search by Name
         <input type="text" class="publish-search" name="publish-search-by-name" id="publish-search-by-name"/>
       </label>
     </div>
+    <div class="large-6 columns">
+      <label>Search by Content
+        <input type="text" class="publish-search" name="publish-search-by-content" id="publish-search-by-content"/>
+      </label>
+    </div>
+
   </div>
     <div class="row">
-        <div class="large-6 columns">
-          <label>Search by Content
-            <input type="text" class="publish-search" name="publish-search-by-content" id="publish-search-by-content"/>
-          </label>
-        </div>
-      </div>
-    <div class="row">
-        <div class="large-6 columns">
-          <label>Search by Metadata
-            <input type="text" class="publish-search" name="publish-search-by-metadata" id="publish-search-by-metadata"/>
-          </label>
-        </div>
-      </div>
+
+    <div class="large-6 columns">
+      <label>Search by Metadata
+        <input type="text" class="publish-search" name="publish-search-by-metadata" id="publish-search-by-metadata"/>
+      </label>
+    </div>
+    <div class="large-6 columns">
+      <label>Publish to:
+          <br />
+        <input type="radio" name="publish-to" value="staging" checked> Staging<br />
+        <input type="radio" name="publish-to" value="production" checked> Production<br />
+        <input type="radio" name="publish-to" value="all"> All<br />
+      </label>
+    </div>
+
+    </div>
 </form>
 
 <div class="row">
   <div class="large-12 columns">
-    <table >
+    <table>
       <thead>
         <tr>
-          <th width="200">Counter</th>
-          <th width="400">Page Type</th>
-          <th width="400">Page URL</th>
-          <th width="400">Publish</th>
+          <th width="200">Pages</th>
+          <th width="200">Page Type</th>
+          <th width="600">Page URL</th>
+          <th width="200">Publish</th>
+          <th width="400">Messages</th>
         </tr>
       </thead>
       <tbody id="publish-table">
@@ -54,6 +65,7 @@
 
 <script type="text/javascript">
 
+// Todo add this delay
 var delay = (function(){
   var timer = 0;
   return function(callback, ms){
@@ -63,7 +75,9 @@ var delay = (function(){
 })();
 
   function updateTable(data){
+      // Todo if no data exists, display message
       $("#publish-table").html(data);
+
 
       // make a call to get more info...
 {#      $( ".redirect-row" ).on('click', function(){#}
@@ -86,18 +100,18 @@ var delay = (function(){
       var name = $('#publish-search-by-name').val();
       var content = $('#publish-search-by-content').val();
       var metadata = $('#publish-search-by-metadata').val();
-      loadTableForSearch(name, content, metadata);
+      delay(function(){
+        loadTableForSearch(name, content, metadata);
+      }, 300 );
   });
 
-  function publishResult(id){
-      var url = "/publish/publish";
-     $.post(url, search, function(data) {
-        updateTable(data);
+  function publishAsset(type, id, counter){
+      var destination = $('input[name=publish-to]:checked', '#publish-search-form').val();
+      var url = "/publish/publish/" + destination + "/" + type + "/" + id;
+     $.post(url, function(data) {
+         $("#publish_button_" + counter).text(data);
       });
   }
-
-
-
 </script>
 
 {% endblock %}

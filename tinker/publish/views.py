@@ -41,3 +41,32 @@ def publish_search():
 
     results = final_results
     return render_template('publish-table.html', **locals())
+
+
+@publish_blueprint.route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
+def publish_publish(destination, type, id, ):
+    if destination == "staging":
+        destination = "staging.bethel.edu"
+    elif destination == "production":
+        destination = "Production bethel.edu"
+    else:
+        # default: Empty string means publish to all
+        destination = ""
+
+    if type == "block":
+        try:
+            relationships = list_relationships(id, type)
+            pages = relationships.subscribers.assetIdentifier
+            for page in pages:
+                resp = publish(page.id, "page", destination)
+            if 'success = "false"' in str(resp):
+                return resp['message']
+        except:
+            return "Failed"
+    else:
+        resp = publish(id, type, destination)
+        print resp
+        if 'success = "false"' in str(resp):
+            return resp['message']
+
+    return "Successfully published."

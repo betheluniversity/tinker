@@ -8,10 +8,13 @@
             {{ result.type }}
         </td>
         <td>
-            <a href="https://cms.bethel.edu/entity/edit.act?id={{ result.id }}&type={{ result.type }}">{{ result.path.path }}</a>
+            <a href="https://cms.bethel.edu/entity/edit.act?id={{ result.id }}&type={{ result.type }}">/{{ result.path.path }}</a>
         </td>
         <td>
-            <button>Publish</button>
+            <button class="publishButton" onclick="publishAsset('{{ result.type }}', '{{ result.id }}', '{{ counter }}');">Publish</button>
+        </td>
+        <td id="publish_button_{{ counter }}">
+
         </td>
     </tr>
     {% set counter = counter + 1 %}

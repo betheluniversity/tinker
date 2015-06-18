@@ -118,3 +118,20 @@ def clear_image_cache(image_path):
     matches.extend(resp)
 
     return str(matches)
+
+
+# def can_user_access_asset( username, id, type):
+#     try:
+#         user = read(username, "user")
+#         allowed_groups = user.asset.user.groups
+#     except AttributeError:
+#        allowed_groups = ""
+#     user_groups = allowed_groups.split(";")
+#
+#     response = read_access_rights(id, type)['accessRightsInformation']['aclEntries']['aclEntry']
+#     response = [right['name'] for right in response]
+#
+#     if username in response or set(user_groups).intersection(set(response)):
+#         return True
+#     else:
+#         return False
