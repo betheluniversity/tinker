@@ -114,15 +114,15 @@ def new_api_submit():
                 db.session.add(redirect)
                 db.session.commit()
         except:
-            message = "redirect from %s to %s already exists" % (from_url, to_url)
-            sender = 'tinker@bethel.edu'
-            receivers = ['e-jameson@bethel.edu', 'a-vennerstrom@bethel.edu', 'ces55739@bethel.edu']
-            
-            smtp_obj = smtplib.SMTP('localhost')
-            smtp_obj.sendmail(sender, receivers, message)
-            print "Successfully sent email"
+            # message = "redirect from %s to %s already exists" % (from_url, to_url)
+            # sender = 'tinker@bethel.edu'
+            # receivers = ['e-jameson@bethel.edu', 'a-vennerstrom@bethel.edu', 'ces55739@bethel.edu']
+            #
+            # smtp_obj = smtplib.SMTP('localhost')
+            # smtp_obj.sendmail(sender, receivers, message)
+            # print "Successfully sent email"
             db.session.rollback()
-            return "sent email notice"
+            # return "sent email notice"
 
     if redirect:
         create_redirect_text_file()
