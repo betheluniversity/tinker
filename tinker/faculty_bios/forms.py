@@ -135,8 +135,8 @@ def validate_username(form, field):
 class FacultyBioForm(Form):
     roles = get_roles()
 
-    ## if a cas faculty member, hide the image field.
-    if 'FACULTY-CAS' in roles:
+    ## if a cas faculty member or seminary faculty member, hide the image field.
+    if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
         image = HiddenField("Image")
         image_url = HiddenField("Image URL")
     else:

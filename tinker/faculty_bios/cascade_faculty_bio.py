@@ -490,7 +490,7 @@ def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, school=
         school = []
 
     # only submit workflow if it is a new CAS
-    if "College of Arts & Sciences" in school and faculty_bio_id is None:
+    if "College of Arts & Sciences" in school:
         workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
     elif "Graduate School" in school or "College of Adult & Professional Studies" in school:
         workflow_id = '81dabbc78c5865130c130b3a2b567e75'
@@ -517,15 +517,15 @@ def check_publish_sets(schools, faculty_bio_id, new_bio=False):
     for school in schools:
         # currently GS and CAPS go through a workflow, so those should NOT be published here.
         # also, cas should only be published if its new
-        if school == "College of Arts & Sciences" and new_bio == False:
-            publish(faculty_bio_id, "page")
-            publish_faculty_bio_xml()
-            publish("f580ac758c58651313b6fe6bced65fea", "publishset")
+        # if school == "College of Arts & Sciences" and new_bio == False:
+        #     publish(faculty_bio_id, "page")
+        #     publish_faculty_bio_xml()
+        #     publish("f580ac758c58651313b6fe6bced65fea", "publishset")
         # elif item == "Graduate School":
         #     publish("2ecbad1a8c5865132b2dadea8cdcb2be", "publishset")
         # elif item == "College of Adult & Professional Studies":
         #     publish("2ed0beef8c5865132b2dadea1ccf543e", "publishset")
-        elif school == "Bethel Seminary":
+        if school == "Bethel Seminary":
             publish(faculty_bio_id)
             publish_faculty_bio_xml()
             publish("2ed19c8d8c5865132b2dadea60403657", "publishset")
