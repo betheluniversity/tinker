@@ -53,9 +53,11 @@
             {% if form.is_published %}
               <li><a href="{{ form.path }}" class="small button success">View</a></li>
               <li><a href="/event/edit/{{ form.id }}#page-title" class="small button">Edit</a></li>
+              <li><a href="/event/duplicate/{{ form.id }}#page-title" class="small button">Duplicate</a></li>
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
+
             <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-event-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
            </ul>
         </div>
@@ -94,6 +96,7 @@
             {% if form.is_published %}
               <li><a href="{{ form.path }}" class="small button success">View</a></li>
               <li><a href="/event/edit/{{ form.id }}#page-title" class="small button">Edit</a></li>
+              <li><a href="/event/duplicate/{{ form.id }}#page-title" class="small button">Duplicate</a></li>
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}

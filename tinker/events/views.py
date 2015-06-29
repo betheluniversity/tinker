@@ -73,9 +73,9 @@ def read_page():
 def event_in_workflow():
     return render_template('event-in-workflow.html')
 
+
 @event_blueprint.route('/edit/<event_id>')
 def edit_event_page(event_id):
-
     # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
     if is_asset_in_workflow(event_id):
         return redirect('/event/in-workflow', code=302)
@@ -132,6 +132,66 @@ def edit_event_page(event_id):
 
     # convert dates to json so we can use Javascript to create custom DateTime fields on the form
     dates = fjson.dumps(dates)
+
+    return render_template('event-form.html', **locals())
+
+
+@event_blueprint.route('/duplicate/<event_id>')
+def duplicate_event_page(event_id):
+
+    # import this here so we dont load all the content
+    # from cascade during homepage load
+    from tinker.events.forms import EventForm
+
+    # Get the event data from cascade
+    event_data = read(event_id)
+
+    # Get the different data sets from the response
+
+    form_data = event_data.asset.page
+    # the stuff from the data def
+    s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
+    # regular metadata
+    metadata = form_data.metadata
+    # dynamic metadata
+    dynamic_fields = metadata.dynamicFields.dynamicField
+    # This dict will populate our EventForm object
+    edit_data = {}
+    date_count = 0
+    dates = {}
+    # Start with structuredDataNodes (data def content)
+    for node in s_data:
+        node_identifier = node.identifier.replace('-', '_')
+        node_type = node.type
+        if node_type == "text":
+            edit_data[node_identifier] = node.text
+        elif node_type == 'group':
+            # These are the event dates. Create a dict so we can convert to JSON later.
+            dates[date_count] = read_date_data_structure(node)
+            date_count += 1
+        elif node_identifier == 'image':
+            edit_data['image'] = node.filePath
+
+    # now metadata dynamic fields
+    for field in dynamic_fields:
+        # This will fail if no metadata is set. It should be required but just in case
+        if field.fieldValues:
+            items = [item.value for item in field.fieldValues.fieldValue]
+            edit_data[field.name.replace('-', '_')] = items
+
+    # Add the rest of the fields. Can't loop over these kinds of metadata
+    edit_data['title'] = metadata.title
+    edit_data['teaser'] = metadata.metaDescription
+    author = metadata.author
+
+    # Create an EventForm object with our data
+    form = EventForm(**edit_data)
+    form.event_id = event_id
+
+
+    # convert dates to json so we can use Javascript to create custom DateTime fields on the form
+    dates = fjson.dumps(dates)
+    add_form = True
 
     return render_template('event-form.html', **locals())
 
