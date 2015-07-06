@@ -166,7 +166,6 @@ def submit_faculty_bio_form():
 
     username = session['username']
 
-
     title = rform['last'] + "-" + rform['first']
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)

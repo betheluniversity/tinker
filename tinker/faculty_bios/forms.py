@@ -129,13 +129,13 @@ def validate_username(form, field):
 
     content = req.content
     if content == str({}):
-        raise ValidationError("Invalid username.")
+        raise ValidationError("Enter your Bethel username.")
 
 
 class FacultyBioForm(Form):
     roles = get_roles()
 
-    ## if a cas faculty member or seminary faculty member, hide the image field.
+    # if a cas faculty member or seminary faculty member, hide the image field.
     if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
         image = HiddenField("Image")
         image_url = HiddenField("Image URL")
@@ -174,7 +174,6 @@ class FacultyBioForm(Form):
 
     website = TextField('Professional website or blog')
 
-
     choices = get_faculty_bio_choices()
     categories = HeadingField(label="Categories", id="categories_heading")
     school_choices = choices['school']
@@ -189,8 +188,7 @@ class FacultyBioForm(Form):
     graduate_program = SelectMultipleField('Graduate Programs', default=['None'], choices=gs_choices, validators=[validators.DataRequired()])
     seminary_program = SelectMultipleField('Seminary Programs', default=['None'], choices=sem_choices, validators=[validators.DataRequired()])
 
-
-    ## Manually override validate, in order to check the 3 headers below
+    # Manually override validate, in order to check the 3 headers below
     def validate(self):
         if not Form.validate(self):
             return False
