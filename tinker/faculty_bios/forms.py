@@ -145,7 +145,8 @@ class FacultyBioForm(Form):
 
     first = TextField('Faculty first name', validators=[validators.DataRequired()])
     last = TextField('Faculty last name', validators=[validators.DataRequired()])
-    author = TextField("Faculty member's username", validators=[validators.DataRequired(), validate_username], description="This username will become the author of the page.")
+    author = TextField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
+                       description="Enter your Bethel username.")
 
     job_titles = TextField('')
 
