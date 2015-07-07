@@ -1,9 +1,5 @@
-{% set counter = 1 %}
 {% for result in results %}
     <tr>
-        <td>
-            {{ counter }}
-        </td>
         <td>
             {{ result.type }}
         </td>
@@ -13,9 +9,7 @@
         <td>
             <button class="publishButton" onclick="publishAsset('{{ result.type }}', '{{ result.id }}', '{{ counter }}');">Publish</button>
         </td>
-        <td id="publish_button_{{ counter }}">
-
-        </td>
+        <td id="publish_button_{{ counter }}"></td>
+        <td><button onclick="moreInfo('{{ result.type }}', '{{ result.id }}')">More Info</button></td>
     </tr>
-    {% set counter = counter + 1 %}
 {% endfor %}

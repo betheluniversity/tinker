@@ -70,3 +70,18 @@ def publish_publish(destination, type, id, ):
             return resp['message']
 
     return "Successfully published."
+
+
+@publish_blueprint.route("/more_info", methods=['post'])
+def publish_more_info():
+    type = request.form['type']
+    id = request.form['id']
+
+    resp = read(id, type)
+    # md =
+    # name
+    # title
+    # path
+    # description
+
+    return str(resp)

@@ -10,6 +10,8 @@
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
+<p>Use *'s to assist in broadening searches. For example, "ban*" will search for "ban", "banner", "bank", etc.</p>
+
 <form action="." id="publish-search-form">
   <div class="row">
 
@@ -49,11 +51,11 @@
     <table>
       <thead>
         <tr>
-          <th width="200">Pages</th>
           <th width="200">Page Type</th>
           <th width="600">Page URL</th>
           <th width="200">Publish</th>
           <th width="400">Messages</th>
+          <th width="200">More info</th>
         </tr>
       </thead>
       <tbody id="publish-table">
@@ -112,6 +114,14 @@ var delay = (function(){
          $("#publish_button_" + counter).text(data);
       });
   }
+
+    function moreInfo(type, id){
+         var input_data = {'type': type, 'id': id};
+         var url = "/publish/more_info";
+         $.post(url, input_data, function(data) {
+             alert(data);
+          });
+      }
 </script>
 
 {% endblock %}
