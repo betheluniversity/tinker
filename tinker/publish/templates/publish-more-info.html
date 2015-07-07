@@ -1,0 +1,30 @@
+{% if title %}
+<h2>{{ title }}</h2>
+{%  endif %}
+
+<table>
+    {% if name %}
+        <tr>
+            <td>Name</td>
+            <td>{{ name }}</td>
+        </tr>
+    {% endif %}
+    {% if path %}
+        <tr>
+            <td>Path</td>
+            <td>{{ path }}</td>
+        </tr>
+    {% endif %}
+    {% if type %}
+        <tr>
+            <td>Type</td>
+            <td>{{ type }}</td>
+        </tr>
+    {% endif %}
+    {% if path %}
+        <tr>
+            <td>Description</td>
+            <td>{{ descriptiom }}</td>
+        </tr>
+    {% endif %}
+</table>

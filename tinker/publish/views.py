@@ -10,6 +10,7 @@ from tinker.web_services import *
 
 publish_blueprint = Blueprint('publish', __name__, template_folder='templates')
 
+
 @publish_blueprint.route("/")
 def publish_home():
     get_user()
@@ -78,10 +79,29 @@ def publish_more_info():
     id = request.form['id']
 
     resp = read(id, type)
-    # md =
-    # name
-    # title
-    # path
-    # description
 
-    return str(resp)
+    #page
+    if type == 'page':
+        info = resp.asset.page
+        md = info.metadata
+    #block
+    elif type == 'block':
+        info = resp.asset.xhtmlDataDefinitionBlock
+        md = info.metadata
+
+    # name
+    if info.name:
+        name = info.name
+    # title
+    if md.title:
+        title = md.title
+    # path
+    if info.path:
+        path = info.path
+    # description
+    if md.metaDescription:
+        description = md.metaDescription
+
+    # get staging and www publish times.
+
+    return render_template("publish-more-info.html", **locals())

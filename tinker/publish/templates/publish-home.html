@@ -12,6 +12,11 @@
 {% block main_content %}
 <p>Use *'s to assist in broadening searches. For example, "ban*" will search for "ban", "banner", "bank", etc.</p>
 
+<div id="dialog" class="reveal-modal" data-reveal>
+    <p class='dialog-text'>Testing</p>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
 <form action="." id="publish-search-form">
   <div class="row">
 
@@ -67,7 +72,6 @@
 
 <script type="text/javascript">
 
-// Todo add this delay
 var delay = (function(){
   var timer = 0;
   return function(callback, ms){
@@ -80,13 +84,6 @@ var delay = (function(){
       // Todo if no data exists, display message
       $("#publish-table").html(data);
 
-
-      // make a call to get more info...
-{#      $( ".redirect-row" ).on('click', function(){#}
-{#        $("#modal-confirm").attr("data-delete-path", $(this).find('.from_path').html());#}
-{#        $(document).foundation();#}
-{#        $("#confirmModal").foundation('reveal', 'open');#}
-{#      });#}
   }
 
 
@@ -119,7 +116,7 @@ var delay = (function(){
          var input_data = {'type': type, 'id': id};
          var url = "/publish/more_info";
          $.post(url, input_data, function(data) {
-             alert(data);
+             $('.dialog-text').html(data);
           });
       }
 </script>
