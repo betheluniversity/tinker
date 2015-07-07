@@ -514,7 +514,8 @@ def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, school=
 
     return workflow
 
-
+# Todo: remove this.
+# This function is no longer used, as all bios go through a workflow.
 def check_publish_sets(schools, faculty_bio_id, new_bio=False):
     for school in schools:
         # currently GS and CAPS go through a workflow, so those should NOT be published here.

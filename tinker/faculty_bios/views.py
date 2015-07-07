@@ -216,7 +216,8 @@ def submit_faculty_bio_form():
         resp = edit(asset)
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " with id: " + faculty_bio_id + " " + str(resp))
         # publish corresponding pubish set to make sure corresponding pages get edits
-        check_publish_sets(add_data['school'], faculty_bio_id, False)
+        # This is no longer needed, since ALL bios go through workflows.
+        # check_publish_sets(add_data['school'], faculty_bio_id, False)
         return render_template('faculty-bio-confirm-edit.html', **locals())
     else:
         # new bio
