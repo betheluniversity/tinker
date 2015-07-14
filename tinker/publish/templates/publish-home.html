@@ -10,10 +10,11 @@
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
+<p>Blocks that are published publish out each page in the relationships tab.</p>
 <p>Use *'s to assist in broadening searches. For example, "ban*" will search for "ban", "banner", "bank", etc.</p>
 
 <div id="dialog" class="reveal-modal" data-reveal>
-    <p class='dialog-text'>Testing</p>
+    <p class='dialog-text'>. . . Loading . . .</p>
     <a class="close-reveal-modal">&#215;</a>
 </div>
 
@@ -119,6 +120,10 @@ var delay = (function(){
              $('.dialog-text').html(data);
           });
       }
+
+    $(".close-reveal-modal").click(function(){
+        $('.dialog-text').html(". . . Loading . . .");
+    });
 </script>
 
 {% endblock %}

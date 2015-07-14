@@ -342,12 +342,13 @@ def search(name_search="", content_search="", metadata_search=""):
         'searchPages': True,
         'searchBlocks': True,
         'searchFiles': True,
+        'searchFolders': True,
     }
 
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.search(auth, search_information)
-    app.logger.warn(time.strftime("%c") + ": Unpublished " + str(response))
+    # app.logger.warn(time.strftime("%c") + ": Search " + str(response))
 
     return response
 

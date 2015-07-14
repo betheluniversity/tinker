@@ -1,4 +1,9 @@
 __author__ = 'ces55739'
+# python
+from BeautifulSoup import *
+import urllib
+from datetime import datetime
+
 
 # flask
 from flask import Blueprint
@@ -37,7 +42,7 @@ def publish_search():
 
     final_results = []
     for result in results:
-        if result.path.siteName == "Public" and "_testing/" not in result.path.path:
+        if result.path.siteName == "Public" and (not re.match("_", result.path.path) or re.match("_shared-content", result.path.path) or re.match("_homepages", result.path.path) ):
             final_results.append(result)
 
     results = final_results
@@ -70,7 +75,7 @@ def publish_publish(destination, type, id, ):
         if 'success = "false"' in str(resp):
             return resp['message']
 
-    return "Successfully published."
+    return "Publishing. . ."
 
 
 @publish_blueprint.route("/more_info", methods=['post'])
@@ -82,12 +87,23 @@ def publish_more_info():
 
     #page
     if type == 'page':
-        info = resp.asset.page
-        md = info.metadata
+        try:
+            info = resp.asset.page
+            md = info.metadata
+            ext = 'php'
+        except:
+            return "Not a valid type. . ."
     #block
     elif type == 'block':
-        info = resp.asset.xhtmlDataDefinitionBlock
-        md = info.metadata
+        try:
+            info = resp.asset.xhtmlDataDefinitionBlock
+            md = info.metadata
+            ext = ""
+        except:
+            return "Not a valid type. . ."
+    # Todo: file
+    else:
+        return "Not a valid type. . ."
 
     # name
     if info.name:
@@ -98,10 +114,44 @@ def publish_more_info():
     # path
     if info.path:
         path = info.path
+
+        if ext != "":
+            try:
+                www_publish_date = 'N/A'
+                staging_publish_date = 'N/A'
+                #prod
+                # www publish date
+                page3 = urllib.urlopen("https://www.bethel.edu/"  + path + '.' + ext).read()
+                soup3 = BeautifulSoup(page3)
+                date = soup3.findAll(attrs={"name":"date"})
+                if date:
+                    www_publish_date = convert_meta_date(date)
+
+                # staging
+                page3 = urllib.urlopen("https://staging.bethel.edu/"  + path + '.' + ext).read()
+                soup3 = BeautifulSoup(page3)
+                date = soup3.findAll(attrs={"name":"date"})
+                if date:
+                    staging_publish_date = convert_meta_date(date)
+
+            except:
+                www_publish_date = 'N/A'
+                staging_publish_date = 'N/A'
     # description
     if md.metaDescription:
         description = md.metaDescription
 
-    # get staging and www publish times.
+
 
     return render_template("publish-more-info.html", **locals())
+
+
+def convert_meta_date(date):
+    dates = date[0]['content'].encode('utf-8').split(" ")
+    dates.pop()
+    date = " ".join(dates)
+
+    dt = datetime.datetime.strptime(date, "%a, %d %b %Y %H:%M:%S")
+    date_time = datetime.datetime.strftime(dt, "%B %e, %Y at %I:%M %p")
+
+    return date_time

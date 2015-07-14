@@ -1,30 +1,36 @@
-{% if title %}
-<h2>{{ title }}</h2>
+{% if name %}
+<h2>{{ name }}</h2>
 {%  endif %}
-
-<table>
-    {% if name %}
+    <table>
         <tr>
-            <td>Name</td>
-            <td>{{ name }}</td>
+            <td>Title</td>
+            <td>{{ title }}</td>
         </tr>
-    {% endif %}
-    {% if path %}
         <tr>
             <td>Path</td>
             <td>{{ path }}</td>
         </tr>
-    {% endif %}
-    {% if type %}
         <tr>
             <td>Type</td>
             <td>{{ type }}</td>
         </tr>
-    {% endif %}
-    {% if path %}
         <tr>
             <td>Description</td>
             <td>{{ descriptiom }}</td>
         </tr>
-    {% endif %}
-</table>
+    </table>
+
+<div class="row">
+
+    <div class="large-6 columns">
+        <h4>WWW last published</h4>
+        <p><a href="https://www.bethel.edu/{{ path }}" target="_blank">{{ www_publish_date }}</a></p>
+        <iframe src="https://www.bethel.edu/{{ path }}" height="400" width="400"></iframe>
+    </div>
+
+    <div class="large-6 columns">
+        <h4>Staging last published</h4>
+        <p><a href="https://staging.bethel.edu/{{ path }}" target="_blank">{{ staging_publish_date }}</a></p>
+        <iframe src="https://staging.bethel.edu/{{ path }}" height="400" width="400"></iframe>
+    </div>
+</div>
