@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block page_title %}
-  {% if add_form %}
+  {% if new_form %}
     Add a new E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
   {% else %}
     Edit your E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
@@ -22,7 +22,7 @@
 {% block main_content %}
   <div class="row">
   <div class="large-12 columns">
-    {% if add_form %}
+    {% if new_form %}
       <form id="eannouncementform" action="/e-announcements/submit" method="post">
     {% else %}
       <form id="eannouncementform" action="/e-announcements/submit-edit" method="post">
@@ -66,9 +66,20 @@
             <h3>{{ field.label }}</h3>
 
           {% elif field.type == "CKEditorTextAreaField" %}
-
+            <small id="ckeditor_current_count">0</small>
             {{ field(class="ckeditor") }}
-
+            <script>
+                $( document ).ready(function() {
+                    $('#message').keyup(function() {
+                        var count = $(this).val().length;
+                        $('#ckeditor_current_count').text(count);
+                        if( count > 200)
+                            $('#ckeditor_current_count').css("color", "#f04124");
+                        else
+                            $('#ckeditor_current_count').css("color", "#000000");
+                    });
+                });
+            </script>
 
           {% elif field.type == "DateField" %}
                 {{ field(class="datepicker") }}
@@ -104,6 +115,7 @@
                 field: this,
                 disabledDaysOfWeek: [0,2,4,6],
                 format: 'MM-DD-YYYY',
+                minDate: new Date()
               });
             });
           });

@@ -5,7 +5,6 @@ from xml.etree import ElementTree as ET
 
 #local
 from tinker.web_services import *
-from tinker import app
 from tinker.cascade_tools import *
 
 
@@ -110,7 +109,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
             'parentFolderPath': parentFolder,
             'metadataSetPath': "/Targeted",
             'contentTypePath': "E-Announcement",
-            'configurationSetPath': "E-Announcement",
+            'configurationSetPath': "Flex-ONE",
             'structuredData': structured_data,
             'metadata': {
                 'title': add_data['title'],
@@ -134,7 +133,46 @@ def get_e_announcement_parent_folder(date):
     month = convert_month_num_to_name(splitDate[0])
     year = splitDate[2]
 
+    #check if the folders exist
+    create_e_announcements_folder("e-announcements/" + year)
+    create_e_announcements_folder("e-announcements/" + year + "/" + month)
+
     return "e-announcements/" + year + "/" + month
+
+
+def create_e_announcements_folder(folder_path):
+    if folder_path[0] == "/":
+        folder_path = folder_path[1:] #removes the extra "/"
+
+    old_folder_asset = read("/" + folder_path, "folder")
+
+    if old_folder_asset['success'] == 'false':
+
+        array = folder_path.rsplit("/",1)
+        parentPath = array[0]
+        name = array[1]
+
+        asset = {
+            'folder': {
+                'metadata':{
+                    'title': name
+                },
+                'metadataSetPath': "Basic",
+                'name': name,
+                'parentFolderPath': parentPath,
+                'siteName': "Public"
+            }
+        }
+
+        auth = app.config['CASCADE_LOGIN']
+        client = get_client()
+
+        username = session['username']
+
+        response = client.service.create(auth, asset)
+        app.logger.warn(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
+        return True
+    return False
 
 
 def create_e_announcement(asset):
@@ -179,12 +217,13 @@ def convert_month_num_to_name(month_num):
 
 def get_e_announcement_publish_workflow(title="", username=""):
 
-    name = "New E-announcement Submission"
-    if title:
-        name += ": " + title
-    workflow = {
-        "workflowName": name,
-        "workflowDefinitionId": "aae9f9678c5865130c130b3a0d785704",
-        "workflowComments": "Send e-announcement for approval"
-    }
+    # name = "New E-announcement Submission"
+    # if title:
+    #     name += ": " + title
+    # workflow = {
+    #     "workflowName": name,
+    #     "workflowDefinitionId": "aae9f9678c5865130c130b3a0d785704",
+    #     "workflowComments": "Send e-announcement for approval"
+    # }
+    workflow = None
     return workflow

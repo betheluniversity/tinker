@@ -45,7 +45,7 @@ def e_announcements_new_form():
     from forms import EAnnouncementsForm
 
     form = EAnnouncementsForm()
-    add_form = True
+    new_form = True
     return render_template('e-announcements-form.html', **locals())
 
 
@@ -68,7 +68,7 @@ def submit_e_announcement_form():
             e_announcement_id = request.form['e_announcement_id']
         else:
             # This error came from the add form because e-annoucnements_id wasn't set
-            add_form = True
+            new_form = True
         app.logger.warn(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
         return render_template('e-announcements-form.html', **locals())
 
