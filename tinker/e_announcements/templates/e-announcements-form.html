@@ -1,0 +1,112 @@
+{% extends "tinker-base.html" %}
+
+{% block title %}E-Announcement Form{% endblock %}
+
+{% block styles %}
+  <style type="text/css">
+    .largeselect {
+      height: 100px;
+      font-size:14px;
+    }
+  </style>
+{% endblock %}
+
+{% block page_title %}
+  {% if add_form %}
+    Add a new E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
+  {% else %}
+    Edit your E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
+  {% endif %}
+{% endblock %}
+
+{% block main_content %}
+  <div class="row">
+  <div class="large-12 columns">
+    {% if add_form %}
+      <form id="eannouncementform" action="/e-announcements/submit" method="post">
+    {% else %}
+      <form id="eannouncementform" action="/e-announcements/submit-edit" method="post">
+      <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
+    {% endif %}
+        {% if form.errors %}
+          <div class="alert alert-error">
+            <div data-alert class="alert-box alert radius">
+                There were errors with your form.
+                <a href="#" class="close">&times;</a>
+              </div>
+            </div>
+        {% endif %}
+        {{ form.hidden_tag() }}
+        {% for field in form if field.widget.input_type != 'hidden' %}
+
+        {# Print any errors for this field#}
+          {% for error in form.errors[field.name] %}
+            <div class="alert alert-error">
+              <div data-alert class="alert-box alert radius">
+                {{ error }}
+                <a href="#" class="close">&times;</a>
+              </div>
+            </div>
+          {% endfor %}
+
+          {# print the label #}
+            <label for="{{ field.name }}">
+              {{ field.label.text }}
+              {% if field.flags.required %} <small>required</small> {% endif %}
+             </label>
+            <small>{{ field.description }}</small>
+
+
+
+          {# Print the field #}
+          {% if field.type == "SelectMultipleField" %}
+            {{ field(size=10, class="largeselect") }}
+
+          {% elif field.type == "HeadingField" %}
+            <h3>{{ field.label }}</h3>
+
+          {% elif field.type == "CKEditorTextAreaField" %}
+
+            {{ field(class="ckeditor") }}
+
+
+          {% elif field.type == "DateField" %}
+                {{ field(class="datepicker") }}
+
+          {% else %}
+              {{ field(size=20) }}
+          {% endif %}
+
+        {% endfor %}
+        <button type="submit" id="e-announcement-submit-btn" class="button postfix">Submit</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    <script src="{{ url_for('static', filename='moment.js') }}"></script>
+    <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+
+    <script type="text/javascript">
+
+          $( document ).ready(function() {
+            var today = new Date();
+            $('.datepicker').each(function (index) {
+              var picker = new Pikaday({
+                field: this,
+                disabledDaysOfWeek: [0,2,4,6],
+                format: 'MM-DD-YYYY',
+              });
+            });
+          });
+
+     </script>
+{% endblock %}
