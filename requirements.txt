@@ -14,3 +14,4 @@ SQLAlchemy-migrate
 BeautifulSoup
 Flask-Cors
 arrow
+feedformatter
