@@ -43,10 +43,10 @@ from tinker.heading_upgrade.views import heading_upgrade
 from tinker.e_announcements.views import e_announcements_blueprint
 from tinker.publish.views import publish_blueprint
 app.register_blueprint(event_blueprint, url_prefix='/event')
-app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bios')
+app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
 app.register_blueprint(redirect_blueprint, url_prefix='/redirect')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
-app.register_blueprint(e_announcements_blueprint, url_prefix='/e-announcements')
+app.register_blueprint(e_announcements_blueprint, url_prefix='/e-announcement')
 app.register_blueprint(publish_blueprint, url_prefix='/publish')
 
 # Import error handling

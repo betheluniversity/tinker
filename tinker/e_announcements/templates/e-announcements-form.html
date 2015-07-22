@@ -23,9 +23,9 @@
   <div class="row">
   <div class="large-12 columns">
     {% if new_form %}
-      <form id="eannouncementform" action="/e-announcements/submit" method="post">
+      <form id="eannouncementform" action="/e-announcement/submit" method="post">
     {% else %}
-      <form id="eannouncementform" action="/e-announcements/submit-edit" method="post">
+      <form id="eannouncementform" action="/e-announcement/submit-edit" method="post">
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
         {% if form.errors %}
@@ -66,18 +66,30 @@
             <h3>{{ field.label }}</h3>
 
           {% elif field.type == "CKEditorTextAreaField" %}
-            <small id="ckeditor_current_count">0</small>
+            <p id="ckeditor_current_count" style="font-size: 20px">Words: 0</p>
             {{ field(class="ckeditor") }}
             <script>
                 $( document ).ready(function() {
-                    $('#message').keyup(function() {
-                        var count = $(this).val().length;
-                        $('#ckeditor_current_count').text(count);
-                        if( count > 200)
+                    function loadCount(){
+                        checkCount()
+                        $(".cke_contents").children("iframe").contents().find("body").keyup(function() {
+                            checkCount();
+                        });
+                    };
+
+                    function checkCount(){
+                        var count = $(".cke_contents").children("iframe").contents().find("body").text().split(' ').length;
+
+                        if( count > 200) {
+                            $('#ckeditor_current_count').text("Words: " + count + ". Please reduce your word count before submitting.");
                             $('#ckeditor_current_count').css("color", "#f04124");
-                        else
+                        } else {
+                            $('#ckeditor_current_count').text("Words: " + count);
                             $('#ckeditor_current_count').css("color", "#000000");
-                    });
+                        }
+                    };
+
+                    setTimeout(loadCount, 500);
                 });
             </script>
 

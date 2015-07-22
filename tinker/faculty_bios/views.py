@@ -12,7 +12,7 @@ from tinker.faculty_bios.cascade_faculty_bio import *
 from tinker import app
 from tinker.tools import *
 
-faculty_bio_blueprint = Blueprint('faculty-bios', __name__, template_folder='templates')
+faculty_bio_blueprint = Blueprint('faculty-bio', __name__, template_folder='templates')
 
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
@@ -28,7 +28,7 @@ def delete_page(page_id):
     # send to this workflow instead: 7747ea478c5865130c130b3a1a05240e
     delete(page_id, workflow="7747ea478c5865130c130b3a1a05240e")
 
-    return redirect('/faculty-bios/delete-confirm', code=302)
+    return redirect('/faculty-bio/delete-confirm', code=302)
 
 
 @faculty_bio_blueprint.route('/delete-confirm')
@@ -69,7 +69,7 @@ def faculty_bio_edit_form(faculty_bio_id):
 
     # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
     if is_asset_in_workflow(faculty_bio_id):
-        return redirect('/faculty-bios/in-workflow', code=302)
+        return redirect('/faculty-bio/in-workflow', code=302)
 
     # import this here so we dont load all the content
     # from cascade during homepage load

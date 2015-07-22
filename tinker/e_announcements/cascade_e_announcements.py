@@ -31,9 +31,11 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
             first = child.find('system-data-structure/first-date').text
             second = child.find('system-data-structure/second-date').text
             firstDate = datetime.datetime.strptime(first, '%m-%d-%Y').strftime('%A %B %d, %Y')
-            secondDate = datetime.datetime.strptime(second, '%m-%d-%Y').strftime('%A %B %d, %Y')
-
-            dates_str = firstDate + "<br/>" + secondDate
+            if second:
+                secondDate = datetime.datetime.strptime(second, '%m-%d-%Y').strftime('%A %B %d, %Y')
+                dates_str = firstDate + "<br/>" + secondDate
+            else:
+                dates_str = firstDate
 
             if (author is not None and username == author) or username == "get_all":
                 page_values = {
@@ -93,6 +95,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
         }
     }
 
+    print add_data['banner_roles']
     #create the dynamic metadata dict
     dynamic_fields = {
         'dynamicField': [
@@ -126,7 +129,8 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
     return asset
 
 
-## If no folder exists, create one.
+#if no folder exists, create one.
+#this will automatically move the page if the first_date changes.
 def get_e_announcement_parent_folder(date):
     ## break the date into Year/month
     splitDate = date.split("-")
@@ -173,6 +177,11 @@ def create_e_announcements_folder(folder_path):
         app.logger.warn(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
         return True
     return False
+
+
+def move_e_announcement(id, path):
+    resp = move(id, path)
+    return resp
 
 
 def create_e_announcement(asset):

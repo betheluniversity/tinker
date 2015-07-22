@@ -28,9 +28,9 @@
   <div class="large-12 columns">
 
     {% if add_form %}
-      <form id="facultybioform" action="/faculty-bios/submit" method="post" enctype="multipart/form-data">
+      <form id="facultybioform" action="/faculty-bio/submit" method="post" enctype="multipart/form-data">
     {% else %}
-      <form id="facultybioform" action="/faculty-bios/submit" method="post" enctype="multipart/form-data">
+      <form id="facultybioform" action="/faculty-bio/submit" method="post" enctype="multipart/form-data">
     {% endif %}
       <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
 
