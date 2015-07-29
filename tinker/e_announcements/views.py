@@ -211,7 +211,11 @@ def rss_feed():
 
     ## For each e-announcement
     for match in matches:
-        match = read(match['id']).asset.page
+        match = read(match['id'])
+        if match.success == "false":
+            continue
+        match = match.asset.page
+
 
         ### Gather the information
         metadata = match.metadata
@@ -232,7 +236,10 @@ def rss_feed():
             node_type = node.type
 
             if node_type == "text":
-                if node_identifier == "first_date" or node_identifier == "second_date":
+                if node_identifier == "first_date" or (node.text and node_identifier == "second_date"):
+                    print "test"
+                    print str(datetime.datetime.strptime(date, "%m-%d-%Y"))
+                    print str(datetime.datetime.strptime(node.text, "%m-%d-%Y"))
                     if str(datetime.datetime.strptime(date, "%m-%d-%Y")) == str(datetime.datetime.strptime(node.text, "%m-%d-%Y")):
                         date_matches = True
                     edit_data[node_identifier] = datetime.datetime.strptime(node.text, "%m-%d-%Y")
@@ -265,5 +272,19 @@ def rss_feed():
                     break
             if break_from_loop :
                 break
+
+        if roles == {}:
+            new_matches.append(match)
+
+            # Create an item
+            item = {}
+            item["title"] = match.metadata.title
+            item["link"] = "https://www.bethel.edu/" + match.path
+            item["description"] = edit_data['message'] + " <p>(" + ",".join(banner_roles ) + ")</p>"
+            item["guid"] = "https://www.bethel.edu/" + match.path
+            if match.lastPublishedDate != None:
+                item["pubDate"] = calendar.timegm(match.lastPublishedDate.utctimetuple())
+
+            rssfeed.items.append(item)
 
     return Response(rssfeed.format_rss2_string(), mimetype='text/xml')

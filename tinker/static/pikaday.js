@@ -2,6 +2,8 @@
  * Pikaday
  *
  * Copyright © 2014 David Bushell | BSD & MIT license | https://github.com/dbushell/Pikaday
+ *
+ * Edit by Caleb Schwarze: Added disabledDaysOfWeek attribute, to disable specific days of week.
  */
 
 (function (root, factory)
