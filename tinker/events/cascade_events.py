@@ -580,7 +580,7 @@ def move_event_year(event_id, data):
 
     new_path = get_event_folder_path(data)
 
-    resp = move(event_id, new_path)
+    resp = move(event_id, new_path[1])
 
     return resp
 

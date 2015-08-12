@@ -123,7 +123,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
 
     if e_announcement_id:
         asset['page']['id'] = e_announcement_id
-        resp = move(e_announcement_id, ['', parentFolder])
+        resp = move(e_announcement_id, parentFolder)
 
     return asset
 

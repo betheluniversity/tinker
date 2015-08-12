@@ -201,7 +201,7 @@ def move(page_id, destination_path):
     dest_folder_identifier = {
         'path': {
             'siteId': app.config['SITE_ID'],
-            'path': destination_path[1],
+            'path': destination_path,
         },
         'type': 'folder'
     }
