@@ -95,7 +95,6 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
         }
     }
 
-    print add_data['banner_roles']
     #create the dynamic metadata dict
     dynamic_fields = {
         'dynamicField': [
@@ -104,7 +103,6 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
     }
 
     parentFolder = get_e_announcement_parent_folder(add_data['first'])
-
     asset = {
         'page': {
             'name': add_data['system_name'],
@@ -125,6 +123,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
 
     if e_announcement_id:
         asset['page']['id'] = e_announcement_id
+        resp = move(e_announcement_id, ['', parentFolder])
 
     return asset
 

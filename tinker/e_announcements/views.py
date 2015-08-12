@@ -15,6 +15,7 @@ from tinker.tools import *
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')
 
 
+# Todo: sort e-announcements by most recent date.
 @e_announcements_blueprint.route("/")
 def e_announcements_home():
     username = session['username']
@@ -195,6 +196,7 @@ def rss_feed():
     parameters = urlparse.parse_qs(current_url.query)
     if 'roles' in parameters:
         roles = parameters['roles'][0].split('_')
+        roles = [role.upper() for role in roles]
     else:
         roles = {}
     if 'date' in parameters:
@@ -216,7 +218,6 @@ def rss_feed():
             continue
         match = match.asset.page
 
-
         ### Gather the information
         metadata = match.metadata
         dynamic_fields = metadata.dynamicFields.dynamicField
@@ -237,9 +238,6 @@ def rss_feed():
 
             if node_type == "text":
                 if node_identifier == "first_date" or (node.text and node_identifier == "second_date"):
-                    print "test"
-                    print str(datetime.datetime.strptime(date, "%m-%d-%Y"))
-                    print str(datetime.datetime.strptime(node.text, "%m-%d-%Y"))
                     if str(datetime.datetime.strptime(date, "%m-%d-%Y")) == str(datetime.datetime.strptime(node.text, "%m-%d-%Y")):
                         date_matches = True
                     edit_data[node_identifier] = datetime.datetime.strptime(node.text, "%m-%d-%Y")
@@ -263,6 +261,7 @@ def rss_feed():
                     item["link"] = "https://www.bethel.edu/" + match.path
                     item["description"] = edit_data['message'] + " <p>(" + ",".join(banner_roles ) + ")</p>"
                     item["guid"] = "https://www.bethel.edu/" + match.path
+                    # item["roles"] = ", ".join([role.upper() for role in roles])
                     if match.lastPublishedDate != None:
                         item["pubDate"] = calendar.timegm(match.lastPublishedDate.utctimetuple())
 
@@ -273,6 +272,7 @@ def rss_feed():
             if break_from_loop :
                 break
 
+        # if no roles are specified, then display ALL e-announcements that match the day.
         if roles == {}:
             new_matches.append(match)
 
@@ -282,6 +282,7 @@ def rss_feed():
             item["link"] = "https://www.bethel.edu/" + match.path
             item["description"] = edit_data['message'] + " <p>(" + ",".join(banner_roles ) + ")</p>"
             item["guid"] = "https://www.bethel.edu/" + match.path
+            # item["roles"] = ", ".join([role.upper() for role in roles])
             if match.lastPublishedDate != None:
                 item["pubDate"] = calendar.timegm(match.lastPublishedDate.utctimetuple())
 
