@@ -8,7 +8,7 @@ from flask import Blueprint
 from flask import redirect
 from flask import send_from_directory
 
-from tinker.faculty_bios.cascade_faculty_bio import *
+from tinker.faculty_bio.cascade_faculty_bio import *
 from tinker import app
 from tinker.tools import *
 

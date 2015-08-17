@@ -37,7 +37,7 @@ if not app.debug and app.config['ENVIRON'] is not 'test':
 # Import routes
 import views
 from tinker.events.views import event_blueprint
-from tinker.faculty_bios.views import faculty_bio_blueprint
+from tinker.faculty_bio.views import faculty_bio_blueprint
 from tinker.redirects.views import redirect_blueprint
 from tinker.heading_upgrade.views import heading_upgrade
 from tinker.e_announcements.views import e_announcements_blueprint
