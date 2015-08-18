@@ -46,9 +46,9 @@ def get_destinations(destination):
     # empty string means publish to all
     if destination == '':
         return {}
-    elif destination == 'staging.bethel.edu':
+    elif destination == 'staging.bethel.edu' or 'staging':
         id = 'ba1381d58c586513100ee2a78fc41899'
-    elif destination == "Production bethel.edu":
+    elif destination == "Production bethel.edu" or 'prod':
         id = '132207cb8c586513742d45fd62673fe4'
     identifier = {'assetIdentifier': {
                     'id': id,
