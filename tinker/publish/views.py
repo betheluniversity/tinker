@@ -16,6 +16,19 @@ from tinker.web_services import *
 publish_blueprint = Blueprint('publish', __name__, template_folder='templates')
 
 
+@publish_blueprint.route("/test")
+def publish_test():
+
+    return render_template('test.html', **locals())
+
+
+@publish_blueprint.route("/test/click")
+def publish_test_click():
+    #needs to accept a id/path and return a list of the scripts/buttons.
+
+    return render_template('test.html', **locals())
+
+
 @publish_blueprint.route("/")
 def publish_home():
     get_user()
@@ -155,3 +168,18 @@ def convert_meta_date(date):
     date_time = datetime.datetime.strftime(dt, "%B %e, %Y at %I:%M %p")
 
     return date_time
+
+
+# Code to publish all pages that contain a wufoo block
+#
+# @publish_blueprint.route('/wufoo', methods=['get'])
+# def publish_wufoo():
+#     wufoos = search('*wufoo*')
+#     for wufoo in wufoos.matches.match:
+#         if wufoo.type == "block":
+#             relationships = list_relationships(wufoo.id, "block")
+#             if 'subscribers' in relationships and 'assetIdentifier' in relationships.subscribers:
+#                 for page in relationships.subscribers.assetIdentifier:
+#                     publish(page.id, "page", "prod")
+#
+#     return "yep"
