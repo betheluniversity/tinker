@@ -180,6 +180,6 @@ def convert_meta_date(date):
 #             relationships = list_relationships(wufoo.id, "block")
 #             if 'subscribers' in relationships and 'assetIdentifier' in relationships.subscribers:
 #                 for page in relationships.subscribers.assetIdentifier:
-#                     publish(page.id, "page", "prod")
+#                     publish(page.id, "page")
 #
 #     return "yep"
