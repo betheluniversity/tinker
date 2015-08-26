@@ -83,10 +83,10 @@
                     {{ field(class="large-text-area") }}
                 </div>
               {% elif field.name == "teaching_specialty" %}
-                <div id="teaching_speciality_wrap" style="display:none;">
+                <div id="teaching_specialty_wrap" style="display:none;">
                     {{field.label}}
                     <small>{{ field.description }}</small>
-                    <small id="teaching_speciality_current_count">0</small>
+                    <small id="teaching_specialty_current_count">0</small>
                     {{ field(class="large-text-area") }}
                 </div>
 
@@ -189,8 +189,6 @@
         if(val == "Areas of expertise"){
           makeRequired();
           $("#areas_wrap").show();
-          $("#research_interests_wrap").hide();
-          $("#teaching_speciality_wrap").hide();
 
             $('#areas').keyup(function() {
                 var count = $(this).val().length;
@@ -199,13 +197,20 @@
                     $('#areas_current_count').css("color", "#f04124");
                 else
                     $('#areas_current_count').css("color", "#000000");
+                $("#research_interests_wrap").show();
+                $('#research_interests').val('');
+                $('#research_interests_current_count').text('0');
+                $("#research_interests_wrap").hide();
+
+                $("#teaching_specialty_wrap").show();
+                $('#teaching_specialty').val('');
+                $('#teaching_specialty_current_count').text('0');
+                $("#teaching_specialty_wrap").hide();
             });
         }
         else if( val == "Research interests"){
           makeRequired();
-          $("#areas_wrap").hide();
           $("#research_interests_wrap").show();
-          $("#teaching_speciality_wrap").hide();
             $('#research_interests').keyup(function() {
                 var count = $(this).val().length;
                 $('#research_interests_current_count').text(count);
@@ -213,37 +218,57 @@
                     $('#research_interests_current_count').css("color", "#f04124");
                 else
                     $('#research_interests_current_count').css("color", "#000000");
+                $("#areas_wrap").show();
+                $('#areas').val('');
+                $('#areas_current_count').text('0');
+                $("#areas_wrap").hide();
+
+                $("#teaching_specialty_wrap").show();
+                $('#teaching_specialty').val('');
+                $('#teaching_specialty_current_count').text('0');
+                $("#teaching_specialty_wrap").hide();
             });
         }
-        else if( val == "Teaching speciality"){
+        else if( val == "Teaching specialty"){
           makeRequired();
-          $("#areas_wrap").hide();
-          $("#research_interests_wrap").hide();
-          $("#teaching_speciality_wrap").show();
+          $("#teaching_specialty_wrap").show();
             $('#teaching_specialty').keyup(function() {
                 var count = $(this).val().length;
-                $('#teaching_speciality_current_count').text(count);
+                $('#teaching_specialty_current_count').text(count);
                 if( count > 350)
-                    $('#teaching_speciality_current_count').css("color", "#f04124");
+                    $('#teaching_specialty_current_count').css("color", "#f04124");
                 else
-                    $('#teaching_speciality_current_count').css("color", "#000000");
+                    $('#teaching_specialty_current_count').css("color", "#000000");
+                $("#areas_wrap").show();
+                $('#areas').val('');
+                $('#areas_current_count').text('0');
+                $("#areas_wrap").hide();
+
+                $("#research_interests_wrap").show();
+                $('#research_interests').val('');
+                $('#research_interests_current_count').text('0');
+                $("#research_interests_wrap").hide();
             });
         }
     }
 
     function makeRequired(){
-{#        $('#areas').attr('required', 'false');#}
-{#        $('#research_interests').attr('required', 'false');#}
-{#        $('#teaching_speciality').attr('required', 'false');#}
-{#        heading = $('#heading')[0];#}
-{#        var text = heading.options[heading.selectedIndex].innerHTML;#}
-{##}
-{#        if( text == "Areas of expertise")#}
-{#            $('#areas').attr('required', 'true');#}
-{#        else if( text == "Research interests")#}
-{#            $('#research_interests').attr('required', 'true');#}
-{#        else if( text == "Teaching speciality")#}
-{#            $('#teaching_speciality').attr('required', 'required');#}
+        $("#areas_wrap").hide();
+        $("#teaching_specialty_wrap").hide();
+        $("#research_interests_wrap").hide();
+        $('#areas').attr('required', false);
+        $('#teaching_specialty').attr('required', false);
+        $('#research_interests').attr('required', false);
+
+        heading = $('#heading')[0];
+        var text = heading.options[heading.selectedIndex].innerHTML;
+
+        if( text == "Areas of expertise")
+            $('#areas').attr('required', true);
+        else if( text == "Research interests")
+            $('#research_interests').attr('required', true);
+        else if( text == "Teaching specialty")
+            $('#teaching_specialty').attr('required', true);
     }
 
     function newFieldset(id){
