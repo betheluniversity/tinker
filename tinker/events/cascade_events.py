@@ -124,7 +124,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
         structured_data_node("registration-details", escape_wysiwyg_content(add_data['registration_details'])),
         structured_data_node("registration-heading", add_data['registration_heading']),
         structured_data_node("cost", add_data['cost']),
-        structured_data_node("sponsors", add_data['sponsors']),
+        structured_data_node("sponsors", escape_wysiwyg_content(add_data['sponsors'])),
         structured_data_node("maps-directions", escape_wysiwyg_content(add_data['maps_directions'])),
         structured_data_node("off-campus-location", add_data['off_campus_location']),
         structured_data_node("on-campus-location", add_data['on_campus_location']),
