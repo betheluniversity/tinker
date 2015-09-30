@@ -186,9 +186,9 @@ class EventForm(Form):
     general = SelectMultipleField('General categories', choices=general_choices, default=['None'], validators=[DataRequired()])
     offices = SelectMultipleField('Offices', choices=offices_choices, default=['None'], validators=[DataRequired()])
     cas_departments = SelectMultipleField('CAS academic department', default=['None'], choices=cas_departments_choices, validators=[DataRequired()])
-    adult_undergrad_programs = SelectMultipleField('CAPS programs', default=['None'], choices=adult_undergrad_program_choices, validators=[DataRequired()])
-    seminary_programs = SelectMultipleField('Seminary programs', default=['None'], choices=seminary_program_choices, validators=[DataRequired()])
-    graduate_programs = SelectMultipleField('GS Programs', default=['None'], choices=graduate_program, validators=[DataRequired()])
+    adult_undergrad_program = SelectMultipleField('CAPS programs', default=['None'], choices=adult_undergrad_program_choices, validators=[DataRequired()])
+    seminary_program = SelectMultipleField('Seminary programs', default=['None'], choices=seminary_program_choices, validators=[DataRequired()])
+    graduate_program = SelectMultipleField('GS Programs', default=['None'], choices=graduate_program, validators=[DataRequired()])
     internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices, validators=[DataRequired()])
 
 

@@ -256,7 +256,7 @@ def submit_form():
 
     form = rform
     # Get all the form data
-    metadata_list = ['general', 'offices', 'cas_departments', 'internal']
+    metadata_list = ['general', 'offices', 'cas_departments', 'internal', 'adult-undergrad-program', 'graduate-program', 'seminary-program']
     add_data = get_add_data(metadata_list, form)
 
     dates = get_dates(add_data)
@@ -298,7 +298,7 @@ def submit_edit_form():
         return render_template('event-form.html', **locals())
 
     form = rform
-    add_data = get_add_data(['general', 'offices', 'cas_departments', 'internal'], form)
+    add_data = get_add_data(['general', 'offices', 'cas_departments', 'internal', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
     dates = get_dates(add_data)
     add_data['event-dates'] = dates
     add_data['author'] = request.form['author']
@@ -308,7 +308,6 @@ def submit_edit_form():
 
     current_year = get_current_year_folder(event_id)
     new_year = get_year_folder_value(add_data)
-
 
     resp = edit(asset)
     app.logger.warn(time.strftime("%c") + ": Event edit submission by " + username + " with id " + event_id + ". " + str(resp))
