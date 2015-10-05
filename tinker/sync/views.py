@@ -65,7 +65,7 @@ def sync_faculty_bio_data_definition(data_definition_id):
     }
 
     resp = edit(new_asset)
-    app.logger.warn(time.strftime("%c") + ": Faculty bio data definition synced.")
+    app.logger.warn(time.strftime("%c") + ": Faculty bio data definition synced, id: " + data_definition_id)
     return resp
 
 
@@ -160,7 +160,7 @@ def sync_metadataset(metadataset_id):
     }
 
     resp = edit(new_asset)
-    app.logger.warn(time.strftime("%c") + ": Faculty bio data definition synced.")
+    app.logger.warn(time.strftime("%c") + ": Faculty bio metadata set synced, id: " + metadataset_id)
     return resp
 
 
