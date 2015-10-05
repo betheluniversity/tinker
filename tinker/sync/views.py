@@ -65,6 +65,7 @@ def sync_faculty_bio_data_definition(data_definition_id):
     }
 
     resp = edit(new_asset)
+    app.logger.warn(time.strftime("%c") + ": Faculty bio data definition synced.")
     return resp
 
 
@@ -157,9 +158,9 @@ def sync_metadataset(metadataset_id):
             'titleFieldVisibility': asset.titleFieldVisibility,
         }
     }
-    print new_asset
 
     resp = edit(new_asset)
+    app.logger.warn(time.strftime("%c") + ": Faculty bio data definition synced.")
     return resp
 
 
