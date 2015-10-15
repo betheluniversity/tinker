@@ -1,3 +1,35 @@
-{% for response in synced_resp %}
-    {{ response }}
+<!-- Todo: make this dynamic -->
+<h3>Schools</h3>
+<ul>
+{% for response in school %}
+    <li>{{ response }}</li>
 {% endfor %}
+</ul>
+
+<h3>CAPS</h3>
+<ul>
+{% for response in adult_undergrad_programs %}
+    <li>{{ response }}</li>
+{% endfor %}
+</ul>
+
+<h3>Graduate</h3>
+<ul>
+{% for response in graduate_programs %}
+    <li>{{ response }}</li>
+{% endfor %}
+</ul>
+
+<h3>Seminary</h3>
+<ul>
+{% for response in seminary_programs %}
+    <li>{{ response }}</li>
+{% endfor %}
+</ul>
+
+<h3>Undergrad</h3>
+<ul>
+{% for response in undergrad_programs %}
+    <li>{{ response }}</li>
+{% endfor %}
+</ul>

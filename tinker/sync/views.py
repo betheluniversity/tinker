@@ -12,10 +12,15 @@ sync_blueprint = Blueprint('sync_blueprint', __name__, template_folder='template
 
 @sync_blueprint.route('/')
 def show():
-    synced_resp = []
-    synced_resp.append(sync_metadataset(app.config['METADATA_EVENT_ID']))
-    synced_resp.append(sync_metadataset(app.config['METADATA_ROBUST_ID']))
-    synced_resp.append(sync_faculty_bio_data_definition(app.config['DATA_DEF_FACULTY_BIO_ID']))
+    sync_metadataset(app.config['METADATA_EVENT_ID'])
+    sync_metadataset(app.config['METADATA_ROBUST_ID'])
+    sync_faculty_bio_data_definition(app.config['DATA_DEF_FACULTY_BIO_ID'])
+
+    school = data_to_add['school']
+    undergrad_programs = data_to_add['department']
+    adult_undergrad_programs = data_to_add['adult-undergrad-program']
+    graduate_programs = data_to_add['graduate-program']
+    seminary_programs = data_to_add['seminary-program']
 
     return render_template('sync.html', **locals())
 
