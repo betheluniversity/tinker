@@ -1,33 +1,34 @@
-<!-- Todo: make this dynamic -->
-<h3>Schools</h3>
+<!-- Todo: make this more dynamic -->
+<h3>Current Values:</h3>
+<h4>Schools</h4>
 <ul>
 {% for response in school %}
     <li>{{ response }}</li>
 {% endfor %}
 </ul>
 
-<h3>CAPS</h3>
+<h4>CAPS</h4>
 <ul>
 {% for response in adult_undergrad_programs %}
     <li>{{ response }}</li>
 {% endfor %}
 </ul>
 
-<h3>Graduate</h3>
+<h4>Graduate</h4>
 <ul>
 {% for response in graduate_programs %}
     <li>{{ response }}</li>
 {% endfor %}
 </ul>
 
-<h3>Seminary</h3>
+<h4>Seminary</h4>
 <ul>
 {% for response in seminary_programs %}
     <li>{{ response }}</li>
 {% endfor %}
 </ul>
 
-<h3>Undergrad</h3>
+<h4>Undergrad</h4>
 <ul>
 {% for response in undergrad_programs %}
     <li>{{ response }}</li>

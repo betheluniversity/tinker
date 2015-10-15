@@ -12,10 +12,15 @@ sync_blueprint = Blueprint('sync_blueprint', __name__, template_folder='template
 
 @sync_blueprint.route('/')
 def show():
+    import commands
+    commands.getoutput("cd " + app.config['INSTALL_LOCATION'] + "; git pull")
+
     sync_metadataset(app.config['METADATA_EVENT_ID'])
     sync_metadataset(app.config['METADATA_ROBUST_ID'])
+    sync_metadataset(app.config['METADATA_JOB_POSTING_ID'])
     sync_faculty_bio_data_definition(app.config['DATA_DEF_FACULTY_BIO_ID'])
 
+    ## pass on the current values.
     school = data_to_add['school']
     undergrad_programs = data_to_add['department']
     adult_undergrad_programs = data_to_add['adult-undergrad-program']
@@ -44,7 +49,6 @@ def sync_faculty_bio_data_definition(data_definition_id):
                     # remove old elements
                     store_elements_to_remove = []
                     for el_to_remove in next_el:
-                        print 'remove this one'
                         store_elements_to_remove.append(el_to_remove)
                     for el_to_remove in store_elements_to_remove:
                         next_el.remove(el_to_remove)
@@ -81,6 +85,7 @@ def sync_metadataset(metadataset_id):
     asset = read(metadataset_id, 'metadataset').asset.metadataSet
 
     metadata_elements = []
+    print asset
     for el in asset.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition:
         # create new element
         new_element = {
