@@ -2,9 +2,9 @@ school = [
     'Select',
     'Bethel University',
     'College of Arts & Sciences',
+    'College of Adult & Professional Studies',
     'Graduate School',
     'Bethel Seminary',
-    'College of Adult & Professional Studies',
 ]
 
 undergrad_programs = [
@@ -39,9 +39,10 @@ undergrad_programs = [
 
 adult_undergrad_programs = [
     "None",
-    "Addiction Studies Certificate",
-    "Associate's Degree",
     "Accounting (B.S.)",
+    "Addiction Studies Certificate",
+    "Alcohol and Drug Counseling License",
+    "Associate's Degree",
     "Business Management (B.A.)",
     "Christian Ministries (B.A.)",
     "Communication Studies (B.A.)",
