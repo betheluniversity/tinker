@@ -12,8 +12,10 @@ sync_blueprint = Blueprint('sync_blueprint', __name__, template_folder='template
 
 @sync_blueprint.route('/')
 def show():
-    import commands
-    commands.getoutput("cd " + app.config['INSTALL_LOCATION'] + "; git pull")
+    # don't pull locally. It's just a bad idea.
+    if 'User' not in app.config['INSTALL_LOCATION']:
+        import commands
+        commands.getoutput("cd " + app.config['INSTALL_LOCATION'] + "; git pull")
 
     sync_metadataset(app.config['METADATA_EVENT_ID'])
     sync_metadataset(app.config['METADATA_ROBUST_ID'])

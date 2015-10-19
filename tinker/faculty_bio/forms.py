@@ -149,6 +149,7 @@ class FacultyBioForm(Form):
                        description="Enter your Bethel username.")
 
     job_titles = TextField('')
+    new_job_titles = TextField('')
 
     email = TextField('Email', validators=[validators.DataRequired()])
     started_at_bethel = TextField('Started at Bethel in', validators=[validators.DataRequired()], description="Enter a year")

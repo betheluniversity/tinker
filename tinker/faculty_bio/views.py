@@ -7,6 +7,7 @@ from werkzeug.utils import secure_filename
 from flask import Blueprint
 from flask import redirect
 from flask import send_from_directory
+from tinker.sync.metadata import data_to_add
 
 from tinker.faculty_bio.cascade_faculty_bio import *
 from tinker import app
@@ -45,6 +46,8 @@ def faculty_bio_new_form():
     form = FacultyBioForm()
 
     faculty_bio_id = ""
+
+    metadata = fjson.dumps(data_to_add)
 
     add_form = True
     return render_template('faculty-bio-form.html', **locals())
@@ -96,6 +99,9 @@ def faculty_bio_edit_form(faculty_bio_id):
     degrees = {}
     degree_count = 0
 
+    new_job_titles = {}
+    new_job_title_count = 0
+
     # Start with structuredDataNodes (data def content)
     # todo rewrite this so each for loop isn't using 'node'
     for node in s_data:
@@ -123,6 +129,15 @@ def faculty_bio_edit_form(faculty_bio_id):
                             degree_data[degree.identifier] = degree.text
                         degrees[degree_count] = degree_data
                         degree_count += 1
+            if node_identifier == "job_titles":
+                new_job_title_data = {}
+                for field in node.structuredDataNodes.structuredDataNode:
+                    node_identifier = field.identifier.replace('-', '_')
+                    new_job_title_data[node_identifier] = field.text
+                new_job_titles[new_job_title_count] = new_job_title_data
+                new_job_title_count += 1
+                print new_job_title_data
+
         elif node_identifier == 'image':
             groups = get_groups_for_user()
             edit_data['image'] = node.text
@@ -149,7 +164,11 @@ def faculty_bio_edit_form(faculty_bio_id):
 
     # convert job titles and degrees to json so we can use Javascript to create custom DateTime fields on the form
     job_titles = fjson.dumps(job_titles)
+    new_job_titles = fjson.dumps(new_job_titles)
     degrees = fjson.dumps(degrees)
+
+    # metadata for job titles
+    metadata = fjson.dumps(data_to_add)
 
     return render_template('faculty-bio-form.html', **locals())
 
@@ -163,7 +182,6 @@ def submit_faculty_bio_form():
     form = FacultyBioForm()
 
     rform = request.form
-
     username = session['username']
 
     title = rform['last'] + "-" + rform['first']
@@ -172,6 +190,7 @@ def submit_faculty_bio_form():
 
     jobs, jobs_good, num_jobs = check_jobs(rform)
     degrees, degrees_good, num_degrees = check_degrees(rform)
+    ## Todo: make it required? add functionality here.
 
     if not form.validate_on_submit() or (not jobs_good and not degrees_good):
         if 'faculty_bio_id' in request.form.keys():
@@ -183,7 +202,6 @@ def submit_faculty_bio_form():
 
     # Get all the form data
     add_data = get_add_data(['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
-
 
     # Images
     groups = get_groups_for_user()
@@ -208,6 +226,7 @@ def submit_faculty_bio_form():
     if faculty_bio_id == "":
         faculty_bio_id = None
 
+    workflow = None
     workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data['school'])
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 

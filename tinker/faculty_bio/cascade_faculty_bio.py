@@ -60,6 +60,73 @@ def get_job_titles(add_data):
     return job_titles
 
 
+def get_new_job_titles(add_data):
+    new_job_titles = []
+
+    # format the dates
+    for i in range(1, 200):
+        undergrad = None
+        adult_undergrad = None
+        graduate = None
+        seminary = None
+
+        dept_chair = None
+        program_director = None
+        lead_faculty = None
+        new_job_title = None
+
+        i = str(i)
+        try:
+            schools = add_data['schools' + i]
+        except KeyError:
+            # This will break once we run out of new job titles
+            break
+
+        if 'undergrad' + i in add_data:
+            undergrad = add_data['undergrad' + i]
+        if 'adult-undergrad' + i in add_data:
+            adult_undergrad = add_data['adult-undergrad' + i]
+        if 'graduate' + i in add_data:
+            graduate = add_data['graduate' + i]
+        if 'seminary' + i in add_data:
+            seminary = add_data['seminary' + i]
+
+        if 'dept-chair' + i in add_data:
+            dept_chair = add_data['dept-chair' + i]
+        if 'program-director' + i in add_data:
+            program_director = add_data['program-director' + i]
+        if 'lead-faculty' + i in add_data:
+            lead_faculty = add_data['lead-faculty' + i]
+        if 'new-job-title' + i in add_data:
+            new_job_title = add_data['new-job-title' + i]
+
+        data_list = [
+            structured_data_node("school", schools),
+            structured_data_node("department", undergrad),
+            structured_data_node("adult-undergrad-program", adult_undergrad),
+            structured_data_node("graduate-program", graduate),
+            structured_data_node("seminary-program", seminary),
+
+            structured_data_node("department-chair", dept_chair),
+            structured_data_node("program-director", program_director),
+            structured_data_node("lead-faculty", lead_faculty),
+
+            structured_data_node("job_title", new_job_title),
+        ]
+
+        node = {
+            'type': "group",
+            'identifier': "job-titles",
+            'structuredDataNodes': {
+                'structuredDataNode': data_list,
+            },
+        }
+
+        new_job_titles.append(node)
+
+    return new_job_titles
+
+
 def get_add_a_degree(add_data):
     degrees = []
 
@@ -237,6 +304,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     structured_data.append(get_expertise(add_data))
     structured_data.append(get_add_a_degree(add_data))
     structured_data.append(get_add_to_bio(add_data))
+    structured_data.append(get_new_job_titles(add_data))
+
     # Wrap in the required structure for SOAP
     structured_data = {
         'structuredDataNodes': {
@@ -253,7 +322,6 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             dynamic_field('graduate-program', add_data['graduate_program']),
             dynamic_field('seminary-program', add_data['seminary_program']),
             dynamic_field('hide-site-nav', ["Hide"]),
-
         ],
     }
 
@@ -272,7 +340,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             'metadata': {
                 'title': add_data['first'] + " " + add_data['last'],
                 'summary': 'summary',
-                'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + add_data['job-title1'] + " at Bethel University.",
+                'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + " at Bethel University.",
+                # 'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + add_data['job-title1'] + " at Bethel University.",
                 'author': add_data['author'],
                 'dynamicFields': dynamic_fields,
             }
