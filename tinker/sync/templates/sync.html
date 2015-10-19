@@ -1,3 +1,11 @@
+{% extends "tinker-base.html" %}
+
+{% block title %}Sync{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+<a href="/sync/all" class="small button success">Sync</a>
 <!-- Todo: make this more dynamic -->
 <h3>Current Values:</h3>
 <h4>Schools</h4>
@@ -34,3 +42,4 @@
     <li>{{ response }}</li>
 {% endfor %}
 </ul>
+{% endblock %}

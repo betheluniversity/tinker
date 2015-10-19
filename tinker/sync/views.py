@@ -11,6 +11,11 @@ from flask import Blueprint, render_template, abort, request
 sync_blueprint = Blueprint('sync_blueprint', __name__, template_folder='templates')
 
 @sync_blueprint.route('/')
+def home():
+    return render_template('sync-home.html', **locals())
+
+
+@sync_blueprint.route('/all')
 def show():
     # don't pull locally. It's just a bad idea.
     if 'User' not in app.config['INSTALL_LOCATION']:
