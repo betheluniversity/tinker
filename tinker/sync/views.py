@@ -64,8 +64,6 @@ def sync_faculty_bio_data_definition(data_definition_id):
                     for value in data_to_add[next_el.attrib['identifier']]:
                         next_el.append(Et.Element('dropdown-item', {"value": value}))
 
-    print Et.tostring(structure).replace('&', '&amp;')
-
     new_asset = {
         'dataDefinition': {
             'xml': Et.tostring(structure).replace('&', '&amp;'),
