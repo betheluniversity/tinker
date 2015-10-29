@@ -1,5 +1,4 @@
 school = [
-    'Select',
     'Bethel University',
     'College of Arts & Sciences',
     'College of Adult & Professional Studies',
