@@ -389,6 +389,12 @@
             $('.hide-when-school-changes' + num).hide();
 
             function giveSelectValues(identifier, metadata_values) {
+                // add default - Select - value
+                var opt = document.createElement('option');
+                opt.value = '-Select-';
+                opt.innerHTML = '-Select-';
+                $('#' + identifier + num).append(opt);
+
                 for (var i = 0; i < metadata_values.length; i++) {
                     var opt = document.createElement('option');
                     opt.value = metadata_values[i];
