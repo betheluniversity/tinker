@@ -18,9 +18,9 @@ def home():
 @sync_blueprint.route('/all')
 def show():
     # don't pull locally. It's just a bad idea.
-    # if 'User' not in app.config['INSTALL_LOCATION']:
-    import commands
-    commands.getoutput("cd " + app.config['INSTALL_LOCATION'] + "; rm tinker/sync/metadata.py; git fetch --all; git reset --hard origin/master")
+    if 'User' not in app.config['INSTALL_LOCATION']:
+        import commands
+        commands.getoutput("cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
 
     sync_metadataset(app.config['METADATA_EVENT_ID'])
     sync_metadataset(app.config['METADATA_ROBUST_ID'])
