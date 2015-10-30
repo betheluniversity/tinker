@@ -169,7 +169,7 @@ class EventForm(Form):
     on_campus_location = SelectField('On campus location', choices=building_choices)
     other_on_campus = StringField('Other on campus location')
     off_campus_location = StringField("Off campus location")
-    maps_directions = CKEditorTextAreaField('Directions', description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")
+    maps_directions = CKEditorTextAreaField('Instructions for Guests', description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")
 
     why = HeadingField(label="Does your event require registration or payment?")
     registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices)
