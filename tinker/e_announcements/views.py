@@ -1,7 +1,11 @@
 # python
 from feedformatter import Feed
-import urlparse
+from urlparse import *
 import calendar
+import multiprocessing as mp
+import json
+import urllib2
+import feedparser
 
 # flask
 from flask import Blueprint
@@ -11,6 +15,8 @@ from flask import Response
 # tinker
 from tinker.e_announcements.cascade_e_announcements import *
 from tinker.tools import *
+
+from createsend import *
 
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')
 
@@ -179,7 +185,7 @@ def submit_edit_form():
     return redirect('/e-announcement/confirm/edit', code=302)
 
 
-@e_announcements_blueprint.route("/rss_feed", methods=['get'])
+@e_announcements_blueprint.route("/rss_feed", methods=['get', 'post'])
 def rss_feed():
     # Create the feed
     rssfeed = Feed()
@@ -192,8 +198,8 @@ def rss_feed():
     rssfeed.feed["description"] = "E-announcements feed"
 
     # get url variables
-    current_url = urlparse.urlparse(request.url)
-    parameters = urlparse.parse_qs(current_url.query)
+    current_url = urlparse(request.url)
+    parameters = parse_qs(current_url.query)
     if 'roles' in parameters:
         roles = parameters['roles'][0].split('_')
         roles = [role.upper() for role in roles]
@@ -213,64 +219,25 @@ def rss_feed():
 
     ## For each e-announcement
     for match in matches:
-        match = read(match['id'])
-        if match.success == "false":
-            continue
-        match = match.asset.page
-
-        ### Gather the information
-        metadata = match.metadata
-        dynamic_fields = metadata.dynamicFields.dynamicField
-
-        # now metadata dynamic fields
-        for field in dynamic_fields:
-
-            # This will fail if no metadata is set. It should be required but just in case
-            if field.fieldValues and field.name == "banner-roles":
-                banner_roles = [item.value for item in field.fieldValues.fieldValue]
-
-        edit_data = {}
+        print match
+        banner_roles = match['roles']
         date_matches = False
-        s_data = match.structuredData.structuredDataNodes.structuredDataNode
-        for node in s_data:
-            node_identifier = node.identifier.replace('-', '_')
-            node_type = node.type
 
-            if node_type == "text":
-                if node_identifier == "first_date" or (node.text and node_identifier == "second_date"):
-                    if str(datetime.datetime.strptime(date, "%m-%d-%Y")) == str(datetime.datetime.strptime(node.text, "%m-%d-%Y")):
-                        date_matches = True
-                    edit_data[node_identifier] = datetime.datetime.strptime(node.text, "%m-%d-%Y")
-                else:
-                    edit_data[node_identifier] = node.text
+
+        if match['first_date']:
+            first_date = datetime.datetime.strptime(match['first_date'], "%A %B %d, %Y")
+            if str(datetime.datetime.strptime(date, "%m-%d-%Y")) == str(first_date):
+                date_matches = True
+
+        if match['second_date']:
+            second_date = datetime.datetime.strptime(match['second_date'], "%A %B %d, %Y")
+            if str(datetime.datetime.strptime(date, "%m-%d-%Y")) == str(second_date):
+                date_matches = True
 
         if not date_matches:
             continue
 
-        ### Use the information
-        ## Check if an input role matches a role of the e-announcement
-        break_from_loop = False
-        for role in roles:
-            for banner_role in banner_roles:
-                if role == banner_role:
-                    new_matches.append(match)
-
-                    # Create an item
-                    item = {}
-                    item["title"] = match.metadata.title
-                    item["link"] = "https://www.bethel.edu/" + match.path
-                    item["description"] = edit_data['message'] + " <p>(" + ",".join(banner_roles ) + ")</p>"
-                    item["guid"] = "https://www.bethel.edu/" + match.path
-                    # item["roles"] = ", ".join([role.upper() for role in roles])
-                    if match.lastPublishedDate != None:
-                        item["pubDate"] = calendar.timegm(match.lastPublishedDate.utctimetuple())
-
-                    rssfeed.items.append(item)
-
-                    break_from_loop = True
-                    break
-            if break_from_loop :
-                break
+        print first_date
 
         # if no roles are specified, then display ALL e-announcements that match the day.
         if roles == {}:
@@ -278,14 +245,148 @@ def rss_feed():
 
             # Create an item
             item = {}
-            item["title"] = match.metadata.title
-            item["link"] = "https://www.bethel.edu/" + match.path
-            item["description"] = edit_data['message'] + " <p>(" + ",".join(banner_roles ) + ")</p>"
-            item["guid"] = "https://www.bethel.edu/" + match.path
-            # item["roles"] = ", ".join([role.upper() for role in roles])
-            if match.lastPublishedDate != None:
-                item["pubDate"] = calendar.timegm(match.lastPublishedDate.utctimetuple())
-
+            item["title"] = match['title']
+            item["link"] = "https://www.bethel.edu/" + match['path']
+            item["description"] = '<p>' + match['message'] + "</p><p>(" + ",".join(banner_roles) + ")</p>"
+            item["guid"] = "https://www.bethel.edu/" + match['path']
+            item['roles'] = 'test'
             rssfeed.items.append(item)
+        else:
+            break_from_loop = False
+            for role in roles:
+                for banner_role in banner_roles:
+                    if role == banner_role:
+                        new_matches.append(match)
+
+                        # Create an item
+                        item = {}
+                        item["title"] = match['title']
+                        item["link"] = "https://www.bethel.edu/" + match['path']
+                        item["description"] = '<p>' + match['message'] + "</p><p>(" + ",".join(banner_roles) + ")</p>"
+                        item["guid"] = "https://www.bethel.edu/" + match['path']
+
+                        rssfeed.items.append(item)
+
+                        break_from_loop = True
+                        break
+                if break_from_loop:
+                    break
 
     return Response(rssfeed.format_rss2_string(), mimetype='text/xml')
+
+
+@e_announcements_blueprint.route("/create_campaign", methods=['get', 'post'])
+def create_campaign():
+    from itertools import combinations
+
+    # create the necessary IF statement
+    # For each for those, make a call to get the announcements for today with those roles
+    # Finish the If statement
+
+
+    output = mp.Queue()
+
+    url = 'http://wsapi.bethel.edu/e-announcement/roles'
+    data = urllib2.urlopen(url)
+    response = json.load(data)['roles']
+
+    roles = []
+    for i in range(1,1000):
+        try:
+            roles.append( str(response[str(i)]['']) )
+        except:
+            break
+
+    e_announcements = ''
+    count = 1
+    e_announcement_array = []
+
+    manager = mp.Manager()
+    return_e_announcement_array = manager.dict()
+
+    for role_combo in roles:
+        # feedparser.parse(urllib2.urlopen('http://127.0.0.1:5000//e-announcement/rss_feed?date=08-12-2015').read())
+        e_announcements += create_single_announcement(role_combo, count)
+
+        p = mp.Process(target=create_single_announcement, args=(role_combo, count, return_e_announcement_array))
+        e_announcement_array.append(p)
+        p.start()
+
+        count = count + 1
+
+    e_announcements += '[endif]'
+
+    for j in e_announcement_array:
+        j.join()
+
+    return str(return_e_announcement_array.values())
+
+
+    # double check names and ID's and such
+    # Finally, append e_announcements to the multiline below. Done.
+
+
+    # CAMPAIGN_MONITOR_KEY = app.config['CAMPAIGN_MONITOR_KEY']
+    # CreateSend({'api_key': CAMPAIGN_MONITOR_KEY})
+    #
+    # new_campaign = Campaign()
+    # new_campaign.auth_details = {}
+    # new_campaign.auth_details['api_key'] = CAMPAIGN_MONITOR_KEY
+    #
+    # client_id = app.config['CLIENT_ID']
+    # subject = 'Test Subject'
+    # name = 'Test Name'
+    # from_name = 'Caleb Testing Campaign'
+    # from_email = 'c-schwarze@bethel.edu'
+    # reply_to = 'c-schwarze@bethel.edu'
+    # list_ids = [app.config['LIST_KEY']]
+    # segment_ids = [app.config['SEGMENT_ID']]
+    # template_id = app.config['TEMPLATE_ID']
+    # template_content = {'Multilines': [{"Content": "[if:TestRoles=FACULTY_CAS;STUDENT_CAPS]<h1>TESTING</h1>[else]<h4>Else</h4>[endif]"}]}
+    #
+    #
+    # resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
+    #                                          segment_ids, template_id, template_content)
+    #
+    # # resp = new_campaign.create(client_id, subject, name, from_name, from_email, reply_to, "http://www.google.com",
+    # #                                          None, list_ids, segment_ids)
+    #
+    # return str(resp)
+
+@e_announcements_blueprint.route("/create_segment", methods=['get', 'post'])
+def create_segment():
+    CAMPAIGN_MONITOR_KEY = app.config['CAMPAIGN_MONITOR_KEY']
+    CreateSend({'api_key': CAMPAIGN_MONITOR_KEY})
+
+    new_segment = Segment()
+    new_segment.auth_details = {}
+    new_segment.auth_details['api_key'] = CAMPAIGN_MONITOR_KEY
+
+    list_id = app.config['LIST_KEY']
+    title = 'New Test Segment'
+    ruleset = [
+        {
+            "Rules": [
+                {
+                    "RuleType": "EmailAddress",
+                    "Clause": "CONTAINS @bethel.edu"
+                }
+            ]
+        }
+    ]
+
+    resp = new_segment.create(list_id, title, ruleset)
+    return str(resp)
+
+
+def create_single_announcement(role_combo, count, return_e_announcement_array):
+
+    if count == 1:
+        e_announcement = '[if:roles=%s]' % role_combo
+    else:
+        e_announcement = '[elseif:roles=%s]' % role_combo
+
+    # todo, update the date to be today (aka, remove it)
+    for item in feedparser.parse(urllib2.urlopen('http://127.0.0.1:5000//e-announcement/rss_feed?date=08-12-2015&roles=' + role_combo).read())['entries']:
+        e_announcement += item['summary_detail']['value']
+    return_e_announcement_array[count] = e_announcement

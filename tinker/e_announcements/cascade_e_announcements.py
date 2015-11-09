@@ -28,23 +28,30 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
         try:
             author = child.find('author').text
 
-            first = child.find('system-data-structure/first-date').text
-            second = child.find('system-data-structure/second-date').text
-            firstDate = datetime.datetime.strptime(first, '%m-%d-%Y').strftime('%A %B %d, %Y')
-            if second:
-                secondDate = datetime.datetime.strptime(second, '%m-%d-%Y').strftime('%A %B %d, %Y')
-                dates_str = firstDate + "<br/>" + secondDate
-            else:
-                dates_str = firstDate
-
             if (author is not None and username == author) or username == "get_all":
+                first = child.find('system-data-structure/first-date').text
+                second = child.find('system-data-structure/second-date').text
+                first_date = datetime.datetime.strptime(first, '%m-%d-%Y').strftime('%A %B %d, %Y')
+                second_date = ''
+                if second:
+                    second_date = datetime.datetime.strptime(second, '%m-%d-%Y').strftime('%A %B %d, %Y')
+
+                roles = []
+                values = child.find('dynamic-metadata')
+                for value in values:
+                    if value.tag == 'value':
+                        roles.append(value.text)
+
                 page_values = {
                     'author': child.find('author').text,
                     'id': child.attrib['id'] or "",
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
                     'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                    'dates': dates_str,
+                    'first_date': first_date,
+                    'second_date': second_date,
+                    'message': child.find('system-data-structure/message/p').text,
+                    'roles': roles
                 }
                 ## This is a match, add it to array
                 matches.append(page_values)
