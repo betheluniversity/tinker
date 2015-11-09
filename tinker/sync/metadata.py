@@ -54,16 +54,21 @@ adult_undergrad_programs = [
 
 seminary_programs = [
     "None",
+    "Anglican Studies Certificate",
     "Children's & Family Ministry (M.A.)",
+    "Christian Studies Certificate",
     "Christian Thought (M.A.)",
     "Doctor of Ministry",
     "Marital & Family Therapy (M.A.)",
+    "Marriage & Family Therapy Certificate",
     "Marriage & Family Therapy (M.A.)",
     "Master of Divinity",
     "Mental Health Counseling (M.A.)",
     "Ministry Practice (M.A.)",
+    "Theological Studies Certificate",
     "Theological Studies (M.A.)",
     "Transformational Leadership (M.A.)",
+    "Young Life Youth Ministry Certificate",
 ]
 
 graduate_programs = [
