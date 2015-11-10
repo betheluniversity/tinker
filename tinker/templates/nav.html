@@ -38,7 +38,7 @@
          {% endif %}
       {% endif %}
 
-        {% if 'celanna' in session['username'] or 'ces55739' in session['username'] %}
+        {% if session['username'] and ('celanna' in session['username'] or 'ces55739' in session['username']) %}
              {% if '/sync' in request.path %}
                <li><a href="/sync" class="button button-nav active">Sync Metadata</a></li>
              {% else %}
