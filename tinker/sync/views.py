@@ -62,7 +62,10 @@ def sync_faculty_bio_data_definition(data_definition_id):
 
                     # add new elements
                     for value in data_to_add[next_el.attrib['identifier']]:
-                        next_el.append(Et.Element('dropdown-item', {"value": value}))
+                        if next_el.attrib['identifier'] == 'school':
+                            next_el.append(Et.Element('dropdown-item', {"value": value.replace('&', 'and')}))
+                        else:
+                            next_el.append(Et.Element('dropdown-item', {"value": value }))
 
     new_asset = {
         'dataDefinition': {
@@ -90,7 +93,6 @@ def sync_metadataset(metadataset_id):
     asset = read(metadataset_id, 'metadataset').asset.metadataSet
 
     metadata_elements = []
-    print asset
     for el in asset.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition:
         # create new element
         new_element = {
