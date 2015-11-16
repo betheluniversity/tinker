@@ -381,6 +381,7 @@
 
 
       $( document ).ready(function() {
+
         //////////////////////////////
         // new job titles
         //////////////////////////////
@@ -474,33 +475,34 @@
 
 
         {% if new_job_titles %}
-
           var new_job_titles = {{ new_job_titles|safe }};
           var i = 0;
-          while (i < 200){
+          while (i < 200) {
 
-            job_title = new_job_titles[i];
-            if (!job_title){
-              break;
-            }
-            //Convert to correct value
-            id = i + 1;
+              job_title = new_job_titles[i];
+              if (!job_title) {
+                  if (i == 0) // make sure it is initialized.
+                      initializeJobTitles(1);
+                  break;
+              }
+              //Convert to correct value
+              id = i + 1;
+              
+              //If this is not the first node, create it before we can populate it and insert after the last one.
+              //show the remove button
+              if (i != 0) {
+                  var last = $(".new-job-fieldset").last();
+                  var new_job_title = newJobTitlesFieldset(id);
+                  new_job_title.insertAfter(last);
+                  $("#remove_new_job_button").show();
+              }
 
+              //Now populate the fieldset
+              initializeJobTitles(id);
+              populateNewJobTitlesFieldset(id, job_title);
 
-            //If this is not the first node, create it before we can populate it and insert after the last one.
-            //show the remove button
-            if(i != 0){
-              var last = $(".new-job-fieldset").last();
-              var new_job_title = newJobTitlesFieldset(id);
-              new_job_title.insertAfter(last);
-              $("#remove_new_job_button").show();
-            }
-            //Now populate the fieldset
-            initializeJobTitles(id);
-            populateNewJobTitlesFieldset(id, job_title );
-
-            //no infinite loops today
-            i++;
+              //no infinite loops today
+              i++;
 
           }
         {% else %}
