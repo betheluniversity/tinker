@@ -31,6 +31,7 @@ undergrad_programs = [
     "Philosophy",
     "Physics & Engineering",
     "Political Science",
+    "Preprofessional",
     "Psychology",
     "Social Work",
     "Theatre Arts",
