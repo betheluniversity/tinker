@@ -316,16 +316,9 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
     # create the dynamic metadata dict
     dynamic_fields = {
         'dynamicField': [
-            dynamic_field('school', add_data['school']),
-            dynamic_field('department', add_data['department']),
-            dynamic_field('adult-undergrad-program', add_data['adult_undergrad_program']),
-            dynamic_field('graduate-program', add_data['graduate_program']),
-            dynamic_field('seminary-program', add_data['seminary_program']),
             dynamic_field('hide-site-nav', ["Hide"]),
         ],
     }
-
-    depts = [add_data['department'], add_data['adult_undergrad_program'], add_data['graduate_program'], add_data['seminary_program']]
 
     asset = {
         'page': {

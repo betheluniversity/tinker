@@ -608,10 +608,6 @@
 
         {% endif %}
 
-        {% if jobs_good == False %}
-          $( '<div data-alert="" class="alert-box alert radius">A Job Title is Required<a href="#" class="close">×</a></div>' ).insertBefore(".job-fieldset");
-        {% endif %}
-
         {% if form.errors or not jobs_good and num_jobs %}
           var jobs = {{ jobs|safe }};
           var tt = {{ num_jobs }};
@@ -627,6 +623,10 @@
             }
           }
 
+        {% endif %}
+
+        {% if new_jobs_good == False %}
+          $( '<div data-alert="" class="alert-box alert radius">A Job Title is Required<a href="#" class="close">×</a></div>' ).insertBefore(".new-job-fieldset");
         {% endif %}
 
 
@@ -649,26 +649,6 @@
             }
             list.last().remove();
           });
-
-{#          $("#add_job_button").click(function(){#}
-{#            var fieldsets = $(".job-fieldset");#}
-{#            var last = fieldsets.last();#}
-{#            var old_num = last.children()[0].textContent.replace("Job Title ", ""); // "Degree X" is the variable name, where X is an integer.#}
-{#            var new_num = (parseInt(old_num) + 1);#}
-{#            var new_job = newJobTitleFieldset(new_num);#}
-{#            new_job.insertAfter(last);#}
-{#            $("#remove_job_button").show();#}
-{#          });#}
-{##}
-{#          $("#remove_job_button").click(function(){#}
-{#            var list = $(".job-fieldset");#}
-{#            var length = list.length;#}
-{#            //Hide remove button if there will only be one degree left#}
-{#            if (length == 2){#}
-{#              $("#remove_job_button").hide();#}
-{#            }#}
-{#            list.last().remove();#}
-{#          });#}
 
           $("#add_new_job_button").click(function(){
             var fieldsets = $(".new-job-fieldset");
@@ -700,6 +680,11 @@
             //add a hidden field with the number of degrees
             var degrees = $(".degree-fieldset");
             var input = $("<input>").attr("type", "hidden").attr("name", "num_degrees").val(degrees.length);
+            $("#facultybioform").append(input);
+
+            //add a hidden field with the number of degrees
+            var new_jobs = $(".new-job-fieldset");
+            var input = $("<input>").attr("type", "hidden").attr("name", "num_new_jobs").val(new_jobs.length);
             $("#facultybioform").append(input);
 
             return true;
@@ -778,7 +763,6 @@
 {% macro job_title_fieldset() -%}
   <fieldset class="job-fieldset" style="display:none">
     <legend>Job Title 1</legend>
-{#      <small>Required</small>#}
       <input type="text" name="job-title1" id="job-title1"/>
   </fieldset>
 {#  <a href="javascript:void(0);" id="add_job_button" class="button tiny">Add Another Job Title</a>#}

@@ -175,7 +175,6 @@ def faculty_bio_edit_form(faculty_bio_id):
 
 @faculty_bio_blueprint.route("/submit", methods=['POST'])
 def submit_faculty_bio_form():
-
     # import this here so we dont load all the content
     # from cascade during homepage load
     from forms import FacultyBioForm
@@ -190,14 +189,16 @@ def submit_faculty_bio_form():
 
     jobs, jobs_good, num_jobs = check_jobs(rform)
     degrees, degrees_good, num_degrees = check_degrees(rform)
-    ## Todo: make it required? add functionality here.
+    new_jobs_good, num_new_jobs = check_job_titles(rform)
 
-    if not form.validate_on_submit() or (not jobs_good and not degrees_good):
+    if not form.validate_on_submit() or (not new_jobs_good or not degrees_good):
         if 'faculty_bio_id' in request.form.keys():
             faculty_bio_id = request.form['faculty_bio_id']
         else:
             # This error came from the add form because event_id wasn't set
             add_form = True
+
+        metadata = fjson.dumps(data_to_add)
         return render_template('faculty-bio-form.html', **locals())
 
     # Get all the form data
@@ -227,23 +228,23 @@ def submit_faculty_bio_form():
         faculty_bio_id = None
 
     workflow = None
-    workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data['school'])
+    workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data['school1'])
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 
-    if faculty_bio_id:
-        # existing bio
-        resp = edit(asset)
-        app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " with id: " + faculty_bio_id + " " + str(resp))
-        # publish corresponding pubish set to make sure corresponding pages get edits
-        # This is no longer needed, since ALL bios go through workflows.
-        # check_publish_sets(add_data['school'], faculty_bio_id, False)
-        return render_template('faculty-bio-confirm-edit.html', **locals())
-    else:
-        # new bio
-        resp = create_faculty_bio(asset)
-        faculty_bio_id = resp.createdAssetId
-        return render_template('faculty-bio-confirm-new.html', **locals())
-    return
+    # if faculty_bio_id:
+    #     # existing bio
+    #     resp = edit(asset)
+    #     app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " with id: " + faculty_bio_id + " " + str(resp))
+    #     # publish corresponding pubish set to make sure corresponding pages get edits
+    #     # This is no longer needed, since ALL bios go through workflows.
+    #     # check_publish_sets(add_data['school'], faculty_bio_id, False)
+    #     return render_template('faculty-bio-confirm-edit.html', **locals())
+    # else:
+    #     # new bio
+    #     resp = create_faculty_bio(asset)
+    #     faculty_bio_id = resp.createdAssetId
+    #     return render_template('faculty-bio-confirm-new.html', **locals())
+    return "success"
 
 
 @app.route('/uploads/<filename>')
@@ -303,3 +304,83 @@ def check_degrees(form):
 
     # convert event dates to JSON
     return json.dumps(degrees), degrees_good, num_degrees
+
+
+def check_job_titles(form):
+    new_jobs = {}
+    new_jobs_good = False
+
+    num_new_jobs = int(form['num_new_jobs'])
+
+    for x in range(1, num_new_jobs+1):  # the page doesn't use 0-based indexing
+
+        i = str(x)
+        school_l = 'schools' + i
+        undergrad_l = 'undergrad' + i
+        caps_l = 'adult-undergrad' + i
+        gs_l = 'graduate' + i
+        seminary_l = 'seminary' + i
+        dept_chair_l = 'dept-chair' + i
+        program_director_l = 'program-director' + i
+        lead_faculty_l = 'lead-faculty' + i
+        job_title_l = 'new-job-title' + i
+
+        ## Todo: clean this up and put it in a nice function.
+
+        try:
+            school = form[school_l]
+        except:
+            school = False
+        try:
+            undergrad = form[undergrad_l]
+            if undergrad is not 'None':
+                undergrad = True
+        except:
+            undergrad = False
+        try:
+            caps = form[caps_l]
+            if caps is not 'None':
+                caps = True
+        except:
+            caps = False
+        try:
+            gs = form[gs_l]
+            if gs is not 'None':
+                gs = True
+        except:
+            gs = False
+        try:
+            seminary = form[seminary_l]
+            if seminary is not 'None':
+                seminary = True
+        except:
+            seminary = False
+        try:
+            dept_chair = form[dept_chair_l]
+            dept_chair = True
+        except:
+            dept_chair = False
+        try:
+            program_director = form[program_director_l]
+            program_director = True
+        except:
+            program_director = False
+        try:
+            lead_faculty = form[lead_faculty_l]
+            lead_faculty = True
+        except:
+            lead_faculty = False
+        try:
+            job_title = form[job_title_l]
+            if job_title != '':
+                job_title = True
+        except:
+            job_title = False
+
+        check = (school == 'Bethel University' and job_title) or ((undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty) and (job_title))
+
+        if check:
+            new_jobs_good = True
+
+    # convert event dates to JSON
+    return new_jobs_good, num_new_jobs

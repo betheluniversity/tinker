@@ -184,11 +184,11 @@ class FacultyBioForm(Form):
     gs_choices = choices['graduate_program']
     sem_choices = choices['seminary_program']
 
-    school = SelectMultipleField('School', choices=school_choices, default=['Select'], validators=[validators.DataRequired()])
-    department = SelectMultipleField('Undergraduate Departments', default=['None'], choices=department_choices, validators=[validators.DataRequired()])
-    adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['None'], choices=caps_choices, validators=[validators.DataRequired()])
-    graduate_program = SelectMultipleField('Graduate Programs', default=['None'], choices=gs_choices, validators=[validators.DataRequired()])
-    seminary_program = SelectMultipleField('Seminary Programs', default=['None'], choices=sem_choices, validators=[validators.DataRequired()])
+    school = SelectMultipleField('School', choices=school_choices, default=['Select'])
+    department = SelectMultipleField('Undergraduate Departments', default=['None'], choices=department_choices)
+    adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['None'], choices=caps_choices)
+    graduate_program = SelectMultipleField('Graduate Programs', default=['None'], choices=gs_choices)
+    seminary_program = SelectMultipleField('Seminary Programs', default=['None'], choices=sem_choices)
 
     # Manually override validate, in order to check the 3 headers below
     def validate(self):
