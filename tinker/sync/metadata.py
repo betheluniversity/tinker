@@ -103,7 +103,9 @@ graduate_programs = [
 
 locations = [
     'Arden Hills',
+    'Bloomington',
     'North Hennepin Community College',
+    'Online',
     'San Diego',
     'St. Paul',
 ]

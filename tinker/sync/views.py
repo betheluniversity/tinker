@@ -27,6 +27,7 @@ def show():
     sync_metadataset(app.config['METADATA_JOB_POSTING_ID'])
     sync_faculty_bio_data_definition(app.config['DATA_DEF_FACULTY_BIO_ID'])
     sync_faculty_bio_data_definition(app.config['DATA_DEF_PROGRAM_FEED_ID'])
+    sync_faculty_bio_data_definition(app.config['DATA_DEF_PROGRAM_BLOCK_ID'])
 
     ## pass on the current values.
     school = data_to_add['school']
@@ -50,7 +51,7 @@ def sync_faculty_bio_data_definition(data_definition_id):
 
     # check top level element
     for el in structure:
-        if "job-titles" in el.attrib['identifier']:
+        if "job-titles" in el.attrib['identifier']:  # for Faculty Bios | school, undergrad, adult-undergrad, graduate, seminary
             # find everything in the group of job-titles that needs to be replaced.
             for next_el in el:
                 if next_el.attrib['identifier'] in data_to_add:
@@ -73,12 +74,13 @@ def sync_faculty_bio_data_definition(data_definition_id):
                                 show_field_value = "job-titles/adult-undergrad-program, job-titles/program-director, job-titles/job_title"
                             elif value == "Graduate School":
                                 show_field_value = "job-titles/graduate-program, job-titles/program-director, job-titles/job_title"
-                            else: ## value == "Bethel Seminary":
+                            elif value == "Bethel Seminary":
                                 show_field_value = "job-titles/seminary-program, job-titles/lead-faculty, job-titles/job_title"
                             next_el.append(Et.Element('dropdown-item', {"value": value.replace('&', 'and'), "show-fields": show_field_value}))
                         else:
                             next_el.append(Et.Element('dropdown-item', {"value": value}))
-        elif "program_filters" in el.attrib['identifier']:
+
+        elif "program_filters" in el.attrib['identifier']:  # for Program Feeds | location
             for next_el in el:
                 if next_el.attrib['identifier'] == 'location':
                     # remove old elements
@@ -91,6 +93,24 @@ def sync_faculty_bio_data_definition(data_definition_id):
                     # add new elements
                     for value in data_to_add[next_el.attrib['identifier']]:
                         next_el.append(Et.Element('checkbox-item', {"value": value}))
+
+        elif "concentration" in el.attrib['identifier']:  # for Program Blocks | location
+            for second_el in el:
+                if second_el.attrib['identifier'] == 'concentration_banner':
+                    for third_el in second_el:
+                        if third_el.attrib['identifier'] == 'cohort_details':
+                            for fourth_el in third_el:
+                                if fourth_el.attrib['identifier'] == 'location':
+                                    # remove old elements
+                                    store_elements_to_remove = []
+                                    for el_to_remove in fourth_el:
+                                        store_elements_to_remove.append(el_to_remove)
+                                    for el_to_remove in store_elements_to_remove:
+                                        fourth_el.remove(el_to_remove)
+
+                                    # add new elements
+                                    for value in data_to_add['location']:
+                                        fourth_el.append(Et.Element('dropdown-item', {"value": value}))
 
     new_asset = {
         'dataDefinition': {
