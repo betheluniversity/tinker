@@ -26,6 +26,7 @@ def show():
     sync_metadataset(app.config['METADATA_ROBUST_ID'])
     sync_metadataset(app.config['METADATA_JOB_POSTING_ID'])
     sync_faculty_bio_data_definition(app.config['DATA_DEF_FACULTY_BIO_ID'])
+    sync_faculty_bio_data_definition(app.config['DATA_DEF_PROGRAM_FEED_ID'])
 
     ## pass on the current values.
     school = data_to_add['school']
@@ -33,6 +34,7 @@ def show():
     adult_undergrad_programs = data_to_add['adult-undergrad-program']
     graduate_programs = data_to_add['graduate-program']
     seminary_programs = data_to_add['seminary-program']
+    locations = data_to_add['location']
 
     return render_template('sync.html', **locals())
 
@@ -65,18 +67,30 @@ def sync_faculty_bio_data_definition(data_definition_id):
                         if next_el.attrib['identifier'] == 'school':
                             if value == "Bethel University":
                                 show_field_value = "job-titles/job_title"
-                            elif value == "College of Arts and Sciences":
-                                show_field_value = "job-titles/department"
+                            elif value == "College of Arts & Sciences":
+                                show_field_value = "job-titles/department, job-titles/department-chair, job-titles/job_title"
                             elif value == "College of Adult & Professional Studies":
-                                show_field_value = "job-titles/adult-undergrad-program"
+                                show_field_value = "job-titles/adult-undergrad-program, job-titles/program-director, job-titles/job_title"
                             elif value == "Graduate School":
-                                show_field_value = "job-titles/graduate-program"
-                            elif value == "Bethel Seminary":
-                                show_field_value = "job-titles/seminary-program"
+                                show_field_value = "job-titles/graduate-program, job-titles/program-director, job-titles/job_title"
+                            else: ## value == "Bethel Seminary":
+                                show_field_value = "job-titles/seminary-program, job-titles/lead-faculty, job-titles/job_title"
                             next_el.append(Et.Element('dropdown-item', {"value": value.replace('&', 'and'), "show-fields": show_field_value}))
-                            # next_el.append(Et.Element('dropdown-item', {"value": value.replace('&', 'and')}))
                         else:
                             next_el.append(Et.Element('dropdown-item', {"value": value}))
+        elif "program_filters" in el.attrib['identifier']:
+            for next_el in el:
+                if next_el.attrib['identifier'] == 'location':
+                    # remove old elements
+                    store_elements_to_remove = []
+                    for el_to_remove in next_el:
+                        store_elements_to_remove.append(el_to_remove)
+                    for el_to_remove in store_elements_to_remove:
+                        next_el.remove(el_to_remove)
+
+                    # add new elements
+                    for value in data_to_add[next_el.attrib['identifier']]:
+                        next_el.append(Et.Element('checkbox-item', {"value": value}))
 
     new_asset = {
         'dataDefinition': {
