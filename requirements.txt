@@ -16,3 +16,4 @@ Flask-Cors
 arrow
 feedformatter
 feedparser
+createsend

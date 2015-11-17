@@ -63,9 +63,20 @@ def sync_faculty_bio_data_definition(data_definition_id):
                     # add new elements
                     for value in data_to_add[next_el.attrib['identifier']]:
                         if next_el.attrib['identifier'] == 'school':
-                            next_el.append(Et.Element('dropdown-item', {"value": value.replace('&', 'and')}))
+                            if value == "Bethel University":
+                                show_field_value = "job-titles/job_title"
+                            elif value == "College of Arts and Sciences":
+                                show_field_value = "job-titles/department"
+                            elif value == "College of Adult & Professional Studies":
+                                show_field_value = "job-titles/adult-undergrad-program"
+                            elif value == "Graduate School":
+                                show_field_value = "job-titles/graduate-program"
+                            elif value == "Bethel Seminary":
+                                show_field_value = "job-titles/seminary-program"
+                            next_el.append(Et.Element('dropdown-item', {"value": value.replace('&', 'and'), "show-fields": show_field_value}))
+                            # next_el.append(Et.Element('dropdown-item', {"value": value.replace('&', 'and')}))
                         else:
-                            next_el.append(Et.Element('dropdown-item', {"value": value }))
+                            next_el.append(Et.Element('dropdown-item', {"value": value}))
 
     new_asset = {
         'dataDefinition': {

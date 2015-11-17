@@ -305,19 +305,17 @@ def create_campaign():
     return_e_announcement_array = manager.dict()
 
     for role_combo in roles:
-        # feedparser.parse(urllib2.urlopen('http://127.0.0.1:5000//e-announcement/rss_feed?date=08-12-2015').read())
-        e_announcements += create_single_announcement(role_combo, count)
-
-        p = mp.Process(target=create_single_announcement, args=(role_combo, count, return_e_announcement_array))
+        p = create_single_announcement(role_combo, count, return_e_announcement_array)
+        # p = mp.Process(target=create_single_announcement, args=(role_combo, count, return_e_announcement_array))
         e_announcement_array.append(p)
-        p.start()
+        # p.start()
 
         count = count + 1
 
     e_announcements += '[endif]'
 
-    for j in e_announcement_array:
-        j.join()
+    # for j in e_announcement_array:
+    #     j.join()
 
     return str(return_e_announcement_array.values())
 
@@ -387,6 +385,7 @@ def create_single_announcement(role_combo, count, return_e_announcement_array):
         e_announcement = '[elseif:roles=%s]' % role_combo
 
     # todo, update the date to be today (aka, remove it)
-    for item in feedparser.parse(urllib2.urlopen('http://127.0.0.1:5000//e-announcement/rss_feed?date=08-12-2015&roles=' + role_combo).read())['entries']:
+    # todo, instead of calling the rss_feed each time, call it once.
+    for item in feedparser.parse(urllib2.urlopen('https://tinker.bethel.edu/e-announcement/rss_feed?date=08-12-2015&roles=' + role_combo).read())['entries']:
         e_announcement += item['summary_detail']['value']
     return_e_announcement_array[count] = e_announcement
