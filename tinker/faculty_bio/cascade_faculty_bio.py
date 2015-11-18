@@ -461,11 +461,10 @@ def get_faculty_bios_for_user(username):
 
 
 def traverse_faculty_folder(traverse_xml, username):
-    ## if no username is given, then pass over ALL faculty bios
-    if username == None:
+    # if no username is given, then pass over ALL faculty bios
+    if username is None:
         matches = []
         for child in traverse_xml.findall('.//system-page'):
-
             page_values = {
                 'author': child.find('author') or None,
                 'id': child.attrib['id'] or "",
