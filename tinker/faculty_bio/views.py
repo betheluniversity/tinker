@@ -104,7 +104,10 @@ def faculty_bio_edit_form(faculty_bio_id):
     for node in s_data:
         node_identifier = node.identifier.replace('-', '_')
         node_type = node.type
-        if node_type == 'group':
+        if node_type == "text":
+            edit_data[node_identifier] = node.text
+
+        elif node_type == 'group':
             if node_identifier == "add_to_bio" or node_identifier == "expertise":
                 for group_node in node.structuredDataNodes.structuredDataNode:
                     group_node_identifier = group_node.identifier.replace('-', '_')
@@ -126,7 +129,6 @@ def faculty_bio_edit_form(faculty_bio_id):
                     new_job_title_data[node_identifier] = field.text
                 new_job_titles[new_job_title_count] = new_job_title_data
                 new_job_title_count += 1
-                print new_job_title_data
 
         elif node_identifier == 'image':
             groups = get_groups_for_user()
@@ -176,7 +178,6 @@ def submit_faculty_bio_form():
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)
 
-    jobs, jobs_good, num_jobs = check_jobs(rform)
     degrees, degrees_good, num_degrees = check_degrees(rform)
     new_jobs_good, num_new_jobs = check_job_titles(rform)
 
@@ -240,28 +241,6 @@ def submit_faculty_bio_form():
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
     # return send_from_directory("/Users/ces55739/Sites/Tinker/tinker/temp/images",filename)
-
-
-def check_jobs(form):
-    jobs = {}
-    jobs_good = False
-
-    num_jobs = int(form['num_jobs'])
-
-    for x in range(1, num_jobs+1):  # the page doesn't use 0-based indexing
-
-        i = str(x)
-        job_l = 'job-title' + i
-
-        job = form[job_l]
-
-        jobs[job_l] = job
-
-        if job:
-            jobs_good = True
-
-    # convert event dates to JSON
-    return json.dumps(jobs), jobs_good, num_jobs
 
 
 def check_degrees(form):
@@ -366,8 +345,7 @@ def check_job_titles(form):
         except:
             job_title = False
 
-        check = (school == 'Bethel University' and job_title) or ((undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty) and (job_title))
-
+        check = (school == 'Bethel University' and job_title) or ((undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty))
         if check:
             new_jobs_good = True
 

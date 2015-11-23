@@ -541,6 +541,7 @@
 
         {% if form.errors or not degrees_good and num_degrees %}
           var degrees = {{ degrees|safe }};
+            alert({{ degrees|safe }});
           var tt = {{ num_degrees }};
           for (var i = 1; i < {{ num_degrees + 1}}; i++){
             if(i == 1){
@@ -561,6 +562,9 @@
 
         {% endif %}
 
+        {% if degrees_good == False %}
+          $( '<div data-alert="" class="alert-box alert radius">A Degree is required<a href="#" class="close">×</a></div>' ).insertBefore(".degree-fieldset");
+        {% endif %}
 
         {% if new_jobs_good == False %}
           $( '<div data-alert="" class="alert-box alert radius">A Job Title is Required<a href="#" class="close">×</a></div>' ).insertBefore(".new-job-fieldset");
