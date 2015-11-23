@@ -241,9 +241,8 @@
 
      function newJobTitleFieldset(id){
             var title = 'job-title' + id;
-            var node = $('<fieldset>').addClass('job-fieldset');
+            var node = $('<fieldset>').addClass('job-fieldset').addStylesSet('display', 'none');
             node.append($("<legend>").html("Job Title " + id));
-            node.append('<small>Required</small>');
             node.append($("<input type='text'>").attr('name', title).attr('id', title));
 
             return node;
