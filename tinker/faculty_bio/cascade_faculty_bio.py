@@ -21,7 +21,7 @@ def get_expertise(add_data):
     elif interests is not None and interests != "":
         select = "Research interests"
     elif teaching is not None and teaching != "":
-        select = "Teaching Speciality"
+        select = "Teaching Specialty"
     else:
         select = "Select"
 
