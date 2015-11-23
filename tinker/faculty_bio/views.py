@@ -218,7 +218,7 @@ def submit_faculty_bio_form():
         faculty_bio_id = None
 
     workflow = None
-    workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data['school1'])
+    workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data['schools1'])
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 
     if faculty_bio_id:

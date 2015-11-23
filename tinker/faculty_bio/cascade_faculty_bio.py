@@ -19,7 +19,7 @@ def get_expertise(add_data):
     if areas is not None and areas != "":
         select = "Areas of expertise"
     elif interests is not None and interests != "":
-        select = "Research Interests"
+        select = "Research interests"
     elif teaching is not None and teaching != "":
         select = "Teaching Speciality"
     else:
