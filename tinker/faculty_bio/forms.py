@@ -84,42 +84,6 @@ class DummyField(TextAreaField):
     pass
 
 
-def get_faculty_bio_choices():
-
-    data = get_md("/Robust")
-
-    md = {}
-    for item in data:
-        try:
-            md[item.name] = item.possibleValues.possibleValue
-        except AttributeError:
-            # this will fail for text fields w/o values. We don't want those anwyay
-            continue
-
-    school = []
-    for item in md['school']:
-        if item.value != "Bethel University" and item.value != "Select":
-            school.append((item.value, item.value))
-
-    department = []
-    for item in md['department']:
-        department.append((item.value, item.value))
-
-    adult_undergrad_program = []
-    for item in md['adult-undergrad-program']:
-        adult_undergrad_program.append((item.value, item.value))
-
-    graduate_program = []
-    for item in md['graduate-program']:
-        graduate_program.append((item.value, item.value))
-
-    seminary_program = []
-    for item in md['seminary-program']:
-        seminary_program.append((item.value, item.value))
-
-    return {'school': school, 'department': department, 'adult_undergrad_program': adult_undergrad_program, 'graduate_program': graduate_program, 'seminary_program': seminary_program}
-
-
 def validate_username(form, field):
     username = field.data
     host = "http://wsapi.bethel.edu"
@@ -148,7 +112,6 @@ class FacultyBioForm(Form):
     author = TextField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
                        description="Enter your Bethel username.")
 
-    job_titles = TextField('')
     new_job_titles = TextField('')
 
     email = TextField('Email', validators=[validators.DataRequired()])
@@ -176,19 +139,6 @@ class FacultyBioForm(Form):
 
     website = TextField('Professional website or blog')
 
-    choices = get_faculty_bio_choices()
-    categories = HeadingField(label="Categories", id="categories_heading")
-    school_choices = choices['school']
-    department_choices = choices['department']
-    caps_choices = choices['adult_undergrad_program']
-    gs_choices = choices['graduate_program']
-    sem_choices = choices['seminary_program']
-
-    school = SelectMultipleField('School', choices=school_choices, default=['Select'])
-    department = SelectMultipleField('Undergraduate Departments', default=['None'], choices=department_choices)
-    adult_undergrad_program = SelectMultipleField('Adult Undergraduate Programs', default=['None'], choices=caps_choices)
-    graduate_program = SelectMultipleField('Graduate Programs', default=['None'], choices=gs_choices)
-    seminary_program = SelectMultipleField('Seminary Programs', default=['None'], choices=sem_choices)
 
     # Manually override validate, in order to check the 3 headers below
     def validate(self):

@@ -96,9 +96,6 @@
               {% elif field.type == "HeadingField" %}
                 <h3 id="{{ field.id }}">{{ field.label }}</h3>
 
-              {% elif field.name == "job_titles" %}
-                {{ job_title_fieldset() }}
-
               {% elif field.name == "new_job_titles" %}
                 {{ new_job_title_fieldset() }}
 
@@ -541,13 +538,6 @@
 
         {% endif %}
 
-        {#  Optional. But later if you want to make a degreee required here is where you do it.
-
-            {% if degrees_good == False %}
-              $( '<div data-alert="" class="alert-box alert radius">A Degree is Required<a href="#" class="close">×</a></div>' ).insertBefore(".job-fieldset");
-            {% endif %}
-
-        #}
 
         {% if form.errors or not degrees_good and num_degrees %}
           var degrees = {{ degrees|safe }};
@@ -571,59 +561,6 @@
 
         {% endif %}
 
-
-
-      ////////// JOB TITLES //////////
-
-
-
-
-        {% if job_titles %}
-
-          var jobs = {{ job_titles|safe }};
-          var i = 0;
-          while (i < 200){
-
-            job = jobs[i];
-            if (!job){
-              break;
-            }
-            //Convert to correct value
-            id = i + 1;
-
-            //If this is not the first node, create it before we can populate it and insert after the last one.
-            //show the remove buton
-            if(i != 0){
-              var last = $(".job-fieldset").last();
-              var new_job = newJobTitleFieldset(id);
-              new_job.insertAfter(last);
-              $("#remove_job_button").show();
-            }
-            //Now populate the fieldset
-            populateJobTitleFieldset(id, job);
-            //no infinite loops today
-            i++;
-
-          }
-
-        {% endif %}
-
-        {% if form.errors or not jobs_good and num_jobs %}
-          var jobs = {{ jobs|safe }};
-          var tt = {{ num_jobs }};
-          for (var i = 1; i < {{ num_jobs + 1}}; i++){
-            if(i == 1){
-              $('#job-title1').val(jobs['job-title1']);
-            }else{
-              newJobTitleFieldset(i);
-              var fieldsets = $(".job-fieldset");
-              var last = fieldsets.last();
-              newJobTitleFieldset(i).insertAfter(last);
-              $('#job-title'+i).val(jobs['job-title'+i] );
-            }
-          }
-
-        {% endif %}
 
         {% if new_jobs_good == False %}
           $( '<div data-alert="" class="alert-box alert radius">A Job Title is Required<a href="#" class="close">×</a></div>' ).insertBefore(".new-job-fieldset");
@@ -696,18 +633,6 @@
               });
           testExpertise();
 
-          // delete this, once the new job titles are fully moved over.
-          $('#categories_heading').hide();
-            $('label[for="school"]').hide();
-            $("#school").hide();
-            $('label[for="department"]').hide();
-            $("#department").hide();
-            $('label[for="adult_undergrad_program"]').hide();
-            $("#adult_undergrad_program").hide();
-            $('label[for="graduate_program"]').hide();
-            $("#graduate_program").hide();
-            $('label[for="seminary_program"]').hide();
-            $("#seminary_program").hide();
       });
 
   // Dynamically render image
@@ -729,15 +654,6 @@
         readURL(this);
     });
 
-    // only use this if it is an 'edit' bio
-    {% if faculty_bio_id %}
-        {% if form.errors %}
-{#            showCategories();#}
-{#            $('#categories_yes').prop("checked", true);#}
-{#        {% else %}#}
-            hideCategories();
-        {% endif %}
-    {% endif %}
 
 </script>
 
@@ -758,15 +674,6 @@
   </fieldset>
   <a href="javascript:void(0);" id="add_degree_button" class="button tiny">Add Another Degree</a>
   <a href="javascript:void(0);" id="remove_degree_button" style="display:none" class="button tiny alert">Remove Degree</a>
-{%- endmacro  %}
-
-{% macro job_title_fieldset() -%}
-  <fieldset class="job-fieldset" style="display:none">
-    <legend>Job Title 1</legend>
-      <input type="text" name="job-title1" id="job-title1"/>
-  </fieldset>
-{#  <a href="javascript:void(0);" id="add_job_button" class="button tiny">Add Another Job Title</a>#}
-{#  <a href="javascript:void(0);" id="remove_job_button" style="display:none" class="button tiny alert">Remove Job Title</a>#}
 {%- endmacro  %}
 
 {% macro new_job_title_fieldset() -%}

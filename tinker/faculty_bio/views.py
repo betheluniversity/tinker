@@ -93,9 +93,6 @@ def faculty_bio_edit_form(faculty_bio_id):
     # This dict will populate our EventForm object
     edit_data = {}
 
-    job_titles = {}
-    job_title_count = 0
-
     degrees = {}
     degree_count = 0
 
@@ -107,14 +104,7 @@ def faculty_bio_edit_form(faculty_bio_id):
     for node in s_data:
         node_identifier = node.identifier.replace('-', '_')
         node_type = node.type
-        if node_type == "text":
-            if node_identifier == "job_title":
-                job_title_data = node.text
-                job_titles[job_title_count] = job_title_data
-                job_title_count += 1
-            edit_data[node_identifier] = node.text
-
-        elif node_type == 'group':
+        if node_type == 'group':
             if node_identifier == "add_to_bio" or node_identifier == "expertise":
                 for group_node in node.structuredDataNodes.structuredDataNode:
                     group_node_identifier = group_node.identifier.replace('-', '_')
@@ -163,7 +153,6 @@ def faculty_bio_edit_form(faculty_bio_id):
     form.faculty_bio_id = faculty_bio_id
 
     # convert job titles and degrees to json so we can use Javascript to create custom DateTime fields on the form
-    job_titles = fjson.dumps(job_titles)
     new_job_titles = fjson.dumps(new_job_titles)
     degrees = fjson.dumps(degrees)
 
