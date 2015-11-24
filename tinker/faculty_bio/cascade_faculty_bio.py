@@ -12,21 +12,13 @@ from tinker.cascade_tools import *
 from tinker import app
 
 def get_expertise(add_data):
+    heading = add_data['heading']
     areas = add_data['areas']
     interests = add_data['research_interests']
     teaching = add_data['teaching_specialty']
 
-    if areas is not None and areas != "":
-        select = "Areas of expertise"
-    elif interests is not None and interests != "":
-        select = "Research interests"
-    elif teaching is not None and teaching != "":
-        select = "Teaching Specialty"
-    else:
-        select = "Select"
-
     data_list = [
-        structured_data_node("heading", select),
+        structured_data_node("heading", heading),
         structured_data_node("areas", areas),
         structured_data_node("research-interests", interests),
         structured_data_node("teaching-specialty", teaching),
@@ -39,7 +31,6 @@ def get_expertise(add_data):
             'structuredDataNode': data_list,
         },
     }
-
     return node
 
 
