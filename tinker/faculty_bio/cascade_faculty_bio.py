@@ -553,9 +553,9 @@ def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, school=
     # only submit workflow if it is a new CAS
     if "College of Arts and Sciences" in school:
         workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
-    elif "Graduate School" and school or "College of Adult and Professional Studies" in school:
+    elif "Graduate School" in school or "College of Adult and Professional Studies" in school:
         workflow_id = '81dabbc78c5865130c130b3a2b567e75'
-    elif "Bethel Seminary":
+    elif "Bethel Seminary" in school:
         workflow_id = '68ad793e8c5865137c9c2c89440cbbbc'
     else:
         return None
