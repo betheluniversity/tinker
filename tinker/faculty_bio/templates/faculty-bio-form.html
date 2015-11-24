@@ -444,8 +444,14 @@
                             $('#' + idToShowHide + num).hide();
                         } else {
                             $('#' + idToShowHide + num).show();
-                            var nextId = 'input[name="' + nextIdToDisplay + id + '"]';
+                            var nextId = 'input[name="' + nextIdToDisplay + num + '"]';
                             $(nextId).change();
+
+                            nextId = 'input[name=' + nextIdToDisplay + num + ']:checked';
+                            if( $(nextId).val() == 'No' || $(nextId).val() == 'Other')
+                                $('#new-job-title-div' + num).show();
+                            else
+                                $('#new-job-title-div' + num).hide();
                         }
                     }
                 });
