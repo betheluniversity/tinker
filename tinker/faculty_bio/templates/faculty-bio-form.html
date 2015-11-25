@@ -394,7 +394,10 @@
 
                 for (var i = 0; i < metadata_values.length; i++) {
                     var opt = document.createElement('option');
-                    var metadata_value = metadata_values[i].replace('&', 'and');
+                    var metadata_value = metadata_values[i];
+                    if( identifier == 'schools' ){
+                        metadata_value = metadata_value.replace('&', 'and');
+                    }
                     opt.value = metadata_value;
                     opt.innerHTML = metadata_value;
                     $('#' + identifier + num).append(opt);
@@ -547,7 +550,6 @@
 
         {% if form.errors or not degrees_good and num_degrees %}
           var degrees = {{ degrees|safe }};
-            alert({{ degrees|safe }});
           var tt = {{ num_degrees }};
           for (var i = 1; i < {{ num_degrees + 1}}; i++){
             if(i == 1){
