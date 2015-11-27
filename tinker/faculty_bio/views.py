@@ -234,7 +234,6 @@ def submit_faculty_bio_form():
         resp = create_faculty_bio(asset)
         faculty_bio_id = resp.createdAssetId
         return render_template('faculty-bio-confirm-new.html', **locals())
-    return
 
 
 @app.route('/uploads/<filename>')
