@@ -354,7 +354,7 @@ def get_image_structure(add_data, image_dest, image_name, workflow=None):
             'siteName': 'Public',
             'data': encoded_stream,
             'metadata' : {
-                'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + add_data['job-title1'] + " at Bethel University.",
+                'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + add_data['new-job-title1'] + " at Bethel University.",
             }
 
         },
