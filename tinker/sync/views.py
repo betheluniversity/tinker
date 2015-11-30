@@ -36,7 +36,7 @@ def show():
     graduate_programs = data_to_add['graduate-program']
     seminary_programs = data_to_add['seminary-program']
     locations = data_to_add['location']
-    
+    # another dummy comment
     return render_template('sync.html', **locals())
 
 
