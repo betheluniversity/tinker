@@ -311,6 +311,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         ],
     }
 
+    description = build_description(add_data)
+
     asset = {
         'page': {
             'name': add_data['system_name'],
@@ -324,8 +326,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
             'metadata': {
                 'title': add_data['first'] + " " + add_data['last'],
                 'summary': 'summary',
-                'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + " at Bethel University.",
-                # 'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + add_data['job-title1'] + " at Bethel University.",
+                'metaDescription': description,
                 'author': add_data['author'],
                 'dynamicFields': dynamic_fields,
             }
@@ -337,6 +338,52 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         asset['page']['id'] = faculty_bio_id
 
     return asset
+
+
+def build_description(add_data):
+    description = "Meet " + add_data['first'] + " " + add_data['last']
+
+    # recurse through all job titles
+    schools_found = []
+    for i in range(1, 100):
+        new_job_title = None
+
+        try:
+            schools_found.append(add_data['schools' + str(i)])
+        except:
+            break
+
+        if 'program-director' + str(i) in add_data and add_data['program-director' + str(i)] == 'Yes':
+            new_job_title = 'Program Director'
+        elif 'dept-chair' + str(i) in add_data and add_data['dept-chair' + str(i)] == 'Yes':
+            new_job_title = 'Department Chair'
+        elif 'lead-faculty' + str(i) in add_data and add_data['lead-faculty' + str(i)] != 'Other' and add_data['lead-faculty' + str(i)] is not None:
+            new_job_title = add_data['lead-faculty' + str(i)]
+        elif 'new-job-title' + str(i) in add_data:
+            new_job_title = add_data['new-job-title' + str(i)].strip()
+        else:
+            break
+
+        punctuation = ', '
+        if i == 2 and 'schools3' not in add_data:
+            punctuation = ' and '
+        elif i >= 3 and 'schools' + str(i+1) not in add_data:
+            punctuation = ', and '
+        description += punctuation + new_job_title
+
+    # check if they are in only seminary
+    in_sem = 'Bethel Seminary' in schools_found
+    not_in_bu = 'Bethel University' not in schools_found
+    not_in_cas = 'College of Arts and Sciences' not in schools_found
+    not_in_caps = 'College of Adult and Professional Studies' not in schools_found
+    not_in_gs = 'Graduate School' not in schools_found
+
+    if in_sem and not_in_bu and not_in_cas and not_in_caps and not_in_gs:
+        description += ', at Bethel Seminary.'
+    else:
+        description += ', at Bethel University.'
+
+    return description
 
 
 def get_image_structure(add_data, image_dest, image_name, workflow=None):
@@ -353,14 +400,13 @@ def get_image_structure(add_data, image_dest, image_name, workflow=None):
             'siteId': app.config['SITE_ID'],
             'siteName': 'Public',
             'data': encoded_stream,
-            'metadata' : {
+            'metadata': {
                 'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + add_data['new-job-title1'] + " at Bethel University.",
             }
 
         },
         'workflowConfiguration': workflow
     }
-
 
     return asset
 
