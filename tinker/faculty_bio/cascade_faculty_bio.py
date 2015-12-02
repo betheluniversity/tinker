@@ -414,6 +414,7 @@ def get_image_structure(add_data, image_dest, image_name, workflow=None):
 # A lengthy hardcoded list that maps the metadata values to the Groups on Cascade.
 def get_web_author_group(department_metadata):
 
+    # CAS
     if "Anthropology, Sociology, & Reconciliation" == department_metadata:
         return "Anthropology Sociology"
     if "Art & Design" == department_metadata:
@@ -462,6 +463,10 @@ def get_web_author_group(department_metadata):
         return "Social Work"
     if "Theatre Arts" == department_metadata:
         return "Theatre"
+
+    # Sem
+    if "Doctor of Ministry" == department_metadata:
+        return "Doctor of Ministry"
 
     return ""
 
@@ -524,6 +529,7 @@ def traverse_faculty_folder(traverse_xml, username):
     matches = []
     for child in traverse_xml.findall('.//system-page'):
         try:
+            # Author check
             authors = child.find('author')
             if authors is not None:
                 dict_of_authors = authors.text.split(", ")
@@ -540,8 +546,9 @@ def traverse_faculty_folder(traverse_xml, username):
                     matches.append(page_values)
                     continue
         finally:
+            # Cascade Group check
             for md in child.findall("dynamic-metadata"):
-                if md.find('name').text == 'department' and md.find('value') is not None:
+                if (md.find('name').text == 'department' or md.find('name').text == 'seminary-program') and md.find('value') is not None:
                     for allowedGroup in allowed_groups:
 
                         if allowedGroup == get_web_author_group(md.find('value').text):

@@ -18,6 +18,7 @@ faculty_bio_blueprint = Blueprint('faculty-bio', __name__, template_folder='temp
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
     username = session['username']
+
     # index page for adding events and things
     forms = get_faculty_bios_for_user(username)
     # return forms
