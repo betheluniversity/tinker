@@ -20,6 +20,9 @@ def faculty_bio_home():
     username = session['username']
     # index page for adding events and things
     forms = get_faculty_bios_for_user(username)
+
+    show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']
+
     # return forms
     return render_template('faculty-bio-home.html', **locals())
 

@@ -22,7 +22,10 @@ def init_user():
 
     dev = current_app.config['ENVIRON'] != 'prod'
 
-    if dev or 'username' not in session.keys():
+    if dev:
+        session.clear()
+
+    if 'username' not in session.keys():
         get_user()
 
     if 'groups' not in session.keys():
