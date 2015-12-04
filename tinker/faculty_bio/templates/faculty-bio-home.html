@@ -21,7 +21,7 @@
 <div class="row">
 
   <div class="large-12 columns">
-    {% if forms|length == 0 %}
+    {% if show_create %}
       <a href="/faculty-bio/edit/new#page-title" class="small button success">Create New Bio</a>
     {% endif %}
    {% for form in forms%}
