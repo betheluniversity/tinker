@@ -12,6 +12,9 @@ app.config.from_object('config')
 db = SQLAlchemy(app)
 cors = CORS(app)
 
+from raven.contrib.flask import Sentry
+sentry = Sentry(app, dsn=app.config['SENTRY_URL'])
+
 from tinker.redirects import models
 from tinker import tools
 
@@ -25,14 +28,6 @@ if not app.debug:
     file_handler = FileHandler(app.config['INSTALL_LOCATION'] + '/error.log')
     file_handler.setLevel(logging.WARNING)
     app.logger.addHandler(file_handler)
-
-if not app.debug and app.config['ENVIRON'] is not 'test':
-    from logging.handlers import SMTPHandler
-    mail_handler = SMTPHandler('127.0.0.1',
-                               'tinker@bethel.edu',
-                               app.config['ADMINS'], 'That was an unqualified, failure.')
-    mail_handler.setLevel(logging.ERROR)
-    app.logger.addHandler(mail_handler)
 
 # Import routes
 import views
