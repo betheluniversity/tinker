@@ -32,7 +32,8 @@ def faculty_bio_home():
 def delete_page(page_id):
     # send to this workflow instead: 7747ea478c5865130c130b3a1a05240e
     delete(page_id, workflow="7747ea478c5865130c130b3a1a05240e")
-
+    # Todo: also publish out the faculty listing pages.
+    publish_faculty_bio_xml()
     return redirect('/faculty-bio/delete-confirm', code=302)
 
 
