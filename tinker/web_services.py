@@ -23,7 +23,7 @@ def email_tinker_admins(response):
 
 
 def delete(page_id, workflow=None):
-
+    unpublish(page_id, 'page')
     client = get_client()
 
     time.sleep(5.5)
