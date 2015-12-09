@@ -17,3 +17,5 @@ arrow
 feedformatter
 feedparser
 createsend
+raven
+raven[flask]
