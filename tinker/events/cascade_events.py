@@ -11,6 +11,7 @@ from tinker import app
 from tinker.cascade_tools import *
 from tinker.tools import *
 
+
 # just duplicate a bunch for now
 def string_to_datetime(date_str):
 
@@ -145,7 +146,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
     }
 
     # put it all into the final asset with the rest of the SOAP structure
-    hide_site_nav, parentFolderPath = get_event_folder_path(add_data)
+    hide_site_nav, parent_folder_path = get_event_folder_path(add_data)
 
     # create the dynamic metadata dict
     dynamic_fields = {
@@ -171,7 +172,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
         'page': {
             'name': add_data['system_name'],
             'siteId': app.config['SITE_ID'],
-            'parentFolderPath': parentFolderPath,
+            'parentFolderPath': parent_folder_path,
             'metadataSetPath': "/Event",
             'contentTypePath': "Event",
             'configurationSetPath': "Old/Event",
@@ -223,19 +224,19 @@ def create(asset):
 
 def create_event_folder(folder_path):
     if folder_path[0] == "/":
-        folder_path = folder_path[1:] ## removes the extra "/"
+        folder_path = folder_path[1:]  # removes the extra "/"
 
     old_folder_asset = read("/" + folder_path, "folder")
 
     if 'success = "false"' in str(old_folder_asset):
 
-        array = folder_path.rsplit("/",1)
-        parentPath = array[0]
+        array = folder_path.rsplit("/", 1)
+        parent_path = array[0]
         name = array[1]
 
         asset = {
             'folder': {
-                'metadata':{
+                'metadata': {
                     'title': name,
                     'dynamicFields': {
                         'dynamicField': read_events_base_asset()
@@ -243,7 +244,7 @@ def create_event_folder(folder_path):
                 },
                 'metadataSetPath': "Basic",
                 'name': name,
-                'parentFolderPath': parentPath,
+                'parentFolderPath': parent_path,
                 'siteName': "Public"
             }
         }
@@ -267,18 +268,18 @@ def read_events_base_asset():
 
     asset = base_asset.asset.folder.metadata.dynamicFields.dynamicField
 
-    ## if there is no metadata, exit
-    if len( asset) == 0:
+    # if there is no metadata, exit
+    if len(asset) == 0:
         return None
 
     dynamic_metadata = []
     for field in asset:
-        ## Builds the value string of 1 value
+        # Builds the value string of 1 value
         field_value = None
         if field.fieldValues[0][0].value is not None:
             field_value = str(field.fieldValues[0][0].value)
 
-        ## create the dynamic metadata with values
+        # create the dynamic metadata with values
         dynamic_metadata.append(
             {
                 'name': str(field.name),
@@ -313,7 +314,6 @@ def traverse_event_folder(traverse_xml, username):
             # This is a match, add it to array
             matches.append(page_values)
         return matches
-
 
     matches = []
     for child in traverse_xml.findall('.//system-page'):
@@ -423,7 +423,6 @@ def get_forms_for_event_approver():
             }
             # This is a match, add it to array
             matches.append(page_values)
-
 
     matches = sorted(matches, key=itemgetter('title'), reverse=False)
     return matches
