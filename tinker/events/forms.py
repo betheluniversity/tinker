@@ -190,5 +190,3 @@ class EventForm(Form):
     seminary_program = SelectMultipleField('Seminary programs', default=['None'], choices=seminary_program_choices, validators=[DataRequired()])
     graduate_program = SelectMultipleField('GS Programs', default=['None'], choices=graduate_program, validators=[DataRequired()])
     internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices, validators=[DataRequired()])
-
-

@@ -88,7 +88,7 @@ def validate_username(form, field):
     username = field.data
     host = "http://wsapi.bethel.edu"
     path = "/username/" + username + "/roles?TIMESTAMP="+str(int(time()))+"&ACCOUNT_ID=tinker"
-    sig=hmac.new(app.config['WSAPI_SECRET'], path, hashlib.sha1 ).hexdigest()
+    sig = hmac.new(app.config['WSAPI_SECRET'], path, hashlib.sha1).hexdigest()
     req = requests.get(host+path, headers={'X-Auth-Signature': sig})
 
     content = req.content
@@ -143,7 +143,6 @@ class FacultyBioForm(Form):
 
     website = TextField('Professional website or blog')
 
-
     # Manually override validate, in order to check the 3 headers below
     def validate(self):
         if not Form.validate(self):
@@ -156,7 +155,7 @@ class FacultyBioForm(Form):
                 result = False
         elif self.heading.data == "Research interests":
             if self.research_interests.data == "":
-                self.research_interests.append('Research interests is required.')
+                self.research_interests.errors.append('Research interests is required.')
                 result = False
         elif self.heading.data == "Teaching speciality":
             if self.teaching_specialty.data == "":

@@ -62,7 +62,6 @@ def read_page():
         # }
     }
 
-
     auth = app.config['CASCADE_LOGIN']
     response = client.service.read(auth, identifier)
 
@@ -129,7 +128,6 @@ def edit_event_page(event_id):
     form = EventForm(**edit_data)
     form.event_id = event_id
 
-
     # convert dates to json so we can use Javascript to create custom DateTime fields on the form
     dates = fjson.dumps(dates)
 
@@ -187,7 +185,6 @@ def duplicate_event_page(event_id):
     # Create an EventForm object with our data
     form = EventForm(**edit_data)
     form.event_id = event_id
-
 
     # convert dates to json so we can use Javascript to create custom DateTime fields on the form
     dates = fjson.dumps(dates)

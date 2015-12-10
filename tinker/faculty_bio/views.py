@@ -216,7 +216,6 @@ def submit_faculty_bio_form():
         image_name = add_data['system_name'] + '.jpg'
         image_path = secure_filename(image_name)
 
-
         form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
 
         add_data['image_name'] = image_name
@@ -303,7 +302,7 @@ def check_job_titles(form):
         lead_faculty_l = 'lead-faculty' + i
         job_title_l = 'new-job-title' + i
 
-        ## Todo: clean this up and put it in a nice function.
+        # Todo: clean this up and put it in a nice function.
 
         try:
             school = form[school_l]

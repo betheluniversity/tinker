@@ -29,7 +29,7 @@ def show():
     sync_faculty_bio_data_definition(app.config['DATA_DEF_PROGRAM_FEED_ID'])
     sync_faculty_bio_data_definition(app.config['DATA_DEF_PROGRAM_BLOCK_ID'])
 
-    ## pass on the current values.
+    # pass on the current values.
     school = data_to_add['school']
     undergrad_programs = data_to_add['department']
     adult_undergrad_programs = data_to_add['adult-undergrad-program']

@@ -11,6 +11,7 @@ from tinker.tools import *
 from tinker.cascade_tools import *
 from tinker import app
 
+
 def get_expertise(add_data):
     heading = add_data['heading']
     areas = add_data['areas']
@@ -279,7 +280,6 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         image_name = add_data['image_url'].split('/')[-1]
         image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
 
-
     # Create a list of all the data nodes
     structured_data = [
         structured_data_node("first", add_data['first']),
@@ -473,7 +473,6 @@ def get_web_author_group(department_metadata):
 
 def create_faculty_bio(asset):
 
-
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
 
@@ -486,7 +485,6 @@ def create_faculty_bio(asset):
     publish_faculty_bio_xml()
 
     return response
-
 
 
 def get_faculty_bios_for_user(username):
@@ -546,7 +544,7 @@ def traverse_faculty_folder(traverse_xml, username):
                     matches.append(page_values)
                     continue
         finally:
-            # Cascade Group check
+            # Cascade Group check - by
             for md in child.findall("dynamic-metadata"):
                 if (md.find('name').text == 'department' or md.find('name').text == 'seminary-program') and md.find('value') is not None:
                     for allowedGroup in allowed_groups:
@@ -562,7 +560,50 @@ def traverse_faculty_folder(traverse_xml, username):
                             }
                             matches.append(page_values)
                             break
+
+                page_values = group_check(child, allowed_groups)
+                if page_values:
+                    matches.append(page_values)
+                    break
+    print len(matches)
     return matches
+
+
+def group_check(child, allowed_groups):
+    for allowedGroup in allowed_groups:
+        if allowedGroup == 'parlau':
+            schools_to_check = ['College of Arts and Sciences']
+        elif allowedGroup == 'Faculty Approver - CAPS GS':
+            schools_to_check = ['College of Adult and Professional Studies', 'Graduate School']
+        elif allowedGroup == 'Faculty Approver - Seminary':
+            schools_to_check = ['Bethel Seminary']
+        else:
+            continue
+
+        school_check = child.find('system-data-structure/job-titles/school')
+        # new job titles
+        if child.find('system-data-structure/job-titles/school') is not None and school_check.text in schools_to_check:
+            page_values = {
+                'author': child.find('author') or None,
+                'id': child.attrib['id'] or "",
+                'title': child.find('title').text or None,
+                'created-on': child.find('created-on').text or None,
+                'path': 'https://www.bethel.edu' + child.find('path').text or "",
+            }
+            return page_values
+        else:  # old job titles -- delete someday
+            for md in child.find('dynamic-metadata'):
+                if md.find('name') is not None and md.find('name').text == 'school':
+                    if md.find('value').text in schools_to_check:
+                        page_values = {
+                            'author': child.find('author') or None,
+                            'id': child.attrib['id'] or "",
+                            'title': child.find('title').text or None,
+                            'created-on': child.find('created-on').text or None,
+                            'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                        }
+                        return page_values
+    return False
 
 
 def get_add_data(lists, form):
@@ -618,6 +659,7 @@ def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, school=
     }
 
     return workflow
+
 
 # Todo: remove this.
 # This function is no longer used, as all bios go through a workflow.
