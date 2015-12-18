@@ -1,5 +1,5 @@
-#escape tool
-from xml.sax.saxutils import escape
+from tinker import app
+import base64
 
 def dynamic_field(name, values):
 
@@ -11,19 +11,19 @@ def dynamic_field(name, values):
         'fieldValues': {
             'fieldValue': values_list,
         },
-    },
+    }
 
     return node
 
 
-def structured_data_node(id, text, node_type=None):
+def structured_data_node(node_id, text, node_type=None):
 
     if not node_type:
         node_type = "text"
 
     node = {
 
-        'identifier': id,
+        'identifier': node_id,
         'text': text,
         'type': node_type,
     }
@@ -31,32 +31,30 @@ def structured_data_node(id, text, node_type=None):
     return node
 
 
-def structured_file_data_node(id, path, assetType="file"):
-
-    if not assetType == "file":
-        assetType="file"
+def structured_file_data_node(node_id, path, asset_type="file"):
 
     node = {
-        'identifier': id,
+        'identifier': node_id,
         'filePath': path,
-        'assetType': assetType,
+        'assetType': asset_type,
         'type': "asset"
     }
     return node
 
 
-## Excape content so its Cascade WYSIWYG friendly
-## There are a few edge cases for sybmols it doesn't like.
+# Excape content so its Cascade WYSIWYG friendly
+# There are a few edge cases for sybmols it doesn't like.
 def escape_wysiwyg_content(content):
+    if content:
+        uni = HTMLEntitiesToUnicode(content)
+        htmlent = unicodeToHTMLEntities(uni)
+        return htmlent
+    else:
+        return None
 
-    uni = HTMLEntitiesToUnicode(content)
-    htmlent = unicodeToHTMLEntities(uni)
-    return htmlent
-    #return escape(htmlent)
 
-
-#from:
-#http://stackoverflow.com/questions/701704/convert-html-entities-to-unicode-and-vice-versa
+# from:
+# http://stackoverflow.com/questions/701704/convert-html-entities-to-unicode-and-vice-versa
 from BeautifulSoup import BeautifulStoneSoup
 import cgi
 

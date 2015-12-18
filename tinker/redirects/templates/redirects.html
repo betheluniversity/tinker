@@ -7,12 +7,6 @@
 {% block row_width %}12{% endblock %}
 
 {% block main_content %}
-<div class="row">
-  <div class="large-12 columns">
-    Info about redirects here?
-  </div>
-</div>
-<hr/>
 <form action="." id="new-redirect-form">
   <div class="row">
     <div class="large-6 columns">
@@ -21,8 +15,20 @@
       </label>
     </div>
     <div class="large-6 columns">
-      <label>to URL
+      <label>To URL
         <input type="text" name="new-redirect-to" id="new-redirect-to" />
+      </label>
+    </div>
+  </div>
+  <div class="row">
+    <div class="large-6 columns">
+      <label> Expiration Date.
+          <input type="text" name="expiration-date" id="expiration-date" class="datepicker">
+      </label>
+    </div>
+    <div class="large-6 columns">
+      <label> Short URL
+          <input type="checkbox" name="short-url" id="short-url" />
       </label>
     </div>
   </div>
@@ -38,6 +44,7 @@
         <tr>
           <th width="400">From Path</th>
           <th width="400">To URL</th>
+          <th width="400">Expiration Date</th>
         </tr>
       </thead>
       <tbody id="redirects-table">
@@ -81,22 +88,34 @@ var delay = (function(){
     $("#redirect-add").show();
   }
 
-  function loadTableForSearch(from_path){
-    var from_path = {"from_path": from_path};
+  function loadTableForSearch(search_value, type){
+    // type needs to be either 'from_path' or 'to_url'
+    var search = {'type': type, 'search': search_value};
     var url = "/redirect/search";
-     $.post(url, from_path, function(data) {
+     $.post(url, search, function(data) {
         updateTable(data);
       });
   }
 
+  $('#new-redirect-to').keyup(function() {
+    var input = $(this);
+    input.val(input.val().replace(/ /g,''));
+    var value = input.val();
+{#    delay(function(){#}
+{#      loadTableForSearch(value, 'to_url');#}
+{#    }, 300 );#}
+  });
+
   $('#new-redirect-from').keyup(function() {
-    var value = $(this).val();
+    var input = $(this);
+    input.val(input.val().replace(/ /g,''));
+    var value = input.val();
     if (value[0] != '/' && value.length > 0) {
-      $(this).val("/" + value);
-      value = $(this).val();
+      input.val("/" + value);
+      value = input.val();
     }
     delay(function(){
-      loadTableForSearch(value);
+      loadTableForSearch(value, 'from_path');
     }, 300 );
   });
 
@@ -110,24 +129,26 @@ var delay = (function(){
     input.attr('class', 'button postfix');
 {#    input.attr('style', 'display:none');#}
     input.click(function (event) {
+      document.getElementById('redirect-add').disabled = true;
         // when 'save' is clicked, gather the field mappings and send those
         // to the wufoo-silva app for storage
       var fieldMappings = $(this.form).serializeArray(),
               url = '/redirect/new-submit';
+
       $.post(url, fieldMappings, function(data) {
-          loadTableForSearch($("#new-redirect-from").val());
+          loadTableForSearch($("#new-redirect-from").val(), 'from_path');
+          document.getElementById('redirect-add').disabled = false;
       });
 
     });
     $("#form-save-button").append(input);
 
     $("#modal-confirm").click(function(){
-      debugger;
       var from_path = {"from_path": $(this).attr('data-delete-path')};
       var url = '/redirect/delete';
       $.post(url, from_path, function(data) {
         if (data){
-          loadTableForSearch($("#new-redirect-from").val());
+          loadTableForSearch($("#new-redirect-from").val(), 'from_path');
           $("#confirmModal").foundation('reveal', 'close');
         }
       });
@@ -146,4 +167,17 @@ var delay = (function(){
   <a class="close-reveal-modal">&#215;</a>
 </div>
 
+{% endblock %}
+
+
+{% block scripts %}
+<link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+<script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+<script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+<script>
+$( document ).ready(function() {
+  var picker = new Pikaday({
+          field: document.getElementById('expiration-date')});
+});
+</script>
 {% endblock %}

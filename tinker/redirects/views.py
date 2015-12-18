@@ -1,26 +1,36 @@
 __author__ = 'ejc84332'
 
-#python
+# python
 import re
 import smtplib
+import datetime
 
-from flask import Blueprint, render_template, abort, request, redirect
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask import Session
+# flask
+from flask import Blueprint, render_template, abort, request
 from BeautifulSoup import BeautifulSoup
 
+# tinker
 from tinker import app, db, tools
-
 from tinker.redirects.models import BethelRedirect
 
-redirect_blueprint = Blueprint('redirect_blueprint', __name__,
-                               template_folder='templates')
+redirect_blueprint = Blueprint('redirect_blueprint', __name__, template_folder='templates')
 
 
 def check_redirect_groups():
     groups = tools.get_groups_for_user()
     if 'Tinker Redirects' not in groups:
         abort(403)
+
+
+@redirect_blueprint.route('/expire')
+def delete_expired_redirects():
+    today = datetime.datetime.utcnow()
+    redirects = BethelRedirect.query.filter(BethelRedirect.expiration_date < today).all()
+    for redirect in redirects:
+        db.session.delete(redirect)
+    db.session.commit()
+    create_redirect_text_file()
+    return 'done'
 
 
 @redirect_blueprint.route('/')
@@ -34,39 +44,58 @@ def show():
 @redirect_blueprint.route('/search', methods=['post'])
 def search():
     check_redirect_groups()
-    #todo: limit results to...100?
-    from_path = request.form['from_path'] + "%"
+    # todo: limit results to...100?
+    search_type = request.form['type']
+    search_query = request.form['search'] + "%"
 
-    if from_path == "%":
+    if search == "%" or search_type not in ['from_path', 'to_url']:
         return ""
 
-    redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(from_path)).limit(100).all()
+    if search_type == 'from_path':
+        redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
+    else:
+        redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
     redirects.sort()
     return render_template('redirect-ajax.html', **locals())
 
 
 @redirect_blueprint.route('/new-submit', methods=['post'])
-def new_redirect_submti():
+def new_redirect_submit():
     check_redirect_groups()
     form = request.form
     from_path = form['new-redirect-from']
     to_url = form['new-redirect-to']
+    short_url = form.get('short-url') == 'on'
+    expiration_date = form.get('expiration-date')
+
+    if expiration_date:
+        expiration_date = datetime.datetime.strptime(expiration_date, "%a %b %d %Y")
+    else:
+        expiration_date = None
 
     if not from_path.startswith("/"):
-        from_path = "/" + from_path
+        from_path = "/%s" % from_path
 
-    redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+    try:
+        redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url, expiration_date=expiration_date)
 
-    db.session.add(redirect)
-    db.session.commit()
+        db.session.add(redirect)
+        db.session.commit()
 
-    ##Update the file after every submit?
-    create_redirect_text_file()
+        # Update the file after every submit?
+        create_redirect_text_file()
+    except:
+        # Currently we are unable to track down why multiple redirects are being created. This causes this error:
+        # (IntegrityError) column from_path is not unique u'INSERT INTO bethel_redirect (from_path, to_url, short_url, expiration_date)
+        # Our work around is to just ignore the issue.
+        # hopefully this will catch the error.
+        db.session.rollback()
+        return ""
 
     return str(redirect)
 
 
-@redirect_blueprint.route('/api-submit', methods=['get', 'post'])
+@redirect_blueprint.route('/public/api-submit', methods=['get', 'post'])
 def new_api_submit():
     body = request.form['body']
 
@@ -85,18 +114,83 @@ def new_api_submit():
                 db.session.add(redirect)
                 db.session.commit()
         except:
-            message = "redirect from %s to %s already exists" % (from_url, to_url)
-            sender = 'tinker@bethel.edu'
-            receivers = ['e-jameson@bethel.edu', 'a-vennerstrom@bethel.edu']
-
-            smtpObj = smtplib.SMTP('localhost')
-            smtpObj.sendmail(sender, receivers, message)
-            print "Successfully sent email"
+            # message = "redirect from %s to %s already exists" % (from_url, to_url)
+            # sender = 'tinker@bethel.edu'
+            # receivers = ['e-jameson@bethel.edu', 'a-vennerstrom@bethel.edu', 'ces55739@bethel.edu']
+            #
+            # smtp_obj = smtplib.SMTP('localhost')
+            # smtp_obj.sendmail(sender, receivers, message)
+            # print "Successfully sent email"
             db.session.rollback()
-            return "sent email notice"
+            # return "sent email notice"
 
     if redirect:
         create_redirect_text_file()
+    return str(redirect)
+
+
+@redirect_blueprint.route('/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
+def new_internal_redirect_submit(from_path, to_url):
+    # added logic to have Tinker be able to internally create a redirect
+    check_redirect_groups()
+
+    if not from_path.startswith("/"):
+        from_path = "/%s" % from_path
+
+    # if one from the current from exists, remove it.
+    try:
+        redirect = BethelRedirect.query.get(from_path)
+        db.session.delete(redirect)
+        db.session.commit()
+        resp = create_redirect_text_file()
+        app.logger.warn(": Correctly deleted if necessary")
+    except:
+        print "no deletion was made"
+
+    # create the redirect
+    try:
+        redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+        db.session.add(redirect)
+        db.session.commit()
+        print "Successfully created a internal redirect"
+        app.logger.warn(": Correctly created a new one")
+    except:
+        db.session.rollback()
+
+    # Update the file after every submit?
+    create_redirect_text_file()
+
+    app.logger.warn(": Correctly finished")
+    return str(redirect)
+
+
+@redirect_blueprint.route('/public/api-submit-asset-expiration', methods=['get', 'post'])
+def new_api_submit_asset_expiration():
+    subject = request.form['subject']
+    soup = BeautifulSoup(subject)
+    all_text = ''.join(soup.findAll(text=True))
+
+    try:
+        lines = all_text.split("Asset expiration notice for Public:")
+        from_path = "/" + lines[1].lstrip().rstrip()
+        to_url = "https://www.bethel.edu/employment/openings/postings/job-closed"
+        redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+        db.session.add(redirect)
+        db.session.commit()
+    except:
+        message = "redirect from %s to %s already exists" % (from_path, to_url)
+        sender = 'tinker@bethel.edu'
+        receivers = ['ces55739@bethel.edu']
+
+        smtp_obj = smtplib.SMTP('localhost')
+        smtp_obj.sendmail(sender, receivers, message)
+        print "Successfully sent email"
+        db.session.rollback()
+        return "sent email notice"
+
+    if redirect:
+        create_redirect_text_file()
+
     return str(redirect)
 
 
@@ -104,8 +198,6 @@ def new_api_submit():
 def delete_redirect():
     check_redirect_groups()
     path = request.form['from_path']
-
-    resp = str(path)
 
     try:
         redirect = BethelRedirect.query.get(path)

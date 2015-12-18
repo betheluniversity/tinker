@@ -1,0 +1,18 @@
+{% set counter = 1 %}
+{% for result in results %}
+    <tr>
+        <td>
+            {{ result.type }}
+        </td>
+        <td>
+            <a href="https://cms.bethel.edu/entity/open.act?id={{ result.id }}&type={{ result.type }}">/{{ result.path.path }}</a>
+        </td>
+        <td>
+            <button class="publishButton" onclick="publishAsset('{{ result.type }}', '{{ result.id }}', '{{ counter }}');">Publish</button>
+        </td>
+        <td id="publish_button_{{ counter }}"></td>
+{#        <td><button class='more-info' id='more-info-{{ result.id }}' onclick="moreInfo('{{ result.type }}', '{{ result.id }}')">More Info</button></td>#}
+        <td><button onclick="moreInfo('{{ result.type }}', '{{ result.id }}')" data-reveal-id="dialog" id="more-info-{{ result.id }}" data-publish-id="{{ result.id }}" data-publish-type="{{ result.type }}" class="more-info">More Info</button></td>
+    </tr>
+    {% set counter = counter + 1 %}
+{% endfor %}

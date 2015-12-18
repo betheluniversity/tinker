@@ -15,3 +15,11 @@ upgrade.txt
 .idea/misc.xml
 
 .idea/misc.xml
+
+db_repository/versions/002_migration.py
+
+db_repository/versions/003_migration.py
+
+redirects.txt.back
+
+tinker/.DS_Store

@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block page_title %}
-  {% if add_form %}
+  {% if new_form %}
     Add a new E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
   {% else %}
     Edit your E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
@@ -22,10 +22,10 @@
 {% block main_content %}
   <div class="row">
   <div class="large-12 columns">
-    {% if add_form %}
-      <form id="eannouncementform" action="/e-announcements/submit" method="post">
+    {% if new_form %}
+      <form id="eannouncementform" action="/e-announcement/submit" method="post">
     {% else %}
-      <form id="eannouncementform" action="/e-announcements/submit-edit" method="post">
+      <form id="eannouncementform" action="/e-announcement/submit-edit" method="post">
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
         {% if form.errors %}
@@ -66,9 +66,32 @@
             <h3>{{ field.label }}</h3>
 
           {% elif field.type == "CKEditorTextAreaField" %}
-
+            <p id="ckeditor_current_count" style="font-size: 20px">Words: 0</p>
             {{ field(class="ckeditor") }}
+            <script>
+                $( document ).ready(function() {
+                    function loadCount(){
+                        checkCount()
+                        $(".cke_contents").children("iframe").contents().find("body").keyup(function() {
+                            checkCount();
+                        });
+                    };
 
+                    function checkCount(){
+                        var count = $(".cke_contents").children("iframe").contents().find("body").text().split(' ').length;
+
+                        if( count > 200) {
+                            $('#ckeditor_current_count').text("Words: " + count + ". Please reduce your word count before submitting.");
+                            $('#ckeditor_current_count').css("color", "#f04124");
+                        } else {
+                            $('#ckeditor_current_count').text("Words: " + count);
+                            $('#ckeditor_current_count').css("color", "#000000");
+                        }
+                    };
+
+                    setTimeout(loadCount, 500);
+                });
+            </script>
 
           {% elif field.type == "DateField" %}
                 {{ field(class="datepicker") }}
@@ -103,7 +126,7 @@
               var picker = new Pikaday({
                 field: this,
                 disabledDaysOfWeek: [0,2,4,6],
-                format: 'MM-DD-YYYY',
+                format: 'MM-DD-YYYY'
               });
             });
           });

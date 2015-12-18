@@ -5,7 +5,6 @@ from xml.etree import ElementTree as ET
 
 #local
 from tinker.web_services import *
-from tinker import app
 from tinker.cascade_tools import *
 
 
@@ -29,21 +28,30 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
         try:
             author = child.find('author').text
 
-            first = child.find('system-data-structure/first-date').text
-            second = child.find('system-data-structure/second-date').text
-            firstDate = datetime.datetime.strptime(first, '%m-%d-%Y').strftime('%A %B %d, %Y')
-            secondDate = datetime.datetime.strptime(second, '%m-%d-%Y').strftime('%A %B %d, %Y')
-
-            dates_str = firstDate + "<br/>" + secondDate
-
             if (author is not None and username == author) or username == "get_all":
+                first = child.find('system-data-structure/first-date').text
+                second = child.find('system-data-structure/second-date').text
+                first_date = datetime.datetime.strptime(first, '%m-%d-%Y').strftime('%A %B %d, %Y')
+                second_date = ''
+                if second:
+                    second_date = datetime.datetime.strptime(second, '%m-%d-%Y').strftime('%A %B %d, %Y')
+
+                roles = []
+                values = child.find('dynamic-metadata')
+                for value in values:
+                    if value.tag == 'value':
+                        roles.append(value.text)
+
                 page_values = {
                     'author': child.find('author').text,
                     'id': child.attrib['id'] or "",
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
                     'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                    'dates': dates_str,
+                    'first_date': first_date,
+                    'second_date': second_date,
+                    'message': child.find('system-data-structure/message/p').text,
+                    'roles': roles
                 }
                 ## This is a match, add it to array
                 matches.append(page_values)
@@ -102,7 +110,6 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
     }
 
     parentFolder = get_e_announcement_parent_folder(add_data['first'])
-
     asset = {
         'page': {
             'name': add_data['system_name'],
@@ -110,7 +117,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
             'parentFolderPath': parentFolder,
             'metadataSetPath': "/Targeted",
             'contentTypePath': "E-Announcement",
-            'configurationSetPath': "E-Announcement",
+            'configurationSetPath': "Flex-ONE",
             'structuredData': structured_data,
             'metadata': {
                 'title': add_data['title'],
@@ -123,18 +130,64 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
 
     if e_announcement_id:
         asset['page']['id'] = e_announcement_id
+        resp = move(e_announcement_id, parentFolder)
 
     return asset
 
 
-## If no folder exists, create one.
+#if no folder exists, create one.
+#this will automatically move the page if the first_date changes.
 def get_e_announcement_parent_folder(date):
     ## break the date into Year/month
     splitDate = date.split("-")
     month = convert_month_num_to_name(splitDate[0])
     year = splitDate[2]
 
+    #check if the folders exist
+    create_e_announcements_folder("e-announcements/" + year)
+    create_e_announcements_folder("e-announcements/" + year + "/" + month)
+
     return "e-announcements/" + year + "/" + month
+
+
+def create_e_announcements_folder(folder_path):
+    if folder_path[0] == "/":
+        folder_path = folder_path[1:] #removes the extra "/"
+
+    old_folder_asset = read("/" + folder_path, "folder")
+
+    if old_folder_asset['success'] == 'false':
+
+        array = folder_path.rsplit("/",1)
+        parentPath = array[0]
+        name = array[1]
+
+        asset = {
+            'folder': {
+                'metadata':{
+                    'title': name
+                },
+                'metadataSetPath': "Basic",
+                'name': name,
+                'parentFolderPath': parentPath,
+                'siteName': "Public"
+            }
+        }
+
+        auth = app.config['CASCADE_LOGIN']
+        client = get_client()
+
+        username = session['username']
+
+        response = client.service.create(auth, asset)
+        app.logger.warn(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
+        return True
+    return False
+
+
+def move_e_announcement(id, path):
+    resp = move(id, path)
+    return resp
 
 
 def create_e_announcement(asset):
@@ -179,12 +232,13 @@ def convert_month_num_to_name(month_num):
 
 def get_e_announcement_publish_workflow(title="", username=""):
 
-    name = "New E-announcement Submission"
-    if title:
-        name += ": " + title
-    workflow = {
-        "workflowName": name,
-        "workflowDefinitionId": "aae9f9678c5865130c130b3a0d785704",
-        "workflowComments": "Send e-announcement for approval"
-    }
+    # name = "New E-announcement Submission"
+    # if title:
+    #     name += ": " + title
+    # workflow = {
+    #     "workflowName": name,
+    #     "workflowDefinitionId": "aae9f9678c5865130c130b3a0d785704",
+    #     "workflowComments": "Send e-announcement for approval"
+    # }
+    workflow = None
     return workflow

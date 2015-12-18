@@ -1,8 +1,10 @@
 Flask
+gunicorn
 Flask-Cache
 Flask-Foundation
 Flask-Script
 Flask-WTF
+flask-hmacauth
 suds
 simplejson
 --allow-external WTForms
@@ -12,3 +14,8 @@ SQLAlchemy-migrate
 BeautifulSoup
 Flask-Cors
 arrow
+feedformatter
+feedparser
+createsend
+raven
+raven[flask]

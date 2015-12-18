@@ -1,0 +1,129 @@
+{% extends "tinker-base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block styles %}
+  <style type="text/css">
+  </style>
+{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+<p>Blocks that are published publish out each page in the relationships tab.</p>
+<p>Use *'s to assist in broadening searches. For example, "ban*" will search for "ban", "banner", "bank", etc.</p>
+
+<div id="dialog" class="reveal-modal" data-reveal>
+    <p class='dialog-text'>. . . Loading . . .</p>
+    <a class="close-reveal-modal">&#215;</a>
+</div>
+
+<form action="." id="publish-search-form">
+  <div class="row">
+
+    <div class="large-6 columns">
+      <label>Search by Name
+        <input type="text" class="publish-search" name="publish-search-by-name" id="publish-search-by-name"/>
+      </label>
+    </div>
+    <div class="large-6 columns">
+      <label>Search by Content
+        <input type="text" class="publish-search" name="publish-search-by-content" id="publish-search-by-content"/>
+      </label>
+    </div>
+
+  </div>
+    <div class="row">
+
+    <div class="large-6 columns">
+      <label>Search by Metadata
+        <input type="text" class="publish-search" name="publish-search-by-metadata" id="publish-search-by-metadata"/>
+      </label>
+    </div>
+    <div class="large-6 columns">
+      <label>Publish to:
+          <br />
+        <input type="radio" name="publish-to" value="staging" checked> Staging<br />
+        <input type="radio" name="publish-to" value="production"> Production<br />
+        <input type="radio" name="publish-to" value="all"> All<br />
+      </label>
+    </div>
+
+    </div>
+</form>
+
+<div class="row">
+  <div class="large-12 columns">
+    <table>
+      <thead>
+        <tr>
+          <th width="200">Page Type</th>
+          <th width="600">Page URL</th>
+          <th width="200">Publish</th>
+          <th width="400">Messages</th>
+          <th width="200">More info</th>
+        </tr>
+      </thead>
+      <tbody id="publish-table">
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+var delay = (function(){
+  var timer = 0;
+  return function(callback, ms){
+    clearTimeout (timer);
+    timer = setTimeout(callback, ms);
+  };
+})();
+
+  function updateTable(data){
+      // Todo if no data exists, display message
+      $("#publish-table").html(data);
+
+  }
+
+
+  function loadTableForSearch(name_value, content_value, metadata_value){
+    var search = {'name': name_value, 'content': content_value, 'metadata': metadata_value};
+    var url = "/publish/search";
+     $.post(url, search, function(data) {
+        updateTable(data);
+      });
+  }
+
+  $('.publish-search').keyup(function() {
+      var name = $('#publish-search-by-name').val();
+      var content = $('#publish-search-by-content').val();
+      var metadata = $('#publish-search-by-metadata').val();
+      delay(function(){
+        loadTableForSearch(name, content, metadata);
+      }, 300 );
+  });
+
+  function publishAsset(type, id, counter){
+      var destination = $('input[name=publish-to]:checked', '#publish-search-form').val();
+      var url = "/publish/publish/" + destination + "/" + type + "/" + id;
+     $.post(url, function(data) {
+         $("#publish_button_" + counter).text(data);
+      });
+  }
+
+    function moreInfo(type, id){
+         var input_data = {'type': type, 'id': id};
+         var url = "/publish/more_info";
+         $.post(url, input_data, function(data) {
+             $('.dialog-text').html(data);
+          });
+      }
+
+    $(".close-reveal-modal").click(function(){
+        $('.dialog-text').html(". . . Loading . . .");
+    });
+</script>
+
+{% endblock %}

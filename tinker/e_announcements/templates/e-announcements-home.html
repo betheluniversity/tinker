@@ -40,7 +40,7 @@
         <div class="large-6 columns small-3">
           <ul class="button-group">
             {% if form.path != '' %}
-              <li><a href="/e-announcements/edit/{{ form.id }}" class="small button">Edit</a></li>
+              <li><a href="/e-announcement/edit/{{ form.id }}" class="small button">Edit</a></li>
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
@@ -50,7 +50,7 @@
         <hr/>
       </div>
     {% endfor %}
-      <a href="/e-announcements/edit/new" class="small button success">Create New E-Announcement</a>
+      <a href="/e-announcement/edit/new" class="small button success">Create New E-Announcement</a>
 
 
   </div>
@@ -61,7 +61,7 @@
 <div id="confirmModal" class="reveal-modal" data-reveal>
   <h2>Are you sure you want to delete?</h2>
   <p class="lead">Your E-Announcement will removed.</p>
-  <a class="modal-confirm" id="modal-confirm" href="/e-announcements/delete/formid">Delete</a>
+  <a class="modal-confirm" id="modal-confirm" href="/e-announcement/delete/formid">Delete</a>
   <a class="close-reveal-modal">&#215;</a>
 </div>
 
@@ -72,7 +72,7 @@
 {#  Script to update the modal submit to delete the correct form#}
   <script type="text/javascript">
     $(".delete-press").click(function(){
-      $("#modal-confirm").attr("href", "/e-announcements/delete/" + $(this).data('e-announcement-id'));
+      $("#modal-confirm").attr("href", "/e-announcement/delete/" + $(this).data('e-announcement-id'));
     });
   $(document).foundation();
   </script>

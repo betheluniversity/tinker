@@ -1,76 +1,107 @@
-#python
+# python
 import datetime
 import time
 import arrow
 
-#flask
+# flask
 from flask import session
 from flask import abort
 
-#modules
+# modules
 from suds.client import Client
 from suds.transport import TransportError
 
-#local
+# local
 from tinker import app
+from tinker import tools
+
+
+def email_tinker_admins(response):
+
+    if 'success = "false"' in response:
+        app.logger.error(session['username'], time.strftime("%c") + " " + str(response))
 
 
 def delete(page_id, workflow=None):
-
+    unpublish(page_id, 'page')
     client = get_client()
+
+    time.sleep(5.5)
+
+    auth = app.config['CASCADE_LOGIN']
+
+    username = session['username']
 
     identifier = {
         'id': page_id,
         'type': 'page',
     }
 
-    auth = app.config['CASCADE_LOGIN']
-
-    stat = unpublish(page_id)
-
-    #dirty. Fix later
-    time.sleep(5.5)
-
-    username = session['username']
-
     response = client.service.delete(auth, identifier)
-    app.logger.warn(time.strftime("%c") + ": Deleted by " + username + " " + str(response))
-
-    ## Publish the XMLs
-    publish_event_xml()
-    publish_faculty_bio_xml()
-
+    app.logger.warn(time.strftime("%c") + ": " + page_id + " deleted by " + username + " " + str(response))
+    email_tinker_admins(response)
     return response
 
+def get_destinations(destination):
+    # empty string means publish to all
+    if destination == '':
+        return {}
+    elif destination == 'staging.bethel.edu' or 'staging':
+        id = 'ba1381d58c586513100ee2a78fc41899'
+    elif destination == "Production bethel.edu" or 'prod':
+        id = '132207cb8c586513742d45fd62673fe4'
+    identifier = {'assetIdentifier': {
+                    'id': id,
+                    'type': 'destination',
+                    }
+                }
+    return identifier
 
-def publish(page_id, type='page'):
+
+def publish(path_or_id, type='page', destination=""):
+
+    destination = get_destinations(destination)
 
     client = get_client()
 
-    publishinformation = {
-        'identifier': {
-            'id': page_id,
-            'type': type,
-
-        },
-    }
+    if path_or_id[0] == "/":
+        publishinformation = {
+            'identifier': {
+                'type': type,
+                'path': {
+                    'path': path_or_id,
+                    'siteId': app.config['SITE_ID']
+                }
+            },
+            'destinations': destination
+        }
+    else:
+        publishinformation = {
+            'identifier': {
+                'id': path_or_id,
+                'type': type,
+            },
+            'destinations': destination
+        }
 
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.publish(auth, publishinformation)
     app.logger.warn(time.strftime("%c") + ": Published " + str(response))
 
+    email_tinker_admins(response)
+
     return response
 
 
-def unpublish(page_id):
+def unpublish(page_id, type="page"):
 
     client = get_client()
 
     publishinformation = {
         'identifier': {
             'id': page_id,
-            'type': 'page'
+            'type': type
         },
         'unpublish': True
     }
@@ -80,6 +111,8 @@ def unpublish(page_id):
     response = client.service.publish(auth, publishinformation)
     app.logger.warn(time.strftime("%c") + ": Unpublished " + str(response))
 
+    email_tinker_admins(response)
+
     return response
 
 
@@ -87,20 +120,35 @@ def read_identifier(identifier):
     client = get_client()
     auth = app.config['CASCADE_LOGIN']
     response = client.service.read(auth, identifier)
+
+    email_tinker_admins(response)
+
     return response
 
 
-def read(read_id, type="page"):
+def read(path_or_id, type="page"):
     client = get_client()
 
-    identifier = {
-        'id': read_id,
-        'type': type
-    }
+    if path_or_id[0] == "/":
+        identifier = {
+            'type': type,
+            'path': {
+                'path': path_or_id,
+                'siteId': app.config['SITE_ID']
+            }
+        }
+    else:
+        identifier = {
+            'id': path_or_id,
+            'type': type,
+        }
 
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.read(auth, identifier)
+
+    email_tinker_admins(response)
+
     return response
 
 
@@ -111,27 +159,31 @@ def edit(asset):
 
     response = client.service.edit(auth, asset)
 
+    email_tinker_admins(response)
+
     return response
 
 
-def rename(page_id, newname):
+def rename(page_id, newname, type="page"):
     """ Rename a page with page_id to have new system-name = newname """
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
 
     identifier = {
         'id': page_id,
-        'type': 'page'
+        'type': type
     }
 
-    moveParameters =  {
+    move_parameters = {
         'doWorkflow': False,
         'newName': newname
     }
 
-    response = client.service.move(auth, identifier, moveParameters)
+    response = client.service.move(auth, identifier, move_parameters)
     app.logger.warn(time.strftime("%c") + ": Renamed " + str(response))
-    ##publish the xml file so the new event shows up
+
+    email_tinker_admins(response)
+
     return response
 
 
@@ -146,23 +198,23 @@ def move(page_id, destination_path):
         'type': 'page'
     }
 
-    destFolderIdentifier = {
+    dest_folder_identifier = {
         'path': {
             'siteId': app.config['SITE_ID'],
-            'path': destination_path[1],
+            'path': destination_path,
         },
         'type': 'folder'
     }
 
-    moveParameters =  {
-        'destinationContainerIdentifier': destFolderIdentifier,
+    move_parameters = {
+        'destinationContainerIdentifier': dest_folder_identifier,
         'doWorkflow': False
     }
 
-    response = client.service.move(auth, identifier, moveParameters)
+    response = client.service.move(auth, identifier, move_parameters)
     app.logger.warn(time.strftime("%c") + ": Moved " + str(response))
-    ##publish the xml file so the new event shows up
 
+    email_tinker_admins(response)
 
     return response
 
@@ -172,10 +224,10 @@ def date_to_java_unix(date):
     return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
 
 
-def java_unix_to_date(date, format=None):
-    if not format:
-        format = "%B %d  %Y, %I:%M %p"
-    return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(format)
+def java_unix_to_date(date, date_format=None):
+    if not date_format:
+        date_format = "%B %d  %Y, %I:%M %p"
+    return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
 
 
 def string_to_datetime(date_str):
@@ -187,13 +239,15 @@ def string_to_datetime(date_str):
 
 
 def friendly_date_range(start, end):
-    start = arrow.get(start)
-    end = arrow.get(end)
+    date_format = "%B %d, %Y %I:%M %p"
 
-    if start.year == end.year and start.month == end.month and start.day == end.day:
-        return "%s - %s" % (start.format('MMM d, YYYY h:mm a'), end.format('h:mm a'))
+    start_check = arrow.get(start)
+    end_check = arrow.get(end)
+
+    if start_check.year == end_check.year and start_check.month == end_check.month and start_check.day == end_check.day:
+        return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format), datetime.datetime.fromtimestamp(int(end)).strftime("%I:%M %p"))
     else:
-        return "%s - %s" % (start.format('MMM d, YYYY h:mm a'), end.format('MMM d, YYYY h:mm a'))
+        return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format), datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
 
 
 def read_date_data_dict(node):
@@ -201,7 +255,7 @@ def read_date_data_dict(node):
     date_data = {}
     for date in node_data:
         date_data[date['identifier']] = date['text']
-    ##If there is no date, these will fail
+    # If there is no date, these will fail
     try:
         date_data['start-date'] = java_unix_to_date(date_data['start-date'])
     except TypeError:
@@ -219,7 +273,7 @@ def read_date_data_structure(node):
     date_data = {}
     for date in node_data:
         date_data[date.identifier] = date.text
-    ##If there is no date, these will fail
+    # If there is no date, these will fail
     try:
         date_data['start-date'] = java_unix_to_date(date_data['start-date'])
     except TypeError:
@@ -242,31 +296,101 @@ def get_client():
 
 def publish_event_xml():
 
-    #publish the event XML page
+    # publish the event XML page
     publish(app.config['EVENT_XML_ID'])
-
-    #clear Flask-Cache
-
-    ##with app.app_context():
-    ##    cache.clear()
 
 
 def publish_faculty_bio_xml():
 
-    #publish the event XML page
+    # publish the event XML page
     publish(app.config['FACULTY_BIO_XML_ID'])
 
-    #clear Flask-Cache
-
-    ##with app.app_context():
-    ##    cache.clear()
 
 def publish_e_announcement_xml():
 
-    #publish the event XML page
+    # publish the event XML page
     publish(app.config['E_ANNOUNCEMENTS_XML_ID'])
 
-    #clear Flask-Cache
 
-    ##with app.app_context():
-    ##    cache.clear()
+def is_asset_in_workflow(id, type="page"):
+
+    tools.get_user()
+    client = get_client()
+    identifier = {
+        'id': id,
+        'type': type,
+    }
+
+    auth = app.config['CASCADE_LOGIN']
+
+    response = client.service.readWorkflowInformation(auth, identifier)
+
+    if response.workflow is not None:
+        if str(response.workflow.currentStep) != "finish":
+            return True
+
+    return False
+
+def search(name_search="", content_search="", metadata_search=""):
+    client = get_client()
+
+    search_information = {
+        'matchType': "match-all",
+        'assetName': name_search,
+        'assetContent': content_search,
+        'assetMetadata': metadata_search,
+        'searchPages': True,
+        'searchBlocks': True,
+        'searchFiles': True,
+        'searchFolders': True,
+    }
+
+    auth = app.config['CASCADE_LOGIN']
+
+    response = client.service.search(auth, search_information)
+    # app.logger.warn(time.strftime("%c") + ": Search " + str(response))
+
+    return response
+
+
+def create_image(asset):
+    auth = app.config['CASCADE_LOGIN']
+    client = get_client()
+
+    username = session['username']
+
+    response = client.service.create(auth, asset)
+    app.logger.warn(time.strftime("%c") + ": Create image submission by " + username + " " + str(response))
+
+    # Publish
+    publish(response.createdAssetId, "file")
+
+    return response
+
+
+def list_relationships(id, type="page"):
+    auth = app.config['CASCADE_LOGIN']
+    client = get_client()
+
+    identifier = {
+        'id': id,
+        'type': type,
+    }
+
+    response = client.service.listSubscribers(auth, identifier)
+
+    return response
+
+
+def read_access_rights(id, type="page"):
+    auth = app.config['CASCADE_LOGIN']
+    client = get_client()
+
+    identifier = {
+        'id': id,
+        'type': type,
+    }
+
+    response = client.service.readAccessRights(auth, identifier)
+
+    return response

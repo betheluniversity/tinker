@@ -15,10 +15,10 @@
          {% endif %}
 
          {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] %}
-             {% if '/faculty-bios/' in request.path %}
-               <li><a href="/faculty-bios" class="button button-nav active">Faculty Bios</a></li>
+             {% if '/faculty-bio/' in request.path %}
+               <li><a href="/faculty-bio" class="button button-nav active">Faculty Bios</a></li>
              {% else %}
-                 <li><a href="/faculty-bios" class="button button-nav">Faculty Bios</a></li>
+                 <li><a href="/faculty-bio" class="button button-nav">Faculty Bios</a></li>
              {% endif %}
          {% endif %}
 
@@ -38,11 +38,12 @@
          {% endif %}
       {% endif %}
 
-      {% if '/e-announcements/' in request.path %}
-         <li><a href="/e-announcements" class="button button-nav active">E-Announcements</a></li>
-      {% else %}
-         <li><a href="/e-announcements" class="button button-nav">E-Announcements</a></li>
-      {% endif %}
-
+        {% if session['username'] and ('celanna' in session['username'] or 'ces55739' in session['username']) %}
+             {% if '/sync' in request.path %}
+               <li><a href="/sync" class="button button-nav active">Sync Metadata</a></li>
+             {% else %}
+                 <li><a href="/sync" class="button button-nav">Sync Metadata</a></li>
+             {% endif %}
+         {% endif %}
   </ul>
 {% endmacro %}

@@ -28,6 +28,8 @@
       <h3>Your Events</h3>
       <hr />
       {% endif %}
+
+    <a href="add#page-title" class="small button success">Create New Event</a>
    {% for form in forms%}
       <div class="row">
         <div class="large-6 columns">
@@ -38,9 +40,9 @@
               {{ form.title }}
             {% endif %}
             <br/>
-            {% if form.is_published %}
+            {% if form.is_published%}
                 <small>
-                    <p>{{ form.dates | safe }}</p>
+                    <p>{{ form.dates | safe}}</p>
                     <a href={{ form.path }}>{{ form.path }}</a>
                 </small>
             {% endif %}
@@ -51,6 +53,50 @@
             {% if form.is_published %}
               <li><a href="{{ form.path }}" class="small button success">View</a></li>
               <li><a href="/event/edit/{{ form.id }}#page-title" class="small button">Edit</a></li>
+              <li><a href="/event/duplicate/{{ form.id }}#page-title" class="small button">Duplicate</a></li>
+            {% else %}
+              <li><a class="small button success">Not Approved</a></li>
+            {% endif %}
+
+            <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-event-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
+           </ul>
+        </div>
+        <hr/>
+      </div>
+    {% endfor %}
+
+
+    <!-- Event Approver forms -->
+    {% if event_approver_forms %}
+        <br />
+        <hr />
+        <h3>Event Approver</h3>
+        <hr />
+    {% endif %}
+    {% for form in event_approver_forms %}
+        <div class="row">
+        <div class="large-6 columns">
+          <p>
+            {% if form.is_published %}
+              <a href={{ form.path }}>{{ form.title }}</a>
+            {% else %}
+              {{ form.title }}
+            {% endif %}
+            <br/>
+            {% if form.is_published%}
+                <small>
+                    <p>{{ form.dates | safe}}</p>
+                    <a href={{ form.path }}>{{ form.path }}</a>
+                </small>
+            {% endif %}
+          </p>
+        </div>
+        <div class="large-6 columns small-3">
+          <ul class="button-group">
+            {% if form.is_published %}
+              <li><a href="{{ form.path }}" class="small button success">View</a></li>
+              <li><a href="/event/edit/{{ form.id }}#page-title" class="small button">Edit</a></li>
+              <li><a href="/event/duplicate/{{ form.id }}#page-title" class="small button">Duplicate</a></li>
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
@@ -59,8 +105,8 @@
         </div>
         <hr/>
       </div>
-    {% endfor %}
-    <a href="add#page-title" class="small button success">Create New Event</a>
+    {%  endfor %}
+
   </div>
 </div>
 

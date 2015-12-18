@@ -1,21 +1,29 @@
 __author__ = 'ejc84332'
 
-#python
-import shutil
+# python
+import hashlib
+import os
+import fnmatch
+from subprocess import call
 
-#flask
+# flask
 from flask import request
 from flask import session
 from flask import current_app
-from flask import g
 from flask import render_template
 from flask import json as fjson
 import requests
 
-#tinker
+# tinker
 import config
 
+
 def init_user():
+
+    dev = current_app.config['ENVIRON'] != 'prod'
+
+    if dev:
+        session.clear()
 
     if 'username' not in session.keys():
         get_user()
@@ -36,6 +44,7 @@ def get_user():
         username = request.environ.get('REMOTE_USER')
     else:
         username = current_app.config['TEST_USER']
+
     session['username'] = username
 
 
@@ -63,9 +72,9 @@ def get_roles(username=None):
     for key in roles.keys():
         ret.append(roles[key]['userRole'])
 
-    ## Manually give 'faculty' privileges.
-    #todo lets move this to a cascade group
-    #if username == 'ejc84332':
+    # Manually give 'faculty' privileges.
+    # todo lets move this to a cascade group
+    # if username == 'ejc84332':
     #    ret.append('FACULTY')
     # if username == 'ces55739':
     #     ret.append('FACULTY')
@@ -82,7 +91,52 @@ def get_nav():
     session['top_nav'] = html
 
 
-##does this go here?
-def clear_image_cache():
-    from subprocess import call
-    return call(['rm', '-rf', config.THUMBOR_STORAGE_LOCATION])
+# does this go here?
+def clear_image_cache(image_path):
+
+    # /academics/faculty/images/lundberg-kelsey.jpg"
+    # Make sure image path starts with a slash
+    if not image_path.startswith('/'):
+        image_path = '/%s' % image_path
+
+    resp = []
+
+    for prefix in ['http://www.bethel.edu', 'https://www.bethel.edu',
+                   'http://staging.bethel.edu', 'https://staging.bethel.edu']:
+        path = prefix + image_path
+        digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
+        path = "%s/%s/%s" % (config.THUMBOR_STORAGE_LOCATION.rstrip('/'), digest[:2], digest[2:])
+        resp.append(path)
+        # remove the file at the path
+        # if config.ENVIRON == "prod":
+        call(['rm', path])
+
+    # now the result storage
+    file_name = image_path.split('/')[-1]
+    matches = []
+    for root, dirnames, filenames in os.walk(config.THUMBOR_RESULT_STORAGE_LOCATION):
+        for filename in fnmatch.filter(filenames, file_name):
+            matches.append(os.path.join(root, filename))
+    for match in matches:
+        call(['rm', match])
+
+    matches.extend(resp)
+
+    return str(matches)
+
+
+# def can_user_access_asset( username, id, type):
+#     try:
+#         user = read(username, "user")
+#         allowed_groups = user.asset.user.groups
+#     except AttributeError:
+#        allowed_groups = ""
+#     user_groups = allowed_groups.split(";")
+#
+#     response = read_access_rights(id, type)['accessRightsInformation']['aclEntries']['aclEntry']
+#     response = [right['name'] for right in response]
+#
+#     if username in response or set(user_groups).intersection(set(response)):
+#         return True
+#     else:
+#         return False

@@ -1,15 +1,15 @@
 __author__ = 'ejc84332'
 
-#python
+# python
 
+# flask
 from flask import Blueprint
 
+# tinker
 from tinker.web_services import *
 from tinker.cascade_tools import escape_wysiwyg_content
 
-heading_upgrade = Blueprint('heading_upgrade_o', __name__,
-                               template_folder='templates')
-
+heading_upgrade = Blueprint('heading_upgrade_o', __name__, template_folder='templates')
 
 
 def upgrade_content(content):
@@ -31,9 +31,9 @@ def upgrade_content(content):
     return escape_wysiwyg_content(content)
 
 
-def log_id_to_file(id):
-    with open("/Users/ejc84332/sites/tinker/upgrade.txt", "a") as id_file:
-        id_file.write(id + "\n")
+def log_id_to_file(file_id):
+    with open("/opt/tinker/tinker/upgrade.txt", "a") as id_file:
+        id_file.write(file_id + "\n")
 
 
 def submit_upgrade_edit(asset):
@@ -51,7 +51,7 @@ def upgrade_basic_page(page):
     try:
         content = page['asset']['page']['structuredData']['structuredDataNodes']['structuredDataNode'][0]['text']
     except:
-        #no data
+        # no data
         return ""
     new_content = upgrade_content(content)
     page['asset']['page']['structuredData']['structuredDataNodes']['structuredDataNode'][0]['text'] = new_content
@@ -63,12 +63,12 @@ def upgrade_basic_page(page):
 
 
 def traverse_data_nodes(nodes):
-    ###Only use this for basic+ type pages
+    # Only use this for basic+ type pages
     for node in nodes['structuredDataNode']:
-        ##check the text
+        # check the text
         if node['text']:
             node['text'] = upgrade_content(node['text'])
-        ##check the child nodes
+        # check the child nodes
         if node['structuredDataNodes']:
             traverse_data_nodes(node['structuredDataNodes'])
 
@@ -78,11 +78,11 @@ def upgrade_complex_page(page):
     try:
         content = page['asset']['page']['structuredData']['structuredDataNodes']['structuredDataNode']
     except:
-        #no data
+        # no data
         return ""
 
     for node in content:
-        ##do the outer "text" entry.
+        # do the outer "text" entry.
         if node['text']:
             node['text'] = upgrade_content(node['text'])
         if node['structuredDataNodes']:
@@ -96,11 +96,12 @@ def upgrade_complex_page(page):
 
 def inspect_folder(folder_id):
     folder = read(folder_id, type="folder")
+    if not folder:
+        yield ""
     children = folder['asset']['folder']['children']
     if not children:
         yield ""
     else:
-        resp = []
         for child in children['child']:
             if child['type'] == 'page':
                 for item in inspect_page(child['id']):
@@ -120,7 +121,7 @@ def inspect_page(page_id):
     elif page_type == "Basic":
         resp = upgrade_basic_page(page)
     elif page_type.startswith("Basic Plus"):
-        ##return str(page)
+        # return str(page)
         resp = upgrade_complex_page(page)
     elif page_type.startswith("Event"):
         resp = upgrade_complex_page(page)
@@ -135,13 +136,13 @@ def inspect_page(page_id):
 
 def check_page_id(page_id):
 
-    with open("/Users/ejc84332/sites/tinker/upgrade.txt") as data:
+    with open("/opt/tinker/tinker/upgrade.txt") as data:
         page_ids = (line.rstrip('\n') for line in data)
         return page_id in page_ids
 
 
 def log_message_to_file(message):
-    with open("/Users/ejc84332/sites/tinker/upgrade.txt", "a") as id_file:
+    with open("/opt/tinker/tinker/upgrade.txt", "a") as id_file:
         id_file.write(message + "\n")
 
 
