@@ -106,7 +106,7 @@ def edit_e_announcement(e_announcement_id):
             items = [item.value for item in field.fieldValues.fieldValue]
             edit_data[field.name.replace('-', '_')] = items
 
-    ## Add the rest of the fields. Can't loop over these kinds of metadata
+    # Add the rest of the fields. Can't loop over these kinds of metadata
     edit_data['title'] = metadata.title
 
     # Create an EventForm object with our data
@@ -121,8 +121,8 @@ def edit_e_announcement(e_announcement_id):
 
 @e_announcements_blueprint.route("/submit", methods=['POST'])
 def submit_e_announcement_form():
-    ## import this here so we dont load all the content
-    ## from cascade during homepage load
+    # import this here so we dont load all the content
+    # from cascade during homepage load
     from forms import EAnnouncementsForm
     form = EAnnouncementsForm()
     rform = request.form
@@ -150,14 +150,14 @@ def submit_e_announcement_form():
     # publish("f580ac758c58651313b6fe6bced65fea", "publishset")
 
     return redirect('/e-announcement/confirm/new', code=302)
-    ## Just print the response for now
+    # Just print the response for now
 
 
 @e_announcements_blueprint.route("/submit-edit", methods=['post'])
 def submit_edit_form():
 
-    ## import this here so we dont load all the content
-    ## from cascade during hoempage load
+    # import this here so we dont load all the content
+    # from cascade during hoempage load
     from tinker.e_announcements.forms import EAnnouncementsForm
 
     form = EAnnouncementsForm()
@@ -179,7 +179,7 @@ def submit_edit_form():
     resp = edit(asset)
     app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp)+ " " + ('id:' + e_announcement_id))
 
-    ## Todo: Make sure to publish the page down the road!
+    # Todo: Make sure to publish the page down the road!
 
     # return str(resp)
     return redirect('/e-announcement/confirm/edit', code=302)

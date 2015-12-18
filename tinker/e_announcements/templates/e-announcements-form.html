@@ -28,6 +28,7 @@
       <form id="eannouncementform" action="/e-announcement/submit-edit" method="post">
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         {% if form.errors %}
           <div class="alert alert-error">
             <div data-alert class="alert-box alert radius">
@@ -36,6 +37,7 @@
               </div>
             </div>
         {% endif %}
+
         {{ form.hidden_tag() }}
         {% for field in form if field.widget.input_type != 'hidden' %}
 
@@ -71,11 +73,11 @@
             <script>
                 $( document ).ready(function() {
                     function loadCount(){
-                        checkCount()
+                        checkCount();
                         $(".cke_contents").children("iframe").contents().find("body").keyup(function() {
                             checkCount();
                         });
-                    };
+                    }
 
                     function checkCount(){
                         var textToCheck = $(".cke_contents").children("iframe").contents().find("body").text().trim();
@@ -83,12 +85,13 @@
                         if( textToCheck != '')
                             count = textToCheck.split(' ').length;
 
+                        var ckeditorCountDiv = $('#ckeditor_current_count');
                         if( count > 200) {
-                            $('#ckeditor_current_count').text("Words: " + count + ". Please reduce your word count before submitting.");
-                            $('#ckeditor_current_count').css("color", "#f04124");
+                            ckeditorCountDiv.text("Words: " + count + ". Please reduce your word count before submitting.");
+                            ckeditorCountDiv.css("color", "#f04124");
                         } else {
-                            $('#ckeditor_current_count').text("Words: " + count);
-                            $('#ckeditor_current_count').css("color", "#000000");
+                            ckeditorCountDiv.text("Words: " + count);
+                            ckeditorCountDiv.css("color", "#000000");
                         }
                     };
 

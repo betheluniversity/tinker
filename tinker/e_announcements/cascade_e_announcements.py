@@ -1,9 +1,9 @@
-#python
+# python
 import urllib2
 import re
 from xml.etree import ElementTree as ET
 
-#local
+# local
 from tinker.web_services import *
 from tinker.cascade_tools import *
 
@@ -21,7 +21,7 @@ def get_e_announcements_for_user(username="get_all"):
 
 
 def traverse_e_announcements_folder(traverse_xml, username="get_all"):
-    ## Traverse an XML folder, adding system-pages to a dict of matches
+    # Traverse an XML folder, adding system-pages to a dict of matches
 
     matches = []
     for child in traverse_xml.findall('.//system-page'):
@@ -53,7 +53,7 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                     'message': child.find('system-data-structure/message/p').text,
                     'roles': roles
                 }
-                ## This is a match, add it to array
+                # This is a match, add it to array
                 matches.append(page_values)
         except:
             continue
@@ -62,7 +62,7 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
 
 def get_add_data(lists, form):
 
-    ##A dict to populate with all the interesting data.
+    # A dict to populate with all the interesting data.
     add_data = {}
 
     for key in form.keys():
@@ -71,10 +71,10 @@ def get_add_data(lists, form):
         else:
             add_data[key] = form[key]
 
-    ##Create the system-name from title, all lowercase
+    # Create the system-name from title, all lowercase
     system_name = add_data['title'].lower().replace(' ', '-')
 
-    ##Now remove any non a-z, A-Z, 0-9
+    # Now remove any non a-z, A-Z, 0-9
     system_name = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
 
     add_data['system_name'] = system_name
@@ -87,7 +87,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
      Could this be cleaned up at all?
     """
 
-    ## Create a list of all the data nodes
+    # Create a list of all the data nodes
     structured_data = [
         structured_data_node("message", add_data['message']),
         structured_data_node("department", add_data['department']),
@@ -95,26 +95,26 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
         structured_data_node("second-date", add_data['second']),
     ]
 
-    ## Wrap in the required structure for SOAP
+    # Wrap in the required structure for SOAP
     structured_data = {
         'structuredDataNodes': {
             'structuredDataNode': structured_data,
         }
     }
 
-    #create the dynamic metadata dict
+    # create the dynamic metadata dict
     dynamic_fields = {
         'dynamicField': [
             dynamic_field('banner-roles', add_data['banner_roles']),
         ],
     }
 
-    parentFolder = get_e_announcement_parent_folder(add_data['first'])
+    parent_folder = get_e_announcement_parent_folder(add_data['first'])
     asset = {
         'page': {
             'name': add_data['system_name'],
             'siteId': app.config['SITE_ID'],
-            'parentFolderPath': parentFolder,
+            'parentFolderPath': parent_folder,
             'metadataSetPath': "/Targeted",
             'contentTypePath': "E-Announcement",
             'configurationSetPath': "Flex-ONE",
@@ -130,20 +130,20 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
 
     if e_announcement_id:
         asset['page']['id'] = e_announcement_id
-        resp = move(e_announcement_id, parentFolder)
+        resp = move(e_announcement_id, parent_folder)
 
     return asset
 
 
-#if no folder exists, create one.
-#this will automatically move the page if the first_date changes.
+# if no folder exists, create one.
+# this will automatically move the page if the first_date changes.
 def get_e_announcement_parent_folder(date):
-    ## break the date into Year/month
-    splitDate = date.split("-")
-    month = convert_month_num_to_name(splitDate[0])
-    year = splitDate[2]
+    # break the date into Year/month
+    split_date = date.split("-")
+    month = convert_month_num_to_name(split_date[0])
+    year = split_date[2]
 
-    #check if the folders exist
+    # check if the folders exist
     create_e_announcements_folder("e-announcements/" + year)
     create_e_announcements_folder("e-announcements/" + year + "/" + month)
 
@@ -152,24 +152,24 @@ def get_e_announcement_parent_folder(date):
 
 def create_e_announcements_folder(folder_path):
     if folder_path[0] == "/":
-        folder_path = folder_path[1:] #removes the extra "/"
+        folder_path = folder_path[1:]  # removes the extra "/"
 
     old_folder_asset = read("/" + folder_path, "folder")
 
     if old_folder_asset['success'] == 'false':
 
-        array = folder_path.rsplit("/",1)
-        parentPath = array[0]
+        array = folder_path.rsplit("/", 1)
+        parent_path = array[0]
         name = array[1]
 
         asset = {
             'folder': {
-                'metadata':{
+                'metadata': {
                     'title': name
                 },
                 'metadataSetPath': "Basic",
                 'name': name,
-                'parentFolderPath': parentPath,
+                'parentFolderPath': parent_path,
                 'siteName': "Public"
             }
         }
@@ -198,7 +198,7 @@ def create_e_announcement(asset):
 
     response = client.service.create(auth, asset)
     app.logger.warn(time.strftime("%c") + ": Create E-Announcement submission by " + username + " " + str(response))
-    ##publish the xml file so the new event shows up
+    # publish the xml file so the new event shows up
     publish_e_announcement_xml()
 
     return response
@@ -229,6 +229,7 @@ def convert_month_num_to_name(month_num):
         return "november"
     if month_num == "12":
         return "december"
+
 
 def get_e_announcement_publish_workflow(title="", username=""):
 
