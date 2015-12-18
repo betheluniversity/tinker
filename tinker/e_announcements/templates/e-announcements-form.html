@@ -78,7 +78,10 @@
                     };
 
                     function checkCount(){
-                        var count = $(".cke_contents").children("iframe").contents().find("body").text().split(' ').length;
+                        var textToCheck = $(".cke_contents").children("iframe").contents().find("body").text().trim();
+                        var count = 0;
+                        if( textToCheck != '')
+                            count = textToCheck.split(' ').length;
 
                         if( count > 200) {
                             $('#ckeditor_current_count').text("Words: " + count + ". Please reduce your word count before submitting.");
