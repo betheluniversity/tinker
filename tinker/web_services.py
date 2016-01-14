@@ -331,6 +331,7 @@ def is_asset_in_workflow(id, type="page"):
 
     return False
 
+
 def search(name_search="", content_search="", metadata_search=""):
     client = get_client()
 
@@ -349,6 +350,22 @@ def search(name_search="", content_search="", metadata_search=""):
 
     response = client.service.search(auth, search_information)
     # app.logger.warn(time.strftime("%c") + ": Search " + str(response))
+
+    return response
+
+
+def search_data_definitions(name_search=""):
+    client = get_client()
+
+    search_information = {
+        'matchType': "match-all",
+        'assetName': name_search,
+        'searchBlocks': True,
+    }
+
+    auth = app.config['CASCADE_LOGIN']
+
+    response = client.service.search(auth, search_information)
 
     return response
 

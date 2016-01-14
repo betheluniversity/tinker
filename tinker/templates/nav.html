@@ -45,5 +45,13 @@
                  <li><a href="/sync" class="button button-nav">Sync Metadata</a></li>
              {% endif %}
          {% endif %}
+
+        {% if session['username'] and ('celanna' in session['username'] or 'ces55739' in session['username']) %}
+             {% if '/publish-manager' in request.path %}
+               <li><a href="/publish-manager" class="button button-nav active">Publisher</a></li>
+             {% else %}
+                 <li><a href="/publish-manager" class="button button-nav">Publisher</a></li>
+             {% endif %}
+         {% endif %}
   </ul>
 {% endmacro %}
