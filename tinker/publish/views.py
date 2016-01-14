@@ -15,20 +15,6 @@ from tinker.web_services import *
 
 publish_blueprint = Blueprint('publish-manager', __name__, template_folder='templates')
 
-
-@publish_blueprint.route("/test")
-def publish_test():
-
-    return render_template('test.html', **locals())
-
-
-@publish_blueprint.route("/test/click")
-def publish_test_click():
-    # needs to accept a id/path and return a list of the scripts/buttons.
-
-    return render_template('test.html', **locals())
-
-
 @publish_blueprint.route("/")
 def publish_home():
     get_user()
