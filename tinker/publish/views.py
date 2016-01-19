@@ -60,11 +60,11 @@ def publish_program_feeds_return(destination=''):
                 pages = relationships.subscribers.assetIdentifier
                 pages_added = []
                 for page in pages:
-                    # resp = publish(page.id, "page", destination)
-                    # if 'success = "false"' in str(resp):
-                    #     message = resp['message']
-                    # else:
-                    message = 'Published'
+                    resp = publish(page.id, "page", destination)
+                    if 'success = "false"' in str(resp):
+                        message = resp['message']
+                    else:
+                        message = 'Published'
                     pages_added.append({'id': page.id, 'path': page.path.path, 'message': message})
             except:
                 continue
