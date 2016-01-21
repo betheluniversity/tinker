@@ -230,7 +230,7 @@ def submit_faculty_bio_form():
     workflow = None
     workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data)
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
-    return render_template('faculty-bio-confirm-edit.html', **locals())
+    
     if faculty_bio_id:
         # existing bio
         resp = edit(asset)
