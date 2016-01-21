@@ -631,16 +631,20 @@ def get_add_data(lists, form):
     return add_data
 
 
-def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, school=None):
-    if school is None:
-        school = []
+def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, add_data=None):
+    schools = []
+    for i in range(100):
+        try:
+            schools.append(add_data['schools' + i])
+        finally:
+            break
 
     # only submit workflow if it is a new CAS
-    if "College of Arts and Sciences" in school:
+    if "College of Arts and Sciences" in schools:
         workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
-    elif "Graduate School" in school or "College of Adult and Professional Studies" in school:
+    elif "Graduate School" in schools or "College of Adult and Professional Studies" in schools:
         workflow_id = '81dabbc78c5865130c130b3a2b567e75'
-    elif "Bethel Seminary" in school:
+    elif "Bethel Seminary" in schools:
         workflow_id = '68ad793e8c5865137c9c2c89440cbbbc'
     else:
         return None
