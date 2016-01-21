@@ -83,7 +83,7 @@ def publish(path_or_id, type='page', destination=""):
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.publish(auth, publishinformation)
-    app.logger.warn(time.strftime("%c") + ": Published " + str(response))
+    app.logger.warn(time.strftime("%c") + ": " + path_or_id + " Published " + str(response))
 
     email_tinker_admins(response)
 
