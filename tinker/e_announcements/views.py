@@ -52,8 +52,8 @@ def e_announcements_submit_confirm_new():
 
 @e_announcements_blueprint.route("/edit/new")
 def e_announcements_new_form():
-    ## import this here so we dont load all the content
-    ## from cascade during homepage load
+    # import this here so we dont load all the content
+    # from cascade during homepage load
     from forms import EAnnouncementsForm
 
     form = EAnnouncementsForm()
@@ -131,7 +131,6 @@ def submit_e_announcement_form():
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)
 
-
     if not form.validate_on_submit():
         if 'e_announcement_id' in request.form.keys():
             e_announcement_id = request.form['e_announcement_id']
@@ -177,7 +176,7 @@ def submit_edit_form():
     asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)
 
     resp = edit(asset)
-    app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp)+ " " + ('id:' + e_announcement_id))
+    app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
 
     # Todo: Make sure to publish the page down the road!
 
@@ -213,13 +212,12 @@ def rss_feed():
     else:
         date = datetime.datetime.now().strftime("%m-%d-%Y")
 
-    ## Get each of the matching e-announcements to put into new_matches
+    # Get each of the matching e-announcements to put into new_matches
     matches = get_e_announcements_for_user()
     new_matches = []
 
-    ## For each e-announcement
+    # For each e-announcement
     for match in matches:
-        print match
         banner_roles = match['roles']
         date_matches = False
 
@@ -236,8 +234,6 @@ def rss_feed():
 
         if not date_matches:
             continue
-
-        print first_date
 
         # if no roles are specified, then display ALL e-announcements that match the day.
         if roles == {}:
@@ -283,7 +279,6 @@ def create_campaign():
     # For each for those, make a call to get the announcements for today with those roles
     # Finish the If statement
 
-
     output = mp.Queue()
 
     url = 'http://wsapi.bethel.edu/e-announcement/roles'
@@ -291,9 +286,9 @@ def create_campaign():
     response = json.load(data)['roles']
 
     roles = []
-    for i in range(1,1000):
+    for i in range(1, 1000):
         try:
-            roles.append( str(response[str(i)]['']) )
+            roles.append(str(response[str(i)]['']))
         except:
             break
 
@@ -304,8 +299,11 @@ def create_campaign():
     manager = mp.Manager()
     return_e_announcement_array = manager.dict()
 
+    # Todo: This should instead be getting the xml, as it is much easier to parse through
+    rss_feed = feedparser.parse(urllib2.urlopen('https://tinker.bethel.edu/e-announcement/rss_feed?date=12-18-2015').read())['entries']
+
     for role_combo in roles:
-        p = create_single_announcement(role_combo, count, return_e_announcement_array)
+        p = create_single_announcement(rss_feed, role_combo, count, return_e_announcement_array)
         # p = mp.Process(target=create_single_announcement, args=(role_combo, count, return_e_announcement_array))
         e_announcement_array.append(p)
         # p.start()
@@ -319,10 +317,8 @@ def create_campaign():
 
     return str(return_e_announcement_array.values())
 
-
     # double check names and ID's and such
     # Finally, append e_announcements to the multiline below. Done.
-
 
     # CAMPAIGN_MONITOR_KEY = app.config['CAMPAIGN_MONITOR_KEY']
     # CreateSend({'api_key': CAMPAIGN_MONITOR_KEY})
@@ -353,12 +349,12 @@ def create_campaign():
 
 @e_announcements_blueprint.route("/create_segment", methods=['get', 'post'])
 def create_segment():
-    CAMPAIGN_MONITOR_KEY = app.config['CAMPAIGN_MONITOR_KEY']
-    CreateSend({'api_key': CAMPAIGN_MONITOR_KEY})
+    campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
+    CreateSend({'api_key': campaign_monitor_key})
 
     new_segment = Segment()
     new_segment.auth_details = {}
-    new_segment.auth_details['api_key'] = CAMPAIGN_MONITOR_KEY
+    new_segment.auth_details['api_key'] = campaign_monitor_key
 
     list_id = app.config['LIST_KEY']
     title = 'New Test Segment'
@@ -377,15 +373,15 @@ def create_segment():
     return str(resp)
 
 
-def create_single_announcement(role_combo, count, return_e_announcement_array):
+def create_single_announcement(rss_feed, role_combo, count, return_e_announcement_array):
 
     if count == 1:
         e_announcement = '[if:roles=%s]' % role_combo
     else:
         e_announcement = '[elseif:roles=%s]' % role_combo
 
-    # todo, update the date to be today (aka, remove it)
-    # todo, instead of calling the rss_feed each time, call it once.
-    for item in feedparser.parse(urllib2.urlopen('https://tinker.bethel.edu/e-announcement/rss_feed?date=08-12-2015&roles=' + role_combo).read())['entries']:
+    # Todo: get all e-announcements that match
+
+    for item in rss_feed:
         e_announcement += item['summary_detail']['value']
     return_e_announcement_array[count] = e_announcement

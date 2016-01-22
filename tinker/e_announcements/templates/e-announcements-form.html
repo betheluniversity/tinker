@@ -30,6 +30,16 @@
     {% endif %}
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         {% if form.errors %}
+            {% for field in form.errors %}
+                {% for error in form.errors[field] %}
+                    <div class="alert alert-error">
+                        <strong>Error!</strong> {{error}}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+
+
           <div class="alert alert-error">
             <div data-alert class="alert-box alert radius">
                 There were errors with your form.
@@ -68,7 +78,7 @@
             <h3>{{ field.label }}</h3>
 
           {% elif field.type == "CKEditorTextAreaField" %}
-            <p id="ckeditor_current_count" style="font-size: 20px">Words: 0</p>
+            <p id="ckeditor_current_count" style="font-size: 15px">Words: 0</p>
             {{ field(class="ckeditor") }}
             <script>
                 $( document ).ready(function() {
@@ -98,6 +108,7 @@
                     setTimeout(loadCount, 500);
                 });
             </script>
+            <br />
 
           {% elif field.type == "DateField" %}
                 {{ field(class="datepicker") }}
