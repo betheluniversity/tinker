@@ -265,4 +265,4 @@ def create_single_announcement(announcement):
 
 def e_announcement_html(announcement):
     # Todo: update the html of individual announcements for a final version
-    return '<h3></h3><p>%s<span>(%s)</span></p>' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
+    return '<h3>%s</h3><p>%s<span>(%s)</span></p>' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
