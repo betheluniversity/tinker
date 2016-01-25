@@ -266,3 +266,11 @@ def create_single_announcement(announcement):
 def e_announcement_html(announcement):
     # Todo: update the html of individual announcements for a final version
     return '<h3>%s</h3><p>%s<span>(%s)</span></p>' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
+
+
+# Gets the template IDs
+def get_templates_for_cliente():
+    campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
+    client_id = app.config['CLIENT_ID']
+    for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
+        print template.TemplateID
