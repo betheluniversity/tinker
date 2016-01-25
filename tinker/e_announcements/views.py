@@ -185,7 +185,8 @@ def submit_edit_form():
 def create_campaign(date=None):
     if not date:
         date = datetime.datetime.now().strftime("%m-%d-%Y")
-
+    get_campaigns_for_client()
+    return 'done'
     # Todo: remove current test default.
     date = datetime.datetime.strptime('Dec 18 2015', '%b %d %Y')
 
@@ -225,14 +226,24 @@ def create_campaign(date=None):
     template_id = app.config['TEMPLATE_ID']
     template_content = {'Multilines': [{"Content": submitted_announcements}]}
 
-    resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
-                                             segment_ids, template_id, template_content)
+    # return 'Currently not creating a new campaign, just in case it is charging the account.'
 
-    # Todo: send a preview to whoever needs it.
+    # Todo: if a campaign already exists, delete the old one and create a new one
+    try:
+        resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
+                                             segment_ids, template_id, template_content)
+    except:
+        print 'test'
+        print Campaign({'api_key': campaign_monitor_key}, app.config['CLIENT_ID']).delete()
+
+
+
     # Todo: PROD - update the email to send to whoever checks its sent.
     confirmation_email_sent_to = 'ces55739@bethel.edu'
+
     # Test version, include this for extra tests str(datetime.datetime.now().strftime('%Y-%m-%d')) + ' 06:00'
-    new_campaign.send(confirmation_email_sent_to)
+    new_campaign.send_preview(confirmation_email_sent_to, "Random")
+    # new_campaign.send(confirmation_email_sent_to)
     # Todo: PROD version
     # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
 
