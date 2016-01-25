@@ -148,14 +148,11 @@ def submit_e_announcement_form():
     # publish("f580ac758c58651313b6fe6bced65fea", "publishset")
 
     return redirect('/e-announcement/confirm/new', code=302)
-    # Just print the response for now
 
 
 @e_announcements_blueprint.route("/submit-edit", methods=['post'])
 def submit_edit_form():
-
     # import this here so we dont load all the content
-    # from cascade during hoempage load
     from tinker.e_announcements.forms import EAnnouncementsForm
 
     form = EAnnouncementsForm()
@@ -177,29 +174,23 @@ def submit_edit_form():
     resp = edit(asset)
     app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
 
-    # Todo: Make sure to publish the page down the road!
+    resp = publish(e_announcement_id, 'page')
+    app.logger.warn(time.strftime("%c") + ": E-Announcement publish from " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
 
-    # return str(resp)
     return redirect('/e-announcement/confirm/edit', code=302)
 
 # Todo: add some kind of authentication?
-@e_announcements_blueprint.route("/create_campaign", methods=['get', 'post'])
-def create_campaign():
-    # Todo: be able to pass in any date.
-    # if 'date' in parameters:
-    #     try:
-    #         date = parameters['date'][0]
-    #     except ValueError:
-    #         raise ValueError("Incorrect date format. Use MM-DD-YYYY")
-    # else:
-    #     date = datetime.datetime.now().strftime("%m-%d-%Y")
+@e_announcements_blueprint.route("/create_campaign/", methods=['get', 'post'])
+@e_announcements_blueprint.route("/create_campaign/<date>", methods=['get', 'post'])
+def create_campaign(date=None):
+    if not date:
+        date = datetime.datetime.now().strftime("%m-%d-%Y")
+
+    # Todo: remove current test default.
     date = datetime.datetime.strptime('Dec 18 2015', '%b %d %Y')
 
-    announcements = get_e_announcements_for_user()
     submitted_announcements = ''
-
-    # For each e-announcement
-    for announcement in announcements:
+    for announcement in get_e_announcements_for_user():
         date_matches = False
 
         if announcement['first_date']:
@@ -209,7 +200,6 @@ def create_campaign():
 
         if announcement['second_date']:
             second_date = datetime.datetime.strptime(announcement['second_date'], "%A %B %d, %Y")
-            # if str(datetime.datetime.strptime(date, "%m-%d-%Y")) == str(second_date):
             if str(date) == str(second_date):
                 date_matches = True
 
@@ -225,18 +215,24 @@ def create_campaign():
     new_campaign.auth_details = {'api_key': campaign_monitor_key}
 
     client_id = app.config['CLIENT_ID']
-    subject = str(datetime.datetime.strptime(date, "%m-%d-%Y"))
-    name = str(datetime.datetime.strptime(date, "%m-%d-%Y"))
-    from_name = str(datetime.datetime.strptime(date, "%m-%d-%Y"))
-    from_email = 'no-reply@bethel.edu'
-    reply_to = 'no-reply@bethel.edu'
+    subject = 'Bethel E-Announcements for ' + str(date.strftime('%A, %B %d, %Y'))
+    name = 'Bethel E-Announcements for ' + str(date.strftime('%m/%d/%Y'))
+    from_name = 'Bethel E-Announcements'
+    from_email = 'e-announcements@lists.bethel.edu'
+    reply_to = 'e-announcements@lists.bethel.edu'
     list_ids = [app.config['LIST_KEY']]
     segment_ids = [app.config['SEGMENT_ID']]
+    # Todo: get template id
     template_id = app.config['TEMPLATE_ID']
     template_content = {'Multilines': [{"Content": submitted_announcements}]}
 
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                              segment_ids, template_id, template_content)
+
+    # Todo: PROD - update the email to send to whoever checks its sent.
+    confirmation_email_sent_to = 'ces55739@bethel.edu'
+    # Todo: PROD - change str(datetime.datetime.now().strftime('%Y-%m-%d')) to str(date.strftime('%Y-%m-%d'))
+    new_campaign.send(confirmation_email_sent_to, str(datetime.datetime.now().strftime('%Y-%m-%d')) + ' 06:00')
 
     return str(resp)
 
