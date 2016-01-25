@@ -243,3 +243,26 @@ def get_e_announcement_publish_workflow(title="", username=""):
     # }
     workflow = None
     return workflow
+
+
+def create_single_announcement(announcement):
+    return_value = ''
+    count = 1
+
+    for role in announcement['roles']:
+        if count == 1:
+            return_value = '[if:%s=Y]' % role
+        else:
+            return_value += '[elseif:%s=Y]' % role
+
+        return_value += e_announcement_html(announcement)
+        count = count+1
+
+    return_value += '[endif]'
+
+    return return_value
+
+
+def e_announcement_html(announcement):
+    # Todo: update the html of individual announcements for a final version
+    return '<h3></h3><p>%s<span>(%s)</span></p>' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
