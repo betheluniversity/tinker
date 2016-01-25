@@ -185,10 +185,8 @@ def submit_edit_form():
 def create_campaign(date=None):
     if not date:
         date = datetime.datetime.now().strftime("%m-%d-%Y")
-    get_campaigns_for_client()
-    return 'done'
-    # Todo: remove current test default.
-    date = datetime.datetime.strptime('Dec 18 2015', '%b %d %Y')
+    else:
+        date = datetime.datetime.strptime(date, "%m-%d-%Y")
 
     submitted_announcements = ''
     for announcement in get_e_announcements_for_user():
@@ -211,9 +209,7 @@ def create_campaign(date=None):
 
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     CreateSend({'api_key': campaign_monitor_key})
-
-    new_campaign = Campaign()
-    new_campaign.auth_details = {'api_key': campaign_monitor_key}
+    new_campaign = Campaign({'api_key': campaign_monitor_key})
 
     client_id = app.config['CLIENT_ID']
     subject = 'Bethel E-Announcements for ' + str(date.strftime('%A, %B %d, %Y'))
@@ -223,27 +219,28 @@ def create_campaign(date=None):
     reply_to = 'e-announcements@lists.bethel.edu'
     list_ids = [app.config['LIST_KEY']]
     segment_ids = [app.config['SEGMENT_ID']]
+    # Todo: once Tim/Darin creates the template, add it here.
     template_id = app.config['TEMPLATE_ID']
     template_content = {'Multilines': [{"Content": submitted_announcements}]}
 
     # return 'Currently not creating a new campaign, just in case it is charging the account.'
 
     # Todo: if a campaign already exists, delete the old one and create a new one
-    try:
-        resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
-                                             segment_ids, template_id, template_content)
-    except:
-        print 'test'
-        print Campaign({'api_key': campaign_monitor_key}, app.config['CLIENT_ID']).delete()
-
-
+    resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
+                                         segment_ids, template_id, template_content)
 
     # Todo: PROD - update the email to send to whoever checks its sent.
     confirmation_email_sent_to = 'ces55739@bethel.edu'
 
+    # Todo: figure out why send_preview doesn't work.
+    # new_campaign.send_preview(confirmation_email_sent_to, "Random")
+
+    # =====================================================
+    # =================== Send emails. ====================
+    # =====================================================
     # Test version, include this for extra tests str(datetime.datetime.now().strftime('%Y-%m-%d')) + ' 06:00'
-    new_campaign.send_preview(confirmation_email_sent_to, "Random")
     # new_campaign.send(confirmation_email_sent_to)
+
     # Todo: PROD version
     # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
 
