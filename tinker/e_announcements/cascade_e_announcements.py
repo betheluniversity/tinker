@@ -269,8 +269,16 @@ def e_announcement_html(announcement):
 
 
 # Gets the template IDs
-def get_templates_for_cliente():
+def get_templates_for_client():
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     client_id = app.config['CLIENT_ID']
     for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
         print template.TemplateID
+
+
+# Gets the Campaign IDs
+def get_campaigns_for_client():
+    campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
+    client_id = app.config['CLIENT_ID']
+    for campaign in Client(campaign_monitor_key, app.config['CLIENT_ID']).campaigns():
+        print campaign
