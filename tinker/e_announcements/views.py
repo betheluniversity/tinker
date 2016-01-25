@@ -222,17 +222,19 @@ def create_campaign(date=None):
     reply_to = 'e-announcements@lists.bethel.edu'
     list_ids = [app.config['LIST_KEY']]
     segment_ids = [app.config['SEGMENT_ID']]
-    # Todo: get template id
     template_id = app.config['TEMPLATE_ID']
     template_content = {'Multilines': [{"Content": submitted_announcements}]}
 
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                              segment_ids, template_id, template_content)
 
+    # Todo: send a preview to whoever needs it.
     # Todo: PROD - update the email to send to whoever checks its sent.
     confirmation_email_sent_to = 'ces55739@bethel.edu'
-    # Todo: PROD - change str(datetime.datetime.now().strftime('%Y-%m-%d')) to str(date.strftime('%Y-%m-%d'))
-    new_campaign.send(confirmation_email_sent_to, str(datetime.datetime.now().strftime('%Y-%m-%d')) + ' 06:00')
+    # Test version, include this for extra tests str(datetime.datetime.now().strftime('%Y-%m-%d')) + ' 06:00'
+    new_campaign.send(confirmation_email_sent_to)
+    # Todo: PROD version
+    # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
 
     return str(resp)
 
