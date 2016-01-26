@@ -21,14 +21,12 @@ from createsend import *
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')
 
 
-# Todo: sort e-announcements by most recent date.
 @e_announcements_blueprint.route("/")
 def e_announcements_home():
     username = session['username']
     forms = get_e_announcements_for_user(username)
 
     forms.sort(key=lambda item:item['first_date'], reverse=True)
-
 
     return render_template('e-announcements-home.html', **locals())
 
@@ -146,43 +144,20 @@ def submit_e_announcement_form():
 
     # Get all the form data
     add_data = get_add_data(['banner_roles'], rform)
+    e_announcement_id = rform['e_announcement_id']
 
     workflow = get_e_announcement_publish_workflow(title, username)
-    asset = get_e_announcement_structure(add_data, username, workflow=workflow)
-    resp = create_e_announcement(asset)
-    # publish("f580ac758c58651313b6fe6bced65fea", "publishset")
-
-    return redirect('/e-announcement/confirm/new', code=302)
-
-
-@e_announcements_blueprint.route("/submit-edit", methods=['post'])
-def submit_edit_form():
-    # import this here so we dont load all the content
-    from tinker.e_announcements.forms import EAnnouncementsForm
-
-    form = EAnnouncementsForm()
-    rform = request.form
-    title = rform['title']
-    username = session['username']
-    workflow = get_e_announcement_publish_workflow(title, username)
-
-    if not form.validate_on_submit():
-        e_announcement_id = request.form['e_announcement_id']
-        return render_template('e-announcements-form.html', **locals())
-
-    form = rform
-    e_announcement_id = form['e_announcement_id']
-
-    add_data = get_add_data(['banner_roles'], form)
     asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)
 
-    resp = edit(asset)
-    app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
+    if e_announcement_id:
+        resp = edit(asset)
+        app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
+        return render_template('/e-announcement/confirm/edit', **locals())
+    else:
+        resp = create_e_announcement(asset)
+        app.logger.warn(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
+        return render_template('/e-announcement/confirm/new', **locals())
 
-    resp = publish(e_announcement_id, 'page')
-    app.logger.warn(time.strftime("%c") + ": E-Announcement publish from " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
-
-    return redirect('/e-announcement/confirm/edit', code=302)
 
 # Todo: add some kind of authentication?
 @e_announcements_blueprint.route("/create_campaign/", methods=['get', 'post'])
