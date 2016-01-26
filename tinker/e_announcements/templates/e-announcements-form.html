@@ -134,6 +134,11 @@
                 disabledDaysOfWeek: [0,2,4,6],
                 format: 'MM-DD-YYYY',
                 disableDayFn: function(date){
+                    // remove all dates before and including today
+                    if( date <= new Date() ){
+                        return date;
+                    }
+
                     // remove all Sun/Tues/Thur/Sat days from the week
                     if( $.inArray(date.getDay(), [0,2,4,6]) > -1){
                         return date;

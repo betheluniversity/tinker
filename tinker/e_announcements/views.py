@@ -176,8 +176,6 @@ def submit_e_announcement_form():
         app.logger.warn(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
         return redirect('/e-announcement/confirm/new', code=302)
 
-    # Todo: make sure the workflow publishes the xml
-
 
 # Todo: add some kind of authentication?
 @e_announcements_blueprint.route("/create_campaign/", methods=['get', 'post'])
@@ -232,7 +230,7 @@ def create_campaign(date=None):
     confirmation_email_sent_to = 'ces55739@bethel.edu'
 
     # Todo: figure out why send_preview doesn't work.
-    # new_campaign.send_preview(confirmation_email_sent_to, "Random")
+    # new_campaign.send_preview(confirmation_email_sent_to)
 
     # =====================================================
     # =================== Send emails. ====================
@@ -244,6 +242,7 @@ def create_campaign(date=None):
     # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
 
     return str(resp)
+
 
 @e_announcements_blueprint.route("/create_segment", methods=['get', 'post'])
 def create_segment():
