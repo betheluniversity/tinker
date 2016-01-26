@@ -219,11 +219,10 @@ def create_campaign(date=None):
     reply_to = 'e-announcements@lists.bethel.edu'
     list_ids = [app.config['LIST_KEY']]
     segment_ids = [app.config['SEGMENT_ID']]
-    # Todo: once Tim/Darin creates the template, add it here.
     template_id = app.config['TEMPLATE_ID']
     template_content = {'Multilines': [{"Content": submitted_announcements}]}
 
-    # return 'Currently not creating a new campaign, just in case it is charging the account.'
+    return 'Currently not creating a new campaign, just in case it is charging the account.'
 
     # Todo: if a campaign already exists, delete the old one and create a new one
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
