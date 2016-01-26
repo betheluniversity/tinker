@@ -25,6 +25,10 @@ e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folde
 def e_announcements_home():
     username = session['username']
     forms = get_e_announcements_for_user(username)
+
+    forms.sort(key=lambda item:item['first_date'], reverse=True)
+
+
     return render_template('e-announcements-home.html', **locals())
 
 
