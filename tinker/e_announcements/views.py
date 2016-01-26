@@ -63,8 +63,16 @@ def e_announcements_new_form():
     return render_template('e-announcements-form.html', **locals())
 
 
+@e_announcements_blueprint.route('/in-workflow')
+def e_announcement_in_workflow():
+    return render_template('e-announcements-in-workflow.html')
+
+
 @e_announcements_blueprint.route('/edit/<e_announcement_id>')
 def edit_e_announcement(e_announcement_id):
+    if is_asset_in_workflow(e_announcement_id):
+        return redirect('/faculty-bio/in-workflow', code=302)
+
     from tinker.e_announcements.forms import EAnnouncementsForm
 
     # Get the event data from cascade
@@ -152,11 +160,13 @@ def submit_e_announcement_form():
     if e_announcement_id:
         resp = edit(asset)
         app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
-        return render_template('/e-announcement/confirm/edit', **locals())
+        return redirect('/e-announcement/confirm/edit', code=302)
     else:
         resp = create_e_announcement(asset)
         app.logger.warn(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
-        return render_template('/e-announcement/confirm/new', **locals())
+        return redirect('/e-announcement/confirm/new', code=302)
+
+    # Todo: make sure the workflow publishes the xml
 
 
 # Todo: add some kind of authentication?
