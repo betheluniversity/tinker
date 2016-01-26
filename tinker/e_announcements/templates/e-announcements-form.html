@@ -132,7 +132,26 @@
               var picker = new Pikaday({
                 field: this,
                 disabledDaysOfWeek: [0,2,4,6],
-                format: 'MM-DD-YYYY'
+                format: 'MM-DD-YYYY',
+                disableDayFn: function(date){
+                    // remove all Sun/Tues/Thur/Sat days from the week
+                    if( $.inArray(date.getDay(), [0,2,4,6]) > -1){
+                        return date;
+                    }
+
+
+                    var DD = ('0' + date.getDate()).slice(-2);
+                    var MM = ('0' + (date.getMonth() + 1)).slice(-2);
+                    var MMDD = MM + '/' + DD;
+
+                    // This can be modified to disabled various holidays
+                    var disabledDays = ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '01/01'];
+
+                    // Disallow specific days
+                    if($.inArray(MMDD, disabledDays) > -1) {
+                        return date;
+                    }
+                }
               });
             });
           });
