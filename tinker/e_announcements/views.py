@@ -23,8 +23,13 @@ e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folde
 
 @e_announcements_blueprint.route("/")
 def e_announcements_home():
+    forms = []
     username = session['username']
-    forms = get_e_announcements_for_user(username)
+
+    if username == 'cerntson':
+        forms = get_e_announcements_for_user('get_all')
+    else:
+        forms = get_e_announcements_for_user(username)
 
     forms.sort(key=lambda item:item['first_date'], reverse=True)
 
@@ -147,12 +152,17 @@ def submit_e_announcement_form():
         else:
             # This error came from the add form because e-annoucnements_id wasn't set
             new_form = True
+
         app.logger.warn(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
         return render_template('e-announcements-form.html', **locals())
 
+
     # Get all the form data
     add_data = get_add_data(['banner_roles'], rform)
-    e_announcement_id = rform['e_announcement_id']
+    if 'e_announcement_id' in rform:
+        e_announcement_id = rform['e_announcement_id']
+    else:
+        e_announcement_id = None
 
     workflow = get_e_announcement_publish_workflow(title, username)
     asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)

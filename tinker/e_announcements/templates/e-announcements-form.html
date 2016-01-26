@@ -29,16 +29,6 @@
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
         {% if form.errors %}
-            {% for field in form.errors %}
-                {% for error in form.errors[field] %}
-                    <div class="alert alert-error">
-                        <strong>Error!</strong> {{error}}
-                    </div>
-                {% endfor %}
-            {% endfor %}
-
-
-
           <div class="alert alert-error">
             <div data-alert class="alert-box alert radius">
                 There were errors with your form.
