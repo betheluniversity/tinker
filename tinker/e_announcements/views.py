@@ -69,9 +69,9 @@ def edit_e_announcement(e_announcement_id):
 
     # Get the event data from cascade
     e_announcement_data = read(e_announcement_id)
+    new_form = False
 
     # Get the different data sets from the response
-
     form_data = e_announcement_data.asset.page
 
     # the stuff from the data def
