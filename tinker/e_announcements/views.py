@@ -15,6 +15,7 @@ from flask import Response
 from tinker.e_announcements.cascade_e_announcements import *
 from tinker.tools import *
 
+# createsend
 from createsend import *
 
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')

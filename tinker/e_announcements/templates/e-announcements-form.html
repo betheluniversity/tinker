@@ -28,7 +28,6 @@
       <form id="eannouncementform" action="/e-announcement/submit-edit" method="post">
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         {% if form.errors %}
             {% for field in form.errors %}
                 {% for error in form.errors[field] %}
