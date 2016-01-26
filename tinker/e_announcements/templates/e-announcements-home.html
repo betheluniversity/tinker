@@ -32,9 +32,9 @@
               {{ form.title }}
             {% endif %}
             <br/>
-            <small>
-                <p>{{ form.dates | safe}}</p>
-            </small>
+            <small>{{ form.first_date | safe}}</small>
+            <br/>
+            <small>{{ form.second_date | safe}}</small>
           </p>
         </div>
         <div class="large-6 columns small-3">
