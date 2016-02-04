@@ -22,36 +22,29 @@
              {% endif %}
          {% endif %}
 
-      {#
-         {% if request.path == '/wufoo/' %}
-           <li><a href="/wufoo" class="button button-nav active">Wufoo</a></li>
-         {% else %}
-             <li><a href="/wufoo" class="button button-nav">Wufoo</a></li>
-         {% endif %}
-      #}
-
-      {% if 'Tinker Redirects' in session['groups'] %}
-         {% if request.path == '/redirect/' %}
-           <li><a href="/redirect" class="button button-nav active">Redirects</a></li>
-         {% else %}
-             <li><a href="/redirect" class="button button-nav">Redirects</a></li>
-         {% endif %}
-      {% endif %}
-
-        {% if session['username'] and ('celanna' in session['username'] or 'ces55739' in session['username']) %}
-             {% if '/sync' in request.path %}
-               <li><a href="/sync" class="button button-nav active">Sync Metadata</a></li>
+          {#
+             {% if request.path == '/wufoo/' %}
+               <li><a href="/wufoo" class="button button-nav active">Wufoo</a></li>
              {% else %}
-                 <li><a href="/sync" class="button button-nav">Sync Metadata</a></li>
+                 <li><a href="/wufoo" class="button button-nav">Wufoo</a></li>
              {% endif %}
-         {% endif %}
+          #}
 
-        {% if session['username'] and ('celanna' in session['username'] or 'ces55739' in session['username']) %}
-             {% if '/publish-manager' in request.path %}
-               <li><a href="/publish-manager" class="button button-nav active">Publisher</a></li>
+          {% if 'Tinker Redirects' in session['groups'] %}
+             {% if request.path == '/redirect/' %}
+               <li><a href="/redirect" class="button button-nav active">Redirects</a></li>
              {% else %}
-                 <li><a href="/publish-manager" class="button button-nav">Publisher</a></li>
+                 <li><a href="/redirect" class="button button-nav">Redirects</a></li>
              {% endif %}
-         {% endif %}
+          {% endif %}
+
+        {% if 'Administrators' in session['groups'] %}
+            <li></li><a href="#" class="button button-nav" data-dropdown="drop">Admin Menu &raquo;</a>
+            <ul id="drop" class="large f-dropdown" data-dropdown-content>
+              <li><a href="/publish-manager" class="button-nav">Publisher</a></li>
+              <li><a href="/sync" class="button-nav">Sync Metadata</a></li>
+              <li><a href="#">Blink Layout Owners (not created yet)</a></li>
+            </ul></li>
+        {% endif %}
   </ul>
 {% endmacro %}
