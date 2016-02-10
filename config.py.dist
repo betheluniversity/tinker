@@ -8,6 +8,8 @@ FOUNDATION_USE_CDN = True
 ##emails
 ADMINS = ['']
 
+SENTRY_URL = ''
+
 #Cascade / Events
 secret_key = ''
 SECRET_KEY = ''

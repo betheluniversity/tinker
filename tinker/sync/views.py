@@ -52,6 +52,8 @@ def sync_faculty_bio_data_definition(data_definition_id):
 
     # check top level element
     for el in structure:
+        if not el:
+            continue
         if "job-titles" in el.attrib['identifier']:  # for Faculty Bios | school, undergrad, adult-undergrad, graduate, seminary
             # find everything in the group of job-titles that needs to be replaced.
             for next_el in el:
@@ -140,6 +142,9 @@ def sync_metadataset(metadataset_id):
 
     metadata_elements = []
     for el in asset.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition:
+        if not el:
+            continue
+
         # create new element
         new_element = {
             'name': el.name,

@@ -43,26 +43,21 @@ def delete(page_id, workflow=None):
     return response
 
 def get_destinations(destination):
-    # empty string means publish to all
-    if destination == '':
-        return {}
-    elif destination == 'staging.bethel.edu' or 'staging':
+    if destination == 'staging.bethel.edu' or destination == 'staging':
         id = 'ba1381d58c586513100ee2a78fc41899'
-    elif destination == "Production bethel.edu" or 'prod':
-        id = '132207cb8c586513742d45fd62673fe4'
-    identifier = {'assetIdentifier': {
+        identifier = {'assetIdentifier': {
                     'id': id,
                     'type': 'destination',
                     }
                 }
-    return identifier
+        return identifier
+    else:
+        return ''
 
 
 def publish(path_or_id, type='page', destination=""):
-
-    destination = get_destinations(destination)
-
     client = get_client()
+    destination = get_destinations(destination)
 
     if path_or_id[0] == "/":
         publishinformation = {
@@ -75,6 +70,7 @@ def publish(path_or_id, type='page', destination=""):
             },
             'destinations': destination
         }
+
     else:
         publishinformation = {
             'identifier': {
@@ -87,7 +83,7 @@ def publish(path_or_id, type='page', destination=""):
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.publish(auth, publishinformation)
-    app.logger.warn(time.strftime("%c") + ": Published " + str(response))
+    app.logger.warn(time.strftime("%c") + ": " + path_or_id + " Published " + str(response))
 
     email_tinker_admins(response)
 

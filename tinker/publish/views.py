@@ -15,20 +15,6 @@ from tinker.web_services import *
 
 publish_blueprint = Blueprint('publish-manager', __name__, template_folder='templates')
 
-
-@publish_blueprint.route("/test")
-def publish_test():
-
-    return render_template('test.html', **locals())
-
-
-@publish_blueprint.route("/test/click")
-def publish_test_click():
-    # needs to accept a id/path and return a list of the scripts/buttons.
-
-    return render_template('test.html', **locals())
-
-
 @publish_blueprint.route("/")
 def publish_home():
     get_user()
@@ -46,13 +32,8 @@ def publish_program_feeds():
 
 @publish_blueprint.route("/program-feeds/<destination>", methods=['get', 'post'])
 def publish_program_feeds_return(destination=''):
-    if destination == "staging":
-        destination = "staging.bethel.edu"
-    elif destination == "production":
-        destination = "Production bethel.edu"
-    else:
-        # default: Empty string means publish to all
-        destination = "staging.bethel.edu"
+    if destination != "production":
+        destination = "staging"
 
     # get results
     results = search_data_definitions("*program-feed*")
@@ -74,11 +55,11 @@ def publish_program_feeds_return(destination=''):
                 pages = relationships.subscribers.assetIdentifier
                 pages_added = []
                 for page in pages:
-                    # resp = publish(page.id, "page", destination)
-                    # if 'success = "false"' in str(resp):
-                    #     message = resp['message']
-                    # else:
-                    message = 'Published'
+                    resp = publish(page.id, "page", destination)
+                    if 'success = "false"' in str(resp):
+                        message = resp['message']
+                    else:
+                        message = 'Published'
                     pages_added.append({'id': page.id, 'path': page.path.path, 'message': message})
             except:
                 continue
@@ -111,13 +92,8 @@ def publish_search():
 
 
 @publish_blueprint.route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
-def publish_publish(destination, type, id, ):
-    if destination == "staging":
-        destination = "staging.bethel.edu"
-    elif destination == "production":
-        destination = "Production bethel.edu"
-    else:
-        # default: Empty string means publish to all
+def publish_publish(destination, type, id):
+    if destination != "staging":
         destination = ""
 
     if type == "block":
@@ -125,14 +101,14 @@ def publish_publish(destination, type, id, ):
             relationships = list_relationships(id, type)
             pages = relationships.subscribers.assetIdentifier
             for page in pages:
-                resp = publish(page.id, "page", destination)
+                if page.type == "page":
+                    resp = publish(page.id, "page", destination)
             if 'success = "false"' in str(resp):
                 return resp['message']
         except:
             return "Failed"
     else:
         resp = publish(id, type, destination)
-        print resp
         if 'success = "false"' in str(resp):
             return resp['message']
 

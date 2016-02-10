@@ -65,6 +65,7 @@ seminary_programs = [
     "Marriage & Family Therapy (M.A.)",
     "Master of Divinity",
     "Mental Health Counseling (M.A.)",
+    "Ministry Practice Certificate",
     "Ministry Practice (M.A.)",
     "Theological Studies Certificate",
     "Theological Studies (M.A.)",

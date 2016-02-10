@@ -631,16 +631,20 @@ def get_add_data(lists, form):
     return add_data
 
 
-def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, school=None):
-    if school is None:
-        school = []
+def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, add_data=None):
+    schools = []
+    for i in range(1, 100):
+        try:
+            schools.append(add_data['schools' + str(i)])
+        finally:
+            break
 
     # only submit workflow if it is a new CAS
-    if "College of Arts and Sciences" in school:
+    if "College of Arts and Sciences" in schools:
         workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
-    elif "Graduate School" in school or "College of Adult and Professional Studies" in school:
+    elif "Graduate School" in schools or "College of Adult and Professional Studies" in schools:
         workflow_id = '81dabbc78c5865130c130b3a2b567e75'
-    elif "Bethel Seminary" in school:
+    elif "Bethel Seminary" in schools:
         workflow_id = '68ad793e8c5865137c9c2c89440cbbbc'
     else:
         return None
@@ -659,26 +663,6 @@ def get_bio_publish_workflow(title="", username="", faculty_bio_id=None, school=
     }
 
     return workflow
-
-
-# Todo: remove this.
-# This function is no longer used, as all bios go through a workflow.
-def check_publish_sets(schools, faculty_bio_id, new_bio=False):
-    for school in schools:
-        # currently GS and CAPS go through a workflow, so those should NOT be published here.
-        # also, cas should only be published if its new
-        # if school == "College of Arts & Sciences" and new_bio == False:
-        #     publish(faculty_bio_id, "page")
-        #     publish_faculty_bio_xml()
-        #     publish("f580ac758c58651313b6fe6bced65fea", "publishset")
-        # elif item == "Graduate School":
-        #     publish("2ecbad1a8c5865132b2dadea8cdcb2be", "publishset")
-        # elif item == "College of Adult & Professional Studies":
-        #     publish("2ed0beef8c5865132b2dadea1ccf543e", "publishset")
-        if school == "Bethel Seminary":
-            publish(faculty_bio_id)
-            publish_faculty_bio_xml()
-            publish("2ed19c8d8c5865132b2dadea60403657", "publishset")
 
 
 def get_description_text(depts):
