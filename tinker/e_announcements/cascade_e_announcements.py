@@ -21,7 +21,8 @@ def get_e_announcements_for_user(username="get_all"):
     return matches
 
 
-# Todo: figure out how to get all elements. Optional: get all attributes as well (styling)
+# Todo: maybe use the WYSIWYG method
+# Todo: try fixing the anchor tag issue
 def recurse(node):
     return_string = ''
     for child in node:
@@ -287,7 +288,7 @@ def create_single_announcement(announcement):
     return return_value
 
 
-# Todo: need to check if 'Hosted by the Department of' stays.
+# Todo: need to ask Tim if 'Hosted by the Department of' stays.
 def e_announcement_html(announcement):
     element = '''
         <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style="">

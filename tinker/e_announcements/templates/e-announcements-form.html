@@ -134,26 +134,33 @@
                 disabledDaysOfWeek: [0,2,4,6],
                 format: 'MM-DD-YYYY',
                 disableDayFn: function(date){
-                    // remove all dates before and including today
-                    if( date <= new Date() ){
-                        return date;
-                    }
 
                     // remove all Sun/Tues/Thur/Sat days from the week
                     if( $.inArray(date.getDay(), [0,2,4,6]) > -1){
                         return date;
                     }
 
-
+                    // This can be modified to disabled various holidays
                     var DD = ('0' + date.getDate()).slice(-2);
                     var MM = ('0' + (date.getMonth() + 1)).slice(-2);
                     var MMDD = MM + '/' + DD;
-
-                    // This can be modified to disabled various holidays
                     var disabledDays = ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '01/01'];
 
                     // Disallow specific days
                     if($.inArray(MMDD, disabledDays) > -1) {
+                        return date;
+                    }
+
+                    // the last time you can submit a announcement is 1pm the previous business day.
+                    var dateCutoff = date;
+                    dateCutoff.setDate(dateCutoff.getDate() - 1);
+                    while(dateCutoff.getDay() == 0 || dateCutoff.getDay() == 6){
+                        dateCutoff.setDate(dateCutoff.getDate() - 1);
+                    }
+                    dateCutoff.setHours(13);
+
+                    if( dateCutoff <= new Date() ){
+
                         return date;
                     }
                 }
