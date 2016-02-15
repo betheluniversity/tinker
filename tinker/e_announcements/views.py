@@ -164,7 +164,7 @@ def submit_e_announcement_form():
     else:
         e_announcement_id = None
 
-    workflow = get_e_announcement_publish_workflow(title, username)
+    workflow = get_e_announcement_publish_workflow(title)
     asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)
 
     if e_announcement_id:

@@ -81,6 +81,9 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
         except:
             continue
 
+    # sort by created-on date.
+    matches = sorted(matches, key=lambda k: k['created-on'])
+
     return matches
 
 
@@ -255,17 +258,16 @@ def convert_month_num_to_name(month_num):
         return "december"
 
 
-def get_e_announcement_publish_workflow(title="", username=""):
+def get_e_announcement_publish_workflow(title=""):
 
-    # name = "New E-announcement Submission"
-    # if title:
-    #     name += ": " + title
-    # workflow = {
-    #     "workflowName": name,
-    #     "workflowDefinitionId": "aae9f9678c5865130c130b3a0d785704",
-    #     "workflowComments": "Send e-announcement for approval"
-    # }
-    workflow = None
+    name = "New E-announcement Submission"
+    if title:
+        name += ": " + title
+    workflow = {
+        "workflowName": name,
+        "workflowDefinitionId": app.config['E_ANNOUCNEMENT_WORKFLOW_ID'],
+        "workflowComments": "Send e-announcement for approval"
+    }
     return workflow
 
 
@@ -284,11 +286,9 @@ def create_single_announcement(announcement):
         count = count+1
 
     return_value += '[endif]'
-    print return_value
     return return_value
 
 
-# Todo: need to ask Tim if 'Hosted by the Department of' stays.
 def e_announcement_html(announcement):
     element = '''
         <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style="">
@@ -306,7 +306,6 @@ def e_announcement_html(announcement):
                     <td class="column" style="font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #555;font-family: Georgia,serif;" width="400">
                         <div style="Margin-left: 20px;Margin-right: 20px;">
                             %s
-                            <p class="size-14" style="Margin-top: 20px;Margin-bottom: 0;font-family: georgia,serif;font-size: 14px;line-height: 21px;"><span class="font-georgia">Hosted by the Department of %s.</span></p>
                             <p class="size-12" style="Margin-top: 20px;Margin-bottom: 0;font-family: georgia,serif;font-size: 12px;line-height: 19px;">
                                 <span class="font-georgia">
                                     <span style="color:rgb(119, 119, 119)">
@@ -321,7 +320,7 @@ def e_announcement_html(announcement):
             </tbody>
         </table>
         <div style="font-size:20px;line-height:20px;mso-line-height-rule:exactly;">&nbsp;</div>
-    ''' % (announcement['title'], announcement['message'], announcement['department'], ', '.join(announcement['roles']))
+    ''' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
 
     return element
 
