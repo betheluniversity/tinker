@@ -21,6 +21,17 @@ def get_e_announcements_for_user(username="get_all"):
     return matches
 
 
+# Todo: figure out how to get all elements. Optional: get all attributes as well (styling)
+def recurse(node):
+    for child in node:
+        if child.text:
+            print '<%s>%s</%s>' % (child.tag, child.text, child.tag)
+        else:
+            print '<%s>' % child.tag
+            recurse(child)
+            print '</%s>' % child.tag
+
+
 def traverse_e_announcements_folder(traverse_xml, username="get_all"):
     # Traverse an XML folder, adding system-pages to a dict of matches
 
@@ -43,6 +54,15 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                     if value.tag == 'value':
                         roles.append(value.text)
 
+
+
+
+
+                recurse(child.find('system-data-structure/message/'))
+
+
+
+
                 page_values = {
                     'author': child.find('author').text,
                     'id': child.attrib['id'] or "",
@@ -52,6 +72,7 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                     'first_date': first_date,
                     'second_date': second_date,
                     'message': child.find('system-data-structure/message/p').text,
+                    'department': child.find('department').text or None,
                     'roles': roles
                 }
                 # This is a match, add it to array
@@ -251,10 +272,11 @@ def create_single_announcement(announcement):
     count = 1
 
     for role in announcement['roles']:
+        prepended_role = '20322-%s' % role
         if count == 1:
-            return_value = '[if:%s=Y]' % role
+            return_value = '[if:%s=Y]' % prepended_role
         else:
-            return_value += '[elseif:%s=Y]' % role
+            return_value += '[elseif:%s=Y]' % prepended_role
 
         return_value += e_announcement_html(announcement)
         count = count+1
@@ -264,9 +286,43 @@ def create_single_announcement(announcement):
     return return_value
 
 
+# Todo: reupdate this portion of code.
 def e_announcement_html(announcement):
     # Todo: update the html of individual announcements for a final version
-    return '<h3>%s</h3><p>%s<span>(%s)</span></p>' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
+
+    element = '''
+        <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style="">
+            <tbody>
+                <tr>
+                    <td class="column" style="font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #555;font-family: Georgia,serif;" width="200">
+                        <div style="Margin-left: 20px;Margin-right: 20px;">
+                            <h2 style="Margin-top: 0;Margin-bottom: 0;font-style: normal;font-weight: normal;font-size: 20px;line-height: 28px;color: #555;font-family: sans-serif;">
+                                <strong>
+                                    %s
+                                </strong>
+                            </h2>
+                        </div>
+                    </td>
+                    <td class="column" style="font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #555;font-family: Georgia,serif;" width="400">
+                        <div style="Margin-left: 20px;Margin-right: 20px;">
+                            %s
+                            <p class="size-14" style="Margin-top: 20px;Margin-bottom: 0;font-family: georgia,serif;font-size: 14px;line-height: 21px;"><span class="font-georgia">Hosted by the Department of %s.</span></p>
+                            <p class="size-12" style="Margin-top: 20px;Margin-bottom: 0;font-family: georgia,serif;font-size: 12px;line-height: 19px;">
+                                <span class="font-georgia">
+                                    <span style="color:rgb(119, 119, 119)">
+                                        %s
+                                    </span>
+                                </span>
+                            </p>
+                        </div>
+
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    ''' % (announcement['title'], announcement['message'], announcement['department'], ', '.join(announcement['roles']))
+
+    return element
 
 
 # Gets the template IDs

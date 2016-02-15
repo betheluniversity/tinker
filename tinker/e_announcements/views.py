@@ -182,7 +182,7 @@ def submit_e_announcement_form():
 @e_announcements_blueprint.route("/create_campaign/<date>", methods=['get', 'post'])
 def create_campaign(date=None):
     if not date:
-        date = datetime.datetime.now().strftime("%m-%d-%Y")
+        date = datetime.datetime.strptime(datetime.datetime.now().strftime("%m-%d-%Y"), "%m-%d-%Y")
     else:
         date = datetime.datetime.strptime(date, "%m-%d-%Y")
 
@@ -203,7 +203,14 @@ def create_campaign(date=None):
         if not date_matches:
             continue
 
-        submitted_announcements += create_single_announcement(announcement)
+        submitted_announcements += {
+            "Layout": "My layout",
+                "Multilines": [
+                    {
+                        "Content": create_single_announcement(announcement)
+                    }
+                ]
+            }
 
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     CreateSend({'api_key': campaign_monitor_key})
@@ -218,18 +225,31 @@ def create_campaign(date=None):
     list_ids = [app.config['LIST_KEY']]
     segment_ids = [app.config['SEGMENT_ID']]
     template_id = app.config['TEMPLATE_ID']
-    template_content = {'Multilines': [{"Content": submitted_announcements}]}
+    template_content = {
+        "Singlelines": [
+              {
+                "Content": subject,
+              }
+        ],
+        "Repeaters": [
+              {
+                "Items": [
+                    submitted_announcements
+                ]
+              }
+        ]
+      }
 
-    return 'Currently not creating a new campaign, just in case it is charging the account.'
+    return 'Currently not creating a new campaign.'
 
     # Todo: if a campaign already exists, delete the old one and create a new one
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                          segment_ids, template_id, template_content)
 
-    # Todo: PROD - update the email to send to whoever checks its sent.
+    # Todo: PROD - update the email to the admin. (also, move this to config.py)
     confirmation_email_sent_to = 'ces55739@bethel.edu'
 
-    # Todo: figure out why send_preview doesn't work.
+    # Todo: (not currently needed) figure out why send_preview doesn't work.
     # new_campaign.send_preview(confirmation_email_sent_to)
 
     # =====================================================
