@@ -23,13 +23,18 @@ def get_e_announcements_for_user(username="get_all"):
 
 # Todo: figure out how to get all elements. Optional: get all attributes as well (styling)
 def recurse(node):
+    return_string = ''
     for child in node:
         if child.text:
-            print '<%s>%s</%s>' % (child.tag, child.text, child.tag)
-        else:
-            print '<%s>' % child.tag
-            recurse(child)
-            print '</%s>' % child.tag
+            return_string += '<%s>%s</%s>' % (child.tag, child.text, child.tag)
+        if child.tail:
+            return_string += child.tail
+
+        try:
+            return_string += '<%s>%s</%s>' % (child.tag, recurse(child), child.tag)
+        except:
+            continue
+    return return_string
 
 
 def traverse_e_announcements_folder(traverse_xml, username="get_all"):
@@ -54,14 +59,8 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                     if value.tag == 'value':
                         roles.append(value.text)
 
-
-
-
-
-                recurse(child.find('system-data-structure/message/'))
-
-
-
+                message = ''
+                message = recurse(child.find('system-data-structure/message'))
 
                 page_values = {
                     'author': child.find('author').text,
@@ -71,14 +70,16 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                     'path': 'https://www.bethel.edu' + child.find('path').text or "",
                     'first_date': first_date,
                     'second_date': second_date,
-                    'message': child.find('system-data-structure/message/p').text,
-                    'department': child.find('department').text or None,
+                    'message': message,
+                    'department': child.find('system-data-structure/department').text or None,
                     'roles': roles
                 }
+
                 # This is a match, add it to array
                 matches.append(page_values)
         except:
             continue
+
     return matches
 
 
@@ -282,14 +283,12 @@ def create_single_announcement(announcement):
         count = count+1
 
     return_value += '[endif]'
-
+    print return_value
     return return_value
 
 
-# Todo: reupdate this portion of code.
+# Todo: need to check if 'Hosted by the Department of' stays.
 def e_announcement_html(announcement):
-    # Todo: update the html of individual announcements for a final version
-
     element = '''
         <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style="">
             <tbody>
@@ -320,6 +319,7 @@ def e_announcement_html(announcement):
                 </tr>
             </tbody>
         </table>
+        <div style="font-size:20px;line-height:20px;mso-line-height-rule:exactly;">&nbsp;</div>
     ''' % (announcement['title'], announcement['message'], announcement['department'], ', '.join(announcement['roles']))
 
     return element

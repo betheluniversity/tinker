@@ -186,7 +186,7 @@ def create_campaign(date=None):
     else:
         date = datetime.datetime.strptime(date, "%m-%d-%Y")
 
-    submitted_announcements = ''
+    submitted_announcements = []
     for announcement in get_e_announcements_for_user():
         date_matches = False
 
@@ -203,7 +203,7 @@ def create_campaign(date=None):
         if not date_matches:
             continue
 
-        submitted_announcements += {
+        submitted_announcements.append({
             "Layout": "My layout",
                 "Multilines": [
                     {
@@ -211,6 +211,8 @@ def create_campaign(date=None):
                     }
                 ]
             }
+        )
+
 
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     CreateSend({'api_key': campaign_monitor_key})
@@ -227,20 +229,21 @@ def create_campaign(date=None):
     template_id = app.config['TEMPLATE_ID']
     template_content = {
         "Singlelines": [
-              {
+            {
                 "Content": subject,
-              }
+            }
         ],
         "Repeaters": [
-              {
-                "Items": [
+            {
+                "Items":
                     submitted_announcements
-                ]
-              }
+            }
         ]
-      }
+    }
 
-    return 'Currently not creating a new campaign.'
+    return str(template_content)
+
+    # return 'Currently not creating a new campaign.'
 
     # Todo: if a campaign already exists, delete the old one and create a new one
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,

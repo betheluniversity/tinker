@@ -69,7 +69,6 @@ class HeadingField(Field):
 #####################
 # Faculty Bio Forms
 #####################
-
 # Special class to know when to include the class for a ckeditor wysiwyg
 class DummyField(TextAreaField):
     pass
