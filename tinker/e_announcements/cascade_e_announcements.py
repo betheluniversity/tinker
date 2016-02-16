@@ -32,6 +32,10 @@ def recurse(node):
             return_string += child.tail
 
         try:
+            # Todo clean this up
+            # if child.tag == 'a':
+            #     return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], recurse(child), child.tag)
+            # else:
             return_string += '<%s>%s</%s>' % (child.tag, recurse(child), child.tag)
         except:
             continue
@@ -289,6 +293,7 @@ def create_single_announcement(announcement):
     return return_value
 
 
+# Todo: move to a html template
 def e_announcement_html(announcement):
     element = '''
         <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style="">

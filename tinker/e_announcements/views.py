@@ -243,6 +243,8 @@ def create_campaign(date=None):
         ]
     }
 
+    # return str(template_content)
+
     # Todo: if a campaign already exists, delete the old one and create a new one
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                          segment_ids, template_id, template_content)
