@@ -83,4 +83,4 @@ class EAnnouncementsForm(Form):
     banner_roles = SelectMultipleField('Audience', description="To choose more than one audience, hold down the control key while highlighting the audiences your message should be sent to. (Apple users should hold down the Apple/command key instead of the control key.)", choices=get_audience_choices(), validators=[DataRequired()])
 
     first = DateField("First Date", format="%m-%d-%Y", validators=[DataRequired()])
-    second = DateField("Optional Second Date", format="%m-%d-%Y", validators=[Optional()])
+    second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y", validators=[Optional()])

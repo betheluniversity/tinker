@@ -32,13 +32,15 @@ def e_announcements_home():
         forms = get_e_announcements_for_user(username)
 
     forms.sort(key=lambda item:item['first_date'], reverse=True)
-
+    forms = reversed(forms)
     return render_template('e-announcements-home.html', **locals())
 
 
 @e_announcements_blueprint.route('/delete/<page_id>')
 def delete_page(page_id):
     delete(page_id)
+    # Todo: move this id into config.py
+    publish('861012818c5865130c130b3acbee7343');
     return redirect('/e-announcement/delete-confirm', code=302)
 
 
@@ -240,10 +242,6 @@ def create_campaign(date=None):
             }
         ]
     }
-
-    return str(template_content)
-
-    # return 'Currently not creating a new campaign.'
 
     # Todo: if a campaign already exists, delete the old one and create a new one
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
