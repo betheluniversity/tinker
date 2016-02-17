@@ -21,24 +21,30 @@ def get_e_announcements_for_user(username="get_all"):
     return matches
 
 
-# Todo: maybe use the WYSIWYG method
-# Todo: try fixing the anchor tag issue
 def recurse(node):
     return_string = ''
     for child in node:
+
+        # gets the basic text
         if child.text:
-            return_string += '<%s>%s</%s>' % (child.tag, child.text, child.tag)
+            if child.tag == 'a':
+                return_string += '<%s TAG href="%s">%s</%s>' % (child.tag, child.attrib['href'], child.text, child.tag)
+            else:
+                return_string += '<%s>%s</%s>' % (child.tag, child.text, child.tag)
+
+        # recursively renders children
+        try:
+            if child.tag == 'a':
+                return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], recurse(child), child.tag)
+            else:
+                return_string += '<%s>%s</%s>' % (child.tag, recurse(child), child.tag)
+        except:
+            continue
+
+        # gets the text that follows the children
         if child.tail:
             return_string += child.tail
 
-        try:
-            # Todo clean this up
-            # if child.tag == 'a':
-            #     return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], recurse(child), child.tag)
-            # else:
-            return_string += '<%s>%s</%s>' % (child.tag, recurse(child), child.tag)
-        except:
-            continue
     return return_string
 
 
