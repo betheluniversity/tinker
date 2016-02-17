@@ -138,6 +138,8 @@ def edit_e_announcement(e_announcement_id):
 
 @e_announcements_blueprint.route("/submit", methods=['POST'])
 def submit_e_announcement_form():
+
+
     # import this here so we dont load all the content
     # from cascade during homepage load
     from forms import EAnnouncementsForm
@@ -157,7 +159,6 @@ def submit_e_announcement_form():
 
         app.logger.warn(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
         return render_template('e-announcements-form.html', **locals())
-
 
     # Get all the form data
     add_data = get_add_data(['banner_roles'], rform)
