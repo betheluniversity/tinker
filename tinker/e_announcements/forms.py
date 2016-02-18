@@ -90,8 +90,9 @@ class EAnnouncementsForm(Form):
             return False
         result = True
 
-        if self.first.data >= self.second.data:
-            self.first.errors.append('The first date must come before the second date.')
-            result = False
+        if self.second.data:
+            if self.first.data >= self.second.data:
+                self.first.errors.append('The first date must come before the second date.')
+                result = False
 
         return result

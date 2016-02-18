@@ -138,8 +138,6 @@ def edit_e_announcement(e_announcement_id):
 
 @e_announcements_blueprint.route("/submit", methods=['POST'])
 def submit_e_announcement_form():
-
-
     # import this here so we dont load all the content
     # from cascade during homepage load
     from forms import EAnnouncementsForm
@@ -243,8 +241,6 @@ def create_campaign(date=None):
             }
         ]
     }
-
-    return str(template_content)
 
     # Todo: if a campaign already exists, delete the old one and create a new one
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,

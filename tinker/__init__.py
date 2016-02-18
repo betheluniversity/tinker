@@ -75,4 +75,3 @@ def cache_test(img_path=None):
 def peanut():
     from flask import render_template
     return render_template('sherie.html')
-

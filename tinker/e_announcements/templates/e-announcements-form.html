@@ -23,9 +23,9 @@
   <div class="row">
   <div class="large-12 columns">
     {% if new_form %}
-      <form id="eannouncementform" action="/e-announcement/submit" method="post">
+      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
     {% else %}
-      <form id="eannouncementform" action="/e-announcement/submit" method="post">
+      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
         {% if form.errors %}
