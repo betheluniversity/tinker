@@ -125,6 +125,16 @@ def clear_image_cache(image_path):
     return str(matches)
 
 
+def should_be_able_to_edit_image(roles):
+    if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
+        return False
+    else:
+        return True
+
+def test(input):
+    return input
+
+
 # def can_user_access_asset( username, id, type):
 #     try:
 #         user = read(username, "user")
