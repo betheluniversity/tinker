@@ -4,14 +4,48 @@
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 {% block main_content %}
+    <script type="text/javascript">
+        function loadBlinkAccount(ptl, uid){
+            var submitURL = null;
+            if(ptl == "prod"){
+                submitURL = "https://blink.bethel.edu/cp/home/login";
+            }else if(ptl == "xp"){
+                submitURL = "https://blink.xp.bethel.edu/cp/home/login";
+            }else if(ptl == "lp4b7"){
+                submitURL = "https://lp4b7.xp.bethel.edu/cp/home/login";
+            }
+            var form = document.getElementById('blink-login')
+            form.action = submitURL;
+            document.getElementById('blink-user').value = uid;
+            form.submit();
+
+        }
+
+    </script>
 
     <table>
-        {% for row in table %}
-        <tr>
+            <colgroup>
+            <col width="33%" class="align-left">
+            <col width="33%" class="align-left">
+            <col width="33%" class="align-left">
+            <col width="1%" class="align-left">
+        </colgroup>
 
+        <tbody>
+        <tr class="rowheading">
+            <td colspan="4">
+                Layout Owner Logins
+            </td>
         </tr>
+        {% for entry in uid_list %}
+            <tr>
+                <td> {{ entry }} </td>
+                {% for add in portal_list %}
+                    <td>{{ add }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
     </table>
-
     <table class="silvatable grid" cellspacing="0" cellpadding="3">
         <colgroup>
             <col width="33%" class="align-left">
