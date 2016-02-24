@@ -565,7 +565,7 @@ def traverse_faculty_folder(traverse_xml, username):
                 if page_values:
                     matches.append(page_values)
                     break
-    print len(matches)
+
     return matches
 
 

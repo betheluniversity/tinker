@@ -19,8 +19,6 @@ faculty_bio_blueprint = Blueprint('faculty-bio', __name__, template_folder='temp
 def faculty_bio_home():
     username = session['username']
     roles = get_roles(username)
-    for role in roles:
-        print role
 
     # index page for adding events and things
     forms = get_faculty_bios_for_user(username)

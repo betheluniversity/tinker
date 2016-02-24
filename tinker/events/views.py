@@ -265,6 +265,11 @@ def submit_form():
 
     resp = create(asset)
 
+    if username == 'amf39248':
+        print 'TESTING'
+        print asset
+        print resp
+
     # 'link' must be a valid component
     if 'link' in add_data and add_data['link'] != "":
         from tinker.redirects.views import new_internal_redirect_submit
