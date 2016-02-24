@@ -266,9 +266,8 @@ def submit_form():
     resp = create(asset)
 
     if username == 'amf39248':
-        print 'TESTING'
-        print asset
-        print resp
+        app.logger.warn(time.strftime("%c") + ": TESTING" + asset)
+        app.logger.warn(time.strftime("%c") + ": TESTING" + resp)
 
     # 'link' must be a valid component
     if 'link' in add_data and add_data['link'] != "":
