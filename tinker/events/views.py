@@ -253,7 +253,7 @@ def submit_form():
 
     form = rform
     # Get all the form data
-    metadata_list = ['general', 'offices', 'cas_departments', 'internal', 'adult-undergrad-program', 'graduate-program', 'seminary-program']
+    metadata_list = ['general', 'offices', 'cas_departments', 'internal', 'adult_undergrad_program', 'graduate_program', 'seminary_program']
     add_data = get_add_data(metadata_list, form)
 
     dates = get_dates(add_data)
