@@ -4,12 +4,17 @@
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 {% block main_content %}
+    <form id="blink-login" action="https://blink.bethel.edu/cp/home/login" method="post">
+        <input id="blink-pass" type="hidden" name="pass" value="p0rt2l" />
+        <input id="blink-user" type="hidden" name="user" value="" />
+        <input type="hidden" name="uuid" value="0xACA021" />
+    </form>
     <script type="text/javascript">
         function loadBlinkAccount(ptl, uid){
             var submitURL = null;
-            if(ptl == "prod"){
+            if(ptl == "Production"){
                 submitURL = "https://blink.bethel.edu/cp/home/login";
-            }else if(ptl == "xp"){
+            }else if(ptl == "XP"){
                 submitURL = "https://blink.xp.bethel.edu/cp/home/login";
             }else if(ptl == "lp4b7"){
                 submitURL = "https://lp4b7.xp.bethel.edu/cp/home/login";
@@ -22,9 +27,9 @@
         }
 
     </script>
-
+    <h2> Blink Layout Owners </h2>
     <table>
-            <colgroup>
+        <colgroup>
             <col width="33%" class="align-left">
             <col width="33%" class="align-left">
             <col width="33%" class="align-left">
@@ -41,325 +46,326 @@
             <tr>
                 <td> {{ entry }} </td>
                 {% for add in portal_list %}
-                    <td>{{ add }}</td>
+                    <td><a href="javascript:loadBlinkAccount('{{ add }}', '{{ entry }}')" target="_blank">{{ add }}</a></td>
                 {% endfor %}
             </tr>
         {% endfor %}
     </table>
-    <table class="silvatable grid" cellspacing="0" cellpadding="3">
-        <colgroup>
-            <col width="33%" class="align-left">
-            <col width="33%" class="align-left">
-            <col width="33%" class="align-left">
-            <col width="1%" class="align-left">
-        </colgroup>
 
-        <tbody>
-        <tr class="rowheading">
-            <td colspan="4">
-                Layout Owner Logins
-            </td>
-        </tr>
-
-        <tr class="odd">
-            <td class="align-left">
-                allusers-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers-lo&amp;portal=prod"
-                   target="_self">Production</a><br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers-lo&amp;portal=xp"
-                   target="_self">XP</a><br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="even">
-            <td class="align-left">
-                employee-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=employee-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=employee-lo&amp;portal=xp"
-                   target="_self">XP</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=employee-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="odd">
-            <td class="align-left">
-                faculty-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=faculty-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=faculty-lo&amp;portal=xp"
-                   target="_self">XP</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=faculty-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="even">
-            <td class="align-left">
-                student-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student-lo&amp;portal=xp"
-                   target="_self">XP</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="odd">
-            <td class="align-left">
-                student2-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student2-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student2-lo&amp;portal=xp"
-                   target="_self">XP</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student2-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="even">
-            <td class="align-left">
-                cas-student-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=cas-student-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=cas-student-lo&amp;portal=xp"
-                   target="_self">XP</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=cas-student-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="odd">
-            <td class="align-left">
-                bssp-student-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssp-student-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssp-student-lo&amp;portal=xp"
-                   target="_self">XP</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssp-student-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="even">
-            <td class="align-left">
-                gs-student-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=gs-student-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=gs-student-lo&amp;portal=xp"
-                   target="_self">XP</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=gs-student-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="odd">
-            <td class="align-left">
-                caps-student-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=caps-student-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=caps-student-lo&amp;portal=xp"
-                   target="_self">XP</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=caps-student-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="even">
-            <td class="align-left">
-                bssd-bsoe-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssd-bsoe-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssd-bsoe-lo&amp;portal=xp"
-                   target="_self">XP</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssd-bsoe-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="odd">
-            <td class="align-left">
-                stpcampus-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=stpcampus-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=stpcampus-lo&amp;portal=xp"
-                   target="_self">XP</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=stpcampus-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="even">
-            <td class="align-left">
-                allusers2-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers2-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers2-lo&amp;portal=xp"
-                   target="_self">XP</a>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers2-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a>
-            </td>
-        </tr>
-
-        <tr class="odd">
-            <td class="align-left">
-                allusers3-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers3-lo&amp;portal=prod"
-                   target="_self">Production</a><br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers3-lo&amp;portal=xp"
-                   target="_self">XP</a><br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers3-lo&amp;portal=lp4b7"
-                   target="_self">lp4b7</a><br>
-            </td>
-        </tr>
-
-        <tr class="even">
-            <td class="align-left">
-                alumni-lo
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=alumni-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                &nbsp;
-            </td>
-            <td class="align-left">
-                &nbsp;
-            </td>
-        </tr>
-
-        <tr class="odd">
-            <td class="align-left">
-                retiree-emeriti-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=retiree-emeriti-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                &nbsp;
-            </td>
-            <td class="align-left">
-                &nbsp;
-            </td>
-        </tr>
-
-        <tr class="even">
-            <td class="align-left">
-                library-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=library-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                &nbsp;
-            </td>
-            <td class="align-left">
-                &nbsp;
-            </td>
-        </tr>
-
-        <tr class="odd">
-            <td class="align-left">
-                technology-lo<br>
-            </td>
-            <td class="align-left">
-                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=technology-lo&amp;portal=prod"
-                   target="_self">Production</a>
-            </td>
-            <td class="align-left">
-                &nbsp;
-            </td>
-            <td class="align-left">
-                &nbsp;
-            </td>
-        </tr>
-
-        </tbody>
-    </table>
+{#    <table class="silvatable grid" cellspacing="0" cellpadding="3">#}
+{#        <colgroup>#}
+{#            <col width="33%" class="align-left">#}
+{#            <col width="33%" class="align-left">#}
+{#            <col width="33%" class="align-left">#}
+{#            <col width="1%" class="align-left">#}
+{#        </colgroup>#}
+{##}
+{#        <tbody>#}
+{#        <tr class="rowheading">#}
+{#            <td colspan="4">#}
+{#                Layout Owner Logins#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="odd">#}
+{#            <td class="align-left">#}
+{#                allusers-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a><br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a><br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="even">#}
+{#            <td class="align-left">#}
+{#                employee-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=employee-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=employee-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=employee-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="odd">#}
+{#            <td class="align-left">#}
+{#                faculty-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=faculty-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=faculty-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=faculty-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="even">#}
+{#            <td class="align-left">#}
+{#                student-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="odd">#}
+{#            <td class="align-left">#}
+{#                student2-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student2-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student2-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=student2-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="even">#}
+{#            <td class="align-left">#}
+{#                cas-student-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=cas-student-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=cas-student-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=cas-student-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="odd">#}
+{#            <td class="align-left">#}
+{#                bssp-student-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssp-student-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssp-student-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssp-student-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="even">#}
+{#            <td class="align-left">#}
+{#                gs-student-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=gs-student-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=gs-student-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=gs-student-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="odd">#}
+{#            <td class="align-left">#}
+{#                caps-student-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=caps-student-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=caps-student-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=caps-student-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="even">#}
+{#            <td class="align-left">#}
+{#                bssd-bsoe-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssd-bsoe-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssd-bsoe-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=bssd-bsoe-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="odd">#}
+{#            <td class="align-left">#}
+{#                stpcampus-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=stpcampus-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=stpcampus-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=stpcampus-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="even">#}
+{#            <td class="align-left">#}
+{#                allusers2-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers2-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers2-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers2-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="odd">#}
+{#            <td class="align-left">#}
+{#                allusers3-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers3-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a><br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers3-lo&amp;portal=xp"#}
+{#                   target="_self">XP</a><br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=allusers3-lo&amp;portal=lp4b7"#}
+{#                   target="_self">lp4b7</a><br>#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="even">#}
+{#            <td class="align-left">#}
+{#                alumni-lo#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=alumni-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                &nbsp;#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                &nbsp;#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="odd">#}
+{#            <td class="align-left">#}
+{#                retiree-emeriti-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=retiree-emeriti-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                &nbsp;#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                &nbsp;#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="even">#}
+{#            <td class="align-left">#}
+{#                library-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=library-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                &nbsp;#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                &nbsp;#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        <tr class="odd">#}
+{#            <td class="align-left">#}
+{#                technology-lo<br>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                <a href="http://www.bethel.edu/its/blink/layout-owners/lo-login?uid=technology-lo&amp;portal=prod"#}
+{#                   target="_self">Production</a>#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                &nbsp;#}
+{#            </td>#}
+{#            <td class="align-left">#}
+{#                &nbsp;#}
+{#            </td>#}
+{#        </tr>#}
+{##}
+{#        </tbody>#}
+{#    </table>#}
 
 {% endblock %}

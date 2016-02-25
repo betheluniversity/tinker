@@ -10,7 +10,7 @@ uid = [
     'caps-student-lo',
     'bssd-bsoe-lo',
     'stpcampus-lo',
-    'allusers2-lo',
+   # 'allusers2-lo',
     'allusers3-lo',
     'alumni-lo',
     'retiree-emeriti-lo',
@@ -19,6 +19,6 @@ uid = [
 ]
 portal = [
     'Production',
-    'XP',
-    'lp4b7'
+   # 'XP',
+   # 'lp4b7'
 ]
