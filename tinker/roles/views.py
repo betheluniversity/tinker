@@ -10,8 +10,3 @@ def home():
     uid_list = uid
     portal_list = portal
     return render_template('blink-roles-home.html', **locals())
-
-"""@blink_roles_blueprint.route('/role/<uid>/<portal>')
-def role_redirect():
-    uid_list = uid
-    portal_list = portal"""
