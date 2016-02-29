@@ -253,7 +253,7 @@ def submit_form():
 
     form = rform
     # Get all the form data
-    metadata_list = ['general', 'offices', 'cas_departments', 'internal', 'adult-undergrad-program', 'graduate-program', 'seminary-program']
+    metadata_list = ['general', 'offices', 'cas_departments', 'internal', 'adult_undergrad_program', 'graduate_program', 'seminary_program']
     add_data = get_add_data(metadata_list, form)
 
     dates = get_dates(add_data)
@@ -264,6 +264,10 @@ def submit_form():
     asset = get_event_structure(add_data, username, workflow)
 
     resp = create(asset)
+
+    if username == 'amf39248':
+        app.logger.warn(time.strftime("%c") + ": TESTING" + asset)
+        app.logger.warn(time.strftime("%c") + ": TESTING" + resp)
 
     # 'link' must be a valid component
     if 'link' in add_data and add_data['link'] != "":

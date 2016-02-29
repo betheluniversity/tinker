@@ -18,6 +18,7 @@ faculty_bio_blueprint = Blueprint('faculty-bio', __name__, template_folder='temp
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
     username = session['username']
+    roles = get_roles(username)
 
     # index page for adding events and things
     forms = get_faculty_bios_for_user(username)
@@ -55,6 +56,8 @@ def faculty_bio_new_form():
     from forms import FacultyBioForm
 
     form = FacultyBioForm()
+    roles = get_roles()
+    edit_image = should_be_able_to_edit_image(roles)
 
     faculty_bio_id = ""
 
@@ -90,6 +93,8 @@ def faculty_bio_edit_form(faculty_bio_id):
     from forms import FacultyBioForm
 
     form = FacultyBioForm()
+    roles = get_roles()
+    edit_image = should_be_able_to_edit_image(roles)
 
     # Get the event data from cascade
     faculty_data = read(faculty_bio_id)
