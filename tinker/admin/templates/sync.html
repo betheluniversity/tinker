@@ -1,0 +1,52 @@
+{% extends "tinker-base.html" %}
+
+{% block title %}Sync{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+<a href="/sync/all" class="small button success">Sync</a>
+<!-- Todo: make this more dynamic -->
+<h3>Current Values:</h3>
+<h4>Schools</h4>
+<ul>
+{% for response in school %}
+    <li>{{ response }}</li>
+{% endfor %}
+</ul>
+
+<h4>CAPS</h4>
+<ul>
+{% for response in adult_undergrad_programs %}
+    <li>{{ response }}</li>
+{% endfor %}
+</ul>
+
+<h4>Graduate</h4>
+<ul>
+{% for response in graduate_programs %}
+    <li>{{ response }}</li>
+{% endfor %}
+</ul>
+
+<h4>Seminary</h4>
+<ul>
+{% for response in seminary_programs %}
+    <li>{{ response }}</li>
+{% endfor %}
+</ul>
+
+<h4>Undergrad</h4>
+<ul>
+{% for response in undergrad_programs %}
+    <li>{{ response }}</li>
+{% endfor %}
+</ul>
+
+<h4>Locations</h4>
+<ul>
+{% for response in locations %}
+    <li>{{ response }}</li>
+{% endfor %}
+</ul>
+{% endblock %}
