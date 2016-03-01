@@ -39,6 +39,8 @@ from tinker.e_announcements.views import e_announcements_blueprint
 from tinker.publish.views import publish_blueprint
 from tinker.sync.views import sync_blueprint
 from tinker.roles.views import blink_roles_blueprint
+# to be added
+#from tinker.admin.views import admin_blueprint
 
 app.register_blueprint(event_blueprint, url_prefix='/event')
 app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
@@ -48,6 +50,8 @@ app.register_blueprint(e_announcements_blueprint, url_prefix='/e-announcement')
 app.register_blueprint(publish_blueprint, url_prefix='/admin/publish-manager')
 app.register_blueprint(sync_blueprint, url_prefix='/admin/sync')
 app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
+# to be added
+#app.register_blueprint(admin_blueprint, url_prefix='/admin')
 
 
 # Import error handling
