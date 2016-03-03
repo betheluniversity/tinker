@@ -1,5 +1,6 @@
 __author__ = 'ces55739'
-from roledata import uid, portal
+from roles.roledata import uid, portal
+from sync.metadata import data_to_add
 # tinker
 from flask import Blueprint, render_template
 
