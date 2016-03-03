@@ -126,7 +126,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
 
     # Create a list of all the data nodes
     structured_data = [
-        structured_data_node("message", add_data['message']),
+        structured_data_node("message", escape_wysiwyg_content(add_data['message']) ),
         structured_data_node("department", add_data['department']),
         structured_data_node("first-date", add_data['first']),
         structured_data_node("second-date", add_data['second']),
@@ -302,36 +302,32 @@ def create_single_announcement(announcement):
 # Todo: move to a html template
 def e_announcement_html(announcement):
     element = '''
-        <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style="">
+        <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style>
             <tbody>
                 <tr>
-                    <td class="column" style="font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #555;font-family: Georgia,serif;" width="200">
-                        <div style="Margin-left: 20px;Margin-right: 20px;">
+                    <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #60666d;font-family: "Open Sans",sans-serif;' width="200">
+                        <div style="Margin-left: 20px;Margin-right: 20px;Margin-top: 24px;Margin-bottom: 24px;">
                             <h2 style="Margin-top: 0;Margin-bottom: 0;font-style: normal;font-weight: normal;font-size: 20px;line-height: 28px;color: #555;font-family: sans-serif;">
-                                <strong>
-                                    %s
-                                </strong>
+                                <strong>%s</strong>
                             </h2>
                         </div>
                     </td>
-                    <td class="column" style="font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #555;font-family: Georgia,serif;" width="400">
-                        <div style="Margin-left: 20px;Margin-right: 20px;">
+                    <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #555;font-family: Georgia,serif' width="400">
+                        <div style="Margin-left: 20px;Margin-right: 20px;Margin-top: 24px;Margin-bottom: 24px;">
                             %s
-                            <p class="size-12" style="Margin-top: 20px;Margin-bottom: 0;font-family: georgia,serif;font-size: 12px;line-height: 19px;">
+                            <p style="font-family: georgia,serif;font-size: 12px;line-height: 19px;">
                                 <span class="font-georgia">
-                                    <span style="color:rgb(119, 119, 119)">
+                                    <span style="color:#bdb9bd">
                                         %s
                                     </span>
                                 </span>
                             </p>
                         </div>
-
                     </td>
                 </tr>
             </tbody>
         </table>
-        <div style="font-size:20px;line-height:20px;mso-line-height-rule:exactly;">&nbsp;</div>
-    ''' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
+      ''' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
 
     return element
 
