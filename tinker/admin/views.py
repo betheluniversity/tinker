@@ -1,23 +1,34 @@
 __author__ = 'ces55739'
 from roles.roledata import uid, portal
 from sync.metadata import data_to_add
+from tinker.web_services import *
+from xml.sax.saxutils import escape
+import xml.etree.ElementTree as Et
+
 # tinker
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, abort, request
 
 admin_blueprint = Blueprint('admin_blueprint', __name__, template_folder='templates')
+sync = '/sync'
 
-@blink_roles_blueprint.route('/blink-roles')
-def home():
+# @admin_blueprint.before_request
+# def before_request():
+#     if 'Administrators' in session['groups']:
+#         return render_template()
+
+@admin_blueprint.route('/blink-roles')
+def blink_roles_home():
     uid_list = uid
     portal_list = portal
     return render_template('blink-roles-home.html', **locals())
 
-@sync_blueprint.route('/sync')
-def home():
+
+@admin_blueprint.route(sync)
+def sync_home():
     return render_template('sync-home.html', **locals())
 
 
-@sync_blueprint.route('/sync/all')
+@admin_blueprint.route(sync + '/all')
 def show():
     # don't pull locally. It's just a bad idea.
     if 'User' not in app.config['INSTALL_LOCATION']:
@@ -250,5 +261,3 @@ def recursive_structure_build(xml):
                 else:
                     to_return.append((elem.tag, elem.attrib, 0))
     return to_return
-
-
