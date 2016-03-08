@@ -1,20 +1,29 @@
 __author__ = 'ces55739'
 from roles.roledata import uid, portal
 from sync.metadata import data_to_add
+
+# python
+from BeautifulSoup import *
+import urllib
+from datetime import datetime
+
+# flask
+from flask import Blueprint, render_template, abort, request
+
+# tinker
 from tinker.web_services import *
 from xml.sax.saxutils import escape
 import xml.etree.ElementTree as Et
 
-# tinker
-from flask import Blueprint, render_template, abort, request
-
 admin_blueprint = Blueprint('admin_blueprint', __name__, template_folder='templates')
+blink_roles = '/blink-roles'
 sync = '/sync'
+publish_manager = '/publish-manager'
 
-# @admin_blueprint.before_request
-# def before_request():
-#     if 'Administrators' in session['groups']:
-#         return render_template()
+@admin_blueprint.before_request
+def before_request():
+    if 'Administrators' not in session['groups']:
+        abort(403)
 
 @admin_blueprint.route('/blink-roles')
 def blink_roles_home():
@@ -261,3 +270,4 @@ def recursive_structure_build(xml):
                 else:
                     to_return.append((elem.tag, elem.attrib, 0))
     return to_return
+
