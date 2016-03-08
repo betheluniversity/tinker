@@ -1,0 +1,40 @@
+{% extends "tinker-base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block styles %}
+  <style type="text/css">
+  </style>
+{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+<h3>Publish Program Feeds</h3>
+
+<a href='/publish-manager/program-feeds/staging' class="button">Publish to Staging</a>
+<a href='/publish-manager/program-feeds/production' class="button">Publish to Production and Staging</a>
+
+    <p>Published these pages to {{ destination }}</p>
+    <table>
+        <tr>
+            <th>Block</th>
+            <th>Page Published</th>
+            <th>Errors?</th>
+        </tr>
+    {% for block in final_results %}
+        {% for page in block.pages %}
+            <tr>
+                {% if loop.index == 1 %}
+                    <td width="40%"><a href="https://cms.bethel.edu/entity/open.act?id={{ block.id }}&type=block&">{{ block.path }}</a></td>
+                {% else %}
+                    <td width="40%"></td>
+                {% endif %}
+                <td width="40%"><a href="https://cms.bethel.edu/entity/open.act?id={{ page.id }}&type=page&">{{ page.path }}</a></td>
+                <td width="20%">{{ page.message }}</td>
+            </tr>
+        {% endfor %}
+
+    {% endfor %}
+    </table>
+{% endblock %}
