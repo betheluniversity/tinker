@@ -43,7 +43,6 @@ app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
 app.register_blueprint(redirect_blueprint, url_prefix='/redirect')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 app.register_blueprint(e_announcements_blueprint, url_prefix='/e-announcement')
-
 app.register_blueprint(admin_blueprint, url_prefix='/admin')
 
 
