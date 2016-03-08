@@ -13,9 +13,10 @@ from tinker.tools import *
 from cascade_publish import *
 from tinker.web_services import *
 
-publish_blueprint = Blueprint('publish-manager', __name__, template_folder='templates')
+from tinker.admin.views import admin_blueprint
+#publish_blueprint = Blueprint('publish-manager', __name__, template_folder='templates')
 
-@publish_blueprint.route("/")
+@admin_blueprint.route("/")
 def publish_home():
     get_user()
     username = session['username']
@@ -26,11 +27,11 @@ def publish_home():
         abort(403)
 
 
-@publish_blueprint.route("/program-feeds", methods=['get', 'post'])
+@admin_blueprint.route("/program-feeds", methods=['get', 'post'])
 def publish_program_feeds():
     return render_template('publish-program-feeds.html', **locals())
 
-@publish_blueprint.route("/program-feeds/<destination>", methods=['get', 'post'])
+@admin_blueprint.route("/program-feeds/<destination>", methods=['get', 'post'])
 def publish_program_feeds_return(destination=''):
     if destination != "production":
         destination = "staging"
@@ -69,7 +70,7 @@ def publish_program_feeds_return(destination=''):
     return render_template('publish-program-feeds-table.html', **locals())
 
 
-@publish_blueprint.route('/search', methods=['post'])
+@admin_blueprint.route('/search', methods=['post'])
 def publish_search():
     name = request.form['name']
     content = request.form['content']
@@ -91,7 +92,7 @@ def publish_search():
     return render_template('publish-table.html', **locals())
 
 
-@publish_blueprint.route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
+@admin_blueprint.route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
 def publish_publish(destination, type, id):
     if destination != "staging":
         destination = ""
@@ -115,7 +116,7 @@ def publish_publish(destination, type, id):
     return "Publishing. . ."
 
 
-@publish_blueprint.route("/more_info", methods=['post'])
+@admin_blueprint.route("/more_info", methods=['post'])
 def publish_more_info():
     type = request.form['type']
     id = request.form['id']

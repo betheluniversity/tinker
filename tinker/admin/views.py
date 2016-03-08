@@ -324,7 +324,6 @@ def publish_program_feeds_return(destination=''):
 
     return render_template('publish-program-feeds-table.html', **locals())
 
-
 @admin_blueprint.route(publish_manager + '/search', methods=['post'])
 def publish_search():
     name = request.form['name']
