@@ -45,7 +45,7 @@ app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
 app.register_blueprint(redirect_blueprint, url_prefix='/redirect')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 app.register_blueprint(e_announcements_blueprint, url_prefix='/e-announcement')
-app.register_blueprint(publish_blueprint, url_prefix='/publish')
+app.register_blueprint(publish_blueprint, url_prefix='/publish-manager')
 app.register_blueprint(sync_blueprint, url_prefix='/sync')
 
 CsrfProtect(app)
@@ -63,8 +63,8 @@ def before_request():
         app.logger.info("failed to init")
 
 
-@app.route('/cache-test/<path:img_path>')
-@app.route('/cache-test')
+@app.route('/cache-clear/<path:img_path>')
+@app.route('/cache-clear')
 def cache_test(img_path=None):
     if not img_path:
         img_path = '/academics/faculty/images/lundberg-kelsey.jpg'

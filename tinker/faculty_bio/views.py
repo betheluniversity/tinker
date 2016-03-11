@@ -18,6 +18,7 @@ faculty_bio_blueprint = Blueprint('faculty-bio', __name__, template_folder='temp
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
     username = session['username']
+    roles = get_roles(username)
 
     # index page for adding events and things
     forms = get_faculty_bios_for_user(username)
@@ -55,6 +56,8 @@ def faculty_bio_new_form():
     from forms import FacultyBioForm
 
     form = FacultyBioForm()
+    roles = get_roles()
+    edit_image = should_be_able_to_edit_image(roles)
 
     faculty_bio_id = ""
 
@@ -90,6 +93,8 @@ def faculty_bio_edit_form(faculty_bio_id):
     from forms import FacultyBioForm
 
     form = FacultyBioForm()
+    roles = get_roles()
+    edit_image = should_be_able_to_edit_image(roles)
 
     # Get the event data from cascade
     faculty_data = read(faculty_bio_id)
@@ -228,21 +233,23 @@ def submit_faculty_bio_form():
         faculty_bio_id = None
 
     workflow = None
-    workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data['schools1'])
+    workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data)
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
-
+    
     if faculty_bio_id:
         # existing bio
         resp = edit(asset)
         app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " with id: " + faculty_bio_id + " " + str(resp))
         # publish corresponding pubish set to make sure corresponding pages get edits
-        # This is no longer needed, since ALL bios go through workflows.
-        # check_publish_sets(add_data['school'], faculty_bio_id, False)
+        if not workflow:
+            publish(faculty_bio_id, "page")
         return render_template('faculty-bio-confirm-edit.html', **locals())
     else:
         # new bio
         resp = create_faculty_bio(asset)
         faculty_bio_id = resp.createdAssetId
+        if not workflow:
+            publish(faculty_bio_id, "page")
         return render_template('faculty-bio-confirm-new.html', **locals())
 
 

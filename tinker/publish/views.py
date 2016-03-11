@@ -13,21 +13,7 @@ from tinker.tools import *
 from cascade_publish import *
 from tinker.web_services import *
 
-publish_blueprint = Blueprint('publish', __name__, template_folder='templates')
-
-
-@publish_blueprint.route("/test")
-def publish_test():
-
-    return render_template('test.html', **locals())
-
-
-@publish_blueprint.route("/test/click")
-def publish_test_click():
-    #needs to accept a id/path and return a list of the scripts/buttons.
-
-    return render_template('test.html', **locals())
-
+publish_blueprint = Blueprint('publish-manager', __name__, template_folder='templates')
 
 @publish_blueprint.route("/")
 def publish_home():
@@ -38,6 +24,49 @@ def publish_home():
         return render_template('publish-home.html', **locals())
     else:
         abort(403)
+
+
+@publish_blueprint.route("/program-feeds", methods=['get', 'post'])
+def publish_program_feeds():
+    return render_template('publish-program-feeds.html', **locals())
+
+@publish_blueprint.route("/program-feeds/<destination>", methods=['get', 'post'])
+def publish_program_feeds_return(destination=''):
+    if destination != "production":
+        destination = "staging"
+
+    # get results
+    results = search_data_definitions("*program-feed*")
+    if results.matches is None or results.matches == "":
+        results = []
+    else:
+        results = results.matches.match
+
+    final_results = []
+
+    # publish all results' relationships
+    for result in results:
+        type = result.type
+        id = result.id
+
+        if type == "block" and '/base-assets/' not in result.path.path and '_testing/' not in result.path.path:
+            try:
+                relationships = list_relationships(id, type)
+                pages = relationships.subscribers.assetIdentifier
+                pages_added = []
+                for page in pages:
+                    resp = publish(page.id, "page", destination)
+                    if 'success = "false"' in str(resp):
+                        message = resp['message']
+                    else:
+                        message = 'Published'
+                    pages_added.append({'id': page.id, 'path': page.path.path, 'message': message})
+            except:
+                continue
+
+            final_results.append({'id': result.id, 'path': result.path.path, 'pages': pages_added})
+
+    return render_template('publish-program-feeds-table.html', **locals())
 
 
 @publish_blueprint.route('/search', methods=['post'])
@@ -63,13 +92,8 @@ def publish_search():
 
 
 @publish_blueprint.route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
-def publish_publish(destination, type, id, ):
-    if destination == "staging":
-        destination = "staging.bethel.edu"
-    elif destination == "production":
-        destination = "Production bethel.edu"
-    else:
-        # default: Empty string means publish to all
+def publish_publish(destination, type, id):
+    if destination != "staging":
         destination = ""
 
     if type == "block":
@@ -77,14 +101,14 @@ def publish_publish(destination, type, id, ):
             relationships = list_relationships(id, type)
             pages = relationships.subscribers.assetIdentifier
             for page in pages:
-                resp = publish(page.id, "page", destination)
+                if page.type == "page":
+                    resp = publish(page.id, "page", destination)
             if 'success = "false"' in str(resp):
                 return resp['message']
         except:
             return "Failed"
     else:
         resp = publish(id, type, destination)
-        print resp
         if 'success = "false"' in str(resp):
             return resp['message']
 
@@ -98,7 +122,7 @@ def publish_more_info():
 
     resp = read(id, type)
 
-    #page
+    # page
     if type == 'page':
         try:
             info = resp.asset.page
@@ -106,7 +130,7 @@ def publish_more_info():
             ext = 'php'
         except:
             return "Not a valid type. . ."
-    #block
+    # block
     elif type == 'block':
         try:
             info = resp.asset.xhtmlDataDefinitionBlock
@@ -132,16 +156,16 @@ def publish_more_info():
             try:
                 www_publish_date = 'N/A'
                 staging_publish_date = 'N/A'
-                #prod
+                # prod
                 # www publish date
-                page3 = urllib.urlopen("https://www.bethel.edu/"  + path + '.' + ext).read()
+                page3 = urllib.urlopen("https://www.bethel.edu/" + path + '.' + ext).read()
                 soup3 = BeautifulSoup(page3)
                 date = soup3.findAll(attrs={"name":"date"})
                 if date:
                     www_publish_date = convert_meta_date(date)
 
                 # staging
-                page3 = urllib.urlopen("https://staging.bethel.edu/"  + path + '.' + ext).read()
+                page3 = urllib.urlopen("https://staging.bethel.edu/" + path + '.' + ext).read()
                 soup3 = BeautifulSoup(page3)
                 date = soup3.findAll(attrs={"name":"date"})
                 if date:
@@ -153,8 +177,6 @@ def publish_more_info():
     # description
     if md.metaDescription:
         description = md.metaDescription
-
-
 
     return render_template("publish-more-info.html", **locals())
 
@@ -168,7 +190,6 @@ def convert_meta_date(date):
     date_time = datetime.datetime.strftime(dt, "%B %e, %Y at %I:%M %p")
 
     return date_time
-
 
 # Code to publish all pages that contain a wufoo block
 #

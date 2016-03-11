@@ -108,15 +108,18 @@
                 {{ form['image_url'] }}
                 <img id="display_image" src="" style="height:300px; "/>
                 <script type="text/javascript">
-
                     if( $("#image_url").val() == "" )
-                        $("#display_image").hide()
+                        $("#display_image").hide();
                     else
                     {
                         $("#display_image").attr("src", "http://cdn1.bethel.edu/resize/unsafe/400x0/smart/http://www.bethel.edu/" + ($("#image_url").val()));
-                         $("#display_image").show()
-                        $("#image").hide()
+                        $("#display_image").show();
                     }
+
+                    if( "False" == "{{ edit_image}}" ){
+                        $("#image").hide();
+                    }
+
                 </script>
                 <hr />
 
