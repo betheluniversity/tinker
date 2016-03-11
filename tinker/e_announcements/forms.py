@@ -114,7 +114,7 @@ class EAnnouncementsForm(Form):
     first = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
     second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y", validators=[validators.Optional()])
 
-    banner_roles = MultiCheckboxField(label='', choices=get_audience_choices())
+    banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices())
 
     # Manually override validate, in order to check the dates
     def validate(self):

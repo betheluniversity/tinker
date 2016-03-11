@@ -59,11 +59,13 @@
           {% endfor %}
 
           {# print the label #}
-            <label for="{{ field.name }}">
-              {{ field.label.text }}
-              {% if field.flags.required %} <small>required</small> {% endif %}
-             </label>
-            <small>{{ field.description }}</small>
+            {% if field.label.text != '' %}
+                <label for="{{ field.name }}">
+                  {{ field.label.text }}
+                  {% if field.flags.required %} <small>required</small> {% endif %}
+                 </label>
+                <small>{{ field.description }}</small>
+            {% endif %}
 
 
 
@@ -72,6 +74,9 @@
             {{ field(size=10, class="largeselect") }}
 
           {% elif field.type == "MultiCheckboxField" %}
+              <hr/>
+              <h3 class="audience-header">Audiences</h3>
+              <small>{{ field.description }}</small>
               <div class="row">
                 {% for column in ['STUDENT', 'FACULTY', 'STAFF'] %}
                     <div class="large-4 columns">
