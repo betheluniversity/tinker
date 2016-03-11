@@ -22,12 +22,14 @@
              {% endif %}
          {% endif %}
 
-
+{% if 'Administrators' in session['groups'] %}
          {% if '/e-announcement/' in request.path %}
            <li><a href="/e-announcement" class="button button-nav active">E-Announcements</a></li>
          {% else %}
              <li><a href="/e-announcement" class="button button-nav">E-Announcements</a></li>
          {% endif %}
+{% endif %}
+
 
           {#
              {% if request.path == '/wufoo/' %}
