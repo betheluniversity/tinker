@@ -13,10 +13,11 @@
 <div class="row">
   <div class="large-12 columns">
 
-    <p>Below is a list of E-Announcements you have access to edit.
+    <p>Below is the list of E-Announcements you have access to edit. These are sorted by the first date entered, newest dates first.
     </p>
   </div>
  </div>
+      <a href="/e-announcement/edit/new" class="small button success">Create New E-Announcement</a>
 <hr/>
 <div class="row">
 
@@ -32,9 +33,9 @@
               {{ form.title }}
             {% endif %}
             <br/>
-            <small>
-                <p>{{ form.dates | safe}}</p>
-            </small>
+            <small>{{ form.first_date | safe}}</small>
+            <br/>
+            <small>{{ form.second_date | safe}}</small>
           </p>
         </div>
         <div class="large-6 columns small-3">
@@ -50,7 +51,6 @@
         <hr/>
       </div>
     {% endfor %}
-      <a href="/e-announcement/edit/new" class="small button success">Create New E-Announcement</a>
 
 
   </div>

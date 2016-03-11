@@ -2,7 +2,6 @@
 from feedformatter import Feed
 from urlparse import *
 import calendar
-import multiprocessing as mp
 import json
 import urllib2
 import feedparser
@@ -16,22 +15,32 @@ from flask import Response
 from tinker.e_announcements.cascade_e_announcements import *
 from tinker.tools import *
 
+# createsend
 from createsend import *
 
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')
 
 
-# Todo: sort e-announcements by most recent date.
 @e_announcements_blueprint.route("/")
 def e_announcements_home():
+    forms = []
     username = session['username']
-    forms = get_e_announcements_for_user(username)
+
+    if username == 'cerntson':
+        forms = get_e_announcements_for_user('get_all')
+    else:
+        forms = get_e_announcements_for_user(username)
+
+    forms.sort(key=lambda item:item['first_date'], reverse=True)
+    forms = reversed(forms)
     return render_template('e-announcements-home.html', **locals())
 
 
 @e_announcements_blueprint.route('/delete/<page_id>')
 def delete_page(page_id):
     delete(page_id)
+    # Todo: move this id into config.py
+    publish('861012818c5865130c130b3acbee7343');
     return redirect('/e-announcement/delete-confirm', code=302)
 
 
@@ -52,8 +61,8 @@ def e_announcements_submit_confirm_new():
 
 @e_announcements_blueprint.route("/edit/new")
 def e_announcements_new_form():
-    ## import this here so we dont load all the content
-    ## from cascade during homepage load
+    # import this here so we dont load all the content
+    # from cascade during homepage load
     from forms import EAnnouncementsForm
 
     form = EAnnouncementsForm()
@@ -61,15 +70,23 @@ def e_announcements_new_form():
     return render_template('e-announcements-form.html', **locals())
 
 
+@e_announcements_blueprint.route('/in-workflow')
+def e_announcement_in_workflow():
+    return render_template('e-announcements-in-workflow.html')
+
+
 @e_announcements_blueprint.route('/edit/<e_announcement_id>')
 def edit_e_announcement(e_announcement_id):
+    if is_asset_in_workflow(e_announcement_id):
+        return redirect('/faculty-bio/in-workflow', code=302)
+
     from tinker.e_announcements.forms import EAnnouncementsForm
 
     # Get the event data from cascade
     e_announcement_data = read(e_announcement_id)
+    new_form = False
 
     # Get the different data sets from the response
-
     form_data = e_announcement_data.asset.page
 
     # the stuff from the data def
@@ -106,7 +123,7 @@ def edit_e_announcement(e_announcement_id):
             items = [item.value for item in field.fieldValues.fieldValue]
             edit_data[field.name.replace('-', '_')] = items
 
-    ## Add the rest of the fields. Can't loop over these kinds of metadata
+    # Add the rest of the fields. Can't loop over these kinds of metadata
     edit_data['title'] = metadata.title
 
     # Create an EventForm object with our data
@@ -121,8 +138,8 @@ def edit_e_announcement(e_announcement_id):
 
 @e_announcements_blueprint.route("/submit", methods=['POST'])
 def submit_e_announcement_form():
-    ## import this here so we dont load all the content
-    ## from cascade during homepage load
+    # import this here so we dont load all the content
+    # from cascade during homepage load
     from forms import EAnnouncementsForm
     form = EAnnouncementsForm()
     rform = request.form
@@ -131,261 +148,116 @@ def submit_e_announcement_form():
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)
 
-
     if not form.validate_on_submit():
         if 'e_announcement_id' in request.form.keys():
             e_announcement_id = request.form['e_announcement_id']
         else:
             # This error came from the add form because e-annoucnements_id wasn't set
             new_form = True
+
         app.logger.warn(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
         return render_template('e-announcements-form.html', **locals())
 
     # Get all the form data
     add_data = get_add_data(['banner_roles'], rform)
+    if 'e_announcement_id' in rform:
+        e_announcement_id = rform['e_announcement_id']
+    else:
+        e_announcement_id = None
 
-    workflow = get_e_announcement_publish_workflow(title, username)
-    asset = get_e_announcement_structure(add_data, username, workflow=workflow)
-    resp = create_e_announcement(asset)
-    # publish("f580ac758c58651313b6fe6bced65fea", "publishset")
-
-    return redirect('/e-announcement/confirm/new', code=302)
-    ## Just print the response for now
-
-
-@e_announcements_blueprint.route("/submit-edit", methods=['post'])
-def submit_edit_form():
-
-    ## import this here so we dont load all the content
-    ## from cascade during hoempage load
-    from tinker.e_announcements.forms import EAnnouncementsForm
-
-    form = EAnnouncementsForm()
-    rform = request.form
-    title = rform['title']
-    username = session['username']
-    workflow = get_e_announcement_publish_workflow(title, username)
-
-    if not form.validate_on_submit():
-        e_announcement_id = request.form['e_announcement_id']
-        return render_template('e-announcements-form.html', **locals())
-
-    form = rform
-    e_announcement_id = form['e_announcement_id']
-
-    add_data = get_add_data(['banner_roles'], form)
+    workflow = get_e_announcement_publish_workflow(title)
     asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)
 
-    resp = edit(asset)
-    app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp)+ " " + ('id:' + e_announcement_id))
-
-    ## Todo: Make sure to publish the page down the road!
-
-    # return str(resp)
-    return redirect('/e-announcement/confirm/edit', code=302)
-
-
-@e_announcements_blueprint.route("/rss_feed", methods=['get', 'post'])
-def rss_feed():
-    # Create the feed
-    rssfeed = Feed()
-
-    # Set the feed/channel level properties
-    rssfeed.feed["title"] = "E-announcements rss feed"
-    rssfeed.feed["link"] = "https://www.bethel.edu/_shared-content/xml/e-announcements.xml"
-    rssfeed.feed["language"] = "en-us"
-    rssfeed.feed["author"] = "Tinker"
-    rssfeed.feed["description"] = "E-announcements feed"
-
-    # get url variables
-    current_url = urlparse(request.url)
-    parameters = parse_qs(current_url.query)
-    if 'roles' in parameters:
-        roles = parameters['roles'][0].split('_')
-        roles = [role.upper() for role in roles]
+    if e_announcement_id:
+        resp = edit(asset)
+        app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
+        return redirect('/e-announcement/confirm/edit', code=302)
     else:
-        roles = {}
-    if 'date' in parameters:
-        try:
-            date = parameters['date'][0]
-        except ValueError:
-            raise ValueError("Incorrect date format. Use MM-DD-YYYY")
+        resp = create_e_announcement(asset)
+        app.logger.warn(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
+        return redirect('/e-announcement/confirm/new', code=302)
+
+
+# Todo: add some kind of authentication?
+@e_announcements_blueprint.route("/create_campaign/", methods=['get', 'post'])
+@e_announcements_blueprint.route("/create_campaign/<date>", methods=['get', 'post'])
+def create_campaign(date=None):
+    if not date:
+        date = datetime.datetime.strptime(datetime.datetime.now().strftime("%m-%d-%Y"), "%m-%d-%Y")
     else:
-        date = datetime.datetime.now().strftime("%m-%d-%Y")
+        date = datetime.datetime.strptime(date, "%m-%d-%Y")
 
-    ## Get each of the matching e-announcements to put into new_matches
-    matches = get_e_announcements_for_user()
-    new_matches = []
-
-    ## For each e-announcement
-    for match in matches:
-        print match
-        banner_roles = match['roles']
+    submitted_announcements = []
+    for announcement in get_e_announcements_for_user():
         date_matches = False
 
-
-        if match['first_date']:
-            first_date = datetime.datetime.strptime(match['first_date'], "%A %B %d, %Y")
-            if str(datetime.datetime.strptime(date, "%m-%d-%Y")) == str(first_date):
+        if announcement['first_date']:
+            first_date = datetime.datetime.strptime(announcement['first_date'], "%A %B %d, %Y")
+            if str(date) == str(first_date):
                 date_matches = True
 
-        if match['second_date']:
-            second_date = datetime.datetime.strptime(match['second_date'], "%A %B %d, %Y")
-            if str(datetime.datetime.strptime(date, "%m-%d-%Y")) == str(second_date):
+        if announcement['second_date']:
+            second_date = datetime.datetime.strptime(announcement['second_date'], "%A %B %d, %Y")
+            if str(date) == str(second_date):
                 date_matches = True
 
         if not date_matches:
             continue
 
-        print first_date
+        submitted_announcements.append({
+            "Layout": "My layout",
+                "Multilines": [
+                    {
+                        "Content": create_single_announcement(announcement)
+                    }
+                ]
+            }
+        )
 
-        # if no roles are specified, then display ALL e-announcements that match the day.
-        if roles == {}:
-            new_matches.append(match)
+    campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
+    CreateSend({'api_key': campaign_monitor_key})
+    new_campaign = Campaign({'api_key': campaign_monitor_key})
 
-            # Create an item
-            item = {}
-            item["title"] = match['title']
-            item["link"] = "https://www.bethel.edu/" + match['path']
-            item["description"] = '<p>' + match['message'] + "</p><p>(" + ",".join(banner_roles) + ")</p>"
-            item["guid"] = "https://www.bethel.edu/" + match['path']
-            item['roles'] = 'test'
-            rssfeed.items.append(item)
-        else:
-            break_from_loop = False
-            for role in roles:
-                for banner_role in banner_roles:
-                    if role == banner_role:
-                        new_matches.append(match)
+    client_id = app.config['CLIENT_ID']
+    subject = 'Bethel E-Announcements for ' + str(date.strftime('%A, %B %d, %Y'))
+    name = 'Bethel E-Announcements for ' + str(date.strftime('%m/%d/%Y'))
+    from_name = 'Bethel E-Announcements'
+    from_email = 'e-announcements@lists.bethel.edu'
+    reply_to = 'e-announcements@lists.bethel.edu'
+    list_ids = [app.config['LIST_KEY']]
+    segment_ids = [app.config['SEGMENT_ID']]
+    template_id = app.config['TEMPLATE_ID']
+    template_content = {
+        "Singlelines": [
+            {
+                "Content": subject,
+            }
+        ],
+        "Repeaters": [
+            {
+                "Items":
+                    submitted_announcements
+            }
+        ]
+    }
 
-                        # Create an item
-                        item = {}
-                        item["title"] = match['title']
-                        item["link"] = "https://www.bethel.edu/" + match['path']
-                        item["description"] = '<p>' + match['message'] + "</p><p>(" + ",".join(banner_roles) + ")</p>"
-                        item["guid"] = "https://www.bethel.edu/" + match['path']
+    # Todo: if a campaign already exists, delete the old one and create a new one
+    resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
+                                         segment_ids, template_id, template_content)
 
-                        rssfeed.items.append(item)
+    # Todo: PROD - update the email to the admin. (also, move this to config.py)
+    confirmation_email_sent_to = 'ces55739@bethel.edu'
 
-                        break_from_loop = True
-                        break
-                if break_from_loop:
-                    break
+    # Todo: (not currently needed) figure out why send_preview doesn't work.
+    # new_campaign.send_preview(confirmation_email_sent_to)
 
-    return Response(rssfeed.format_rss2_string(), mimetype='text/xml')
+    # =====================================================
+    # =================== Send emails. ====================
+    # =====================================================
+    # Test version, include this for extra tests str(datetime.datetime.now().strftime('%Y-%m-%d')) + ' 06:00'
+    # new_campaign.send(confirmation_email_sent_to)
 
+    # Todo: PROD version
+    # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
 
-@e_announcements_blueprint.route("/create_campaign", methods=['get', 'post'])
-def create_campaign():
-    from itertools import combinations
-
-    # create the necessary IF statement
-    # For each for those, make a call to get the announcements for today with those roles
-    # Finish the If statement
-
-
-    output = mp.Queue()
-
-    url = 'http://wsapi.bethel.edu/e-announcement/roles'
-    data = urllib2.urlopen(url)
-    response = json.load(data)['roles']
-
-    roles = []
-    for i in range(1,1000):
-        try:
-            roles.append( str(response[str(i)]['']) )
-        except:
-            break
-
-    e_announcements = ''
-    count = 1
-    e_announcement_array = []
-
-    manager = mp.Manager()
-    return_e_announcement_array = manager.dict()
-
-    for role_combo in roles:
-        p = create_single_announcement(role_combo, count, return_e_announcement_array)
-        # p = mp.Process(target=create_single_announcement, args=(role_combo, count, return_e_announcement_array))
-        e_announcement_array.append(p)
-        # p.start()
-
-        count = count + 1
-
-    e_announcements += '[endif]'
-
-    # for j in e_announcement_array:
-    #     j.join()
-
-    return str(return_e_announcement_array.values())
-
-
-    # double check names and ID's and such
-    # Finally, append e_announcements to the multiline below. Done.
-
-
-    # CAMPAIGN_MONITOR_KEY = app.config['CAMPAIGN_MONITOR_KEY']
-    # CreateSend({'api_key': CAMPAIGN_MONITOR_KEY})
-    #
-    # new_campaign = Campaign()
-    # new_campaign.auth_details = {}
-    # new_campaign.auth_details['api_key'] = CAMPAIGN_MONITOR_KEY
-    #
-    # client_id = app.config['CLIENT_ID']
-    # subject = 'Test Subject'
-    # name = 'Test Name'
-    # from_name = 'Caleb Testing Campaign'
-    # from_email = 'c-schwarze@bethel.edu'
-    # reply_to = 'c-schwarze@bethel.edu'
-    # list_ids = [app.config['LIST_KEY']]
-    # segment_ids = [app.config['SEGMENT_ID']]
-    # template_id = app.config['TEMPLATE_ID']
-    # template_content = {'Multilines': [{"Content": "[if:TestRoles=FACULTY_CAS;STUDENT_CAPS]<h1>TESTING</h1>[else]<h4>Else</h4>[endif]"}]}
-    #
-    #
-    # resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
-    #                                          segment_ids, template_id, template_content)
-    #
-    # # resp = new_campaign.create(client_id, subject, name, from_name, from_email, reply_to, "http://www.google.com",
-    # #                                          None, list_ids, segment_ids)
-    #
-    # return str(resp)
-
-@e_announcements_blueprint.route("/create_segment", methods=['get', 'post'])
-def create_segment():
-    CAMPAIGN_MONITOR_KEY = app.config['CAMPAIGN_MONITOR_KEY']
-    CreateSend({'api_key': CAMPAIGN_MONITOR_KEY})
-
-    new_segment = Segment()
-    new_segment.auth_details = {}
-    new_segment.auth_details['api_key'] = CAMPAIGN_MONITOR_KEY
-
-    list_id = app.config['LIST_KEY']
-    title = 'New Test Segment'
-    ruleset = [
-        {
-            "Rules": [
-                {
-                    "RuleType": "EmailAddress",
-                    "Clause": "CONTAINS @bethel.edu"
-                }
-            ]
-        }
-    ]
-
-    resp = new_segment.create(list_id, title, ruleset)
     return str(resp)
-
-
-def create_single_announcement(role_combo, count, return_e_announcement_array):
-
-    if count == 1:
-        e_announcement = '[if:roles=%s]' % role_combo
-    else:
-        e_announcement = '[elseif:roles=%s]' % role_combo
-
-    # todo, update the date to be today (aka, remove it)
-    # todo, instead of calling the rss_feed each time, call it once.
-    for item in feedparser.parse(urllib2.urlopen('https://tinker.bethel.edu/e-announcement/rss_feed?date=08-12-2015&roles=' + role_combo).read())['entries']:
-        e_announcement += item['summary_detail']['value']
-    return_e_announcement_array[count] = e_announcement

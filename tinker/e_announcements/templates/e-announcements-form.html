@@ -23,9 +23,9 @@
   <div class="row">
   <div class="large-12 columns">
     {% if new_form %}
-      <form id="eannouncementform" action="/e-announcement/submit" method="post">
+      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
     {% else %}
-      <form id="eannouncementform" action="/e-announcement/submit-edit" method="post">
+      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
         {% if form.errors %}
@@ -36,6 +36,7 @@
               </div>
             </div>
         {% endif %}
+
         {{ form.hidden_tag() }}
         {% for field in form if field.widget.input_type != 'hidden' %}
 
@@ -66,32 +67,37 @@
             <h3>{{ field.label }}</h3>
 
           {% elif field.type == "CKEditorTextAreaField" %}
-            <p id="ckeditor_current_count" style="font-size: 20px">Words: 0</p>
+            <p id="ckeditor_current_count" style="font-size: 15px">Words: 0</p>
             {{ field(class="ckeditor") }}
             <script>
                 $( document ).ready(function() {
                     function loadCount(){
-                        checkCount()
+                        checkCount();
                         $(".cke_contents").children("iframe").contents().find("body").keyup(function() {
                             checkCount();
                         });
-                    };
+                    }
 
                     function checkCount(){
-                        var count = $(".cke_contents").children("iframe").contents().find("body").text().split(' ').length;
+                        var textToCheck = $(".cke_contents").children("iframe").contents().find("body").text().trim();
+                        var count = 0;
+                        if( textToCheck != '')
+                            count = textToCheck.split(' ').length;
 
+                        var ckeditorCountDiv = $('#ckeditor_current_count');
                         if( count > 200) {
-                            $('#ckeditor_current_count').text("Words: " + count + ". Please reduce your word count before submitting.");
-                            $('#ckeditor_current_count').css("color", "#f04124");
+                            ckeditorCountDiv.text("Words: " + count + ". Please reduce your word count before submitting.");
+                            ckeditorCountDiv.css("color", "#f04124");
                         } else {
-                            $('#ckeditor_current_count').text("Words: " + count);
-                            $('#ckeditor_current_count').css("color", "#000000");
+                            ckeditorCountDiv.text("Words: " + count);
+                            ckeditorCountDiv.css("color", "#000000");
                         }
                     };
 
                     setTimeout(loadCount, 500);
                 });
             </script>
+            <br />
 
           {% elif field.type == "DateField" %}
                 {{ field(class="datepicker") }}
@@ -126,7 +132,37 @@
               var picker = new Pikaday({
                 field: this,
                 disabledDaysOfWeek: [0,2,4,6],
-                format: 'MM-DD-YYYY'
+                format: 'MM-DD-YYYY',
+                disableDayFn: function(date){
+
+                    // remove all Sun/Tues/Thur/Sat days from the week
+                    if( $.inArray(date.getDay(), [0,2,4,6]) > -1){
+                        return date;
+                    }
+
+                    // This can be modified to disabled various holidays
+                    var DD = ('0' + date.getDate()).slice(-2);
+                    var MM = ('0' + (date.getMonth() + 1)).slice(-2);
+                    var MMDD = MM + '/' + DD;
+                    var disabledDays = ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '01/01'];
+
+                    // Disallow specific days
+                    if($.inArray(MMDD, disabledDays) > -1) {
+                        return date;
+                    }
+
+                    // the last time you can submit a announcement is 1pm the previous business day.
+                    var dateCutoff = date;
+                    dateCutoff.setDate(dateCutoff.getDate() - 1);
+                    while(dateCutoff.getDay() == 0 || dateCutoff.getDay() == 6){
+                        dateCutoff.setDate(dateCutoff.getDate() - 1);
+                    }
+                    dateCutoff.setHours(13);
+
+                    if( dateCutoff <= new Date() ){
+                        return date;
+                    }
+                }
               });
             });
           });
