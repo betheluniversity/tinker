@@ -28,7 +28,7 @@ def recurse(node):
         # gets the basic text
         if child.text:
             if child.tag == 'a':
-                return_string += '<%s TAG href="%s">%s</%s>' % (child.tag, child.attrib['href'], child.text, child.tag)
+                return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child.text, child.tag)
             else:
                 return_string += '<%s>%s</%s>' % (child.tag, child.text, child.tag)
 
@@ -126,7 +126,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
 
     # Create a list of all the data nodes
     structured_data = [
-        structured_data_node("message", escape_wysiwyg_content(add_data['message']) ),
+        structured_data_node("message", escape_wysiwyg_content(add_data['message'])),
         structured_data_node("department", add_data['department']),
         structured_data_node("first-date", add_data['first']),
         structured_data_node("second-date", add_data['second']),
@@ -305,14 +305,14 @@ def e_announcement_html(announcement):
         <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style>
             <tbody>
                 <tr>
-                    <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #60666d;font-family: "Open Sans",sans-serif;' width="200">
-                        <div style="Margin-left: 20px;Margin-right: 20px;Margin-top: 24px;Margin-bottom: 24px;">
+                    <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #60666d;font-family: "Open Sans",sans-serif;' width="300">
+                        <div style="Margin-left: 20px;Margin-right: 20px;Margin-top: 24px;">
                             <h2 style="Margin-top: 0;Margin-bottom: 0;font-style: normal;font-weight: normal;font-size: 20px;line-height: 28px;color: #555;font-family: sans-serif;">
                                 <strong>%s</strong>
                             </h2>
                         </div>
                     </td>
-                    <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #555;font-family: Georgia,serif' width="400">
+                    <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #555;font-family: Georgia,serif' width="600">
                         <div style="Margin-left: 20px;Margin-right: 20px;Margin-top: 24px;Margin-bottom: 24px;">
                             %s
                             <p style="font-family: georgia,serif;font-size: 12px;line-height: 19px;">

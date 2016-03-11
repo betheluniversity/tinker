@@ -214,7 +214,6 @@ def create_campaign(date=None):
             }
         )
 
-
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     CreateSend({'api_key': campaign_monitor_key})
     new_campaign = Campaign({'api_key': campaign_monitor_key})
@@ -261,30 +260,4 @@ def create_campaign(date=None):
     # Todo: PROD version
     # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
 
-    return str(resp)
-
-
-@e_announcements_blueprint.route("/create_segment", methods=['get', 'post'])
-def create_segment():
-    campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
-    CreateSend({'api_key': campaign_monitor_key})
-
-    new_segment = Segment()
-    new_segment.auth_details = {}
-    new_segment.auth_details['api_key'] = campaign_monitor_key
-
-    list_id = app.config['LIST_KEY']
-    title = 'New Test Segment'
-    ruleset = [
-        {
-            "Rules": [
-                {
-                    "RuleType": "EmailAddress",
-                    "Clause": "CONTAINS @bethel.edu"
-                }
-            ]
-        }
-    ]
-
-    resp = new_segment.create(list_id, title, ruleset)
     return str(resp)
