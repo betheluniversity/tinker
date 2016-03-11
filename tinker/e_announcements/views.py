@@ -13,6 +13,7 @@ from flask import Response
 
 # tinker
 from tinker.e_announcements.cascade_e_announcements import *
+from tinker.e_announcements.banner_roles_mapping import get_banner_roles_mapping
 from tinker.tools import *
 
 # createsend
@@ -51,17 +52,17 @@ def delete_confirm():
     return render_template('e-announcements-delete-confirm.html', **locals())
 
 
-@e_announcements_blueprint.route('/confirm/edit')
+@e_announcements_blueprint.route('/edit/confirm')
 def e_announcements_submit_confirm_edit():
     return render_template('e-announcements-confirm-edit.html', **locals())
 
 
-@e_announcements_blueprint.route('/confirm/new')
+@e_announcements_blueprint.route('/new/confirm')
 def e_announcements_submit_confirm_new():
     return render_template('e-announcements-confirm-new.html', **locals())
 
 
-@e_announcements_blueprint.route("/edit/new")
+@e_announcements_blueprint.route("/new")
 def e_announcements_new_form():
     # import this here so we dont load all the content
     # from cascade during homepage load
@@ -70,43 +71,8 @@ def e_announcements_new_form():
     form = EAnnouncementsForm()
     new_form = True
 
-    banner_roles_final_data = [
-        'STUDENT-CAS',
-        'STUDENT-CAPS',
-        'STUDENT-GS',
-        'STUDENT-BSSP-TRADITIONAL',
-        'STUDENT-BSSP-DISTANCE',
-        'STUDENT-BSSD-TRADITIONAL',
-        'STUDENT-BSSD-DISTANCE',
-        'STUDENT-BSOE-TRADITIONAL',
-        'STUDENT-BSOE-DISTANCE',
-        'FACULTY-CAS',
-        'FACULTY-CAPS',
-        'FACULTY-GS',
-        'FACULTY-BSSP',
-        'FACULTY-BSSD',
-        'STAFF-STP',
-        'STAFF-SD'
-    ]
-
-    banner_roles_mapping = [
-        'CAS',
-        'CAPS',
-        'GS',
-        'BSSP-TRADITIONAL',
-        'BSSP-DISTANCE',
-        'BSSD-TRADITIONAL',
-        'BSSD-DISTANCE',
-        'BSOE-TRADITIONAL',
-        'BSOE-DISTANCE',
-        'CAS',
-        'CAPS',
-        'GS',
-        'BSSP',
-        'BSSD',
-        'St. Paul',
-        'San Diego'
-    ]
+    # bring in the mapping
+    banner_roles_mapping = get_banner_roles_mapping()
 
     return render_template('e-announcements-form.html', **locals())
 
@@ -174,43 +140,8 @@ def edit_e_announcement(e_announcement_id):
     # convert dates to json so we can use Javascript to create custom DateTime fields on the form
     dates = fjson.dumps(dates)
 
-    banner_roles_final_data = [
-        'STUDENT-CAS',
-        'STUDENT-CAPS',
-        'STUDENT-GS',
-        'STUDENT-BSSP-TRADITIONAL',
-        'STUDENT-BSSP-DISTANCE',
-        'STUDENT-BSSD-TRADITIONAL',
-        'STUDENT-BSSD-DISTANCE',
-        'STUDENT-BSOE-TRADITIONAL',
-        'STUDENT-BSOE-DISTANCE',
-        'FACULTY-CAS',
-        'FACULTY-CAPS',
-        'FACULTY-GS',
-        'FACULTY-BSSP',
-        'FACULTY-BSSD',
-        'STAFF-STP',
-        'STAFF-SD'
-    ]
-
-    banner_roles_mapping = [
-        'CAS',
-        'CAPS',
-        'GS',
-        'BSSP-TRADITIONAL',
-        'BSSP-DISTANCE',
-        'BSSD-TRADITIONAL',
-        'BSSD-DISTANCE',
-        'BSOE-TRADITIONAL',
-        'BSOE-DISTANCE',
-        'CAS',
-        'CAPS',
-        'GS',
-        'BSSP',
-        'BSSD',
-        'St. Paul',
-        'San Diego'
-    ]
+    # bring in the mapping
+    banner_roles_mapping = get_banner_roles_mapping()
 
     return render_template('e-announcements-form.html', **locals())
 
@@ -250,11 +181,11 @@ def submit_e_announcement_form():
     if e_announcement_id:
         resp = edit(asset)
         app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
-        return redirect('/e-announcement/confirm/edit', code=302)
+        return redirect('/e-announcement/edit/confirm', code=302)
     else:
         resp = create_e_announcement(asset)
         app.logger.warn(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
-        return redirect('/e-announcement/confirm/new', code=302)
+        return redirect('/e-announcement/new/confirm', code=302)
 
 
 # Todo: add some kind of authentication?
@@ -293,6 +224,8 @@ def create_campaign(date=None):
             }
         )
 
+    view_all_announcements_text = '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/e-announcement-archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
+
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     CreateSend({'api_key': campaign_monitor_key})
     new_campaign = Campaign({'api_key': campaign_monitor_key})
@@ -310,6 +243,9 @@ def create_campaign(date=None):
         "Singlelines": [
             {
                 "Content": subject,
+            },
+            {
+                "Content": view_all_announcements_text,
             }
         ],
         "Repeaters": [
