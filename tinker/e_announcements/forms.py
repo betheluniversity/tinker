@@ -24,16 +24,37 @@ def get_md(metadata_path):
 
 def get_audience_choices():
 
-
     data = get_md("/Targeted")
     audience_list = data[0].possibleValues.possibleValue
-    audience_list.sort()
     audience = []
     for item in audience_list:
         if item.value != "":
-            audience.append((item.value, item.value))
+            audience.append(item.value)
 
+    banner_roles_sort_mapping = {
+        'STUDENT-CAS': 1,
+        'STUDENT-CAPS': 2,
+        'STUDENT-GS': 3,
+        'STUDENT-BSSP-TRADITIONAL': 4,
+        'STUDENT-BSSP-DISTANCE': 5,
+        'STUDENT-BSSD-TRADITIONAL': 6,
+        'STUDENT-BSSD-DISTANCE': 7,
+        'STUDENT-BSOE-TRADITIONAL': 8,
+        'STUDENT-BSOE-DISTANCE': 9,
+        'FACULTY-CAS': 10,
+        'FACULTY-CAPS': 11,
+        'FACULTY-GS': 12,
+        'FACULTY-BSSP': 13,
+        'FACULTY-BSSD': 14,
+        'STAFF-STP': 15,
+        'STAFF-SD': 16
+    }
 
+    # sort list
+    audience = sorted(audience, key=lambda x: banner_roles_sort_mapping[x])
+
+    # convert back to the tuple format
+    audience = [(value, value) for value in audience]
     return audience
 
 
@@ -89,12 +110,11 @@ class EAnnouncementsForm(Form):
     title = TextField('Title', validators=[validators.DataRequired()])
     message = CKEditorTextAreaField('Message', description="Announcements are limited to 200 words. Exceptions will be granted if deemed appropriate by the Office of Communications and Marketing. Contact e-announcements@bethel.edu if you need an exception to this limit.\nMessage Editing: Pressing 'Enter' starts a new paragraph. Hold 'Shift' while pressing 'Enter' to start a new line.", validators=[validators.DataRequired()])
     department = TextField('Sponsoring Department, Office, or Group', validators=[validators.DataRequired()])
-    # banner_roles = SelectMultipleField('Audience', description="To choose more than one audience, hold down the control key while highlighting the audiences your message should be sent to. (Apple users should hold down the Apple/command key instead of the control key.)", choices=get_audience_choices(), validators=[validators.DataRequired()])
-
-    banner_roles = MultiCheckboxField('Audience', choices=get_audience_choices())
 
     first = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
     second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y", validators=[validators.Optional()])
+
+    banner_roles = MultiCheckboxField(label='', choices=get_audience_choices())
 
     # Manually override validate, in order to check the dates
     def validate(self):
