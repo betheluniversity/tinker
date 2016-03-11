@@ -8,18 +8,26 @@
       height: 100px;
       font-size:14px;
     }
+    small {
+        font-size: 70%;
+    }
+    .audience-header {
+        text-align: center;
+    }
+
   </style>
 {% endblock %}
 
 {% block page_title %}
   {% if new_form %}
-    Add a new E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
+    Submit a new E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
   {% else %}
     Edit your E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
   {% endif %}
 {% endblock %}
 
 {% block main_content %}
+    <p style="background-color:tomato; padding:15px">Note: For announcements prior to April 1, 2016, go to the old E-Announcement <a>submission page</a>.</p>
   <div class="row">
   <div class="large-12 columns">
     {% if new_form %}
@@ -65,35 +73,20 @@
 
           {% elif field.type == "MultiCheckboxField" %}
               <div class="row">
-
-
-                <div class="large-4 columns">
-                  <div>Student</div>
-                    {% for item in field %}
-                        {% if loop.index <= 8 %}
-                            {{ item }} <label>{{ banner_roles_mapping[loop.index] }}</label><br />
-                        {% endif %}
-                    {% endfor %}
-                  </div>
-
-                  <div class="large-4 columns">
-                    <div>Faculty</div>
-                    {% for item in field %}
-                        {% if 9 <= loop.index and loop.index <= 13 %}
-                            {{ item }} <label>{{ banner_roles_mapping[loop.index] }}</label><br />
-                        {% endif %}
-                    {% endfor %}
-                  </div>
-
-                <div class="large-4 columns">
-                    <div>Staff</div>
-                    {% for item in field %}
-                        {% if 14 <= loop.index <= 15 %}
-                            {{ item }} <label>{{ banner_roles_mapping[loop.index] }}</label><br />
-                        {% endif %}
-                    {% endfor %}
-                </div>
-            </div>
+                {% for column in ['STUDENT', 'FACULTY', 'STAFF'] %}
+                    <div class="large-4 columns">
+                        <p class="audience-header">{{ column }}</p>
+                        <hr />
+                        {% for item in field %}
+                            {% if column in item.object_data %}
+                                {# zero-based indexing #}
+                                {{ item }} <label for="banner_roles-{{ loop.index - 1 }}">{{ banner_roles_mapping[loop.index - 1] }}</label><br />
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+              </div>
+              <hr />
 
           {% elif field.type == "HeadingField" %}
             <h3>{{ field.label }}</h3>
@@ -166,7 +159,6 @@
                 disabledDaysOfWeek: [0,2,4,6],
                 format: 'MM-DD-YYYY',
                 disableDayFn: function(date){
-
                     // remove all Sun/Tues/Thur/Sat days from the week
                     if( $.inArray(date.getDay(), [0,2,4,6]) > -1){
                         return date;
@@ -196,7 +188,7 @@
                     }
 
                     // Todo: remove this once we launch.
-                    if( new Date() == new Date() ){
+                    if( date < new Date('2016/04/01')){
                         return date;
                     }
                 }
