@@ -21,6 +21,8 @@ from createsend import *
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')
 
 
+
+
 @e_announcements_blueprint.route("/")
 def e_announcements_home():
     forms = []
@@ -67,6 +69,45 @@ def e_announcements_new_form():
 
     form = EAnnouncementsForm()
     new_form = True
+
+    banner_roles_final_data = [
+        'STUDENT-CAS',
+        'STUDENT-CAPS',
+        'STUDENT-GS',
+        'STUDENT-BSSP-TRADITIONAL',
+        'STUDENT-BSSP-DISTANCE',
+        'STUDENT-BSSD-TRADITIONAL',
+        'STUDENT-BSSD-DISTANCE',
+        'STUDENT-BSOE-TRADITIONAL',
+        'STUDENT-BSOE-DISTANCE',
+        'FACULTY-CAS',
+        'FACULTY-CAPS',
+        'FACULTY-GS',
+        'FACULTY-BSSP',
+        'FACULTY-BSSD',
+        'STAFF-STP',
+        'STAFF-SD'
+    ]
+
+    banner_roles_mapping = [
+        'CAS',
+        'CAPS',
+        'GS',
+        'BSSP-TRADITIONAL',
+        'BSSP-DISTANCE',
+        'BSSD-TRADITIONAL',
+        'BSSD-DISTANCE',
+        'BSOE-TRADITIONAL',
+        'BSOE-DISTANCE',
+        'CAS',
+        'CAPS',
+        'GS',
+        'BSSP',
+        'BSSD',
+        'St. Paul',
+        'San Diego'
+    ]
+
     return render_template('e-announcements-form.html', **locals())
 
 
@@ -132,6 +173,44 @@ def edit_e_announcement(e_announcement_id):
 
     # convert dates to json so we can use Javascript to create custom DateTime fields on the form
     dates = fjson.dumps(dates)
+
+    banner_roles_final_data = [
+        'STUDENT-CAS',
+        'STUDENT-CAPS',
+        'STUDENT-GS',
+        'STUDENT-BSSP-TRADITIONAL',
+        'STUDENT-BSSP-DISTANCE',
+        'STUDENT-BSSD-TRADITIONAL',
+        'STUDENT-BSSD-DISTANCE',
+        'STUDENT-BSOE-TRADITIONAL',
+        'STUDENT-BSOE-DISTANCE',
+        'FACULTY-CAS',
+        'FACULTY-CAPS',
+        'FACULTY-GS',
+        'FACULTY-BSSP',
+        'FACULTY-BSSD',
+        'STAFF-STP',
+        'STAFF-SD'
+    ]
+
+    banner_roles_mapping = [
+        'CAS',
+        'CAPS',
+        'GS',
+        'BSSP-TRADITIONAL',
+        'BSSP-DISTANCE',
+        'BSSD-TRADITIONAL',
+        'BSSD-DISTANCE',
+        'BSOE-TRADITIONAL',
+        'BSOE-DISTANCE',
+        'CAS',
+        'CAPS',
+        'GS',
+        'BSSP',
+        'BSSD',
+        'St. Paul',
+        'San Diego'
+    ]
 
     return render_template('e-announcements-form.html', **locals())
 

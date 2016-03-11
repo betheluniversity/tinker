@@ -10,6 +10,7 @@ from wtforms import TextAreaField
 from wtforms import DateField
 from wtforms import Field
 from wtforms import validators
+from wtforms import widgets
 
 # local
 from tinker import app
@@ -22,12 +23,16 @@ def get_md(metadata_path):
 
 
 def get_audience_choices():
+
+
     data = get_md("/Targeted")
     audience_list = data[0].possibleValues.possibleValue
+    audience_list.sort()
     audience = []
     for item in audience_list:
         if item.value != "":
             audience.append((item.value, item.value))
+
 
     return audience
 
@@ -35,6 +40,11 @@ def get_audience_choices():
 # Special class to know when to include the class for a ckeditor wysiwyg
 class CKEditorTextAreaField(TextAreaField):
     pass
+
+
+class MultiCheckboxField(SelectMultipleField):
+    widget = widgets.ListWidget(prefix_label=False)
+    option_widget = widgets.CheckboxInput()
 
 
 class HeadingField(Field):
@@ -79,7 +89,9 @@ class EAnnouncementsForm(Form):
     title = TextField('Title', validators=[validators.DataRequired()])
     message = CKEditorTextAreaField('Message', description="Announcements are limited to 200 words. Exceptions will be granted if deemed appropriate by the Office of Communications and Marketing. Contact e-announcements@bethel.edu if you need an exception to this limit.\nMessage Editing: Pressing 'Enter' starts a new paragraph. Hold 'Shift' while pressing 'Enter' to start a new line.", validators=[validators.DataRequired()])
     department = TextField('Sponsoring Department, Office, or Group', validators=[validators.DataRequired()])
-    banner_roles = SelectMultipleField('Audience', description="To choose more than one audience, hold down the control key while highlighting the audiences your message should be sent to. (Apple users should hold down the Apple/command key instead of the control key.)", choices=get_audience_choices(), validators=[validators.DataRequired()])
+    # banner_roles = SelectMultipleField('Audience', description="To choose more than one audience, hold down the control key while highlighting the audiences your message should be sent to. (Apple users should hold down the Apple/command key instead of the control key.)", choices=get_audience_choices(), validators=[validators.DataRequired()])
+
+    banner_roles = MultiCheckboxField('Audience', choices=get_audience_choices())
 
     first = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
     second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y", validators=[validators.Optional()])
