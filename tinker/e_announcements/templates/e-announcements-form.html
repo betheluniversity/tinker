@@ -8,11 +8,16 @@
       height: 100px;
       font-size:14px;
     }
-    small {
-        font-size: 70%;
-    }
     .audience-header {
-        text-align: center;
+        text-align:center;
+    }
+
+  p, span {
+        font-family: georgia,serif;
+    }
+    label {
+        font-size: 18px;
+        font-family: georgia,serif;
     }
 
   </style>
@@ -63,9 +68,11 @@
             {% if field.label.text != '' %}
                 <label for="{{ field.name }}">
                   {{ field.label.text }}
-                  {% if field.flags.required %} <small>required</small> {% endif %}
+                  {% if field.flags.required %} * {% endif %}
                  </label>
-                <small>{{ field.description }}</small>
+                {% if field.description != '' %}
+                    <p>{{ field.description }}</p>
+                {% endif %}
             {% endif %}
 
 
@@ -75,13 +82,17 @@
             {{ field(size=10, class="largeselect") }}
 
           {% elif field.type == "MultiCheckboxField" %}
-              <hr/>
-              <h3 class="audience-header">Audiences</h3>
-              <small>{{ field.description }}</small>
+              <h4 class='audience-header' for="{{ field.name }}">
+                  Audiences
+                  {% if field.flags.required %} * {% endif %}
+                 </h4>
+                {% if field.description != '' %}
+                    <p>{{ field.description }}</p>
+                {% endif %}
               <div class="row">
                 {% for column in ['STUDENT', 'FACULTY', 'STAFF'] %}
                     <div class="large-4 columns">
-                        <p class="audience-header">{{ column }}</p>
+                        <label class="audience-header">{{ column }}</label>
                         <hr />
                         {% for item in field %}
                             {% if column in item.object_data %}
@@ -98,7 +109,7 @@
             <h3>{{ field.label }}</h3>
 
           {% elif field.type == "CKEditorTextAreaField" %}
-            <p id="ckeditor_current_count" style="font-size: 15px">Words: 0</p>
+            <span id="ckeditor_current_count">Words: 0</span>
             {{ field(class="ckeditor") }}
             <script>
                 $( document ).ready(function() {

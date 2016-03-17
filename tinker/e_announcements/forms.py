@@ -108,13 +108,12 @@ class EAnnouncementsForm(Form):
 
     announcement_information = HeadingField(label="Announcement Information")
     title = TextField('Title', validators=[validators.DataRequired()])
-    message = CKEditorTextAreaField('Message', description="Announcements are limited to 200 words. Exceptions will be granted if deemed appropriate by the Office of Communications and Marketing. Contact e-announcements@bethel.edu if you need an exception to this limit.\nMessage Editing: Pressing 'Enter' starts a new paragraph. Hold 'Shift' while pressing 'Enter' to start a new line.", validators=[validators.DataRequired()])
-    department = TextField('Sponsoring Department, Office, or Group', validators=[validators.DataRequired()])
+    message = CKEditorTextAreaField('Message', description="Announcements are limited to 200 words. Exceptions will be granted if deemed appropriate by the Office of Communications and Marketing. Contact e-announcements@bethel.edu if you need an exception to this limit.", validators=[validators.DataRequired()])
 
     first = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
     second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y", validators=[validators.Optional()])
 
-    banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices())
+    banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices(), validators=[validators.DataRequired()])
 
     # Manually override validate, in order to check the dates
     def validate(self):
