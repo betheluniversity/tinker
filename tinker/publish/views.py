@@ -4,7 +4,6 @@ from BeautifulSoup import *
 import urllib
 from datetime import datetime
 
-
 # flask
 from flask import Blueprint
 
