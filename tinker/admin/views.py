@@ -1,18 +1,16 @@
 __author__ = 'ces55739'
-from roles.roledata import uid, portal
-from sync.metadata import data_to_add
+from tinker.admin.sync_metadata import data_to_add
+from tinker.admin.roles_roledata import uid, portal
 
 # python
 from BeautifulSoup import *
 import urllib
-from datetime import datetime
 
 # flask
-from flask import Blueprint, render_template, abort, request
+from flask import Blueprint, render_template, request
 
 # tinker
 from tinker.web_services import *
-from xml.sax.saxutils import escape
 import xml.etree.ElementTree as Et
 
 admin_blueprint = Blueprint('admin_blueprint', __name__, template_folder='templates')
@@ -178,13 +176,13 @@ def sync_metadataset(metadataset_id):
 
         # add value/values to element
         if el.fieldType != 'text':
-            # if its in the metadata.py check
+            # if its in the sync_metadata.py check
 
             # else, just pass it over
             values_to_add = []
 
             if el.name in data_to_add:
-                # add values from metadata.py
+                # add values from sync_metadata.py
                 for value in data_to_add[el.name]:
                     if value == 'None' or value == 'Select':
                         selected_by_default = '1'

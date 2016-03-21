@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from flask import Blueprint
 from flask import redirect
 from flask import send_from_directory
-from tinker.admin.sync.metadata import data_to_add
+from tinker.admin.sync_metadata import data_to_add
 
 from tinker.faculty_bio.cascade_faculty_bio import *
 from tinker import app
