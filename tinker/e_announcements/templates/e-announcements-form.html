@@ -8,24 +8,38 @@
       height: 100px;
       font-size:14px;
     }
+    .audience-header {
+        text-align:center;
+    }
+
+  p, span {
+        font-family: georgia,serif;
+    }
+    label {
+        font-size: 18px;
+        font-family: georgia,serif;
+    }
+
   </style>
 {% endblock %}
 
 {% block page_title %}
   {% if new_form %}
-    Add a new E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
+    Submit a new E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
   {% else %}
     Edit your E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
   {% endif %}
 {% endblock %}
 
 {% block main_content %}
+    <p style="background-color:tomato; padding:15px">Note: For announcements prior to April 1, 2016, go to the old E-Announcement <a href="https://bethelnet.bethel.edu/e-announcements/add-ann/">submission page</a>.
+    </p>
   <div class="row">
   <div class="large-12 columns">
     {% if new_form %}
-      <form id="eannouncementform" action="/e-announcement/submit" method="post">
+      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
     {% else %}
-      <form id="eannouncementform" action="/e-announcement/submit-edit" method="post">
+      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
         {% if form.errors %}
@@ -36,6 +50,7 @@
               </div>
             </div>
         {% endif %}
+
         {{ form.hidden_tag() }}
         {% for field in form if field.widget.input_type != 'hidden' %}
 
@@ -50,11 +65,15 @@
           {% endfor %}
 
           {# print the label #}
-            <label for="{{ field.name }}">
-              {{ field.label.text }}
-              {% if field.flags.required %} <small>required</small> {% endif %}
-             </label>
-            <small>{{ field.description }}</small>
+            {% if field.label.text != '' %}
+                <label for="{{ field.name }}">
+                  {{ field.label.text }}
+                  {% if field.flags.required %} * {% endif %}
+                 </label>
+                {% if field.description != '' %}
+                    <p>{{ field.description }}</p>
+                {% endif %}
+            {% endif %}
 
 
 
@@ -62,36 +81,65 @@
           {% if field.type == "SelectMultipleField" %}
             {{ field(size=10, class="largeselect") }}
 
+          {% elif field.type == "MultiCheckboxField" %}
+              <h4 class='audience-header' for="{{ field.name }}">
+                  Audiences
+                  {% if field.flags.required %} * {% endif %}
+                 </h4>
+                {% if field.description != '' %}
+                    <p>{{ field.description }}</p>
+                {% endif %}
+              <div class="row">
+                {% for column in ['STUDENT', 'FACULTY', 'STAFF'] %}
+                    <div class="large-4 columns">
+                        <label class="audience-header">{{ column }}</label>
+                        <hr />
+                        {% for item in field %}
+                            {% if column in item.object_data %}
+                                {# zero-based indexing #}
+                                {{ item }} <label for="banner_roles-{{ loop.index - 1 }}">{{ banner_roles_mapping[loop.index - 1] }}</label><br />
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+              </div>
+              <hr />
+
           {% elif field.type == "HeadingField" %}
             <h3>{{ field.label }}</h3>
 
           {% elif field.type == "CKEditorTextAreaField" %}
-            <p id="ckeditor_current_count" style="font-size: 20px">Words: 0</p>
+            <span id="ckeditor_current_count">Words: 0</span>
             {{ field(class="ckeditor") }}
             <script>
                 $( document ).ready(function() {
                     function loadCount(){
-                        checkCount()
+                        checkCount();
                         $(".cke_contents").children("iframe").contents().find("body").keyup(function() {
                             checkCount();
                         });
-                    };
+                    }
 
                     function checkCount(){
-                        var count = $(".cke_contents").children("iframe").contents().find("body").text().split(' ').length;
+                        var textToCheck = $(".cke_contents").children("iframe").contents().find("body").text().trim();
+                        var count = 0;
+                        if( textToCheck != '')
+                            count = textToCheck.split(' ').length;
 
+                        var ckeditorCountDiv = $('#ckeditor_current_count');
                         if( count > 200) {
-                            $('#ckeditor_current_count').text("Words: " + count + ". Please reduce your word count before submitting.");
-                            $('#ckeditor_current_count').css("color", "#f04124");
+                            ckeditorCountDiv.text("Words: " + count + ". Please reduce your word count before submitting.");
+                            ckeditorCountDiv.css("color", "#f04124");
                         } else {
-                            $('#ckeditor_current_count').text("Words: " + count);
-                            $('#ckeditor_current_count').css("color", "#000000");
+                            ckeditorCountDiv.text("Words: " + count);
+                            ckeditorCountDiv.css("color", "#000000");
                         }
                     };
 
                     setTimeout(loadCount, 500);
                 });
             </script>
+            <br />
 
           {% elif field.type == "DateField" %}
                 {{ field(class="datepicker") }}
@@ -126,7 +174,41 @@
               var picker = new Pikaday({
                 field: this,
                 disabledDaysOfWeek: [0,2,4,6],
-                format: 'MM-DD-YYYY'
+                format: 'MM-DD-YYYY',
+                disableDayFn: function(date){
+                    // remove all Sun/Tues/Thur/Sat days from the week
+                    if( $.inArray(date.getDay(), [0,2,4,6]) > -1){
+                        return date;
+                    }
+
+                    // This can be modified to disabled various holidays
+                    var DD = ('0' + date.getDate()).slice(-2);
+                    var MM = ('0' + (date.getMonth() + 1)).slice(-2);
+                    var MMDD = MM + '/' + DD;
+                    var disabledDays = ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '01/01'];
+
+                    // Disallow specific days
+                    if($.inArray(MMDD, disabledDays) > -1) {
+                        return date;
+                    }
+
+                    // the last time you can submit a announcement is 1pm the previous business day.
+                    var dateCutoff = date;
+                    dateCutoff.setDate(dateCutoff.getDate() - 1);
+                    while(dateCutoff.getDay() == 0 || dateCutoff.getDay() == 6){
+                        dateCutoff.setDate(dateCutoff.getDate() - 1);
+                    }
+                    dateCutoff.setHours(13);
+
+                    if( dateCutoff <= new Date() ){
+                        return date;
+                    }
+
+                    // Todo: remove this once we launch.
+                    if( date < new Date('2016/04/01')){
+                        return date;
+                    }
+                }
               });
             });
           });

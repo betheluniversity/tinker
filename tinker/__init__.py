@@ -7,6 +7,7 @@ from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
 
+
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
@@ -46,6 +47,7 @@ app.register_blueprint(e_announcements_blueprint, url_prefix='/e-announcement')
 app.register_blueprint(admin_blueprint, url_prefix='/admin')
 
 
+
 # Import error handling
 import error
 
@@ -71,4 +73,3 @@ def cache_test(img_path=None):
 def peanut():
     from flask import render_template
     return render_template('sherie.html')
-
