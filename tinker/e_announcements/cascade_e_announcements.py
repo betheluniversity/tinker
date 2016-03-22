@@ -74,6 +74,11 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                 message = ''
                 message = recurse(child.find('system-data-structure/message'))
 
+                try:
+                    workflow_status = child.find('workflow').find('status').text
+                except AttributeError:
+                    workflow_status = None
+
                 page_values = {
                     'author': child.find('author').text,
                     'id': child.attrib['id'] or "",
@@ -82,7 +87,8 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                     'first_date': first_date,
                     'second_date': second_date,
                     'message': message,
-                    'roles': roles
+                    'roles': roles,
+                    'workflow_status': workflow_status
                 }
 
                 # This is a match, add it to array
