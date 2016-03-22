@@ -55,8 +55,6 @@
         {{ form.hidden_tag() }}
         {% for field in form if field.widget.input_type != 'hidden' %}
 
-            {{ form.errors }}
-
         {# Print any errors for this field#}
           {% for error in form.errors[field.name] %}
             <div class="alert alert-error">
