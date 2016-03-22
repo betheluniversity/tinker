@@ -45,8 +45,15 @@
             {% if form.workflow_status %}
               <li>This announcement is pending approval.</li>
             {% else %}
-              <li><a href="/e-announcement/edit/{{ form.id }}" class="small button">Edit</a></li>
-              <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-e-announcement-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
+              {% if not form.first_date_past and not form.second_date_past %}
+                <li><a href="/e-announcement/edit/{{ form.id }}" class="small button">Edit</a></li>
+              {% else %}
+                  <li><a href="/e-announcement/view/{{ form.id }}" class="small button">View</a></li>
+{#                  <li><a href="/e-announcement/duplicate/{{ form.id }}" class="small button">Duplicate</a></li>#}
+              {% endif %}
+              {% if not form.first_date_past %}
+                  <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-e-announcement-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
+              {% endif %}
             {% endif %}
            </ul>
         </div>

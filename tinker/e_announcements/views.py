@@ -102,9 +102,22 @@ def edit_e_announcement(e_announcement_id):
     # dynamic metadata
     dynamic_fields = metadata.dynamicFields.dynamicField
     # This dict will populate our EventForm object
+    dates, edit_data = get_announcement_data(dynamic_fields, metadata, s_data) # Create an EventForm object with our data
+    form = EAnnouncementsForm(**edit_data)
+    form.e_announcement_id = e_announcement_id
+
+    # convert dates to json so we can use Javascript to create custom DateTime fields on the form
+    dates = fjson.dumps(dates)
+
+    # bring in the mapping
+    banner_roles_mapping = get_banner_roles_mapping()
+
+    return render_template('e-announcements-form.html', **locals())
+
+
+def get_announcement_data(dynamic_fields, metadata, s_data):
     edit_data = {}
     dates = []
-
     # Start with structuredDataNodes (data def content)
     for node in s_data:
         node_identifier = node.identifier.replace('-', '_')
@@ -131,18 +144,15 @@ def edit_e_announcement(e_announcement_id):
 
     # Add the rest of the fields. Can't loop over these kinds of metadata
     edit_data['title'] = metadata.title
+    today = datetime.datetime.now()
+    first_readonlye = False
+    second_readonly = False
+    if edit_data['first'] < today:
+        first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
+    if edit_data['second'] and edit_data['second'] < today:
+        second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
 
-    # Create an EventForm object with our data
-    form = EAnnouncementsForm(**edit_data)
-    form.e_announcement_id = e_announcement_id
-
-    # convert dates to json so we can use Javascript to create custom DateTime fields on the form
-    dates = fjson.dumps(dates)
-
-    # bring in the mapping
-    banner_roles_mapping = get_banner_roles_mapping()
-
-    return render_template('e-announcements-form.html', **locals())
+    return dates, edit_data
 
 
 @e_announcements_blueprint.route("/submit", methods=['POST'])
@@ -190,6 +200,27 @@ def submit_e_announcement_form():
         app.logger.warn(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
         return redirect('/e-announcement/new/confirm', code=302)
 
+
+@e_announcements_blueprint.route('/view/<block_id>')
+def view_announcement(block_id):
+    e_announcement_data = read(block_id, type='block')
+
+    # Get the different data sets from the response
+    form_data = e_announcement_data.asset.xhtmlDataDefinitionBlock
+
+    # the stuff from the data def
+    s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
+    # regular metadata
+    metadata = form_data.metadata
+    # dynamic metadata
+    dynamic_fields = metadata.dynamicFields.dynamicField
+
+    dates, edit_data = get_announcement_data(dynamic_fields, metadata, s_data)
+
+    first = dates[0].strftime('%A %B %d, %Y')
+    second = dates[1].strftime('%A %B %d, %Y')
+
+    return render_template('e-announcements-view.html', **locals())
 
 # Todo: add some kind of authentication?
 @e_announcements_blueprint.route("/create_campaign/", methods=['get', 'post'])
