@@ -89,11 +89,11 @@ def edit_e_announcement(e_announcement_id):
     from tinker.e_announcements.forms import EAnnouncementsForm
 
     # Get the event data from cascade
-    e_announcement_data = read(e_announcement_id)
+    e_announcement_data = read(e_announcement_id, type='block')
     new_form = False
 
     # Get the different data sets from the response
-    form_data = e_announcement_data.asset.page
+    form_data = e_announcement_data.asset.xhtmlDataDefinitionBlock
 
     # the stuff from the data def
     s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
