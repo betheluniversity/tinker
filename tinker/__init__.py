@@ -6,7 +6,7 @@ from flask import session
 from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
-from flask_wtf import csrf
+from flask_wtf.csrf import CsrfProtect
 
 
 app = Flask(__name__)
@@ -48,7 +48,7 @@ app.register_blueprint(e_announcements_blueprint, url_prefix='/e-announcement')
 app.register_blueprint(publish_blueprint, url_prefix='/publish-manager')
 app.register_blueprint(sync_blueprint, url_prefix='/sync')
 
-csrf.CsrfProtect(app).exempt(redirect_blueprint)
+CsrfProtect(app).exempt(redirect_blueprint)
 
 # Import error handling
 import error
