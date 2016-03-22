@@ -22,34 +22,32 @@ def show():
         import commands
         commands.getoutput("cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
 
-    sync_metadataset(app.config['METADATA_EVENT_ID'])
-    sync_metadataset(app.config['METADATA_ROBUST_ID'])
-    sync_metadataset(app.config['METADATA_JOB_POSTING_ID'])
-    sync_faculty_bio_data_definition(app.config['DATA_DEF_FACULTY_BIO_ID'])
-    sync_faculty_bio_data_definition(app.config['DATA_DEF_PROGRAM_FEED_ID'])
-    sync_faculty_bio_data_definition(app.config['DATA_DEF_PROGRAM_BLOCK_ID'])
+    data = data_to_add
 
-    # pass on the current values.
-    school = data_to_add['school']
-    undergrad_programs = data_to_add['department']
-    adult_undergrad_programs = data_to_add['adult-undergrad-program']
-    graduate_programs = data_to_add['graduate-program']
-    seminary_programs = data_to_add['seminary-program']
-    locations = data_to_add['location']
+    # sync_metadataset(app.config['METADATA_EVENT_ID'], data)
+    # sync_metadataset(app.config['METADATA_ROBUST_ID'], data)
+    # sync_metadataset(app.config['METADATA_JOB_POSTING_ID'], data)
+    sync_metadataset(app.config['METADATA_PORTAL_ROLES_ID'], data)
+    # sync_data_definition(app.config['DATA_DEF_FACULTY_BIO_ID'], data)
+    # sync_data_definition(app.config['DATA_DEF_PROGRAM_FEED_ID'], data)
+    # sync_data_definition(app.config['DATA_DEF_PROGRAM_BLOCK_ID'], data)
+    sync_data_definition(app.config['DATA_DEF_PORTAL_CHANNEL_ID'], data)
+    sync_data_definition(app.config['DATA_DEF_PORTAL_TAB_ID'], data)
 
-    # another dummy comment
     return render_template('sync.html', **locals())
 
 
-def sync_faculty_bio_data_definition(data_definition_id):
+def sync_data_definition(data_definition_id, data):
     if not data_definition_id or not read(data_definition_id, 'datadefinition'):
         return None
 
     asset = read(data_definition_id, 'datadefinition').asset.dataDefinition
     dd = asset.xml
-
+    print asset
     structure = Et.fromstring(dd)
 
+    # Todo: make this recursive (so there aren't such terrible for loops.
+    # Todo: make sure the id's do not collide with the above solution
     # check top level element
     for el in structure:
         if not el:
@@ -57,7 +55,7 @@ def sync_faculty_bio_data_definition(data_definition_id):
         if "job-titles" in el.attrib['identifier']:  # for Faculty Bios | school, undergrad, adult-undergrad, graduate, seminary
             # find everything in the group of job-titles that needs to be replaced.
             for next_el in el:
-                if next_el.attrib['identifier'] in data_to_add:
+                if next_el.attrib['identifier'] in data:
 
                     # remove old elements
                     store_elements_to_remove = []
@@ -67,7 +65,7 @@ def sync_faculty_bio_data_definition(data_definition_id):
                         next_el.remove(el_to_remove)
 
                     # add new elements
-                    for value in data_to_add[next_el.attrib['identifier']]:
+                    for value in data[next_el.attrib['identifier']]:
                         if next_el.attrib['identifier'] == 'school':
                             if value == "Bethel University":
                                 show_field_value = "job-titles/job_title"
@@ -94,7 +92,7 @@ def sync_faculty_bio_data_definition(data_definition_id):
                         next_el.remove(el_to_remove)
 
                     # add new elements
-                    for value in data_to_add[next_el.attrib['identifier']]:
+                    for value in data[next_el.attrib['identifier']]:
                         next_el.append(Et.Element('checkbox-item', {"value": value}))
 
         elif "concentration" in el.attrib['identifier']:  # for Program Blocks | location
@@ -112,8 +110,35 @@ def sync_faculty_bio_data_definition(data_definition_id):
                                         fourth_el.remove(el_to_remove)
 
                                     # add new elements
-                                    for value in data_to_add['location']:
+                                    for value in data['location']:
                                         fourth_el.append(Et.Element('dropdown-item', {"value": value}))
+
+        elif 'roles' in el.attrib['identifier']:  # for Portal - Tab | roles
+            # remove old elements
+            store_elements_to_remove = []
+            for el_to_remove in el:
+                store_elements_to_remove.append(el_to_remove)
+            for el_to_remove in store_elements_to_remove:
+                el.remove(el_to_remove)
+
+            # add new elements
+            for value in data['roles']:
+                el.append(Et.Element('selector-item', {"value": value}))
+
+        elif 'sections' in el.attrib['identifier']:  # for Portal - Channel Block | roles
+            for second_el in el:
+                print second_el
+                if second_el.attrib['identifier'] == 'roles':
+                    # remove old elements
+                    store_elements_to_remove = []
+                    for el_to_remove in second_el:
+                        store_elements_to_remove.append(el_to_remove)
+                    for el_to_remove in store_elements_to_remove:
+                        second_el.remove(el_to_remove)
+
+                    # add new elements
+                    for value in data['roles']:
+                        second_el.append(Et.Element('selector-item', {"value": value}))
 
     new_asset = {
         'dataDefinition': {
@@ -130,11 +155,12 @@ def sync_faculty_bio_data_definition(data_definition_id):
     }
 
     resp = edit(new_asset)
-    app.logger.warn(time.strftime("%c") + ": Faculty bio data definition synced, id: " + data_definition_id)
+    print resp
+    app.logger.warn(time.strftime("%c") + ": Data definition synced, id: " + data_definition_id)
     return resp
 
 
-def sync_metadataset(metadataset_id):
+def sync_metadataset(metadataset_id, data):
     if not metadataset_id or not read(metadataset_id, 'metadataset'):
         return None
 
@@ -161,9 +187,9 @@ def sync_metadataset(metadataset_id):
             # else, just pass it over
             values_to_add = []
 
-            if el.name in data_to_add:
+            if el.name in data:
                 # add values from metadata.py
-                for value in data_to_add[el.name]:
+                for value in data[el.name]:
                     if value == 'None' or value == 'Select':
                         selected_by_default = '1'
                     else:
@@ -228,7 +254,7 @@ def sync_metadataset(metadataset_id):
     }
 
     resp = edit(new_asset)
-    app.logger.warn(time.strftime("%c") + ": Faculty bio metadata set synced, id: " + metadataset_id)
+    app.logger.warn(time.strftime("%c") + ": Metadata set synced, id: " + metadataset_id)
     return resp
 
 
