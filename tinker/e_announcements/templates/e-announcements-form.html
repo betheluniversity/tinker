@@ -42,6 +42,7 @@
       <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
+        <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
         {% if form.errors %}
           <div class="alert alert-error">
             <div data-alert class="alert-box alert radius">
@@ -53,6 +54,8 @@
 
         {{ form.hidden_tag() }}
         {% for field in form if field.widget.input_type != 'hidden' %}
+
+            {{ form.errors }}
 
         {# Print any errors for this field#}
           {% for error in form.errors[field.name] %}
