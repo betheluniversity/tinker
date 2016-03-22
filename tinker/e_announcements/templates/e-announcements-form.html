@@ -42,7 +42,6 @@
       <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
-        <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
         {% if form.errors %}
           <div class="alert alert-error">
             <div data-alert class="alert-box alert radius">
@@ -143,7 +142,7 @@
             <br />
 
           {% elif field.type == "DateField" %}
-                {{ field(class="datepicker") }}
+            {{ field(class="datepicker") }}
 
           {% else %}
               {{ field(size=20) }}

@@ -3,11 +3,13 @@
 # python
 
 # modules
+from flask import session
 from flask.ext.wtf import Form
 from wtforms import TextField
 from wtforms import SelectMultipleField
 from wtforms import TextAreaField
 from wtforms import DateField
+from wtforms import HiddenField
 from wtforms import Field
 from wtforms import validators
 from wtforms import widgets
@@ -114,6 +116,11 @@ class EAnnouncementsForm(Form):
     second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y", validators=[validators.Optional()])
 
     banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices(), validators=[validators.DataRequired()])
+
+    name = HiddenField('Name', value=session['USER_NAME'])
+    email = HiddenField('Email', value=session['USER_EMAIL'])
+
+
 
     # Manually override validate, in order to check the dates
     def validate(self):

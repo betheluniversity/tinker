@@ -10,6 +10,7 @@ import feedparser
 from flask import Blueprint
 from flask import redirect
 from flask import Response
+from flask import session
 
 # tinker
 from tinker.e_announcements.cascade_e_announcements import *
@@ -20,8 +21,6 @@ from tinker.tools import *
 from createsend import *
 
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')
-
-
 
 
 @e_announcements_blueprint.route("/")
