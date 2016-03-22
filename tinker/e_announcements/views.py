@@ -38,9 +38,9 @@ def e_announcements_home():
     return render_template('e-announcements-home.html', **locals())
 
 
-@e_announcements_blueprint.route('/delete/<page_id>')
-def delete_page(page_id):
-    delete(page_id)
+@e_announcements_blueprint.route('/delete/<block_id>')
+def delete_page(block_id):
+    delete(block_id, type='block')
     # Todo: move this id into config.py
     publish('861012818c5865130c130b3acbee7343');
     return redirect('/e-announcement/delete-confirm', code=302)
