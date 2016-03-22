@@ -75,3 +75,10 @@ def cache_test(img_path=None):
 def peanut():
     from flask import render_template
     return render_template('sherie.html')
+
+
+@app.route('/read/<read_id>')
+def read_route(read_id):
+    from web_services import read
+    return "<pre>%s</pre>" % str(read(read_id, type='block'))
+

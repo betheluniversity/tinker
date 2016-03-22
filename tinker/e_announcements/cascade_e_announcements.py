@@ -4,6 +4,7 @@ import re
 from xml.etree import ElementTree as ET
 
 # local
+from tinker import sentry
 from tinker.web_services import *
 from tinker.cascade_tools import *
 from createsend import *
@@ -52,7 +53,7 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
     # Traverse an XML folder, adding system-pages to a dict of matches
 
     matches = []
-    for child in traverse_xml.findall('.//system-page'):
+    for child in traverse_xml.findall('.//system-block'):
         try:
             author = child.find('author').text
 
@@ -73,23 +74,27 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                 message = ''
                 message = recurse(child.find('system-data-structure/message'))
 
+                try:
+                    workflow_status = child.find('workflow').find('status').text
+                except AttributeError:
+                    workflow_status = None
+
                 page_values = {
                     'author': child.find('author').text,
                     'id': child.attrib['id'] or "",
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
-                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
                     'first_date': first_date,
                     'second_date': second_date,
                     'message': message,
-                    'department': child.find('system-data-structure/department').text or None,
-                    'roles': roles
+                    'roles': roles,
+                    'workflow_status': workflow_status
                 }
 
                 # This is a match, add it to array
                 matches.append(page_values)
-        except:
-            continue
+        except AttributeError:
+            sentry.captureException()
 
     # sort by created-on date.
     matches = sorted(matches, key=lambda k: k['created-on'])
@@ -129,13 +134,16 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
         structured_data_node("message", escape_wysiwyg_content(add_data['message'])),
         structured_data_node("first-date", add_data['first']),
         structured_data_node("second-date", add_data['second']),
+        structured_data_node("name", add_data['name']),
+        structured_data_node("email", add_data['email']),
     ]
 
     # Wrap in the required structure for SOAP
     structured_data = {
         'structuredDataNodes': {
             'structuredDataNode': structured_data,
-        }
+        },
+        'definitionPath': 'E-Announcement'
     }
 
     # create the dynamic metadata dict
@@ -147,13 +155,11 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
 
     parent_folder = get_e_announcement_parent_folder(add_data['first'])
     asset = {
-        'page': {
+        'xhtmlDataDefinitionBlock': {
             'name': add_data['system_name'],
             'siteId': app.config['SITE_ID'],
             'parentFolderPath': parent_folder,
             'metadataSetPath': "/Targeted",
-            'contentTypePath': "E-Announcement",
-            'configurationSetPath': "Flex-ONE",
             'structuredData': structured_data,
             'metadata': {
                 'title': add_data['title'],
@@ -165,7 +171,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
     }
 
     if e_announcement_id:
-        asset['page']['id'] = e_announcement_id
+        asset['xhtmlDataDefinitionBlock']['id'] = e_announcement_id
         resp = move(e_announcement_id, parent_folder)
 
     return asset

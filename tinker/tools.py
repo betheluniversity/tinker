@@ -37,6 +37,13 @@ def init_user():
     if 'top_nav' not in session.keys():
         get_nav()
 
+    if 'user_email' not in session.keys():
+        # todo, get prefered email (alias) from wsapi once its added.
+        session['user_email'] = session['username'] + "@bethel.edu"
+
+    if 'name' not in session.keys():
+        get_users_name()
+
 
 def get_user():
 
@@ -46,6 +53,20 @@ def get_user():
         username = current_app.config['TEST_USER']
 
     session['username'] = username
+
+def get_users_name(username=None):
+    if not username:
+        username = session['username']
+    url = current_app.config['API_URL'] + "/username/%s/names" % username
+    r = requests.get(url)
+    names = fjson.loads(r.content)['0']
+    if names['prefFirstName']:
+        fname = names['prefFirstName']
+    else:
+        fname = names['firstName']
+    lname = names['lastName']
+
+    session['name'] = "%s %s" % (fname, lname)
 
 
 def get_groups_for_user(username=None):

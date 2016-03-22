@@ -10,6 +10,7 @@ import feedparser
 from flask import Blueprint
 from flask import redirect
 from flask import Response
+from flask import session
 
 # tinker
 from tinker.e_announcements.cascade_e_announcements import *
@@ -20,8 +21,6 @@ from tinker.tools import *
 from createsend import *
 
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')
-
-
 
 
 @e_announcements_blueprint.route("/")
@@ -39,9 +38,9 @@ def e_announcements_home():
     return render_template('e-announcements-home.html', **locals())
 
 
-@e_announcements_blueprint.route('/delete/<page_id>')
-def delete_page(page_id):
-    delete(page_id)
+@e_announcements_blueprint.route('/delete/<block_id>')
+def delete_page(block_id):
+    delete(block_id, type='block')
     # Todo: move this id into config.py
     publish('861012818c5865130c130b3acbee7343');
     return redirect('/e-announcement/delete-confirm', code=302)
@@ -84,17 +83,17 @@ def e_announcement_in_workflow():
 
 @e_announcements_blueprint.route('/edit/<e_announcement_id>')
 def edit_e_announcement(e_announcement_id):
-    if is_asset_in_workflow(e_announcement_id):
-        return redirect('/faculty-bio/in-workflow', code=302)
+    if is_asset_in_workflow(e_announcement_id, type='block'):
+        return redirect('/e-announcement/in-workflow', code=302)
 
     from tinker.e_announcements.forms import EAnnouncementsForm
 
     # Get the event data from cascade
-    e_announcement_data = read(e_announcement_id)
+    e_announcement_data = read(e_announcement_id, type='block')
     new_form = False
 
     # Get the different data sets from the response
-    form_data = e_announcement_data.asset.page
+    form_data = e_announcement_data.asset.xhtmlDataDefinitionBlock
 
     # the stuff from the data def
     s_data = form_data.structuredData.structuredDataNodes.structuredDataNode

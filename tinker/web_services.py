@@ -22,11 +22,11 @@ def email_tinker_admins(response):
         app.logger.error(session['username'], time.strftime("%c") + " " + str(response))
 
 
-def delete(page_id, workflow=None):
-    unpublish(page_id, 'page')
+def delete(page_id, workflow=None, type='page'):
+    if type == 'page':
+        unpublish(page_id, 'page')
+        time.sleep(5.5)
     client = get_client()
-
-    time.sleep(5.5)
 
     auth = app.config['CASCADE_LOGIN']
 
@@ -34,7 +34,7 @@ def delete(page_id, workflow=None):
 
     identifier = {
         'id': page_id,
-        'type': 'page',
+        'type': type,
     }
 
     response = client.service.delete(auth, identifier)
