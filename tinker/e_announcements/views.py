@@ -83,7 +83,7 @@ def e_announcement_in_workflow():
 
 @e_announcements_blueprint.route('/edit/<e_announcement_id>')
 def edit_e_announcement(e_announcement_id):
-    if is_asset_in_workflow(e_announcement_id):
+    if is_asset_in_workflow(e_announcement_id, type='block'):
         return redirect('/faculty-bio/in-workflow', code=302)
 
     from tinker.e_announcements.forms import EAnnouncementsForm
