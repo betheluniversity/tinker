@@ -127,7 +127,6 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
     # Create a list of all the data nodes
     structured_data = [
         structured_data_node("message", escape_wysiwyg_content(add_data['message'])),
-        structured_data_node("department", add_data['department']),
         structured_data_node("first-date", add_data['first']),
         structured_data_node("second-date", add_data['second']),
     ]

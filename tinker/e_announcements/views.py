@@ -166,6 +166,10 @@ def submit_e_announcement_form():
             new_form = True
 
         app.logger.warn(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
+
+        # bring in the mapping
+        banner_roles_mapping = get_banner_roles_mapping()
+
         return render_template('e-announcements-form.html', **locals())
 
     # Get all the form data
