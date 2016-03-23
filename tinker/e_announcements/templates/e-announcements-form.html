@@ -142,7 +142,19 @@
             <br />
 
           {% elif field.type == "DateField" %}
-                {{ field(class="datepicker") }}
+            {% if field.name == 'first' and first_readonly %}
+                <div>
+                    <p>{{ first_readonly }}</p>
+                </div>
+                {{ field(class="datepicker", readonly=True, style="display:none") }}
+            {% elif field.name == 'second' and second_readonly %}
+                <div>
+                    <p>{{ second_readonly }}</p>
+                </div>
+                {{ field(class="datepicker", readonly=True, style="display:none") }}
+            {% else %}
+                {{ field(class="datepicker", readonly=True) }}
+            {% endif %}
 
           {% else %}
               {{ field(size=20) }}

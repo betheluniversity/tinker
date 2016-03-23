@@ -6,6 +6,7 @@ from flask import session
 from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
+from flask_wtf.csrf import CsrfProtect
 
 
 app = Flask(__name__)
@@ -51,6 +52,7 @@ app.register_blueprint(publish_blueprint, url_prefix='/admin/publish')
 app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
 
 
+CsrfProtect(app).exempt(redirect_blueprint)
 
 # Import error handling
 import error
@@ -77,3 +79,10 @@ def cache_test(img_path=None):
 def peanut():
     from flask import render_template
     return render_template('sherie.html')
+
+
+@app.route('/read/<read_id>')
+def read_route(read_id):
+    from web_services import read
+    return "<pre>%s</pre>" % str(read(read_id, type='block'))
+
