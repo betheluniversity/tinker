@@ -60,10 +60,16 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
             if (author is not None and username == author) or username == "get_all":
                 first = child.find('system-data-structure/first-date').text
                 second = child.find('system-data-structure/second-date').text
-                first_date = datetime.datetime.strptime(first, '%m-%d-%Y').strftime('%A %B %d, %Y')
+                first_date_object = datetime.datetime.strptime(first, '%m-%d-%Y')
+                first_date = first_date_object.strftime('%A %B %d, %Y')
+                first_date_past = first_date_object < datetime.datetime.now()
+
                 second_date = ''
+                second_date_past = ''
                 if second:
-                    second_date = datetime.datetime.strptime(second, '%m-%d-%Y').strftime('%A %B %d, %Y')
+                    second_date_object = datetime.datetime.strptime(second, '%m-%d-%Y')
+                    second_date = second_date_object.strftime('%A %B %d, %Y')
+                    second_date_past = second_date_object < datetime.datetime.now()
 
                 roles = []
                 values = child.find('dynamic-metadata')
@@ -88,7 +94,9 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                     'second_date': second_date,
                     'message': message,
                     'roles': roles,
-                    'workflow_status': workflow_status
+                    'workflow_status': workflow_status,
+                    'first_date_past': first_date_past,
+                    'second_date_past': second_date_past
                 }
 
                 # This is a match, add it to array
