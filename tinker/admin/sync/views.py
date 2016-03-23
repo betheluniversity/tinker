@@ -1,37 +1,18 @@
 __author__ = 'ces55739'
-from tinker.admin.roles.roles_roledata import uid, portal
-from tinker.admin.sync.sync_metadata import data_to_add
-
-# python
-from BeautifulSoup import *
-import urllib
-
-# flask
-from flask import Blueprint, render_template, request
 
 # tinker
+from sync_metadata import data_to_add
 from tinker.web_services import *
+from xml.sax.saxutils import escape
 import xml.etree.ElementTree as Et
 
-admin_blueprint = Blueprint('admin_blueprint', __name__, template_folder='templates')
-blink_roles = '/blink-roles'
+from flask import Blueprint, render_template, abort, request
+from tinker.admin.views import admin_blueprint
+
+sync_blueprint = Blueprint('sync_blueprint', __name__, template_folder='templates')
 sync = '/sync'
-publish_manager = '/publish-manager'
-
-@admin_blueprint.before_request
-def before_request():
-    if 'Administrators' not in session['groups']:
-        abort(403)
-
-@admin_blueprint.route('/blink-roles')
-def blink_roles_home():
-    uid_list = uid
-    portal_list = portal
-    return render_template('blink-roles-home.html', **locals())
-
-
 @admin_blueprint.route(sync)
-def sync_home():
+def home():
     return render_template('sync-home.html', **locals())
 
 
@@ -176,13 +157,13 @@ def sync_metadataset(metadataset_id):
 
         # add value/values to element
         if el.fieldType != 'text':
-            # if its in the sync_metadata.py check
+            # if its in the metadata.py check
 
             # else, just pass it over
             values_to_add = []
 
             if el.name in data_to_add:
-                # add values from sync_metadata.py
+                # add values from metadata.py
                 for value in data_to_add[el.name]:
                     if value == 'None' or value == 'Select':
                         selected_by_default = '1'
@@ -268,189 +249,3 @@ def recursive_structure_build(xml):
                 else:
                     to_return.append((elem.tag, elem.attrib, 0))
     return to_return
-
-@admin_blueprint.route(publish_manager)
-def publish_home():
-    #get_user()
-    #not sure if this is needed -n-li
-    username = session['username']
-
-    if username == 'celanna' or username == 'ces55739' or username == 'nal64753':
-        return render_template('publish-home.html', **locals())
-    else:
-        abort(403)
-
-@admin_blueprint.route(publish_manager + "/program-feeds", methods=['get', 'post'])
-def publish_program_feeds():
-    return render_template('publish-program-feeds.html', **locals())
-
-@admin_blueprint.route(publish_manager + "/program-feeds/<destination>", methods=['get', 'post'])
-def publish_program_feeds_return(destination=''):
-    if destination != "production":
-        destination = "staging"
-
-    # get results
-    results = search_data_definitions("*program-feed*")
-    if results.matches is None or results.matches == "":
-        results = []
-    else:
-        results = results.matches.match
-
-    final_results = []
-
-    # publish all results' relationships
-    for result in results:
-        type = result.type
-        id = result.id
-
-        if type == "block" and '/base-assets/' not in result.path.path and '_testing/' not in result.path.path:
-            try:
-                relationships = list_relationships(id, type)
-                pages = relationships.subscribers.assetIdentifier
-                pages_added = []
-                for page in pages:
-                    resp = publish(page.id, "page", destination)
-                    if 'success = "false"' in str(resp):
-                        message = resp['message']
-                    else:
-                        message = 'Published'
-                    pages_added.append({'id': page.id, 'path': page.path.path, 'message': message})
-            except:
-                continue
-
-            final_results.append({'id': result.id, 'path': result.path.path, 'pages': pages_added})
-
-    return render_template('publish-program-feeds-table.html', **locals())
-
-@admin_blueprint.route(publish_manager + '/search', methods=['post'])
-def publish_search():
-    name = request.form['name']
-    content = request.form['content']
-    metadata = request.form['metadata']
-
-    # test search info
-    results = search(name, content, metadata)
-    if results.matches is None or results.matches == "":
-        results = []
-    else:
-        results = results.matches.match
-
-    final_results = []
-    for result in results:
-        if result.path.siteName == "Public" and (not re.match("_", result.path.path) or re.match("_shared-content", result.path.path) or re.match("_homepages", result.path.path) ):
-            final_results.append(result)
-
-    results = final_results
-    return render_template('publish-table.html', **locals())
-
-@admin_blueprint.route(publish_manager + '/publish/<destination>/<type>/<id>', methods=['get', 'post'])
-def publish_publish(destination, type, id):
-    if destination != "staging":
-        destination = ""
-
-    if type == "block":
-        try:
-            relationships = list_relationships(id, type)
-            pages = relationships.subscribers.assetIdentifier
-            for page in pages:
-                if page.type == "page":
-                    resp = publish(page.id, "page", destination)
-            if 'success = "false"' in str(resp):
-                return resp['message']
-        except:
-            return "Failed"
-    else:
-        resp = publish(id, type, destination)
-        if 'success = "false"' in str(resp):
-            return resp['message']
-
-    return "Publishing. . ."
-
-@admin_blueprint.route(publish_manager + "/more_info", methods=['post'])
-def publish_more_info():
-    type = request.form['type']
-    id = request.form['id']
-
-    resp = read(id, type)
-
-    # page
-    if type == 'page':
-        try:
-            info = resp.asset.page
-            md = info.metadata
-            ext = 'php'
-        except:
-            return "Not a valid type. . ."
-    # block
-    elif type == 'block':
-        try:
-            info = resp.asset.xhtmlDataDefinitionBlock
-            md = info.metadata
-            ext = ""
-        except:
-            return "Not a valid type. . ."
-    # Todo: file
-    else:
-        return "Not a valid type. . ."
-
-    # name
-    if info.name:
-        name = info.name
-    # title
-    if md.title:
-        title = md.title
-    # path
-    if info.path:
-        path = info.path
-
-        if ext != "":
-            try:
-                www_publish_date = 'N/A'
-                staging_publish_date = 'N/A'
-                # prod
-                # www publish date
-                page3 = urllib.urlopen("https://www.bethel.edu/" + path + '.' + ext).read()
-                soup3 = BeautifulSoup(page3)
-                date = soup3.findAll(attrs={"name":"date"})
-                if date:
-                    www_publish_date = convert_meta_date(date)
-
-                # staging
-                page3 = urllib.urlopen("https://staging.bethel.edu/" + path + '.' + ext).read()
-                soup3 = BeautifulSoup(page3)
-                date = soup3.findAll(attrs={"name":"date"})
-                if date:
-                    staging_publish_date = convert_meta_date(date)
-
-            except:
-                www_publish_date = 'N/A'
-                staging_publish_date = 'N/A'
-    # description
-    if md.metaDescription:
-        description = md.metaDescription
-
-    return render_template("publish-more-info.html", **locals())
-
-def convert_meta_date(date):
-    dates = date[0]['content'].encode('utf-8').split(" ")
-    dates.pop()
-    date = " ".join(dates)
-
-    dt = datetime.datetime.strptime(date, "%a, %d %b %Y %H:%M:%S")
-    date_time = datetime.datetime.strftime(dt, "%B %e, %Y at %I:%M %p")
-
-    return date_time
-
-# Code to publish all pages that contain a wufoo block
-#
-# @publish_blueprint.route('/wufoo', methods=['get'])
-# def publish_wufoo():
-#     wufoos = search('*wufoo*')
-#     for wufoo in wufoos.matches.match:
-#         if wufoo.type == "block":
-#             relationships = list_relationships(wufoo.id, "block")
-#             if 'subscribers' in relationships and 'assetIdentifier' in relationships.subscribers:
-#                 for page in relationships.subscribers.assetIdentifier:
-#                     publish(page.id, "page")
-#
-#     return "yep"
