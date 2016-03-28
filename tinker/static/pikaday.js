@@ -3,7 +3,7 @@
  *
  * Copyright © 2014 David Bushell | BSD & MIT license | https://github.com/dbushell/Pikaday
  *
- * Edit by Caleb Schwarze: Added disabledDaysOfWeek attribute, to disable specific days of week.
+ * Edit by Caleb Schwarze: Added disabledDaysOfWeek and disabledDates attributes, to disable specific days of week.
  */
 
 (function (root, factory)
@@ -109,7 +109,7 @@
         return (/Date/).test(Object.prototype.toString.call(obj)) && !isNaN(obj.getTime());
     },
 
-    isDisabledDay = function(value, opt)
+    isDisabledDayOfWeek = function(value, opt)
     {
         if(opt.length == 0){
             return false;
@@ -121,6 +121,20 @@
             if( opt[i] == n){
                 return true;
             }
+        }
+        return false;
+    },
+
+    isDisabledDate = function(value, opt)
+    {
+        // This can be modified to disabled various holidays
+        var DD = ('0' + value.getDate()).slice(-2);
+        var MM = ('0' + (value.getMonth() + 1)).slice(-2);
+        var MMDD = MM + '/' + DD;
+
+        // Disallow specific days
+        if($.inArray(MMDD, opt) > -1) {
+            return true;
         }
         return false;
     },
@@ -261,6 +275,9 @@
 
         // disable days of week
         disabledDaysOfWeek: [],
+
+        // disable days of the year (holidays). In the format: '12/24' for December 24th
+        disabledDates: [],
 
         // callback function
         onSelect: null,
@@ -650,6 +667,7 @@
             opts.trigger = (opts.trigger && opts.trigger.nodeName) ? opts.trigger : opts.field;
 
             opts.disabledDaysOfWeek = opts.disabledDaysOfWeek;
+            opts.disabledDates = opts.disabledDates;
 
             var nom = parseInt(opts.numberOfMonths, 10) || 1;
             opts.numberOfMonths = nom > 4 ? 4 : nom;
@@ -1032,7 +1050,7 @@
             for (var i = 0, r = 0; i < cells; i++)
             {
                 var day = new Date(year, month, 1 + (i - before)),
-                    isDisabled = (opts.minDate && day < opts.minDate) || (opts.maxDate && day > opts.maxDate) || isDisabledDay(day, opts.disabledDaysOfWeek),
+                    isDisabled = (opts.minDate && day < opts.minDate) || (opts.maxDate && day > opts.maxDate) || isDisabledDayOfWeek(day, opts.disabledDaysOfWeek) || isDisabledDate(day, opts.disabledDates),
                     isSelected = isDate(this._d) ? compareDates(day, this._d) : false,
                     isToday = compareDates(day, now),
                     isEmpty = i < before || i >= (days + before);
