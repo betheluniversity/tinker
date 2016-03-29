@@ -24,13 +24,13 @@ def show():
 
     data = data_to_add
 
-    # sync_metadataset(app.config['METADATA_EVENT_ID'], data)
-    # sync_metadataset(app.config['METADATA_ROBUST_ID'], data)
-    # sync_metadataset(app.config['METADATA_JOB_POSTING_ID'], data)
+    sync_metadataset(app.config['METADATA_EVENT_ID'], data)
+    sync_metadataset(app.config['METADATA_ROBUST_ID'], data)
+    sync_metadataset(app.config['METADATA_JOB_POSTING_ID'], data)
     sync_metadataset(app.config['METADATA_PORTAL_ROLES_ID'], data)
-    # sync_data_definition(app.config['DATA_DEF_FACULTY_BIO_ID'], data)
-    # sync_data_definition(app.config['DATA_DEF_PROGRAM_FEED_ID'], data)
-    # sync_data_definition(app.config['DATA_DEF_PROGRAM_BLOCK_ID'], data)
+    sync_data_definition(app.config['DATA_DEF_FACULTY_BIO_ID'], data)
+    sync_data_definition(app.config['DATA_DEF_PROGRAM_FEED_ID'], data)
+    sync_data_definition(app.config['DATA_DEF_PROGRAM_BLOCK_ID'], data)
     sync_data_definition(app.config['DATA_DEF_PORTAL_CHANNEL_ID'], data)
     sync_data_definition(app.config['DATA_DEF_PORTAL_TAB_ID'], data)
 
