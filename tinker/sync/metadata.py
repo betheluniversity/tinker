@@ -111,6 +111,21 @@ locations = [
     'St. Paul',
 ]
 
+delivery_label = {
+    'Face to Face',
+    'Blended',
+    'Online'
+}
+
+delivery_subheading = {
+    '',
+    'Online with Intensives',
+    'Mostly Online',
+    'Fully Online',
+    'Evening',
+    'Daytime'
+}
+
 roles = [
     "STUDENT-CAS",
     "STUDENT-CAPS",
@@ -129,5 +144,7 @@ data_to_add['department'] = undergrad_programs
 data_to_add['adult-undergrad-program'] = adult_undergrad_programs
 data_to_add['graduate-program'] = graduate_programs
 data_to_add['seminary-program'] = seminary_programs
-data_to_add['location'] = locations
 data_to_add['roles'] = roles
+data_to_add['location'] = locations
+data_to_add['delivery_label'] = delivery_label
+data_to_add['delivery_subheading'] = delivery_subheading
