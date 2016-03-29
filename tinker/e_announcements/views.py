@@ -261,8 +261,6 @@ def create_campaign(date=None):
             }
         )
 
-    view_all_announcements_text = '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/e-announcement-archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
-
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     CreateSend({'api_key': campaign_monitor_key})
     new_campaign = Campaign({'api_key': campaign_monitor_key})
@@ -282,7 +280,7 @@ def create_campaign(date=None):
                 "Content": subject,
             },
             {
-                "Content": view_all_announcements_text,
+                "Content": '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
             }
         ],
         "Repeaters": [

@@ -26,21 +26,19 @@ def recurse(node):
     return_string = ''
     for child in node:
 
-        # gets the basic text
-        if child.text:
-            if child.tag == 'a':
-                return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child.text, child.tag)
-            else:
-                return_string += '<%s>%s</%s>' % (child.tag, child.text, child.tag)
-
         # recursively renders children
         try:
             if child.tag == 'a':
-                return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], recurse(child), child.tag)
+                return_string += '<%s href="%s">%s%s</%s>' % (child.tag, child.attrib['href'], child.text, recurse(child), child.tag)
             else:
-                return_string += '<%s>%s</%s>' % (child.tag, recurse(child), child.tag)
+                return_string += '<%s>%s%s</%s>' % (child.tag, child.text, recurse(child), child.tag)
         except:
-            continue
+            # gets the basic text
+            if child.text:
+                if child.tag == 'a':
+                    return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child.text, child.tag)
+                else:
+                    return_string += '<%s>%s</%s>' % (child.tag, child.text, child.tag)
 
         # gets the text that follows the children
         if child.tail:
