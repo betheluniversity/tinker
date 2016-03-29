@@ -4,6 +4,7 @@ import re
 from xml.etree import ElementTree as ET
 
 # local
+from tinker import sentry
 from tinker.web_services import *
 from tinker.cascade_tools import *
 from createsend import *
@@ -24,22 +25,23 @@ def get_e_announcements_for_user(username="get_all"):
 def recurse(node):
     return_string = ''
     for child in node:
-
-        # gets the basic text
+        child_text = ''
         if child.text:
-            if child.tag == 'a':
-                return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child.text, child.tag)
-            else:
-                return_string += '<%s>%s</%s>' % (child.tag, child.text, child.tag)
+            child_text = child.text
 
         # recursively renders children
         try:
             if child.tag == 'a':
-                return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], recurse(child), child.tag)
+                return_string += '<%s href="%s">%s%s</%s>' % (child.tag, child.attrib['href'], child_text, recurse(child), child.tag)
             else:
-                return_string += '<%s>%s</%s>' % (child.tag, recurse(child), child.tag)
+                return_string += '<%s>%s%s</%s>' % (child.tag, child_text, recurse(child), child.tag)
         except:
-            continue
+            # gets the basic text
+            if child_text:
+                if child.tag == 'a':
+                    return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child_text, child.tag)
+                else:
+                    return_string += '<%s>%s</%s>' % (child.tag, child_text, child.tag)
 
         # gets the text that follows the children
         if child.tail:
@@ -52,17 +54,23 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
     # Traverse an XML folder, adding system-pages to a dict of matches
 
     matches = []
-    for child in traverse_xml.findall('.//system-page'):
+    for child in traverse_xml.findall('.//system-block'):
         try:
             author = child.find('author').text
 
             if (author is not None and username == author) or username == "get_all":
                 first = child.find('system-data-structure/first-date').text
                 second = child.find('system-data-structure/second-date').text
-                first_date = datetime.datetime.strptime(first, '%m-%d-%Y').strftime('%A %B %d, %Y')
+                first_date_object = datetime.datetime.strptime(first, '%m-%d-%Y')
+                first_date = first_date_object.strftime('%A %B %d, %Y')
+                first_date_past = first_date_object < datetime.datetime.now()
+
                 second_date = ''
+                second_date_past = ''
                 if second:
-                    second_date = datetime.datetime.strptime(second, '%m-%d-%Y').strftime('%A %B %d, %Y')
+                    second_date_object = datetime.datetime.strptime(second, '%m-%d-%Y')
+                    second_date = second_date_object.strftime('%A %B %d, %Y')
+                    second_date_past = second_date_object < datetime.datetime.now()
 
                 roles = []
                 values = child.find('dynamic-metadata')
@@ -73,23 +81,29 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                 message = ''
                 message = recurse(child.find('system-data-structure/message'))
 
+                try:
+                    workflow_status = child.find('workflow').find('status').text
+                except AttributeError:
+                    workflow_status = None
+
                 page_values = {
                     'author': child.find('author').text,
                     'id': child.attrib['id'] or "",
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
-                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
                     'first_date': first_date,
                     'second_date': second_date,
                     'message': message,
-                    'department': child.find('system-data-structure/department').text or None,
-                    'roles': roles
+                    'roles': roles,
+                    'workflow_status': workflow_status,
+                    'first_date_past': first_date_past,
+                    'second_date_past': second_date_past
                 }
 
                 # This is a match, add it to array
                 matches.append(page_values)
-        except:
-            continue
+        except AttributeError:
+            sentry.captureException()
 
     # sort by created-on date.
     matches = sorted(matches, key=lambda k: k['created-on'])
@@ -127,16 +141,18 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
     # Create a list of all the data nodes
     structured_data = [
         structured_data_node("message", escape_wysiwyg_content(add_data['message'])),
-        structured_data_node("department", add_data['department']),
         structured_data_node("first-date", add_data['first']),
         structured_data_node("second-date", add_data['second']),
+        structured_data_node("name", add_data['name']),
+        structured_data_node("email", add_data['email']),
     ]
 
     # Wrap in the required structure for SOAP
     structured_data = {
         'structuredDataNodes': {
             'structuredDataNode': structured_data,
-        }
+        },
+        'definitionPath': 'E-Announcement'
     }
 
     # create the dynamic metadata dict
@@ -148,13 +164,11 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
 
     parent_folder = get_e_announcement_parent_folder(add_data['first'])
     asset = {
-        'page': {
+        'xhtmlDataDefinitionBlock': {
             'name': add_data['system_name'],
             'siteId': app.config['SITE_ID'],
             'parentFolderPath': parent_folder,
             'metadataSetPath': "/Targeted",
-            'contentTypePath': "E-Announcement",
-            'configurationSetPath': "Flex-ONE",
             'structuredData': structured_data,
             'metadata': {
                 'title': add_data['title'],
@@ -166,7 +180,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
     }
 
     if e_announcement_id:
-        asset['page']['id'] = e_announcement_id
+        asset['xhtmlDataDefinitionBlock']['id'] = e_announcement_id
         resp = move(e_announcement_id, parent_folder)
 
     return asset
@@ -299,7 +313,6 @@ def create_single_announcement(announcement):
     return return_value
 
 
-# Todo: move to a html template
 def e_announcement_html(announcement):
     element = '''
         <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style>
@@ -336,3 +349,25 @@ def e_announcement_html(announcement):
 def get_templates_for_client(campaign_monitor_key, client_id):
     for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
         print template.TemplateID
+
+
+# Checks if the date provided is a valid date
+# Valid days are 1) not in the past
+#                2) is a M/W/F
+#                3) not between 12/24 - 1/1
+def check_if_valid_date(date):
+    # check if the date is after yesterday at midnight
+    if date < datetime.datetime.combine(date.today(), datetime.time.min):
+        return False
+
+    # Check if day is mon/wed/fri
+    if date.weekday() in [1, 3, 5, 6]:
+        return False
+
+    # Check if date is between 12/24 and 1/1
+    dates_to_ignore = ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '1/1']
+    current_month_day = str(date.month) + '/' + str(date.day)
+    if current_month_day in dates_to_ignore:
+        return False
+
+    return True

@@ -10,6 +10,7 @@ import feedparser
 from flask import Blueprint
 from flask import redirect
 from flask import Response
+from flask import session
 
 # tinker
 from tinker.e_announcements.cascade_e_announcements import *
@@ -22,13 +23,12 @@ from createsend import *
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')
 
 
-
-
 @e_announcements_blueprint.route("/")
 def e_announcements_home():
     forms = []
     username = session['username']
 
+    # Todo: change this username to be the E-Announcement group
     if username == 'cerntson':
         forms = get_e_announcements_for_user('get_all')
     else:
@@ -39,9 +39,9 @@ def e_announcements_home():
     return render_template('e-announcements-home.html', **locals())
 
 
-@e_announcements_blueprint.route('/delete/<page_id>')
-def delete_page(page_id):
-    delete(page_id)
+@e_announcements_blueprint.route('/delete/<block_id>')
+def delete_page(block_id):
+    delete(block_id, type='block')
     # Todo: move this id into config.py
     publish('861012818c5865130c130b3acbee7343');
     return redirect('/e-announcement/delete-confirm', code=302)
@@ -84,17 +84,17 @@ def e_announcement_in_workflow():
 
 @e_announcements_blueprint.route('/edit/<e_announcement_id>')
 def edit_e_announcement(e_announcement_id):
-    if is_asset_in_workflow(e_announcement_id):
-        return redirect('/faculty-bio/in-workflow', code=302)
+    if is_asset_in_workflow(e_announcement_id, type='block'):
+        return redirect('/e-announcement/in-workflow', code=302)
 
     from tinker.e_announcements.forms import EAnnouncementsForm
 
     # Get the event data from cascade
-    e_announcement_data = read(e_announcement_id)
+    e_announcement_data = read(e_announcement_id, type='block')
     new_form = False
 
     # Get the different data sets from the response
-    form_data = e_announcement_data.asset.page
+    form_data = e_announcement_data.asset.xhtmlDataDefinitionBlock
 
     # the stuff from the data def
     s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
@@ -103,9 +103,22 @@ def edit_e_announcement(e_announcement_id):
     # dynamic metadata
     dynamic_fields = metadata.dynamicFields.dynamicField
     # This dict will populate our EventForm object
+    dates, edit_data = get_announcement_data(dynamic_fields, metadata, s_data) # Create an EventForm object with our data
+    form = EAnnouncementsForm(**edit_data)
+    form.e_announcement_id = e_announcement_id
+
+    # convert dates to json so we can use Javascript to create custom DateTime fields on the form
+    dates = fjson.dumps(dates)
+
+    # bring in the mapping
+    banner_roles_mapping = get_banner_roles_mapping()
+
+    return render_template('e-announcements-form.html', **locals())
+
+
+def get_announcement_data(dynamic_fields, metadata, s_data):
     edit_data = {}
     dates = []
-
     # Start with structuredDataNodes (data def content)
     for node in s_data:
         node_identifier = node.identifier.replace('-', '_')
@@ -132,18 +145,15 @@ def edit_e_announcement(e_announcement_id):
 
     # Add the rest of the fields. Can't loop over these kinds of metadata
     edit_data['title'] = metadata.title
+    today = datetime.datetime.now()
+    first_readonlye = False
+    second_readonly = False
+    if edit_data['first'] < today:
+        first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
+    if edit_data['second'] and edit_data['second'] < today:
+        second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
 
-    # Create an EventForm object with our data
-    form = EAnnouncementsForm(**edit_data)
-    form.e_announcement_id = e_announcement_id
-
-    # convert dates to json so we can use Javascript to create custom DateTime fields on the form
-    dates = fjson.dumps(dates)
-
-    # bring in the mapping
-    banner_roles_mapping = get_banner_roles_mapping()
-
-    return render_template('e-announcements-form.html', **locals())
+    return dates, edit_data
 
 
 @e_announcements_blueprint.route("/submit", methods=['POST'])
@@ -166,6 +176,10 @@ def submit_e_announcement_form():
             new_form = True
 
         app.logger.warn(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
+
+        # bring in the mapping
+        banner_roles_mapping = get_banner_roles_mapping()
+
         return render_template('e-announcements-form.html', **locals())
 
     # Get all the form data
@@ -188,6 +202,27 @@ def submit_e_announcement_form():
         return redirect('/e-announcement/new/confirm', code=302)
 
 
+@e_announcements_blueprint.route('/view/<block_id>')
+def view_announcement(block_id):
+    e_announcement_data = read(block_id, type='block')
+
+    # Get the different data sets from the response
+    form_data = e_announcement_data.asset.xhtmlDataDefinitionBlock
+
+    # the stuff from the data def
+    s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
+    # regular metadata
+    metadata = form_data.metadata
+    # dynamic metadata
+    dynamic_fields = metadata.dynamicFields.dynamicField
+
+    dates, edit_data = get_announcement_data(dynamic_fields, metadata, s_data)
+
+    first = dates[0].strftime('%A %B %d, %Y')
+    second = dates[1].strftime('%A %B %d, %Y')
+
+    return render_template('e-announcements-view.html', **locals())
+
 # Todo: add some kind of authentication?
 @e_announcements_blueprint.route("/create_campaign/", methods=['get', 'post'])
 @e_announcements_blueprint.route("/create_campaign/<date>", methods=['get', 'post'])
@@ -196,6 +231,9 @@ def create_campaign(date=None):
         date = datetime.datetime.strptime(datetime.datetime.now().strftime("%m-%d-%Y"), "%m-%d-%Y")
     else:
         date = datetime.datetime.strptime(date, "%m-%d-%Y")
+
+    if not check_if_valid_date(date):
+        return 'E-Announcements are not set to run today. No campaign was created and no E-Announcements were sent out.'
 
     submitted_announcements = []
     for announcement in get_e_announcements_for_user():
@@ -224,8 +262,6 @@ def create_campaign(date=None):
             }
         )
 
-    view_all_announcements_text = '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/e-announcement-archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
-
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     CreateSend({'api_key': campaign_monitor_key})
     new_campaign = Campaign({'api_key': campaign_monitor_key})
@@ -245,7 +281,7 @@ def create_campaign(date=None):
                 "Content": subject,
             },
             {
-                "Content": view_all_announcements_text,
+                "Content": '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
             }
         ],
         "Repeaters": [
