@@ -28,6 +28,7 @@ def e_announcements_home():
     forms = []
     username = session['username']
 
+    # Todo: change this username to be the E-Announcement group
     if username == 'cerntson':
         forms = get_e_announcements_for_user('get_all')
     else:

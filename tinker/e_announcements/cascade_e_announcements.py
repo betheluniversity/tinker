@@ -25,20 +25,23 @@ def get_e_announcements_for_user(username="get_all"):
 def recurse(node):
     return_string = ''
     for child in node:
+        child_text = ''
+        if child.text:
+            child_text = child.text
 
         # recursively renders children
         try:
             if child.tag == 'a':
-                return_string += '<%s href="%s">%s%s</%s>' % (child.tag, child.attrib['href'], child.text, recurse(child), child.tag)
+                return_string += '<%s href="%s">%s%s</%s>' % (child.tag, child.attrib['href'], child_text, recurse(child), child.tag)
             else:
-                return_string += '<%s>%s%s</%s>' % (child.tag, child.text, recurse(child), child.tag)
+                return_string += '<%s>%s%s</%s>' % (child.tag, child_text, recurse(child), child.tag)
         except:
             # gets the basic text
-            if child.text:
+            if child_text:
                 if child.tag == 'a':
-                    return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child.text, child.tag)
+                    return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child_text, child.tag)
                 else:
-                    return_string += '<%s>%s</%s>' % (child.tag, child.text, child.tag)
+                    return_string += '<%s>%s</%s>' % (child.tag, child_text, child.tag)
 
         # gets the text that follows the children
         if child.tail:
@@ -310,7 +313,6 @@ def create_single_announcement(announcement):
     return return_value
 
 
-# Todo: move to a html template
 def e_announcement_html(announcement):
     element = '''
         <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style>
