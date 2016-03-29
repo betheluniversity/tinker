@@ -231,6 +231,9 @@ def create_campaign(date=None):
     else:
         date = datetime.datetime.strptime(date, "%m-%d-%Y")
 
+    if not check_if_valid_date(date):
+        return 'E-Announcements are not set to run today. No campaign was created and no E-Announcements were sent out.'
+
     submitted_announcements = []
     for announcement in get_e_announcements_for_user():
         date_matches = False

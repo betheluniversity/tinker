@@ -349,3 +349,25 @@ def e_announcement_html(announcement):
 def get_templates_for_client(campaign_monitor_key, client_id):
     for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
         print template.TemplateID
+
+
+# Checks if the date provided is a valid date
+# Valid days are 1) not in the past
+#                2) is a M/W/F
+#                3) not between 12/24 - 1/1
+def check_if_valid_date(date):
+    # check if the date is after yesterday at midnight
+    if date < datetime.datetime.combine(date.today(), datetime.time.min):
+        return False
+
+    # Check if day is mon/wed/fri
+    if date.weekday() in [1, 3, 5, 6]:
+        return False
+
+    # Check if date is between 12/24 and 1/1
+    dates_to_ignore = ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '1/1']
+    current_month_day = str(date.month) + '/' + str(date.day)
+    if current_month_day in dates_to_ignore:
+        return False
+
+    return True
