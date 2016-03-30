@@ -7,16 +7,19 @@ from xml.sax.saxutils import escape
 import xml.etree.ElementTree as Et
 
 from flask import Blueprint, render_template, abort, request
-from tinker.admin.views import admin_blueprint
 
 sync_blueprint = Blueprint('sync_blueprint', __name__, template_folder='templates')
-sync = '/sync'
-@admin_blueprint.route(sync)
+
+@sync_blueprint.before_request
+def before_request():
+    if 'Administrators' not in session['groups']:
+        abort(403)
+
+@sync_blueprint.route('/')
 def home():
     return render_template('sync-home.html', **locals())
 
-
-@admin_blueprint.route(sync + '/all')
+@sync_blueprint.route('/all')
 def show():
     # don't pull locally. It's just a bad idea.
     if 'User' not in app.config['INSTALL_LOCATION']:
