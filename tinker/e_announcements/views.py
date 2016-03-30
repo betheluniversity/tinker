@@ -265,7 +265,7 @@ def create_campaign(date=None):
             }
         )
 
-        # create a list of all roles in the E-Announcements
+        # create a list of all roles that are currently receiving E-Announcements
         for role in announcement['roles']:
             if role not in current_announcement_role_list:
                 current_announcement_role_list.append(role)

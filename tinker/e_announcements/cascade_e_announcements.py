@@ -313,38 +313,11 @@ def create_single_announcement(announcement):
         count = count+1
 
     return_value += '[endif]'
+
     return return_value
 
 
 def e_announcement_html(announcement):
-    # element = '''
-    #     <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style>
-    #         <tbody>
-    #             <tr>
-    #                 <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #60666d;font-family: "Open Sans",sans-serif;'>
-    #                     <div style="Margin-left: 20px;Margin-right: 20px;Margin-top: 24px;">
-    #                         <h2 style="Margin-top: 0;Margin-bottom: 0;font-style: normal;font-weight: normal;font-size: 20px;line-height: 28px;color: #555;font-family: sans-serif;">
-    #                             <strong>%s</strong>
-    #                         </h2>
-    #                     </div>
-    #                 </td>
-    #                 <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #555;font-family: Georgia,serif'>
-    #                     <div style="Margin-left: 20px;Margin-right: 20px;Margin-top: 24px;Margin-bottom: 24px;">
-    #                         %s
-    #                         <p style="font-family: georgia,serif;font-size: 12px;line-height: 19px;">
-    #                             <span class="font-georgia">
-    #                                 <span style="color:#bdb9bd">
-    #                                     %s
-    #                                 </span>
-    #                             </span>
-    #                         </p>
-    #                     </div>
-    #                 </td>
-    #             </tr>
-    #         </tbody>
-    #     </table>
-    #   ''' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
-
     element = '''
         <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center">
             <tbody>
@@ -405,7 +378,8 @@ def get_layout_for_no_announcements(roles):
     if_block = ''
     count = 1
 
-    # Todo: comment this logic
+    # We are looping through the roles that are receiving at least one e-announcement.
+    # If no roles match, then give some default text
     for role in roles:
         prepended_role = '20322-%s' % role
         if count == 1:
@@ -415,4 +389,4 @@ def get_layout_for_no_announcements(roles):
 
         count += 1
 
-    return if_block + '[else]%s[endif]' % '<p>No E-Announcements for you today</p>'
+    return if_block + '[else]%s[endif]' % '<p>There are no E-Announcements for you today.</p>'
