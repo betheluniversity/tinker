@@ -111,20 +111,20 @@ locations = [
     'St. Paul',
 ]
 
-delivery_label = {
+delivery_label = [
     'Face to Face',
     'Blended',
     'Online'
-}
+]
 
-delivery_subheading = {
+delivery_subheading = [
     '',
     'Online with Intensives',
     'Mostly Online',
     'Fully Online',
     'Evening',
     'Daytime'
-}
+]
 
 roles = [
     "STUDENT-CAS",
