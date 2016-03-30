@@ -56,7 +56,10 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
     matches = []
     for child in traverse_xml.findall('.//system-block'):
         try:
-            author = child.find('author').text
+            try:
+                author = child.find('author').text
+            except:
+                author = None
 
             if (author is not None and username == author) or username == "get_all":
                 first = child.find('system-data-structure/first-date').text
@@ -87,7 +90,7 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                     workflow_status = None
 
                 page_values = {
-                    'author': child.find('author').text,
+                    'author': author,
                     'id': child.attrib['id'] or "",
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
