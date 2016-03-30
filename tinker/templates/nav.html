@@ -46,11 +46,12 @@
           {% endif %}
 
         {% if 'Administrators' in session['groups'] %}
-            <li></li><a href="#" class="button button-nav" data-dropdown="drop">Admin Menu &raquo;</a>
+            <li><a href="#" class="button button-nav" data-dropdown="drop">Admin Menu &raquo;</a>
             <ul id="drop" class="large f-dropdown" data-dropdown-content>
               <li><a href="/admin/publish-manager" class="button-nav">Publisher</a></li>
               <li><a href="/admin/sync" class="button-nav">Sync Metadata</a></li>
               <li><a href="/admin/blink-roles">Blink Layout Owners</a></li>
+              <li><a href="/admin/cache-clear">Clear Cache</a></li>
             </ul></li>
         {% endif %}
   </ul>

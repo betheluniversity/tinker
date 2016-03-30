@@ -41,6 +41,7 @@ from tinker.e_announcements.views import e_announcements_blueprint
 from tinker.admin.sync.views import sync_blueprint
 from tinker.admin.publish.views import publish_blueprint
 from tinker.admin.roles.views import blink_roles_blueprint
+from tinker.admin.cache.views import cache_blueprint
 
 app.register_blueprint(event_blueprint, url_prefix='/event')
 app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
@@ -50,7 +51,7 @@ app.register_blueprint(e_announcements_blueprint, url_prefix='/e-announcement')
 app.register_blueprint(sync_blueprint, url_prefix='/admin/sync')
 app.register_blueprint(publish_blueprint, url_prefix='/admin/publish-manager')
 app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
-
+app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear/')
 
 CsrfProtect(app).exempt(redirect_blueprint)
 
