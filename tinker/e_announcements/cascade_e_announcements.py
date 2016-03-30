@@ -25,22 +25,23 @@ def get_e_announcements_for_user(username="get_all"):
 def recurse(node):
     return_string = ''
     for child in node:
-
-        # gets the basic text
+        child_text = ''
         if child.text:
-            if child.tag == 'a':
-                return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child.text, child.tag)
-            else:
-                return_string += '<%s>%s</%s>' % (child.tag, child.text, child.tag)
+            child_text = child.text
 
         # recursively renders children
         try:
             if child.tag == 'a':
-                return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], recurse(child), child.tag)
+                return_string += '<%s href="%s">%s%s</%s>' % (child.tag, child.attrib['href'], child_text, recurse(child), child.tag)
             else:
-                return_string += '<%s>%s</%s>' % (child.tag, recurse(child), child.tag)
+                return_string += '<%s>%s%s</%s>' % (child.tag, child_text, recurse(child), child.tag)
         except:
-            continue
+            # gets the basic text
+            if child_text:
+                if child.tag == 'a':
+                    return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child_text, child.tag)
+                else:
+                    return_string += '<%s>%s</%s>' % (child.tag, child_text, child.tag)
 
         # gets the text that follows the children
         if child.tail:
@@ -312,7 +313,6 @@ def create_single_announcement(announcement):
     return return_value
 
 
-# Todo: move to a html template
 def e_announcement_html(announcement):
     element = '''
         <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style>
@@ -349,3 +349,25 @@ def e_announcement_html(announcement):
 def get_templates_for_client(campaign_monitor_key, client_id):
     for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
         print template.TemplateID
+
+
+# Checks if the date provided is a valid date
+# Valid days are 1) not in the past
+#                2) is a M/W/F
+#                3) not between 12/24 - 1/1
+def check_if_valid_date(date):
+    # check if the date is after yesterday at midnight
+    if date < datetime.datetime.combine(date.today(), datetime.time.min):
+        return False
+
+    # Check if day is mon/wed/fri
+    if date.weekday() in [1, 3, 5, 6]:
+        return False
+
+    # Check if date is between 12/24 and 1/1
+    dates_to_ignore = ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '1/1']
+    current_month_day = str(date.month) + '/' + str(date.day)
+    if current_month_day in dates_to_ignore:
+        return False
+
+    return True

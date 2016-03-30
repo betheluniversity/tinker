@@ -25,13 +25,13 @@ def show():
 
     data = data_to_add
 
-    # sync_metadataset(app.config['METADATA_EVENT_ID'], data)
-    # sync_metadataset(app.config['METADATA_ROBUST_ID'], data)
-    # sync_metadataset(app.config['METADATA_JOB_POSTING_ID'], data)
+    sync_metadataset(app.config['METADATA_EVENT_ID'], data)
+    sync_metadataset(app.config['METADATA_ROBUST_ID'], data)
+    sync_metadataset(app.config['METADATA_JOB_POSTING_ID'], data)
     sync_metadataset(app.config['METADATA_PORTAL_ROLES_ID'], data)
-    # sync_data_definition(app.config['DATA_DEF_FACULTY_BIO_ID'], data)
-    # sync_data_definition(app.config['DATA_DEF_PROGRAM_FEED_ID'], data)
-    # sync_data_definition(app.config['DATA_DEF_PROGRAM_BLOCK_ID'], data)
+    sync_data_definition(app.config['DATA_DEF_FACULTY_BIO_ID'], data)
+    sync_data_definition(app.config['DATA_DEF_PROGRAM_FEED_ID'], data)
+    sync_data_definition(app.config['DATA_DEF_PROGRAM_BLOCK_ID'], data)
     sync_data_definition(app.config['DATA_DEF_PORTAL_CHANNEL_ID'], data)
     sync_data_definition(app.config['DATA_DEF_PORTAL_TAB_ID'], data)
 
@@ -44,7 +44,7 @@ def sync_data_definition(data_definition_id, data):
 
     asset = read(data_definition_id, 'datadefinition').asset.dataDefinition
     dd = asset.xml
-    print asset
+
     structure = Et.fromstring(dd)
 
     # Todo: make this recursive (so there aren't such terrible for loops.
@@ -96,13 +96,13 @@ def sync_data_definition(data_definition_id, data):
                     for value in data[next_el.attrib['identifier']]:
                         next_el.append(Et.Element('checkbox-item', {"value": value}))
 
-        elif "concentration" in el.attrib['identifier']:  # for Program Blocks | location
+        elif "concentration" in el.attrib['identifier']:  # for Program Blocks | location, cohort delivery
             for second_el in el:
                 if second_el.attrib['identifier'] == 'concentration_banner':
                     for third_el in second_el:
                         if third_el.attrib['identifier'] == 'cohort_details':
                             for fourth_el in third_el:
-                                if fourth_el.attrib['identifier'] == 'location':
+                                if fourth_el.attrib['identifier'] == 'location' or fourth_el.attrib['identifier'] == 'delivery_label' or fourth_el.attrib['identifier'] == 'delivery_subheading':
                                     # remove old elements
                                     store_elements_to_remove = []
                                     for el_to_remove in fourth_el:
@@ -111,7 +111,7 @@ def sync_data_definition(data_definition_id, data):
                                         fourth_el.remove(el_to_remove)
 
                                     # add new elements
-                                    for value in data['location']:
+                                    for value in data[fourth_el.attrib['identifier']]:
                                         fourth_el.append(Et.Element('dropdown-item', {"value": value}))
 
         elif 'roles' in el.attrib['identifier']:  # for Portal - Tab | roles

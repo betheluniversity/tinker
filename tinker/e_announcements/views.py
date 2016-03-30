@@ -28,6 +28,7 @@ def e_announcements_home():
     forms = []
     username = session['username']
 
+    # Todo: change this username to be the E-Announcement group
     if username == 'cerntson':
         forms = get_e_announcements_for_user('get_all')
     else:
@@ -231,6 +232,9 @@ def create_campaign(date=None):
     else:
         date = datetime.datetime.strptime(date, "%m-%d-%Y")
 
+    if not check_if_valid_date(date):
+        return 'E-Announcements are not set to run today. No campaign was created and no E-Announcements were sent out.'
+
     submitted_announcements = []
     for announcement in get_e_announcements_for_user():
         date_matches = False
@@ -258,8 +262,6 @@ def create_campaign(date=None):
             }
         )
 
-    view_all_announcements_text = '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/e-announcement-archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
-
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     CreateSend({'api_key': campaign_monitor_key})
     new_campaign = Campaign({'api_key': campaign_monitor_key})
@@ -279,7 +281,7 @@ def create_campaign(date=None):
                 "Content": subject,
             },
             {
-                "Content": view_all_announcements_text,
+                "Content": '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
             }
         ],
         "Repeaters": [
