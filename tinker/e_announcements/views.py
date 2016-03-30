@@ -236,6 +236,7 @@ def create_campaign(date=None):
         return 'E-Announcements are not set to run today. No campaign was created and no E-Announcements were sent out.'
 
     submitted_announcements = []
+    current_announcement_role_list = []
     for announcement in get_e_announcements_for_user():
         date_matches = False
 
@@ -252,8 +253,10 @@ def create_campaign(date=None):
         if not date_matches:
             continue
 
+        # add announcement
         submitted_announcements.append({
-            "Layout": "My layout",
+            "Layout":
+                "announcements",
                 "Multilines": [
                     {
                         "Content": create_single_announcement(announcement)
@@ -261,6 +264,11 @@ def create_campaign(date=None):
                 ]
             }
         )
+
+        # create a list of all roles in the E-Announcements
+        for role in announcement['roles']:
+            if role not in current_announcement_role_list:
+                current_announcement_role_list.append(role)
 
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     CreateSend({'api_key': campaign_monitor_key})
@@ -284,11 +292,15 @@ def create_campaign(date=None):
                 "Content": '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
             }
         ],
+        "Multilines": [
+            {
+                "Content": get_layout_for_no_announcements(current_announcement_role_list),
+            }
+        ],
         "Repeaters": [
             {
-                "Items":
-                    submitted_announcements
-            }
+                "Items": submitted_announcements
+            },
         ]
     }
 
@@ -296,17 +308,7 @@ def create_campaign(date=None):
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                          segment_ids, template_id, template_content)
 
-    # Todo: PROD - update the email to the admin. (also, move this to config.py)
-    confirmation_email_sent_to = 'ces55739@bethel.edu'
-
-    # Todo: (not currently needed) figure out why send_preview doesn't work.
-    # new_campaign.send_preview(confirmation_email_sent_to)
-
-    # =====================================================
-    # =================== Send emails. ====================
-    # =====================================================
-    # Test version, include this for extra tests str(datetime.datetime.now().strftime('%Y-%m-%d')) + ' 06:00'
-    # new_campaign.send(confirmation_email_sent_to)
+    confirmation_email_sent_to = app.config['ADMINS']
 
     # Todo: PROD version
     # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
