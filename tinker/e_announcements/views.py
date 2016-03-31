@@ -320,7 +320,7 @@ def create_campaign(date=None):
                 "Content": subject,
             },
             {
-                "Content": '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
+                "Content": 'View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/archive?date=%s">today</a>.' % str(date.strftime('%m-%d-%Y'))
             }
         ],
         "Multilines": [
@@ -339,7 +339,7 @@ def create_campaign(date=None):
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                          segment_ids, template_id, template_content)
 
-    
+
     # Send the announcements out to ALL users.
     # WARNING: be careful about accidentally sending emails to mass people.
     confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
