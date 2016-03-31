@@ -335,22 +335,15 @@ def create_campaign(date=None):
         ]
     }
 
-    #######################
-    # TESTING ZONE
-    list_ids = ['1ee5a5980bf18775446a3c43e5f1b443']
-    list_ids = None
-    segment_ids = [app.config['TEST_SEGMENT_ID']]
-
-    ##################
-
     # Todo: if a campaign already exists, delete the old one and create a new one
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                          segment_ids, template_id, template_content)
 
     confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
 
-    # Todo: PROD version
+    # if we ever want to send an e-announcement on a schedule, here it is:
     # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
+    # Todo: run this for prod night before.
     # new_campaign.send(confirmation_email_sent_to)
 
     return str(resp)
