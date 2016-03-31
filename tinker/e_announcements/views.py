@@ -23,6 +23,35 @@ from createsend import *
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')
 
 
+from functools import wraps
+from flask import request, Response
+
+
+def check_auth(username, password):
+    """This function is called to check if a username /
+    password combination is valid.
+    """
+    return username == 'admin' and password == 'secret'
+
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
+
+
 @e_announcements_blueprint.route("/")
 def e_announcements_home():
     forms = []
@@ -190,6 +219,7 @@ def submit_e_announcement_form():
         e_announcement_id = None
 
     workflow = get_e_announcement_publish_workflow(title)
+    workflow = None
     asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)
 
     if e_announcement_id:
@@ -226,6 +256,7 @@ def view_announcement(block_id):
 # Todo: add some kind of authentication?
 @e_announcements_blueprint.route("/create_campaign/", methods=['get', 'post'])
 @e_announcements_blueprint.route("/create_campaign/<date>", methods=['get', 'post'])
+@requires_auth
 def create_campaign(date=None):
     if not date:
         date = datetime.datetime.strptime(datetime.datetime.now().strftime("%m-%d-%Y"), "%m-%d-%Y")
@@ -236,6 +267,7 @@ def create_campaign(date=None):
         return 'E-Announcements are not set to run today. No campaign was created and no E-Announcements were sent out.'
 
     submitted_announcements = []
+    current_announcement_role_list = []
     for announcement in get_e_announcements_for_user():
         date_matches = False
 
@@ -252,8 +284,10 @@ def create_campaign(date=None):
         if not date_matches:
             continue
 
+        # add announcement
         submitted_announcements.append({
-            "Layout": "My layout",
+            "Layout":
+                "announcements",
                 "Multilines": [
                     {
                         "Content": create_single_announcement(announcement)
@@ -262,13 +296,18 @@ def create_campaign(date=None):
             }
         )
 
+        # create a list of all roles that are currently receiving E-Announcements
+        for role in announcement['roles']:
+            if role not in current_announcement_role_list:
+                current_announcement_role_list.append(role)
+
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     CreateSend({'api_key': campaign_monitor_key})
     new_campaign = Campaign({'api_key': campaign_monitor_key})
 
     client_id = app.config['CLIENT_ID']
-    subject = 'Bethel E-Announcements for ' + str(date.strftime('%A, %B %d, %Y'))
-    name = 'Bethel E-Announcements for ' + str(date.strftime('%m/%d/%Y'))
+    subject = 'Bethel E-Announcements for ' + str(date.strftime('%A, %B %-d, %Y'))
+    name = 'Bethel E-Announcements | ' + str(date.strftime('%m/%-d/%Y'))
     from_name = 'Bethel E-Announcements'
     from_email = 'e-announcements@lists.bethel.edu'
     reply_to = 'e-announcements@lists.bethel.edu'
@@ -284,31 +323,34 @@ def create_campaign(date=None):
                 "Content": '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
             }
         ],
+        "Multilines": [
+            {
+                "Content": get_layout_for_no_announcements(current_announcement_role_list),
+            }
+        ],
         "Repeaters": [
             {
-                "Items":
-                    submitted_announcements
-            }
+                "Items": submitted_announcements
+            },
         ]
     }
+
+    #######################
+    # TESTING ZONE
+    list_ids = ['1ee5a5980bf18775446a3c43e5f1b443']
+    list_ids = None
+    segment_ids = [app.config['TEST_SEGMENT_ID']]
+
+    ##################
 
     # Todo: if a campaign already exists, delete the old one and create a new one
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                          segment_ids, template_id, template_content)
 
-    # Todo: PROD - update the email to the admin. (also, move this to config.py)
-    confirmation_email_sent_to = 'ces55739@bethel.edu'
-
-    # Todo: (not currently needed) figure out why send_preview doesn't work.
-    # new_campaign.send_preview(confirmation_email_sent_to)
-
-    # =====================================================
-    # =================== Send emails. ====================
-    # =====================================================
-    # Test version, include this for extra tests str(datetime.datetime.now().strftime('%Y-%m-%d')) + ' 06:00'
-    # new_campaign.send(confirmation_email_sent_to)
+    confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
 
     # Todo: PROD version
     # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
+    # new_campaign.send(confirmation_email_sent_to)
 
     return str(resp)

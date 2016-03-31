@@ -56,7 +56,10 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
     matches = []
     for child in traverse_xml.findall('.//system-block'):
         try:
-            author = child.find('author').text
+            try:
+                author = child.find('author').text
+            except:
+                author = None
 
             if (author is not None and username == author) or username == "get_all":
                 first = child.find('system-data-structure/first-date').text
@@ -87,7 +90,7 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                     workflow_status = None
 
                 page_values = {
-                    'author': child.find('author').text,
+                    'author': author,
                     'id': child.attrib['id'] or "",
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
@@ -310,37 +313,30 @@ def create_single_announcement(announcement):
         count = count+1
 
     return_value += '[endif]'
+
     return return_value
 
 
 def e_announcement_html(announcement):
     element = '''
-        <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style>
+        <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center">
             <tbody>
                 <tr>
-                    <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #60666d;font-family: "Open Sans",sans-serif;' width="300">
-                        <div style="Margin-left: 20px;Margin-right: 20px;Margin-top: 24px;">
-                            <h2 style="Margin-top: 0;Margin-bottom: 0;font-style: normal;font-weight: normal;font-size: 20px;line-height: 28px;color: #555;font-family: sans-serif;">
+                    <td class="column" style="padding: 0;text-align: left;vertical-align: top;color: #555;font-size: 14px;line-height: 21px;font-family: Georgia,serif;width: 600px;">
+                        <div style="Margin-left: 20px;Margin-right: 20px;">
+                            <h2 style="Margin-top: 0;Margin-bottom: 16px;font-style: normal;font-weight: normal;color: #555;font-size: 20px;line-height: 28px;font-family: sans-serif;">
                                 <strong>%s</strong>
                             </h2>
                         </div>
-                    </td>
-                    <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #555;font-family: Georgia,serif' width="600">
-                        <div style="Margin-left: 20px;Margin-right: 20px;Margin-top: 24px;Margin-bottom: 24px;">
+                        <div style="Margin-left: 20px;Margin-right: 20px;">
                             %s
-                            <p style="font-family: georgia,serif;font-size: 12px;line-height: 19px;">
-                                <span class="font-georgia">
-                                    <span style="color:#bdb9bd">
-                                        %s
-                                    </span>
-                                </span>
-                            </p>
                         </div>
                     </td>
                 </tr>
             </tbody>
         </table>
-      ''' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
+        <div style="font-size: 50px;line-height: 100px;mso-line-height-rule: exactly;">&nbsp;</div>
+    ''' % (announcement['title'], announcement['message'])
 
     return element
 
@@ -349,6 +345,12 @@ def e_announcement_html(announcement):
 def get_templates_for_client(campaign_monitor_key, client_id):
     for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
         print template.TemplateID
+
+
+# Gets the template IDs
+def get_segments_for_client(campaign_monitor_key, client_id):
+    for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
+        print segment.SegmentID
 
 
 # Checks if the date provided is a valid date
@@ -371,3 +373,21 @@ def check_if_valid_date(date):
         return False
 
     return True
+
+
+def get_layout_for_no_announcements(roles):
+    if_block = ''
+    count = 1
+
+    # We are looping through the roles that are receiving at least one e-announcement.
+    # If no roles match, then give some default text
+    for role in roles:
+        prepended_role = '20322-%s' % role
+        if count == 1:
+            if_block += '[if:%s=Y]' % prepended_role
+        else:
+            if_block += '[elseif:%s=Y]' % prepended_role
+
+        count += 1
+
+    return if_block + '[else]%s[endif]' % '<p>There are no E-Announcements for you today.</p>'
