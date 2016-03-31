@@ -330,18 +330,13 @@ def e_announcement_html(announcement):
                         </div>
                         <div style="Margin-left: 20px;Margin-right: 20px;">
                             %s
-                            <p class="size-12" style="Margin-top: 20px;Margin-bottom: 0;font-family: georgia,serif;font-size: 12px;line-height: 19px;">
-                                <span class="font-georgia"><span style="color:#ccc;">
-                                    %s
-                                </span></span>
-                            </p>
                         </div>
                     </td>
                 </tr>
             </tbody>
         </table>
-        <div style="font-size: 50px;line-height: 50px;mso-line-height-rule: exactly;">&nbsp;</div>
-    ''' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
+        <div style="font-size: 50px;line-height: 100px;mso-line-height-rule: exactly;">&nbsp;</div>
+    ''' % (announcement['title'], announcement['message'])
 
     return element
 
@@ -350,6 +345,12 @@ def e_announcement_html(announcement):
 def get_templates_for_client(campaign_monitor_key, client_id):
     for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
         print template.TemplateID
+
+
+# Gets the template IDs
+def get_segments_for_client(campaign_monitor_key, client_id):
+    for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
+        print segment.SegmentID
 
 
 # Checks if the date provided is a valid date
