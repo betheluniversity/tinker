@@ -335,7 +335,7 @@ def e_announcement_html(announcement):
                 </tr>
             </tbody>
         </table>
-        <div style="font-size: 50px;line-height: 100px;mso-line-height-rule: exactly;">&nbsp;</div>
+        <div style="font-size: 50px;line-height: 60px;mso-line-height-rule: exactly;">&nbsp;</div>
     ''' % (announcement['title'], announcement['message'])
 
     return element
