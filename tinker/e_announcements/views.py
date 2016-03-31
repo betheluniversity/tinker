@@ -339,11 +339,13 @@ def create_campaign(date=None):
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                          segment_ids, template_id, template_content)
 
+    
+    # Send the announcements out to ALL users.
+    # WARNING: be careful about accidentally sending emails to mass people.
     confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
+    new_campaign.send(confirmation_email_sent_to)
 
     # if we ever want to send an e-announcement on a schedule, here it is:
     # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
-    # Todo: run this for prod night before.
-    # new_campaign.send(confirmation_email_sent_to)
 
     return str(resp)
