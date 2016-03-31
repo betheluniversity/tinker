@@ -45,14 +45,16 @@
 {#             {% endif %}#}
 {#          {% endif %}#}
 
-        {% if 'Administrators' in session['groups'] %}
+        {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups']%}
             <li><a href="#" class="button button-nav" data-dropdown="drop">Admin Menu &raquo;</a>
             <ul id="drop" class="large f-dropdown" data-dropdown-content>
-              <li><a href="/admin/publish-manager" class="button-nav">Publisher</a></li>
-              <li><a href="/admin/sync" class="button-nav">Sync Metadata</a></li>
-              <li><a href="/admin/blink-roles" class="button-nav">Blink Layout Owners</a></li>
-              <li><a href="/admin/cache-clear" class="button-nav">Clear Cache</a></li>
-              <li><a href="/admin/redirect" class="button-nav">Redirects</a></li>
+              {% if 'Administrators' in session['groups'] %}
+                  <li><a href="/admin/publish-manager" class="button-nav">Publisher</a></li>
+                  <li><a href="/admin/sync" class="button-nav">Sync Metadata</a></li>
+                  <li><a href="/admin/blink-roles" class="button-nav">Blink Layout Owners</a></li>
+              {% endif %}
+                <li><a href="/admin/cache-clear" class="button-nav">Clear Cache</a></li>
+                <li><a href="/admin/redirect" class="button-nav">Redirects</a></li>
             </ul></li>
         {% endif %}
   </ul>
