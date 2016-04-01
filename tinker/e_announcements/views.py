@@ -320,7 +320,7 @@ def create_campaign(date=None):
                 "Content": subject,
             },
             {
-                "Content": 'View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/archive?date=%s">today</a>.' % str(date.strftime('%m-%d-%Y'))
+                "Content": '<a href="https://www.bethel.edu/e-announcements/archive?date=%s">View all E-Announcements for today.</a>' % str(date.strftime('%m-%d-%Y'))
             }
         ],
         "Multilines": [
