@@ -252,7 +252,8 @@ def view_announcement(block_id):
 
     return render_template('e-announcements-view.html', **locals())
 
-# Todo: add some kind of authentication?
+
+@e_announcements_blueprint.route("/create_and_send_campaign/", methods=['get', 'post'])
 @e_announcements_blueprint.route("/create_campaign/", methods=['get', 'post'])
 @e_announcements_blueprint.route("/create_campaign/<date>", methods=['get', 'post'])
 @requires_auth
@@ -338,13 +339,15 @@ def create_campaign(date=None):
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                          segment_ids, template_id, template_content)
 
+    if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
+        # Send the announcements out to ALL users at 7:00 am.
+        confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
+        new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:30')
 
-    # Send the announcements out to ALL users.
-    # WARNING: be careful about accidentally sending emails to mass people.
-    confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
-    new_campaign.send(confirmation_email_sent_to)
+        # if we ever want to send an e-announcement immediately, here it is.
+        # WARNING: be careful about accidentally sending emails to mass people.
+        # new_campaign.send(confirmation_email_sent_to)
 
-    # if we ever want to send an e-announcement on a schedule, here it is:
-    # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
+
 
     return str(resp)
