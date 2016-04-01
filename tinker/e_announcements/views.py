@@ -307,7 +307,7 @@ def create_campaign(date=None):
 
     client_id = app.config['CLIENT_ID']
     subject = 'Bethel E-Announcements for ' + str(date.strftime('%A, %B %-d, %Y'))
-    name = 'Bethel E-Announcements <br/>' + str(date.strftime('%m/%-d/%Y'))
+    name = 'Bethel E-Announcements<br/>' + str(date.strftime('%m/%-d/%Y'))
     from_name = 'Bethel E-Announcements'
     from_email = 'e-announcements@lists.bethel.edu'
     reply_to = 'e-announcements@lists.bethel.edu'
