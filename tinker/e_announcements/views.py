@@ -306,8 +306,8 @@ def create_campaign(date=None):
     new_campaign = Campaign({'api_key': campaign_monitor_key})
 
     client_id = app.config['CLIENT_ID']
-    subject = 'Bethel E-Announcements for ' + str(date.strftime('%A, %B %-d, %Y'))
-    name = 'Bethel E-Announcements<br/>' + str(date.strftime('%m/%-d/%Y'))
+    subject = 'Bethel E-Announcements | ' + str(date.strftime('%A, %B %-d, %Y'))
+    name = 'Bethel E-Announcements | ' + str(date.strftime('%m/%-d/%Y'))
     from_name = 'Bethel E-Announcements'
     from_email = 'e-announcements@lists.bethel.edu'
     reply_to = 'e-announcements@lists.bethel.edu'
@@ -317,7 +317,7 @@ def create_campaign(date=None):
     template_content = {
         "Singlelines": [
             {
-                "Content": subject,
+                "Content": 'Bethel E-Announcements<br/>' + str(date.strftime('%A, %B %-d, %Y')),
             },
             {
                 "Content": '<a href="https://www.bethel.edu/e-announcements/archive?date=%s">View all E-Announcements for today.</a>' % str(date.strftime('%m-%d-%Y'))
