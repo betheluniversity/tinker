@@ -31,7 +31,7 @@ def check_auth(username, password):
     """This function is called to check if a username /
     password combination is valid.
     """
-    return username == 'admin' and password == 'secret'
+    return username == app.config['CASCADE_LOGIN']['username'] and password == app.config['CASCADE_LOGIN']['password']
 
 
 def authenticate():
@@ -219,7 +219,6 @@ def submit_e_announcement_form():
         e_announcement_id = None
 
     workflow = get_e_announcement_publish_workflow(title)
-    workflow = None
     asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)
 
     if e_announcement_id:
@@ -253,7 +252,8 @@ def view_announcement(block_id):
 
     return render_template('e-announcements-view.html', **locals())
 
-# Todo: add some kind of authentication?
+
+@e_announcements_blueprint.route("/create_and_send_campaign/", methods=['get', 'post'])
 @e_announcements_blueprint.route("/create_campaign/", methods=['get', 'post'])
 @e_announcements_blueprint.route("/create_campaign/<date>", methods=['get', 'post'])
 @requires_auth
@@ -306,7 +306,7 @@ def create_campaign(date=None):
     new_campaign = Campaign({'api_key': campaign_monitor_key})
 
     client_id = app.config['CLIENT_ID']
-    subject = 'Bethel E-Announcements for ' + str(date.strftime('%A, %B %-d, %Y'))
+    subject = 'Bethel E-Announcements | ' + str(date.strftime('%A, %B %-d, %Y'))
     name = 'Bethel E-Announcements | ' + str(date.strftime('%m/%-d/%Y'))
     from_name = 'Bethel E-Announcements'
     from_email = 'e-announcements@lists.bethel.edu'
@@ -317,10 +317,10 @@ def create_campaign(date=None):
     template_content = {
         "Singlelines": [
             {
-                "Content": subject,
+                "Content": 'Bethel E-Announcements<br/>' + str(date.strftime('%A, %B %-d, %Y')),
             },
             {
-                "Content": '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
+                "Content": '<a href="https://www.bethel.edu/e-announcements/archive?date=%s">View all E-Announcements for today.</a>' % str(date.strftime('%m-%d-%Y'))
             }
         ],
         "Multilines": [
@@ -335,22 +335,19 @@ def create_campaign(date=None):
         ]
     }
 
-    #######################
-    # TESTING ZONE
-    list_ids = ['1ee5a5980bf18775446a3c43e5f1b443']
-    list_ids = None
-    segment_ids = [app.config['TEST_SEGMENT_ID']]
-
-    ##################
-
     # Todo: if a campaign already exists, delete the old one and create a new one
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                          segment_ids, template_id, template_content)
 
-    confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
+    if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
+        # Send the announcements out to ALL users at 7:00 am.
+        confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
+        new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:30')
 
-    # Todo: PROD version
-    # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
-    # new_campaign.send(confirmation_email_sent_to)
+        # if we ever want to send an e-announcement immediately, here it is.
+        # WARNING: be careful about accidentally sending emails to mass people.
+        # new_campaign.send(confirmation_email_sent_to)
+
+
 
     return str(resp)

@@ -106,7 +106,7 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                 # This is a match, add it to array
                 matches.append(page_values)
         except AttributeError:
-            sentry.captureException()
+            continue
 
     # sort by created-on date.
     matches = sorted(matches, key=lambda k: k['created-on'])
@@ -335,7 +335,7 @@ def e_announcement_html(announcement):
                 </tr>
             </tbody>
         </table>
-        <div style="font-size: 50px;line-height: 100px;mso-line-height-rule: exactly;">&nbsp;</div>
+        <div style="font-size: 50px;line-height: 60px;mso-line-height-rule: exactly;">&nbsp;</div>
     ''' % (announcement['title'], announcement['message'])
 
     return element
