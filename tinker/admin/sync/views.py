@@ -10,6 +10,7 @@ from flask import Blueprint, render_template, abort, request
 
 sync_blueprint = Blueprint('sync_blueprint', __name__, template_folder='templates')
 
+
 @sync_blueprint.before_request
 def before_request():
     if 'Administrators' not in session['groups']:
