@@ -25,7 +25,7 @@ def publish_home():
     get_user()
     username = session['username']
 
-    if username == 'celanna' or username == 'ces55739' or username == 'nal64753':
+    if username == 'celanna' or username == 'ces55739' or username == 'nal64753' or username == "ejc84332":
         return render_template('publish-home.html', **locals())
     else:
         abort(403)
