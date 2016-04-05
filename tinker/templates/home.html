@@ -3,18 +3,18 @@
 {% block title %}Home{% endblock %}
 
 {% block styles %}
-  <style type="text/css">
-      .home-button{
+    <style type="text/css">
+        .home-button{
             height: 180px;
             width: 180px;
             margin: 10px;
-      }
-      .button-image{
+        }
+        .button-image{
             padding: 5px;
             height: 150px;
             width: 150px;
-      }
-  </style>
+        }
+    </style>
 {% endblock %}
 
 {% block page_title %}Bethel University Tinker{% endblock %}
@@ -35,29 +35,27 @@
         {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
             <div class="large-6 columns">
 
-              <a href="/faculty-bio" class="button expand"><img src="get-image/faculty-bio-icon.png" class="button-image" /><br />Faculty Bios</a>
+                <a href="/faculty-bio" class="button expand"><img src="get-image/faculty-bio-icon.png" class="button-image" /><br />Faculty Bios</a>
             </div>
         {% endif %}
     </div>
 
-
-    {% if 'Redirects' in session['groups'] or 'Administrators' in session['groups'] %}
-      <div class="row">
+    <div class="row">
         <div class="large-6 columns">
-          <a href="/admin/redirect" class="button expand"><img src="get-image/redirect-icon.png" class="button-image" /><br />Manage Redirects</a>
+            <a href="/e-announcement" class="button expand"><img src="get-image/e-announcement.png" class="button-image" /><br />Manage E-Announcements</a>
         </div>
 
-        <div class="large-6 columns">
-          <a href="/wufoo" class="button expand"><img src="get-image/wufoo-icon.png" class="button-image" /><br />Manage wufoo</a>
-        </div>
-      </div>
-    {% endif %}
 
-      <div class="row">
-        <div class="large-6 columns">
-          <a href="/e-announcement" class="button expand"><img src="get-image/e-announcement.png" class="button-image" /><br />Manage E-Announcements</a>
-        </div>
-      </div>
+        {% if 'Redirects' in session['groups'] or 'Administrators' in session['groups'] %}
+            <div class="large-6 columns">
+                <a href="/admin/redirect" class="button expand"><img src="get-image/redirect-icon.png" class="button-image" /><br />Manage Redirects</a>
+            </div>
+
+            {#        <div class="large-6 columns">#}
+            {#          <a href="/wufoo" class="button expand"><img src="get-image/wufoo-icon.png" class="button-image" /><br />Manage wufoo</a>#}
+            {#        </div>#}
+            </div>
+        {% endif %}
 
 {% endblock %}
 
