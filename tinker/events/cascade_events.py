@@ -206,7 +206,9 @@ def create(asset):
     from tinker import sentry
     sentry.captureMessage()
 
-    sentry.extra_context({
+    client = sentry.client
+
+    client.extra_context({
         'Time': time.strftime("%c"),
         'Author': username,
         'Response': str(response)
