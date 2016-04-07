@@ -227,7 +227,7 @@ def submit_e_announcement_form():
         return redirect('/e-announcement/edit/confirm', code=302)
     else:
         resp = create_e_announcement(asset)
-        app.logger.debug(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
+        app.logger.info(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
         return redirect('/e-announcement/new/confirm', code=302)
 
 

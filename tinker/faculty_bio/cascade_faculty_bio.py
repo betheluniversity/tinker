@@ -479,7 +479,7 @@ def create_faculty_bio(asset):
     username = session['username']
 
     response = client.service.create(auth, asset)
-    app.logger.debug(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))
+    app.logger.info(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))
 
     # publish the xml file so the new bio shows up
     publish_faculty_bio_xml()
