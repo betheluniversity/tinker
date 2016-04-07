@@ -30,8 +30,8 @@ if not app.debug:
     import logging
     from logging import FileHandler
     file_handler = FileHandler(app.config['INSTALL_LOCATION'] + '/error.log')
-    file_handler.setLevel(logging.DEBUG)
     app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.DEBUG)
 
 # Import routes
 import views
