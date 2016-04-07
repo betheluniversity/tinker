@@ -204,7 +204,7 @@ def submit_e_announcement_form():
             # This error came from the add form because e-annoucnements_id wasn't set
             new_form = True
 
-        app.logger.warn(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
+        app.logger.debug(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
 
         # bring in the mapping
         banner_roles_mapping = get_banner_roles_mapping()
@@ -223,11 +223,11 @@ def submit_e_announcement_form():
 
     if e_announcement_id:
         resp = edit(asset)
-        app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
+        app.logger.debug(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
         return redirect('/e-announcement/edit/confirm', code=302)
     else:
         resp = create_e_announcement(asset)
-        app.logger.warn(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
+        app.logger.info(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
         return redirect('/e-announcement/new/confirm', code=302)
 
 

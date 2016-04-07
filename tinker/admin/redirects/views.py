@@ -138,7 +138,7 @@ def new_internal_redirect_submit(from_path, to_url):
         db.session.delete(redirect)
         db.session.commit()
         resp = create_redirect_text_file()
-        app.logger.warn(": Correctly deleted if necessary")
+        app.logger.debug(": Correctly deleted if necessary")
     except:
         print "no deletion was made"
 
@@ -148,14 +148,14 @@ def new_internal_redirect_submit(from_path, to_url):
         db.session.add(redirect)
         db.session.commit()
         print "Successfully created a internal redirect"
-        app.logger.warn(": Correctly created a new one")
+        app.logger.debug(": Correctly created a new one")
     except:
         db.session.rollback()
 
     # Update the file after every submit?
     create_redirect_text_file()
 
-    app.logger.warn(": Correctly finished")
+    app.logger.debug(": Correctly finished")
     return str(redirect)
 
 
