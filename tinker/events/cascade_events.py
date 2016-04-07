@@ -204,7 +204,7 @@ def create(asset):
     response = client.service.create(auth, asset)
 
     from tinker import sentry
-    sentry.captureMessage()
+    # sentry.captureMessage()
 
     client = sentry.client
 
