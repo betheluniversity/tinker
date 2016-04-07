@@ -202,11 +202,17 @@ def create(asset):
     username = session['username']
 
     response = client.service.create(auth, asset)
-    app.logger.info("New event submission", '', {
+
+    from tinker import sentry
+    sentry.captureMessage()
+
+    sentry.extra_context({
         'Time': time.strftime("%c"),
         'Author': username,
         'Response': str(response)
     })
+
+    app.logger.info("New event submission")
     """
 
     <complexType name="workflow-configuration">
