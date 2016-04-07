@@ -202,7 +202,11 @@ def create(asset):
     username = session['username']
 
     response = client.service.create(auth, asset)
-    response = app.logger.info(time.strftime("%c") + ": New event submission by " + username + " " + str(response))
+    app.logger.info("New event submission", {
+        'Time': time.strftime("%c"),
+        'Author': username,
+        'Response': str(response)
+    })
     """
 
     <complexType name="workflow-configuration">
