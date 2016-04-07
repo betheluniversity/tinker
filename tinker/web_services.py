@@ -38,7 +38,7 @@ def delete(page_id, workflow=None, type='page'):
     }
 
     response = client.service.delete(auth, identifier)
-    app.logger.warn(time.strftime("%c") + ": " + page_id + " deleted by " + username + " " + str(response))
+    app.logger.debug(time.strftime("%c") + ": " + page_id + " deleted by " + username + " " + str(response))
     email_tinker_admins(response)
     return response
 
@@ -83,7 +83,7 @@ def publish(path_or_id, type='page', destination=""):
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.publish(auth, publishinformation)
-    app.logger.warn(time.strftime("%c") + ": " + path_or_id + " Published " + str(response))
+    app.logger.debug(time.strftime("%c") + ": " + path_or_id + " Published " + str(response))
 
     email_tinker_admins(response)
 
@@ -105,7 +105,7 @@ def unpublish(page_id, type="page"):
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.publish(auth, publishinformation)
-    app.logger.warn(time.strftime("%c") + ": Unpublished " + str(response))
+    app.logger.debug(time.strftime("%c") + ": Unpublished " + str(response))
 
     email_tinker_admins(response)
 
@@ -176,7 +176,7 @@ def rename(page_id, newname, type="page"):
     }
 
     response = client.service.move(auth, identifier, move_parameters)
-    app.logger.warn(time.strftime("%c") + ": Renamed " + str(response))
+    app.logger.debug(time.strftime("%c") + ": Renamed " + str(response))
 
     email_tinker_admins(response)
 
@@ -185,7 +185,7 @@ def rename(page_id, newname, type="page"):
 
 def move(page_id, destination_path):
     """ Move a page with page_id to folder with path destination_path """
-    app.logger.warn(time.strftime("%c") + ": Moved " + str(destination_path))
+    app.logger.debug(time.strftime("%c") + ": Moved " + str(destination_path))
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
 
@@ -208,7 +208,7 @@ def move(page_id, destination_path):
     }
 
     response = client.service.move(auth, identifier, move_parameters)
-    app.logger.warn(time.strftime("%c") + ": Moved " + str(response))
+    app.logger.debug(time.strftime("%c") + ": Moved " + str(response))
 
     email_tinker_admins(response)
 
@@ -345,7 +345,7 @@ def search(name_search="", content_search="", metadata_search=""):
     auth = app.config['CASCADE_LOGIN']
 
     response = client.service.search(auth, search_information)
-    # app.logger.warn(time.strftime("%c") + ": Search " + str(response))
+    # app.logger.debug(time.strftime("%c") + ": Search " + str(response))
 
     return response
 
@@ -373,7 +373,7 @@ def create_image(asset):
     username = session['username']
 
     response = client.service.create(auth, asset)
-    app.logger.warn(time.strftime("%c") + ": Create image submission by " + username + " " + str(response))
+    app.logger.debug(time.strftime("%c") + ": Create image submission by " + username + " " + str(response))
 
     # Publish
     publish(response.createdAssetId, "file")

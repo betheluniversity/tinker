@@ -202,7 +202,7 @@ def create(asset):
     username = session['username']
 
     response = client.service.create(auth, asset)
-    response = app.logger.warn(time.strftime("%c") + ": New event submission by " + username + " " + str(response))
+    response = app.logger.debug(time.strftime("%c") + ": New event submission by " + username + " " + str(response))
     """
 
     <complexType name="workflow-configuration">
@@ -255,7 +255,7 @@ def create_event_folder(folder_path):
         username = session['username']
 
         response = client.service.create(auth, asset)
-        response = app.logger.warn(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
+        response = app.logger.debug(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
         return True
     return False
 

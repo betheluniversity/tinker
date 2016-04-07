@@ -234,7 +234,7 @@ def create_e_announcements_folder(folder_path):
         username = session['username']
 
         response = client.service.create(auth, asset)
-        app.logger.warn(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
+        app.logger.debug(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
         return True
     return False
 
@@ -251,7 +251,7 @@ def create_e_announcement(asset):
     username = session['username']
 
     response = client.service.create(auth, asset)
-    app.logger.warn(time.strftime("%c") + ": Create E-Announcement submission by " + username + " " + str(response))
+    app.logger.debug(time.strftime("%c") + ": Create E-Announcement submission by " + username + " " + str(response))
     # publish the xml file so the new event shows up
     publish_e_announcement_xml()
 
