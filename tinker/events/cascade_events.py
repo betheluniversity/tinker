@@ -202,7 +202,7 @@ def create(asset):
     username = session['username']
 
     response = client.service.create(auth, asset)
-    app.logger.info("New event submission", {
+    app.logger.info("New event submission", '', {
         'Time': time.strftime("%c"),
         'Author': username,
         'Response': str(response)
