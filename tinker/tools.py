@@ -118,17 +118,19 @@ def get_nav():
 def log_sentry(message, response):
 
     username = session['username']
+    log_time = time.strftime("%c")
+    response = str(response)
 
     sentry.client.extra_context({
-        'Time': time.strftime("%c"),
+        'Time': log_time,
         'Author': username,
-        'Response': str(response)
+        'Response': response
     })
 
     # log generic message to Sentry for counting
     app.logger.info(message)
     # more detailed message to debug text log
-    app.logger.debug(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(response))
+    app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
 
 # does this go here?
