@@ -13,6 +13,7 @@ from flask import Response
 from flask import session
 
 # tinker
+from tinker import sentry
 from tinker.e_announcements.cascade_e_announcements import *
 from tinker.e_announcements.banner_roles_mapping import get_banner_roles_mapping
 from tinker.tools import *
@@ -227,8 +228,17 @@ def submit_e_announcement_form():
         return redirect('/e-announcement/edit/confirm', code=302)
     else:
         resp = create_e_announcement(asset)
-        app.logger.info(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
-        return redirect('/e-announcement/new/confirm', code=302)
+
+    sentry.client.extra_context({
+        'Time': time.strftime("%c"),
+        'Author': username,
+        'Response': str(resp)
+    })
+
+    app.logger.info("New e-announcement submission")
+
+    app.logger.debug(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
+    return redirect('/e-announcement/new/confirm', code=302)
 
 
 @e_announcements_blueprint.route('/view/<block_id>')
@@ -248,7 +258,9 @@ def view_announcement(block_id):
     dates, edit_data = get_announcement_data(dynamic_fields, metadata, s_data)
 
     first = dates[0].strftime('%A %B %d, %Y')
-    second = dates[1].strftime('%A %B %d, %Y')
+
+    if len(dates) > 1:
+        second = dates[1].strftime('%A %B %d, %Y')
 
     return render_template('e-announcements-view.html', **locals())
 
