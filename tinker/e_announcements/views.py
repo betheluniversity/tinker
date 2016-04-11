@@ -183,6 +183,10 @@ def get_announcement_data(dynamic_fields, metadata, s_data):
     if edit_data['second'] and edit_data['second'] < today:
         second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
 
+    # A fix to remove the &#160; character from appearing (non-breaking whitespace)
+    # Cascade includes this, for whatever reason.
+    edit_data['message'] = edit_data['message'].replace('&amp;#160;', ' ')
+
     return dates, edit_data
 
 
@@ -221,6 +225,8 @@ def submit_e_announcement_form():
 
     workflow = get_e_announcement_publish_workflow(title)
     asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)
+
+    return str(add_data['message'])
 
     if e_announcement_id:
         resp = edit(asset)
