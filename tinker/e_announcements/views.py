@@ -226,8 +226,6 @@ def submit_e_announcement_form():
     workflow = get_e_announcement_publish_workflow(title)
     asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)
 
-    return str(add_data['message'])
-
     if e_announcement_id:
         resp = edit(asset)
         app.logger.debug(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
