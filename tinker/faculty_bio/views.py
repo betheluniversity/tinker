@@ -239,7 +239,7 @@ def submit_faculty_bio_form():
     if faculty_bio_id:
         # existing bio
         resp = edit(asset)
-        app.logger.info(time.strftime("%c") + ": Faculty bio edit submission by " + username + " with id: " + faculty_bio_id + " " + str(resp))
+        log_sentry("Faculty bio edit submission", resp)
         # publish corresponding pubish set to make sure corresponding pages get edits
         if not workflow:
             publish(faculty_bio_id, "page")
