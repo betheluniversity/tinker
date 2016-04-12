@@ -14,6 +14,7 @@ from wtforms import Field
 from wtforms import validators
 from time import time
 
+
 from flask_hmacauth import hmac
 
 # local
@@ -87,9 +88,8 @@ class DummyField(TextAreaField):
 def validate_username(form, field):
     username = field.data
     host = "http://wsapi.bethel.edu"
-    path = "/username/" + username + "/roles?TIMESTAMP="+str(int(time()))+"&ACCOUNT_ID=tinker"
-    sig = hmac.new(app.config['WSAPI_SECRET'], path, hashlib.sha1).hexdigest()
-    req = requests.get(host+path, headers={'X-Auth-Signature': sig})
+    path = "/username/" + username + "/roles"
+    req = requests.get(host+path)
 
     content = req.content
     if content == str({}):

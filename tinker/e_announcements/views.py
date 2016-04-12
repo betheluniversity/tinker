@@ -228,20 +228,13 @@ def submit_e_announcement_form():
 
     if e_announcement_id:
         resp = edit(asset)
-        app.logger.debug(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
+        log_sentry("E-Announcement edit submission", resp)
         return redirect('/e-announcement/edit/confirm', code=302)
     else:
         resp = create_e_announcement(asset)
 
-    sentry.client.extra_context({
-        'Time': time.strftime("%c"),
-        'Author': username,
-        'Response': str(resp)
-    })
+    log_sentry('New e-announcement submission', resp)
 
-    app.logger.info("New e-announcement submission")
-
-    app.logger.debug(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
     return redirect('/e-announcement/new/confirm', code=302)
 
 
