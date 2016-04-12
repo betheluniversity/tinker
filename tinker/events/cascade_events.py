@@ -214,8 +214,7 @@ def create(asset):
         'Response': str(response)
     })
 
-    app.logger.info("New event submission")
-    response = app.logger.debug(time.strftime("%c") + ": New event submission by " + username + " " + str(response))
+    log_sentry("New event submission", response)
     """
 
     <complexType name="workflow-configuration">

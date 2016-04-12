@@ -224,7 +224,7 @@ def submit_e_announcement_form():
 
     if e_announcement_id:
         resp = edit(asset)
-        app.logger.debug(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
+        log_sentry("E-Announcement edit submission", resp)
         return redirect('/e-announcement/edit/confirm', code=302)
     else:
         resp = create_e_announcement(asset)
