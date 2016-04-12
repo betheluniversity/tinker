@@ -11,8 +11,10 @@
 
     <h5>First Date</h5>
     <p>{{ first }}</p>
-    <h5>Second Date</h5>
-    <p>{{ second }}</p>
+    {% if second %}
+        <h5>Second Date</h5>
+        <p>{{ second }}</p>
+    {% endif %}
     <small>{{ edit_data.banner_roles }}</small>
 
 {% endblock %}

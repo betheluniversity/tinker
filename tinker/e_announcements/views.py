@@ -13,6 +13,7 @@ from flask import Response
 from flask import session
 
 # tinker
+from tinker import sentry
 from tinker.e_announcements.cascade_e_announcements import *
 from tinker.e_announcements.banner_roles_mapping import get_banner_roles_mapping
 from tinker.tools import *
@@ -182,6 +183,10 @@ def get_announcement_data(dynamic_fields, metadata, s_data):
     if edit_data['second'] and edit_data['second'] < today:
         second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
 
+    # A fix to remove the &#160; character from appearing (non-breaking whitespace)
+    # Cascade includes this, for whatever reason.
+    edit_data['message'] = edit_data['message'].replace('&amp;#160;', ' ')
+
     return dates, edit_data
 
 
@@ -204,7 +209,7 @@ def submit_e_announcement_form():
             # This error came from the add form because e-annoucnements_id wasn't set
             new_form = True
 
-        app.logger.warn(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
+        app.logger.debug(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
 
         # bring in the mapping
         banner_roles_mapping = get_banner_roles_mapping()
@@ -223,12 +228,14 @@ def submit_e_announcement_form():
 
     if e_announcement_id:
         resp = edit(asset)
-        app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
+        log_sentry("E-Announcement edit submission", resp)
         return redirect('/e-announcement/edit/confirm', code=302)
     else:
         resp = create_e_announcement(asset)
-        app.logger.warn(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
-        return redirect('/e-announcement/new/confirm', code=302)
+
+    log_sentry('New e-announcement submission', resp)
+
+    return redirect('/e-announcement/new/confirm', code=302)
 
 
 @e_announcements_blueprint.route('/view/<block_id>')
@@ -248,7 +255,9 @@ def view_announcement(block_id):
     dates, edit_data = get_announcement_data(dynamic_fields, metadata, s_data)
 
     first = dates[0].strftime('%A %B %d, %Y')
-    second = dates[1].strftime('%A %B %d, %Y')
+
+    if len(dates) > 1:
+        second = dates[1].strftime('%A %B %d, %Y')
 
     return render_template('e-announcements-view.html', **locals())
 

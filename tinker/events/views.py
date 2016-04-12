@@ -262,8 +262,8 @@ def submit_form():
     resp = create(asset)
 
     if username == 'amf39248':
-        app.logger.warn(time.strftime("%c") + ": TESTING" + asset)
-        app.logger.warn(time.strftime("%c") + ": TESTING" + resp)
+        app.logger.debug(time.strftime("%c") + ": TESTING" + asset)
+        app.logger.debug(time.strftime("%c") + ": TESTING" + resp)
 
     # 'link' must be a valid component
     if 'link' in add_data and add_data['link'] != "":
@@ -307,11 +307,11 @@ def submit_edit_form():
     new_year = get_year_folder_value(add_data)
 
     resp = edit(asset)
-    app.logger.warn(time.strftime("%c") + ": Event edit submission by " + username + " with id " + event_id + ". " + str(resp))
+    app.logger.info(time.strftime("%c") + ": Event edit submission by " + username + " with id " + event_id + ". " + str(resp))
 
     if new_year > current_year:
         resp = move_event_year(event_id, add_data)
-        app.logger.warn(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
+        app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
 
     # 'link' must be a valid component
     if 'link' in add_data and add_data['link'] != "":

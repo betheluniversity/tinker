@@ -161,7 +161,7 @@ def sync_data_definition(data_definition_id, data):
 
     resp = edit(new_asset)
     print resp
-    app.logger.warn(time.strftime("%c") + ": Data definition synced, id: " + data_definition_id)
+    app.logger.debug(time.strftime("%c") + ": Data definition synced, id: " + data_definition_id)
     return resp
 
 
@@ -259,7 +259,7 @@ def sync_metadataset(metadataset_id, data):
     }
 
     resp = edit(new_asset)
-    app.logger.warn(time.strftime("%c") + ": Metadata set synced, id: " + metadataset_id)
+    app.logger.debug(time.strftime("%c") + ": Metadata set synced, id: " + metadataset_id)
     return resp
 
 

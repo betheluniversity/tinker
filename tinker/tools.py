@@ -1,6 +1,7 @@
 __author__ = 'ejc84332'
 
 # python
+import time
 import hashlib
 import os
 import fnmatch
@@ -16,6 +17,8 @@ import requests
 
 # tinker
 import config
+from tinker import app
+from tinker import sentry
 
 
 def init_user():
@@ -110,6 +113,24 @@ def get_roles(username=None):
 def get_nav():
     html = render_template('nav.html', **locals())
     session['top_nav'] = html
+
+
+def log_sentry(message, response):
+
+    username = session['username']
+    log_time = time.strftime("%c")
+    response = str(response)
+
+    sentry.client.extra_context({
+        'Time': log_time,
+        'Author': username,
+        'Response': response
+    })
+
+    # log generic message to Sentry for counting
+    app.logger.info(message)
+    # more detailed message to debug text log
+    app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
 
 # does this go here?

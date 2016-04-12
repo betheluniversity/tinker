@@ -1,3 +1,5 @@
+import logging
+
 # flask
 from flask import Flask
 from flask import session
@@ -15,7 +17,7 @@ db = SQLAlchemy(app)
 cors = CORS(app)
 
 from raven.contrib.flask import Sentry
-sentry = Sentry(app, dsn=app.config['SENTRY_URL'])
+sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
 
 from tinker.admin.redirects import models
 from tinker import tools
@@ -28,8 +30,8 @@ if not app.debug:
     import logging
     from logging import FileHandler
     file_handler = FileHandler(app.config['INSTALL_LOCATION'] + '/error.log')
-    file_handler.setLevel(logging.WARNING)
     app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.DEBUG)
 
 # Import routes
 import views
@@ -64,9 +66,9 @@ import error
 def before_request():
     try:
         tools.init_user()
-        app.logger.info(session['username'])
+        app.logger.debug(session['username'])
     except:
-        app.logger.info("failed to init")
+        app.logger.debug("failed to init")
 
 
 @app.route('/cache-clear/<path:img_path>')
