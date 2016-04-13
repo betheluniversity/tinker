@@ -19,7 +19,7 @@ redirect_blueprint = Blueprint('redirect_blueprint', __name__, template_folder='
 @redirect_blueprint.before_request
 def before_request():
     rule = request.url_rule
-    if 'api-submit' not in rule and 'Administrators' not in session['groups']:
+    if 'api-submit' not in rule.rule and 'Administrators' not in session['groups']:
         abort(403)
 
 @redirect_blueprint.route('/expire')
