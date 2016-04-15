@@ -7,7 +7,7 @@ from werkzeug.utils import secure_filename
 from flask import Blueprint
 from flask import redirect
 from flask import send_from_directory
-from tinker.sync.metadata import data_to_add
+from tinker.admin.sync.sync_metadata import data_to_add
 
 from tinker.faculty_bio.cascade_faculty_bio import *
 from tinker import app
@@ -239,7 +239,7 @@ def submit_faculty_bio_form():
     if faculty_bio_id:
         # existing bio
         resp = edit(asset)
-        app.logger.warn(time.strftime("%c") + ": Faculty bio edit submission by " + username + " with id: " + faculty_bio_id + " " + str(resp))
+        log_sentry("Faculty bio edit submission", resp)
         # publish corresponding pubish set to make sure corresponding pages get edits
         if not workflow:
             publish(faculty_bio_id, "page")

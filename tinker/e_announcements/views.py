@@ -10,8 +10,10 @@ import feedparser
 from flask import Blueprint
 from flask import redirect
 from flask import Response
+from flask import session
 
 # tinker
+from tinker import sentry
 from tinker.e_announcements.cascade_e_announcements import *
 from tinker.e_announcements.banner_roles_mapping import get_banner_roles_mapping
 from tinker.tools import *
@@ -22,6 +24,33 @@ from createsend import *
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')
 
 
+from functools import wraps
+from flask import request, Response
+
+
+def check_auth(username, password):
+    """This function is called to check if a username /
+    password combination is valid.
+    """
+    return username == app.config['CASCADE_LOGIN']['username'] and password == app.config['CASCADE_LOGIN']['password']
+
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
 
 
 @e_announcements_blueprint.route("/")
@@ -29,6 +58,7 @@ def e_announcements_home():
     forms = []
     username = session['username']
 
+    # Todo: change this username to be the E-Announcement group
     if username == 'cerntson':
         forms = get_e_announcements_for_user('get_all')
     else:
@@ -39,9 +69,9 @@ def e_announcements_home():
     return render_template('e-announcements-home.html', **locals())
 
 
-@e_announcements_blueprint.route('/delete/<page_id>')
-def delete_page(page_id):
-    delete(page_id)
+@e_announcements_blueprint.route('/delete/<block_id>')
+def delete_page(block_id):
+    delete(block_id, type='block')
     # Todo: move this id into config.py
     publish('861012818c5865130c130b3acbee7343');
     return redirect('/e-announcement/delete-confirm', code=302)
@@ -84,17 +114,17 @@ def e_announcement_in_workflow():
 
 @e_announcements_blueprint.route('/edit/<e_announcement_id>')
 def edit_e_announcement(e_announcement_id):
-    if is_asset_in_workflow(e_announcement_id):
-        return redirect('/faculty-bio/in-workflow', code=302)
+    if is_asset_in_workflow(e_announcement_id, type='block'):
+        return redirect('/e-announcement/in-workflow', code=302)
 
     from tinker.e_announcements.forms import EAnnouncementsForm
 
     # Get the event data from cascade
-    e_announcement_data = read(e_announcement_id)
+    e_announcement_data = read(e_announcement_id, type='block')
     new_form = False
 
     # Get the different data sets from the response
-    form_data = e_announcement_data.asset.page
+    form_data = e_announcement_data.asset.xhtmlDataDefinitionBlock
 
     # the stuff from the data def
     s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
@@ -103,9 +133,22 @@ def edit_e_announcement(e_announcement_id):
     # dynamic metadata
     dynamic_fields = metadata.dynamicFields.dynamicField
     # This dict will populate our EventForm object
+    dates, edit_data = get_announcement_data(dynamic_fields, metadata, s_data) # Create an EventForm object with our data
+    form = EAnnouncementsForm(**edit_data)
+    form.e_announcement_id = e_announcement_id
+
+    # convert dates to json so we can use Javascript to create custom DateTime fields on the form
+    dates = fjson.dumps(dates)
+
+    # bring in the mapping
+    banner_roles_mapping = get_banner_roles_mapping()
+
+    return render_template('e-announcements-form.html', **locals())
+
+
+def get_announcement_data(dynamic_fields, metadata, s_data):
     edit_data = {}
     dates = []
-
     # Start with structuredDataNodes (data def content)
     for node in s_data:
         node_identifier = node.identifier.replace('-', '_')
@@ -132,18 +175,19 @@ def edit_e_announcement(e_announcement_id):
 
     # Add the rest of the fields. Can't loop over these kinds of metadata
     edit_data['title'] = metadata.title
+    today = datetime.datetime.now()
+    first_readonlye = False
+    second_readonly = False
+    if edit_data['first'] < today:
+        first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
+    if edit_data['second'] and edit_data['second'] < today:
+        second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
 
-    # Create an EventForm object with our data
-    form = EAnnouncementsForm(**edit_data)
-    form.e_announcement_id = e_announcement_id
+    # A fix to remove the &#160; character from appearing (non-breaking whitespace)
+    # Cascade includes this, for whatever reason.
+    edit_data['message'] = edit_data['message'].replace('&amp;#160;', ' ')
 
-    # convert dates to json so we can use Javascript to create custom DateTime fields on the form
-    dates = fjson.dumps(dates)
-
-    # bring in the mapping
-    banner_roles_mapping = get_banner_roles_mapping()
-
-    return render_template('e-announcements-form.html', **locals())
+    return dates, edit_data
 
 
 @e_announcements_blueprint.route("/submit", methods=['POST'])
@@ -165,7 +209,7 @@ def submit_e_announcement_form():
             # This error came from the add form because e-annoucnements_id wasn't set
             new_form = True
 
-        app.logger.warn(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
+        app.logger.debug(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
 
         # bring in the mapping
         banner_roles_mapping = get_banner_roles_mapping()
@@ -184,24 +228,55 @@ def submit_e_announcement_form():
 
     if e_announcement_id:
         resp = edit(asset)
-        app.logger.warn(time.strftime("%c") + ": E-Announcement edit submission by " + username + " " + str(resp) + " " + ('id:' + e_announcement_id))
+        log_sentry("E-Announcement edit submission", resp)
         return redirect('/e-announcement/edit/confirm', code=302)
     else:
         resp = create_e_announcement(asset)
-        app.logger.warn(time.strftime("%c") + ": E-Announcement creation by " + username + " " + str(resp))
-        return redirect('/e-announcement/new/confirm', code=302)
+
+    log_sentry('New e-announcement submission', resp)
+
+    return redirect('/e-announcement/new/confirm', code=302)
 
 
-# Todo: add some kind of authentication?
+@e_announcements_blueprint.route('/view/<block_id>')
+def view_announcement(block_id):
+    e_announcement_data = read(block_id, type='block')
+
+    # Get the different data sets from the response
+    form_data = e_announcement_data.asset.xhtmlDataDefinitionBlock
+
+    # the stuff from the data def
+    s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
+    # regular metadata
+    metadata = form_data.metadata
+    # dynamic metadata
+    dynamic_fields = metadata.dynamicFields.dynamicField
+
+    dates, edit_data = get_announcement_data(dynamic_fields, metadata, s_data)
+
+    first = dates[0].strftime('%A %B %d, %Y')
+
+    if len(dates) > 1:
+        second = dates[1].strftime('%A %B %d, %Y')
+
+    return render_template('e-announcements-view.html', **locals())
+
+
+@e_announcements_blueprint.route("/create_and_send_campaign/", methods=['get', 'post'])
 @e_announcements_blueprint.route("/create_campaign/", methods=['get', 'post'])
 @e_announcements_blueprint.route("/create_campaign/<date>", methods=['get', 'post'])
+@requires_auth
 def create_campaign(date=None):
     if not date:
         date = datetime.datetime.strptime(datetime.datetime.now().strftime("%m-%d-%Y"), "%m-%d-%Y")
     else:
         date = datetime.datetime.strptime(date, "%m-%d-%Y")
 
+    if not check_if_valid_date(date):
+        return 'E-Announcements are not set to run today. No campaign was created and no E-Announcements were sent out.'
+
     submitted_announcements = []
+    current_announcement_role_list = []
     for announcement in get_e_announcements_for_user():
         date_matches = False
 
@@ -218,8 +293,10 @@ def create_campaign(date=None):
         if not date_matches:
             continue
 
+        # add announcement
         submitted_announcements.append({
-            "Layout": "My layout",
+            "Layout":
+                "announcements",
                 "Multilines": [
                     {
                         "Content": create_single_announcement(announcement)
@@ -228,15 +305,18 @@ def create_campaign(date=None):
             }
         )
 
-    view_all_announcements_text = '<p>View all E-Announcements for <a href="https://www.bethel.edu/e-announcements/e-announcement-archive?date=%s">today</a>.</p>' % str(date.strftime('%m-%d-%Y'))
+        # create a list of all roles that are currently receiving E-Announcements
+        for role in announcement['roles']:
+            if role not in current_announcement_role_list:
+                current_announcement_role_list.append(role)
 
     campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
     CreateSend({'api_key': campaign_monitor_key})
     new_campaign = Campaign({'api_key': campaign_monitor_key})
 
     client_id = app.config['CLIENT_ID']
-    subject = 'Bethel E-Announcements for ' + str(date.strftime('%A, %B %d, %Y'))
-    name = 'Bethel E-Announcements for ' + str(date.strftime('%m/%d/%Y'))
+    subject = 'Bethel E-Announcements | ' + str(date.strftime('%A, %B %-d, %Y'))
+    name = 'Bethel E-Announcements | ' + str(date.strftime('%m/%-d/%Y'))
     from_name = 'Bethel E-Announcements'
     from_email = 'e-announcements@lists.bethel.edu'
     reply_to = 'e-announcements@lists.bethel.edu'
@@ -246,17 +326,21 @@ def create_campaign(date=None):
     template_content = {
         "Singlelines": [
             {
-                "Content": subject,
+                "Content": 'Bethel E-Announcements<br/>' + str(date.strftime('%A, %B %-d, %Y')),
             },
             {
-                "Content": view_all_announcements_text,
+                "Content": '<a href="https://www.bethel.edu/e-announcements/archive?date=%s">View all E-Announcements for today.</a>' % str(date.strftime('%m-%d-%Y'))
+            }
+        ],
+        "Multilines": [
+            {
+                "Content": get_layout_for_no_announcements(current_announcement_role_list),
             }
         ],
         "Repeaters": [
             {
-                "Items":
-                    submitted_announcements
-            }
+                "Items": submitted_announcements
+            },
         ]
     }
 
@@ -264,19 +348,15 @@ def create_campaign(date=None):
     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
                                          segment_ids, template_id, template_content)
 
-    # Todo: PROD - update the email to the admin. (also, move this to config.py)
-    confirmation_email_sent_to = 'ces55739@bethel.edu'
+    if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
+        # Send the announcements out to ALL users at 7:00 am.
+        confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
+        new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:30')
 
-    # Todo: (not currently needed) figure out why send_preview doesn't work.
-    # new_campaign.send_preview(confirmation_email_sent_to)
+        # if we ever want to send an e-announcement immediately, here it is.
+        # WARNING: be careful about accidentally sending emails to mass people.
+        # new_campaign.send(confirmation_email_sent_to)
 
-    # =====================================================
-    # =================== Send emails. ====================
-    # =====================================================
-    # Test version, include this for extra tests str(datetime.datetime.now().strftime('%Y-%m-%d')) + ' 06:00'
-    # new_campaign.send(confirmation_email_sent_to)
 
-    # Todo: PROD version
-    # new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:00')
 
     return str(resp)

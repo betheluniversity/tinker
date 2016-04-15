@@ -32,8 +32,6 @@
 {% endblock %}
 
 {% block main_content %}
-    <p style="background-color:tomato; padding:15px">Note: For announcements prior to April 1, 2016, go to the old E-Announcement <a href="https://bethelnet.bethel.edu/e-announcements/add-ann/">submission page</a>.
-    </p>
   <div class="row">
   <div class="large-12 columns">
     {% if new_form %}
@@ -42,7 +40,6 @@
       <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
-        <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
         {% if form.errors %}
           <div class="alert alert-error">
             <div data-alert class="alert-box alert radius">
@@ -143,7 +140,19 @@
             <br />
 
           {% elif field.type == "DateField" %}
-                {{ field(class="datepicker") }}
+            {% if field.name == 'first' and first_readonly %}
+                <div>
+                    <p>{{ first_readonly }}</p>
+                </div>
+                {{ field(class="datepicker", readonly=True, style="display:none") }}
+            {% elif field.name == 'second' and second_readonly %}
+                <div>
+                    <p>{{ second_readonly }}</p>
+                </div>
+                {{ field(class="datepicker", readonly=True, style="display:none") }}
+            {% else %}
+                {{ field(class="datepicker", readonly=True) }}
+            {% endif %}
 
           {% else %}
               {{ field(size=20) }}
@@ -175,21 +184,11 @@
               var picker = new Pikaday({
                 field: this,
                 disabledDaysOfWeek: [0,2,4,6],
+                disabledDates: ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '01/01'],
                 format: 'MM-DD-YYYY',
                 disableDayFn: function(date){
                     // remove all Sun/Tues/Thur/Sat days from the week
                     if( $.inArray(date.getDay(), [0,2,4,6]) > -1){
-                        return date;
-                    }
-
-                    // This can be modified to disabled various holidays
-                    var DD = ('0' + date.getDate()).slice(-2);
-                    var MM = ('0' + (date.getMonth() + 1)).slice(-2);
-                    var MMDD = MM + '/' + DD;
-                    var disabledDays = ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '01/01'];
-
-                    // Disallow specific days
-                    if($.inArray(MMDD, disabledDays) > -1) {
                         return date;
                     }
 

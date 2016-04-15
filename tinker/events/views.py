@@ -1,13 +1,9 @@
 # python
 import json
-from werkzeug.utils import secure_filename
 
 # flask
 from flask import Blueprint
-from flask import render_template
 from flask import redirect
-from flask import request
-from flask import json as fjson
 
 from tinker.events.cascade_events import *
 from tinker import app
@@ -266,12 +262,12 @@ def submit_form():
     resp = create(asset)
 
     if username == 'amf39248':
-        app.logger.warn(time.strftime("%c") + ": TESTING" + asset)
-        app.logger.warn(time.strftime("%c") + ": TESTING" + resp)
+        app.logger.debug(time.strftime("%c") + ": TESTING" + asset)
+        app.logger.debug(time.strftime("%c") + ": TESTING" + resp)
 
     # 'link' must be a valid component
     if 'link' in add_data and add_data['link'] != "":
-        from tinker.redirects.views import new_internal_redirect_submit
+        from tinker.admin.redirects import new_internal_redirect_submit
         path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
         new_internal_redirect_submit(path, add_data['link'])
 
@@ -311,15 +307,15 @@ def submit_edit_form():
     new_year = get_year_folder_value(add_data)
 
     resp = edit(asset)
-    app.logger.warn(time.strftime("%c") + ": Event edit submission by " + username + " with id " + event_id + ". " + str(resp))
+    log_sentry("Event edit submission", resp)
 
     if new_year > current_year:
         resp = move_event_year(event_id, add_data)
-        app.logger.warn(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
+        app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
 
     # 'link' must be a valid component
     if 'link' in add_data and add_data['link'] != "":
-        from tinker.redirects.views import new_internal_redirect_submit
+        from tinker.admin.redirects import new_internal_redirect_submit
         path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
         new_internal_redirect_submit(path, add_data['link'])
 

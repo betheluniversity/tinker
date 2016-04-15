@@ -11,7 +11,7 @@
 
 {% block main_content %}
 <h3>Here are the automated publishers</h3>
-<a href='/publish-manager/program-feeds' class="button">Program Feeds</a>
+<a href='/admin/publish-manager/program-feeds' class="button">Program Feeds</a>
 
 <p>Blocks that are published publish out each page in the relationships tab.</p>
 <p>Use *'s to assist in broadening searches. For example, "ban*" will search for "ban", "banner", "bank", etc.</p>
@@ -22,6 +22,7 @@
 </div>
 
 <form action="." id="publish-search-form">
+<input name=_csrf_token type=hidden value="{{ csrf_token() }}">
   <div class="row">
 
     <div class="large-6 columns">
@@ -92,7 +93,7 @@ var delay = (function(){
 
   function loadTableForSearch(name_value, content_value, metadata_value){
     var search = {'name': name_value, 'content': content_value, 'metadata': metadata_value};
-    var url = "/publish-manager/search";
+    var url = "/admin/publish-manager/search";
      $.post(url, search, function(data) {
         updateTable(data);
       });
@@ -109,7 +110,7 @@ var delay = (function(){
 
   function publishAsset(type, id, counter){
       var destination = $('input[name=publish-to]:checked', '#publish-search-form').val();
-      var url = "/publish-manager/publish/" + destination + "/" + type + "/" + id;
+      var url = "/admin/publish-manager/publish/" + destination + "/" + type + "/" + id;
      $.post(url, function(data) {
          $("#publish_button_" + counter).text(data);
       });
@@ -117,7 +118,7 @@ var delay = (function(){
 
     function moreInfo(type, id){
          var input_data = {'type': type, 'id': id};
-         var url = "/publish-manager/more_info";
+         var url = "/admin/publish-manager/more_info";
          $.post(url, input_data, function(data) {
              $('.dialog-text').html(data);
           });

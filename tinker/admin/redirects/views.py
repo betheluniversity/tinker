@@ -1,26 +1,26 @@
 __author__ = 'ejc84332'
 
 # python
+import datetime
 import re
 import smtplib
-import datetime
 
 # flask
 from flask import Blueprint, render_template, abort, request
 from BeautifulSoup import BeautifulSoup
 
 # tinker
-from tinker import app, db, tools
-from tinker.redirects.models import BethelRedirect
+from tinker import app, db, tools, session
+from tinker.admin.redirects.models import BethelRedirect
 
 redirect_blueprint = Blueprint('redirect_blueprint', __name__, template_folder='templates')
 
 
-def check_redirect_groups():
-    groups = tools.get_groups_for_user()
-    if 'Tinker Redirects' not in groups:
+@redirect_blueprint.before_request
+def before_request():
+    rule = request.url_rule
+    if 'api-submit' not in rule.rule and 'Administrators' not in session['groups']:
         abort(403)
-
 
 @redirect_blueprint.route('/expire')
 def delete_expired_redirects():
@@ -35,7 +35,6 @@ def delete_expired_redirects():
 
 @redirect_blueprint.route('/')
 def show():
-    check_redirect_groups()
     redirects = BethelRedirect.query.all()
 
     return render_template('redirects.html', **locals())
@@ -43,7 +42,6 @@ def show():
 
 @redirect_blueprint.route('/search', methods=['post'])
 def search():
-    check_redirect_groups()
     # todo: limit results to...100?
     search_type = request.form['type']
     search_query = request.form['search'] + "%"
@@ -61,7 +59,6 @@ def search():
 
 @redirect_blueprint.route('/new-submit', methods=['post'])
 def new_redirect_submit():
-    check_redirect_groups()
     form = request.form
     from_path = form['new-redirect-from']
     to_url = form['new-redirect-to']
@@ -132,7 +129,6 @@ def new_api_submit():
 @redirect_blueprint.route('/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
 def new_internal_redirect_submit(from_path, to_url):
     # added logic to have Tinker be able to internally create a redirect
-    check_redirect_groups()
 
     if not from_path.startswith("/"):
         from_path = "/%s" % from_path
@@ -196,7 +192,6 @@ def new_api_submit_asset_expiration():
 
 @redirect_blueprint.route('/delete', methods=['post'])
 def delete_redirect():
-    check_redirect_groups()
     path = request.form['from_path']
 
     try:
@@ -213,7 +208,6 @@ def delete_redirect():
 
 @redirect_blueprint.route('/compile')
 def compile_redirects():
-    check_redirect_groups()
     resp = create_redirect_text_file()
     return resp
 
@@ -234,7 +228,6 @@ def create_redirect_text_file():
 
 @redirect_blueprint.route('/thumbor-clear')
 def clear_thumbor():
-    check_redirect_groups()
     try:
         tools.clear_image_cache()
         return "success"

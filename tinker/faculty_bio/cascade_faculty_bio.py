@@ -268,11 +268,11 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
 
             # publish image
             publish(image_structure['file']['path'], "file")
-            app.logger.warn("%s: Image edit/publish: %s %s" % (time.strftime("%c"), username, str(edit_response)))
+            app.logger.debug("%s: Image edit/publish: %s %s" % (time.strftime("%c"), username, str(edit_response)))
 
             # clear the thumbor cache so the new image takes
             clear_resp = clear_image_cache(image_structure['file']['path'])
-            app.logger.warn("%s: Images Cleared: %s" % (time.strftime("%c"), clear_resp))
+            app.logger.debug("%s: Images Cleared: %s" % (time.strftime("%c"), clear_resp))
         image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
     elif 'image_url' in add_data.keys() and add_data['image_url'] is not None and add_data['image_url'] != "":
         # If you don't supply an Image Cascade will clear it out,
@@ -479,7 +479,7 @@ def create_faculty_bio(asset):
     username = session['username']
 
     response = client.service.create(auth, asset)
-    app.logger.warn(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))
+    app.logger.info(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))
 
     # publish the xml file so the new bio shows up
     publish_faculty_bio_xml()

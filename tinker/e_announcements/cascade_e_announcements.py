@@ -4,6 +4,8 @@ import re
 from xml.etree import ElementTree as ET
 
 # local
+from tinker import sentry
+from tinker.tools import log_sentry
 from tinker.web_services import *
 from tinker.cascade_tools import *
 from createsend import *
@@ -24,22 +26,23 @@ def get_e_announcements_for_user(username="get_all"):
 def recurse(node):
     return_string = ''
     for child in node:
-
-        # gets the basic text
+        child_text = ''
         if child.text:
-            if child.tag == 'a':
-                return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child.text, child.tag)
-            else:
-                return_string += '<%s>%s</%s>' % (child.tag, child.text, child.tag)
+            child_text = child.text
 
         # recursively renders children
         try:
             if child.tag == 'a':
-                return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], recurse(child), child.tag)
+                return_string += '<%s href="%s">%s%s</%s>' % (child.tag, child.attrib['href'], child_text, recurse(child), child.tag)
             else:
-                return_string += '<%s>%s</%s>' % (child.tag, recurse(child), child.tag)
+                return_string += '<%s>%s%s</%s>' % (child.tag, child_text, recurse(child), child.tag)
         except:
-            continue
+            # gets the basic text
+            if child_text:
+                if child.tag == 'a':
+                    return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child_text, child.tag)
+                else:
+                    return_string += '<%s>%s</%s>' % (child.tag, child_text, child.tag)
 
         # gets the text that follows the children
         if child.tail:
@@ -52,17 +55,26 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
     # Traverse an XML folder, adding system-pages to a dict of matches
 
     matches = []
-    for child in traverse_xml.findall('.//system-page'):
+    for child in traverse_xml.findall('.//system-block'):
         try:
-            author = child.find('author').text
+            try:
+                author = child.find('author').text
+            except:
+                author = None
 
             if (author is not None and username == author) or username == "get_all":
                 first = child.find('system-data-structure/first-date').text
                 second = child.find('system-data-structure/second-date').text
-                first_date = datetime.datetime.strptime(first, '%m-%d-%Y').strftime('%A %B %d, %Y')
+                first_date_object = datetime.datetime.strptime(first, '%m-%d-%Y')
+                first_date = first_date_object.strftime('%A %B %d, %Y')
+                first_date_past = first_date_object < datetime.datetime.now()
+
                 second_date = ''
+                second_date_past = ''
                 if second:
-                    second_date = datetime.datetime.strptime(second, '%m-%d-%Y').strftime('%A %B %d, %Y')
+                    second_date_object = datetime.datetime.strptime(second, '%m-%d-%Y')
+                    second_date = second_date_object.strftime('%A %B %d, %Y')
+                    second_date_past = second_date_object < datetime.datetime.now()
 
                 roles = []
                 values = child.find('dynamic-metadata')
@@ -73,22 +85,28 @@ def traverse_e_announcements_folder(traverse_xml, username="get_all"):
                 message = ''
                 message = recurse(child.find('system-data-structure/message'))
 
+                try:
+                    workflow_status = child.find('workflow').find('status').text
+                except AttributeError:
+                    workflow_status = None
+
                 page_values = {
-                    'author': child.find('author').text,
+                    'author': author,
                     'id': child.attrib['id'] or "",
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
-                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
                     'first_date': first_date,
                     'second_date': second_date,
                     'message': message,
-                    'department': child.find('system-data-structure/department').text or None,
-                    'roles': roles
+                    'roles': roles,
+                    'workflow_status': workflow_status,
+                    'first_date_past': first_date_past,
+                    'second_date_past': second_date_past
                 }
 
                 # This is a match, add it to array
                 matches.append(page_values)
-        except:
+        except AttributeError:
             continue
 
     # sort by created-on date.
@@ -129,13 +147,16 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
         structured_data_node("message", escape_wysiwyg_content(add_data['message'])),
         structured_data_node("first-date", add_data['first']),
         structured_data_node("second-date", add_data['second']),
+        structured_data_node("name", add_data['name']),
+        structured_data_node("email", add_data['email']),
     ]
 
     # Wrap in the required structure for SOAP
     structured_data = {
         'structuredDataNodes': {
             'structuredDataNode': structured_data,
-        }
+        },
+        'definitionPath': 'E-Announcement'
     }
 
     # create the dynamic metadata dict
@@ -147,13 +168,11 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
 
     parent_folder = get_e_announcement_parent_folder(add_data['first'])
     asset = {
-        'page': {
+        'xhtmlDataDefinitionBlock': {
             'name': add_data['system_name'],
             'siteId': app.config['SITE_ID'],
             'parentFolderPath': parent_folder,
             'metadataSetPath': "/Targeted",
-            'contentTypePath': "E-Announcement",
-            'configurationSetPath': "Flex-ONE",
             'structuredData': structured_data,
             'metadata': {
                 'title': add_data['title'],
@@ -165,7 +184,7 @@ def get_e_announcement_structure(add_data, username, workflow=None, e_announceme
     }
 
     if e_announcement_id:
-        asset['page']['id'] = e_announcement_id
+        asset['xhtmlDataDefinitionBlock']['id'] = e_announcement_id
         resp = move(e_announcement_id, parent_folder)
 
     return asset
@@ -216,7 +235,7 @@ def create_e_announcements_folder(folder_path):
         username = session['username']
 
         response = client.service.create(auth, asset)
-        app.logger.warn(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
+        app.logger.debug(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
         return True
     return False
 
@@ -233,7 +252,8 @@ def create_e_announcement(asset):
     username = session['username']
 
     response = client.service.create(auth, asset)
-    app.logger.warn(time.strftime("%c") + ": Create E-Announcement submission by " + username + " " + str(response))
+
+    log_sentry('Create E-Announcement submission', response)
     # publish the xml file so the new event shows up
     publish_e_announcement_xml()
 
@@ -295,38 +315,30 @@ def create_single_announcement(announcement):
         count = count+1
 
     return_value += '[endif]'
+
     return return_value
 
 
-# Todo: move to a html template
 def e_announcement_html(announcement):
     element = '''
-        <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center" emb-background-style>
+        <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center">
             <tbody>
                 <tr>
-                    <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #60666d;font-family: "Open Sans",sans-serif;' width="300">
-                        <div style="Margin-left: 20px;Margin-right: 20px;Margin-top: 24px;">
-                            <h2 style="Margin-top: 0;Margin-bottom: 0;font-style: normal;font-weight: normal;font-size: 20px;line-height: 28px;color: #555;font-family: sans-serif;">
+                    <td class="column" style="padding: 0;text-align: left;vertical-align: top;color: #555;font-size: 14px;line-height: 21px;font-family: Georgia,serif;width: 600px;">
+                        <div style="Margin-left: 20px;Margin-right: 20px;">
+                            <h2 style="Margin-top: 0;Margin-bottom: 16px;font-style: normal;font-weight: normal;color: #555;font-size: 20px;line-height: 28px;font-family: sans-serif;">
                                 <strong>%s</strong>
                             </h2>
                         </div>
-                    </td>
-                    <td class="column" style='font-size: 14px;line-height: 21px;padding: 0;text-align: left;vertical-align: top;color: #555;font-family: Georgia,serif' width="600">
-                        <div style="Margin-left: 20px;Margin-right: 20px;Margin-top: 24px;Margin-bottom: 24px;">
+                        <div style="Margin-left: 20px;Margin-right: 20px;">
                             %s
-                            <p style="font-family: georgia,serif;font-size: 12px;line-height: 19px;">
-                                <span class="font-georgia">
-                                    <span style="color:#bdb9bd">
-                                        %s
-                                    </span>
-                                </span>
-                            </p>
                         </div>
                     </td>
                 </tr>
             </tbody>
         </table>
-      ''' % (announcement['title'], announcement['message'], ', '.join(announcement['roles']))
+        <div style="font-size: 50px;line-height: 60px;mso-line-height-rule: exactly;">&nbsp;</div>
+    ''' % (announcement['title'], announcement['message'])
 
     return element
 
@@ -335,3 +347,49 @@ def e_announcement_html(announcement):
 def get_templates_for_client(campaign_monitor_key, client_id):
     for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
         print template.TemplateID
+
+
+# Gets the template IDs
+def get_segments_for_client(campaign_monitor_key, client_id):
+    for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
+        print segment.SegmentID
+
+
+# Checks if the date provided is a valid date
+# Valid days are 1) not in the past
+#                2) is a M/W/F
+#                3) not between 12/24 - 1/1
+def check_if_valid_date(date):
+    # check if the date is after yesterday at midnight
+    if date < datetime.datetime.combine(date.today(), datetime.time.min):
+        return False
+
+    # Check if day is mon/wed/fri
+    if date.weekday() in [1, 3, 5, 6]:
+        return False
+
+    # Check if date is between 12/24 and 1/1
+    dates_to_ignore = ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '1/1']
+    current_month_day = str(date.month) + '/' + str(date.day)
+    if current_month_day in dates_to_ignore:
+        return False
+
+    return True
+
+
+def get_layout_for_no_announcements(roles):
+    if_block = ''
+    count = 1
+
+    # We are looping through the roles that are receiving at least one e-announcement.
+    # If no roles match, then give some default text
+    for role in roles:
+        prepended_role = '20322-%s' % role
+        if count == 1:
+            if_block += '[if:%s=Y]' % prepended_role
+        else:
+            if_block += '[elseif:%s=Y]' % prepended_role
+
+        count += 1
+
+    return if_block + '[else]%s[endif]' % '<p>There are no E-Announcements for you today.</p>'

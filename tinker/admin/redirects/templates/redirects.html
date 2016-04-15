@@ -7,7 +7,7 @@
 {% block row_width %}12{% endblock %}
 
 {% block main_content %}
-<form action="." id="new-redirect-form">
+<form action="" id="new-redirect-form">
 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
   <div class="row">
     <div class="large-6 columns">
@@ -92,7 +92,7 @@ var delay = (function(){
   function loadTableForSearch(search_value, type){
     // type needs to be either 'from_path' or 'to_url'
     var search = {'type': type, 'search': search_value};
-    var url = "/redirect/search";
+    var url = "/admin/redirect/search";
      $.post(url, search, function(data) {
         updateTable(data);
       });
@@ -134,7 +134,7 @@ var delay = (function(){
         // when 'save' is clicked, gather the field mappings and send those
         // to the wufoo-silva app for storage
       var fieldMappings = $(this.form).serializeArray(),
-              url = '/redirect/new-submit';
+              url = '/admin/redirect/new-submit';
 
       $.post(url, fieldMappings, function(data) {
           loadTableForSearch($("#new-redirect-from").val(), 'from_path');
@@ -146,7 +146,7 @@ var delay = (function(){
 
     $("#modal-confirm").click(function(){
       var from_path = {"from_path": $(this).attr('data-delete-path')};
-      var url = '/redirect/delete';
+      var url = '/admin/redirect/delete';
       $.post(url, from_path, function(data) {
         if (data){
           loadTableForSearch($("#new-redirect-from").val(), 'from_path');

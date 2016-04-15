@@ -1,6 +1,7 @@
 __author__ = 'ejc84332'
 
 # python
+import time
 import hashlib
 import os
 import fnmatch
@@ -16,6 +17,8 @@ import requests
 
 # tinker
 import config
+from tinker import app
+from tinker import sentry
 
 
 def init_user():
@@ -37,6 +40,13 @@ def init_user():
     if 'top_nav' not in session.keys():
         get_nav()
 
+    if 'user_email' not in session.keys():
+        # todo, get prefered email (alias) from wsapi once its added.
+        session['user_email'] = session['username'] + "@bethel.edu"
+
+    if 'name' not in session.keys():
+        get_users_name()
+
 
 def get_user():
 
@@ -46,6 +56,20 @@ def get_user():
         username = current_app.config['TEST_USER']
 
     session['username'] = username
+
+def get_users_name(username=None):
+    if not username:
+        username = session['username']
+    url = current_app.config['API_URL'] + "/username/%s/names" % username
+    r = requests.get(url)
+    names = fjson.loads(r.content)['0']
+    if names['prefFirstName']:
+        fname = names['prefFirstName']
+    else:
+        fname = names['firstName']
+    lname = names['lastName']
+
+    session['name'] = "%s %s" % (fname, lname)
 
 
 def get_groups_for_user(username=None):
@@ -89,6 +113,24 @@ def get_roles(username=None):
 def get_nav():
     html = render_template('nav.html', **locals())
     session['top_nav'] = html
+
+
+def log_sentry(message, response):
+
+    username = session['username']
+    log_time = time.strftime("%c")
+    response = str(response)
+
+    sentry.client.extra_context({
+        'Time': log_time,
+        'Author': username,
+        'Response': response
+    })
+
+    # log generic message to Sentry for counting
+    app.logger.info(message)
+    # more detailed message to debug text log
+    app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
 
 # does this go here?
