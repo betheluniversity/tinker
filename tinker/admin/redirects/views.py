@@ -18,10 +18,8 @@ redirect_blueprint = Blueprint('redirect_blueprint', __name__, template_folder='
 
 @redirect_blueprint.before_request
 def before_request():
-    skip = request.headers.get('skip-groups', default=None) == 'skip'
-    if skip:
-        return
-    if 'Administrators' not in session['groups']:
+    skip = request.environ.get('skip-groups', None) == 'skip'
+    if not skip and 'Administrators' not in session['groups']:
         abort(403)
 
 @redirect_blueprint.route('/expire')
