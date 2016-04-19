@@ -1,9 +1,40 @@
 {% extends "tinker-base.html" %}
 
-{% block title %}Sync{% endblock %}
+{% block title %}Clear Cache{% endblock %}
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
 
+    <div class="large-6 columns">
+        <form>
+        <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+
+        <label >Path
+            <input type="text" id="cpath"/>
+        </label>
+        <a id="submit" class="button">Submit</a>
+</form>
+        <div id="output"></div>
+    </div>
+
+    <script>
+
+        function submitpath(){
+            var urlpath = $("#cpath").val();
+
+            console.log("hello");
+            var input_data = {'url': urlpath};
+
+            var cacheurl = "/admin/cache-clear/submit";
+            $.post(cacheurl, input_data, function(data){
+                alert("testing 234");
+                $("#output").html(data);
+            });
+            $("#output").text(urlpath);
+        }
+
+        var button = $("#submit").on("click", submitpath)
+
+    </script>
 {% endblock %}

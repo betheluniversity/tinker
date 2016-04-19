@@ -10,3 +10,7 @@ def before_request():
 @cache_blueprint.route('/')
 def home():
     return render_template('cache-home.html', **locals())
+
+@cache_blueprint.route('/submit', methods=['post'])
+def submit():
+    return "success"
