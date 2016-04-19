@@ -307,7 +307,7 @@ def submit_edit_form():
     new_year = get_year_folder_value(add_data)
 
     resp = edit(asset)
-    app.logger.info(time.strftime("%c") + ": Event edit submission by " + username + " with id " + event_id + ". " + str(resp))
+    log_sentry("Event edit submission", resp)
 
     if new_year > current_year:
         resp = move_event_year(event_id, add_data)
