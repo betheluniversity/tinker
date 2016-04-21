@@ -5,9 +5,11 @@ import datetime
 import re
 import smtplib
 
+
 # flask
 from flask import Blueprint, render_template, abort, request
 from BeautifulSoup import BeautifulSoup
+
 
 # tinker
 from tinker import app, db, tools, session
@@ -21,6 +23,7 @@ def before_request():
     skip = request.environ.get('skip-groups', None) == 'skip'
     if not skip and 'Administrators' not in session['groups']:
         abort(403)
+
 
 @redirect_blueprint.route('/expire')
 def delete_expired_redirects():

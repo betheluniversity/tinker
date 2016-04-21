@@ -55,6 +55,9 @@ app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
 app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear')
 app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 
+from tinker.admin.program_search import ProgramSearchView
+ProgramSearchView.register(app, route_prefix='admin')
+
 
 CsrfProtect(app).exempt(redirect_blueprint)
 

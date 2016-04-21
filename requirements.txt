@@ -18,3 +18,4 @@ feedformatter
 feedparser
 createsend
 raven
+Flask-Classy
