@@ -29,6 +29,7 @@ def show():
 
     data = data_to_add
 
+    # Todo: sync a single one
     sync_metadataset(app.config['METADATA_EVENT_ID'], data)
     sync_metadataset(app.config['METADATA_ROBUST_ID'], data)
     sync_metadataset(app.config['METADATA_JOB_POSTING_ID'], data)
@@ -157,7 +158,7 @@ def sync_data_definition(data_definition_id, data):
 
                     # add new elements
                     for value in data[second_el.attrib['identifier']]:
-                        second_el.append(Et.Element('selector-item', {"value": value}))
+                        second_el.append(Et.Element('selector-item', {"value": value, "selected": 'true'}))
 
     new_asset = {
         'dataDefinition': {

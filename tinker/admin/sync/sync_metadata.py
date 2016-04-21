@@ -129,6 +129,7 @@ delivery_subheading = [
 ]
 
 degree_types = [
+    'All',
     'Associate',
     'Bachelor',
     'License',
