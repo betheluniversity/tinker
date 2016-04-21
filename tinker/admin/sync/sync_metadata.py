@@ -128,6 +128,16 @@ delivery_subheading = [
     'Daytime'
 ]
 
+degree_types = [
+    'Associate',
+    'Bachelor',
+    'License',
+    'Certificate',
+    'Post-grad Certificate',
+    'Master',
+    'Doctor',
+]
+
 e_announcement_roles = [
     "STUDENT-CAS",
     "STUDENT-CAPS",
@@ -150,3 +160,4 @@ data_to_add['roles'] = e_announcement_roles
 data_to_add['location'] = locations
 data_to_add['delivery_label'] = delivery_label
 data_to_add['delivery_subheading'] = delivery_subheading
+data_to_add['degree'] = degree_types
