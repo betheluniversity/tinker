@@ -38,6 +38,7 @@ def show():
     sync_data_definition(app.config['DATA_DEF_PROGRAM_BLOCK_ID'], data)
     sync_data_definition(app.config['DATA_DEF_PORTAL_CHANNEL_ID'], data)
     sync_data_definition(app.config['DATA_DEF_PORTAL_TAB_ID'], data)
+    sync_data_definition(app.config['DATA_DEF_PROGRAM_SEARCH_ID'], data)
 
     return render_template('sync.html', **locals())
 
@@ -132,7 +133,6 @@ def sync_data_definition(data_definition_id, data):
 
         elif 'sections' in el.attrib['identifier']:  # for Portal - Channel Block | roles
             for second_el in el:
-                print second_el
                 if second_el.attrib['identifier'] == 'roles':
                     # remove old elements
                     store_elements_to_remove = []
@@ -143,6 +143,20 @@ def sync_data_definition(data_definition_id, data):
 
                     # add new elements
                     for value in data['roles']:
+                        second_el.append(Et.Element('selector-item', {"value": value}))
+
+        elif 'program-search-sync-data' in el.attrib['identifier']:  # for Program Search | school, cohort delivery, degree type
+            for second_el in el:
+                if second_el.attrib['identifier'] == 'school' or second_el.attrib['identifier'] == 'delivery_label' or second_el.attrib['identifier'] == 'degree':
+                    # remove old elements
+                    store_elements_to_remove = []
+                    for el_to_remove in second_el:
+                        store_elements_to_remove.append(el_to_remove)
+                    for el_to_remove in store_elements_to_remove:
+                        second_el.remove(el_to_remove)
+
+                    # add new elements
+                    for value in data[second_el.attrib['identifier']]:
                         second_el.append(Et.Element('selector-item', {"value": value}))
 
     new_asset = {
