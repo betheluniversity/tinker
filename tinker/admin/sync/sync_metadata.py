@@ -76,6 +76,7 @@ seminary_programs = [
 
 graduate_programs = [
     "None",
+    "Academic Behavioral Strategist License",
     "Certificate in International Baccalaureate Teaching and Learning",
     "Child and Adolescent Mental Health Certificate",
     "Counseling Psychology (M.A.)",
