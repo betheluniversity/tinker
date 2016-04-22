@@ -85,7 +85,7 @@ graduate_programs = [
     "Ed.D.",
     "Education K-12 (M.A.)",
     "Emerging Leaders in Private Colleges Certificate",
-    "Emotional and Behavioral Disorders License,"
+    "Emotional and Behavioral Disorders License",
     "ENVoY Classroom Management Strategies Certificate",
     "Gerontology Certificate",
     "Gerontology (M.A.)",
