@@ -77,6 +77,7 @@ seminary_programs = [
 graduate_programs = [
     "None",
     "Academic Behavioral Strategist License",
+    "Autism Spectrum Disorders License",
     "Certificate in International Baccalaureate Teaching and Learning",
     "Child and Adolescent Mental Health Certificate",
     "Counseling Psychology (M.A.)",
@@ -84,6 +85,7 @@ graduate_programs = [
     "Ed.D.",
     "Education K-12 (M.A.)",
     "Emerging Leaders in Private Colleges Certificate",
+    "Emotional and Behavioral Disorders License,"
     "ENVoY Classroom Management Strategies Certificate",
     "Gerontology Certificate",
     "Gerontology (M.A.)",
