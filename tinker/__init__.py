@@ -20,6 +20,7 @@ from raven.contrib.flask import Sentry
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
 
 from tinker.admin.redirects import models
+from tinker.admin.program_search import models
 from tinker import tools
 
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})

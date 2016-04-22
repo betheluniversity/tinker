@@ -10,11 +10,11 @@ class ProgramSearchView(FlaskView):
     def index(self):
         return "program search index"
 
-    def put(self):
-        pass
+    def put(self, tag_id=None):
+        return "put tag with id: %s" % tag_id
 
-    def delete(self):
-        pass
+    def delete(self, tag_id=None):
+        return "delete tag with id: %s" % tag_id
 
-    def get(self):
-        pass
+    def get(self, tag_id=None):
+        return "get tag with id: %s" % tag_id
