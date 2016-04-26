@@ -76,6 +76,8 @@ seminary_programs = [
 
 graduate_programs = [
     "None",
+    "Academic Behavioral Strategist License",
+    "Autism Spectrum Disorders License",
     "Certificate in International Baccalaureate Teaching and Learning",
     "Child and Adolescent Mental Health Certificate",
     "Counseling Psychology (M.A.)",
@@ -83,6 +85,7 @@ graduate_programs = [
     "Ed.D.",
     "Education K-12 (M.A.)",
     "Emerging Leaders in Private Colleges Certificate",
+    "Emotional and Behavioral Disorders License",
     "ENVoY Classroom Management Strategies Certificate",
     "Gerontology Certificate",
     "Gerontology (M.A.)",
@@ -127,7 +130,34 @@ delivery_subheading = [
     'Daytime'
 ]
 
-roles = [
+degree = [
+    'Select',
+    'Associate of Arts',
+    'Bachelor of Arts',
+    'Bachelor of Music',
+    'Bachelor of Science',
+    'Bachelor of Fine Arts',
+    'Certificate',
+    'Post-grad Certificate',
+    'Master of Arts',
+    'Master of Science',
+    'Master of Divinity',
+    'Doctor of Ministry',
+    'Doctor of Education',
+]
+
+program_search_degree_types = [
+    'All',
+    'Associate',
+    'Bachelor',
+    'License',
+    'Certificate',
+    'Post-grad Certificate',
+    'Master',
+    'Doctorate',
+]
+
+e_announcement_roles = [
     "STUDENT-CAS",
     "STUDENT-CAPS",
     "STUDENT-GS",
@@ -145,7 +175,9 @@ data_to_add['department'] = undergrad_programs
 data_to_add['adult-undergrad-program'] = adult_undergrad_programs
 data_to_add['graduate-program'] = graduate_programs
 data_to_add['seminary-program'] = seminary_programs
-data_to_add['roles'] = roles
+data_to_add['roles'] = e_announcement_roles
 data_to_add['location'] = locations
 data_to_add['delivery_label'] = delivery_label
 data_to_add['delivery_subheading'] = delivery_subheading
+data_to_add['degree'] = degree
+data_to_add['program-search-degree'] = program_search_degree_types

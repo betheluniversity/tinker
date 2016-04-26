@@ -13,7 +13,6 @@ from tinker.web_services import *
 
 publish_blueprint = Blueprint('publish-manager', __name__, template_folder='templates')
 
-
 @publish_blueprint.before_request
 def before_request():
     if 'Administrators' not in session['groups']:
@@ -25,10 +24,7 @@ def publish_home():
     get_user()
     username = session['username']
 
-    if username == 'celanna' or username == 'ces55739' or username == 'nal64753' or username == "ejc84332":
-        return render_template('publish-home.html', **locals())
-    else:
-        abort(403)
+    return render_template('publish-home.html', **locals())
 
 
 @publish_blueprint.route("/program-feeds", methods=['get', 'post'])
