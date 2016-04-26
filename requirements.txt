@@ -10,7 +10,7 @@ simplejson
 --allow-external WTForms
 requests
 Flask-SQLAlchemy
-SQLAlchemy-migrate
+flask-migrate
 BeautifulSoup
 Flask-Cors
 arrow
@@ -19,3 +19,6 @@ feedparser
 createsend
 raven
 Flask-Classy
+gspread
+oauth2client
+PyOpenSSL

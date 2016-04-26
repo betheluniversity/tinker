@@ -4,15 +4,17 @@ from tinker import db
 class ProgramTag(db.Model):
     __tablename__ = 'program_tag'
 
+    db.UniqueConstraint('key', 'tag')
+
     id = db.Column(db.Integer, primary_key=True)
-    program = db.column(db.String())
+    key = db.Column(db.String())
     tag = db.Column(db.String())
     outcome = db.Column(db.Boolean)
     other = db.Column(db.Boolean)
     topic = db.Column(db.Boolean)
 
-    def __init__(self, program, tag, outcome, other, topic):
-        self.program = program
+    def __init__(self, key, tag, outcome, other, topic):
+        self.key = key
         self.tag = tag
         self.outcome = outcome
         self.other = other

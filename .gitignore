@@ -18,6 +18,8 @@ upgrade.txt
 
 db_repository/
 
+migrations/
+
 db_repository/versions/002_migration.py
 
 db_repository/versions/003_migration.py
@@ -25,3 +27,5 @@ db_repository/versions/003_migration.py
 redirects.txt.back
 
 tinker/.DS_Store
+
+tinker/admin/program_search/creds.json
