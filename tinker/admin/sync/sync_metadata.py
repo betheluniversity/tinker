@@ -139,6 +139,7 @@ degree = [
     'Bachelor of Fine Arts',
     'Certificate',
     'Post-grad Certificate',
+    'License',
     'Master of Arts',
     'Master of Science',
     'Master of Divinity',
