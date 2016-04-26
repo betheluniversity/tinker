@@ -131,6 +131,7 @@ delivery_subheading = [
 ]
 
 degree = [
+    'Select',
     'Associate of Arts',
     'Bachelor of Arts',
     'Bachelor of Music',
