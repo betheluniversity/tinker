@@ -148,7 +148,7 @@ def sync_data_definition(data_definition_id, data):
 
         elif 'program-search-sync-data' in el.attrib['identifier']:  # for Program Search | school, cohort delivery, degree type
             for second_el in el:
-                if second_el.attrib['identifier'] == 'school' or second_el.attrib['identifier'] == 'delivery_label' or second_el.attrib['identifier'] == 'degree':
+                if second_el.attrib['identifier'] == 'school' or second_el.attrib['identifier'] == 'delivery_label' or second_el.attrib['identifier'] == 'program-search-degree':
                     # remove old elements
                     store_elements_to_remove = []
                     for el_to_remove in second_el:

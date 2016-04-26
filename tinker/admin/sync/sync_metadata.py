@@ -130,7 +130,7 @@ delivery_subheading = [
     'Daytime'
 ]
 
-degree_types = [
+program_search_degree_types = [
     'All',
     'Associate',
     'Bachelor',
@@ -138,7 +138,7 @@ degree_types = [
     'Certificate',
     'Post-grad Certificate',
     'Master',
-    'Doctor',
+    'Doctorate',
 ]
 
 e_announcement_roles = [
@@ -163,4 +163,4 @@ data_to_add['roles'] = e_announcement_roles
 data_to_add['location'] = locations
 data_to_add['delivery_label'] = delivery_label
 data_to_add['delivery_subheading'] = delivery_subheading
-data_to_add['degree'] = degree_types
+data_to_add['program-search-degree'] = program_search_degree_types
