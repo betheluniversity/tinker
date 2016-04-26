@@ -55,8 +55,9 @@ app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
 app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear')
 app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 
-
-CsrfProtect(app).exempt(redirect_blueprint)
+csrf = CsrfProtect(app)
+csrf.exempt(cache_blueprint)
+csrf.exempt(redirect_blueprint)
 
 # Import error handling
 import error
@@ -69,7 +70,6 @@ def before_request():
         app.logger.debug(session['username'])
     except:
         app.logger.debug("failed to init")
-
 
 @app.route('/cache-clear/<path:img_path>')
 @app.route('/cache-clear')
