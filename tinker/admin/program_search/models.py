@@ -21,7 +21,7 @@ class ProgramTag(db.Model):
         self.topic = topic
 
     def __repr__(self):
-        return '<ProgramTag for %s: %s>' % (self.program, self.tag)
+        return '<ProgramTag for %s: %s>' % (self.key, self.tag)
 
     # # define less than and equal to so they can sort themselves
     # def __lt__(self, other):
