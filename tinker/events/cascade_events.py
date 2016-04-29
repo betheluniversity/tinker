@@ -159,6 +159,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
             dynamic_field('seminary-program', add_data['seminary_program']),
             dynamic_field('internal', add_data['internal']),
             dynamic_field('hide-site-nav', [hide_site_nav]),
+            dynamic_field('tinker-edits', '1')
         ],
     }
 
