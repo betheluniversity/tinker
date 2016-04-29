@@ -6,6 +6,7 @@ import hashlib
 import os
 import fnmatch
 from subprocess import call
+from functools import wraps
 
 # flask
 from flask import request
@@ -13,6 +14,8 @@ from flask import session
 from flask import current_app
 from flask import render_template
 from flask import json as fjson
+from flask import Response
+
 import requests
 
 # tinker
@@ -173,9 +176,30 @@ def should_be_able_to_edit_image(roles):
     else:
         return True
 
-def test(input):
-    return input
 
+def check_auth(username, password):
+    """This function is called to check if a username /
+    password combination is valid.
+    """
+    return username == app.config['CASCADE_LOGIN']['username'] and password == app.config['CASCADE_LOGIN']['password']
+
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+    'Could not verify your access level for that URL.\n'
+    'You have to login with proper credentials', 401,
+    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+    return decorated
 
 # def can_user_access_asset( username, id, type):
 #     try:
