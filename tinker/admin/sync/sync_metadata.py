@@ -139,6 +139,7 @@ degree = [
     'Bachelor of Fine Arts',
     'Certificate',
     'Post-grad Certificate',
+    'License',
     'Master of Arts',
     'Master of Science',
     'Master of Divinity',
@@ -147,14 +148,13 @@ degree = [
 ]
 
 program_search_degree_types = [
-    'All',
-    'Associate',
-    'Bachelor',
-    'License',
-    'Certificate',
-    'Post-grad Certificate',
-    'Master',
-    'Doctorate',
+    "All",
+    "Associate",
+    "Bachelor",
+    "License",
+    "Certificate",
+    "Master's",
+    "Doctorate",
 ]
 
 e_announcement_roles = [

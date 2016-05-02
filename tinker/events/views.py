@@ -325,3 +325,9 @@ def submit_edit_form():
 @event_blueprint.route('/confirm')
 def confirm():
     return render_template('submit-confirm.html', **locals())
+
+
+@event_blueprint.route('/api/reset-tinker-edits/<event_id>', methods=['get','post'])
+@requires_auth
+def reset_tinker_edits(event_id):
+    return event_id
