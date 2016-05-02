@@ -330,4 +330,6 @@ def confirm():
 @event_blueprint.route('/api/reset-tinker-edits/<event_id>', methods=['get','post'])
 @requires_auth
 def reset_tinker_edits(event_id):
+    print 'TEST'
+    app.logger.debug(time.strftime("%c") + ": Caleb Testing reset_tinker_edits call " + str(event_id))
     return event_id
