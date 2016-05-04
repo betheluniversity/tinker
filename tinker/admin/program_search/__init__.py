@@ -5,10 +5,15 @@ from xml.etree import ElementTree as ET
 from oauth2client.service_account import ServiceAccountCredentials
 
 from flask.ext.classy import FlaskView
+from flask import render_template
+from flask import Blueprint
+from flask import jsonify
 
 
 from tinker import app, db
 from tinker.admin.program_search.models import ProgramTag
+
+ProgramSearchBlueprint = Blueprint("program_search", __name__, template_folder='templates')
 
 
 class ProgramSearchView(FlaskView):
@@ -19,12 +24,12 @@ class ProgramSearchView(FlaskView):
         credentials = ServiceAccountCredentials.from_json_keyfile_name(path, scope)
         self.gc = gspread.authorize(credentials)
 
-        #todo remove this after testing
-        db.session.query(ProgramTag).delete()
-        db.session.commit()
+        # #todo remove this after testing
+        # db.session.query(ProgramTag).delete()
+        # db.session.commit()
 
     def index(self):
-        return "program search index"
+        return render_template('index.html')
 
     def put(self, tag_id=None):
         return "put tag with id: %s" % tag_id
@@ -33,6 +38,20 @@ class ProgramSearchView(FlaskView):
         return "delete tag with id: %s" % tag_id
 
     def get(self, tag_id=None):
+
+        if tag_id == 'all':
+            results = ProgramTag.query.all()
+            tags = []
+            for tag in results:
+                tags.append({
+                    'id': tag.id,
+                    'key': tag.key,
+                    'tag': tag.tag,
+                    'outcome': tag.outcome,
+                    'topic': tag.topic,
+                    'other': tag.other})
+            return jsonify({'tags': tags})
+
         return "get tag with id: %s" % tag_id
 
     def load(self):
@@ -110,4 +129,4 @@ class ProgramSearchView(FlaskView):
         return "<pre>%s</pre>" % str(rows)
 
 
-
+ProgramSearchView.register(ProgramSearchBlueprint)

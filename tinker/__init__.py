@@ -1,8 +1,10 @@
+import os
 import logging
 
 # flask
 from flask import Flask
 from flask import session
+from flask import Blueprint
 
 # flask extensions
 from flask.ext.cache import Cache
@@ -34,6 +36,8 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.DEBUG)
 
+
+
 # Import routes
 import views
 from tinker.events.views import event_blueprint
@@ -54,10 +58,9 @@ app.register_blueprint(sync_blueprint, url_prefix='/admin/sync')
 app.register_blueprint(publish_blueprint, url_prefix='/admin/publish-manager')
 app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
 app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear')
-app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 
-from tinker.admin.program_search import ProgramSearchView
-ProgramSearchView.register(app, route_prefix='admin')
+from tinker.admin.program_search import ProgramSearchBlueprint
+app.register_blueprint(ProgramSearchBlueprint, url_prefix='/admin')
 
 
 CsrfProtect(app).exempt(redirect_blueprint)

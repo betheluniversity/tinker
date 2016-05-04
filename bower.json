@@ -1,0 +1,26 @@
+{
+  "name": "Tinker",
+  "homepage": "https://github.com/betheluniversity/Tinker",
+  "authors": [
+    "Eric Jameson <ericjamesjameson@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "~3.3.2",
+    "jquery": "~2.1.3",
+    "react": "^15.0.2",
+    "react-bootstrap": "^0.29.3"
+  },
+  "resolutions": {
+    "react": "^15.0.2"
+  }
+}
