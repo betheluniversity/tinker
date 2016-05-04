@@ -4,6 +4,7 @@
 
 /** @jsx React.DOM */
 
+var Modal = require('react-modal');
 
 var ProgramResult = React.createClass({
 
@@ -17,7 +18,7 @@ var ProgramResult = React.createClass({
     render: function() {
         var tag = this.props.tag;
         return (
-            <tr onClick={this.handleClick}>
+            <tr onClick={this.handleClick} key={tag['id']}>
                 <td>{tag['key']}</td>
                 <td>{tag['tag']}</td>
                 <td>{tag['outcome'] ? 'X': ''}</td>
@@ -100,11 +101,20 @@ var ProgramSearch = React.createClass({
             <tbody>
                 {
                     tags.map(function(tag){
-                        return <ProgramResult tag={tag} onClick={this.handleClick} />
+                        return <ProgramResult key={tag['id']} tag={tag} onClick={this.handleClick} />
                     }, this)
                 }
             </tbody>
         </table>
+        <Modal
+          isOpen={this.state.showModal}
+          onRequestClose={this.close}
+        >
+
+          <h2 ref="subtitle">Hello</h2>
+          <button onClick={this.close}>close</button>
+          <div>I am a modal</div>
+        </Modal>
       </div>
     )
 
