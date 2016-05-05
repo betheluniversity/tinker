@@ -9,12 +9,16 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "bower": "^1.3.12",
-    "gulp": "^3.8.11",
-    "gulp-browserify": "^0.5.1",
-    "gulp-clean": "^0.3.1",
-    "gulp-size": "^1.2.1",
+    "bower": "*",
+    "gulp": "*",
+    "gulp-browserify": "9.0.4",
+    "gulp-clean": "*",
+    "gulp-size": "*",
+    "react-bootstrap": "*",
+    "reactify": "*"
+  },
+  "dependencies": {
     "react": "*",
-    "reactify": "^1.0.0"
+    "react-dom": "*"
   }
 }

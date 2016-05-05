@@ -1,16 +1,13 @@
-/**
- * Created by ejc84332 on 5/3/16.
- */
+var ReactDOM = require('react-dom');
 
-/** @jsx React.DOM */
 
-var Modal = require('react-modal');
+var Loader = require('react-loader');
+var Modal = require('react-bootstrap').Modal;
+var Button = require('react-bootstrap').Button;
+var ButtonToolbar = require('react-bootstrap').ButtonToolbar;
 
 var ProgramResult = React.createClass({
-
     handleClick: function(e) {
-        console.log('clicked!');
-        console.log(this.props);
         if (typeof this.props.onClick === 'function') {
             this.props.onClick(this.props.tag);
         }
@@ -33,7 +30,7 @@ var ProgramSearch = React.createClass({
 
   // sets initial state
   getInitialState: function(){
-    return { tagString: '', keyString: '', tags: [], showModal: false, currentTag: '' };
+    return { tagString: '', keyString: '', tags: [], showModal: false, currentTag: '', loaded: true };
   },
 
   componentDidMount: function() {
@@ -63,7 +60,27 @@ var ProgramSearch = React.createClass({
 
   handleClick: function(tag) {
     this.open();
-    this.setState({ currentTag: tag['id'] });
+    this.setState({ currentTag: tag });
+  },
+
+  deleteCurrentTag: function(){
+    this.setState({ loaded: false });
+    var id = this.state.currentTag['id'];
+    var url = 'http://127.0.0.1:5000/admin/programsearch/' + id;
+      $.ajax({
+          context: this,
+          id: id,
+          url: url,
+          method: 'DELETE',
+          data: { tag_id: id }
+        }).success(function(){
+          var tags = this.state.tags.filter(function(tag){
+            return tag['id'] !== id;
+          });
+          this.setState({ tags: tags });
+          this.setState({ loaded: true });
+      });
+    this.close();
   },
 
   render: function() {
@@ -106,20 +123,21 @@ var ProgramSearch = React.createClass({
                 }
             </tbody>
         </table>
-        <Modal
-          isOpen={this.state.showModal}
-          onRequestClose={this.close}
-        >
-
-          <h2 ref="subtitle">Hello</h2>
-          <button onClick={this.close}>close</button>
-          <div>I am a modal</div>
+        <Modal show={this.state.showModal} onHide={this.close}>
+          <Modal.Header closeButton>
+            <Modal.Title>Delete Tag "{this.state.currentTag['tag']}"</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <ButtonToolbar>
+                <Button bsStyle="danger" onClick={this.deleteCurrentTag}>Delete</Button>
+                <Button bsStyle="primary" onClick={this.close}>Cancel</Button>
+            </ButtonToolbar>
+          </Modal.Body>
         </Modal>
+        <Loader loaded={this.state.loaded}/>
       </div>
     )
-
   }
-
 });
 
 ReactDOM.render(

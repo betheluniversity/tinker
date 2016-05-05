@@ -13,7 +13,7 @@ var scripts =  [
                 './tinker/**/**/scripts/*.js'
               ];
 
-gulp.task('transform', function () {
+gulp.task('transform', ['clean'], function () {
   return gulp.src(scripts)
     .pipe(browserify({transform: ['reactify']}))
     .pipe(gulp.dest('./tinker/static/scripts/js'))
