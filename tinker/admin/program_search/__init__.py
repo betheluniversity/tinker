@@ -9,7 +9,6 @@ from flask import render_template
 from flask import Blueprint
 from flask import jsonify
 
-
 from tinker import app, db
 from tinker.admin.program_search.models import ProgramTag
 
@@ -35,7 +34,9 @@ class ProgramSearchView(FlaskView):
         return "put tag with id: %s" % tag_id
 
     def delete(self, tag_id=None):
-        return "delete tag with id: %s" % tag_id
+        ProgramTag.query.filter_by(id=tag_id).delete()
+        db.session.commit()
+        return "done"
 
     def get(self, tag_id=None):
 
