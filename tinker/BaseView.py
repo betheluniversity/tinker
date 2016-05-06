@@ -4,19 +4,16 @@ import urllib2
 from xml.etree import ElementTree as ET
 from config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
-from flask import Flask
-from flask.ext.classy import FlaskView
-from flask import Blueprint
-from tinker import app
-
+from flask.ext.classy import FlaskView, route
 from bu_cascade.cascade_connector import Cascade
-# BaseViewBlueprint = Blueprint('base', __name__, template_folder='templates')
 
 
-class BaseView(FlaskView):
+class BaseViewTools(FlaskView):
     def __init__(self):
         self.cascade_connector = Cascade(SOAP_URL, AUTH, SITE_ID)
 
+    # Todo: sadly it looks like this is the only way I could find to force this route to be POST
+    @route('/baseviewtest/traverse_xml/<traverse_xml_callback_function>/<xml_url>/<username>', methods=['post'])
     def traverse_xml(self, traverse_xml_callback_function, xml_url, username='get_all'):
 
         response = urllib2.urlopen(xml_url)
@@ -31,7 +28,7 @@ class BaseView(FlaskView):
                     author = None
 
                 if (author is not None and username == author) or username == "get_all":
-                    matches.append(traverse_xml_callback_function(username))
+                    matches.append(traverse_xml_callback_function(child, username))
 
             except AttributeError:
                 continue
@@ -41,6 +38,3 @@ class BaseView(FlaskView):
         matches = sorted(matches, key=lambda k: k['created-on'])
 
         return matches
-
-
-# BaseView.register(BaseViewBlueprint)

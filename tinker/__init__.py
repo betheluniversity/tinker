@@ -56,7 +56,9 @@ app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
 app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear')
 app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 
-from tinker.BaseViewTest import BaseViewTestBlueprint
+from tinker.BaseViewTest import *
+# Todo: it looks like we could put our registers in here.
+BaseViewTestView.register(BaseViewTestBlueprint)
 app.register_blueprint(BaseViewTestBlueprint, url_prefix='/test')
 
 
