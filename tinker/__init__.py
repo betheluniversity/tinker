@@ -45,6 +45,7 @@ from tinker.admin.publish.views import publish_blueprint
 from tinker.admin.roles.views import blink_roles_blueprint
 from tinker.admin.cache.views import cache_blueprint
 
+
 app.register_blueprint(event_blueprint, url_prefix='/event')
 app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
@@ -55,6 +56,11 @@ app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
 app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear')
 app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 
+from tinker.BaseViewTest import BaseViewTestBlueprint
+app.register_blueprint(BaseViewTestBlueprint, url_prefix='/test')
+
+
+print app.url_map
 
 CsrfProtect(app).exempt(redirect_blueprint)
 
