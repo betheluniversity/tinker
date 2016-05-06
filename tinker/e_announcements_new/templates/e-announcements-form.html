@@ -1,0 +1,217 @@
+{% extends "tinker-base.html" %}
+
+{% block title %}E-Announcement Form{% endblock %}
+
+{% block styles %}
+  <style type="text/css">
+    .largeselect {
+      height: 100px;
+      font-size:14px;
+    }
+    .audience-header {
+        text-align:center;
+    }
+
+  p, span {
+        font-family: georgia,serif;
+    }
+    label {
+        font-size: 18px;
+        font-family: georgia,serif;
+    }
+
+  </style>
+{% endblock %}
+
+{% block page_title %}
+  {% if new_form %}
+    Submit a new E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
+  {% else %}
+    Edit your E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
+  {% endif %}
+{% endblock %}
+
+{% block main_content %}
+  <div class="row">
+  <div class="large-12 columns">
+    {% if new_form %}
+      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
+    {% else %}
+      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
+    {% endif %}
+        {% if form.errors %}
+          <div class="alert alert-error">
+            <div data-alert class="alert-box alert radius">
+                There were errors with your form.
+                <a href="#" class="close">&times;</a>
+              </div>
+            </div>
+        {% endif %}
+
+        {{ form.hidden_tag() }}
+        {% for field in form if field.widget.input_type != 'hidden' %}
+
+        {# Print any errors for this field#}
+          {% for error in form.errors[field.name] %}
+            <div class="alert alert-error">
+              <div data-alert class="alert-box alert radius">
+                {{ error }}
+                <a href="#" class="close">&times;</a>
+              </div>
+            </div>
+          {% endfor %}
+
+          {# print the label #}
+            {% if field.label.text != '' %}
+                <label for="{{ field.name }}">
+                  {{ field.label.text }}
+                  {% if field.flags.required %} * {% endif %}
+                 </label>
+                {% if field.description != '' %}
+                    <p>{{ field.description }}</p>
+                {% endif %}
+            {% endif %}
+
+
+
+          {# Print the field #}
+          {% if field.type == "SelectMultipleField" %}
+            {{ field(size=10, class="largeselect") }}
+
+          {% elif field.type == "MultiCheckboxField" %}
+              <h4 class='audience-header' for="{{ field.name }}">
+                  Audiences
+                  {% if field.flags.required %} * {% endif %}
+                 </h4>
+                {% if field.description != '' %}
+                    <p>{{ field.description }}</p>
+                {% endif %}
+              <div class="row">
+                {% for column in ['STUDENT', 'FACULTY', 'STAFF'] %}
+                    <div class="large-4 columns">
+                        <label class="audience-header">{{ column }}</label>
+                        <hr />
+                        {% for item in field %}
+                            {% if column in item.object_data %}
+                                {# zero-based indexing #}
+                                {{ item }} <label for="banner_roles-{{ loop.index - 1 }}">{{ banner_roles_mapping[loop.index - 1] }}</label><br />
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+              </div>
+              <hr />
+
+          {% elif field.type == "HeadingField" %}
+            <h3>{{ field.label }}</h3>
+
+          {% elif field.type == "CKEditorTextAreaField" %}
+            <span id="ckeditor_current_count">Words: 0</span>
+            {{ field(class="ckeditor") }}
+            <script>
+                $( document ).ready(function() {
+                    function loadCount(){
+                        checkCount();
+                        $(".cke_contents").children("iframe").contents().find("body").keyup(function() {
+                            checkCount();
+                        });
+                    }
+
+                    function checkCount(){
+                        var textToCheck = $(".cke_contents").children("iframe").contents().find("body").text().trim();
+                        var count = 0;
+                        if( textToCheck != '')
+                            count = textToCheck.split(' ').length;
+
+                        var ckeditorCountDiv = $('#ckeditor_current_count');
+                        if( count > 200) {
+                            ckeditorCountDiv.text("Words: " + count + ". Please reduce your word count before submitting.");
+                            ckeditorCountDiv.css("color", "#f04124");
+                        } else {
+                            ckeditorCountDiv.text("Words: " + count);
+                            ckeditorCountDiv.css("color", "#000000");
+                        }
+                    };
+
+                    setTimeout(loadCount, 500);
+                });
+            </script>
+            <br />
+
+          {% elif field.type == "DateField" %}
+            {% if field.name == 'first' and first_readonly %}
+                <div>
+                    <p>{{ first_readonly }}</p>
+                </div>
+                {{ field(class="datepicker", readonly=True, style="display:none") }}
+            {% elif field.name == 'second' and second_readonly %}
+                <div>
+                    <p>{{ second_readonly }}</p>
+                </div>
+                {{ field(class="datepicker", readonly=True, style="display:none") }}
+            {% else %}
+                {{ field(class="datepicker", readonly=True) }}
+            {% endif %}
+
+          {% else %}
+              {{ field(size=20) }}
+          {% endif %}
+
+        {% endfor %}
+        <button type="submit" id="e-announcement-submit-btn" class="button postfix">Submit</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    <script src="{{ url_for('static', filename='moment.js') }}"></script>
+    <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+
+    <script type="text/javascript">
+
+          $( document ).ready(function() {
+            var today = new Date();
+            $('.datepicker').each(function (index) {
+              var picker = new Pikaday({
+                field: this,
+                disabledDaysOfWeek: [0,2,4,6],
+                disabledDates: ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '01/01'],
+                format: 'MM-DD-YYYY',
+                disableDayFn: function(date){
+                    // remove all Sun/Tues/Thur/Sat days from the week
+                    if( $.inArray(date.getDay(), [0,2,4,6]) > -1){
+                        return date;
+                    }
+
+                    // the last time you can submit a announcement is 1pm the previous business day.
+                    var dateCutoff = date;
+                    dateCutoff.setDate(dateCutoff.getDate() - 1);
+                    while(dateCutoff.getDay() == 0 || dateCutoff.getDay() == 6){
+                        dateCutoff.setDate(dateCutoff.getDate() - 1);
+                    }
+                    dateCutoff.setHours(13);
+
+                    if( dateCutoff <= new Date() ){
+                        return date;
+                    }
+
+                    // Todo: remove this once we launch.
+                    if( date < new Date('2016/04/01')){
+                        return date;
+                    }
+                }
+              });
+            });
+          });
+
+     </script>
+{% endblock %}

@@ -2,13 +2,13 @@ import logging
 
 # flask
 from flask import Flask
-from flask import session
 
 # flask extensions
 from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
 from flask_wtf.csrf import CsrfProtect
+from flask import session
 
 
 app = Flask(__name__)
@@ -45,7 +45,6 @@ from tinker.admin.publish.views import publish_blueprint
 from tinker.admin.roles.views import blink_roles_blueprint
 from tinker.admin.cache.views import cache_blueprint
 
-
 app.register_blueprint(event_blueprint, url_prefix='/event')
 app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
@@ -56,13 +55,10 @@ app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
 app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear')
 app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 
-from tinker.BaseViewTest import *
-# Todo: it looks like we could put our registers in here.
-BaseViewTestView.register(BaseViewTestBlueprint)
-app.register_blueprint(BaseViewTestBlueprint, url_prefix='/test')
-
-
-print app.url_map
+# New importing of routes and blueprints
+from tinker.e_announcements_new import *
+NewEAnnouncementsView.register(NewEAnnouncementsBlueprint)
+app.register_blueprint(NewEAnnouncementsBlueprint, url_prefix='/test')
 
 CsrfProtect(app).exempt(redirect_blueprint)
 

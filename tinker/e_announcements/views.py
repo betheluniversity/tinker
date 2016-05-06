@@ -45,7 +45,7 @@ def e_announcements_home():
 def delete_page(block_id):
     delete(block_id, type='block')
     # Todo: move this id into config.py
-    publish('861012818c5865130c130b3acbee7343');
+    publish('861012818c5865130c130b3acbee7343')
     return redirect('/e-announcement/delete-confirm', code=302)
 
 
@@ -105,7 +105,7 @@ def edit_e_announcement(e_announcement_id):
     # dynamic metadata
     dynamic_fields = metadata.dynamicFields.dynamicField
     # This dict will populate our EventForm object
-    dates, edit_data = get_announcement_data(dynamic_fields, metadata, s_data) # Create an EventForm object with our data
+    dates, edit_data = get_announcement_data(dynamic_fields, metadata, s_data)  # Create an EventForm object with our data
     form = EAnnouncementsForm(**edit_data)
     form.e_announcement_id = e_announcement_id
 
@@ -328,7 +328,5 @@ def create_campaign(date=None):
         # if we ever want to send an e-announcement immediately, here it is.
         # WARNING: be careful about accidentally sending emails to mass people.
         # new_campaign.send(confirmation_email_sent_to)
-
-
 
     return str(resp)
