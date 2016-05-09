@@ -71,12 +71,12 @@ def before_request():
     except:
         app.logger.debug("failed to init")
 
-@app.route('/cache-clear/<path:img_path>')
-@app.route('/cache-clear')
-def cache_test(img_path=None):
-    if not img_path:
-        img_path = '/academics/faculty/images/lundberg-kelsey.jpg'
-    return tools.clear_image_cache(img_path)
+# @app.route('/cache-clear/<path:img_path>')
+# @app.route('/cache-clear')
+# def cache_test(img_path=None):
+#     if not img_path:
+#         img_path = '/academics/faculty/images/lundberg-kelsey.jpg'
+#     return tools.clear_image_cache(img_path)
 
 
 @app.route('/sherie')

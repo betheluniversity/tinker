@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, abort, session
+from flask import Blueprint, render_template, abort, session, request
+from tinker import tools
 
 cache_blueprint = Blueprint('cache_blueprint', __name__, template_folder='templates')
 
@@ -11,6 +12,12 @@ def before_request():
 def home():
     return render_template('cache-home.html', **locals())
 
-@cache_blueprint.route('/submit', methods=['post', 'get'])
+@cache_blueprint.route('/submit', methods=['post'])
 def submit():
-    return 'success'
+    path = request.form['url']
+    return cache_clear(path)
+
+def cache_clear(img_path=None):
+    if not img_path:
+        img_path = '/academics/faculty/images/lundberg-kelsey.jpg'
+    return tools.clear_image_cache(img_path)
