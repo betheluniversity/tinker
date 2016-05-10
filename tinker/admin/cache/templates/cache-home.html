@@ -25,8 +25,6 @@
             var cacheurl = "/admin/cache-clear/submit";
 
             $.post(cacheurl, input_data, function (data) {
-                alert("testing 234");
-
                 $("#output").html(data);
             });
             $("#output").text(urlpath);

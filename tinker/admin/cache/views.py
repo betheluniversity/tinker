@@ -19,5 +19,5 @@ def submit():
 
 def cache_clear(img_path=None):
     if not img_path:
-        img_path = '/academics/faculty/images/lundberg-kelsey.jpg'
+        return "Please enter in a path."
     return tools.clear_image_cache(img_path)
