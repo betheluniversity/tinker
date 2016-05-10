@@ -323,7 +323,7 @@ def create_campaign(date=None):
     if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
         # Send the announcements out to ALL users at 7:00 am.
         confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
-        new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:30')
+        new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 05:30')
 
         # if we ever want to send an e-announcement immediately, here it is.
         # WARNING: be careful about accidentally sending emails to mass people.
