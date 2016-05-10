@@ -94,15 +94,14 @@
   {% block endbody %}
       <script type="text/javascript">
   $( document ).ready(function() {
-      if (typeof(CKEDITOR) != "undefined"){
-        CKEDITOR.config.format_tags = 'p';
-        CKEDITOR.config.disableNativeSpellChecker = false;
-        CKEDITOR.config.extraPlugins = 'wordcount,notification';
-        CKEDITOR.config.wordcount = {
-            maxWordCount: 200,
-            showParagraphs: false
-        }
-
+      if (typeof(CKEDITOR) != "undefined") {
+          CKEDITOR.config.format_tags = 'p';
+          CKEDITOR.config.disableNativeSpellChecker = false;
+          CKEDITOR.config.extraPlugins = 'wordcount,notification';
+          CKEDITOR.config.wordcount = {
+              maxWordCount: 200,
+              showParagraphs: false
+          }
       }
       $(document).foundation();
   });
