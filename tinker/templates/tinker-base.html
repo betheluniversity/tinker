@@ -99,9 +99,11 @@
           CKEDITOR.config.disableNativeSpellChecker = false;
           CKEDITOR.config.extraPlugins = 'wordcount,notification';
           CKEDITOR.config.wordcount = {
-              maxWordCount: 200,
-              showParagraphs: false
-          }
+                showParagraphs: false,
+                showWordCount: false
+          };
+          {% block ckeditor_extra %}
+          {% endblock %}
       }
       $(document).foundation();
   });

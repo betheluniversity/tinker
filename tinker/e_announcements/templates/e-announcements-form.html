@@ -136,6 +136,12 @@
 
 {% endblock %}
 
+{% block ckeditor_extra %}
+    CKEDITOR.config.wordcount = {
+        maxWordCount: 150,
+        showParagraphs: false
+    }
+{% endblock %}
 
 {% block scripts %}
 
