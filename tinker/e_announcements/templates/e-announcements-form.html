@@ -109,6 +109,13 @@
           {% elif field.type == "CKEditorTextAreaField" %}
             {{ field(class="ckeditor") }}
             <br />
+
+          {% elif field.type == "InfoField" %}
+            <p>
+                <div>Your announcement can run twice/semester.</div></br>
+                <div>Announcements must be submitted by 1 p.m. on the business day before they are sent.</div>
+            </p>
+
           {% elif field.type == "DateField" %}
             {% if field.name == 'first' and first_readonly %}
                 <div>
