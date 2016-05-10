@@ -110,7 +110,7 @@ class EAnnouncementsForm(Form):
 
     announcement_information = HeadingField(label="Announcement Information")
     title = TextField('Title', validators=[validators.DataRequired()])
-    message = CKEditorTextAreaField('Message', description="Announcements are limited to 200 words. Exceptions will be granted if deemed appropriate by the Office of Communications and Marketing. Contact e-announcements@bethel.edu if you need an exception to this limit.", validators=[validators.DataRequired()])
+    message = CKEditorTextAreaField('Message', description="Announcements are limited to 200 words.", validators=[validators.DataRequired()])
 
     first = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
     second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y", validators=[validators.Optional()])
