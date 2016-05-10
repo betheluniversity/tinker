@@ -174,6 +174,12 @@ def submit_e_announcement_form():
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)
 
+    # put the users email and name into the form data. Pre-loading on the form was causing issues loading
+    # the wrong name and email.
+    rform = dict(rform)  # convert from immutabledict to dict.
+    rform['name'] = session['name']
+    rform['email'] = session['user_email']
+
     if not form.validate_on_submit():
         if 'e_announcement_id' in request.form.keys():
             e_announcement_id = request.form['e_announcement_id']

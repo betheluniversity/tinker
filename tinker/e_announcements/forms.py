@@ -123,8 +123,8 @@ class EAnnouncementsForm(Form):
     banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices(),
                                       validators=[validators.DataRequired()])
 
-    name = HiddenField('Name', default=session['name'])
-    email = HiddenField('Email', default=session['user_email'])
+    name = HiddenField('Name')
+    email = HiddenField('Email')
 
     # Manually override validate, in order to check the dates
     def validate(self):
