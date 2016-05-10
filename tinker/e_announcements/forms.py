@@ -109,13 +109,19 @@ class DummyField(TextAreaField):
 class EAnnouncementsForm(Form):
 
     announcement_information = HeadingField(label="Announcement Information")
-    title = TextField('Title', validators=[validators.DataRequired()])
-    message = CKEditorTextAreaField('Message', description="Announcements are limited to 200 words.", validators=[validators.DataRequired()])
+    title = TextField('Title', description="Title is limited to 10 words.",
+                      validators=[validators.DataRequired(), validators.length(max=10)])
+
+    message = CKEditorTextAreaField('Message', description="Announcements are limited to 150 words.",
+                                    validators=[validators.DataRequired()])
 
     first = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
-    second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y", validators=[validators.Optional()])
 
-    banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices(), validators=[validators.DataRequired()])
+    second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y",
+                       validators=[validators.Optional()])
+
+    banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices(),
+                                      validators=[validators.DataRequired()])
 
     name = HiddenField('Name', default=session['name'])
     email = HiddenField('Email', default=session['user_email'])
