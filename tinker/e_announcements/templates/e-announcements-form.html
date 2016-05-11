@@ -107,37 +107,14 @@
             <h3>{{ field.label }}</h3>
 
           {% elif field.type == "CKEditorTextAreaField" %}
-            <span id="ckeditor_current_count">Words: 0</span>
             {{ field(class="ckeditor") }}
-            <script>
-                $( document ).ready(function() {
-                    function loadCount(){
-                        checkCount();
-                        $(".cke_contents").children("iframe").contents().find("body").keyup(function() {
-                            checkCount();
-                        });
-                    }
-
-                    function checkCount(){
-                        var textToCheck = $(".cke_contents").children("iframe").contents().find("body").text().trim();
-                        var count = 0;
-                        if( textToCheck != '')
-                            count = textToCheck.split(' ').length;
-
-                        var ckeditorCountDiv = $('#ckeditor_current_count');
-                        if( count > 200) {
-                            ckeditorCountDiv.text("Words: " + count + ". Please reduce your word count before submitting.");
-                            ckeditorCountDiv.css("color", "#f04124");
-                        } else {
-                            ckeditorCountDiv.text("Words: " + count);
-                            ckeditorCountDiv.css("color", "#000000");
-                        }
-                    };
-
-                    setTimeout(loadCount, 500);
-                });
-            </script>
             <br />
+
+          {% elif field.type == "InfoField" %}
+            <p>
+                <div>Your announcement can run twice/semester.</div></br>
+                <div>Announcements must be submitted by 1 p.m. on the business day before they are sent.</div>
+            </p>
 
           {% elif field.type == "DateField" %}
             {% if field.name == 'first' and first_readonly %}
@@ -166,6 +143,12 @@
 
 {% endblock %}
 
+{% block ckeditor_extra %}
+    CKEDITOR.config.wordcount = {
+        maxWordCount: 150,
+        showParagraphs: false
+    }
+{% endblock %}
 
 {% block scripts %}
 

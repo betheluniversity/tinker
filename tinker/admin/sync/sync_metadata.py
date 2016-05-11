@@ -41,7 +41,7 @@ adult_undergrad_programs = [
     "None",
     "Accounting (B.S.)",
     "Addiction Studies Certificate",
-    "Alcohol and Drug Counseling License",
+    "Alcohol and Drug Counseling Certificate",
     "Associate's Degree",
     "Business Management (B.A.)",
     "Christian Ministries (B.A.)",

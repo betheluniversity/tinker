@@ -1,5 +1,7 @@
 config.py
 *.pyc
+migrations/
+creds.json
 workspace.xml
 tasks.xml
 error.log
