@@ -176,7 +176,8 @@ def submit_e_announcement_form():
 
     # put the users email and name into the form data. Pre-loading on the form was causing issues loading
     # the wrong name and email.
-    rform = dict(rform)  # convert from immutabledict to dict.
+    # We are using copy() in order to change from ImmutableDict to MultiDict, in order to update name and email
+    rform = rform.copy()
     rform['name'] = session['name']
     rform['email'] = session['user_email']
 
