@@ -13,7 +13,6 @@ from tinker import app
 from tinker.BaseViewTools import BaseViewTools
 from tinker.e_announcements_new.banner_roles_mapping import get_banner_roles_mapping
 from tinker.e_announcements_new.e_announcements_new_helper import EAnnouncementHelper
-from forms import EAnnouncementsForm
 
 # Todo: remove all references to this (these should all be in cascade connector)
 from tinker.web_services import *
@@ -28,7 +27,6 @@ class NewEAnnouncementsView(FlaskView):
     def __init__(self):
         self.tools = BaseViewTools()
         self.helper = EAnnouncementHelper()
-        self.form = EAnnouncementsForm()
 
     def index(self):
         forms = []
@@ -54,7 +52,9 @@ class NewEAnnouncementsView(FlaskView):
         return render_template('e-announcements-delete-confirm.html', **locals())
 
     def new(self):
-
+        # import this here so we dont load all the content from cascade during homepage load
+        from forms import EAnnouncementsForm
+        form = EAnnouncementsForm()
         new_form = True
 
         # bring in the mapping

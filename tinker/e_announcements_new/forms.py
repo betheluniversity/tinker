@@ -5,6 +5,7 @@
 # modules
 from flask import session
 from flask.ext.wtf import Form
+from wtforms import ValidationError
 from wtforms import TextField
 from wtforms import SelectMultipleField
 from wtforms import TextAreaField
@@ -97,6 +98,33 @@ class HeadingField(Field):
     def __html__(self):
         return None
 
+class InfoField(Field):
+
+    def __init__(self, label=None, validators=None, filters=tuple(),
+                 description='', id=None, default=None, widget=None,
+                 _form=None, _name=None, _prefix='', _translations=None):
+
+        self.default = default
+        self.description = description
+        self.filters = filters
+        self.flags = None
+        self.name = _prefix + _name
+        self.short_name = _name
+        self.type = type(self).__name__
+        self.validators = validators or list(self.validators)
+
+        self.id = id or self.name
+        self.label = label
+
+    def __unicode__(self):
+        return None
+
+    def __str__(self):
+        return None
+
+    def __html__(self):
+        return None
+
 
 #####################
 # Faculty Bio Forms
@@ -109,22 +137,33 @@ class DummyField(TextAreaField):
 class EAnnouncementsForm(Form):
 
     announcement_information = HeadingField(label="Announcement Information")
-    title = TextField('Title', validators=[validators.DataRequired()])
-    message = CKEditorTextAreaField('Message', description="Announcements are limited to 200 words. Exceptions will be granted if deemed appropriate by the Office of Communications and Marketing. Contact e-announcements@bethel.edu if you need an exception to this limit.", validators=[validators.DataRequired()])
+    title = TextField('Title', description="Title is limited to 60 characters.",
+                      validators=[validators.DataRequired()])
+
+    message = CKEditorTextAreaField('Message', validators=[validators.DataRequired()])
+
+    info = InfoField("Date Info")
 
     first = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
-    second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y", validators=[validators.Optional()])
 
-    banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices(), validators=[validators.DataRequired()])
+    second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y",
+                       validators=[validators.Optional()])
 
-    name = HiddenField('Name', default=session['name'])
-    email = HiddenField('Email', default=session['user_email'])
+    banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices(),
+                                      validators=[validators.DataRequired()])
+
+    name = HiddenField('Name')
+    email = HiddenField('Email')
 
     # Manually override validate, in order to check the dates
     def validate(self):
-        if not Form.validate(self):
-            return False
         result = True
+        if not Form.validate(self):
+            result = False
+
+        if len(self.title.data) > 60:
+            self.title.errors.append('Title must be less than 60 characters')
+            result = False
 
         if self.second.data:
             if self.first.data >= self.second.data:
