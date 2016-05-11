@@ -12,7 +12,7 @@ from flask import session
 
 
 app = Flask(__name__)
-app.config.from_object('config')
+app.config.from_object('config.config')
 db = SQLAlchemy(app)
 cors = CORS(app)
 

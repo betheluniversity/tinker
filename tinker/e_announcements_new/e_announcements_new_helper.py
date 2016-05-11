@@ -54,7 +54,14 @@ class EAnnouncementHelper():
 
     # Todo: just have to write the logic here to finish it out
     def traverse_xml_callback_func(self, child):
+
+
+
         author = child.find('author').text
+        username = session['username']
+
+
+
 
         first = child.find('system-data-structure/first-date').text
         second = child.find('system-data-structure/second-date').text
