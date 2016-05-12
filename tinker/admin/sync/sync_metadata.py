@@ -81,6 +81,7 @@ graduate_programs = [
     "Certificate in International Baccalaureate Teaching and Learning",
     "Child and Adolescent Mental Health Certificate",
     "Counseling Psychology (M.A.)",
+    "Developmental Disabilities License",
     "Director of Special Education License",
     "Ed.D.",
     "Education K-12 (M.A.)",
