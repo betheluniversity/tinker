@@ -31,9 +31,9 @@ class NewEAnnouncementsView(FlaskView):
     def index(self):
         forms = []
         username = session['username']
-        username = 'cerntson'
 
-        forms = self.tools.traverse_xml(self.helper.inspect_child, 'http://staging.bethel.edu/_shared-content/xml/e-announcements.xml', 'system-block')
+        url = app.config['E_ANN_URL']
+        forms = self.tools.traverse_xml(self.helper.inspect_child, url, 'system-block')
 
         # todo why reverse twice?
         forms.sort(key=lambda item:item['first_date'], reverse=True)
