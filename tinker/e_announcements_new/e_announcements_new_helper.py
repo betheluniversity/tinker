@@ -3,6 +3,7 @@ __author__ = 'ces55739'
 import datetime
 import re
 
+from flask import session
 from tinker import app
 from tinker.cascade_tools import *
 
@@ -52,16 +53,25 @@ class EAnnouncementHelper():
 
         return dates, edit_data
 
-    # Todo: just have to write the logic here to finish it out
-    def traverse_xml_callback_func(self, child):
+    def inspect_child(self, child):
 
-
-
-        author = child.find('author').text
+        try:
+            author = child.find('author').text
+        except AttributeError:
+            author = None
         username = session['username']
 
+        if (author is not None and username == author) or username in app.config['E_ANN_ADMINS']:
+            try:
+                return self._iterate_child_xml(child, author)
+            except AttributeError:
+                # not a valid e-ann block
+                return None
+        else:
+            return None
 
-
+    # Todo: just have to write the logic here to finish it out
+    def _iterate_child_xml(self, child, author):
 
         first = child.find('system-data-structure/first-date').text
         second = child.find('system-data-structure/second-date').text

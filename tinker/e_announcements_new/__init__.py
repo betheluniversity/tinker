@@ -33,12 +33,9 @@ class NewEAnnouncementsView(FlaskView):
         username = session['username']
         username = 'cerntson'
 
-        # Todo: change this username to be the E-Announcement group
-        if username == 'cerntson':
-            forms = self.tools.traverse_xml(self.helper.traverse_xml_callback_func, 'http://staging.bethel.edu/_shared-content/xml/e-announcements.xml', 'system-block')
-        else:
-            forms = self.tools.traverse_xml(self.helper.traverse_xml_callback_func, 'http://staging.bethel.edu/_shared-content/xml/e-announcements.xml', 'system-block', username)
+        forms = self.tools.traverse_xml(self.helper.inspect_child, 'http://staging.bethel.edu/_shared-content/xml/e-announcements.xml', 'system-block')
 
+        # todo why reverse twice?
         forms.sort(key=lambda item:item['first_date'], reverse=True)
         forms = reversed(forms)
         return render_template('e-announcements-home2.html', **locals())

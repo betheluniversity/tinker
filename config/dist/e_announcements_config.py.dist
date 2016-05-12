@@ -4,3 +4,4 @@ LIST_KEY = ''
 CLIENT_ID = ''
 SEGMENT_ID = ''
 TEMPLATE_ID = ''
+E_ANN_ADMINS = ['']

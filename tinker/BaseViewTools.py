@@ -19,7 +19,9 @@ class BaseViewTools():
 
         matches = []
         for child in form_xml.findall('.//' + type_to_find):
-                matches.append(traverse_xml_callback_function(child))
+                match = traverse_xml_callback_function(child)
+                if match:
+                    matches.append(match)
 
         # Todo: maybe add some parameter as a search?
         # sort by created-on date.
