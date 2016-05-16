@@ -153,10 +153,10 @@ program_search_degree_types = [
     "All",
     "Associate",
     "Bachelor",
-    "License",
-    "Certificate",
     "Master's",
     "Doctorate",
+    "License",
+    "Certificate",
 ]
 
 e_announcement_roles = [
