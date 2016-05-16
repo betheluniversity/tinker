@@ -508,7 +508,7 @@ def traverse_faculty_folder(traverse_xml, username):
             page_values = {
                 'author': child.find('author') or None,
                 'id': child.attrib['id'] or "",
-                'title': child.find('title') or None,
+                'title': child.find('title').text or None,
                 'created-on': child.find('created-on').text or None,
                 'path': 'https://www.bethel.edu' + child.find('path').text or "",
             }
