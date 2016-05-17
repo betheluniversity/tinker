@@ -42,6 +42,15 @@ class TinkerBase():
     def publish(self, path_or_id, asset_type):
         return self.cascade_connector.publish(path_or_id, asset_type)
 
+    def unpublish(self, path_or_id, asset_type):
+        return self.cascade_connector.unpublish(path_or_id, asset_type)
+
+    def rename(self):
+        pass
+
+    def move(self):
+        pass
+
     def delete(self, path_or_id, asset_type):
         return self.cascade_connector.delete(path_or_id, asset_type)
 

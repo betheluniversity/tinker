@@ -1,13 +1,8 @@
-__author__ = 'ces55739'
+import re
 
 from flask import Blueprint, render_template, session, url_for, redirect, request
 from flask.ext.classy import FlaskView, route
 from flask import json as fjson
-
-
-import re
-
-import datetime
 
 from tinker import app
 from tinker.TinkerBase import TinkerBase
@@ -32,7 +27,6 @@ class NewEAnnouncementsView(FlaskView):
     # todo do this
     def before_request(self, name, **kwargs):
         pass
-
 
     def index(self):
         forms = []
@@ -82,18 +76,6 @@ class NewEAnnouncementsView(FlaskView):
         # Get the event data from cascade
         block = self.base.read_block(e_announcement_id)
         e_announcement_data = block.read_asset()
-        # if e_announcement_id in ['bf592ea78c586513348a5c5b65ccd238']:
-        #     e_announcement_data['asset']['xhtmlDataDefinitionBlock']['metadata']['title'] = 'new title'
-        #
-        # status = block.edit_asset(e_announcement_data['asset'])
-        #
-        # return str(status)
-        #
-        # new_form = False
-
-        # Get the different data sets from the response
-
-
 
         form_data = e_announcement_data['asset']['xhtmlDataDefinitionBlock']
 

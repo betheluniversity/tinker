@@ -1,6 +1,7 @@
 from tinker import app
 import base64
 
+# todo where should this go?
 def dynamic_field(name, values):
 
     values_list = []
@@ -15,7 +16,7 @@ def dynamic_field(name, values):
 
     return node
 
-
+# todo where should this go?
 def structured_data_node(node_id, text, node_type=None):
 
     if not node_type:
@@ -30,7 +31,7 @@ def structured_data_node(node_id, text, node_type=None):
 
     return node
 
-
+# todo where should this go?
 def structured_file_data_node(node_id, path, asset_type="file"):
 
     node = {
@@ -42,6 +43,7 @@ def structured_file_data_node(node_id, path, asset_type="file"):
     return node
 
 
+# todo move
 # Excape content so its Cascade WYSIWYG friendly
 # There are a few edge cases for sybmols it doesn't like.
 def escape_wysiwyg_content(content):
@@ -58,13 +60,13 @@ def escape_wysiwyg_content(content):
 from BeautifulSoup import BeautifulStoneSoup
 import cgi
 
-
+# todo move(?)
 def HTMLEntitiesToUnicode(text):
     """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
     text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
     return text
 
-
+# todo move(?)
 def unicodeToHTMLEntities(text):
     """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
     text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')

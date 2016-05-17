@@ -74,23 +74,3 @@ def before_request():
     except:
         app.logger.debug("failed to init")
 
-
-@app.route('/cache-clear/<path:img_path>')
-@app.route('/cache-clear')
-def cache_test(img_path=None):
-    if not img_path:
-        img_path = '/academics/faculty/images/lundberg-kelsey.jpg'
-    return tools.clear_image_cache(img_path)
-
-
-@app.route('/sherie')
-def peanut():
-    from flask import render_template
-    return render_template('sherie.html')
-
-
-@app.route('/read/<read_id>')
-def read_route(read_id):
-    from web_services import read
-    return "<pre>%s</pre>" % str(read(read_id, type='block'))
-

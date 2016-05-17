@@ -74,7 +74,6 @@ class EAnnouncementHelper():
         else:
             return None
 
-    # Todo: just have to write the logic here to finish it out
     def _iterate_child_xml(self, child, author):
 
         first = child.find('system-data-structure/first-date').text
