@@ -10,52 +10,6 @@ from tinker.cascade_tools import *
 
 class EAnnouncementHelper():
 
-    def get_announcement_data(self, dynamic_fields, metadata, s_data):
-        edit_data = {}
-        dates = []
-        # Start with structuredDataNodes (data def content)
-        for node in s_data:
-            node_identifier = node['identifier'].replace('-', '_')
-
-            if node_identifier == "first_date":
-                node_identifier = "first"
-            if node_identifier == "second_date":
-                node_identifier = "second"
-
-            node_type = node['type']
-
-            # in case there is missing data
-            if node_type == "text":
-                has_text = 'text' in node.keys() and node['text']
-                if node_identifier == "first" or node_identifier == "second":
-                    if has_text:
-                        edit_data[node_identifier] = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
-                        dates.append(datetime.datetime.strptime(node['text'], "%m-%d-%Y"))
-                else:
-                    edit_data[node_identifier] = node['text']
-
-        # now metadata dynamic fields
-        for field in dynamic_fields:
-            if field['fieldValues']:
-                items = [item['value'] for item in field['fieldValues']['fieldValue']]
-                edit_data[field['name'].replace('-', '_')] = items
-
-        # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = metadata['title']
-        today = datetime.datetime.now()
-        first_readonlye = False
-        second_readonly = False
-        if edit_data['first'] < today:
-            first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
-        if 'second' in edit_data.keys() and edit_data['second'] and edit_data['second'] < today:
-            second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
-
-        # A fix to remove the &#160; character from appearing (non-breaking whitespace)
-        # Cascade includes this, for whatever reason.
-        edit_data['message'] = edit_data['message'].replace('&amp;#160;', ' ')
-
-        return dates, edit_data
-
     def inspect_child(self, child):
 
         try:

@@ -19,8 +19,8 @@ cors = CORS(app)
 from raven.contrib.flask import Sentry
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
 
-from tinker.admin.redirects import models
-from tinker import tools
+from tinker_base import TinkerBase
+base = TinkerBase()
 
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
@@ -68,9 +68,5 @@ import error
 # ensure session before each request
 @app.before_request
 def before_request():
-    try:
-        tools.init_user()
-        app.logger.debug(session['username'])
-    except:
-        app.logger.debug("failed to init")
+    print 'base before request'
 

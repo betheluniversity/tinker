@@ -16,6 +16,40 @@ from tinker import app
 from tinker import tools
 
 
+
+def read(path_or_id, type="page"):
+    client = get_client()
+
+    if path_or_id[0] == "/":
+        identifier = {
+            'type': type,
+            'path': {
+                'path': path_or_id,
+                'siteId': app.config['SITE_ID']
+            }
+        }
+    else:
+        identifier = {
+            'id': path_or_id,
+            'type': type,
+        }
+
+    auth = app.config['CASCADE_LOGIN']
+
+    response = client.service.read(auth, identifier)
+
+    email_tinker_admins(response)
+
+    return response
+
+
+def get_client():
+    try:
+        client = Client(url=app.config['WSDL_URL'], location=app.config['SOAP_URL'])
+        return client
+    except TransportError:
+        abort(503)
+
 # todo don't need anymore because of sentry
 def email_tinker_admins(response):
 

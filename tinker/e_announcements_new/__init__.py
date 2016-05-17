@@ -5,7 +5,7 @@ from flask.ext.classy import FlaskView, route
 from flask import json as fjson
 
 from tinker import app
-from tinker.TinkerBase import TinkerBase
+from tinker import base
 from tinker.e_announcements_new.banner_roles_mapping import get_banner_roles_mapping
 from tinker.e_announcements_new.e_announcements_new_helper import EAnnouncementHelper
 
@@ -20,13 +20,13 @@ class NewEAnnouncementsView(FlaskView):
     route_base = '/e-announcement'
 
     def __init__(self):
-        self.base = TinkerBase()
+        self.base = base
         self.helper = EAnnouncementHelper()
 
 
     # todo do this
     def before_request(self, name, **kwargs):
-        pass
+        print 'e-ann before request'
 
     def index(self):
         forms = []
@@ -76,27 +76,18 @@ class NewEAnnouncementsView(FlaskView):
         # Get the event data from cascade
         block = self.base.read_block(e_announcement_id)
         e_announcement_data = block.read_asset()
+        edit_data = base.get_edit_data(e_announcement_data)
 
-        form_data = e_announcement_data['asset']['xhtmlDataDefinitionBlock']
-
-        # the stuff from the data def
-        s_data = form_data['structuredData']['structuredDataNodes']['structuredDataNode']
-        # regular metadata
-        metadata = form_data['metadata']
-        # dynamic metadata
-        dynamic_fields = metadata['dynamicFields']['dynamicField']
-        # This dict will populate our EventForm object
-        dates, edit_data = self.helper.get_announcement_data(dynamic_fields, metadata, s_data)  # Create an EventForm object with our data
         form = EAnnouncementsForm(**edit_data)
         form.e_announcement_id = e_announcement_id
 
-        # convert dates to json so we can use Javascript to create custom DateTime fields on the form
-        dates = fjson.dumps(dates)
+        # # convert dates to json so we can use Javascript to create custom DateTime fields on the form
+        # dates = fjson.dumps(dates)
 
         # bring in the mapping
         banner_roles_mapping = get_banner_roles_mapping()
 
-        return render_template('e-announcements-form.html', **locals())
+        return render_template('e-announcements-form2.html', **locals())
 
     def submit(self):
         # import this here so we dont load all the content

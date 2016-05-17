@@ -328,6 +328,6 @@ def confirm():
 
 
 @event_blueprint.route('/api/reset-tinker-edits/<event_id>', methods=['get','post'])
-@requires_auth
+# @requires_auth
 def reset_tinker_edits(event_id):
     return event_id
