@@ -15,36 +15,39 @@ class EAnnouncementHelper():
         dates = []
         # Start with structuredDataNodes (data def content)
         for node in s_data:
-            node_identifier = node.identifier.replace('-', '_')
+            node_identifier = node['identifier'].replace('-', '_')
 
             if node_identifier == "first_date":
                 node_identifier = "first"
             if node_identifier == "second_date":
                 node_identifier = "second"
 
-            node_type = node.type
+            node_type = node['type']
 
+            # in case there is missing data
             if node_type == "text":
-                if (node_identifier == "first" or node_identifier == "second") and node.text:
-                    edit_data[node_identifier] = datetime.datetime.strptime(node.text, "%m-%d-%Y")
-                    dates.append(datetime.datetime.strptime(node.text, "%m-%d-%Y"))
+                has_text = 'text' in node.keys() and node['text']
+                if node_identifier == "first" or node_identifier == "second":
+                    if has_text:
+                        edit_data[node_identifier] = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
+                        dates.append(datetime.datetime.strptime(node['text'], "%m-%d-%Y"))
                 else:
-                    edit_data[node_identifier] = node.text
+                    edit_data[node_identifier] = node['text']
 
         # now metadata dynamic fields
         for field in dynamic_fields:
-            if field.fieldValues:
-                items = [item.value for item in field.fieldValues.fieldValue]
-                edit_data[field.name.replace('-', '_')] = items
+            if field['fieldValues']:
+                items = [item['value'] for item in field['fieldValues']['fieldValue']]
+                edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = metadata.title
+        edit_data['title'] = metadata['title']
         today = datetime.datetime.now()
         first_readonlye = False
         second_readonly = False
         if edit_data['first'] < today:
             first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
-        if edit_data['second'] and edit_data['second'] < today:
+        if 'second' in edit_data.keys() and edit_data['second'] and edit_data['second'] < today:
             second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
 
         # A fix to remove the &#160; character from appearing (non-breaking whitespace)
@@ -66,6 +69,7 @@ class EAnnouncementHelper():
                 return self._iterate_child_xml(child, author)
             except AttributeError:
                 # not a valid e-ann block
+                print 'bad'
                 return None
         else:
             return None
