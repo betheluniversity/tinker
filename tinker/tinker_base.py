@@ -5,6 +5,7 @@ from xml.etree import ElementTree as ET
 from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
+from bu_cascade import asset_tools
 
 from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
@@ -224,13 +225,34 @@ class TinkerBase():
 
         return matches
 
+    def update(self, search_list, key, value):
+
+        if key in search_list.keys():
+            search_list[key] = value
+            return search_list[key]
+
+        elif search_list.get('identifier') == key:
+            # todo add handling for more than text types
+            search_list['text'] = value
+
+        for k in search_list:
+            if type(search_list[k]) == dict:
+                updated = self.update(search_list[k], key, value)
+                if updated:
+                    return updated
+            elif type(search_list[k]) == list:
+                for item in search_list[k]:
+                    updated = self.update(item, key, value)
+                    if updated:
+                        return updated
+
     def get_edit_data(self, asset_data):
         edit_data = {}
 
         try:
-            form_data = asset_data['asset']['xhtmlDataDefinitionBlock']
+            form_data = asset_data['xhtmlDataDefinitionBlock']
         except:
-            form_data = asset_data['asset']['page']
+            form_data = asset_data['page']
 
         # the stuff from the data def
         s_data = form_data['structuredData']['structuredDataNodes']['structuredDataNode']
@@ -269,6 +291,10 @@ class TinkerBase():
 
         return edit_data
 
+    def create_block(self, asset):
+        b = Block(self.cascade_connector, asset=asset)
+        return b
+
     def read(self, path_or_id, type):
         return self.cascade_connector.read(path_or_id, type)
 
@@ -281,7 +307,7 @@ class TinkerBase():
         p.read_asset()
         return p.structured_data()
 
-    def publish(self, path_or_id, asset_type):
+    def publish(self, path_or_id, asset_type='page'):
         return self.cascade_connector.publish(path_or_id, asset_type)
 
     def unpublish(self, path_or_id, asset_type):

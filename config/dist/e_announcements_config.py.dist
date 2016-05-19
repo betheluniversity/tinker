@@ -6,3 +6,4 @@ SEGMENT_ID = ''
 TEMPLATE_ID = ''
 E_ANN_ADMINS = ['']
 E_ANN_URL = ''
+E_ANN_BASE_ASSET = ''

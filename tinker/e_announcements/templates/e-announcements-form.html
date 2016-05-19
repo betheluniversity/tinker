@@ -35,9 +35,9 @@
   <div class="row">
   <div class="large-12 columns">
     {% if new_form %}
-      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
+      <form id="eannouncementform" action="/e-announcement/" method="post" enctype="multipart/form-data">
     {% else %}
-      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
+      <form id="eannouncementform" action="/e-announcement/" method="post" enctype="multipart/form-data">
       <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
     {% endif %}
         {% if form.errors %}
@@ -95,7 +95,7 @@
                         {% for item in field %}
                             {% if column in item.object_data %}
                                 {# zero-based indexing #}
-                                {{ item }} <label for="banner_roles-{{ loop.index - 1 }}">{{ banner_roles_mapping[loop.index - 1] }}</label><br />
+                                {{ item }} <label for="banner_roles-{{ loop.index - 1 }}">{{ brm[loop.index - 1] }}</label><br />
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -117,12 +117,12 @@
             </p>
 
           {% elif field.type == "DateField" %}
-            {% if field.name == 'first' and first_readonly %}
+            {% if field.name == 'first_date' and first_readonly %}
                 <div>
                     <p>{{ first_readonly }}</p>
                 </div>
                 {{ field(class="datepicker", readonly=True, style="display:none") }}
-            {% elif field.name == 'second' and second_readonly %}
+            {% elif field.name == 'second_date' and second_readonly %}
                 <div>
                     <p>{{ second_readonly }}</p>
                 </div>

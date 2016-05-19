@@ -21,7 +21,15 @@ from tinker.web_services import get_client, read
 
 
 def get_md(metadata_path):
-    md = read(metadata_path, 'metadataset')
+
+    #todo temp fix
+    from tinker.tinker_base import TinkerBase
+    base = TinkerBase()
+
+    md = base.read(metadata_path, 'metadataset')
+
+    print str(md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition)
+
     return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
 
 
@@ -144,9 +152,9 @@ class EAnnouncementsForm(Form):
 
     info = InfoField("Date Info")
 
-    first = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
+    first_date = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
 
-    second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y",
+    second_date = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y",
                        validators=[validators.Optional()])
 
     banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices(),
@@ -166,8 +174,8 @@ class EAnnouncementsForm(Form):
             result = False
 
         if self.second.data:
-            if self.first.data >= self.second.data:
-                self.first.errors.append('The first date must come before the second date.')
+            if self.first_date.data >= self.second_date.data:
+                self.first_date.errors.append('The first date must come before the second date.')
                 result = False
 
         return result
