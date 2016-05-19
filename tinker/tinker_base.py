@@ -1,26 +1,9 @@
 import urllib2
-import json
-from xml.etree import ElementTree as ET
-
-from bu_cascade.cascade_connector import Cascade
-from bu_cascade.assets.block import Block
-from bu_cascade.assets.page import Page
-from bu_cascade import asset_tools
-
-from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
-
-
-
-
-__author__ = 'ejc84332'
-
-# python
-import fnmatch
-import hashlib
-import os
+import re
 import time
 from functools import wraps
-from subprocess import call
+from xml.etree import ElementTree as ET
+import requests
 
 # flask
 from flask import request
@@ -30,33 +13,15 @@ from flask import render_template
 from flask import json as fjson
 from flask import Response
 
-import requests
+from bu_cascade.cascade_connector import Cascade
+from bu_cascade.assets.block import Block
+from bu_cascade.assets.page import Page
+from bu_cascade import asset_tools
 
-# tinker
-from config import config
+from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
+
 from tinker import app
 from tinker import sentry
-
-
-
-
-def log_sentry(message, response):
-
-    username = session['username']
-    log_time = time.strftime("%c")
-    response = str(response)
-
-    sentry.client.extra_context({
-        'Time': log_time,
-        'Author': username,
-        'Response': response
-    })
-
-    # log generic message to Sentry for counting
-    app.logger.info(message)
-    # more detailed message to debug text log
-    app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
-
 
 def should_be_able_to_edit_image(roles):
     if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
@@ -105,11 +70,10 @@ def requires_auth(f):
 #         return False
 
 
-
-
-class TinkerBase():
+class TinkerBase(object):
     def __init__(self):
         self.cascade_connector = Cascade(SOAP_URL, AUTH, SITE_ID)
+        self.helper = object()
 
     def before_request(self):
         def init_user():
@@ -208,14 +172,35 @@ class TinkerBase():
         init_user()
         get_nav()
 
-    def traverse_xml(self, traverse_xml_callback_function, xml_url, type_to_find):
+    def log_sentry(self, message, response):
+
+        username = session['username']
+        log_time = time.strftime("%c")
+        response = str(response)
+
+        sentry.client.extra_context({
+            'Time': log_time,
+            'Author': username,
+            'Response': response
+        })
+
+        # log generic message to Sentry for counting
+        app.logger.info(message)
+        # more detailed message to debug text log
+        app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
+
+    def inspect_child(self, child):
+        # interface method
+        pass
+
+    def traverse_xml(self, xml_url, type_to_find):
 
         response = urllib2.urlopen(xml_url)
         form_xml = ET.fromstring(response.read())
 
         matches = []
         for child in form_xml.findall('.//' + type_to_find):
-                match = traverse_xml_callback_function(child)
+                match = self.inspect_child(child)
                 if match:
                     matches.append(match)
 
@@ -316,11 +301,43 @@ class TinkerBase():
     def rename(self):
         pass
 
-    def move(self):
-        pass
+    def move(self, page_id, destination_path, type='page'):
+        return self.cascade_connector.move(page_id, destination_path, type)
 
     def delete(self, path_or_id, asset_type):
         return self.cascade_connector.delete(path_or_id, asset_type)
 
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)
+
+    def format_title(self, title):
+        #todo do we modify titles like this a lot of places?
+        title = title.lower().replace(' ', '-')
+        title = re.sub(r'[^a-zA-Z0-9-]', '', title)
+        return title
+
+    def create_folder(self, folder_path):
+
+        folder_path = folder_path.lstrip('/')
+        # todo why strip and then add? Only to ensure its the correct format regardless of how its passed in?
+        old_folder_asset = self.read("/" + folder_path, "folder")
+
+        if old_folder_asset['success'] == 'false':
+            array = folder_path.rsplit("/", 1)
+            parent_path = array[0]
+            name = array[1]
+
+            asset = {
+                'folder': {
+                    'metadata': {
+                        'title': name
+                    },
+                    'metadataSetPath': "Basic",
+                    'name': name,
+                    'parentFolderPath': parent_path,
+                    'siteName': "Public"
+                }
+            }
+
+            return self.create(asset)
+        return False

@@ -4,11 +4,36 @@ import datetime
 import re
 
 from flask import session
+from flask import render_template
 from tinker import app
 from tinker.cascade_tools import *
 
+from tinker.tinker_base import TinkerBase
 
-class EAnnouncementHelper():
+BRM = [
+        'CAS',
+        'CAPS',
+        'GS',
+        'BSSP-TRADITIONAL',
+        'BSSP-DISTANCE',
+        'BSSD-TRADITIONAL',
+        'BSSD-DISTANCE',
+        'BSOE-TRADITIONAL',
+        'BSOE-DISTANCE',
+        'CAS',
+        'CAPS',
+        'GS',
+        'BSSP',
+        'BSSD',
+        'St. Paul',
+        'San Diego'
+]
+
+class EAnnouncementsBase(TinkerBase):
+
+    def __init__(self):
+        super(EAnnouncementsBase, self).__init__()
+        self.brm = BRM
 
     def inspect_child(self, child):
 
@@ -123,7 +148,7 @@ class EAnnouncementHelper():
 
         return add_data
 
-    def get_e_announcement_publish_workflow(title=""):
+    def get_e_announcement_publish_workflow(self, title=""):
 
         name = "New E-announcement Submission"
         if title:
@@ -135,54 +160,69 @@ class EAnnouncementHelper():
         }
         return workflow
 
-    def get_e_announcement_structure(add_data, username, workflow=None, e_announcement_id=None):
+    def validate_form(self, rform):
+
+        from forms import EAnnouncementsForm
+        form = EAnnouncementsForm()
+
+        # todo move to TinkerBase?
+        if not form.validate_on_submit():
+            if 'e_announcement_id' in rform.keys():
+                e_announcement_id = rform['e_announcement_id']
+            else:
+                new_form = True
+            # bring in the mapping
+            brm = self.brm
+            return render_template('e-announcements-form.html', **locals())
+
+    def get_e_announcement_parent_folder(self, date):
+        # break the date into Year/month
+        split_date = date.split("-")
+        month = convert_month_num_to_name(split_date[0])
+        year = split_date[2]
+
+        # check if the folders exist
+        create_e_announcements_folder("e-announcements/" + year)
+        create_e_announcements_folder("e-announcements/" + year + "/" + month)
+
+        return "e-announcements/" + year + "/" + month
+
+    def update_structure(self, e_announcement_data, rform, e_announcement_id=None):
         """
          Could this be cleaned up at all?
         """
 
-        # Create a list of all the data nodes
-        structured_data = [
-            structured_data_node("message", escape_wysiwyg_content(add_data['message'])),
-            structured_data_node("first-date", add_data['first']),
-            structured_data_node("second-date", add_data['second']),
-            structured_data_node("name", add_data['name']),
-            structured_data_node("email", add_data['email']),
-        ]
+        title = self.format_title(rform['title'])
 
-        # Wrap in the required structure for SOAP
-        structured_data = {
-            'structuredDataNodes': {
-                'structuredDataNode': structured_data,
-            },
-            'definitionPath': 'E-Announcement'
-        }
+        # todo can we simplify or genericize this?
+        add_data = self.get_add_data(['banner_roles'], rform)
+        workflow = self.get_e_announcement_publish_workflow(title)
 
-        # create the dynamic metadata dict
-        dynamic_fields = {
-            'dynamicField': [
-                dynamic_field('banner-roles', add_data['banner_roles']),
-            ],
-        }
+        parent_folder = self.get_e_announcement_parent_folder(add_data['first_date'])
 
-        parent_folder = get_e_announcement_parent_folder(add_data['first'])
-        asset = {
-            'xhtmlDataDefinitionBlock': {
-                'name': add_data['system_name'],
-                'siteId': app.config['SITE_ID'],
-                'parentFolderPath': parent_folder,
-                'metadataSetPath': "/Targeted",
-                'structuredData': structured_data,
-                'metadata': {
-                    'title': add_data['title'],
-                    'author': username,
-                    'dynamicFields': dynamic_fields,
-                }
-            },
-            'workflowConfiguration': workflow
-        }
+        self.update(e_announcement_data, 'message', escape_wysiwyg_content(add_data['message']))
+        self.update(e_announcement_data, 'first-date', add_data['first_date'])
+        self.update(e_announcement_data, 'second-date', add_data['second_date'])
+        self.update(e_announcement_data, 'name', add_data['name'])
+
+
+        self.update(e_announcement_data, 'parentFolderPath', parent_folder)
+        self.update(e_announcement_data, 'title', add_data['title'])
+        self.update(e_announcement_data, 'author', session['username'])
+
+
+
+        # # todo have to figure out how to do this
+        # # create the dynamic metadata dict
+        # dynamic_fields = {
+        #     'dynamicField': [
+        #         dynamic_field('banner-roles', add_data['banner_roles']),
+        #     ],
+        # }
+
 
         if e_announcement_id:
-            asset['xhtmlDataDefinitionBlock']['id'] = e_announcement_id
-            resp = move(e_announcement_id, parent_folder)
+            self.update(e_announcement_data, 'id', e_announcement_id)
+            self.move(e_announcement_id, parent_folder)
 
-        return asset
+        return e_announcement_data

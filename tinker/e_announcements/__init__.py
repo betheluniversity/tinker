@@ -5,9 +5,7 @@ from flask.ext.classy import FlaskView, route
 from flask import json as fjson
 
 from tinker import app
-from tinker import base
-from tinker.e_announcements.banner_roles_mapping import get_banner_roles_mapping
-from tinker.e_announcements.e_announcements_new_helper import EAnnouncementHelper
+from tinker.e_announcements.e_announcements_base import EAnnouncementsBase
 
 # todo: remove all references to this (these should all be in cascade connector)
 from tinker.web_services import *
@@ -20,8 +18,7 @@ class EAnnouncementsView(FlaskView):
     route_base = '/e-announcement'
 
     def __init__(self):
-        self.base = base
-        self.helper = EAnnouncementHelper()
+        self.base = EAnnouncementsBase()
 
     def before_request(self, name, **kwargs):
         # todo do this
@@ -30,7 +27,7 @@ class EAnnouncementsView(FlaskView):
     def index(self):
 
         username = session['username']
-        forms = self.base.traverse_xml(self.helper.inspect_child, app.config['E_ANN_URL'], 'system-block')
+        forms = self.base.traverse_xml(app.config['E_ANN_URL'], 'system-block')
 
         # todo why reverse twice?
         forms.sort(key=lambda item:item['first_date'], reverse=True)
@@ -51,8 +48,8 @@ class EAnnouncementsView(FlaskView):
         form = EAnnouncementsForm()
         new_form = True
 
-        # bring in the mapping
-        brm = get_banner_roles_mapping()
+        # todo can the tempalte access this directly?
+        brm = self.base.brm
 
         return render_template('e-announcements-form.html', **locals())
 
@@ -74,10 +71,12 @@ class EAnnouncementsView(FlaskView):
         block = self.base.read_block(e_announcement_id)
         e_announcement_data, mdata, sdata = block.read_asset()
 
-        edit_data = base.get_edit_data(e_announcement_data)
+        edit_data = self.base.get_edit_data(e_announcement_data)
         form = EAnnouncementsForm(**edit_data)
         form.e_announcement_id = e_announcement_id
-        brm = get_banner_roles_mapping()
+
+        # todo can the template access this directly?
+        brm = self.base.brm
 
         return render_template('e-announcements-form.html', **locals())
 
@@ -86,10 +85,6 @@ class EAnnouncementsView(FlaskView):
         rform = request.form
         eaid = rform.get('e_announcement_id')
 
-        # import random, string
-        # def get_random(l=25):
-        #     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(l))
-        #
         if not eaid:
             bid = app.config['E_ANN_BASE_ASSET']
             e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
@@ -99,65 +94,18 @@ class EAnnouncementsView(FlaskView):
         else:
             block = self.base.read_block(eaid)
             e_announcement_data, mdata, sdata = block.read_asset()
-        #
-        # base.update(e_announcement_data, 'title', get_random())
-        # base.update(e_announcement_data, 'message', get_random())
-        # base.update(sdata, 'name', get_random())
-        # base.update(e_announcement_data, 'email', get_random())
-        #
-        # if not eaid:
-        #     block = self.base.create_block(asset=e_announcement_data)
-        #     resp = block.identifier
-        # else:
-        #     resp = block.edit_asset(e_announcement_data)
 
-        # return str(resp)
-
-        # import this here so we dont load all the content
-        # from cascade during homepage load
-        from forms import EAnnouncementsForm
-        form = EAnnouncementsForm()
-        rform = request.form
-        username = session['username']
-
-        #todo do we modify titles like this a lot of places?
-        title = rform['title']
-        title = title.lower().replace(' ', '-')
-        title = re.sub(r'[^a-zA-Z0-9-]', '', title)
-
-        # todo move to TinkerBase?
-        if not form.validate_on_submit():
-            if 'e_announcement_id' in request.form.keys():
-                e_announcement_id = request.form['e_announcement_id']
-            else:
-                # This error came from the add form because e-annoucnements_id wasn't set
-                new_form = True
-
-            app.logger.debug(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
-
-            # bring in the mapping
-            banner_roles_mapping = get_banner_roles_mapping()
-
-            return render_template('e-announcements-form.html', **locals())
+        self.base.validate_form(rform)
 
         # Get all the form data
-        add_data = self.helper.get_add_data(['banner_roles'], rform)
-        #todo any way to not do this twice?
-        if 'e_announcement_id' in rform:
-            e_announcement_id = rform['e_announcement_id']
-        else:
-            e_announcement_id = None
+        asset = self.base.update_structure(e_announcement_data, rform, e_announcement_id=eaid)
 
-        workflow = self.helper.get_e_announcement_publish_workflow(title)
-        asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)
-
-        if e_announcement_id:
-            resp = edit(asset)
+        # todo this should go in EABase, but should it be in update_structure or something else?
+        if eaid:
+            resp = str(block.edit_asset(asset))
             self.base.log_sentry("E-Announcement edit submission", resp)
             return redirect('/e-announcement/edit/confirm', code=302)
         else:
-            resp = create_e_announcement(asset)
-
-        self.base.log_sentry('New e-announcement submission', resp)
-
-        return redirect('/e-announcement/new/confirm', code=302)
+            resp = str(self.base.create_block(asset))
+            self.base.log_sentry('New e-announcement submission', resp)
+            return redirect('/e-announcement/new/confirm', code=302)
