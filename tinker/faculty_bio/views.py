@@ -20,7 +20,13 @@ def faculty_bio_home():
     username = session['username']
     roles = get_roles(username)
 
-    # index page for adding events and things
+    # a quick and dirty way for these 3 users to access all faculty bios.
+    # Tiffany Cornwell   tmc86365
+    # Josh Manfred  manjos
+    # John Gunther   jgunther
+    if username == 'tmc86365' or username == 'manjos' or username == 'jgunther':
+        username = None
+
     forms = get_faculty_bios_for_user(username)
 
     show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']

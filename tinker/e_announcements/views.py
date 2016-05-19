@@ -174,6 +174,13 @@ def submit_e_announcement_form():
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)
 
+    # put the users email and name into the form data. Pre-loading on the form was causing issues loading
+    # the wrong name and email.
+    # We are using copy() in order to change from ImmutableDict to MultiDict, in order to update name and email
+    rform = rform.copy()
+    rform['name'] = session['name']
+    rform['email'] = session['user_email']
+
     if not form.validate_on_submit():
         if 'e_announcement_id' in request.form.keys():
             e_announcement_id = request.form['e_announcement_id']
@@ -323,7 +330,7 @@ def create_campaign(date=None):
     if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
         # Send the announcements out to ALL users at 7:00 am.
         confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
-        new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:30')
+        new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 05:30')
 
         # if we ever want to send an e-announcement immediately, here it is.
         # WARNING: be careful about accidentally sending emails to mass people.

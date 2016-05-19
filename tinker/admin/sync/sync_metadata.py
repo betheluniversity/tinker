@@ -41,7 +41,7 @@ adult_undergrad_programs = [
     "None",
     "Accounting (B.S.)",
     "Addiction Studies Certificate",
-    "Alcohol and Drug Counseling License",
+    "Alcohol and Drug Counseling Certificate",
     "Associate's Degree",
     "Business Management (B.A.)",
     "Christian Ministries (B.A.)",
@@ -81,6 +81,7 @@ graduate_programs = [
     "Certificate in International Baccalaureate Teaching and Learning",
     "Child and Adolescent Mental Health Certificate",
     "Counseling Psychology (M.A.)",
+    "Developmental Disabilities License",
     "Director of Special Education License",
     "Ed.D.",
     "Education K-12 (M.A.)",
@@ -133,6 +134,7 @@ delivery_subheading = [
 degree = [
     'Select',
     'Associate of Arts',
+    'Associate of Science',
     'Bachelor of Arts',
     'Bachelor of Music',
     'Bachelor of Science',
@@ -151,10 +153,10 @@ program_search_degree_types = [
     "All",
     "Associate",
     "Bachelor",
-    "License",
-    "Certificate",
     "Master's",
     "Doctorate",
+    "License",
+    "Certificate",
 ]
 
 e_announcement_roles = [
