@@ -49,12 +49,11 @@ class EAnnouncementsView(FlaskView):
         new_form = True
 
         # todo can the tempalte access this directly?
-        brm = self.base.brm
-
+        brm = self.baseubrmu
         return render_template('e-announcements-form.html', **locals())
 
-    def confirm(self, new_or_edit):
-        return render_template('e-announcements-confirm-new.html', **locals())
+    def confirm(self, status='new'):
+        return render_template('confirm.html', **locals())
 
     @route('/in-workflow')
     def asset_is_in_workflow(self):
@@ -98,14 +97,14 @@ class EAnnouncementsView(FlaskView):
         self.base.validate_form(rform)
 
         # Get all the form data
-        asset = self.base.update_structure(e_announcement_data, rform, e_announcement_id=eaid)
+        asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
 
         # todo this should go in EABase, but should it be in update_structure or something else?
         if eaid:
             resp = str(block.edit_asset(asset))
             self.base.log_sentry("E-Announcement edit submission", resp)
-            return redirect('/e-announcement/edit/confirm', code=302)
+            return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
         else:
             resp = str(self.base.create_block(asset))
             self.base.log_sentry('New e-announcement submission', resp)
-            return redirect('/e-announcement/new/confirm', code=302)
+            return redirect(url_for('e-announcements.EAnnouncementsView:confirm'), code=302)

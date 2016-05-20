@@ -173,7 +173,7 @@ class EAnnouncementsForm(Form):
             self.title.errors.append('Title must be less than 60 characters')
             result = False
 
-        if self.second.data:
+        if self.second_date.data:
             if self.first_date.data >= self.second_date.data:
                 self.first_date.errors.append('The first date must come before the second date.')
                 result = False

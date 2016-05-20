@@ -67,5 +67,5 @@ import error
 # ensure session before each request
 @app.before_request
 def before_request():
-    print 'base before request'
+    base.before_request()
 

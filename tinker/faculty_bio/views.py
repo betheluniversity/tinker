@@ -69,7 +69,7 @@ def faculty_bio_new_form():
 
 @faculty_bio_blueprint.route('/confirm-new')
 def submit_confirm_new():
-    return render_template('faculty-bio-confirm-new.html', **locals())
+    return render_template('faculty-bio-confirm.html', **locals())
 
 @faculty_bio_blueprint.route('/confirm-edit')
 def submit_confirm_edit():
@@ -250,7 +250,7 @@ def submit_faculty_bio_form():
         faculty_bio_id = resp.createdAssetId
         if not workflow:
             publish(faculty_bio_id, "page")
-        return render_template('faculty-bio-confirm-new.html', **locals())
+        return render_template('faculty-bio-confirm.html', **locals())
 
 
 @app.route('/uploads/<filename>')

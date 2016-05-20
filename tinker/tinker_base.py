@@ -4,6 +4,7 @@ import time
 from functools import wraps
 from xml.etree import ElementTree as ET
 import requests
+import datetime
 
 # flask
 from flask import request
@@ -316,11 +317,15 @@ class TinkerBase(object):
         title = re.sub(r'[^a-zA-Z0-9-]', '', title)
         return title
 
+    def convert_month_num_to_name(self, month_num):
+        return datetime.datetime.strptime(month_num, "%m").strftime("%B").lower()
+
     def create_folder(self, folder_path):
 
-        folder_path = folder_path.lstrip('/')
-        # todo why strip and then add? Only to ensure its the correct format regardless of how its passed in?
-        old_folder_asset = self.read("/" + folder_path, "folder")
+        if folder_path[0] != "/":
+            folder_path = "/%s" % folder_path
+
+        old_folder_asset = self.read(folder_path, "folder")
 
         if old_folder_asset['success'] == 'false':
             array = folder_path.rsplit("/", 1)
@@ -339,5 +344,5 @@ class TinkerBase(object):
                 }
             }
 
-            return self.create(asset)
-        return False
+            return self.cascade_connector.create(asset)
+        return old_folder_asset

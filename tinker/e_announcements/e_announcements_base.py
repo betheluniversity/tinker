@@ -127,7 +127,7 @@ class EAnnouncementsBase(TinkerBase):
     ##########################################################
     # Todo: every method below should probably be cleaned up
     ###########################################################
-    def get_add_data(lists, form):
+    def get_add_data(self, lists, form):
 
         # A dict to populate with all the interesting data.
         add_data = {}
@@ -178,16 +178,16 @@ class EAnnouncementsBase(TinkerBase):
     def get_e_announcement_parent_folder(self, date):
         # break the date into Year/month
         split_date = date.split("-")
-        month = convert_month_num_to_name(split_date[0])
+        month = self.convert_month_num_to_name(split_date[0])
         year = split_date[2]
 
         # check if the folders exist
-        create_e_announcements_folder("e-announcements/" + year)
-        create_e_announcements_folder("e-announcements/" + year + "/" + month)
+        self.create_folder("e-announcements/" + year)
+        self.create_folder("e-announcements/" + year + "/" + month)
 
         return "e-announcements/" + year + "/" + month
 
-    def update_structure(self, e_announcement_data, rform, e_announcement_id=None):
+    def update_structure(self, e_announcement_data, sdata, rform, e_announcement_id=None):
         """
          Could this be cleaned up at all?
         """
@@ -200,16 +200,19 @@ class EAnnouncementsBase(TinkerBase):
 
         parent_folder = self.get_e_announcement_parent_folder(add_data['first_date'])
 
+        add_data['name'] = session['name']
+        add_data['email'] = session['user_email']
+
         self.update(e_announcement_data, 'message', escape_wysiwyg_content(add_data['message']))
         self.update(e_announcement_data, 'first-date', add_data['first_date'])
         self.update(e_announcement_data, 'second-date', add_data['second_date'])
-        self.update(e_announcement_data, 'name', add_data['name'])
+        self.update(sdata, 'name', add_data['name'])
+        self.update(e_announcement_data, 'email', add_data['email'])
 
 
         self.update(e_announcement_data, 'parentFolderPath', parent_folder)
         self.update(e_announcement_data, 'title', add_data['title'])
         self.update(e_announcement_data, 'author', session['username'])
-
 
 
         # # todo have to figure out how to do this
@@ -223,6 +226,7 @@ class EAnnouncementsBase(TinkerBase):
 
         if e_announcement_id:
             self.update(e_announcement_data, 'id', e_announcement_id)
+            # todo: does this call every time just in case it moved?
             self.move(e_announcement_id, parent_folder)
 
         return e_announcement_data
