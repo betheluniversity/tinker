@@ -54,12 +54,6 @@ def delete_page(page_id):
     delete(page_id, workflow="7747ea478c5865130c130b3a1a05240e")
     publish_faculty_bio_xml()
 
-    # Todo: only publish the corresponding faculty listing pages.
-    publish(app.config['FACULTY_LISTING_CAPS_ID'], 'publishset')
-    publish(app.config['FACULTY_LISTING_GS_ID'], 'publishset')
-    publish(app.config['FACULTY_LISTING_SEM_ID'], 'publishset')
-    publish(app.config['FACULTY_LISTING_CAS_ID'], 'publishset')
-
     return redirect('/faculty-bio/delete-confirm', code=302)
 
 
