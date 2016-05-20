@@ -505,15 +505,16 @@ def traverse_faculty_folder(traverse_xml, username):
     if username is None:
         matches = []
         for child in traverse_xml.findall('.//system-page'):
-            page_values = {
-                'author': child.find('author') or None,
-                'id': child.attrib['id'] or "",
-                'title': child.find('title').text or None,
-                'created-on': child.find('created-on').text or None,
-                'path': 'https://www.bethel.edu' + child.find('path').text or "",
-            }
-            # This is a match, add it to array
-            matches.append(page_values)
+            if '_shared-content' not in child.find('path').text:
+                page_values = {
+                    'author': child.find('author') or None,
+                    'id': child.attrib['id'] or "",
+                    'title': child.find('title').text or None,
+                    'created-on': child.find('created-on').text or None,
+                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                }
+                # This is a match, add it to array
+                matches.append(page_values)
         return matches
 
     # Traverse an XML folder, adding system-pages to a dict of matches
