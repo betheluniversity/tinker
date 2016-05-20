@@ -18,6 +18,7 @@ from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
 from bu_cascade import asset_tools
+from bu_cascade.asset_tools import update
 
 from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
@@ -211,27 +212,6 @@ class TinkerBase(object):
 
         return matches
 
-    def update(self, search_list, key, value):
-
-        if key in search_list.keys():
-            search_list[key] = value
-            return search_list[key]
-
-        elif search_list.get('identifier') == key:
-            # todo add handling for more than text types
-            search_list['text'] = value
-
-        for k in search_list:
-            if type(search_list[k]) == dict:
-                updated = self.update(search_list[k], key, value)
-                if updated:
-                    return updated
-            elif type(search_list[k]) == list:
-                for item in search_list[k]:
-                    updated = self.update(item, key, value)
-                    if updated:
-                        return updated
-
     def get_edit_data(self, asset_data):
         edit_data = {}
 
@@ -346,3 +326,8 @@ class TinkerBase(object):
 
             return self.cascade_connector.create(asset)
         return old_folder_asset
+
+    def update_asset(self, asset, data):
+
+        for key, value in data.iteritems():
+            update(asset, key, value)

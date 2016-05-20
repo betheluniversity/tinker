@@ -144,7 +144,7 @@ class EAnnouncementsBase(TinkerBase):
         # Now remove any non a-z, A-Z, 0-9
         system_name = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
 
-        add_data['system_name'] = system_name
+        # add_data['system_name'] = system_name
 
         return add_data
 
@@ -200,19 +200,12 @@ class EAnnouncementsBase(TinkerBase):
 
         parent_folder = self.get_e_announcement_parent_folder(add_data['first_date'])
 
+
+        # add missing data and make sure its in the right format.
         add_data['name'] = session['name']
         add_data['email'] = session['user_email']
-
-        self.update(e_announcement_data, 'message', escape_wysiwyg_content(add_data['message']))
-        self.update(e_announcement_data, 'first-date', add_data['first_date'])
-        self.update(e_announcement_data, 'second-date', add_data['second_date'])
-        self.update(sdata, 'name', add_data['name'])
-        self.update(e_announcement_data, 'email', add_data['email'])
-
-
-        self.update(e_announcement_data, 'parentFolderPath', parent_folder)
-        self.update(e_announcement_data, 'title', add_data['title'])
-        self.update(e_announcement_data, 'author', session['username'])
+        add_data['message'] = escape_wysiwyg_content(add_data['message'])
+        self.update_asset(e_announcement_data, add_data)
 
 
         # # todo have to figure out how to do this
