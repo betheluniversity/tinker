@@ -18,4 +18,4 @@ feedformatter
 feedparser
 createsend
 raven
-bu-cascade
+bu-cascade==2.0

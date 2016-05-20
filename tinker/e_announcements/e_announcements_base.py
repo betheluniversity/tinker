@@ -205,7 +205,12 @@ class EAnnouncementsBase(TinkerBase):
         add_data['name'] = session['name']
         add_data['email'] = session['user_email']
         add_data['message'] = escape_wysiwyg_content(add_data['message'])
+
+        if e_announcement_id:
+            add_data['id'] = e_announcement_id
+
         self.update_asset(e_announcement_data, add_data)
+        self.update_asset(sdata, add_data)
 
 
         # # todo have to figure out how to do this
@@ -218,7 +223,6 @@ class EAnnouncementsBase(TinkerBase):
 
 
         if e_announcement_id:
-            self.update(e_announcement_data, 'id', e_announcement_id)
             # todo: does this call every time just in case it moved?
             self.move(e_announcement_id, parent_folder)
 
