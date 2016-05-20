@@ -20,16 +20,29 @@ def faculty_bio_home():
     username = session['username']
     roles = get_roles(username)
 
-    # a quick and dirty way for these 3 users to access all faculty bios.
+    # These 3 users are acting as 'special admins' to view all bios
     # Tiffany Cornwell   tmc86365
     # Josh Manfred  manjos
     # John Gunther   jgunther
-    if username == 'tmc86365' or username == 'manjos' or username == 'jgunther':
-        username = None
-
-    forms = get_faculty_bios_for_user(username)
-
-    show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']
+    # Vedders is in this list because he wants to be able to see it.
+    special_admins = ['tmc86365', 'manjos', 'jgunther', 'vedmic']
+    if username in special_admins:
+        forms = get_faculty_bios_for_user(None)
+        show_create = True
+        # This nastiness is to maintain order and have the class value
+        all_schools = [
+            {'cas': 'College of Arts and Sciences'},
+            {'caps': 'College of Adult and Professional Studies'},
+            {'gs': 'Graduate School'},
+            {'sem': 'Bethel Seminary'},
+            {'bu': 'Bethel University'},
+            {'other': 'Other'}
+        ]
+        show_special_admin_view = True
+    else:  # normal view for everyone else
+        forms = get_faculty_bios_for_user(username)
+        show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']
+        show_special_admin_view = False
 
     # return forms
     return render_template('faculty-bio-home.html', **locals())

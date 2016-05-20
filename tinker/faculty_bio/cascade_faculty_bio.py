@@ -506,12 +506,20 @@ def traverse_faculty_folder(traverse_xml, username):
         matches = []
         for child in traverse_xml.findall('.//system-page'):
             if '_shared-content' not in child.find('path').text:
+                # get all associated schools
+                school_array = []
+                for school in child.findall('.//job-titles/school'):
+                    school_array.append(school.text or 'Other')
+
+                school_array = list(set(school_array))
+
                 page_values = {
                     'author': child.find('author') or None,
                     'id': child.attrib['id'] or "",
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
                     'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                    'schools': school_array
                 }
                 # This is a match, add it to array
                 matches.append(page_values)
