@@ -495,7 +495,7 @@ def get_faculty_bios_for_user(username):
     else:
         form_xml = ElementTree.parse('/var/www/staging/public/_shared-content/xml/faculty-bios.xml').getroot()
     matches = traverse_faculty_folder(form_xml, username)
-    matches = sorted(matches, key=itemgetter('title'), reverse=False)
+    matches = sorted(matches, key=itemgetter('last-name'), reverse=False)
 
     return matches
 
@@ -519,7 +519,8 @@ def traverse_faculty_folder(traverse_xml, username):
                     'title': child.find('title').text or None,
                     'created-on': child.find('created-on').text or None,
                     'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                    'schools': school_array
+                    'schools': school_array,
+                    'last-name': child.find('.//last').text or None
                 }
                 # This is a match, add it to array
                 matches.append(page_values)
@@ -548,6 +549,7 @@ def traverse_faculty_folder(traverse_xml, username):
                         'title': child.find('title').text or None,
                         'created-on': child.find('created-on').text or None,
                         'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                        'last-name': child.find('.//last').text or None
                     }
                     # This is a match, add it to array
                     matches.append(page_values)
@@ -566,6 +568,7 @@ def traverse_faculty_folder(traverse_xml, username):
                                 'title': child.find('title').text or None,
                                 'created-on': child.find('created-on').text or None,
                                 'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                                'last-name': child.find('.//last').text or None
                             }
                             matches.append(page_values)
                             break
