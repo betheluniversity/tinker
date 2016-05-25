@@ -182,19 +182,22 @@ class EAnnouncementsController(TinkerController):
         year = split_date[2]
 
         # check if the folders exist
-        self.create_folder("e-announcements/" + year)
-        self.create_folder("e-announcements/" + year + "/" + month)
+        self.create_folder("/e-announcements/" + year)
+        self.create_folder("/e-announcements/" + year + "/" + month)
 
-        return "e-announcements/" + year + "/" + month
+        return "/e-announcements/" + year + "/" + month
 
     def update_structure(self, e_announcement_data, sdata, rform, e_announcement_id=None):
 
         title = self.format_title(rform['title'])
+        workflow = self.get_e_announcement_publish_workflow(title)
+        self.add_workflow_to_asset(workflow, e_announcement_data)
 
         add_data = self.get_add_data(['banner_roles'], rform)
-        workflow = self.get_e_announcement_publish_workflow(title)
 
-        parent_folder = self.get_e_announcement_parent_folder(add_data['first_date'])
+        # if parent folder ID exists it will use that over path
+        add_data['parentFolderId'] = ''
+        add_data['parentFolderPath'] = self.get_e_announcement_parent_folder(add_data['first_date'])
 
         # add missing data and make sure its in the right format.
         add_data['name'] = session['name']
@@ -215,6 +218,6 @@ class EAnnouncementsController(TinkerController):
 
         if e_announcement_id:
             # todo: does this call every time just in case it moved?
-            self.move(e_announcement_id, parent_folder)
+            self.move(e_announcement_id, add_data['parentFolderPath'], type='block')
 
         return e_announcement_data

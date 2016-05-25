@@ -331,3 +331,6 @@ class TinkerController(object):
 
         for key, value in data.iteritems():
             update(asset, key, value)
+
+    def add_workflow_to_asset(self, workflow, data):
+        data['workflowConfiguration'] = workflow
