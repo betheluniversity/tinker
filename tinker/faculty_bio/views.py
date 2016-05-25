@@ -21,11 +21,13 @@ def faculty_bio_home():
     roles = get_roles(username)
 
     # These 3 users are acting as 'special admins' to view all bios
-    # Tiffany Cornwell   tmc86365
-    # Josh Manfred  manjos
-    # John Gunther   jgunther
-    # Vedders is in this list because he wants to be able to see it.
-    special_admins = ['tmc86365', 'manjos', 'jgunther', 'vedmic']
+    # Tiffany Cornwell  tmc86365
+    # Josh Manfred      manjos
+    # John Gunther      jgunther
+    # Annette Abel      aabel
+    # Michael Vedders   vedmic
+    # kbierle
+    special_admins = ['tmc86365', 'manjos', 'jgunther', 'vedmic', 'kbierle', 'aabel']
     if username in special_admins:
         forms = get_faculty_bios_for_user(None)
         show_create = True
