@@ -35,7 +35,7 @@ def faculty_bio_home():
             {'caps': 'College of Adult and Professional Studies'},
             {'gs': 'Graduate School'},
             {'sem': 'Bethel Seminary'},
-            {'bu': 'Bethel University'},
+            {'bu': 'Administration with Faculty Status'},
             {'other': 'Other'}
         ]
         show_special_admin_view = True
