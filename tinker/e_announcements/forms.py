@@ -23,8 +23,8 @@ from tinker.web_services import get_client, read
 def get_md(metadata_path):
 
     #todo temp fix
-    from tinker.tinker_base import TinkerBase
-    base = TinkerBase()
+    from tinker.tinker_controller import TinkerController
+    base = TinkerController()
 
     md = base.read(metadata_path, 'metadataset')
 

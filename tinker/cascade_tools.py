@@ -2,19 +2,7 @@ from tinker import app
 import base64
 
 # todo where should this go?
-def dynamic_field(name, values):
 
-    values_list = []
-    for value in values:
-        values_list.append({'value': value})
-    node = {
-        'name': name,
-        'fieldValues': {
-            'fieldValue': values_list,
-        },
-    }
-
-    return node
 
 # todo where should this go?
 def structured_data_node(node_id, text, node_type=None):

@@ -19,8 +19,8 @@ cors = CORS(app)
 from raven.contrib.flask import Sentry
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
 
-from tinker_base import TinkerBase
-base = TinkerBase()
+from tinker_controller import TinkerController
+base = TinkerController()
 
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)

@@ -15,6 +15,6 @@ def about():
 
 @app.route('/read/<read_id>')
 def read_route(read_id):
-    from tinker_base import TinkerBase
-    base = TinkerBase()
+    from tinker_controller import TinkerController
+    base = TinkerController()
     return "<pre>%s</pre>" % str(base.read_block(read_id))

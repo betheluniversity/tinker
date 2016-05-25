@@ -72,7 +72,7 @@ def requires_auth(f):
 #         return False
 
 
-class TinkerBase(object):
+class TinkerController(object):
     def __init__(self):
         self.cascade_connector = Cascade(SOAP_URL, AUTH, SITE_ID)
         self.helper = object()
@@ -130,8 +130,8 @@ class TinkerBase(object):
         def get_groups_for_user(username=None):
 
             # temporary
-            from tinker.tinker_base import TinkerBase
-            base = TinkerBase()
+            from tinker.tinker_controller import TinkerController
+            base = TinkerController()
 
             if not username:
                 username = session['username']

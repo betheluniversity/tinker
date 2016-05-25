@@ -8,7 +8,7 @@ from flask import render_template
 from tinker import app
 from tinker.cascade_tools import *
 
-from tinker.tinker_base import TinkerBase
+from tinker.tinker_controller import TinkerController
 
 BRM = [
         'CAS',
@@ -29,10 +29,10 @@ BRM = [
         'San Diego'
 ]
 
-class EAnnouncementsBase(TinkerBase):
+class EAnnouncementsController(TinkerController):
 
     def __init__(self):
-        super(EAnnouncementsBase, self).__init__()
+        super(EAnnouncementsController, self).__init__()
         self.brm = BRM
 
     def inspect_child(self, child):
@@ -188,39 +188,30 @@ class EAnnouncementsBase(TinkerBase):
         return "e-announcements/" + year + "/" + month
 
     def update_structure(self, e_announcement_data, sdata, rform, e_announcement_id=None):
-        """
-         Could this be cleaned up at all?
-        """
 
         title = self.format_title(rform['title'])
 
-        # todo can we simplify or genericize this?
         add_data = self.get_add_data(['banner_roles'], rform)
         workflow = self.get_e_announcement_publish_workflow(title)
 
         parent_folder = self.get_e_announcement_parent_folder(add_data['first_date'])
 
-
         # add missing data and make sure its in the right format.
         add_data['name'] = session['name']
         add_data['email'] = session['user_email']
         add_data['message'] = escape_wysiwyg_content(add_data['message'])
+        #todo, update these to have _ instead of - in Cascade so we don't have to translate
+        add_data['banner-roles'] = add_data['banner_roles']
+        add_data['first-date'] = add_data['first_date']
+        add_data['second-date'] = add_data['second_date']
 
         if e_announcement_id:
             add_data['id'] = e_announcement_id
 
-        self.update_asset(e_announcement_data, add_data)
+        # todo, revert this after 'name' in the Cascade data-def is changed so it doesn't conflict
         self.update_asset(sdata, add_data)
-
-
-        # # todo have to figure out how to do this
-        # # create the dynamic metadata dict
-        # dynamic_fields = {
-        #     'dynamicField': [
-        #         dynamic_field('banner-roles', add_data['banner_roles']),
-        #     ],
-        # }
-
+        add_data['name'] = add_data['title']
+        self.update_asset(e_announcement_data, add_data)
 
         if e_announcement_id:
             # todo: does this call every time just in case it moved?

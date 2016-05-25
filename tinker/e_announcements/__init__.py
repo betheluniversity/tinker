@@ -5,7 +5,7 @@ from flask.ext.classy import FlaskView, route
 from flask import json as fjson
 
 from tinker import app
-from tinker.e_announcements.e_announcements_base import EAnnouncementsBase
+from tinker.e_announcements.e_announcements_controller import EAnnouncementsController
 
 # todo: remove all references to this (these should all be in cascade connector)
 from tinker.web_services import *
@@ -18,7 +18,7 @@ class EAnnouncementsView(FlaskView):
     route_base = '/e-announcement'
 
     def __init__(self):
-        self.base = EAnnouncementsBase()
+        self.base = EAnnouncementsController()
 
     def before_request(self, name, **kwargs):
         # todo do this
@@ -49,7 +49,7 @@ class EAnnouncementsView(FlaskView):
         new_form = True
 
         # todo can the tempalte access this directly?
-        brm = self.baseubrmu
+        brm = self.base.brm
         return render_template('e-announcements-form.html', **locals())
 
     def confirm(self, status='new'):
@@ -84,27 +84,24 @@ class EAnnouncementsView(FlaskView):
         rform = request.form
         eaid = rform.get('e_announcement_id')
 
+        self.base.validate_form(rform)
+
         if not eaid:
             bid = app.config['E_ANN_BASE_ASSET']
             e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
             # hard code some things to test
             e_announcement_data['xhtmlDataDefinitionBlock']['parentFolderPath'] = '/_testing/jmo'
+            asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
+            resp = self.base.create_block(asset)
+            self.base.log_sentry('New e-announcement submission', resp)
+            return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='new'), code=302)
 
         else:
             block = self.base.read_block(eaid)
             e_announcement_data, mdata, sdata = block.read_asset()
-
-        self.base.validate_form(rform)
-
-        # Get all the form data
-        asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
-
-        # todo this should go in EABase, but should it be in update_structure or something else?
-        if eaid:
+            asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
             resp = str(block.edit_asset(asset))
             self.base.log_sentry("E-Announcement edit submission", resp)
             return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
-        else:
-            resp = str(self.base.create_block(asset))
-            self.base.log_sentry('New e-announcement submission', resp)
-            return redirect(url_for('e-announcements.EAnnouncementsView:confirm'), code=302)
+
+
