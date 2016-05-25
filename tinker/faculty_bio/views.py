@@ -27,7 +27,7 @@ def faculty_bio_home():
     # Annette Abel      aabel
     # Michael Vedders   vedmic
     # kbierle
-    special_admins = ['tmc86365', 'manjos', 'jgunther', 'vedmic', 'kbierle', 'aabel', 'ces55739']
+    special_admins = ['tmc86365', 'manjos', 'jgunther', 'vedmic', 'kbierle', 'aabel']
     if username in special_admins:
         forms = get_faculty_bios_for_user(None)
         show_create = True

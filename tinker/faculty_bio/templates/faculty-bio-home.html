@@ -91,13 +91,15 @@
                         {% for bio in forms%}
                             {% if school_name in bio.schools %}
                                 {{ display_bio(bio) }}
+                            {% elif 'Bethel University' in bio.schools and class_name == 'bu' %}
+                                {{ display_bio(bio) }}
                             {% endif %}
                         {% endfor %}
                     </div>
                 </div>
             {% endfor %}
         {% endfor %}
-    {% else %}
+    {% else %} {# basic view #}
        {% for bio in forms%}
            {{ display_bio(bio) }}
         {% endfor %}
