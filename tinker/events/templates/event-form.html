@@ -125,6 +125,29 @@
         <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
         <script type="text/javascript">
 
+        $('#registration_heading').change(function(){
+            var headingValue = $('#registration_heading').val();
+
+            if( headingValue == 'Registration'){
+                $('#wufoo_code').show();
+                $("label[for='wufoo_code']").show();
+                $('#ticketing_url').hide();
+                $("label[for='ticketing_url']").hide();
+            } else if( headingValue == 'Ticketing'){
+                $('#wufoo_code').hide();
+                $("label[for='wufoo_code']").hide();
+                $('#ticketing_url').show();
+                $("label[for='ticketing_url']").show();
+            } else {
+                $('#wufoo_code').hide();
+                $("label[for='wufoo_code']").hide();
+                $('#ticketing_url').hide();
+                $("label[for='ticketing_url']").hide();
+            }
+        });
+        // force the heading to call the change function
+        $('#registration_heading').change();
+
          function newFieldset(id){
                 var start = 'start' + id;
                 var end = 'end' + id;

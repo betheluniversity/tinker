@@ -133,6 +133,7 @@ def get_event_structure(add_data, username, workflow=None, event_id=None):
         structured_data_node("location", add_data['location']),
         structured_data_node("featuring", add_data['featuring']),
         structured_data_node("wufoo-code", add_data['wufoo_code']),
+        structured_data_node("ticketing-url", add_data['ticketing_url']),
         image_node,
     ]
     # Add the dates at the end of the data
