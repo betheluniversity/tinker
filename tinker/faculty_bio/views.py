@@ -20,15 +20,8 @@ def faculty_bio_home():
     username = session['username']
     roles = get_roles(username)
 
-    # These 3 users are acting as 'special admins' to view all bios
-    # Tiffany Cornwell  tmc86365
-    # Josh Manfred      manjos
-    # John Gunther      jgunther
-    # Annette Abel      aabel
-    # Michael Vedders   vedmic
-    # kbierle
-    special_admins = ['tmc86365', 'manjos', 'jgunther', 'vedmic', 'kbierle', 'aabel']
-    if username in special_admins:
+    # the faculty special admins should be able to see every bio, based on school.
+    if username in app.config['FACULTY_BIO_ADMINS']:
         forms = get_faculty_bios_for_user(None)
         show_create = True
         # This nastiness is to maintain order and have the class value
