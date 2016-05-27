@@ -229,8 +229,7 @@ def submit_form():
     rform = request.form
     title = rform['title']
     username = session['username']
-    workflow = None
-    # workflow = get_event_publish_workflow(title, username)
+    workflow = get_event_publish_workflow(title, username)
 
     # check event dates here?
 
@@ -287,8 +286,7 @@ def submit_edit_form():
     rform = request.form
     title = rform['title']
     username = session['username']
-    # workflow = get_event_publish_workflow(title, username)
-    workflow = None;
+    workflow = get_event_publish_workflow(title, username)
 
     event_dates, dates_good, num_dates = check_event_dates(rform)
 
