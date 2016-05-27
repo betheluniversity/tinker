@@ -9,6 +9,10 @@ from tinker.events.cascade_events import *
 from tinker import app
 from tinker import tools
 
+from bu_cascade.cascade_connector import Cascade
+from bu_cascade.assets.page import Page
+from bu_cascade.asset_tools import *
+
 event_blueprint = Blueprint('event', __name__, template_folder='templates')
 
 
@@ -324,4 +328,23 @@ def submit_edit_form():
 
 @event_blueprint.route('/confirm')
 def confirm():
+<<<<<<< HEAD
     return render_template('submit-confirm.html', **locals())
+=======
+    return render_template('submit-confirm.html', **locals())
+
+
+# Todo: need to add some kind of auth to protect this method
+@event_blueprint.route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
+def reset_tinker_edits(event_id):
+    from config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
+
+    ws_connector = Cascade(SOAP_URL, AUTH, SITE_ID)
+    my_page = Page(ws_connector, event_id)
+
+    asset, md, sd = my_page.get_asset()
+    update(md, 'tinker-edits', '0')
+    my_page.edit_asset(asset)
+
+    return event_id
+>>>>>>> master

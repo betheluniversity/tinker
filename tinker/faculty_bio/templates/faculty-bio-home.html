@@ -4,10 +4,43 @@
 
 {% block styles %}
   <style type="text/css">
+      {# Override the default height for a select field #}
+        select {
+            height: auto !important;
+        }
   </style>
 {% endblock %}
 
 {% block page_title %}Bethel University Tinker{% endblock %}
+
+{# A little macro to be used with the 2 separate calls #}
+{% macro display_bio(bio) -%}
+    <div class="row">
+        <div class="large-6 columns">
+          <p>
+            {% if bio.path != '' %}
+              <a href={{ bio.path }}>{{ bio.title }}</a>
+            {% else %}
+              {{ bio.title }}
+            {% endif %}
+            <br/>
+            {% if bio.path != '' %}<small><a href={{ bio.path }}>{{ bio.path }}</a></small>{% endif %}
+          </p>
+        </div>
+        <div class="large-6 columns small-3">
+          <ul class="button-group">
+            {% if bio.path != '' %}
+              <li><a href="{{ bio.path }}" class="small button success">View</a></li>
+              <li><a href="/faculty-bio/edit/{{ bio.id }}#page-title" class="small button">Edit</a></li>
+            {% else %}
+              <li><a class="small button success">Not Approved</a></li>
+            {% endif %}
+            <li><a href="#" data-reveal-id="confirmModal" id="{{ bio.id }}" data-faculty-bio-id="{{ bio.id }}" class="small button alert delete-press">Delete</a></li>
+           </ul>
+        </div>
+        <hr/>
+      </div>
+{%- endmacro %}
 
 {% block main_content %}
 <div class="row">
@@ -18,43 +51,63 @@
   </div>
  </div>
 <hr/>
+
 <div class="row">
 
   <div class="large-12 columns">
     {% if show_create %}
       <a href="/faculty-bio/edit/new#page-title" class="small button success">Create New Bio</a>
     {% endif %}
-   {% for form in forms%}
-      <div class="row">
-        <div class="large-6 columns">
-          <p>
-            {% if form.path != '' %}
-              <a href={{ form.path }}>{{ form.title }}</a>
-            {% else %}
-              {{ form.title }}
-            {% endif %}
-            <br/>
-            {% if form.path != '' %}<small><a href={{ form.path }}>{{ form.path }}</a></small>{% endif %}
-          </p>
-        </div>
-        <div class="large-6 columns small-3">
-          <ul class="button-group">
-            {% if form.path != '' %}
-              <li><a href="{{ form.path }}" class="small button success">View</a></li>
-              <li><a href="/faculty-bio/edit/{{ form.id }}#page-title" class="small button">Edit</a></li>
-            {% else %}
-              <li><a class="small button success">Not Approved</a></li>
-            {% endif %}
-            <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-faculty-bio-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
-           </ul>
+    {% if show_special_admin_view %}
+        {# add extra sorting buttons #}
+        <div>
+            <label><h3>View:</h3>
+            <select size="{{ all_schools|length }}" id="school-selector" multiple>
+                {% for schools in all_schools %}
+                    {% for class_name, school_name in schools.items() %}
+                        <option value="{{ class_name }}" selected="selected">{{ school_name }}</option>
+                    {% endfor %}
+                {% endfor %}
+            </select>
+            </label>
+            <script type="text/javascript">
+                $("#school-selector").change(function () {
+                    $('.school-bios').hide();
+                    var array_of_values = $("#school-selector").val();
+                    for( i=0; i<array_of_values.length;i++) {
+                        $('.' + array_of_values[i]).show();
+                    }
+                });
+            </script>
         </div>
         <hr/>
-      </div>
-    {% endfor %}
 
-
+        {# show all bios #}
+        {% for schools in all_schools %}
+            {% for class_name, school_name in schools.items() %}
+                <div class="{{ class_name }} school-bios">
+                    <h3>{{ school_name }}</h3>
+                    <div style="padding-left: 5%">
+                        {% for bio in forms%}
+                            {% if school_name in bio.schools %}
+                                {{ display_bio(bio) }}
+                            {% elif 'Bethel University' in bio.schools and class_name == 'bu' %}
+                                {{ display_bio(bio) }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% else %} {# basic view #}
+       {% for bio in forms%}
+           {{ display_bio(bio) }}
+        {% endfor %}
+    {% endif %}
   </div>
 </div>
+
+
 
 
 {#Delete confirm modal#}
