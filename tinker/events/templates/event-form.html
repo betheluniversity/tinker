@@ -129,6 +129,10 @@
                 var start = 'start' + id;
                 var end = 'end' + id;
                 var all = 'allday' + id;
+                var time = 'timezone' + id;
+                var out = 'needtimezone' + id;
+                var check = 'checkNeedTimezone(' + id + ')';
+                var timelabel = 'timezonelabel' + id;
                 var node = $('<fieldset>').addClass('date-fieldset');
                 node.append($("<legend>").html("Date " + id));
                 node.append($("<input type='checkbox'>").attr('name', all).attr('id', all).attr('class', 'alldaycheck'));
@@ -137,7 +141,10 @@
                 node.append($("<input type='text'>").attr('name', start).attr('id', start).addClass("datepicker"));
                 node.append($("<label>").attr('for', end).html("End Date"));
                 node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
-
+                node.append($("<input type='checkbox'>").attr('name', out).attr('id', out).attr('class', 'needtimezonecheck').attr('onclick', check));
+                node.append($("<label>").attr('for', out).html("Outside of Minnesota?"));
+                node.append($("<label>").attr('for', time).attr('style','display: none').attr('id', timelabel).html("Timezone"));
+                node.append($("<select>").attr('name', time).attr('id', time).attr('class', 'timezoneselect').attr('style','display: none').html($("<option value>-select-</option><option value='Pacific Time'>Pacific Time</option><option value='Mountain Time'>Mountain Time</option><option value='Central Time'>Central Time</option><option value='Eastern Time'>Eastern Time</option>")));
                 return node;
          }
 
@@ -150,6 +157,20 @@
             if(allday){
               $(alldayid).prop('checked', true);
             }
+         }
+
+         function checkNeedTimezone(id){
+             var out = 'needtimezone' + id;
+             var time = 'timezone' + id;
+             var timelabel = 'timezonelabel' + id;
+             if(document.getElementById(out).checked) {
+                 document.getElementById(time).style.display = "inline-block";
+                 document.getElementById(timelabel).style.display = "block";
+             }
+             else{
+                 document.getElementById(time).style.display = "none";
+                 document.getElementById(timelabel).style.display = "none";
+             }
          }
 
          function testOffCampusLocation(){
@@ -304,6 +325,18 @@
 
           <label for="end1">End Date</label>
             <input type="text" name="end1" id="end1" class="datepicker"/>
+
+          <input id="needtimezone1" name="needtimezone1" class="needtimezonecheck" type="checkbox" value="False" onclick="checkNeedTimezone(1)"><label for="needtimezone1">Outside of Minnesota?</label>
+
+          <label for="timezone1" style="display: none" id="timezonelabel1">Timezone</label>
+          <select id="timezone1" name="timezone1" class="timezoneselect" style="display: none">
+              <option value>-select-</option>
+              <option value="Pacific Time">Pacific Time</option>
+              <option value="Mountain Time">Mountain Time</option>
+              <option value="Central Time">Central Time</option>
+              <option value="Eastern Time">Eastern Time</option>
+          </select>
+
 
       </fieldset>
       <a href="javascript:void(0);" id="add_date_button" class="button tiny">Add Another Date</a>

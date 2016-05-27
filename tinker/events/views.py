@@ -229,7 +229,8 @@ def submit_form():
     rform = request.form
     title = rform['title']
     username = session['username']
-    workflow = get_event_publish_workflow(title, username)
+    workflow = None
+    # workflow = get_event_publish_workflow(title, username)
 
     # check event dates here?
 
@@ -286,7 +287,8 @@ def submit_edit_form():
     rform = request.form
     title = rform['title']
     username = session['username']
-    workflow = get_event_publish_workflow(title, username)
+    # workflow = get_event_publish_workflow(title, username)
+    workflow = None;
 
     event_dates, dates_good, num_dates = check_event_dates(rform)
 
@@ -307,7 +309,7 @@ def submit_edit_form():
     new_year = get_year_folder_value(add_data)
 
     resp = edit(asset)
-    log_sentry("Event edit submission", resp)
+    app.logger.info(time.strftime("%c") + ": Event edit submission by " + username + " with id " + event_id + ". " + str(resp))
 
     if new_year > current_year:
         resp = move_event_year(event_id, add_data)
@@ -325,9 +327,3 @@ def submit_edit_form():
 @event_blueprint.route('/confirm')
 def confirm():
     return render_template('submit-confirm.html', **locals())
-
-
-@event_blueprint.route('/api/reset-tinker-edits/<event_id>', methods=['get','post'])
-@requires_auth
-def reset_tinker_edits(event_id):
-    return event_id
