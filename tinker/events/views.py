@@ -311,7 +311,7 @@ def submit_edit_form():
     new_year = get_year_folder_value(add_data)
 
     resp = edit(asset)
-    log_sentry("Event edit submission", resp)
+    app.logger.info(time.strftime("%c") + ": Event edit submission by " + username + " with id " + event_id + ". " + str(resp))
 
     if new_year > current_year:
         resp = move_event_year(event_id, add_data)
@@ -328,6 +328,9 @@ def submit_edit_form():
 
 @event_blueprint.route('/confirm')
 def confirm():
+<<<<<<< HEAD
+    return render_template('submit-confirm.html', **locals())
+=======
     return render_template('submit-confirm.html', **locals())
 
 
@@ -344,3 +347,4 @@ def reset_tinker_edits(event_id):
     my_page.edit_asset(asset)
 
     return event_id
+>>>>>>> master

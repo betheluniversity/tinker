@@ -475,10 +475,14 @@ def get_dates(add_data):
             start = 'start' + i
             end = 'end' + i
             all_day = 'allday' + i
+            time_zone = 'timezone' + i
+            need_time_zone = 'needtimezone' + i
 
             start = add_data[start]
             end = add_data[end]
             all_day = all_day in add_data.keys()
+            time_zone = add_data[time_zone]
+            need_time_zone = need_time_zone in add_data.keys()
 
         except KeyError:
             # This will break once we run out of dates
@@ -506,12 +510,12 @@ def get_dates(add_data):
             app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
             end = None
 
-        dates.append(event_date(start, end, all_day))
+        dates.append(event_date(start, end, time_zone, all_day, need_time_zone))
 
     return dates
 
 
-def event_date(start, end, all_day=False):
+def event_date(start, end, time_zone, all_day=False, need_time_zone=False):
 
     date_list = [
         structured_data_node("start-date", start),
@@ -519,6 +523,10 @@ def event_date(start, end, all_day=False):
     ]
     if all_day:
         date_list.append(structured_data_node("all-day", "::CONTENT-XML-CHECKBOX::Yes"))
+
+    if need_time_zone:
+        date_list.append(structured_data_node("outside-of-minnesota", "::CONTENT-XML-CHECKBOX::Yes"))
+        date_list.append(structured_data_node("time-zone", time_zone))
 
     node = {
         'type': "group",
