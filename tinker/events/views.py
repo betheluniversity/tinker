@@ -328,9 +328,6 @@ def submit_edit_form():
 
 @event_blueprint.route('/confirm')
 def confirm():
-<<<<<<< HEAD
-    return render_template('submit-confirm.html', **locals())
-=======
     return render_template('submit-confirm.html', **locals())
 
 
@@ -347,4 +344,3 @@ def reset_tinker_edits(event_id):
     my_page.edit_asset(asset)
 
     return event_id
->>>>>>> master
