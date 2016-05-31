@@ -32,7 +32,7 @@ class EAnnouncementsView(FlaskView):
         # todo why reverse twice?
         forms.sort(key=lambda item:item['first_date'], reverse=True)
         forms = reversed(forms)
-        return render_template('e-announcements-home.html', **locals())
+        return render_template('ea-home.html', **locals())
 
     def delete(self, block_id):
         # Todo: check if user should have access to delete the block, before deleting
@@ -40,7 +40,7 @@ class EAnnouncementsView(FlaskView):
         self.base.delete(block_id, 'block')
         self.base.publish(app.config['E_ANNOUNCEMENTS_XML_ID'])
 
-        return render_template('e-announcements-delete-confirm.html', **locals())
+        return render_template('delete-confirm.html', **locals())
 
     def new(self):
 
@@ -50,19 +50,14 @@ class EAnnouncementsView(FlaskView):
 
         # todo can the tempalte access this directly?
         brm = self.base.brm
-        return render_template('e-announcements-form.html', **locals())
+        return render_template('form.html', **locals())
 
     def confirm(self, status='new'):
         return render_template('confirm.html', **locals())
 
-    @route('/in-workflow')
-    def asset_is_in_workflow(self):
-        return render_template('e-announcements-in-workflow.html')
-
     def edit(self, e_announcement_id):
         if self.base.asset_in_workflow(e_announcement_id, asset_type='block'):
-            # todo is it better to just render the template here instead of redirect
-            return redirect(url_for('e-announcements.EAnnouncementsView:asset_is_in_workflow'), code=302)
+            return render_template('in-workflow.html')
 
         from tinker.e_announcements.forms import EAnnouncementsForm
 
@@ -71,26 +66,27 @@ class EAnnouncementsView(FlaskView):
         e_announcement_data, mdata, sdata = block.read_asset()
 
         edit_data = self.base.get_edit_data(e_announcement_data)
+        self.base.check_readonly(edit_data)
         form = EAnnouncementsForm(**edit_data)
         form.e_announcement_id = e_announcement_id
 
         # todo can the template access this directly?
         brm = self.base.brm
 
-        return render_template('e-announcements-form.html', **locals())
+        return render_template('form.html', **locals())
 
     def post(self):
 
         rform = request.form
         eaid = rform.get('e_announcement_id')
 
-        self.base.validate_form(rform)
+        failed = self.base.validate_form(rform)
+        if failed:
+            return failed
 
         if not eaid:
             bid = app.config['E_ANN_BASE_ASSET']
             e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
-            # hard code some things to test
-            # e_announcement_data['xhtmlDataDefinitionBlock']['parentFolderPath'] = '/_testing/jmo'
             asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
             resp = self.base.create_block(asset)
             self.base.log_sentry('New e-announcement submission', resp)
@@ -105,3 +101,4 @@ class EAnnouncementsView(FlaskView):
             return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
 
 
+EAnnouncementsView.register(EAnnouncementsBlueprint)

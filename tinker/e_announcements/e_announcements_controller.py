@@ -160,6 +160,7 @@ class EAnnouncementsController(TinkerController):
         }
         return workflow
 
+    # todo test
     def validate_form(self, rform):
 
         from forms import EAnnouncementsForm
@@ -173,7 +174,7 @@ class EAnnouncementsController(TinkerController):
                 new_form = True
             # bring in the mapping
             brm = self.brm
-            return render_template('e-announcements-form.html', **locals())
+            return render_template('form.html', **locals())
 
     def get_e_announcement_parent_folder(self, date):
         # break the date into Year/month
@@ -221,3 +222,16 @@ class EAnnouncementsController(TinkerController):
             self.move(e_announcement_id, add_data['parentFolderPath'], type='block')
 
         return e_announcement_data
+
+    def check_readonly(self, edit_data):
+
+        today = datetime.datetime.now()
+        first_readonly = False
+        second_readonly = False
+        if edit_data['first_date'] < today:
+            first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
+        if edit_data['second_date'] and edit_data['second_date'] < today:
+            second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
+
+        edit_data['first_readonly'] = first_readonly
+        edit_data['second_readonly'] = second_readonly
