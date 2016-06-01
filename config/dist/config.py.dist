@@ -1,16 +1,13 @@
-import os
-_basedir = os.path.abspath(os.path.dirname(__file__))
-
-##Foundation configs
+# Foundation configs
 FOUNDATION_USE_MINIFIED = False
 FOUNDATION_USE_CDN = True
 
-##emails
+# emails
 ADMINS = ['']
 
 SENTRY_URL = ''
 
-#Cascade / Events
+# Cascade / Events
 secret_key = ''
 SECRET_KEY = ''
 

@@ -15,7 +15,7 @@ app = Flask(__name__)
 app.config.from_object('config.config')
 db = SQLAlchemy(app)
 cors = CORS(app)
-
+print app.config['SQLALCHEMY_DATABASE_URI']
 from raven.contrib.flask import Sentry
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
 
