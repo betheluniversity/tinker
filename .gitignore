@@ -26,8 +26,4 @@ redirects.txt.back
 
 tinker/.DS_Store
 
-config/e_announcements_config.py
-
-config/e_announcements_config.py
-
-config/e_announcements_config.py
+config/*.py

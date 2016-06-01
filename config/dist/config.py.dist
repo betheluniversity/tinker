@@ -44,9 +44,7 @@ API_KEYS = ['key1', 'key2']
 WUFOO_BASE_URL = ''
 
 
-#Redirect
-REDIRECT_FILE_PATH = ""
-REDIRECT_MAP_PATH = ""
+
 
 UPLOAD_FOLDER = ""
 
