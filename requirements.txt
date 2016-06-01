@@ -18,4 +18,6 @@ feedformatter
 feedparser
 createsend
 raven
+blinker
+Flask-Classy
 bu-cascade==2.02
