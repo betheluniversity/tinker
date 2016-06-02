@@ -16,10 +16,10 @@ from tinker.redirects.models import BethelRedirect
 redirect_blueprint = Blueprint('redirect_blueprint', __name__, template_folder='templates')
 
 
-def check_redirect_groups():
-    groups = tools.get_groups_for_user()
-    if 'Tinker Redirects' not in groups:
-        abort(403)
+# def check_redirect_groups():
+#     groups = tools.get_groups_for_user()
+#     if 'Tinker Redirects' not in groups:
+#         abort(403)
 
 
 @redirect_blueprint.route('/expire')
@@ -33,30 +33,30 @@ def delete_expired_redirects():
     return 'done'
 
 
-@redirect_blueprint.route('/')
-def show():
-    check_redirect_groups()
-    redirects = BethelRedirect.query.all()
+# @redirect_blueprint.route('/')
+# def show():
+#     check_redirect_groups()
+#     redirects = BethelRedirect.query.all()
+#
+#     return render_template('redirects.html', **locals())
 
-    return render_template('redirects.html', **locals())
 
-
-@redirect_blueprint.route('/search', methods=['post'])
-def search():
-    check_redirect_groups()
-    # todo: limit results to...100?
-    search_type = request.form['type']
-    search_query = request.form['search'] + "%"
-
-    if search == "%" or search_type not in ['from_path', 'to_url']:
-        return ""
-
-    if search_type == 'from_path':
-        redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
-    else:
-        redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
-    redirects.sort()
-    return render_template('redirect-ajax.html', **locals())
+# @redirect_blueprint.route('/search', methods=['post'])
+# def search():
+#     check_redirect_groups()
+#     # todo: limit results to...100?
+#     search_type = request.form['type']
+#     search_query = request.form['search'] + "%"
+#
+#     if search == "%" or search_type not in ['from_path', 'to_url']:
+#         return ""
+#
+#     if search_type == 'from_path':
+#         redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
+#     else:
+#         redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
+#     redirects.sort()
+#     return render_template('redirect-ajax.html', **locals())
 
 
 @redirect_blueprint.route('/new-submit', methods=['post'])
@@ -95,38 +95,38 @@ def new_redirect_submit():
     return str(redirect)
 
 
-@redirect_blueprint.route('/public/api-submit', methods=['get', 'post'])
-def new_api_submit():
-    body = request.form['body']
-
-    soup = BeautifulSoup(body)
-    all_text = ''.join(soup.findAll(text=True))
-    redirects = re.findall("(redirect: \S* \S*)", all_text)
-    redirect = ""
-    for line in redirects:
-        try:
-            line = line.lstrip().rstrip()
-            if line.startswith('redirect:'):
-                line = line.replace('redirect:', '').lstrip().rstrip()
-                from_url, to_url = line.split()
-                from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
-                redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-                db.session.add(redirect)
-                db.session.commit()
-        except:
-            # message = "redirect from %s to %s already exists" % (from_url, to_url)
-            # sender = 'tinker@bethel.edu'
-            # receivers = ['e-jameson@bethel.edu', 'a-vennerstrom@bethel.edu', 'ces55739@bethel.edu']
-            #
-            # smtp_obj = smtplib.SMTP('localhost')
-            # smtp_obj.sendmail(sender, receivers, message)
-            # print "Successfully sent email"
-            db.session.rollback()
-            # return "sent email notice"
-
-    if redirect:
-        create_redirect_text_file()
-    return str(redirect)
+# @redirect_blueprint.route('/public/api-submit', methods=['get', 'post'])
+# def new_api_submit():
+#     body = request.form['body']
+#
+#     soup = BeautifulSoup(body)
+#     all_text = ''.join(soup.findAll(text=True))
+#     redirects = re.findall("(redirect: \S* \S*)", all_text)
+#     redirect = ""
+#     for line in redirects:
+#         try:
+#             line = line.lstrip().rstrip()
+#             if line.startswith('redirect:'):
+#                 line = line.replace('redirect:', '').lstrip().rstrip()
+#                 from_url, to_url = line.split()
+#                 from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
+#                 redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+#                 db.session.add(redirect)
+#                 db.session.commit()
+#         except:
+#             # message = "redirect from %s to %s already exists" % (from_url, to_url)
+#             # sender = 'tinker@bethel.edu'
+#             # receivers = ['e-jameson@bethel.edu', 'a-vennerstrom@bethel.edu', 'ces55739@bethel.edu']
+#             #
+#             # smtp_obj = smtplib.SMTP('localhost')
+#             # smtp_obj.sendmail(sender, receivers, message)
+#             # print "Successfully sent email"
+#             db.session.rollback()
+#             # return "sent email notice"
+#
+#     if redirect:
+#         create_redirect_text_file()
+#     return str(redirect)
 
 
 @redirect_blueprint.route('/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
@@ -211,25 +211,24 @@ def delete_redirect():
     return "deleted %s" % resp
 
 
-@redirect_blueprint.route('/compile')
-def compile_redirects():
-    check_redirect_groups()
-    resp = create_redirect_text_file()
-    return resp
+# @redirect_blueprint.route('/compile')
+# def compile_redirects():
+#     check_redirect_groups()
+#     resp = create_redirect_text_file()
+#     return resp
 
 
-def create_redirect_text_file():
-
-    map_file = open(app.config['REDIRECT_FILE_PATH'], 'w')
-    map_file_back = open(app.config['REDIRECT_FILE_PATH'] + ".back", 'w')
-    redirects = BethelRedirect.query.all()
-
-    for item in redirects:
-        map_file.write("%s %s\n" % (item.from_path, item.to_url))
-        map_file_back.write("%s %s\n" % (item.from_path, item.to_url))
-
-    resp = 'done'
-    return resp
+# def create_redirect_text_file():
+#     map_file = open(app.config['REDIRECT_FILE_PATH'], 'w')
+#     map_file_back = open(app.config['REDIRECT_FILE_PATH'] + ".back", 'w')
+#     redirects = BethelRedirect.query.all()
+#
+#     for item in redirects:
+#         map_file.write("%s %s\n" % (item.from_path, item.to_url))
+#         map_file_back.write("%s %s\n" % (item.from_path, item.to_url))
+#
+#     resp = 'done'
+#     return resp
 
 
 @redirect_blueprint.route('/thumbor-clear')
