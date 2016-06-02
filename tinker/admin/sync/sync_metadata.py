@@ -59,7 +59,7 @@ seminary_programs = [
     "Certificate in Church Planting",
     "Children's & Family Ministry (M.A.)",
     "Christian Studies Certificate",
-    "Christian Thought (M.A.)",
+    "M.A. (Christian Thought)",
     "Doctor of Ministry",
     "Marital & Family Therapy (M.A.)",
     "Marriage & Family Therapy Certificate",
@@ -69,7 +69,7 @@ seminary_programs = [
     "Ministry Practice Certificate",
     "Ministry Practice (M.A.)",
     "Theological Studies Certificate",
-    "Theological Studies (M.A.)",
+    "M.A. (Theological Studies)",
     "Transformational Leadership (M.A.)",
     "Young Life Youth Ministry Certificate",
 ]
