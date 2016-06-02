@@ -20,4 +20,4 @@ createsend
 raven
 blinker
 Flask-Classy
-bu-cascade==2.02
+bu-cascade==2.03
