@@ -16,21 +16,31 @@
 
     <script>
 
+{#        maybe remove javascript and instead use a form as in e_announcements/__init__.py in the post method#}
         function submitpath() {
+            console.log("Submitpath is called.")
             var urlpath = $("#cpath").val();
 
-            console.log("hello");
+            console.log("urlpath is " + urlpath);
             var input_data = {'url': urlpath};
 
-            var cacheurl = "/admin/cache-clear/submit";
+            console.log("inputdata set");
+            var cacheurl = "{{ url_for('CacheBlueprint.CacheClear:post') }}";
 
-            $.post(cacheurl, input_data, function (data) {
-                $("#output").html(data);
+            console.log("cacheurl is " + cacheurl);
+            {# http://api.jquery.com/jquery.getjson/ <--Here is some documentation on getJSON #}
+            $.getJSON(cacheurl, {'url': urlpath}, function (data) {
+                console.log("function is successful");
+                $("#output").text(data.result);
+                console.log("data is " + data);
+                console.log("data.result is " + data.result);
             });
-            $("#output").text(urlpath);
+            console.log("submitpath is done");
+            return false;
+{#            $("#output").text(urlpath);#}
         }
 
-        var button = $("#submit").on("click", submitpath)
+        $("#submit").bind("click", submitpath)
 
     </script>
 {% endblock %}
