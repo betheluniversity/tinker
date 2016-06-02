@@ -17,7 +17,9 @@ arrow
 feedformatter
 feedparser
 createsend
+<<<<<<< HEAD
 raven
-blinker
-Flask-Classy
-bu-cascade==2.03
+=======
+raven
+bu-cascade
+>>>>>>> master

@@ -1,12 +1,12 @@
 __author__ = 'ejc84332'
 
 # python
-import fnmatch
+import time
 import hashlib
 import os
-import time
-from functools import wraps
+import fnmatch
 from subprocess import call
+from functools import wraps
 
 # flask
 from flask import request
@@ -19,7 +19,7 @@ from flask import Response
 import requests
 
 # tinker
-from config import config
+import config
 from tinker import app
 from tinker import sentry
 

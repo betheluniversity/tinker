@@ -15,8 +15,8 @@ from wtforms import Field
 from wtforms.validators import DataRequired
 
 # local
-# from tinker.web_services import read, read_identifier
-# from tinker import tools
+from tinker.web_services import read, read_identifier
+from tinker import tools
 
 
 def get_md(metadata_path):
