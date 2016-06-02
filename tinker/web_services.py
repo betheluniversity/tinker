@@ -16,111 +16,6 @@ from tinker import app
 from tinker import tools
 
 
-def email_tinker_admins(response):
-
-    if 'success = "false"' in response:
-        app.logger.error(session['username'], time.strftime("%c") + " " + str(response))
-
-
-def delete(page_id, workflow=None, type='page'):
-    if type == 'page':
-        unpublish(page_id, 'page')
-        time.sleep(5.5)
-    client = get_client()
-
-    auth = app.config['CASCADE_LOGIN']
-
-    username = session['username']
-
-    identifier = {
-        'id': page_id,
-        'type': type,
-    }
-
-    response = client.service.delete(auth, identifier)
-    app.logger.debug(time.strftime("%c") + ": " + page_id + " deleted by " + username + " " + str(response))
-    email_tinker_admins(response)
-    return response
-
-def get_destinations(destination):
-    if destination == 'staging.bethel.edu' or destination == 'staging':
-        id = 'ba1381d58c586513100ee2a78fc41899'
-        identifier = {'assetIdentifier': {
-                    'id': id,
-                    'type': 'destination',
-                    }
-                }
-        return identifier
-    else:
-        return ''
-
-
-def publish(path_or_id, type='page', destination=""):
-    client = get_client()
-    destination = get_destinations(destination)
-
-    if path_or_id[0] == "/":
-        publishinformation = {
-            'identifier': {
-                'type': type,
-                'path': {
-                    'path': path_or_id,
-                    'siteId': app.config['SITE_ID']
-                }
-            },
-            'destinations': destination
-        }
-
-    else:
-        publishinformation = {
-            'identifier': {
-                'id': path_or_id,
-                'type': type,
-            },
-            'destinations': destination
-        }
-
-    auth = app.config['CASCADE_LOGIN']
-
-    response = client.service.publish(auth, publishinformation)
-    app.logger.debug(time.strftime("%c") + ": " + path_or_id + " Published " + str(response))
-
-    email_tinker_admins(response)
-
-    return response
-
-
-def unpublish(page_id, type="page"):
-
-    client = get_client()
-
-    publishinformation = {
-        'identifier': {
-            'id': page_id,
-            'type': type
-        },
-        'unpublish': True
-    }
-
-    auth = app.config['CASCADE_LOGIN']
-
-    response = client.service.publish(auth, publishinformation)
-    app.logger.debug(time.strftime("%c") + ": Unpublished " + str(response))
-
-    email_tinker_admins(response)
-
-    return response
-
-
-def read_identifier(identifier):
-    client = get_client()
-    auth = app.config['CASCADE_LOGIN']
-    response = client.service.read(auth, identifier)
-
-    email_tinker_admins(response)
-
-    return response
-
 
 def read(path_or_id, type="page"):
     client = get_client()
@@ -148,71 +43,31 @@ def read(path_or_id, type="page"):
     return response
 
 
-def edit(asset):
+def get_client():
+    try:
+        client = Client(url=app.config['WSDL_URL'], location=app.config['SOAP_URL'])
+        return client
+    except TransportError:
+        abort(503)
 
-    auth = app.config['CASCADE_LOGIN']
-    client = get_client()
+# todo don't need anymore because of sentry
+def email_tinker_admins(response):
 
-    response = client.service.edit(auth, asset)
+    if 'success = "false"' in response:
+        app.logger.error(session['username'], time.strftime("%c") + " " + str(response))
 
-    email_tinker_admins(response)
-
-    return response
-
-
-def rename(page_id, newname, type="page"):
-    """ Rename a page with page_id to have new system-name = newname """
-    auth = app.config['CASCADE_LOGIN']
-    client = get_client()
-
-    identifier = {
-        'id': page_id,
-        'type': type
-    }
-
-    move_parameters = {
-        'doWorkflow': False,
-        'newName': newname
-    }
-
-    response = client.service.move(auth, identifier, move_parameters)
-    app.logger.debug(time.strftime("%c") + ": Renamed " + str(response))
-
-    email_tinker_admins(response)
-
-    return response
-
-
-def move(page_id, destination_path):
-    """ Move a page with page_id to folder with path destination_path """
-    app.logger.debug(time.strftime("%c") + ": Moved " + str(destination_path))
-    auth = app.config['CASCADE_LOGIN']
-    client = get_client()
-
-    identifier = {
-        'id': page_id,
-        'type': 'page'
-    }
-
-    dest_folder_identifier = {
-        'path': {
-            'siteId': app.config['SITE_ID'],
-            'path': destination_path,
-        },
-        'type': 'folder'
-    }
-
-    move_parameters = {
-        'destinationContainerIdentifier': dest_folder_identifier,
-        'doWorkflow': False
-    }
-
-    response = client.service.move(auth, identifier, move_parameters)
-    app.logger.debug(time.strftime("%c") + ": Moved " + str(response))
-
-    email_tinker_admins(response)
-
-    return response
+# todo why do we need this?
+def get_destinations(destination):
+    if destination == 'staging.bethel.edu' or destination == 'staging':
+        id = 'ba1381d58c586513100ee2a78fc41899'
+        identifier = {'assetIdentifier': {
+                    'id': id,
+                    'type': 'destination',
+                    }
+                }
+        return identifier
+    else:
+        return ''
 
 
 def date_to_java_unix(date):
@@ -234,6 +89,7 @@ def string_to_datetime(date_str):
         return None
 
 
+# todo what?
 def friendly_date_range(start, end):
     date_format = "%B %d, %Y %I:%M %p"
 
@@ -246,6 +102,7 @@ def friendly_date_range(start, end):
         return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format), datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
 
 
+# todo why? Move this to base?
 def read_date_data_dict(node):
     node_data = node['structuredDataNodes']['structuredDataNode']
     date_data = {}
@@ -263,7 +120,7 @@ def read_date_data_dict(node):
 
     return date_data
 
-
+# todo why? Move this to base?
 def read_date_data_structure(node):
     node_data = node.structuredDataNodes.structuredDataNode
     date_data = {}
@@ -282,52 +139,7 @@ def read_date_data_structure(node):
     return date_data
 
 
-def get_client():
-    try:
-        client = Client(url=app.config['WSDL_URL'], location=app.config['SOAP_URL'])
-        return client
-    except TransportError:
-        abort(503)
-
-
-def publish_event_xml():
-
-    # publish the event XML page
-    publish(app.config['EVENT_XML_ID'])
-
-
-def publish_faculty_bio_xml():
-
-    # publish the event XML page
-    publish(app.config['FACULTY_BIO_XML_ID'])
-
-
-def publish_e_announcement_xml():
-
-    # publish the event XML page
-    publish(app.config['E_ANNOUNCEMENTS_XML_ID'])
-
-
-def is_asset_in_workflow(id, type="page"):
-
-    tools.get_user()
-    client = get_client()
-    identifier = {
-        'id': id,
-        'type': type,
-    }
-
-    auth = app.config['CASCADE_LOGIN']
-
-    response = client.service.readWorkflowInformation(auth, identifier)
-
-    if response.workflow is not None:
-        if str(response.workflow.currentStep) != "finish":
-            return True
-
-    return False
-
-
+# todo move
 def search(name_search="", content_search="", metadata_search=""):
     client = get_client()
 
@@ -349,7 +161,7 @@ def search(name_search="", content_search="", metadata_search=""):
 
     return response
 
-
+# todo move
 def search_data_definitions(name_search=""):
     client = get_client()
 
@@ -365,7 +177,7 @@ def search_data_definitions(name_search=""):
 
     return response
 
-
+# todo move
 def create_image(asset):
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
@@ -380,7 +192,7 @@ def create_image(asset):
 
     return response
 
-
+# todo move
 def list_relationships(id, type="page"):
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
@@ -394,7 +206,7 @@ def list_relationships(id, type="page"):
 
     return response
 
-
+# todo move
 def read_access_rights(id, type="page"):
     auth = app.config['CASCADE_LOGIN']
     client = get_client()
