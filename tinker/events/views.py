@@ -331,10 +331,8 @@ def confirm():
     return render_template('submit-confirm.html', **locals())
 
 
-@event_blueprint.route('/api/reset-tinker-edits/<event_id>', methods=['get','post'])
-# @requires_auth
-
-
+# Todo: need to add some kind of auth to protect this method
+@event_blueprint.route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
 def reset_tinker_edits(event_id):
     from config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 

@@ -1,12 +1,9 @@
 #!/Users/ejc84332/envs/tinker/bin/python
-import os.path
-
 from migrate.versioning import api
-
-from config.config import SQLALCHEMY_DATABASE_URI
-from config.config import SQLALCHEMY_MIGRATE_REPO
+from config import SQLALCHEMY_DATABASE_URI
+from config import SQLALCHEMY_MIGRATE_REPO
 from tinker import db
-
+import os.path
 db.create_all()
 if not os.path.exists(SQLALCHEMY_MIGRATE_REPO):
     api.create(SQLALCHEMY_MIGRATE_REPO, 'database repository')

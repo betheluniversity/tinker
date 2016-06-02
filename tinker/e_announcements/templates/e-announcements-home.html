@@ -17,7 +17,7 @@
     </p>
   </div>
  </div>
-      <a href="{{ url_for('e-announcements.EAnnouncementsView:new') }}" class="small button success">Submit New E-Announcement</a>
+      <a href="/e-announcement/new" class="small button success">Submit New E-Announcement</a>
 <hr/>
 
 <div class="row">
@@ -45,7 +45,7 @@
               <li>This announcement is pending approval.</li>
             {% else %}
               {% if not form.first_date_past and not form.second_date_past %}
-                <li><a href="{{ url_for('e-announcements.EAnnouncementsView:edit', e_announcement_id=form.id) }}" class="small button">Edit</a></li>
+                <li><a href="/e-announcement/edit/{{ form.id }}" class="small button">Edit</a></li>
               {% else %}
                   <li><a href="/e-announcement/view/{{ form.id }}" class="small button">View</a></li>
 {#                  <li><a href="/e-announcement/duplicate/{{ form.id }}" class="small button">Duplicate</a></li>#}
