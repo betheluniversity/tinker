@@ -21,19 +21,6 @@ class RedirectsView(FlaskView):
     def __init__(self):
         self.base = RedirectsController()
 
-    def before_request(self, name, **kwargs):
-        if request.method == "POST":
-            token = session.pop('_csrf_token', None)
-            if not token or token != request.form.get('_csrf_token'):
-                abort(403)
-
-    def generate_csrf_token(self):
-        if '_csrf_token' not in session:
-            session['_csrf_token'] = "hello"
-        return session['_csrf_token']
-
-    app.jinja_env.globals['csrf_token'] = generate_csrf_token
-
     def index(self):
         self.base.check_redirect_groups()
         redirects = BethelRedirect.query.all()
@@ -196,7 +183,6 @@ class RedirectsView(FlaskView):
         return "hello"
 
     def search(self):
-
         # self.base.check_redirect_groups()
         # print request
         # print request.form
@@ -254,5 +240,4 @@ class RedirectsView(FlaskView):
         resp = self.base.create_redirect_text_file()
         return resp
 
-# csrf.exempt(RedirectsBlueprint)
 RedirectsView.register(RedirectsBlueprint)
