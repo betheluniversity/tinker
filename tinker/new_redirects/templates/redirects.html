@@ -57,6 +57,7 @@
   <script type="text/javascript">
 
   function updateTable(data){
+      console.log("YO");
       $("#redirects-table").html(data);
       $('#new-redirect-to').attr("disabled", false)
       //should the inputs be disabled?
@@ -92,9 +93,11 @@ var delay = (function(){
   function loadTableForSearch(search_value, type){
     // type needs to be either 'from_path' or 'to_url'
     var search = {'type': type, 'search': search_value};
-    var url = "/redirect/search";
-     $.post(url, search, function(data) {
-        updateTable(data);
+
+    var url = "{{ url_for('redirects.RedirectsView:search') }}";
+
+      $.post(url, search, function(data) {
+          updateTable(data);
       });
   }
 

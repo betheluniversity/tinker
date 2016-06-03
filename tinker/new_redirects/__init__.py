@@ -83,7 +83,7 @@ class RedirectsView(FlaskView):
 
 
 
-    def new_internal_redirect_submit(from_path, to_url, self):
+    def new_internal_redirect_submit(self, from_path, to_url):
         # added logic to have Tinker be able to internally create a redirect
         self.base.check_redirect_groups()
 
@@ -96,7 +96,7 @@ class RedirectsView(FlaskView):
             db.session.delete(redirect)
             db.session.commit()
             # following variable isn't being used... USED ANYWHERE ELSE?
-            # resp = self.base.create_redirect_text_file()
+            resp = self.base.create_redirect_text_file()
             app.logger.debug(": Correctly deleted if necessary")
         except:
             print "no deletion was made"
