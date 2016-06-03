@@ -41,22 +41,22 @@ def delete_expired_redirects():
 #     return render_template('redirects.html', **locals())
 
 
-# @redirect_blueprint.route('/search', methods=['post'])
-# def search():
-#     check_redirect_groups()
-#     # todo: limit results to...100?
-#     search_type = request.form['type']
-#     search_query = request.form['search'] + "%"
-#
-#     if search == "%" or search_type not in ['from_path', 'to_url']:
-#         return ""
-#
-#     if search_type == 'from_path':
-#         redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
-#     else:
-#         redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
-#     redirects.sort()
-#     return render_template('redirect-ajax.html', **locals())
+@redirect_blueprint.route('/search', methods=['post'])
+def search():
+    check_redirect_groups()
+    # todo: limit results to...100?
+    search_type = request.form['type']
+    search_query = request.form['search'] + "%"
+
+    if search == "%" or search_type not in ['from_path', 'to_url']:
+        return ""
+
+    if search_type == 'from_path':
+        redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
+    else:
+        redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
+    redirects.sort()
+    return render_template('redirect-ajax.html', **locals())
 
 
 @redirect_blueprint.route('/new-submit', methods=['post'])

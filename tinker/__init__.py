@@ -59,7 +59,9 @@ app.register_blueprint(EAnnouncementsBlueprint)
 from tinker.new_redirects import RedirectsBlueprint
 app.register_blueprint(RedirectsBlueprint)
 
-CsrfProtect(app).exempt(RedirectsBlueprint)
+from tinker.new_redirects import RedirectsView
+CsrfProtect(app).exempt(RedirectsView)
+# CsrfProtect(app).exempt(RedirectsBlueprint)
 
 # Import error handling
 import error

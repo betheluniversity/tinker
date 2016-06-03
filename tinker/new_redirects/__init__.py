@@ -1,10 +1,11 @@
 __author__ = 'ejc84332'
 
 import re
+import datetime
 
 from tinker import db
 
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request, session, abort
 
 from flask.ext.classy import FlaskView
 from tinker import db, app
@@ -20,6 +21,19 @@ class RedirectsView(FlaskView):
     def __init__(self):
         self.base = RedirectsController()
 
+    def before_request(self, name, **kwargs):
+        if request.method == "POST":
+            token = session.pop('_csrf_token', None)
+            if not token or token != request.form.get('_csrf_token'):
+                abort(403)
+
+    def generate_csrf_token(self):
+        if '_csrf_token' not in session:
+            session['_csrf_token'] = "hello"
+        return session['_csrf_token']
+
+    app.jinja_env.globals['csrf_token'] = generate_csrf_token
+
     def index(self):
         self.base.check_redirect_groups()
         redirects = BethelRedirect.query.all()
@@ -30,7 +44,7 @@ class RedirectsView(FlaskView):
     # TODO TEST
     def delete_redirect(self):
         self.base.check_redirect_groups()
-        path = self.base.request.form['from_path']
+        path = request.form['from_path']
 
         try:
             redirect = BethelRedirect.query.get(path)
@@ -48,14 +62,14 @@ class RedirectsView(FlaskView):
     # TODO TEST
     def new_redirect_submit(self):
         self.base.check_redirect_groups()
-        form = self.base.request.form
+        form = request.form
         from_path = form['new-redirect-from']
         to_url = form['new-redirect-to']
         short_url = form.get('short-url') == 'on'
         expiration_date = form.get('expiration-date')
 
         if expiration_date:
-            expiration_date = self.base.datetime.datetime.strptime(expiration_date, "%a %b %d %Y")
+            expiration_date = datetime.datetime.strptime(expiration_date, "%a %b %d %Y")
         else:
             expiration_date = None
 
@@ -119,8 +133,8 @@ class RedirectsView(FlaskView):
 
 
     def new_api_submit_asset_expiration(self):
-        subject = self.base.request.form['subject']
-        soup = self.base.BeautifulSoup(subject)
+        subject = request.form['subject']
+        soup = BeautifulSoup(subject)
         all_text = ''.join(soup.findAll(text=True))
 
         try:
@@ -147,7 +161,7 @@ class RedirectsView(FlaskView):
         return str(redirect)
 
     def delete_expired_redirects(self):
-        today = self.base.datetime.datetime.utcnow()
+        today = datetime.datetime.utcnow()
         redirects = BethelRedirect.query.filter(BethelRedirect.expiration_date < today).all()
         for redirect in redirects:
             db.session.delete(redirect)
@@ -178,24 +192,33 @@ class RedirectsView(FlaskView):
         resp.append("</pre>")
         return '\n'.join(resp)
 
+    def post(self):
+        return "hello"
+
     def search(self):
-        self.base.check_redirect_groups()
-        # todo: limit results to...100?
-        search_type = self.base.request.form['type']
-        search_query = self.base.request.form['search'] + "%"
 
-        if self.base.search == "%" or search_type not in ['from_path', 'to_url']:
-            return ""
-
-        if search_type == 'from_path':
-            redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
-        else:
-            redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
-        redirects.sort()
-        return render_template('redirect-ajax.html', **locals())
+        # self.base.check_redirect_groups()
+        # print request
+        # print request.form
+        # # todo: limit results to...100?
+        # search_type = request.form['type']
+        # print "made it!1"
+        # search_query = request.form['search'] + "%"
+        # print "made it12!"
+        # if self.search == "%" or search_type not in ['from_path', 'to_url']:
+        #     return ""
+        # print "made it2!"
+        # if search_type == 'from_path':
+        #     redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
+        # else:
+        #     redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
+        # print "made it3!"
+        # redirects.sort()
+        return "Hello"
+        # render_template('redirect-ajax.html', **locals())
 
     def new_api_submit(self):
-        body = self.base.request.form['body']
+        body = request.form['body']
 
         soup = BeautifulSoup(body)
         all_text = ''.join(soup.findAll(text=True))
@@ -231,4 +254,5 @@ class RedirectsView(FlaskView):
         resp = self.base.create_redirect_text_file()
         return resp
 
+# csrf.exempt(RedirectsBlueprint)
 RedirectsView.register(RedirectsBlueprint)
