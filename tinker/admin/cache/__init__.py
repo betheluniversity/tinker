@@ -13,15 +13,11 @@ class CacheClear(FlaskView):
             abort(403)
 
     def index(self):
-        print "beginning of index method"
         return render_template('cache-home.html', **locals())
 
     def post(self):
-        print "beginning of post method"
-        # http://flask.pocoo.org/docs/0.11/patterns/jquery/ <--This is the tutorial I was following
-        returnstring = request.args.get('url', "/", type=StringType)
-        return returnstring
         path = request.form['url']
+
         return cache_clear(path)
 
 def cache_clear(img_path=None):
