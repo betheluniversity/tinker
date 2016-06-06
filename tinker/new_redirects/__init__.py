@@ -8,6 +8,10 @@ from tinker import db
 from flask import Blueprint, render_template, request, session, abort
 
 from flask.ext.classy import FlaskView, route
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/redirects
 from tinker import db, app
 from BeautifulSoup import BeautifulSoup
 from tinker.new_redirects.redirects_controller import RedirectsController
@@ -177,6 +181,7 @@ class RedirectsView(FlaskView):
         resp.append("</pre>")
         return '\n'.join(resp)
 
+<<<<<<< HEAD
     def post(self):
         self.base.check_redirect_groups()
         print request
@@ -197,23 +202,35 @@ class RedirectsView(FlaskView):
         redirects.sort()
         return render_template('redirect-ajax.html', **locals())
 
+=======
+    @route("/search", methods=['post'])
+>>>>>>> origin/redirects
     def search(self):
         self.base.check_redirect_groups()
         print request
         print request.form
         # todo: limit results to...100?
         search_type = request.form['type']
+<<<<<<< HEAD
         print "made it!1"
         search_query = request.form['search'] + "%"
         print "made it12!"
         if self.search == "%" or search_type not in ['from_path', 'to_url']:
             return ""
         print "made it2!"
+=======
+        search_query = request.form['search'] + "%"
+        if self.search == "%" or search_type not in ['from_path', 'to_url']:
+            return ""
+>>>>>>> origin/redirects
         if search_type == 'from_path':
             redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
         else:
             redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
+<<<<<<< HEAD
         print "made it3!"
+=======
+>>>>>>> origin/redirects
         redirects.sort()
         return render_template('redirect-ajax.html', **locals())
 
