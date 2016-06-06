@@ -92,9 +92,7 @@ var delay = (function(){
   function loadTableForSearch(search_value, type){
     // type needs to be either 'from_path' or 'to_url'
     var search = {'type': type, 'search': search_value};
-    console.log("test1");
     var url = "{{ url_for('redirects.RedirectsView:search') }}";
-    console.log("test");
       $.post(url, search, function(data) {
           updateTable(data);
       });
