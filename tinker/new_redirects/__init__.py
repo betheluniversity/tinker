@@ -7,7 +7,7 @@ from tinker import db
 
 from flask import Blueprint, render_template, request, session, abort
 
-from flask.ext.classy import FlaskView
+from flask.ext.classy import FlaskView, route
 from tinker import db, app
 from BeautifulSoup import BeautifulSoup
 from tinker.new_redirects.redirects_controller import RedirectsController
@@ -29,10 +29,10 @@ class RedirectsView(FlaskView):
 
     # TODO make comments to the code
     # TODO TEST
+    @route("/delete_redirect", methods=['post'])
     def delete_redirect(self):
         self.base.check_redirect_groups()
         path = request.form['from_path']
-
         try:
             redirect = BethelRedirect.query.get(path)
             db.session.delete(redirect)
@@ -41,12 +41,12 @@ class RedirectsView(FlaskView):
 
         except:
             return "fail"
-
         return "deleted %s" % resp
 
 
     # TODO comment
     # TODO TEST
+    @route("/new_redirect_submit", methods=['post'])
     def new_redirect_submit(self):
         self.base.check_redirect_groups()
         form = request.form
@@ -65,7 +65,6 @@ class RedirectsView(FlaskView):
 
         try:
             redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url, expiration_date=expiration_date)
-
             db.session.add(redirect)
             db.session.commit()
 
@@ -78,7 +77,6 @@ class RedirectsView(FlaskView):
             # hopefully this will catch the error.
             db.session.rollback()
             return ""
-
 
         return str(redirect)
 
@@ -180,28 +178,44 @@ class RedirectsView(FlaskView):
         return '\n'.join(resp)
 
     def post(self):
-        return "hello"
+        self.base.check_redirect_groups()
+        print request
+        print request.form
+        # todo: limit results to...100?
+        search_type = request.form['type']
+        print "made it!1"
+        search_query = request.form['search'] + "%"
+        print "made it12!"
+        if self.search == "%" or search_type not in ['from_path', 'to_url']:
+            return ""
+        print "made it2!"
+        if search_type == 'from_path':
+            redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
+        else:
+            redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
+        print "made it3!"
+        redirects.sort()
+        return render_template('redirect-ajax.html', **locals())
 
     def search(self):
-        # self.base.check_redirect_groups()
-        # print request
-        # print request.form
-        # # todo: limit results to...100?
-        # search_type = request.form['type']
-        # print "made it!1"
-        # search_query = request.form['search'] + "%"
-        # print "made it12!"
-        # if self.search == "%" or search_type not in ['from_path', 'to_url']:
-        #     return ""
-        # print "made it2!"
-        # if search_type == 'from_path':
-        #     redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
-        # else:
-        #     redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
-        # print "made it3!"
-        # redirects.sort()
-        return "Hello"
-        # render_template('redirect-ajax.html', **locals())
+        self.base.check_redirect_groups()
+        print request
+        print request.form
+        # todo: limit results to...100?
+        search_type = request.form['type']
+        print "made it!1"
+        search_query = request.form['search'] + "%"
+        print "made it12!"
+        if self.search == "%" or search_type not in ['from_path', 'to_url']:
+            return ""
+        print "made it2!"
+        if search_type == 'from_path':
+            redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
+        else:
+            redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
+        print "made it3!"
+        redirects.sort()
+        return render_template('redirect-ajax.html', **locals())
 
     def new_api_submit(self):
         body = request.form['body']
