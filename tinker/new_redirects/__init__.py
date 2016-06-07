@@ -1,13 +1,14 @@
 __author__ = 'ejc84332'
 
 import re
+
 from datetime import datetime
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, abort
 
 from flask.ext.classy import FlaskView, route
 
-from tinker import db, app
+from tinker import db, app, session
 from BeautifulSoup import BeautifulSoup
 from tinker.new_redirects.redirects_controller import RedirectsController
 from tinker.redirects.models import BethelRedirect
@@ -23,34 +24,31 @@ class RedirectsView(FlaskView):
 
     # Redirects homepage
     def index(self):
-        self.base.check_redirect_groups()
         redirects = BethelRedirect.query.all()
-
         return render_template('redirects.html', **locals())
 
-    # TODO make comments to the code
-    # TODO TEST
+    # This method is called before a request is made
+    def before_request(self, name, **kwargs):
+        # Checks to see what group the user is in
+        if 'Tinker Redirects' not in session['groups']:
+            abort(403)
+
     # Deletes the chosen redirect
     @route("/delete", methods=['post'])
     def delete_redirect(self):
-        self.base.check_redirect_groups()
         path = request.form['from_path']
         try:
             redirect = BethelRedirect.query.get(path)
-            db.session.delete(redirect)
-            db.session.commit()
+            self.base.database_delete(redirect)
             resp = self.base.create_redirect_text_file()
 
         except:
             return "fail"
         return "deleted %s" % resp
 
-    # TODO comment
-    # TODO TEST
     # Saves the new redirect created
     @route("/new-redirect-submit", methods=['post'])
     def new_redirect_submit(self):
-        self.base.check_redirect_groups()
         form = request.form
         from_path = form['new-redirect-from']
         to_url = form['new-redirect-to']
@@ -68,9 +66,7 @@ class RedirectsView(FlaskView):
         try:
             redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url,
                                       expiration_date=expiration_date)
-            db.session.add(redirect)
-            db.session.commit()
-
+            self.base.database_add(redirect)
             # Update the file after every submit?
             self.base.create_redirect_text_file()
         except:
@@ -88,7 +84,6 @@ class RedirectsView(FlaskView):
     @route('/new-internal-submit/<from_path>/<to_url>', methods=['get', 'post'])
     def new_internal_redirect_submit(self, from_path, to_url):
         # added logic to have Tinker be able to internally create a redirect
-        self.base.check_redirect_groups()
 
         if not from_path.startswith("/"):
             from_path = "/%s" % from_path
@@ -96,8 +91,8 @@ class RedirectsView(FlaskView):
         # if one from the current from exists, remove it.
         try:
             redirect = BethelRedirect.query.get(from_path)
-            db.session.delete(redirect)
-            db.session.commit()
+            self.add.database_delete(redirect)
+
             # following variable isn't being used... USED ANYWHERE ELSE?
             # resp = self.base.create_redirect_text_file()
             app.logger.debug(": Correctly deleted if necessary")
@@ -107,8 +102,7 @@ class RedirectsView(FlaskView):
         # create the redirect
         try:
             redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-            db.session.add(redirect)
-            db.session.commit()
+            self.add.database_add(redirect)
             print "Successfully created a internal redirect"
             app.logger.debug(": Correctly created a new one")
         except:
@@ -132,8 +126,8 @@ class RedirectsView(FlaskView):
             from_path = "/" + lines[1].lstrip().rstrip()
             to_url = "https://www.bethel.edu/employment/openings/postings/job-closed"
             redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-            db.session.add(redirect)
-            db.session.commit()
+            self.add.database_add(redirect)
+
         except:
             message = "redirect from %s to %s already exists" % (from_path, to_url)
             sender = 'tinker@bethel.edu'
@@ -160,6 +154,7 @@ class RedirectsView(FlaskView):
         self.base.create_redirect_text_file()
         return 'done'
 
+    # Test todo needed?
     def test(self):
         redirects = BethelRedirect.query.all()
         resp = ["<pre>"]
@@ -175,8 +170,8 @@ class RedirectsView(FlaskView):
             except:
                 x = 2
             if from_path == to_path:
-                db.session.delete(redirect)
-                db.session.commit()
+                self.add.database_delete(redirect)
+
                 resp.append("deleted %s : %s" % (from_path, to_path))
 
         self.base.create_redirect_text_file()
@@ -186,7 +181,6 @@ class RedirectsView(FlaskView):
     # Finds all redirects associated with the from path entered
     @route("/search", methods=['post'])
     def search(self):
-        self.base.check_redirect_groups()
         # todo: limit results to...100?
         search_type = request.form['type']
         search_query = request.form['search'] + "%"
@@ -216,8 +210,8 @@ class RedirectsView(FlaskView):
                     from_url, to_url = line.split()
                     from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
                     redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-                    db.session.add(redirect)
-                    db.session.commit()
+                    self.add.database_add(redirect)
+
             except:
                 # message = "redirect from %s to %s already exists" % (from_url, to_url)
                 # sender = 'tinker@bethel.edu'
@@ -233,9 +227,8 @@ class RedirectsView(FlaskView):
             self.base.create_redirect_text_file()
         return str(redirect)
 
-    # TODO Comment on what this does
-    def compile_redirects(self):
-        self.base.check_redirect_groups()
+    # Updates the redirect text file upon request
+    def compile(self):
         resp = self.base.create_redirect_text_file()
         return resp
 

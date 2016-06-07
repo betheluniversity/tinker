@@ -285,5 +285,4 @@ def load_redirects():
         except IntegrityError:
             db.session.rollback()
 
-
     return "done"
