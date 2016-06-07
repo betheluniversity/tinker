@@ -1,5 +1,7 @@
 config.py
 *.pyc
+migrations/
+creds.json
 workspace.xml
 tasks.xml
 error.log
@@ -32,3 +34,5 @@ tinker/admin/program_search/creds.json
 node_modules/
 bower_components/
 tinker/static/scripts/js/
+
+config/*.py

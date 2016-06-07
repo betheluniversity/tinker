@@ -11,6 +11,7 @@ from flask import Blueprint
 from flask import redirect
 from flask import Response
 from flask import session
+from flask import request
 
 # tinker
 from tinker import sentry
@@ -22,35 +23,6 @@ from tinker.tools import *
 from createsend import *
 
 e_announcements_blueprint = Blueprint('e-announcement', __name__, template_folder='templates')
-
-
-from functools import wraps
-from flask import request, Response
-
-
-def check_auth(username, password):
-    """This function is called to check if a username /
-    password combination is valid.
-    """
-    return username == app.config['CASCADE_LOGIN']['username'] and password == app.config['CASCADE_LOGIN']['password']
-
-
-def authenticate():
-    """Sends a 401 response that enables basic auth"""
-    return Response(
-    'Could not verify your access level for that URL.\n'
-    'You have to login with proper credentials', 401,
-    {'WWW-Authenticate': 'Basic realm="Login Required"'})
-
-
-def requires_auth(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        auth = request.authorization
-        if not auth or not check_auth(auth.username, auth.password):
-            return authenticate()
-        return f(*args, **kwargs)
-    return decorated
 
 
 @e_announcements_blueprint.route("/")
@@ -202,6 +174,13 @@ def submit_e_announcement_form():
     title = title.lower().replace(' ', '-')
     title = re.sub(r'[^a-zA-Z0-9-]', '', title)
 
+    # put the users email and name into the form data. Pre-loading on the form was causing issues loading
+    # the wrong name and email.
+    # We are using copy() in order to change from ImmutableDict to MultiDict, in order to update name and email
+    rform = rform.copy()
+    rform['name'] = session['name']
+    rform['email'] = session['user_email']
+
     if not form.validate_on_submit():
         if 'e_announcement_id' in request.form.keys():
             e_announcement_id = request.form['e_announcement_id']
@@ -267,96 +246,103 @@ def view_announcement(block_id):
 @e_announcements_blueprint.route("/create_campaign/<date>", methods=['get', 'post'])
 @requires_auth
 def create_campaign(date=None):
-    if not date:
-        date = datetime.datetime.strptime(datetime.datetime.now().strftime("%m-%d-%Y"), "%m-%d-%Y")
-    else:
-        date = datetime.datetime.strptime(date, "%m-%d-%Y")
+    try:
+        if not date:
+            date = datetime.datetime.strptime(datetime.datetime.now().strftime("%m-%d-%Y"), "%m-%d-%Y")
+        else:
+            date = datetime.datetime.strptime(date, "%m-%d-%Y")
 
-    if not check_if_valid_date(date):
-        return 'E-Announcements are not set to run today. No campaign was created and no E-Announcements were sent out.'
+        # send a
+        if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
+            log_sentry("E-Announcement create_and_send_campaign was called on production", date)
 
-    submitted_announcements = []
-    current_announcement_role_list = []
-    for announcement in get_e_announcements_for_user():
-        date_matches = False
+        if not check_if_valid_date(date):
+            return 'E-Announcements are not set to run today. No campaign was created and no E-Announcements were sent out.'
 
-        if announcement['first_date']:
-            first_date = datetime.datetime.strptime(announcement['first_date'], "%A %B %d, %Y")
-            if str(date) == str(first_date):
-                date_matches = True
+        submitted_announcements = []
+        current_announcement_role_list = []
+        for announcement in get_e_announcements_for_user():
+            date_matches = False
 
-        if announcement['second_date']:
-            second_date = datetime.datetime.strptime(announcement['second_date'], "%A %B %d, %Y")
-            if str(date) == str(second_date):
-                date_matches = True
+            if announcement['first_date']:
+                first_date = datetime.datetime.strptime(announcement['first_date'], "%A %B %d, %Y")
+                if str(date) == str(first_date):
+                    date_matches = True
 
-        if not date_matches:
-            continue
+            if announcement['second_date']:
+                second_date = datetime.datetime.strptime(announcement['second_date'], "%A %B %d, %Y")
+                if str(date) == str(second_date):
+                    date_matches = True
 
-        # add announcement
-        submitted_announcements.append({
-            "Layout":
-                "announcements",
-                "Multilines": [
-                    {
-                        "Content": create_single_announcement(announcement)
-                    }
-                ]
-            }
-        )
+            if not date_matches:
+                continue
 
-        # create a list of all roles that are currently receiving E-Announcements
-        for role in announcement['roles']:
-            if role not in current_announcement_role_list:
-                current_announcement_role_list.append(role)
+            # add announcement
+            submitted_announcements.append({
+                "Layout":
+                    "announcements",
+                    "Multilines": [
+                        {
+                            "Content": create_single_announcement(announcement)
+                        }
+                    ]
+                }
+            )
 
-    campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
-    CreateSend({'api_key': campaign_monitor_key})
-    new_campaign = Campaign({'api_key': campaign_monitor_key})
+            # create a list of all roles that are currently receiving E-Announcements
+            for role in announcement['roles']:
+                if role not in current_announcement_role_list:
+                    current_announcement_role_list.append(role)
 
-    client_id = app.config['CLIENT_ID']
-    subject = 'Bethel E-Announcements | ' + str(date.strftime('%A, %B %-d, %Y'))
-    name = 'Bethel E-Announcements | ' + str(date.strftime('%m/%-d/%Y'))
-    from_name = 'Bethel E-Announcements'
-    from_email = 'e-announcements@lists.bethel.edu'
-    reply_to = 'e-announcements@lists.bethel.edu'
-    list_ids = [app.config['LIST_KEY']]
-    segment_ids = [app.config['SEGMENT_ID']]
-    template_id = app.config['TEMPLATE_ID']
-    template_content = {
-        "Singlelines": [
-            {
-                "Content": 'Bethel E-Announcements<br/>' + str(date.strftime('%A, %B %-d, %Y')),
-            },
-            {
-                "Content": '<a href="https://www.bethel.edu/e-announcements/archive?date=%s">View all E-Announcements for today.</a>' % str(date.strftime('%m-%d-%Y'))
-            }
-        ],
-        "Multilines": [
-            {
-                "Content": get_layout_for_no_announcements(current_announcement_role_list),
-            }
-        ],
-        "Repeaters": [
-            {
-                "Items": submitted_announcements
-            },
-        ]
-    }
+        campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
+        CreateSend({'api_key': campaign_monitor_key})
+        new_campaign = Campaign({'api_key': campaign_monitor_key})
 
-    # Todo: if a campaign already exists, delete the old one and create a new one
-    resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
-                                         segment_ids, template_id, template_content)
+        client_id = app.config['CLIENT_ID']
+        subject = 'Bethel E-Announcements | ' + str(date.strftime('%A, %B %-d, %Y'))
+        name = 'Bethel E-Announcements | %s | %s' % (str(date.strftime('%A')), str(date.strftime('%m/%-d/%Y')))
+        from_name = 'Bethel E-Announcements'
+        from_email = 'e-announcements@lists.bethel.edu'
+        reply_to = 'e-announcements@lists.bethel.edu'
+        list_ids = [app.config['LIST_KEY']]
+        segment_ids = [app.config['SEGMENT_ID']]
+        template_id = app.config['TEMPLATE_ID']
+        template_content = {
+            "Singlelines": [
+                {
+                    "Content": 'Bethel E-Announcements<br/>' + str(date.strftime('%A, %B %-d, %Y')),
+                },
+                {
+                    "Content": '<a href="https://www.bethel.edu/e-announcements/archive?date=%s">View all E-Announcements for today.</a>' % str(date.strftime('%m-%d-%Y'))
+                }
+            ],
+            "Multilines": [
+                {
+                    "Content": get_layout_for_no_announcements(current_announcement_role_list),
+                }
+            ],
+            "Repeaters": [
+                {
+                    "Items": submitted_announcements
+                },
+            ]
+        }
 
-    if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
-        # Send the announcements out to ALL users at 7:00 am.
-        confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
-        new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 06:30')
+        # Todo: if a campaign already exists, delete the old one and create a new one
+        resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to, list_ids,
+                                             segment_ids, template_id, template_content)
 
-        # if we ever want to send an e-announcement immediately, here it is.
-        # WARNING: be careful about accidentally sending emails to mass people.
-        # new_campaign.send(confirmation_email_sent_to)
+        if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
+            # Send the announcements out to ALL users at 5:30 am.
+            confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
+            new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 05:30')
+            log_sentry("E-Announcement campaign was sent", resp)
 
+            # if we ever want to send an e-announcement immediately, here it is.
+            # WARNING: be careful about accidentally sending emails to mass people.
+            # new_campaign.send(confirmation_email_sent_to)
 
+        return str(resp)
 
-    return str(resp)
+    except:
+        log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.")

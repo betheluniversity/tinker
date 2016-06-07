@@ -94,10 +94,16 @@
   {% block endbody %}
       <script type="text/javascript">
   $( document ).ready(function() {
-      if (typeof(CKEDITOR) != "undefined"){
-        CKEDITOR.config.format_tags = 'p';
-        CKEDITOR.config.disableNativeSpellChecker = false;
-        CKEDITOR.config.removePlugins = 'indent,indentlist,indentblock';
+      if (typeof(CKEDITOR) != "undefined") {
+          CKEDITOR.config.format_tags = 'p';
+          CKEDITOR.config.disableNativeSpellChecker = false;
+          CKEDITOR.config.extraPlugins = 'wordcount,notification';
+          CKEDITOR.config.wordcount = {
+                showParagraphs: false,
+                showWordCount: false
+          };
+          {% block ckeditor_extra %}
+          {% endblock %}
       }
       $(document).foundation();
   });

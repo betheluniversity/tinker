@@ -62,8 +62,9 @@ app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear')
 from tinker.admin.program_search import ProgramSearchBlueprint
 app.register_blueprint(ProgramSearchBlueprint, url_prefix='/admin')
 
-
-CsrfProtect(app).exempt(redirect_blueprint)
+csrf = CsrfProtect(app)
+csrf.exempt(cache_blueprint)
+csrf.exempt(redirect_blueprint)
 
 # Import error handling
 import error
@@ -76,15 +77,6 @@ def before_request():
         app.logger.debug(session['username'])
     except:
         app.logger.debug("failed to init")
-
-
-@app.route('/cache-clear/<path:img_path>')
-@app.route('/cache-clear')
-def cache_test(img_path=None):
-    if not img_path:
-        img_path = '/academics/faculty/images/lundberg-kelsey.jpg'
-    return tools.clear_image_cache(img_path)
-
 
 @app.route('/sherie')
 def peanut():

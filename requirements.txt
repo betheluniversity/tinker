@@ -17,8 +17,9 @@ arrow
 feedformatter
 feedparser
 createsend
-raven
 Flask-Classy
 gspread
 oauth2client
 PyOpenSSL
+raven
+bu-cascade
