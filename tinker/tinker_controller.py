@@ -105,7 +105,6 @@ class TinkerController(object):
                 get_users_name()
 
         def get_user():
-
             if current_app.config['ENVIRON'] == 'prod':
                 username = request.environ.get('REMOTE_USER')
             else:
