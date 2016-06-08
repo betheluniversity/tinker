@@ -93,9 +93,9 @@ var delay = (function(){
 
   function loadTableForSearch(name_value, content_value, metadata_value){
     var search = {'name': name_value, 'content': content_value, 'metadata': metadata_value};
-    var url = "/admin/publish-manager/search";
+    var url = "{{ url_for('publish-manager.PublishManagerView:post') }}";
      $.post(url, search, function(data) {
-        updateTable(data);
+        updateTable(data)
       });
   }
 
@@ -118,7 +118,7 @@ var delay = (function(){
 
     function moreInfo(type, id){
          var input_data = {'type': type, 'id': id};
-         var url = "/admin/publish-manager/more_info";
+         var url = "{{ url_for('publish-manager.PublishManagerView:more_info') }}";
          $.post(url, input_data, function(data) {
              $('.dialog-text').html(data);
           });

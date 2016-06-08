@@ -23,8 +23,6 @@ class PublishManagerView(FlaskView):
             abort(403)
 
     def index(self):
-        # TODO is the get_user needed?
-        # get_user
         username = session['username']
 
         return render_template('publish-home.html', **locals())
@@ -72,7 +70,31 @@ class PublishManagerView(FlaskView):
 
         return render_template('publish-program-feeds-table.html', **locals())
 
+    # @route("/search", methods=['get', 'post'])
+    # def post(self):
+    #     print "hello"
+    #     name = request.form['name']
+    #     content = request.form['content']
+    #     metadata = request.form['metadata']
+    #
+    #     # test search info
+    #     results = self.search(name, content, metadata)
+    #     if results.matches is None or results.matches == "":
+    #         results = []
+    #     else:
+    #         results = results.matches.match
+    #
+    #     final_results = []
+    #     for result in results:
+    #         if result.path.siteName == "Public" and (not re.match("_", result.path.path) or re.match("_shared-content", result.path.path) or re.match("_homepages", result.path.path)):
+    #             final_results.append(result)
+    #
+    #     results = final_results
+    #     return render_template('publish-table.html', **locals())
+
+    @route("/search", methods=['get', 'post'])
     def search(self):
+        print "hello"
         name = request.form['name']
         content = request.form['content']
         metadata = request.form['metadata']
@@ -86,8 +108,7 @@ class PublishManagerView(FlaskView):
 
         final_results = []
         for result in results:
-            if result.path.siteName == "Public" and \
-                    (not re.match("_", result.path.path) or re.match("_shared-content", result.path.path) or re.match("_homepages", result.path.path)):
+            if result.path.siteName == "Public" and (not re.match("_", result.path.path) or re.match("_shared-content", result.path.path) or re.match("_homepages", result.path.path)):
                 final_results.append(result)
 
         results = final_results
@@ -118,6 +139,7 @@ class PublishManagerView(FlaskView):
 
         return "Publishing. . ."
 
+    @route("/more_info", methods=['post'])
     def more_info(self):
         type = request.form['type']
         id = request.form['id']
