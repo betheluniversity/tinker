@@ -6,9 +6,6 @@ roles_blueprint = Blueprint('roles', __name__, template_folder='templates')
 
 class RolesView(FlaskView):
 
-    # def __init__(self):
-    #     self.base = RolesController
-
     def before_request(self):
         if 'Administrators' not in session['groups']:
             abort(403)
