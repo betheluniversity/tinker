@@ -18,12 +18,10 @@
         function submitpath() {
             var urlpath = $("#cpath").val();
             var input_data = {'url': urlpath};
-            var cacheurl = "{{ url_for('CacheBlueprint.CacheClear:post') }}";
-
+            var cacheurl = "{{ url_for('CacheBlueprint.CacheClear:submit') }}";
             $.post(cacheurl, input_data, function (data) {
                 $("#output").text(data);
             });
-
             $("#output").text(urlpath);
         }
 
