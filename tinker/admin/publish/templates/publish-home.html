@@ -87,14 +87,13 @@ var delay = (function(){
   function updateTable(data){
       // Todo if no data exists, display message
       $("#publish-table").html(data);
-
   }
-
 
   function loadTableForSearch(name_value, content_value, metadata_value){
     var search = {'name': name_value, 'content': content_value, 'metadata': metadata_value};
-    var url = "{{ url_for('publish-manager.PublishManagerView:post') }}";
+    var url = "{{ url_for('publish-manager.PublishManagerView:search') }}";
      $.post(url, search, function(data) {
+         console.log(data);
         updateTable(data)
       });
   }

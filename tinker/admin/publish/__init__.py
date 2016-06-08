@@ -70,37 +70,14 @@ class PublishManagerView(FlaskView):
 
         return render_template('publish-program-feeds-table.html', **locals())
 
-    # @route("/search", methods=['get', 'post'])
-    # def post(self):
-    #     print "hello"
-    #     name = request.form['name']
-    #     content = request.form['content']
-    #     metadata = request.form['metadata']
-    #
-    #     # test search info
-    #     results = self.search(name, content, metadata)
-    #     if results.matches is None or results.matches == "":
-    #         results = []
-    #     else:
-    #         results = results.matches.match
-    #
-    #     final_results = []
-    #     for result in results:
-    #         if result.path.siteName == "Public" and (not re.match("_", result.path.path) or re.match("_shared-content", result.path.path) or re.match("_homepages", result.path.path)):
-    #             final_results.append(result)
-    #
-    #     results = final_results
-    #     return render_template('publish-table.html', **locals())
-
-    @route("/search", methods=['get', 'post'])
+    @route('/search', methods=['get', 'post'])
     def search(self):
-        print "hello"
         name = request.form['name']
         content = request.form['content']
         metadata = request.form['metadata']
 
         # test search info
-        results = self.search(name, content, metadata)
+        results = self.base.search(name, content, metadata)
         if results.matches is None or results.matches == "":
             results = []
         else:

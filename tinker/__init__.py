@@ -60,7 +60,8 @@ app.register_blueprint(EAnnouncementsBlueprint)
 from tinker.admin.publish import PublishManagerBlueprint
 app.register_blueprint(PublishManagerBlueprint)
 
-CsrfProtect(app).exempt(redirect_blueprint)
+# CsrfProtect(app).exempt(redirect_blueprint)
+CsrfProtect(app).exempt(PublishManagerBlueprint)
 
 # Import error handling
 import error
