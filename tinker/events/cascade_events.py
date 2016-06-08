@@ -638,17 +638,6 @@ def get_current_year_folder(event_id):
         return None
 
 
-def get_event_delete_workflow():
-
-    workflow = {
-        "workflowName": "Delete and unpublish event",
-        "workflowDefinitionId": "2099e7f98c586513742d45fdf45eb6e5",
-        "workflowComments": "Event Deletion"
-    }
-
-    return workflow
-
-
 def get_event_publish_workflow(title="", username=""):
     if title:
         title = "-- %s" % title

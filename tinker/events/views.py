@@ -24,19 +24,6 @@ def home():
     return render_template('events-home.html', **locals())
 
 
-@event_blueprint.route('/delete/<page_id>')
-def delete_page(page_id):
-    workflow = get_event_delete_workflow()
-    delete(page_id, workflow=workflow)
-    publish_event_xml()
-    return redirect('/event/delete-confirm', code=302)
-
-
-@event_blueprint.route('/delete-confirm')
-def delete_confirm():
-    return render_template('events-delete-confirm.html', **locals())
-
-
 @event_blueprint.route("/add")
 def form_index():
 
