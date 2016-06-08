@@ -130,13 +130,14 @@ class TinkerController(object):
         def get_groups_for_user(username=None):
 
             # temporary
-            from tinker.tinker_controller import TinkerController
-            base = TinkerController()
+            # from tinker.tinker_controller import TinkerController
+            # base = TinkerController()
+
 
             if not username:
                 username = session['username']
             try:
-                user = base.read(username, "user")
+                user = self.read(username, "user")
                 allowed_groups = user.asset.user.groups
             except AttributeError:
                 allowed_groups = ""
