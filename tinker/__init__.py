@@ -57,6 +57,8 @@ app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 # New importing of routes and blueprints
 from tinker.e_announcements import EAnnouncementsBlueprint
 app.register_blueprint(EAnnouncementsBlueprint)
+from tinker.new_roles import roles_blueprint
+app.register_blueprint(roles_blueprint)
 
 CsrfProtect(app).exempt(redirect_blueprint)
 
