@@ -1,11 +1,10 @@
 import re
 import urllib
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, abort, session
 from flask.ext.classy import FlaskView, route
 
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
-from tinker.web_services import *
 
 from BeautifulSoup import BeautifulSoup
 
@@ -37,7 +36,7 @@ class PublishManagerView(FlaskView):
             destination = "staging"
 
         # get results
-        results = search_data_definitions("*program-feed*")
+        results = self.base.search_data_definitions("*program-feed*")
         if results.matches is None or results.matches == "":
             results = []
         else:
@@ -52,7 +51,7 @@ class PublishManagerView(FlaskView):
 
             if type == "block" and '/base-assets/' not in result.path.path and '_testing/' not in result.path.path:
                 try:
-                    relationships = list_relationships(id, type)
+                    relationships = self.base.list_relationships(id, type)
                     pages = relationships.subscribers.assetIdentifier
                     pages_added = []
                     for page in pages:
@@ -96,13 +95,13 @@ class PublishManagerView(FlaskView):
         return render_template('publish-table.html', **locals())
 
     @route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
-    def publish_publish(self, destination, type, id):
+    def publish_publish(self, destination, publish_type, publish_id):
         if destination != "staging":
             destination = ""
 
-        if type == "block":
+        if publish_type == "block":
             try:
-                relationships = list_relationships(id, type)
+                relationships = self.base.list_relationships(publish_id, publish_type)
                 pages = relationships.subscribers.assetIdentifier
                 for page in pages:
                     if page.type == "page":
@@ -114,7 +113,7 @@ class PublishManagerView(FlaskView):
                 return "Failed"
         else:
             # TODO not sure if this should use self.base
-            resp = self.base.publish(id, type, destination)
+            resp = self.base.publish(publish_id, publish_type, destination)
             if 'success = "false"' in str(resp):
                 return resp['message']
 
@@ -122,13 +121,13 @@ class PublishManagerView(FlaskView):
 
     @route("/more_info", methods=['post'])
     def more_info(self):
-        type = request.form['type']
-        id = request.form['id']
+        publish_type = request.form['type']
+        publish_id = request.form['id']
 
-        resp = read(id, type)
+        resp = self.base.read(publish_id, publish_type)
 
         # page
-        if type == 'page':
+        if publish_type == 'page':
             try:
                 info = resp.asset.page
                 md = info.metadata
@@ -136,7 +135,7 @@ class PublishManagerView(FlaskView):
             except:
                 return "Not a valid type. . ."
         # block
-        elif type == 'block':
+        elif publish_type == 'block':
             try:
                 info = resp.asset.xhtmlDataDefinitionBlock
                 md = info.metadata
