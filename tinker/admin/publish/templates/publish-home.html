@@ -23,7 +23,7 @@
 
 <form action="." id="publish-search-form">
 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-  <div class="row">
+    <div class="row">
 
     <div class="large-6 columns">
       <label>Search by Name
@@ -36,7 +36,7 @@
       </label>
     </div>
 
-  </div>
+    </div>
     <div class="row">
 
     <div class="large-6 columns">
@@ -53,6 +53,36 @@
     </div>
 
     </div>
+    <div class="row">
+
+    <div class="large-2 columns">
+        <label>Asset Types: </label>
+    </div>
+    <div class="large-2 columns">
+        <label>
+            <input type="checkbox" name="publish-pages" value="page" id="publish-pages" checked> Pages<br>
+        </label>
+    </div>
+    <div class="large-2 columns">
+        <label>
+            <input type="checkbox" name="publish-blocks" value="block" id="publish-blocks" checked> Blocks<br>
+        </label>
+    </div>
+        <div class="large-2 columns">
+            <label>
+                <input type="checkbox" name="publish-files" value="file" id="publish-files" checked> Files<br>
+            </label>
+        </div>
+    <div class="large-2 columns">
+        <label>
+            <input type="checkbox" name="publish-folders" value="folder" id="publish-folders" checked> Folders<br>
+        </label>
+    </div>
+        <div class="large-2 columns"></div>
+
+    </div>
+
+
 </form>
 
 <div class="row">
@@ -60,7 +90,7 @@
     <table>
       <thead>
         <tr>
-          <th width="200">Page Type</th>
+          <th width="200">Asset Type</th>
           <th width="600">Page URL</th>
           <th width="200">Publish</th>
           <th width="400">Messages</th>
@@ -89,11 +119,11 @@ var delay = (function(){
       $("#publish-table").html(data);
   }
 
-  function loadTableForSearch(name_value, content_value, metadata_value){
-    var search = {'name': name_value, 'content': content_value, 'metadata': metadata_value};
+  function loadTableForSearch(name_value, content_value, metadata_value, pages_value, blocks_value, files_value, folders_value){
+    var search = {'name': name_value, 'content': content_value, 'metadata': metadata_value, 'pages': pages_value,
+    'blocks': blocks_value, 'files': files_value, 'folders': folders_value};
     var url = "{{ url_for('publish-manager.PublishManagerView:search') }}";
      $.post(url, search, function(data) {
-         console.log(data);
         updateTable(data)
       });
   }
@@ -102,8 +132,25 @@ var delay = (function(){
       var name = $('#publish-search-by-name').val();
       var content = $('#publish-search-by-content').val();
       var metadata = $('#publish-search-by-metadata').val();
+
+      if ($('#publish-pages').is(":checked"))
+          var pages = true;
+      else
+          pages = false;
+      if ($('#publish-blocks').is(":checked"))
+          var blocks = true;
+      else
+          blocks = false;
+      if ($('#publish-files').is(":checked"))
+          var files = true;
+      else
+          files = false;
+      if ($('#publish-folders').is(":checked"))
+          var folders = true;
+      else
+          folders = false;
       delay(function(){
-        loadTableForSearch(name, content, metadata);
+        loadTableForSearch(name, content, metadata, pages, blocks, files, folders);
       }, 300 );
   });
 

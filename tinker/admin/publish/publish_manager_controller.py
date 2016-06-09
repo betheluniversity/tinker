@@ -22,7 +22,6 @@ class PublishManagerController(TinkerController):
 
         return date_time
 
-
     # todo these two methods must be removed eventually
     def get_client(self):
         try:
@@ -31,7 +30,8 @@ class PublishManagerController(TinkerController):
         except TransportError:
             abort(503)
 
-    def search(self, name_search="", content_search="", metadata_search=""):
+    def search(self, name_search="", content_search="", metadata_search="", pages_search="", blocks_search="",
+               files_search="", folders_search=""):
         client = self.get_client()
 
         search_information = {
@@ -39,10 +39,10 @@ class PublishManagerController(TinkerController):
             'assetName': name_search,
             'assetContent': content_search,
             'assetMetadata': metadata_search,
-            'searchPages': True,
-            'searchBlocks': False,
-            'searchFiles': True,
-            'searchFolders': True,
+            'searchPages': pages_search,
+            'searchBlocks': blocks_search,
+            'searchFiles': files_search,
+            'searchFolders': folders_search,
         }
 
         auth = app.config['CASCADE_LOGIN']

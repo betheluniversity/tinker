@@ -75,9 +75,13 @@ class PublishManagerView(FlaskView):
         name = request.form['name']
         content = request.form['content']
         metadata = request.form['metadata']
+        pages = request.form['pages']
+        blocks = request.form['blocks']
+        files = request.form['files']
+        folders = request.form['folders']
 
         # test search info
-        results = self.base.search(name, content, metadata)
+        results = self.base.search(name, content, metadata, pages, blocks, files, folders)
         if results.matches is None or results.matches == "":
             results = []
         else:
