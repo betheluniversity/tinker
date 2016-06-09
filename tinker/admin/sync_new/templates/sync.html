@@ -7,13 +7,16 @@
 {% block main_content %}
 <a href="{{ url_for('sync.SyncView:all') }}" class="small button success">Sync</a>
 
-<h3>Current Values:</h3>
+<h3>Updated Values:</h3>
     {% for key in data %}
-        <h4>{{ key }}</h4>
-        <ul>
-        {% for response in data[key] %}
-            <li>{{ response }}</li>
-        {% endfor %}
-        </ul>
+        {# only display the keys that were updated #}
+        {% if key in returned_keys %}
+            <h4>{{ key }}</h4>
+            <ul>
+            {% for response in data[key] %}
+                <li>{{ response }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
     {% endfor %}
 {% endblock %}
