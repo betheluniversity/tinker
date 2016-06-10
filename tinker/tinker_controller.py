@@ -272,8 +272,8 @@ class TinkerController(object):
         p.read_asset()
         return p.structured_data()
 
-    def publish(self, path_or_id, asset_type='page'):
-        return self.cascade_connector.publish(path_or_id, asset_type)
+    def publish(self, path_or_id, asset_type='page', destination='production'):
+        return self.cascade_connector.publish(path_or_id, asset_type, destination)
 
     def unpublish(self, path_or_id, asset_type):
         return self.cascade_connector.unpublish(path_or_id, asset_type)

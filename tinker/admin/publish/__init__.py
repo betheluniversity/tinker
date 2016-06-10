@@ -99,34 +99,31 @@ class PublishManagerView(FlaskView):
 
     # Publishes the block or page that user
     @route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
-    def publish_publish(self, destination, publish_type, publish_id):
+    def publish_publish(self, destination, type, id):
         if destination != "staging":
             destination = ""
-
-        if publish_type == "block":
+        print destination
+        if type == "block":
             try:
-                relationships = self.base.list_relationships(publish_id, publish_type)
+                relationships = self.base.list_relationships(id, type)
                 pages = relationships.subscribers.assetIdentifier
                 for page in pages:
                     if page.type == "page":
-                        # TODO not sure if this should use self.base
                         resp = self.base.publish(page.id, "page", destination)
                 if 'success = "false"' in str(resp):
                     return resp['message']
             except:
                 return "Failed"
         else:
-            # TODO not sure if this should use self.base
-            resp = self.base.publish(publish_id, publish_type, destination)
+            resp = self.base.publish(id, type, destination)
             if 'success = "false"' in str(resp):
                 return resp['message']
-
         return "Publishing. . ."
 
     # Displays info about the published block or page
     # Displays examples on web page
     @route("/more_info", methods=['post'])
-    def more_info(self):
+    def more_info(self, info_id):
         publish_type = request.form['type']
         publish_id = request.form['id']
 
@@ -135,17 +132,21 @@ class PublishManagerView(FlaskView):
         # page
         if publish_type == 'page':
             try:
-                info = resp.asset.page
-                md = info.metadata
-                ext = 'php'
+                block = self.base.read_block(info_id)
+                info, md, ext = block.read_asset()
+                # info = resp.asset.page
+                # md = info.metadata
+                # ext = 'php'
             except:
                 return "Not a valid type. . ."
         # block
         elif publish_type == 'block':
             try:
-                info = resp.asset.xhtmlDataDefinitionBlock
-                md = info.metadata
-                ext = ""
+                block = self.base.read_block(info_id)
+                info, md, ext = block.read_asset()
+                # info = resp.asset.xhtmlDataDefinitionBlock
+                # md = info.metadata
+                # ext = ""
             except:
                 return "Not a valid type. . ."
         # Todo: file
