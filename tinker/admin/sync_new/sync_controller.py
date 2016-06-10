@@ -81,3 +81,35 @@ class SyncController(TinkerController):
             })
 
         return returned_keys
+
+    def get_metadata_sets_mapping(self):
+        metadata_sets_mapping = {}
+        metadata_sets = [
+            app.config['METADATA_EVENT_ID'],
+            app.config['METADATA_ROBUST_ID'],
+            app.config['METADATA_JOB_POSTING_ID'],
+            app.config['METADATA_PORTAL_ROLES_ID']
+        ]
+        for metadata_set_id in metadata_sets:
+            asset = self.read_metadata_set(metadata_set_id)
+            metadata_asset, empty_variable, empty_variable = asset.get_asset()
+            metadata_sets_mapping[metadata_set_id] = metadata_asset['metadataSet']['name']
+
+        return metadata_sets_mapping
+
+    def get_data_definitions_mapping(self):
+        data_definition_mapping = {}
+        data_definitions = [
+            app.config['DATA_DEF_FACULTY_BIO_ID'],
+            app.config['DATA_DEF_PROGRAM_FEED_ID'],
+            app.config['DATA_DEF_PROGRAM_BLOCK_ID'],
+            app.config['DATA_DEF_PORTAL_CHANNEL_ID'],
+            app.config['DATA_DEF_PORTAL_TAB_ID'],
+            app.config['DATA_DEF_PROGRAM_SEARCH_ID']
+        ]
+        for data_definition_id in data_definitions:
+            asset = self.read_datadefinition(data_definition_id)
+            data_definition_asset, empty_variable, empty_variable = asset.get_asset()
+            data_definition_mapping[data_definition_id] = data_definition_asset['dataDefinition']['name']
+
+        return data_definition_mapping

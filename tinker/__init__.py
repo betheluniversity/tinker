@@ -60,7 +60,9 @@ app.register_blueprint(EAnnouncementsBlueprint)
 from tinker.admin.sync_new import SyncBlueprint
 app.register_blueprint(SyncBlueprint)
 
-CsrfProtect(app).exempt(redirect_blueprint)
+# csrf_variable = CsrfProtect(app)
+# csrf_variable.exempt(redirect_blueprint)
+CsrfProtect(app).exempt(SyncBlueprint)
 
 # Import error handling
 import error
