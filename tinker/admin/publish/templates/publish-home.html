@@ -14,7 +14,6 @@
 <a href='/admin/publish-manager/program-feeds' class="button">Program Feeds</a>
 
 <p>Blocks that are published publish out each page in the relationships tab.</p>
-<p>Use *'s to assist in broadening searches. For example, "ban*" will search for "ban", "banner", "bank", etc.</p>
 
 <div id="dialog" class="reveal-modal" data-reveal>
     <p class='dialog-text'>. . . Loading . . .</p>
@@ -60,22 +59,26 @@
     </div>
     <div class="large-2 columns">
         <label>
-            <input type="checkbox" name="publish-pages" value="page" id="publish-pages" checked> Pages<br>
+            <input class="publish-search" type="checkbox" name="publish-pages" value="page" id="publish-pages"
+                   onchange="search()" checked> Pages<br>
         </label>
     </div>
     <div class="large-2 columns">
         <label>
-            <input type="checkbox" name="publish-blocks" value="block" id="publish-blocks" checked> Blocks<br>
+            <input class="publish-search" type="checkbox" name="publish-blocks" value="block" id="publish-blocks"
+                   onchange="search()" checked> Blocks<br>
         </label>
     </div>
         <div class="large-2 columns">
             <label>
-                <input type="checkbox" name="publish-files" value="file" id="publish-files" checked> Files<br>
+                <input class="publish-search" type="checkbox" name="publish-files" value="file" id="publish-files"
+                       onchange="search()" checked> Files<br>
             </label>
         </div>
     <div class="large-2 columns">
         <label>
-            <input type="checkbox" name="publish-folders" value="folder" id="publish-folders" checked> Folders<br>
+            <input class="publish-search" type="checkbox" name="publish-folders" value="folder" id="publish-folders"
+                   onchange="search()" checked> Folders<br>
         </label>
     </div>
         <div class="large-2 columns"></div>
@@ -128,10 +131,10 @@ var delay = (function(){
       });
   }
 
-  $('.publish-search').keyup(function() {
-      var name = $('#publish-search-by-name').val();
-      var content = $('#publish-search-by-content').val();
-      var metadata = $('#publish-search-by-metadata').val();
+  function search() {
+      var name = '*' + $('#publish-search-by-name').val() + '*';
+      var content = '*' + $('#publish-search-by-content').val() + '*';
+      var metadata = '*' + $('#publish-search-by-metadata').val() + '*';
 
       if ($('#publish-pages').is(":checked"))
           var pages = true;
@@ -152,6 +155,10 @@ var delay = (function(){
       delay(function(){
         loadTableForSearch(name, content, metadata, pages, blocks, files, folders);
       }, 300 );
+  }
+
+  $('.publish-search').keyup(function() {
+      search()
   });
 
   function publishAsset(type, id, counter){

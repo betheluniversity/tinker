@@ -17,13 +17,14 @@ class PublishManagerView(FlaskView):
     def __init__(self):
         self.base = PublishManagerController()
 
+    # This method is called before any request to check user's credentials
     def before_request(self, name, **kwargs):
         if 'Administrators' not in session['groups']:
             abort(403)
 
+    # Publish manager's homepage
     def index(self):
         username = session['username']
-
         return render_template('publish-home.html', **locals())
 
     @route("/program-feeds", methods=['get', 'post'])
@@ -69,6 +70,8 @@ class PublishManagerView(FlaskView):
 
         return render_template('publish-program-feeds-table.html', **locals())
 
+    # Finds all pages, blocks, files, and folders dependent on the
+    # name, content, or metadata entered by the user
     @route('/search', methods=['get', 'post'])
     def search(self):
         name = request.form['name']
@@ -94,6 +97,7 @@ class PublishManagerView(FlaskView):
         results = final_results
         return render_template('publish-table.html', **locals())
 
+    # Publishes the block or page that user
     @route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
     def publish_publish(self, destination, publish_type, publish_id):
         if destination != "staging":
@@ -119,6 +123,8 @@ class PublishManagerView(FlaskView):
 
         return "Publishing. . ."
 
+    # Displays info about the published block or page
+    # Displays examples on web page
     @route("/more_info", methods=['post'])
     def more_info(self):
         publish_type = request.form['type']

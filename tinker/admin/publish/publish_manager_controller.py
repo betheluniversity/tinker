@@ -81,26 +81,3 @@ class PublishManagerController(TinkerController):
         response = client.service.listSubscribers(auth, identifier)
 
         return response
-
-    def read(self, path_or_id, type="page"):
-        client = self.get_client()
-
-        if path_or_id[0] == "/":
-            identifier = {
-                'type': type,
-                'path': {
-                    'path': path_or_id,
-                    'siteId': app.config['SITE_ID']
-                }
-            }
-        else:
-            identifier = {
-                'id': path_or_id,
-                'type': type,
-            }
-
-        auth = app.config['CASCADE_LOGIN']
-
-        response = client.service.read(auth, identifier)
-
-        return response
