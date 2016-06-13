@@ -26,8 +26,7 @@ class SyncView(FlaskView):
     def all(self):
         data = data_to_add
         returned_keys = []
-        # Todo: clean this up
-        # Todo: This pull works the second time. maybe call the pull from a url?
+        # Todo: Fix this. This pull works the second time. maybe call the pull from a url?
         # don't pull locally. It's just a bad idea.
         if 'User' not in app.config['INSTALL_LOCATION']:
             import commands
