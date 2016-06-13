@@ -9,10 +9,16 @@
     <hr/>
 {% endif %}
 
-{% for key in data %}
-    {# only display the keys that were updated #}
-    {% if key in returned_keys or key == 'cas-departments' %}
+{# only display the keys that were updated #}
+{% for key in returned_keys %}
+    {% if key != None %}
         <h4>{{ key }}</h4>
+
+        {# department and cas-departments link to department #}
+        {% if key == 'cas-departments' %}
+            {% set key = 'department' %}
+        {% endif %}
+
         <ul>
         {% for response in data[key] %}
             <li>{{ response }}</li>

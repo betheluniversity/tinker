@@ -18,14 +18,6 @@ class SyncView(FlaskView):
             abort(403)
 
     def index(self):
-        metadata_sets_mapping = self.base.get_metadata_sets_mapping()
-        data_definition_mapping = self.base.get_data_definitions_mapping()
-
-        return render_template('sync-home.html', **locals())
-
-    def all(self):
-        data = data_to_add
-        returned_keys = []
         # Todo: Fix this. This pull works the second time. maybe call the pull from a url?
         # don't pull locally. It's just a bad idea.
         if 'User' not in app.config['INSTALL_LOCATION']:
@@ -34,33 +26,50 @@ class SyncView(FlaskView):
                 "cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
 
         metadata_sets_mapping = self.base.get_metadata_sets_mapping()
-        returned_keys.extend(self.base.sync_metadata_sets(metadata_sets_mapping))
-
         data_definition_mapping = self.base.get_data_definitions_mapping()
-        returned_keys.extend(self.base.sync_data_definitions(data_definition_mapping))
 
         return render_template('sync-home.html', **locals())
+
+    @route("/all", methods=['post'])
+    def all(self):
+        data = data_to_add
+        returned_keys = []
+
+        # Get id's and names of md sets and data definitions
+        metadata_sets_mapping = self.base.get_metadata_sets_mapping()
+        data_definition_mapping = self.base.get_data_definitions_mapping()
+
+        # sync
+        returned_keys.extend(self.base.sync_metadata_sets(metadata_sets_mapping))
+        returned_keys.extend(self.base.sync_data_definitions(data_definition_mapping))
+
+        return render_template('sync-data.html', **locals())
 
     @route("/metadata", methods=['post'])
     def metadata(self):
         id = request.form['id']
         data = data_to_add
-        returned_keys = self.base.sync_metadata_set(id)
 
+        # Get id's and names of md sets and data definitions
         metadata_sets_mapping = self.base.get_metadata_sets_mapping()
         data_definition_mapping = self.base.get_data_definitions_mapping()
+
+        # sync
+        returned_keys = self.base.sync_metadata_set(id)
 
         return render_template('sync-data.html', **locals())
 
     @route("/datadefinition", methods=['post'])
     def datadefinition(self):
         id = request.form['id']
-
         data = data_to_add
-        returned_keys = self.base.sync_data_definition(id)
 
+        # Get id's and names of md sets and data definitions
         metadata_sets_mapping = self.base.get_metadata_sets_mapping()
         data_definition_mapping = self.base.get_data_definitions_mapping()
+
+        # sync
+        returned_keys = self.base.sync_data_definition(id)
 
         return render_template('sync-data.html', **locals())
 

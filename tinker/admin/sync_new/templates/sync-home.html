@@ -5,6 +5,17 @@
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
+<script>
+        function postToURLWithSpinner(url, value){
+            {# activate waiting gif #}
+            $('#spinner').show();
+            $.post(url, {'id': value}, function (data) {
+                $("#output").html(data);
+                $('#spinner').hide();
+            });
+        };
+</script>
+
 <p>The sync data is contained in this <a target="_blank" href="https://github.com/betheluniversity/tinker/blob/master/tinker/admin/sync/sync_metadata.py">file</a>. You can sync a specific metadata set, data definition, or sync all.</p>
 
 <div class="row">
@@ -18,7 +29,7 @@
         </label>
     </div>
     <div class="large-6 columns">
-        <div id='submit-data-definition' class="small button success">Sync Data Definition</div>
+        <div id='submit-data-definition' class="small button success" onclick="postToURLWithSpinner('{{ url_for("sync.SyncView:datadefinition") }}', $('#data-definition').val())">Sync Data Definition</div>
     </div>
 </div>
 
@@ -33,12 +44,12 @@
         </label>
     </div>
     <div class="large-6 columns">
-        <div id='submit-metadata-set' class="small button success">Sync Metadata</div>
+        <div id='submit-metadata-set' class="small button success" onclick="postToURLWithSpinner('{{ url_for("sync.SyncView:metadata") }}', $('#metadata-set').val())">Sync Metadata</div>
     </div>
 </div>
 
 <hr/>
-<a href="{{ url_for('sync.SyncView:all') }}" class="small button success">Sync All</a>
+<div id='sync-all' class="small button success" onclick="postToURLWithSpinner('{{ url_for("sync.SyncView:all") }}', 'un-used')">Sync All</div>
 
 <style>
 .spinner {
@@ -55,38 +66,15 @@
 }
 </style>
 
+{# todo: format the gif better? #}
+{# spinner placeholder #}
 <div id="spinner" class="spinner" style="display:none;">
     <img id="img-spinner" src="/get-image/waiting.gif" alt="Loading"/>
 </div>
+{# output results #}
 <div id="output"></div>
 
-<script>
-    $(function(){
-      // bind change event to select
-      $('#submit-metadata-set').on('click', function () {
-          var value = $('#metadata-set').val(); // get selected value
-          var url = "/admin/sync/metadata";
 
-          {# activate waiting gif #}
-          $.post(url, {'id': value}, function (data) {
-                $("#output").html(data);
-            });
-      });
-     // bind change event to select
-      $('#submit-data-definition').on('click', function () {
-          var value = $('#data-definition').val(); // get selected value
-          var url = "/admin/sync/datadefinition";
-
-          {# activate waiting gif #}
-          $('#spinner').show();
-          $.post(url, {'id': value}, function (data) {
-                $("#output").html(data);
-                $('#spinner').hide();
-            });
-      });
-
-    });
-</script>
 
 
 

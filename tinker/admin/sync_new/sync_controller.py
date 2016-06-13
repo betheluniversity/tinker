@@ -9,6 +9,7 @@ class SyncController(TinkerController):
     def __init__(self):
         super(SyncController, self).__init__()
 
+    # ===================== Metadata Set functions ===================== #
     def sync_metadata_sets(self, metadata_sets):
         returned_keys = []
         for metadata_set_id in metadata_sets:
@@ -23,6 +24,8 @@ class SyncController(TinkerController):
             asset = self.read_metadata_set(metadata_set_id)
             metadata_asset, empty_variable, empty_variable = asset.get_asset()
 
+            # Attempt to update each applicable key/value for a metadata set.
+            # If it doesn't find the field, it returns None
             returned_keys.append(asset_tools.update_metadata_set(metadata_asset, 'roles', data_to_add['roles']))
             returned_keys.append(asset_tools.update_metadata_set(metadata_asset, 'school', data_to_add['school']))
             returned_keys.append(asset_tools.update_metadata_set(metadata_asset, 'department', data_to_add['department'], 'None'))
@@ -41,6 +44,22 @@ class SyncController(TinkerController):
 
         return returned_keys
 
+    def get_metadata_sets_mapping(self):
+        metadata_sets_mapping = {}
+        metadata_sets = [
+            app.config['METADATA_EVENT_ID'],
+            app.config['METADATA_ROBUST_ID'],
+            app.config['METADATA_JOB_POSTING_ID'],
+            app.config['METADATA_PORTAL_ROLES_ID']
+        ]
+        for metadata_set_id in metadata_sets:
+            asset = self.read_metadata_set(metadata_set_id)
+            metadata_asset, empty_variable, empty_variable = asset.get_asset()
+            metadata_sets_mapping[metadata_set_id] = metadata_asset['metadataSet']['name']
+
+        return metadata_sets_mapping
+
+    # ===================== Data Definition functions ===================== #
     def sync_data_definitions(self, data_definitions):
         returned_keys = []
         for data_definition_id in data_definitions:
@@ -62,6 +81,8 @@ class SyncController(TinkerController):
             else:
                 faculty_bio_schools = data_to_add['school']
 
+            # Attempt to update each applicable key/value for a data definition.
+            # If it doesn't find the field, it returns None
             returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'school', faculty_bio_schools))
             returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'department', data_to_add['department']))
             returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'adult-undergrad-program', data_to_add['adult-undergrad-program']))
@@ -81,21 +102,6 @@ class SyncController(TinkerController):
             })
 
         return returned_keys
-
-    def get_metadata_sets_mapping(self):
-        metadata_sets_mapping = {}
-        metadata_sets = [
-            app.config['METADATA_EVENT_ID'],
-            app.config['METADATA_ROBUST_ID'],
-            app.config['METADATA_JOB_POSTING_ID'],
-            app.config['METADATA_PORTAL_ROLES_ID']
-        ]
-        for metadata_set_id in metadata_sets:
-            asset = self.read_metadata_set(metadata_set_id)
-            metadata_asset, empty_variable, empty_variable = asset.get_asset()
-            metadata_sets_mapping[metadata_set_id] = metadata_asset['metadataSet']['name']
-
-        return metadata_sets_mapping
 
     def get_data_definitions_mapping(self):
         data_definition_mapping = {}
