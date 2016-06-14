@@ -272,7 +272,7 @@ class TinkerController(object):
     def read_page(self, path_or_id):
         p = Page(self.cascade_connector, path_or_id)
         p.read_asset()
-        return p.structured_data()
+        return p.get_structured_data()
 
     def publish(self, path_or_id, asset_type='page'):
         return self.cascade_connector.publish(path_or_id, asset_type)
