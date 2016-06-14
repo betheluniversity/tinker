@@ -17,7 +17,7 @@ db = SQLAlchemy(app)
 cors = CORS(app)
 
 from raven.contrib.flask import Sentry
-sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
+sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
 from tinker_controller import TinkerController
 base = TinkerController()
