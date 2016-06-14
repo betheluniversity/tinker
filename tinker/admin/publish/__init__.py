@@ -5,6 +5,7 @@ from flask import Blueprint, render_template, request, abort, session
 from flask.ext.classy import FlaskView, route
 
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
+from bu_cascade.asset_tools import *
 
 from BeautifulSoup import BeautifulSoup
 
@@ -128,69 +129,50 @@ class PublishManagerView(FlaskView):
         info_type = request.form['type']
         info_id = request.form['id']
 
-        resp = self.base.read(info_id, info_type)
-
         # page
         if info_type == 'page':
             try:
-                # todo need nest two lines working
-                # page = self.base.read_page(info_id)
-                # info, md, ext = page.read_asset()
-                info = resp.asset.page
-                md = info.metadata
+                return "Not a valid block. . ."
+                asset = self.base.read_page(info_id)
                 ext = 'php'
             except:
-                return "Not a valid page. . ."
+                return "Cannot find page."
         # block
         elif info_type == 'block':
             try:
-                # todo need next two lines working
-                # block = self.base.read_block(info_id)
-                # info, md, ext = block.read_asset()
-                info = resp.asset.xhtmlDataDefinitionBlock
-                md = info.metadata
-                ext = ""
+                asset = self.base.read_block(info_id)
             except:
-                return "Not a valid block. . ."
+                return "Cannot find block."
         # Todo: file
         else:
             return "Not a valid type. . ."
 
         # name
-        if info.name:
-            name = info.name
-        # title
-        if md.title:
-            title = md.title
-        # path
-        if info.path:
-            path = info.path
+        if asset:
+            try:
+                path = find(asset, 'path')
+                title = find(asset, 'title')
 
-            if ext != "":
-                try:
-                    www_publish_date = 'N/A'
-                    staging_publish_date = 'N/A'
-                    # prod
-                    # www publish date
-                    page3 = urllib.urlopen("https://www.bethel.edu/" + path + '.' + ext).read()
-                    soup3 = BeautifulSoup(page3)
-                    date = soup3.findAll(attrs={"name": "date"})
-                    if date:
-                        www_publish_date = self.base.convert_meta_date(date)
+                www_publish_date = 'N/A'
+                staging_publish_date = 'N/A'
+                # prod
+                # www publish date
+                page3 = urllib.urlopen("https://www.bethel.edu/" + path + '.' + ext).read()
+                soup3 = BeautifulSoup(page3)
+                date = soup3.findAll(attrs={"name": "date"})
+                if date:
+                    www_publish_date = self.base.convert_meta_date(date)
 
-                    # staging
-                    page3 = urllib.urlopen("https://staging.bethel.edu/" + path + '.' + ext).read()
-                    soup3 = BeautifulSoup(page3)
-                    date = soup3.findAll(attrs={"name": "date"})
-                    if date:
-                        staging_publish_date = self.base.convert_meta_date(date)
+                # staging
+                page3 = urllib.urlopen("https://staging.bethel.edu/" + path + '.' + ext).read()
+                soup3 = BeautifulSoup(page3)
+                date = soup3.findAll(attrs={"name": "date"})
+                if date:
+                    staging_publish_date = self.base.convert_meta_date(date)
 
-                except:
-                    www_publish_date = 'N/A'
-                    staging_publish_date = 'N/A'
-        # description
-        if md.metaDescription:
-            description = md.metaDescription
+            except:
+                www_publish_date = 'N/A'
+                staging_publish_date = 'N/A'
 
         return render_template("publish-more-info.html", **locals())
 
