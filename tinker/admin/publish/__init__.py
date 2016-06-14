@@ -56,7 +56,6 @@ class PublishManagerView(FlaskView):
                     pages = relationships.subscribers.assetIdentifier
                     pages_added = []
                     for page in pages:
-                        # TODO not sure if this should use self.base
                         resp = self.base.publish(page.id, "page", destination)
                         if 'success = "false"' in str(resp):
                             message = resp['message']
@@ -103,6 +102,7 @@ class PublishManagerView(FlaskView):
         if destination != "staging":
             destination = ""
         print destination
+        # todo create method for publishing blocks
         if type == "block":
             try:
                 relationships = self.base.list_relationships(id, type)
@@ -115,6 +115,7 @@ class PublishManagerView(FlaskView):
             except:
                 return "Failed"
         else:
+            # todo possibly make into a method
             resp = self.base.publish(id, type, destination)
             if 'success = "false"' in str(resp):
                 return resp['message']
@@ -123,32 +124,34 @@ class PublishManagerView(FlaskView):
     # Displays info about the published block or page
     # Displays examples on web page
     @route("/more_info", methods=['post'])
-    def more_info(self, info_id):
-        publish_type = request.form['type']
-        publish_id = request.form['id']
+    def more_info(self):
+        info_type = request.form['type']
+        info_id = request.form['id']
 
-        resp = self.base.read(publish_id, publish_type)
+        resp = self.base.read(info_id, info_type)
 
         # page
-        if publish_type == 'page':
+        if info_type == 'page':
             try:
-                block = self.base.read_block(info_id)
-                info, md, ext = block.read_asset()
-                # info = resp.asset.page
-                # md = info.metadata
-                # ext = 'php'
+                # todo need nest two lines working
+                # page = self.base.read_page(info_id)
+                # info, md, ext = page.read_asset()
+                info = resp.asset.page
+                md = info.metadata
+                ext = 'php'
             except:
-                return "Not a valid type. . ."
+                return "Not a valid page. . ."
         # block
-        elif publish_type == 'block':
+        elif info_type == 'block':
             try:
-                block = self.base.read_block(info_id)
-                info, md, ext = block.read_asset()
-                # info = resp.asset.xhtmlDataDefinitionBlock
-                # md = info.metadata
-                # ext = ""
+                # todo need next two lines working
+                # block = self.base.read_block(info_id)
+                # info, md, ext = block.read_asset()
+                info = resp.asset.xhtmlDataDefinitionBlock
+                md = info.metadata
+                ext = ""
             except:
-                return "Not a valid type. . ."
+                return "Not a valid block. . ."
         # Todo: file
         else:
             return "Not a valid type. . ."
