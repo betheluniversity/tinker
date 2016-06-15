@@ -258,7 +258,7 @@ def submit_form():
 
     # 'link' must be a valid component
     if 'link' in add_data and add_data['link'] != "":
-        from tinker.admin.redirects import new_internal_redirect_submit
+        from tinker.admin.redirects.views import new_internal_redirect_submit
         path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
         new_internal_redirect_submit(path, add_data['link'])
 
@@ -306,7 +306,7 @@ def submit_edit_form():
 
     # 'link' must be a valid component
     if 'link' in add_data and add_data['link'] != "":
-        from tinker.admin.redirects import new_internal_redirect_submit
+        from tinker.admin.redirects.views import new_internal_redirect_submit
         path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
         new_internal_redirect_submit(path, add_data['link'])
 
