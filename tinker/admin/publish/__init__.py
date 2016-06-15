@@ -132,7 +132,6 @@ class PublishManagerView(FlaskView):
         # page
         if info_type == 'page':
             try:
-                return "Not a valid block. . ."
                 asset = self.base.read_page(info_id)
                 ext = 'php'
             except:
