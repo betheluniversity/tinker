@@ -5,8 +5,9 @@ from roles_roledata import uid, portal
 roles_blueprint = Blueprint('roles', __name__, template_folder='templates')
 
 class RolesView(FlaskView):
+    route_base = '/admin/blink-roles'
 
-    def before_request(self):
+    def before_request(self, args):
         if 'Administrators' not in session['groups']:
             abort(403)
 

@@ -5,6 +5,7 @@ from roles_roledata import uid, portal
 roles_blueprint = Blueprint('roles', __name__, template_folder='templates')
 
 class RolesView(FlaskView):
+    #route_base = '/admin/roles'
 
     # def __init__(self):
     #     self.base = RolesController

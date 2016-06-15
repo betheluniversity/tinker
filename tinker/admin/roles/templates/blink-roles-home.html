@@ -14,16 +14,17 @@
             var submitURL = null;
             if(ptl == "Production"){
                 submitURL = "https://blink.bethel.edu/cp/home/login";
-            }else if(ptl == "XP"){
+            }
+            else if(ptl == "XP"){
                 submitURL = "https://blink.xp.bethel.edu/cp/home/login";
-            }else if(ptl == "lp4b7"){
+            }
+            else if(ptl == "lp4b7"){
                 submitURL = "https://lp4b7.xp.bethel.edu/cp/home/login";
             }
-            var form = document.getElementById('blink-login')
+            var form = document.getElementById('blink-login');
             form.action = submitURL;
             document.getElementById('blink-user').value = uid;
             form.submit();
-
         }
 
     </script>

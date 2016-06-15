@@ -17,7 +17,7 @@ db = SQLAlchemy(app)
 cors = CORS(app)
 
 from raven.contrib.flask import Sentry
-sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
+sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
 from tinker_controller import TinkerController
 base = TinkerController()
@@ -49,7 +49,7 @@ app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 app.register_blueprint(sync_blueprint, url_prefix='/admin/sync')
 app.register_blueprint(publish_blueprint, url_prefix='/admin/publish-manager')
-app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
+# app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
 app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear')
 app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 
