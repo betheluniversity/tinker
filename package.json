@@ -11,7 +11,7 @@
   "devDependencies": {
     "bower": "*",
     "gulp": "*",
-    "gulp-browserify": "9.0.4",
+    "gulp-browserify": "*",
     "gulp-clean": "*",
     "gulp-size": "*",
     "react-bootstrap": "*",
@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "react": "*",
-    "react-dom": "*"
+    "react-dom": "*",
+    "react-loader": "*"
   }
 }
