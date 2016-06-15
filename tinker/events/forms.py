@@ -13,9 +13,9 @@ from wtforms import HiddenField
 from wtforms import DateTimeField
 from wtforms import Field
 from wtforms.validators import DataRequired
-
+from tinker import tools
 # local
-# from tinker.web_services import read, read_identifier
+from tinker.web_services import read, read_identifier
 # from tinker import tools
 
 
