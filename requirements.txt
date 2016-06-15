@@ -17,9 +17,5 @@ arrow
 feedformatter
 feedparser
 createsend
-<<<<<<< HEAD
-raven
-=======
 raven
 bu-cascade
->>>>>>> master
