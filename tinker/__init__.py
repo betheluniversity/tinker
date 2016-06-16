@@ -35,7 +35,7 @@ if not app.debug:
 
 # Import routes
 import views
-from tinker.events.views import event_blueprint
+# from tinker.events.views import event_blueprint
 from tinker.faculty_bio.views import faculty_bio_blueprint
 from tinker.admin.redirects.views import redirect_blueprint
 from tinker.heading_upgrade.views import heading_upgrade
@@ -44,7 +44,7 @@ from tinker.admin.publish.views import publish_blueprint
 from tinker.admin.roles.views import blink_roles_blueprint
 from tinker.admin.cache.views import cache_blueprint
 
-app.register_blueprint(event_blueprint, url_prefix='/event')
+# app.register_blueprint(event_blueprint, url_prefix='/event')
 app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 app.register_blueprint(sync_blueprint, url_prefix='/admin/sync')
@@ -57,6 +57,8 @@ app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 # New importing of routes and blueprints
 from tinker.e_announcements import EAnnouncementsBlueprint
 app.register_blueprint(EAnnouncementsBlueprint)
+from tinker.events import EventsBlueprint
+app.register_blueprint(EventsBlueprint)
 
 CsrfProtect(app).exempt(redirect_blueprint)
 

@@ -1,9 +1,11 @@
 from tinker.tinker_controller import TinkerController
 import json
+from tinker.events.cascade_events import *
+
 
 class EventsController(TinkerController):
 
-    def check_event_dates(form):
+    def check_event_dates(self, form):
 
         event_dates = {}
         dates_good = False
@@ -30,3 +32,23 @@ class EventsController(TinkerController):
 
         # convert event dates to JSON
         return json.dumps(event_dates), dates_good, num_dates
+
+    def node(self, s_data, edit_data, date_count, dates):
+        for node in s_data:
+            node_identifier = node.identifier.replace('-', '_')
+            node_type = node.type
+            if node_type == "text":
+                edit_data[node_identifier] = node.text
+            elif node_type == 'group':
+                # These are the event dates. Create a dict so we can convert to JSON later.
+                dates[date_count] = read_date_data_structure(node)
+                date_count += 1
+            elif node_identifier == 'image':
+                edit_data['image'] = node.filePath
+
+    def metadata(self, dynamic_fields, edit_data):
+        for field in dynamic_fields:
+            # This will fail if no metadata is set. It should be required but just in case
+            if field.fieldValues:
+                items = [item.value for item in field.fieldValues.fieldValue]
+                edit_data[field.name.replace('-', '_')] = items
