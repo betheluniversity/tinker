@@ -1,5 +1,6 @@
 __author__ = 'ejc84332'
 
+import json
 from tinker import tools
 from flask.ext.classy import FlaskView
 from tinker.events.Events_Controller import EventsController
@@ -28,6 +29,94 @@ class EventsView(FlaskView):
         # publish_event_xml()
         self.base.publish(app.config['EVENT_XML_ID'])
         return redirect('/event/delete-confirm', code=302)
+
+    def edit_event_page(self, event_id):
+        # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
+        if self.base.asset_in_workflow(event_id):
+            return redirect('/event/in-workflow', code=302)
+
+        # import this here so we dont load all the content
+        # from cascade during homepage load
+        from tinker.events.forms import EventForm
+
+        # Get the event data from cascade
+        event_data = self.base.read(event_id)
+
+        # Get the different data sets from the response
+        form_data = event_data.asset.page
+
+        # the stuff from the data def
+        # s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
+        s_data = form_data["structuredData"]["structuredDataNodes"]["structuredDataNode"]
+        # regular metadata
+        metadata = form_data.metadata
+        # dynamic metadata
+        dynamic_fields = metadata.dynamicFields.dynamicField
+        # This dict will populate our EventForm object
+        edit_data = {}
+        date_count = 0
+        dates = {}
+        # Start with structuredDataNodes (data def content)
+        for node in s_data:
+            node_identifier = node.identifier.replace('-', '_')
+            node_type = node.type
+            if node_type == "text":
+                edit_data[node_identifier] = node.text
+            elif node_type == 'group':
+                # These are the event dates. Create a dict so we can convert to JSON later.
+                dates[date_count] = read_date_data_structure(node)
+                date_count += 1
+            elif node_identifier == 'image':
+                edit_data['image'] = node.filePath
+
+        # now metadata dynamic fields
+        for field in dynamic_fields:
+            # This will fail if no metadata is set. It should be required but just in case
+            if field.fieldValues:
+                items = [item.value for item in field.fieldValues.fieldValue]
+                edit_data[field.name.replace('-', '_')] = items
+
+        # Add the rest of the fields. Can't loop over these kinds of metadata
+        edit_data['title'] = metadata.title
+        edit_data['teaser'] = metadata.metaDescription
+        author = metadata.author
+
+        # Create an EventForm object with our data
+        form = EventForm(**edit_data)
+        form.event_id = event_id
+
+        # convert dates to json so we can use Javascript to create custom DateTime fields on the form
+        dates = fjson.dumps(dates)
+
+        return render_template('event-form.html', **locals())
+
+    def check_event_dates(form):
+
+        event_dates = {}
+        dates_good = False
+        num_dates = int(form['num_dates'])
+        for x in range(1, num_dates+1):  # the page doesn't use 0-based indexing
+
+            i = str(x)
+            start_l = 'start' + i
+            end_l = 'end' + i
+            all_day_l = 'allday' + i
+
+            start = form[start_l]
+            end = form[end_l]
+            all_day = all_day_l in form.keys()
+
+            event_dates[start_l] = start
+            event_dates[end_l] = end
+            event_dates[all_day_l] = all_day
+
+            start_and_end = start and end
+
+            if start_and_end:
+                dates_good = True
+
+        # convert event dates to JSON
+        return json.dumps(event_dates), dates_good, num_dates
 
     def delete_confirm(self):
         return render_template('events-delete-confirm.html', **locals())
