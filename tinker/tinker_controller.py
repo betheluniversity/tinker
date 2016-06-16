@@ -215,6 +215,8 @@ class TinkerController(object):
 
     def get_edit_data(self, asset_data):
         edit_data = {}
+        date_count = 0
+        dates = {}
 
         try:
             form_data = asset_data['xhtmlDataDefinitionBlock']
