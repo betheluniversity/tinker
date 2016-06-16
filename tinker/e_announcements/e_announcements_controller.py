@@ -163,7 +163,7 @@ class EAnnouncementsController(TinkerController):
     # todo test
     def validate_form(self, rform):
 
-        from forms import EAnnouncementsForm
+        from forms import EAnnouncementsForm;
         form = EAnnouncementsForm()
 
         # todo move to TinkerBase?

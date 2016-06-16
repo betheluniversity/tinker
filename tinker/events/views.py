@@ -4,10 +4,15 @@ import json
 # flask
 from flask import Blueprint
 from flask import redirect
+from flask.ext.classy import route
 
 from tinker.events.cascade_events import *
 from tinker import app
 from tinker import tools
+
+from bu_cascade.cascade_connector import Cascade
+from bu_cascade.assets.page import Page
+from bu_cascade.asset_tools import *
 
 event_blueprint = Blueprint('event', __name__, template_folder='templates')
 
@@ -218,7 +223,7 @@ def check_event_dates(form):
     return json.dumps(event_dates), dates_good, num_dates
 
 
-@event_blueprint.route("/submit", methods=['POST'])
+@route("/submit", methods=['POST'])
 def submit_form():
 
     # import this here so we dont load all the content
@@ -327,7 +332,16 @@ def confirm():
     return render_template('submit-confirm.html', **locals())
 
 
-@event_blueprint.route('/api/reset-tinker-edits/<event_id>', methods=['get','post'])
-# @requires_auth
+# Todo: need to add some kind of auth to protect this method
+@route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
 def reset_tinker_edits(event_id):
+    from config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
+
+    ws_connector = Cascade(SOAP_URL, AUTH, SITE_ID)
+    my_page = Page(ws_connector, event_id)
+
+    asset, md, sd = my_page.get_asset()
+    update(md, 'tinker-edits', '0')
+    my_page.edit_asset(asset)
+
     return event_id
