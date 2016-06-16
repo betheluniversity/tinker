@@ -39,7 +39,6 @@ class ProgramSearchView(FlaskView):
         return "done"
 
     def get(self, tag_id=None):
-
         if tag_id == 'all':
             results = ProgramTag.query.all()
             tags = []
@@ -69,47 +68,51 @@ class ProgramSearchView(FlaskView):
 
         for block in program_blocks:
             name = block.find('name').text
-
-            if name not in ['mba-program']:
-                continue
-
             concentrations = block.findall('system-data-structure/concentration')
             names.append(name)
             for concentration in concentrations:
                 concentration_code = concentration.find('concentration_code').text
+                if concentration_code is None:
+                    concentration_code = name
+
                 page = concentration.find('concentration_page')
                 path = page.find('path').text
                 if not path or path == '/':
                     continue
                 page_name = path.split('/')[-1]
-                if page_name in ['index']:
+                if page_name in ['index'] and len(concentrations) > 1:
                     continue
                 names.append("\t%s" % page_name)
                 self.process_sheet(name, page_name, concentration_code)
-            print name
         return "<pre>%s</pre>" % "\n".join(names)
 
     def process_sheet(self, program_name, concentration_name, concentration_code):
-        drive_file = self.gc.open(program_name)
-        global_sheet = drive_file.sheet1
-        self.process_worksheet(global_sheet, concentration_code)
-        if concentration_name not in ['index']:
-            concentration_sheet = drive_file.worksheet(concentration_name)
-            self.process_worksheet(concentration_sheet, concentration_code)
+        try:
+            drive_file = self.gc.open(program_name)
+            global_sheet = drive_file.sheet1
+            self.process_worksheet(global_sheet, concentration_code)
+            if concentration_name not in ['index']:
+                concentration_sheet = drive_file.worksheet(concentration_name)
+                self.process_worksheet(concentration_sheet, concentration_code)
+        except:
+            pass
 
     def process_worksheet(self, workseet, concentration_code):
-        session = db.session
-        rows = workseet.get_all_values()
-        rows.pop(0)
-        for row in rows:
-            tag, outcome, other, topic = row
-            outcome = bool(outcome)
-            other = bool(other)
-            topic = bool(topic)
+        try:
+            session = db.session
+            rows = workseet.get_all_values()
+            rows.pop(0)
+            for row in rows:
+                tag, outcome, other, topic = row
+                outcome = bool(outcome)
+                other = bool(other)
+                topic = bool(topic)
 
-            tag = ProgramTag(key=concentration_code, tag=tag, outcome=outcome, other=other, topic=topic)
-            session.add(tag)
-            session.commit()
+                tag = ProgramTag(key=concentration_code, tag=tag, outcome=outcome, other=other, topic=topic)
+                session.add(tag)
+                session.commit()
+        except:
+            pass
 
     def dump(self):
         outfile = open(app.config['PROGRAM_SEARCH_CSV'], 'wb')
@@ -120,11 +123,6 @@ class ProgramSearchView(FlaskView):
         for record in records:
             rows.append([record.key, record.tag, record.outcome, record.other, record.topic])
 
-        # # dump column titles (optional)
-        # outcsv.writerow(x[0] for x in cursor.description)
-        # # dump rows
-        #
-        #
         outcsv.writerows(iter(rows))
         outfile.close()
         return "<pre>%s</pre>" % str(rows)
