@@ -33,6 +33,22 @@ class EventsController(TinkerController):
         # convert event dates to JSON
         return json.dumps(event_dates), dates_good, num_dates
 
+    def validate_form(self, rform, dates_good):
+
+        from forms import EventForm;
+        form = EventForm()
+
+        # todo move to TinkerBase?
+        if not form.validate_on_submit() or not dates_good:
+            if 'event_id' in rform.keys():
+                event_id = rform['event_id']
+            else:
+                new_form = True
+            # bring in the mapping
+            brm = self.brm
+            return render_template('event-form.html', **locals())
+
+    # todo may not need these next two methods
     def node(self, s_data, edit_data, date_count, dates):
         for node in s_data:
             node_identifier = node.identifier.replace('-', '_')

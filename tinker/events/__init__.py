@@ -2,7 +2,7 @@ __author__ = 'ejc84332'
 
 import json
 from tinker import tools
-from flask.ext.classy import FlaskView
+from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
 from flask import Blueprint, redirect
 from tinker.events.cascade_events import *
@@ -10,8 +10,9 @@ from tinker.events.cascade_events import *
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
+
 class EventsView(FlaskView):
-    route = '/event/'
+    route_base = '/event'
 
     def __init__(self):
         self.base = EventsController
@@ -22,6 +23,7 @@ class EventsView(FlaskView):
             event_approver_forms = get_forms_for_event_approver()
         return render_template('events-home.html', **locals())
 
+    @route('/delete/<page_id>')
     def delete_page(self, page_id):
         # workflow = get_event_delete_workflow()
         # delete(page_id, workflow=workflow)
@@ -97,7 +99,73 @@ class EventsView(FlaskView):
 
         return render_template('event-form.html', **locals())
 
-    def check_event_dates(form):
+    def duplicate_event_page(self, event_id):
+
+        if self.base.asset_in_workflow(event_id, asset_type='block'):
+            return redirect('/event/in-workflow', code=302)
+
+        # import this here so we dont load all the content
+        # from cascade during homepage load
+        from tinker.events.forms import EventForm
+
+        event_block = self.base.read_block(event_id)
+        event_data = event_block.read_asset()
+        edit_data = self.base.get_edit_data(event_data)
+
+        # # Get the event data from cascade
+        # event_data = read(event_id)
+        #
+        # # Get the different data sets from the response
+        # form_data = event_data.asset.page
+        # # the stuff from the data def
+        # s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
+        # # regular metadata
+        # metadata = form_data.metadata
+        # # dynamic metadata
+        # dynamic_fields = metadata.dynamicFields.dynamicField
+        # This dict will populate our EventForm object
+        # edit_data = {}
+        # date_count = 0
+        # dates = {}
+        # # Start with structuredDataNodes (data def content)
+        # self.base.node(s_data, edit_data, date_count, dates)
+
+        # for node in s_data:
+        #     node_identifier = node.identifier.replace('-', '_')
+        #     node_type = node.type
+        #     if node_type == "text":
+        #         edit_data[node_identifier] = node.text
+        #     elif node_type == 'group':
+        #         # These are the event dates. Create a dict so we can convert to JSON later.
+        #         dates[date_count] = read_date_data_structure(node)
+        #         date_count += 1
+        #     elif node_identifier == 'image':
+        #         edit_data['image'] = node.filePath
+
+        # now metadata dynamic fields
+        # self.base.metadata(dynamic_fields, edit_data)
+        # for field in dynamic_fields:
+        #     # This will fail if no metadata is set. It should be required but just in case
+        #     if field.fieldValues:
+        #         items = [item.value for item in field.fieldValues.fieldValue]
+        #         edit_data[field.name.replace('-', '_')] = items
+
+        # Add the rest of the fields. Can't loop over these kinds of metadata
+        # edit_data['title'] = metadata.title
+        # edit_data['teaser'] = metadata.metaDescription
+        # author = metadata.author
+
+        # Create an EventForm object with our data
+        form = EventForm(**edit_data)
+        form.event_id = event_id
+
+        # convert dates to json so we can use Javascript to create custom DateTime fields on the form
+        # dates = fjson.dumps(dates) #todo figure out how to get dates
+        add_form = True
+
+        return render_template('event-form.html', **locals())
+
+    def check_event_dates(self, form):
 
         event_dates = {}
         dates_good = False
@@ -142,71 +210,56 @@ class EventsView(FlaskView):
 
         form = EventForm()
         add_form = True
-        return render_template('event-form.html', **locals())\
-
-    # @route('/duplicate/<event_id>')
-    def duplicate_event_page(self, event_id):
-
-        # import this here so we dont load all the content
-        # from cascade during homepage load
-        from tinker.events.forms import EventForm
-
-        event_data, form_data, s_data, metadata, dynamic_fields = self.base.read_page(event_id)
-
-        # # Get the event data from cascade
-        # event_data = read(event_id)
-        #
-        # # Get the different data sets from the response
-        # form_data = event_data.asset.page
-        # # the stuff from the data def
-        # s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
-        # # regular metadata
-        # metadata = form_data.metadata
-        # # dynamic metadata
-        # dynamic_fields = metadata.dynamicFields.dynamicField
-        # This dict will populate our EventForm object
-        edit_data = {}
-        date_count = 0
-        dates = {}
-        # Start with structuredDataNodes (data def content)
-        self.base.node(s_data, edit_data, date_count, dates)
-
-        # for node in s_data:
-        #     node_identifier = node.identifier.replace('-', '_')
-        #     node_type = node.type
-        #     if node_type == "text":
-        #         edit_data[node_identifier] = node.text
-        #     elif node_type == 'group':
-        #         # These are the event dates. Create a dict so we can convert to JSON later.
-        #         dates[date_count] = read_date_data_structure(node)
-        #         date_count += 1
-        #     elif node_identifier == 'image':
-        #         edit_data['image'] = node.filePath
-
-        # now metadata dynamic fields
-        self.base.metadata(dynamic_fields, edit_data)
-        # for field in dynamic_fields:
-        #     # This will fail if no metadata is set. It should be required but just in case
-        #     if field.fieldValues:
-        #         items = [item.value for item in field.fieldValues.fieldValue]
-        #         edit_data[field.name.replace('-', '_')] = items
-
-        # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = metadata.title
-        edit_data['teaser'] = metadata.metaDescription
-        author = metadata.author
-
-        # Create an EventForm object with our data
-        form = EventForm(**edit_data)
-        form.event_id = event_id
-
-        # convert dates to json so we can use Javascript to create custom DateTime fields on the form
-        dates = fjson.dumps(dates)
-        add_form = True
-
         return render_template('event-form.html', **locals())
 
-    def submit_edit_form(self):
+    # @route("/submit-edit", methods=['post'])
+    # def submit_edit_form(self):
+    #
+    #     # import this here so we dont load all the content
+    #     # from cascade during hoempage load
+    #     from tinker.events.forms import EventForm
+    #
+    #     form = EventForm()
+    #     rform = request.form
+    #     title = rform['title']
+    #     username = session['username']
+    #     workflow = get_event_publish_workflow(title, username)
+    #
+    #     event_dates, dates_good, num_dates = check_event_dates(rform)
+    #
+    #     if not form.validate_on_submit() or not dates_good:
+    #         event_id = request.form['event_id']
+    #         return render_template('event-form.html', **locals())
+    #
+    #     form = rform
+    #     add_data = get_add_data(['general', 'offices', 'cas_departments', 'internal', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
+    #     dates = get_dates(add_data)
+    #     add_data['event-dates'] = dates
+    #     add_data['author'] = request.form['author']
+    #     event_id = form['event_id']
+    #
+    #     asset = get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
+    #
+    #     current_year = get_current_year_folder(event_id)
+    #     new_year = get_year_folder_value(add_data)
+    #
+    #     resp = edit(asset)
+    #     log_sentry("Event edit submission", resp)
+    #
+    #     if new_year > current_year:
+    #         resp = move_event_year(event_id, add_data)
+    #         app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
+    #
+    #     # 'link' must be a valid component
+    #     if 'link' in add_data and add_data['link'] != "":
+    #         from tinker.admin.redirects import new_internal_redirect_submit
+    #         path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
+    #         new_internal_redirect_submit(path, add_data['link'])
+    #
+    #     return redirect('/event/confirm', code=302)
+
+    @route("/submit", methods=['post'])
+    def submit_form(self):
 
         # import this here so we dont load all the content
         # from cascade during hoempage load
@@ -214,34 +267,49 @@ class EventsView(FlaskView):
 
         form = EventForm()
         rform = request.form
+        eid = rform.get('event_id')
         title = rform['title']
         username = session['username']
         workflow = get_event_publish_workflow(title, username)
 
-        event_dates, dates_good, num_dates = check_event_dates(rform)
+        # check event dates here?
 
-        if not form.validate_on_submit() or not dates_good:
-            event_id = request.form['event_id']
-            return render_template('event-form.html', **locals())
+        # create a dict of date values so we can access them in Jinja later.
+        # they aren't part of the form so we can't just do form.start1, etc...
+        event_dates, dates_good, num_dates = self.check_event_dates(rform)
+
+        dates = []
+
+        failed = self.base.validate_form(rform, dates_good)
+        if failed:
+            return failed
+
+        # if not form.validate_on_submit() or not dates_good:
+        #     if 'event_id' in request.form.keys():
+        #         event_id = request.form['event_id']
+        #     else:
+        #         # This error came from the add form because event_id wasn't set
+        #         add_form = True
+        #     return render_.
+        # template('event-form.html', **locals())
 
         form = rform
-        add_data = get_add_data(['general', 'offices', 'cas_departments', 'internal', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
+        # Get all the form data
+        from events_metadata import metadata_list
+        add_data = get_add_data(metadata_list, form)
+
         dates = get_dates(add_data)
+
+        # Add it to the dict, we can just ignore the old entries
         add_data['event-dates'] = dates
-        add_data['author'] = request.form['author']
-        event_id = form['event_id']
 
-        asset = get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
+        asset = get_event_structure(add_data, username, workflow)
 
-        current_year = get_current_year_folder(event_id)
-        new_year = get_year_folder_value(add_data)
+        resp = self.base.create(asset)
 
-        resp = edit(asset)
-        log_sentry("Event edit submission", resp)
-
-        if new_year > current_year:
-            resp = move_event_year(event_id, add_data)
-            app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
+        if username == 'amf39248':
+            app.logger.debug(time.strftime("%c") + ": TESTING" + asset)
+            app.logger.debug(time.strftime("%c") + ": TESTING" + resp)
 
         # 'link' must be a valid component
         if 'link' in add_data and add_data['link'] != "":
@@ -250,5 +318,31 @@ class EventsView(FlaskView):
             new_internal_redirect_submit(path, add_data['link'])
 
         return redirect('/event/confirm', code=302)
+        # Just print the response for now
+
+    # def post(self):
+    #
+    #     rform = request.form
+    #     eaid = rform.get('e_announcement_id')
+    #
+    #     failed = self.base.validate_form(rform)
+    #     if failed:
+    #         return failed
+    #
+    #     if not eaid:
+    #         bid = app.config['E_ANN_BASE_ASSET']
+    #         e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
+    #         asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
+    #         resp = self.base.create_block(asset)
+    #         self.base.log_sentry('New e-announcement submission', resp)
+    #         return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='new'), code=302)
+    #
+    #     else:
+    #         block = self.base.read_block(eaid)
+    #         e_announcement_data, mdata, sdata = block.read_asset()
+    #         asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
+    #         resp = str(block.edit_asset(asset))
+    #         self.base.log_sentry("E-Announcement edit submission", resp)
+    #         return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
 
 EventsView.register(EventsBlueprint)

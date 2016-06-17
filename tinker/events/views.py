@@ -223,7 +223,7 @@ def check_event_dates(form):
     return json.dumps(event_dates), dates_good, num_dates
 
 
-@route("/submit", methods=['POST'])
+@event_blueprint.route("/submit", methods=['POST'])
 def submit_form():
 
     # import this here so we dont load all the content
