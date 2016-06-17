@@ -10,7 +10,5 @@ class EventInWorkflowTestCase(EventsBaseTestCase):
     #######################
 
     def test_event_in_workflow(self):
-        response = self.send_get("/event/event-in-workflow")
-        print response
-        # print response.data
-        assert b' ' in response.data
+        response = self.send_get("/events/event_in_workflow")
+        assert b'Edits pending approval' in response.data

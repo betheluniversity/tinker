@@ -16,20 +16,23 @@ class EventsView(FlaskView):
     def __init__(self):
         self.base = EventsController
 
+    # Throws a 500 because self.base.get_groups_for_user() is undefined at the moment.
     def home(self):
         forms = get_forms_for_user(session['username'])
         if 'Event Approver' in self.base.get_groups_for_user():
             event_approver_forms = get_forms_for_event_approver()
         return render_template('events-home.html', **locals())
 
+    # Throws a 500
     def delete_page(self, page_id):
         # workflow = get_event_delete_workflow()
         # delete(page_id, workflow=workflow)
         self.base.delete(page_id)
         # publish_event_xml()
         self.base.publish(app.config['EVENT_XML_ID'])
-        return redirect('/event/delete-confirm', code=302)
+        return redirect('/events/delete_confirm', code=302)
 
+    # Throws a 500
     def edit_event_page(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         # asset type='block'?
@@ -97,7 +100,8 @@ class EventsView(FlaskView):
 
         return render_template('event-form.html', **locals())
 
-    def check_event_dates(form):
+    # This method should be POST endpoint, not GET
+    def check_event_dates(self, form):
 
         event_dates = {}
         dates_good = False
@@ -142,8 +146,9 @@ class EventsView(FlaskView):
 
         form = EventForm()
         add_form = True
-        return render_template('event-form.html', **locals())\
+        return render_template('event-form.html', **locals())
 
+    # Throws a 500 at the moment
     # @route('/duplicate/<event_id>')
     def duplicate_event_page(self, event_id):
 
@@ -206,6 +211,7 @@ class EventsView(FlaskView):
 
         return render_template('event-form.html', **locals())
 
+    # This NEEDS to be a post method
     def submit_edit_form(self):
 
         # import this here so we dont load all the content
