@@ -3,10 +3,10 @@ import json
 from tinker.events.cascade_events import *
 
 
+
 class EventsController(TinkerController):
 
     def check_event_dates(self, form):
-
         event_dates = {}
         dates_good = False
         num_dates = int(form['num_dates'])
@@ -47,6 +47,13 @@ class EventsController(TinkerController):
             # bring in the mapping
             brm = self.brm
             return render_template('event-form.html', **locals())
+
+    def link(self, add_data, asset):
+        # 'link' must be a valid component
+        if 'link' in add_data and add_data['link'] != "":
+            from tinker.admin.redirects import new_internal_redirect_submit
+            path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
+            new_internal_redirect_submit(path, add_data['link'])
 
     # todo may not need these next two methods
     def node(self, s_data, edit_data, date_count, dates):

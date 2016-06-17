@@ -133,7 +133,6 @@ class TinkerController(object):
             # from tinker.tinker_controller import TinkerController
             # base = TinkerController()
 
-
             if not username:
                 username = session['username']
             try:
