@@ -36,7 +36,7 @@ if not app.debug:
 # Import routes
 import views
 from tinker.events.views import event_blueprint
-from tinker.faculty_bio.views import faculty_bio_blueprint
+from tinker.faculty_bio_old.views import faculty_bio_blueprint
 from tinker.admin.redirects.views import redirect_blueprint
 from tinker.heading_upgrade.views import heading_upgrade
 from tinker.admin.sync.views import sync_blueprint

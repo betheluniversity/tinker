@@ -9,7 +9,7 @@ from flask import redirect
 from flask import send_from_directory
 from tinker.admin.sync.sync_metadata import data_to_add
 
-from tinker.faculty_bio.cascade_faculty_bio import *
+from tinker.faculty_bio_old.cascade_faculty_bio import *
 from tinker import app
 from tinker.tools import *
 
