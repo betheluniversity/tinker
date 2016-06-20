@@ -7,7 +7,7 @@ import time
 
 import re
 import urllib2
-from arrow import arrow
+import arrow
 
 from xml.etree import ElementTree as ET
 from operator import itemgetter
