@@ -3,8 +3,8 @@ __author__ = 'ejc84332'
 import json
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
-from flask import Blueprint, redirect, session, render_template, app, request, json
-# from tinker.events.cascade_events import *
+from flask import Blueprint, redirect, session, app
+from tinker.events.cascade_events import *
 from events_metadata import metadata_list
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
@@ -14,7 +14,7 @@ class EventsView(FlaskView):
     route_base = '/event'
 
     def __init__(self):
-        self.base = EventsController()
+        self.base = EventsController
 
     # Allows any user to access events
     def before_request(self, name, **kwargs):
@@ -54,6 +54,7 @@ class EventsView(FlaskView):
         self.base.publish(app.config['EVENT_XML_ID'])
         return redirect('/events/delete_confirm', code=302)
 
+    # Throws a 500
     def edit_event_page(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         # asset type='block'?
@@ -75,7 +76,7 @@ class EventsView(FlaskView):
         form_data = event_data.asset.page
 
         # the stuff from the data def
-        # s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
+        s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
         s_data = form_data["structuredData"]["structuredDataNodes"]["structuredDataNode"]
         # regular metadata
         metadata = form_data.metadata
@@ -117,7 +118,6 @@ class EventsView(FlaskView):
 
         # convert dates to json so we can use Javascript to create custom DateTime fields on the form
         # todo is this date getting what I think it is?
-        # todo what is fjson vs. json?
         dates = fjson.dumps(edit_data.date)
 
         return render_template('event-form.html', **locals())
@@ -175,13 +175,13 @@ class EventsView(FlaskView):
         # metadata = form_data.metadata
         # # dynamic metadata
         # dynamic_fields = metadata.dynamicFields.dynamicField
-        # # This dict will populate our EventForm object
+        # This dict will populate our EventForm object
         # edit_data = {}
         # date_count = 0
         # dates = {}
         # # Start with structuredDataNodes (data def content)
         # self.base.node(s_data, edit_data, date_count, dates)
-        #
+
         # for node in s_data:
         #     node_identifier = node.identifier.replace('-', '_')
         #     node_type = node.type
@@ -193,28 +193,26 @@ class EventsView(FlaskView):
         #         date_count += 1
         #     elif node_identifier == 'image':
         #         edit_data['image'] = node.filePath
-        #
-        # # now metadata dynamic fields
+
+        # now metadata dynamic fields
         # self.base.metadata(dynamic_fields, edit_data)
         # for field in dynamic_fields:
         #     # This will fail if no metadata is set. It should be required but just in case
         #     if field.fieldValues:
         #         items = [item.value for item in field.fieldValues.fieldValue]
         #         edit_data[field.name.replace('-', '_')] = items
-        #
-        # # Add the rest of the fields. Can't loop over these kinds of metadata
+
+        # Add the rest of the fields. Can't loop over these kinds of metadata
         # edit_data['title'] = metadata.title
         # edit_data['teaser'] = metadata.metaDescription
         # author = metadata.author
-        #
-        # # Create an EventForm object with our data
-        # form = EventForm(**edit_data)
-        # form.event_id = event_id
+
+        # Create an EventForm object with our data
+        form = EventForm(**edit_data)
+        form.event_id = event_id
 
         # convert dates to json so we can use Javascript to create custom DateTime fields on the form
-        # todo figure out how to get dates
-        # todo fjson vs json?
-        dates = fjson.dumps(dates)
+        # dates = fjson.dumps(dates) #todo figure out how to get dates
         add_form = True
 
         return render_template('event-form.html', **locals())
@@ -230,7 +228,7 @@ class EventsView(FlaskView):
         rform = request.form
         title = rform['title']
         username = session['username']
-        workflow = self.base.get_event_publish_workflow(title, username)
+        workflow = get_event_publish_workflow(title, username)
 
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
 
@@ -244,23 +242,23 @@ class EventsView(FlaskView):
         #     return render_template('event-form.html', **locals())
 
         form = rform
-        add_data = self.base.get_add_data(metadata_list, form)
-        dates = self.base.get_dates(add_data)
+        add_data = get_add_data(metadata_list, form)
+        dates = get_dates(add_data)
         add_data['event-dates'] = dates
         add_data['author'] = request.form['author']
         event_id = form['event_id']
 
-        asset = self.base.get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
+        asset = get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
 
-        current_year = self.base.get_current_year_folder(event_id)
-        new_year = self.base.get_year_folder_value(add_data)
+        current_year = get_current_year_folder(event_id)
+        new_year = get_year_folder_value(add_data)
 
-        resp = self.base.edit(asset)
-        self.base.log_sentry("Event edit submission", resp)
+        resp = edit(asset)
+        log_sentry("Event edit submission", resp)
 
         if new_year > current_year:
-            resp = self.base.move_event_year(event_id, add_data)
-            app.logger.debug(self.base.time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
+            resp = move_event_year(event_id, add_data)
+            app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
 
         # 'link' must be a valid component
         if 'link' in add_data and add_data['link'] != "":
@@ -320,8 +318,8 @@ class EventsView(FlaskView):
         resp = self.base.create(asset)
 
         if username == 'amf39248':
-            app.logger.debug(self.base.time.strftime("%c") + ": TESTING" + asset)
-            app.logger.debug(self.base.time.strftime("%c") + ": TESTING" + resp)
+            app.logger.debug(time.strftime("%c") + ": TESTING" + asset)
+            app.logger.debug(time.strftime("%c") + ": TESTING" + resp)
 
         self.base.link(add_data, asset)
 
@@ -358,6 +356,7 @@ class EventsView(FlaskView):
     #         resp = str(block.edit_asset(asset))
     #         self.base.log_sentry("E-Announcement edit submission", resp)
     #         return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
+
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):
