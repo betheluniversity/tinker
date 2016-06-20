@@ -61,6 +61,7 @@ from tinker.events import EventsBlueprint
 app.register_blueprint(EventsBlueprint)
 
 CsrfProtect(app).exempt(redirect_blueprint)
+CsrfProtect(app).exempt(EventsBlueprint)
 
 # Import error handling
 import error

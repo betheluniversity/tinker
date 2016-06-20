@@ -1,8 +1,8 @@
 import json
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
-from flask import Blueprint, redirect, app  # , session
 from tinker.events.cascade_events import *
+from flask import Blueprint, redirect, session, render_template, app, request, json as fjson
 from events_metadata import metadata_list
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
@@ -12,7 +12,7 @@ class EventsView(FlaskView):
     route_base = '/event'
 
     def __init__(self):
-        self.base = EventsController()
+        self.base = EventsController
 
     # Allows any user to access events
     def before_request(self, name, **kwargs):
@@ -52,6 +52,7 @@ class EventsView(FlaskView):
         self.base.publish(app.config['EVENT_XML_ID'])
         return redirect('/events/delete_confirm', code=302)
 
+    # Throws a 500
     def edit_event_page(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         # asset type='block'?
@@ -73,7 +74,7 @@ class EventsView(FlaskView):
         form_data = event_data.asset.page
 
         # the stuff from the data def
-        # s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
+        s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
         s_data = form_data["structuredData"]["structuredDataNodes"]["structuredDataNode"]
         # regular metadata
         metadata = form_data.metadata
@@ -92,7 +93,7 @@ class EventsView(FlaskView):
         # todo should the date be in the tinker controller?
             elif node_type == 'group':
                 # These are the event dates. Create a dict so we can convert to JSON later.
-                dates[date_count] = read_date_data_structure(node)
+                dates[date_count] = self.base.read_date_data_structure(node)
                 date_count += 1
             elif node_identifier == 'image':
                 edit_data['image'] = node.filePath
@@ -269,7 +270,7 @@ class EventsView(FlaskView):
     def submit_form(self):
 
         # import this here so we dont load all the content
-        # from cascade during hoempage load
+        # from cascade during homepage load
         from tinker.events.forms import EventForm
 
         form = EventForm()
@@ -277,7 +278,8 @@ class EventsView(FlaskView):
         eid = rform.get('event_id')
         title = rform['title']
         username = session['username']
-        workflow = self.base.get_event_publish_workflow(title, username)
+        workflow = None
+        # workflow = self.base.get_event_publish_workflow(title, username)
 
         # create a dict of date values so we can access them in Jinja later.
         # they aren't part of the form so we can't just do form.start1, etc...
@@ -289,20 +291,18 @@ class EventsView(FlaskView):
         if failed:
             return failed
 
-        # if not form.validate_on_submit() or not dates_good:
-        #     if 'event_id' in request.form.keys():
-        #         event_id = request.form['event_id']
-        #     else:
-        #         # This error came from the add form because event_id wasn't set
-        #         add_form = True
-        #     return render_.
-        # template('event-form.html', **locals())
+        if not form.validate_on_submit() or not dates_good:
+            if 'event_id' in request.form.keys():
+                event_id = request.form['event_id']
+            else:
+                # This error came from the add form because event_id wasn't set
+                add_form = True
+            return render_template('event-form.html', **locals())
 
-        # form = rform # todo not sure if this is needed
         # Get all the form data
 
         from events_metadata import metadata_list
-        add_data = self.base.get_add_data(metadata_list, form)
+        add_data = self.base.get_add_data(metadata_list, rform)
 
         dates = self.base.get_dates(add_data)
 
@@ -310,7 +310,7 @@ class EventsView(FlaskView):
         add_data['event-dates'] = dates
 
         # took out workflow=workflow parameter is it NEEDED?
-        asset = self.base.get_event_structure(add_data, username, workflow)
+        asset = self.base.get_event_structure(add_data, username, workflow=workflow)
 
         resp = self.base.create(asset)
 
@@ -320,11 +320,11 @@ class EventsView(FlaskView):
 
         self.base.link(add_data, asset)
 
-        # # 'link' must be a valid component
-        # if 'link' in add_data and add_data['link'] != "":
-        #     from tinker.admin.redirects import new_internal_redirect_submit
-        #     path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
-        #     new_internal_redirect_submit(path, add_data['link'])
+        # 'link' must be a valid component
+        if 'link' in add_data and add_data['link'] != "":
+            from tinker.admin.redirects import new_internal_redirect_submit
+            path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
+            new_internal_redirect_submit(path, add_data['link'])
 
         return redirect('/event/confirm', code=302)
         # Just print the response for now
@@ -353,6 +353,7 @@ class EventsView(FlaskView):
     #         resp = str(block.edit_asset(asset))
     #         self.base.log_sentry("E-Announcement edit submission", resp)
     #         return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
+
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):
