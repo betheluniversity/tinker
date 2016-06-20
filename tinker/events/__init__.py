@@ -54,7 +54,6 @@ class EventsView(FlaskView):
         self.base.publish(app.config['EVENT_XML_ID'])
         return redirect('/events/delete_confirm', code=302)
 
-    # Throws a 500
     def edit_event_page(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         # asset type='block'?
@@ -356,7 +355,6 @@ class EventsView(FlaskView):
     #         resp = str(block.edit_asset(asset))
     #         self.base.log_sentry("E-Announcement edit submission", resp)
     #         return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
-
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):

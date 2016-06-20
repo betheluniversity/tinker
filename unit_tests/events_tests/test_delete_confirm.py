@@ -10,5 +10,5 @@ class DeleteConfirmTestCase(EventsBaseTestCase):
     #######################
 
     def test_delete_confirm(self):
-        response = self.send_get("/events/delete_confirm")
+        response = self.send_get("/event/delete_confirm")
         assert b'Your event has been deleted.' in response.data

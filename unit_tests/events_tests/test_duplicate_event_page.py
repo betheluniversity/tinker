@@ -11,5 +11,6 @@ class DuplicateEventPageTestCase(EventsBaseTestCase):
     #######################
 
     def test_duplicate_event_page(self):
-        response = self.send_get("/events/duplicate_event_page/adsf")
+        response = self.send_get("/event/duplicate_event_page/adsf")
+        print "Duplicate Event:", response
         assert b' ' in response.data

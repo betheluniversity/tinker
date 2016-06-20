@@ -11,5 +11,5 @@ class ConfirmTestCase(EventsBaseTestCase):
     #######################
 
     def test_confirm(self):
-        response = self.send_get("/events/confirm")
+        response = self.send_get("/event/confirm")
         assert b'GIF' in response.data
