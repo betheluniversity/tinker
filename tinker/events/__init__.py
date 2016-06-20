@@ -314,7 +314,7 @@ class EventsView(FlaskView):
         add_data['event-dates'] = dates
 
         # took out workflow=workflow parameter is it NEEDED?
-        asset = self.base.get_event_structure(add_data, username, workflow)
+        asset = self.base.get_event_structure(add_data, username, workflow=workflow)
 
         resp = self.base.create(asset)
 

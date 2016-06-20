@@ -350,6 +350,38 @@ class EventsController(TinkerController):
             ],
         }
 
+        # allows for multiple authors. If none set, default to username
+        if 'author' not in add_data or add_data['author'] == "":
+            author = username
+        else:
+            author = add_data['author']
+
+        asset = {
+            'page': {
+                'name': add_data['system_name'],
+                'siteId': app.config['SITE_ID'],
+                'parentFolderPath': parent_folder_path,
+                'metadataSetPath': "/Event",
+                'contentTypePath': "Event",
+                'configurationSetPath': "Old/Event",
+                # Break this out more once its defined in the form
+                'structuredData': structured_data,
+                'metadata': {
+                    'title': add_data['title'],
+                    'summary': 'summary',
+                    'author': author,
+                    'metaDescription': add_data['teaser'],
+                    'dynamicFields': dynamic_fields,
+                }
+            },
+            'workflowConfiguration': workflow
+        }
+
+        if event_id:
+            asset['page']['id'] = event_id
+
+        return asset
+
     def dynamic_field(self, name, values):
 
         values_list = []
