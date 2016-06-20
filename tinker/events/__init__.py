@@ -3,7 +3,7 @@ __author__ = 'ejc84332'
 import json
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
-from flask import Blueprint, redirect, session, render_template, app, request, json
+from flask import Blueprint, redirect, session, render_template, app, request, json as fjson
 # from tinker.events.cascade_events import *
 from events_metadata import metadata_list
 
@@ -94,7 +94,7 @@ class EventsView(FlaskView):
         # todo should the date be in the tinker controller?
             elif node_type == 'group':
                 # These are the event dates. Create a dict so we can convert to JSON later.
-                dates[date_count] = read_date_data_structure(node)
+                dates[date_count] = self.base.read_date_data_structure(node)
                 date_count += 1
             elif node_identifier == 'image':
                 edit_data['image'] = node.filePath
