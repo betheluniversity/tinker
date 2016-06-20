@@ -10,7 +10,7 @@ class SudmitEditFormTestCase(EventsBaseTestCase):
                              graduate_program, seminary_program, event_dates, author, event_id):
         return {
             "title": title,
-            "genereal": general,
+            "general": general,
             "offices": offices,
             "cas_departments": cas_departments,
             "internal": internal,
@@ -30,6 +30,6 @@ class SudmitEditFormTestCase(EventsBaseTestCase):
         # TODO: fill in the arguments to send a valid form submission as a test
         form_contents = self.create_form_contents("", "", "", "", "", "", "", "", "", "", "")
         response = self.send_post("/event/submit-edit", form_contents)
-        assert b' ' in response.data
+        assert b'GIF' in response.data
 
     # TODO: write invalid tests by sending over None objects instead of the correct string arguments
