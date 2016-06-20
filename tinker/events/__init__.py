@@ -3,8 +3,13 @@ __author__ = 'ejc84332'
 import json
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
+<<<<<<< HEAD
 from flask import Blueprint, redirect, session, app
 from tinker.events.cascade_events import *
+=======
+from flask import Blueprint, redirect, session, render_template, app, request, json as fjson
+# from tinker.events.cascade_events import *
+>>>>>>> origin/Events
 from events_metadata import metadata_list
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
@@ -95,7 +100,7 @@ class EventsView(FlaskView):
         # todo should the date be in the tinker controller?
             elif node_type == 'group':
                 # These are the event dates. Create a dict so we can convert to JSON later.
-                dates[date_count] = read_date_data_structure(node)
+                dates[date_count] = self.base.read_date_data_structure(node)
                 date_count += 1
             elif node_identifier == 'image':
                 edit_data['image'] = node.filePath
@@ -272,7 +277,7 @@ class EventsView(FlaskView):
     def submit_form(self):
 
         # import this here so we dont load all the content
-        # from cascade during hoempage load
+        # from cascade during homepage load
         from tinker.events.forms import EventForm
 
         form = EventForm()
@@ -280,7 +285,8 @@ class EventsView(FlaskView):
         eid = rform.get('event_id')
         title = rform['title']
         username = session['username']
-        workflow = self.base.get_event_publish_workflow(title, username)
+        workflow = None
+        # workflow = self.base.get_event_publish_workflow(title, username)
 
         # create a dict of date values so we can access them in Jinja later.
         # they aren't part of the form so we can't just do form.start1, etc...
@@ -292,20 +298,18 @@ class EventsView(FlaskView):
         if failed:
             return failed
 
-        # if not form.validate_on_submit() or not dates_good:
-        #     if 'event_id' in request.form.keys():
-        #         event_id = request.form['event_id']
-        #     else:
-        #         # This error came from the add form because event_id wasn't set
-        #         add_form = True
-        #     return render_.
-        # template('event-form.html', **locals())
+        if not form.validate_on_submit() or not dates_good:
+            if 'event_id' in request.form.keys():
+                event_id = request.form['event_id']
+            else:
+                # This error came from the add form because event_id wasn't set
+                add_form = True
+            return render_template('event-form.html', **locals())
 
-        # form = rform # todo not sure if this is needed
         # Get all the form data
 
         from events_metadata import metadata_list
-        add_data = self.base.get_add_data(metadata_list, form)
+        add_data = self.base.get_add_data(metadata_list, rform)
 
         dates = self.base.get_dates(add_data)
 
@@ -313,7 +317,7 @@ class EventsView(FlaskView):
         add_data['event-dates'] = dates
 
         # took out workflow=workflow parameter is it NEEDED?
-        asset = self.base.get_event_structure(add_data, username, workflow)
+        asset = self.base.get_event_structure(add_data, username, workflow=workflow)
 
         resp = self.base.create(asset)
 
@@ -323,11 +327,11 @@ class EventsView(FlaskView):
 
         self.base.link(add_data, asset)
 
-        # # 'link' must be a valid component
-        # if 'link' in add_data and add_data['link'] != "":
-        #     from tinker.admin.redirects import new_internal_redirect_submit
-        #     path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
-        #     new_internal_redirect_submit(path, add_data['link'])
+        # 'link' must be a valid component
+        if 'link' in add_data and add_data['link'] != "":
+            from tinker.admin.redirects import new_internal_redirect_submit
+            path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
+            new_internal_redirect_submit(path, add_data['link'])
 
         return redirect('/event/confirm', code=302)
         # Just print the response for now

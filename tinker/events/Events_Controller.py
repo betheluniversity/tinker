@@ -1,7 +1,9 @@
 from tinker.tinker_controller import TinkerController
 import json
+import datetime
+import time
 # involves wysiwyg (need to get rid of)
-from tinker.events.cascade_events import *
+# from tinker.events.cascade_events import *
 
 import re
 import urllib2
@@ -14,6 +16,9 @@ from operator import itemgetter
 from tinker import app
 
 from flask import render_template, session
+
+from BeautifulSoup import BeautifulStoneSoup
+import cgi
 
 
 class EventsController(TinkerController):
@@ -91,7 +96,11 @@ class EventsController(TinkerController):
     # web services methods
     def date_to_java_unix(self, date):
 
-        return int(self.base.datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+        return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+
+    def java_unix_to_date(self, date):
+
+        return datetime.datetime.fromtimestamp(int(date) / 1000).strftime('%B %d  %Y, %I:%M %p')
 
     def friendly_date_range(self, start, end):
         date_format = "%B %d, %Y %I:%M %p"
@@ -100,11 +109,35 @@ class EventsController(TinkerController):
         end_check = arrow.get(end)
 
         if start_check.year == end_check.year and start_check.month == end_check.month and start_check.day == end_check.day:
-            return "%s - %s" % (self.base.datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
-                                self.base.datetime.datetime.fromtimestamp(int(end)).strftime("%I:%M %p"))
+            return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
+                                datetime.datetime.fromtimestamp(int(end)).strftime("%I:%M %p"))
         else:
-            return "%s - %s" % (self.base.datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
-                                self.base.datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
+            return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
+                                datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
+
+    # casecade_tools methods
+    # todo move
+    # Excape content so its Cascade WYSIWYG friendly
+    # There are a few edge cases for sybmols it doesn't like.
+    def escape_wysiwyg_content(self, content):
+        if content:
+            uni = self.HTMLEntitiesToUnicode(content)
+            htmlent = self.unicodeToHTMLEntities(uni)
+            return htmlent
+        else:
+            return None
+
+    # todo move(?)
+    def HTMLEntitiesToUnicode(self, text):
+        """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
+        text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
+        return text
+
+    # todo move(?)
+    def unicodeToHTMLEntities(self, text):
+        """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
+        text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
+        return text
 
     # cascade event methods
     def get_forms_for_user(self, username):
@@ -183,7 +216,7 @@ class EventsController(TinkerController):
             title = "-- %s" % title
         workflow = {
             "workflowName": "%s, %s at %s (%s)" %
-                            (title, self.base.time.strftime("%m-%d-%Y"), self.base.time.strftime("%I:%M %p"), username),
+                            (title, time.strftime("%m-%d-%Y"), time.strftime("%I:%M %p"), username),
             "workflowDefinitionId": "1ca9794e8c586513742d45fd39c5ffe3",
             "workflowComments": "New event submission"
         }
@@ -242,12 +275,12 @@ class EventsController(TinkerController):
             try:
                 start = self.date_to_java_unix(start)
             except ValueError as e:
-                app.logger.error(self.base.time.strftime("%c") + ": error converting start date " + str(e))
+                app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
                 start = None
             try:
                 end = self.date_to_java_unix(end)
             except ValueError as e:
-                app.logger.error(self.base.time.strftime("%c") + ": error converting end date " + str(e))
+                app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
                 end = None
 
             dates.append(self.event_date(start, end, all_day))
@@ -272,15 +305,15 @@ class EventsController(TinkerController):
 
         # Create a list of all the data nodes
         structured_data = [
-            self.structured_data_node("main-content", escape_wysiwyg_content(add_data['main_content'])),
-            self.structured_data_node("questions", escape_wysiwyg_content(add_data['questions'])),
-            self.structured_data_node("link", escape_wysiwyg_content(add_data['link'])),
+            self.structured_data_node("main-content", self.escape_wysiwyg_content(add_data['main_content'])),
+            self.structured_data_node("questions", self.escape_wysiwyg_content(add_data['questions'])),
+            self.structured_data_node("link", self.escape_wysiwyg_content(add_data['link'])),
             self.structured_data_node("cancellations", add_data['cancellations']),
-            self.structured_data_node("registration-details", escape_wysiwyg_content(add_data['registration_details'])),
+            self.structured_data_node("registration-details", self.escape_wysiwyg_content(add_data['registration_details'])),
             self.structured_data_node("registration-heading", add_data['registration_heading']),
             self.structured_data_node("cost", add_data['cost']),
-            self.structured_data_node("sponsors", escape_wysiwyg_content(add_data['sponsors'])),
-            self.structured_data_node("maps-directions", escape_wysiwyg_content(add_data['maps_directions'])),
+            self.structured_data_node("sponsors", self.escape_wysiwyg_content(add_data['sponsors'])),
+            self.structured_data_node("maps-directions", self.escape_wysiwyg_content(add_data['maps_directions'])),
             self.structured_data_node("off-campus-location", add_data['off_campus_location']),
             self.structured_data_node("on-campus-location", add_data['on_campus_location']),
             self.structured_data_node("other-on-campus", add_data['other_on_campus']),
@@ -317,6 +350,38 @@ class EventsController(TinkerController):
             ],
         }
 
+        # allows for multiple authors. If none set, default to username
+        if 'author' not in add_data or add_data['author'] == "":
+            author = username
+        else:
+            author = add_data['author']
+
+        asset = {
+            'page': {
+                'name': add_data['system_name'],
+                'siteId': app.config['SITE_ID'],
+                'parentFolderPath': parent_folder_path,
+                'metadataSetPath': "/Event",
+                'contentTypePath': "Event",
+                'configurationSetPath': "Old/Event",
+                # Break this out more once its defined in the form
+                'structuredData': structured_data,
+                'metadata': {
+                    'title': add_data['title'],
+                    'summary': 'summary',
+                    'author': author,
+                    'metaDescription': add_data['teaser'],
+                    'dynamicFields': dynamic_fields,
+                }
+            },
+            'workflowConfiguration': workflow
+        }
+
+        if event_id:
+            asset['page']['id'] = event_id
+
+        return asset
+
     def dynamic_field(self, name, values):
 
         values_list = []
@@ -333,7 +398,7 @@ class EventsController(TinkerController):
 
     def read_events_base_asset(self):
 
-        base_asset = self.base.read("/_cascade/base-assets/folders/event-folder", "folder")
+        base_asset = self.read("/_cascade/base-assets/folders/event-folder", "folder")
         if 'success = "false"' in str(base_asset):
             return None
 
@@ -428,7 +493,7 @@ class EventsController(TinkerController):
         if folder_path[0] == "/":
             folder_path = folder_path[1:]  # removes the extra "/"
 
-        old_folder_asset = self.base.read("/" + folder_path, "folder")
+        old_folder_asset = self.read("/" + folder_path, "folder")
 
         if 'success = "false"' in str(old_folder_asset):
 
@@ -452,13 +517,13 @@ class EventsController(TinkerController):
             }
 
             auth = app.config['CASCADE_LOGIN']
-            client = self.base.get_client()
+            client = self.cascade_connector.get_client() # TODO is this okay??
 
             username = session['username']
 
             response = client.service.create(auth, asset)
             # todo is the next line needed?
-            response = app.logger.debug(self.base.time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
+            response = app.logger.debug(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
             return True
         return False
 
@@ -478,7 +543,7 @@ class EventsController(TinkerController):
 
     def get_current_year_folder(self, event_id):
         # read in te page and find the current year
-        asset = self.base.read(event_id)
+        asset = self.read(event_id)
         path = asset.asset.page.path
         try:
             year = re.search('events/(\d{4})/', path).group(1)
@@ -497,7 +562,7 @@ class EventsController(TinkerController):
                 year = end_date.year
             except AttributeError:
                 # if end_date is none and this fails, revert to current year.
-                year = self.base.datetime.date.today().year
+                year = datetime.date.today().year
             if year > max_year:
                 max_year = year
 
@@ -507,7 +572,7 @@ class EventsController(TinkerController):
     def string_to_datetime(self, date_str):
 
         try:
-            return self.base.datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
+            return datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
         except TypeError:
             return None
 
@@ -609,5 +674,43 @@ class EventsController(TinkerController):
 
     def move_event_year(self, event_id, data):
         new_path = self.get_event_folder_path(data)
-        resp = self.base.move(event_id, new_path[1])
+        resp = self.move(event_id, new_path[1])
         return resp
+
+    def create(self, asset):
+        auth = app.config['CASCADE_LOGIN']
+        client = get_client()
+
+        username = session['username']
+
+        response = client.service.create(auth, asset)
+
+        from tinker import sentry
+        # sentry.captureMessage()
+
+        client = sentry.client
+
+        client.extra_context({
+            'Time': time.strftime("%c"),
+            'Author': username,
+            'Response': str(response)
+        })
+
+        log_sentry("New event submission", response)
+        """
+
+        <complexType name="workflow-configuration">
+      <sequence>
+        <element maxOccurs="1" minOccurs="1" name="workflowName" type="xsd:string"/>
+        <choice>
+          <element maxOccurs="1" minOccurs="1" name="workflowDefinitionId" type="xsd:string"/>
+          <element maxOccurs="1" minOccurs="1" name="workflowDefinitionPath" type="xsd:string"/>
+        </choice>
+        <element maxOccurs="1" minOccurs="1" name="workflowComments" type="xsd:string"/>
+        <element maxOccurs="1" minOccurs="0" name="workflowStepConfigurations" type="impl:workflow-step-configurations"/>
+      </sequence>
+    </complexType>
+
+        """
+
+        return response
