@@ -1,9 +1,7 @@
-__author__ = 'ejc84332'
-
 import json
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
-from flask import Blueprint, redirect, session, app
+from flask import Blueprint, redirect, app  # , session
 from tinker.events.cascade_events import *
 from events_metadata import metadata_list
 

@@ -30,7 +30,6 @@ class SudmitEditFormTestCase(EventsBaseTestCase):
         # TODO: fill in the arguments to send a valid form submission as a test
         form_contents = self.create_form_contents("", "", "", "", "", "", "", "", "", "", "")
         response = self.send_post("/event/submit-edit", form_contents)
-        print "Submit Edit Form:", response
         assert b' ' in response.data
 
     # TODO: write invalid tests by sending over None objects instead of the correct string arguments
