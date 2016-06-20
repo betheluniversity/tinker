@@ -1,6 +1,7 @@
 from events_base import EventsBaseTestCase
 
-class DeleteConfirmTestCase(EventsBaseTestCase):
+
+class SudmitEditFormTestCase(EventsBaseTestCase):
     #######################
     ### Utility methods ###
     #######################
@@ -9,6 +10,6 @@ class DeleteConfirmTestCase(EventsBaseTestCase):
     ### Testing methods ###
     #######################
 
-    def test_delete_confirm(self):
-        response = self.send_get("/events/delete_confirm")
-        assert b'Your event has been deleted.' in response.data
+    def test_submit_edit_form(self):
+        response = self.send_get("/events/submit_edit_form")
+        assert b' ' in response.data

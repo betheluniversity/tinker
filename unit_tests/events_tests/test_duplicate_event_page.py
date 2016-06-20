@@ -1,6 +1,7 @@
 from events_base import EventsBaseTestCase
 
-class DeleteConfirmTestCase(EventsBaseTestCase):
+
+class DuplicateEventPageTestCase(EventsBaseTestCase):
     #######################
     ### Utility methods ###
     #######################
@@ -9,6 +10,6 @@ class DeleteConfirmTestCase(EventsBaseTestCase):
     ### Testing methods ###
     #######################
 
-    def test_delete_confirm(self):
-        response = self.send_get("/events/delete_confirm")
-        assert b'Your event has been deleted.' in response.data
+    def test_duplicate_event_page(self):
+        response = self.send_get("/events/duplicate_event_page/adsf")
+        assert b' ' in response.data

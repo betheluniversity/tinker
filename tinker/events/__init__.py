@@ -5,7 +5,7 @@ from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
 from flask import Blueprint, redirect, session, app
 from tinker.events.cascade_events import *
-
+from events_metadata import metadata_list
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
@@ -52,8 +52,9 @@ class EventsView(FlaskView):
         self.base.delete(page_id)
         # publish_event_xml()
         self.base.publish(app.config['EVENT_XML_ID'])
-        return redirect('/event/delete-confirm', code=302)
+        return redirect('/events/delete_confirm', code=302)
 
+    # Throws a 500
     def edit_event_page(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         # asset type='block'?
@@ -121,6 +122,35 @@ class EventsView(FlaskView):
 
         return render_template('event-form.html', **locals())
 
+    def check_event_dates(self, form):
+
+        event_dates = {}
+        dates_good = False
+        num_dates = int(form['num_dates'])
+        for x in range(1, num_dates+1):  # the page doesn't use 0-based indexing
+
+            i = str(x)
+            start_l = 'start' + i
+            end_l = 'end' + i
+            all_day_l = 'allday' + i
+
+            start = form[start_l]
+            end = form[end_l]
+            all_day = all_day_l in form.keys()
+
+            event_dates[start_l] = start
+            event_dates[end_l] = end
+            event_dates[all_day_l] = all_day
+
+            start_and_end = start and end
+
+            if start_and_end:
+                dates_good = True
+
+        # convert event dates to JSON
+        return json.dumps(event_dates), dates_good, num_dates
+
+    # @route('/duplicate/<event_id>')
     def duplicate_event_page(self, event_id):
 
         if self.base.asset_in_workflow(event_id, asset_type='block'):
@@ -187,9 +217,6 @@ class EventsView(FlaskView):
 
         return render_template('event-form.html', **locals())
 
-        # convert event dates to JSON
-        return json.dumps(event_dates), dates_good, num_dates
-
     @route("/submit-edit", methods=['post'])
     def submit_edit_form(self):
 
@@ -201,25 +228,30 @@ class EventsView(FlaskView):
         rform = request.form
         title = rform['title']
         username = session['username']
-        workflow = self.base.get_event_publish_workflow(title, username)
+        workflow = get_event_publish_workflow(title, username)
 
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
 
-        if not form.validate_on_submit() or not dates_good:
-            event_id = request.form['event_id']
-            return render_template('event-form.html', **locals())
+        failed = self.base.validate_form(rform, dates_good)
+        if failed:
+            return failed
+
+        # ABOVE WAY INSTEAD?
+        # if not form.validate_on_submit() or not dates_good:
+        #     event_id = request.form['event_id']
+        #     return render_template('event-form.html', **locals())
 
         form = rform
-        add_data = self.base.get_add_data(['general', 'offices', 'cas_departments', 'internal', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
-        dates = self.base.get_dates(add_data)
+        add_data = get_add_data(metadata_list, form)
+        dates = get_dates(add_data)
         add_data['event-dates'] = dates
         add_data['author'] = request.form['author']
         event_id = form['event_id']
 
-        asset = self.base.get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
+        asset = get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
 
-        current_year = self.base.get_current_year_folder(event_id)
-        new_year = self.base.get_year_folder_value(add_data)
+        current_year = get_current_year_folder(event_id)
+        new_year = get_year_folder_value(add_data)
 
         resp = edit(asset)
         log_sentry("Event edit submission", resp)
@@ -250,8 +282,6 @@ class EventsView(FlaskView):
         username = session['username']
         workflow = self.base.get_event_publish_workflow(title, username)
 
-        # check event dates here?
-
         # create a dict of date values so we can access them in Jinja later.
         # they aren't part of the form so we can't just do form.start1, etc...
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
@@ -273,6 +303,7 @@ class EventsView(FlaskView):
 
         # form = rform # todo not sure if this is needed
         # Get all the form data
+
         from events_metadata import metadata_list
         add_data = self.base.get_add_data(metadata_list, form)
 
@@ -281,6 +312,7 @@ class EventsView(FlaskView):
         # Add it to the dict, we can just ignore the old entries
         add_data['event-dates'] = dates
 
+        # took out workflow=workflow parameter is it NEEDED?
         asset = self.base.get_event_structure(add_data, username, workflow)
 
         resp = self.base.create(asset)
@@ -325,9 +357,9 @@ class EventsView(FlaskView):
     #         self.base.log_sentry("E-Announcement edit submission", resp)
     #         return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
 
+
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):
-
         ws_connector = self.base.Cascade(app.config['SOAP_URL'], app.config['AUTH'], app.config['SITE_ID'])
         my_page = self.base.Page(ws_connector, event_id)
 

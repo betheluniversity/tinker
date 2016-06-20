@@ -1,6 +1,7 @@
 from events_base import EventsBaseTestCase
 
-class DeleteConfirmTestCase(EventsBaseTestCase):
+
+class AddTestCase(EventsBaseTestCase):
     #######################
     ### Utility methods ###
     #######################
@@ -9,6 +10,6 @@ class DeleteConfirmTestCase(EventsBaseTestCase):
     ### Testing methods ###
     #######################
 
-    def test_delete_confirm(self):
-        response = self.send_get("/events/delete_confirm")
-        assert b'Your event has been deleted.' in response.data
+    def test_add(self):
+        response = self.send_get("/events/add")
+        assert b'please contact Conference and Event Services' in response.data
