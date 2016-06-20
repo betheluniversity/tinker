@@ -14,6 +14,7 @@ from operator import itemgetter
 
 # local
 from tinker import app
+from tinker.tools import log_sentry
 
 from flask import render_template, session
 
@@ -679,7 +680,7 @@ class EventsController(TinkerController):
 
     def create(self, asset):
         auth = app.config['CASCADE_LOGIN']
-        client = get_client()
+        client = self.cascade_connector.get_client()
 
         username = session['username']
 
