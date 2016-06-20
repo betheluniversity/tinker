@@ -92,7 +92,6 @@ class SyncController(TinkerController):
             returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'delivery_label', data_to_add['delivery_label']))
             returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'delivery_subheading', data_to_add['delivery_subheading']))
             returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'roles', data_to_add['roles']))
-            returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'program-search-degree', data_to_add['degree']))
 
             asset.edit_asset(data_definition_asset)
         except:
