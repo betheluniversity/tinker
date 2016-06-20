@@ -52,6 +52,7 @@ class EventsView(FlaskView):
         self.base.publish(app.config['EVENT_XML_ID'])
         return redirect('/events/delete_confirm', code=302)
 
+    @route('/edit/<event_id>')
     def edit_event_page(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         # asset type='block'?
