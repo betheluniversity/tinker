@@ -24,19 +24,6 @@ def home():
     return render_template('events-home.html', **locals())
 
 
-@event_blueprint.route('/delete/<page_id>')
-def delete_page(page_id):
-    workflow = get_event_delete_workflow()
-    delete(page_id, workflow=workflow)
-    publish_event_xml()
-    return redirect('/event/delete-confirm', code=302)
-
-
-@event_blueprint.route('/delete-confirm')
-def delete_confirm():
-    return render_template('events-delete-confirm.html', **locals())
-
-
 @event_blueprint.route("/add")
 def form_index():
 
@@ -271,7 +258,7 @@ def submit_form():
 
     # 'link' must be a valid component
     if 'link' in add_data and add_data['link'] != "":
-        from tinker.admin.redirects import new_internal_redirect_submit
+        from tinker.admin.redirects.views import new_internal_redirect_submit
         path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
         new_internal_redirect_submit(path, add_data['link'])
 
@@ -319,7 +306,7 @@ def submit_edit_form():
 
     # 'link' must be a valid component
     if 'link' in add_data and add_data['link'] != "":
-        from tinker.admin.redirects import new_internal_redirect_submit
+        from tinker.admin.redirects.views import new_internal_redirect_submit
         path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
         new_internal_redirect_submit(path, add_data['link'])
 
