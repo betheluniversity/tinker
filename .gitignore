@@ -36,3 +36,4 @@ bower_components/
 tinker/static/scripts/js/
 
 config/*.py
+gspread_client.json

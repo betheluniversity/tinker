@@ -119,7 +119,7 @@ class ProgramSearchView(FlaskView):
         outcsv = csv.writer(outfile)
         rows = []
         records = ProgramTag.query.all()
-
+        rows.append(['key', 'tag', 'outcome', 'other', 'topic'])
         for record in records:
             rows.append([record.key, record.tag, record.outcome, record.other, record.topic])
 
