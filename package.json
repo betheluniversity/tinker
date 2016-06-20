@@ -1,0 +1,25 @@
+{
+  "name": "tinker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "tinker/__init__.py",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "bower": "*",
+    "gulp": "*",
+    "gulp-browserify": "*",
+    "gulp-clean": "*",
+    "gulp-size": "*",
+    "react-bootstrap": "*",
+    "reactify": "*"
+  },
+  "dependencies": {
+    "react": "*",
+    "react-dom": "*",
+    "react-loader": "*"
+  }
+}

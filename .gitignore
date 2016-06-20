@@ -18,6 +18,10 @@ upgrade.txt
 
 .idea/misc.xml
 
+db_repository/
+
+migrations/
+
 db_repository/versions/002_migration.py
 
 db_repository/versions/003_migration.py
@@ -25,5 +29,10 @@ db_repository/versions/003_migration.py
 redirects.txt.back
 
 tinker/.DS_Store
+
+tinker/admin/program_search/creds.json
+node_modules/
+bower_components/
+tinker/static/scripts/js/
 
 config/*.py

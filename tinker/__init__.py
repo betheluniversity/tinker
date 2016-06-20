@@ -1,8 +1,10 @@
+import os
 import logging
 
 # flask
 from flask import Flask
 from flask import session
+from flask import Blueprint
 
 # flask extensions
 from flask.ext.cache import Cache
@@ -20,6 +22,7 @@ from raven.contrib.flask import Sentry
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
 
 from tinker.admin.redirects import models
+from tinker.admin.program_search import models
 from tinker import tools
 
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
@@ -32,6 +35,8 @@ if not app.debug:
     file_handler = FileHandler(app.config['INSTALL_LOCATION'] + '/error.log')
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.DEBUG)
+
+
 
 # Import routes
 import views
@@ -53,7 +58,9 @@ app.register_blueprint(sync_blueprint, url_prefix='/admin/sync')
 app.register_blueprint(publish_blueprint, url_prefix='/admin/publish-manager')
 app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
 app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear')
-app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
+
+from tinker.admin.program_search import ProgramSearchBlueprint
+app.register_blueprint(ProgramSearchBlueprint, url_prefix='/admin')
 
 csrf = CsrfProtect(app)
 csrf.exempt(cache_blueprint)
