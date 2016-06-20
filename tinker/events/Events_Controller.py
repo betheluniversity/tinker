@@ -1,5 +1,7 @@
 from tinker.tinker_controller import TinkerController
 import json
+import datetime
+import time
 # involves wysiwyg (need to get rid of)
 from tinker.events.cascade_events import *
 
@@ -91,7 +93,11 @@ class EventsController(TinkerController):
     # web services methods
     def date_to_java_unix(self, date):
 
-        return int(self.base.datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+        return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+
+    def java_unix_to_date(self, date):
+
+        return datetime.datetime.fromtimestamp(int(date) / 1000).strftime('%B %d  %Y, %I:%M %p')
 
     def friendly_date_range(self, start, end):
         date_format = "%B %d, %Y %I:%M %p"
@@ -100,11 +106,11 @@ class EventsController(TinkerController):
         end_check = arrow.get(end)
 
         if start_check.year == end_check.year and start_check.month == end_check.month and start_check.day == end_check.day:
-            return "%s - %s" % (self.base.datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
-                                self.base.datetime.datetime.fromtimestamp(int(end)).strftime("%I:%M %p"))
+            return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
+                                datetime.datetime.fromtimestamp(int(end)).strftime("%I:%M %p"))
         else:
-            return "%s - %s" % (self.base.datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
-                                self.base.datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
+            return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
+                                datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
 
     # cascade event methods
     def get_forms_for_user(self, username):
@@ -183,7 +189,7 @@ class EventsController(TinkerController):
             title = "-- %s" % title
         workflow = {
             "workflowName": "%s, %s at %s (%s)" %
-                            (title, self.base.time.strftime("%m-%d-%Y"), self.base.time.strftime("%I:%M %p"), username),
+                            (title, time.strftime("%m-%d-%Y"), time.strftime("%I:%M %p"), username),
             "workflowDefinitionId": "1ca9794e8c586513742d45fd39c5ffe3",
             "workflowComments": "New event submission"
         }
@@ -242,12 +248,12 @@ class EventsController(TinkerController):
             try:
                 start = self.date_to_java_unix(start)
             except ValueError as e:
-                app.logger.error(self.base.time.strftime("%c") + ": error converting start date " + str(e))
+                app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
                 start = None
             try:
                 end = self.date_to_java_unix(end)
             except ValueError as e:
-                app.logger.error(self.base.time.strftime("%c") + ": error converting end date " + str(e))
+                app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
                 end = None
 
             dates.append(self.event_date(start, end, all_day))
@@ -333,7 +339,7 @@ class EventsController(TinkerController):
 
     def read_events_base_asset(self):
 
-        base_asset = self.base.read("/_cascade/base-assets/folders/event-folder", "folder")
+        base_asset = self.read("/_cascade/base-assets/folders/event-folder", "folder")
         if 'success = "false"' in str(base_asset):
             return None
 
@@ -428,7 +434,7 @@ class EventsController(TinkerController):
         if folder_path[0] == "/":
             folder_path = folder_path[1:]  # removes the extra "/"
 
-        old_folder_asset = self.base.read("/" + folder_path, "folder")
+        old_folder_asset = self.read("/" + folder_path, "folder")
 
         if 'success = "false"' in str(old_folder_asset):
 
@@ -452,13 +458,13 @@ class EventsController(TinkerController):
             }
 
             auth = app.config['CASCADE_LOGIN']
-            client = self.base.get_client()
+            client = self.cascade_connector.get_client() # TODO is this okay??
 
             username = session['username']
 
             response = client.service.create(auth, asset)
             # todo is the next line needed?
-            response = app.logger.debug(self.base.time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
+            response = app.logger.debug(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
             return True
         return False
 
@@ -478,7 +484,7 @@ class EventsController(TinkerController):
 
     def get_current_year_folder(self, event_id):
         # read in te page and find the current year
-        asset = self.base.read(event_id)
+        asset = self.read(event_id)
         path = asset.asset.page.path
         try:
             year = re.search('events/(\d{4})/', path).group(1)
@@ -497,7 +503,7 @@ class EventsController(TinkerController):
                 year = end_date.year
             except AttributeError:
                 # if end_date is none and this fails, revert to current year.
-                year = self.base.datetime.date.today().year
+                year = datetime.date.today().year
             if year > max_year:
                 max_year = year
 
@@ -507,7 +513,7 @@ class EventsController(TinkerController):
     def string_to_datetime(self, date_str):
 
         try:
-            return self.base.datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
+            return datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
         except TypeError:
             return None
 
@@ -609,5 +615,43 @@ class EventsController(TinkerController):
 
     def move_event_year(self, event_id, data):
         new_path = self.get_event_folder_path(data)
-        resp = self.base.move(event_id, new_path[1])
+        resp = self.move(event_id, new_path[1])
         return resp
+
+    def create(self, asset):
+        auth = app.config['CASCADE_LOGIN']
+        client = get_client()
+
+        username = session['username']
+
+        response = client.service.create(auth, asset)
+
+        from tinker import sentry
+        # sentry.captureMessage()
+
+        client = sentry.client
+
+        client.extra_context({
+            'Time': time.strftime("%c"),
+            'Author': username,
+            'Response': str(response)
+        })
+
+        log_sentry("New event submission", response)
+        """
+
+        <complexType name="workflow-configuration">
+      <sequence>
+        <element maxOccurs="1" minOccurs="1" name="workflowName" type="xsd:string"/>
+        <choice>
+          <element maxOccurs="1" minOccurs="1" name="workflowDefinitionId" type="xsd:string"/>
+          <element maxOccurs="1" minOccurs="1" name="workflowDefinitionPath" type="xsd:string"/>
+        </choice>
+        <element maxOccurs="1" minOccurs="1" name="workflowComments" type="xsd:string"/>
+        <element maxOccurs="1" minOccurs="0" name="workflowStepConfigurations" type="impl:workflow-step-configurations"/>
+      </sequence>
+    </complexType>
+
+        """
+
+        return response
