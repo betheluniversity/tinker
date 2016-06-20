@@ -15,7 +15,7 @@ class EventsView(FlaskView):
     route_base = '/event'
 
     def __init__(self):
-        self.base = EventsController
+        self.base = EventsController()
 
     # Allows any user to access events
     def before_request(self, name, **kwargs):
