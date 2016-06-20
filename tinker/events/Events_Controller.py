@@ -490,43 +490,8 @@ class EventsController(TinkerController):
 
         return hide_site_nav, path
 
-    def create_event_folder(self, folder_path):
-        if folder_path[0] == "/":
-            folder_path = folder_path[1:]  # removes the extra "/"
-
-        old_folder_asset = self.read("/" + folder_path, "folder")
-
-        if 'success = "false"' in str(old_folder_asset):
-
-            array = folder_path.rsplit("/", 1)
-            parent_path = array[0]
-            name = array[1]
-
-            asset = {
-                'folder': {
-                    'metadata': {
-                        'title': name,
-                        'dynamicFields': {
-                            'dynamicField': self.read_events_base_asset()
-                        }
-                    },
-                    'metadataSetPath': "Basic",
-                    'name': name,
-                    'parentFolderPath': parent_path,
-                    'siteName': "Public"
-                }
-            }
-
-            auth = app.config['CASCADE_LOGIN']
-            client = self.cascade_connector.get_client() # TODO is this okay??
-
-            username = session['username']
-
-            response = client.service.create(auth, asset)
-            # todo is the next line needed?
-            response = app.logger.debug(time.strftime("%c") + ": New folder creation by " + username + " " + str(response))
-            return True
-        return False
+    def create_event_folder(self, folder_path, base_asset_path=None):
+        return self.create_folder(folder_path, base_asset_path)
 
     def structured_data_node(self, node_id, text, node_type=None):
 
@@ -697,7 +662,7 @@ class EventsController(TinkerController):
             'Response': str(response)
         })
 
-        log_sentry("New event submission", response)
+        self.log_sentry("New event submission", response)
         """
 
         <complexType name="workflow-configuration">

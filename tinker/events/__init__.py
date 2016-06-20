@@ -366,4 +366,8 @@ class EventsView(FlaskView):
 
         return event_id
 
+    # todo this is a test, delete later
+    def tim(self):
+        return self.base.create_event_folder('/_testing/tim-heck/test-event-folder3', '/_cascade/base-assets/folders/event-folder')
+
 EventsView.register(EventsBlueprint)
