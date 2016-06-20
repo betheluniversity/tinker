@@ -1,10 +1,9 @@
 __author__ = 'ejc84332'
 
 import json
-from tinker import tools
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
-from flask import Blueprint, redirect
+from flask import Blueprint, redirect, session, app
 from tinker.events.cascade_events import *
 
 
@@ -22,9 +21,9 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-        forms = get_forms_for_user(session['username'])
+        forms = self.base.get_forms_for_user(session['username'])
         if 'Event Approver' in session['groups']:
-            event_approver_forms = get_forms_for_event_approver()
+            event_approver_forms = self.base.get_forms_for_event_approver()
         return render_template('events-home.html', **locals())
 
     def delete_confirm(self):
@@ -202,25 +201,25 @@ class EventsView(FlaskView):
         rform = request.form
         title = rform['title']
         username = session['username']
-        workflow = get_event_publish_workflow(title, username)
+        workflow = self.base.get_event_publish_workflow(title, username)
 
-        event_dates, dates_good, num_dates = check_event_dates(rform)
+        event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
 
         if not form.validate_on_submit() or not dates_good:
             event_id = request.form['event_id']
             return render_template('event-form.html', **locals())
 
         form = rform
-        add_data = get_add_data(['general', 'offices', 'cas_departments', 'internal', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
-        dates = get_dates(add_data)
+        add_data = self.base.get_add_data(['general', 'offices', 'cas_departments', 'internal', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], form)
+        dates = self.base.get_dates(add_data)
         add_data['event-dates'] = dates
         add_data['author'] = request.form['author']
         event_id = form['event_id']
 
-        asset = get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
+        asset = self.base.get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
 
-        current_year = get_current_year_folder(event_id)
-        new_year = get_year_folder_value(add_data)
+        current_year = self.base.get_current_year_folder(event_id)
+        new_year = self.base.get_year_folder_value(add_data)
 
         resp = edit(asset)
         log_sentry("Event edit submission", resp)
@@ -249,7 +248,7 @@ class EventsView(FlaskView):
         eid = rform.get('event_id')
         title = rform['title']
         username = session['username']
-        workflow = get_event_publish_workflow(title, username)
+        workflow = self.base.get_event_publish_workflow(title, username)
 
         # check event dates here?
 
@@ -272,17 +271,17 @@ class EventsView(FlaskView):
         #     return render_.
         # template('event-form.html', **locals())
 
-        # form = rform #todo not sure if this is needed
+        # form = rform # todo not sure if this is needed
         # Get all the form data
         from events_metadata import metadata_list
-        add_data = get_add_data(metadata_list, form)
+        add_data = self.base.get_add_data(metadata_list, form)
 
-        dates = get_dates(add_data)
+        dates = self.base.get_dates(add_data)
 
         # Add it to the dict, we can just ignore the old entries
         add_data['event-dates'] = dates
 
-        asset = get_event_structure(add_data, username, workflow)
+        asset = self.base.get_event_structure(add_data, username, workflow)
 
         resp = self.base.create(asset)
 
@@ -325,5 +324,17 @@ class EventsView(FlaskView):
     #         resp = str(block.edit_asset(asset))
     #         self.base.log_sentry("E-Announcement edit submission", resp)
     #         return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
+
+    @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
+    def reset_tinker_edits(self, event_id):
+
+        ws_connector = self.base.Cascade(app.config['SOAP_URL'], app.config['AUTH'], app.config['SITE_ID'])
+        my_page = self.base.Page(ws_connector, event_id)
+
+        asset, md, sd = my_page.get_asset()
+        self.base.update(md, 'tinker-edits', '0')
+        my_page.edit_asset(asset)
+
+        return event_id
 
 EventsView.register(EventsBlueprint)
