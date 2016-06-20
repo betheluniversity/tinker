@@ -3,13 +3,9 @@ __author__ = 'ejc84332'
 import json
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
-<<<<<<< HEAD
-from flask import Blueprint, redirect, session, app
 from tinker.events.cascade_events import *
-=======
 from flask import Blueprint, redirect, session, render_template, app, request, json as fjson
-# from tinker.events.cascade_events import *
->>>>>>> origin/Events
+# from tinker.events.cascade_events import *origin/Events
 from events_metadata import metadata_list
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
