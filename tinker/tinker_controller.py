@@ -315,26 +315,43 @@ class TinkerController(object):
             name = array[1]
 
             base_asset = self.read(base_asset_path, "folder")
-            print base_asset
+            # print base_asset
 
-            asset = {
-                'folder': {
-                    'metadata': {
-                        'title': name,
-                        'dynamicFields': {
-                            'dynamicField': None
-                        }
-                    },
-                    'metadataSetPath': "Basic",
-                    'name': name,
-                    'parentFolderPath': parent_path,
-                    'siteName': "Public"
-                }
-            }
+            base_asset_new = self.todict(base_asset)
+
+            # print old_folder_asset
+            print update(base_asset_new['asset']['folder']['metadata'], 'title', 'test')
+            print 'MADE IT'
+            # find(base_asset, 'metadataSetPath').update(base_asset, 'metadataSetPath', "Test")
+            # find(base_asset, 'dynamicField').update(base_asset, 'dynamicField', None)
+            # find(base_asset, 'name').update(base_asset, 'name', name)
+            # find(base_asset, 'parentFolderPath').update(base_asset, 'parentFolderPath', parent_path)
+            # find(base_asset, 'siteName').update(base_asset, 'siteName', "Public")
 
             if base_asset_path:
-                asset['folder']['metadata']['dynamicFields']['dynamicField'] = base_asset_path
-                print asset
+                update(base_asset, 'dynamicField', base_asset_path)
+
+            print base_asset
+
+
+            # asset = {
+            #     'folder': {
+            #         'metadata': {
+            #             'title': name,
+            #             'dynamicFields': {
+            #                 'dynamicField': None
+            #             }
+            #         },
+            #         'metadataSetPath': "Basic",
+            #         'name': name,
+            #         'parentFolderPath': parent_path,
+            #         'siteName': "Public"
+            #     }
+            # }
+            #
+            # if base_asset_path:
+            #     asset['folder']['metadata']['dynamicFields']['dynamicField'] = base_asset_path
+            #     print asset
 
             # response = self.cascade_connector.create(asset)
             # app.logger.debug(time.strftime("%c") + ": New folder creation by " + session['username'] + " " + str(response))
@@ -348,3 +365,24 @@ class TinkerController(object):
 
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow
+
+    def todict(self, obj, classkey=None):
+        if isinstance(obj, dict):
+            data = {}
+            for (k, v) in obj.items():
+                data[k] = self.todict(v, classkey)
+            return data
+        elif hasattr(obj, "_ast"):
+            return self.todict(obj._ast())
+        elif hasattr(obj, "__iter__"):
+            return [self.todict(v, classkey) for v in obj]
+        elif hasattr(obj, "__dict__"):
+            data = dict([(key, self.todict(value, classkey))
+                for key, value in obj.__dict__.iteritems()
+                if not callable(value) and not key.startswith('_')])
+            if classkey is not None and hasattr(obj, "__class__"):
+                data[classkey] = obj.__class__.__name__
+            return data
+        else:
+            return obj
+

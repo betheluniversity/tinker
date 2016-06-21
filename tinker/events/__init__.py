@@ -1,4 +1,5 @@
 import json
+import time
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
 from tinker.events.cascade_events import *
@@ -226,7 +227,7 @@ class EventsView(FlaskView):
         rform = request.form
         title = rform['title']
         username = session['username']
-        workflow = get_event_publish_workflow(title, username)
+        workflow = self.base.get_event_publish_workflow(title, username)
 
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
 
@@ -240,22 +241,24 @@ class EventsView(FlaskView):
         #     return render_template('event-form.html', **locals())
 
         form = rform
-        add_data = get_add_data(metadata_list, form)
-        dates = get_dates(add_data)
+        add_data = self.base.get_add_data(metadata_list, form)
+        dates = self.base.get_dates(add_data)
         add_data['event-dates'] = dates
         add_data['author'] = request.form['author']
         event_id = form['event_id']
 
-        asset = get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
+        asset = self.base.get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
 
-        current_year = get_current_year_folder(event_id)
-        new_year = get_year_folder_value(add_data)
+        current_year = self.base.get_current_year_folder(event_id)
+        new_year = self.base.get_year_folder_value(add_data)
 
+        # todo edit is in cascade connector, need to access it there and not web services
+        # todo self.base.cascade_connector. maybe use this?
         resp = edit(asset)
-        log_sentry("Event edit submission", resp)
+        self.base.log_sentry("Event edit submission", resp)
 
         if new_year > current_year:
-            resp = move_event_year(event_id, add_data)
+            resp = self.base.move_event_year(event_id, add_data)
             app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(resp))
 
         # 'link' must be a valid component
@@ -275,7 +278,7 @@ class EventsView(FlaskView):
 
         form = EventForm()
         rform = request.form
-        eid = rform.get('event_id')
+        # eid = rform.get('event_id')
         title = rform['title']
         username = session['username']
         workflow = None
@@ -291,13 +294,13 @@ class EventsView(FlaskView):
         if failed:
             return failed
 
-        if not form.validate_on_submit() or not dates_good:
-            if 'event_id' in request.form.keys():
-                event_id = request.form['event_id']
-            else:
-                # This error came from the add form because event_id wasn't set
-                add_form = True
-            return render_template('event-form.html', **locals())
+        # if not form.validate_on_submit() or not dates_good:
+        #     if 'event_id' in request.form.keys():
+        #         event_id = request.form['event_id']
+        #     else:
+        #         # This error came from the add form because event_id wasn't set
+        #         add_form = True
+        #     return render_template('event-form.html', **locals())
 
         # Get all the form data
 
@@ -319,12 +322,6 @@ class EventsView(FlaskView):
             app.logger.debug(time.strftime("%c") + ": TESTING" + resp)
 
         self.base.link(add_data, asset)
-
-        # 'link' must be a valid component
-        if 'link' in add_data and add_data['link'] != "":
-            from tinker.admin.redirects import new_internal_redirect_submit
-            path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
-            new_internal_redirect_submit(path, add_data['link'])
 
         return redirect('/event/confirm', code=302)
         # Just print the response for now

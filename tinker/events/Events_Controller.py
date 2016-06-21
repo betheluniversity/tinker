@@ -63,7 +63,7 @@ class EventsController(TinkerController):
             else:
                 new_form = True
             # bring in the mapping
-            brm = self.brm
+            # brm = self.brm
             return render_template('event-form.html', **locals())
 
     def link(self, add_data, asset):
