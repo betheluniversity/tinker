@@ -226,7 +226,8 @@ class EventsView(FlaskView):
         rform = request.form
         title = rform['title']
         username = session['username']
-        workflow = get_event_publish_workflow(title, username)
+        # workflow = get_event_publish_workflow(title, username)
+        workflow = None
 
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
 
@@ -273,10 +274,10 @@ class EventsView(FlaskView):
         # from cascade during homepage load
         from tinker.events.forms import EventForm
 
-        form = EventForm()
+        # form = EventForm()
         rform = request.form
-        eid = rform.get('event_id')
-        title = rform['title']
+        # eid = rform.get('event_id')
+        # title = rform['title']
         username = session['username']
         workflow = None
         # workflow = self.base.get_event_publish_workflow(title, username)
@@ -285,19 +286,10 @@ class EventsView(FlaskView):
         # they aren't part of the form so we can't just do form.start1, etc...
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
 
-        # dates = []
-
-        failed = self.base.validate_form(rform, dates_good)
+        failed = self.base.validate_form(rform, dates_good, event_dates, num_dates)
+        print "Past validate_form"
         if failed:
             return failed
-
-        if not form.validate_on_submit() or not dates_good:
-            if 'event_id' in request.form.keys():
-                event_id = request.form['event_id']
-            else:
-                # This error came from the add form because event_id wasn't set
-                add_form = True
-            return render_template('event-form.html', **locals())
 
         # Get all the form data
 
@@ -319,12 +311,6 @@ class EventsView(FlaskView):
             app.logger.debug(time.strftime("%c") + ": TESTING" + resp)
 
         self.base.link(add_data, asset)
-
-        # 'link' must be a valid component
-        if 'link' in add_data and add_data['link'] != "":
-            from tinker.admin.redirects import new_internal_redirect_submit
-            path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
-            new_internal_redirect_submit(path, add_data['link'])
 
         return redirect('/event/confirm', code=302)
         # Just print the response for now
