@@ -1,15 +1,19 @@
 from faculty_bio_utilities import *
-from flask import Blueprint, redirect, app, send_from_directory
+from flask import Blueprint, redirect, send_from_directory
 from flask.ext.classy import FlaskView, route
 from tinker.events.cascade_events import *
-# from tinker.faculty_bio_old.cascade_faculty_bio import *
+from tinker.tinker_controller import TinkerController
 from tinker.admin.sync.sync_metadata import data_to_add
 from werkzeug.utils import secure_filename
 
 FacultyBioBlueprint = Blueprint('events', __name__, template_folder='templates')
 
+
 class FacultyBioView(FlaskView):
     route_base = '/faculty-bio'
+
+    def __init__(self):
+        self.controller = TinkerController()
 
     def index(self):
         username = session['username']
@@ -26,14 +30,14 @@ class FacultyBioView(FlaskView):
     @route('/delete/<page_id>', methods=['GET'])
     def delete_page(self, page_id):
         # send to this workflow instead: 7747ea478c5865130c130b3a1a05240e
-        delete(page_id, workflow="7747ea478c5865130c130b3a1a05240e")
+        self.controller.delete(page_id, workflow="7747ea478c5865130c130b3a1a05240e")
         publish_faculty_bio_xml()
 
         # Todo: only publish the corresponding faculty listing pages.
-        publish(app.config['FACULTY_LISTING_CAPS_ID'], 'publishset')
-        publish(app.config['FACULTY_LISTING_GS_ID'], 'publishset')
-        publish(app.config['FACULTY_LISTING_SEM_ID'], 'publishset')
-        publish(app.config['FACULTY_LISTING_CAS_ID'], 'publishset')
+        self.controller.publish(app.config['FACULTY_LISTING_CAPS_ID'], 'publishset')
+        self.controller.publish(app.config['FACULTY_LISTING_GS_ID'], 'publishset')
+        self.controller.publish(app.config['FACULTY_LISTING_SEM_ID'], 'publishset')
+        self.controller.publish(app.config['FACULTY_LISTING_CAS_ID'], 'publishset')
 
         return redirect('/faculty-bio/delete-confirm', code=302)
 
@@ -72,7 +76,7 @@ class FacultyBioView(FlaskView):
     # Was faculty_bio_edit_form(), but renamed for simplification and FlaskClassy convention
     def edit(self, faculty_bio_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
-        if is_asset_in_workflow(faculty_bio_id):
+        if self.controller.asset_in_workflow(faculty_bio_id):
             return redirect('/faculty-bio/in-workflow', code=302)
 
         # import this here so we dont load all the content
@@ -230,14 +234,14 @@ class FacultyBioView(FlaskView):
             log_sentry("Faculty bio edit submission", resp)
             # publish corresponding pubish set to make sure corresponding pages get edits
             if not workflow:
-                publish(faculty_bio_id, "page")
+                self.controller.publish(faculty_bio_id, "page")
             return render_template('faculty-bio-confirm-edit.html', **locals())
         else:
             # new bio
             resp = create_faculty_bio(asset)
             faculty_bio_id = resp.createdAssetId
             if not workflow:
-                publish(faculty_bio_id, "page")
+                self.controller.publish(faculty_bio_id, "page")
             return render_template('faculty-bio-confirm-new.html', **locals())
 
     # Was uploaded_file(filename), but renamed for simplification and FlaskClassy convention

@@ -1,27 +1,14 @@
-# coding: utf-8
-# python
-
-# modules
 from flask.ext.wtf import Form
-from wtforms import ValidationError
-from wtforms import TextField
-from wtforms import TextAreaField
-# from wtforms import SelectMultipleField
-from wtforms import SelectField
-from wtforms import HiddenField
 from flask_wtf.file import FileField
-from wtforms import Field
-from wtforms import validators
-# from time import time
-
-
-# from flask_hmacauth import hmac
-
-# local
-# from tinker import app
 from tinker.tools import *
-# from tinker import cache
-from tinker.web_services import get_client  # , read
+from tinker.web_services import get_client
+from wtforms import Field
+from wtforms import HiddenField
+from wtforms import SelectField
+from wtforms import TextAreaField
+from wtforms import TextField
+from wtforms import ValidationError
+from wtforms import validators
 
 
 def get_md(metadata_path):
