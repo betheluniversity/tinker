@@ -58,7 +58,12 @@ app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 from tinker.e_announcements import EAnnouncementsBlueprint
 app.register_blueprint(EAnnouncementsBlueprint)
 
-CsrfProtect(app).exempt(redirect_blueprint)
+from tinker.office_hours import OfficeHoursBlueprint
+app.register_blueprint(OfficeHoursBlueprint)
+
+csrf = CsrfProtect(app)
+csrf.exempt(redirect_blueprint)
+csrf.exempt(OfficeHoursBlueprint)
 
 # Import error handling
 import error

@@ -10,6 +10,9 @@ app.db
 .idea
 .idea/tinker.iml
 upgrade.txt
+node_modules/
+tinker/static/bower_components
+tinker/static/scripts/js/
 .idea/inspectionProfiles/profiles_settings.xml
 
 .idea/modules.xml

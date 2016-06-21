@@ -20,6 +20,7 @@ class EAnnouncementsView(FlaskView):
     def __init__(self):
         self.base = EAnnouncementsController()
 
+
     def before_request(self, name, **kwargs):
         # todo do this
         print 'e-ann before request'

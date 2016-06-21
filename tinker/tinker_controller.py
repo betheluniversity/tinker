@@ -75,7 +75,7 @@ def requires_auth(f):
 class TinkerController(object):
     def __init__(self):
         self.cascade_connector = Cascade(SOAP_URL, AUTH, SITE_ID)
-        self.helper = object()
+        self.datetime_format = "%B %d  %Y, %I:%M %p"
 
     def before_request(self):
         def init_user():
@@ -213,6 +213,63 @@ class TinkerController(object):
 
         return matches
 
+    def date_to_java_unix(self, date, datetime_format=None):
+
+        if not datetime_format:
+            datetime_format = self.datetime_format
+
+        date = (datetime.datetime.strptime(date, datetime_format))
+
+        # if this is a time field with no date, the  year  will be 1900, and strftime("%s") will return -1000
+        if date.year == 1900:
+            date = date.replace(year=datetime.date.today().year)
+
+        return int(date.strftime("%s")) * 1000
+
+    def java_unix_to_date(self, date, date_format=None):
+        if not date_format:
+            date_format = self.datetime_format
+        return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
+
+    def inspect_sdata_node(self, node):
+
+        node_type = node['type']
+
+        if node_type =='group':
+            group = {}
+            for n in node['structuredDataNodes']['structuredDataNode']:
+                node_identifier = n['identifier'].replace('-', '_')
+                group[node_identifier] = self.inspect_sdata_node(n)
+            return group
+
+        elif node_type == 'text':
+            has_text = 'text' in node.keys() and node['text']
+            if not has_text:
+                return
+            try:
+                # todo move
+                import datetime
+                date = datetime.datetime.strptime(node['text'], '%m-%d-%Y')
+                if not date:
+                    date = ''
+                return date
+            except ValueError:
+                pass
+
+            try:
+                date = self.java_unix_to_date(node['text'])
+                if not date:
+                    date = ''
+                return date
+            except TypeError:
+                pass
+            except ValueError:
+                pass
+
+            # A fix to remove the &#160; character from appearing (non-breaking whitespace)
+            # Cascade includes this, for whatever reason.
+            return node['text'].replace('&amp;#160;', ' ')
+
     def get_edit_data(self, asset_data):
         edit_data = {}
 
@@ -230,27 +287,12 @@ class TinkerController(object):
 
         for node in s_data:
             node_identifier = node['identifier'].replace('-', '_')
-
-            node_type = node['type']
-
-            if node_type == "text":
-                has_text = 'text' in node.keys() and node['text']
-                if not has_text:
-                    continue
-                try:
-                    # todo move
-                    import datetime
-                    date = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
-                    edit_data[node_identifier] = date
-                except ValueError:
-                    # A fix to remove the &#160; character from appearing (non-breaking whitespace)
-                    # Cascade includes this, for whatever reason.
-                    edit_data[node_identifier] = node['text'].replace('&amp;#160;', ' ')
+            edit_data[node_identifier] = self.inspect_sdata_node(node)
 
         # now metadata dynamic fields
         for field in dynamic_fields:
             if field['fieldValues']:
-                items = [item['value'] for item in field['fieldValues']['fieldValue']]
+                items = [item.get('value') for item in field['fieldValues']['fieldValue']]
                 edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
@@ -332,6 +374,8 @@ class TinkerController(object):
 
         for key, value in data.iteritems():
             update(asset, key, value)
+
+        return True
 
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow

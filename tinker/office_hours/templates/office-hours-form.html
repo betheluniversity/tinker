@@ -1,0 +1,190 @@
+{% extends "tinker-base.html" %}
+
+{% block title %}Office Hours{% endblock %}
+
+{% block styles %}
+    <style type="text/css">
+        .time {
+            width: 25% !important;
+            display: inline-block !important;
+        }
+   </style>
+{% endblock %}
+
+{% block page_title %}
+    Edit Office Hours
+{% endblock %}
+
+{% macro CheckFieldLabel(field) -%}
+
+    {% if field.label.text != '' and field.type not in ['TimeCloseField', 'FormField', 'CSRFTokenField'] and not field.hidden %}
+        <label for="{{ field.name }}">
+           {{ field.label }}{% if field.flags.required %} * {% endif %}
+         </label>
+        {% if field.description != '' %}
+            <p>{{ field.description }}</p>
+        {% endif %}
+    {% endif %}
+
+{%  endmacro %}
+
+{#{% marco TimeOpenCloseField(field) -%}#}
+{#{% if field.type == "TimeOpenField" %}#}
+{#                <div id="timeRange" class="timeRange" stlye="float:left">#}
+{#                    {{ CheckFieldLabel(field) }}#}
+{#                    <input type="text" class="time start" size="4" value="{{ edit_data[f.name][name] }}"/> to#}
+{#            {% elif field.type == "TimeCloseField" %}#}
+{#                    {{ CheckFieldLabel(field) }}#}
+{#                    <input type="text" class="time end" size="4" value="{{ edit_data[f.name][name] }}"/>#}
+{#                </div>#}
+{#{% endmacro %}#}
+
+{% macro HoursGroup(f) -%}
+    <fieldset>
+        <legend>{{ f.name.capitalize() }}</legend>
+        {% for field in f.form %}
+            {% set name = field.name.replace('-', '_') %}
+            {% if field.type == "TimeOpenField" %}
+                <div id="timeRange" class="timeRange" stlye="float:left">
+                    {{ CheckFieldLabel(field) }}
+                    <input type="text" name="{{ field.name }}" class="time start" size="4" value="{{ edit_data[f.name][name] }}"/> to
+            {% elif field.type == "TimeCloseField" %}
+                    {{ CheckFieldLabel(field) }}
+                    <input type="text" name="{{ field.name }}" class="time end" size="4" value="{{ edit_data[f.name][name] }}"/>
+                </div>
+            {% elif name == 'start_date' %}
+                {% if field.name == 'next-start_date' %}
+                    {{ CheckFieldLabel(field) }}
+                    {{ field() }}
+                {% endif %}
+            {% else %}
+                {{ CheckFieldLabel(field) }}
+                {{ field() }}
+            {% endif %}
+        {% endfor %}
+    </fieldset>
+{% endmacro %}
+
+{% macro ExceptionsGroup(f) -%}
+    <fieldset>
+        <legend>{{ f.name.capitalize() }}</legend>
+        {% for field in f.form %}
+            {% set name = field.name.split('-')[1] %}
+            {% if field.type == "TimeOpenField" %}
+                <div id="timeRange" class="timeRange" stlye="float:left">
+                    {{ CheckFieldLabel(field) }}
+                    <input type="text" class="time start" size="4" value="{{ edit_data[f.name][name] }}"/> to
+            {% elif field.type == "TimeCloseField" %}
+                    {{ CheckFieldLabel(field) }}
+                    <input type="text" class="time end" size="4" value="{{ edit_data[f.name][name] }}"/>
+                </div>
+            {% elif name == 'start_date' %}
+                {% if field.name == 'next-start_date' %}
+                    {{ CheckFieldLabel(field) }}
+                    {{ field() }}
+                {% endif %}
+            {% else %}
+                {{ CheckFieldLabel(field) }}
+                {{ field() }}
+            {% endif %}
+        {% endfor %}
+    </fieldset>
+{% endmacro %}
+
+{% block main_content %}
+  <div class="row">
+  <div class="large-12 columns">
+
+    <p>Some Copy</p>
+    <p>BU Standard Hours</p>
+
+    <h3>{{ mdata['title'] }}</h3>
+
+    <h4>Current Hours</h4>
+    <p>
+        Monday: 8am-5pm<br/>
+        Tuesday: 8am-5pm<br/>
+        Wednesday: 8am-5pm<br/>
+        Thursday: 8am-5pm<br/>
+        Friday: 8am-5pm<br/>
+        Saturday: 8am-5pm<br/>
+        Sunday: 8am-5pm<br/>
+    </p>
+
+      <form id="officehoursform" action="/office-hours/" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="block_id" id="block_id" value="{{ block_id }}"/>
+
+        {% if form.errors %}
+          <div class="alert alert-error">
+            <div data-alert class="alert-box alert radius">
+                There were errors with your form.
+                <a href="#" class="close">&times;</a>
+              </div>
+            </div>
+        {% endif %}
+
+        {{ form.hidden_tag() }}
+        {% for field in form if field.widget.input_type != 'hidden' %}
+
+            {% for error in form.errors[field.name] %}
+                <div class="alert alert-error">
+                  <div data-alert class="alert-box alert radius">
+                    {{ error }}
+                    <a href="#" class="close">&times;</a>
+                  </div>
+                </div>
+            {% endfor %}
+
+            {% if field.type == 'FormField' %}
+                <div class="large-6 columns">
+                    {{ HoursGroup(field) }}
+                </div>
+            {% elif field.type == "TimeOpenField" %}
+                <div id="timeRange" class="timeRange" stlye="float:left">
+                    {{ CheckFieldLabel(field) }}
+                    <input type="text" class="time start" size="4" value="{{ edit_data[name] }}"/> to
+            {% elif field.type == "TimeCloseField" %}
+                    {{ CheckFieldLabel(field) }}
+                    <input type="text" class="time end" size="4" value="{{ edit_data[name] }}"/>
+                </div>
+            {% elif field.name == 'next-start_date' %}
+                {{ CheckFieldLabel(field) }}
+                {{ field() }}
+            {% else %}
+              {{ CheckFieldLabel(field) }}
+              {{ field() }}
+              <br/>
+            {% endif %}
+        {% endfor %}
+        <button type="submit" id="office-hours-submit-btn" class="button postfix">Submit</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datepair.js/0.4.14/jquery.datepair.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css">
+
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.timeRange .time').timepicker({
+                'minTime': '6:00am',
+                'maxTime': '8:00pm',
+                'timeFormat': 'h:i a'
+            });
+            $('.timeRange').datepair({
+                'defaultTimeDelta': null
+            });
+        });
+
+
+    </script>
+
+{% endblock %}
