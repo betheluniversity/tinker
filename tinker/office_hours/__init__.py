@@ -58,7 +58,6 @@ class OfficeHoursView(FlaskView):
             if not value:
                 edit_data['exceptions'][key] = ''
 
-        edit_data['next']['next_start_date'] = edit_data['next']['next_start_date'].strftime('%m-%d-%Y')
 
         form = OfficeHoursForm(**edit_data)
 

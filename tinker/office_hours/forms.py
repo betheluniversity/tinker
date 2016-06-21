@@ -53,7 +53,7 @@ class TimeCloseField(DateTimeField):
 
 
 class HoursGroupForm(Form):
-    start_date = DateField('Start Date', format='%m-%d-%Y', validators=[validators.DataRequired()])
+    start_date = DateField('Start Date', format='%m-%d-%Y %I:%M:%s', validators=[validators.DataRequired()])
 
     monday_open = TimeOpenField(label='Monday', validators=[validators.DataRequired()])
     monday_close = TimeCloseField(validators=[validators.DataRequired()])
