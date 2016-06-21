@@ -32,7 +32,6 @@ tinker/.DS_Store
 
 tinker/admin/program_search/creds.json
 node_modules/
-bower_components/
 tinker/static/scripts/js/
 
 config/*.py
