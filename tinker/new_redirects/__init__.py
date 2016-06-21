@@ -168,4 +168,36 @@ class RedirectsView(FlaskView):
 
         return str(redirect)
 
+    @route('/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
+    def new_internal_redirect_submit(self, from_path, to_url):
+        if not from_path.startswith("/"):
+            from_path = "/%s" % from_path
+
+        # if one from the current from exists, remove it.
+        try:
+            redirect = BethelRedirect.query.get(from_path)
+            db.session.delete(redirect)
+            db.session.commit()
+            # todo not sure if next line is needed
+            resp = self.base.create_redirect_text_file()
+            app.logger.debug(": Correctly deleted if necessary")
+        except:
+            print "no deletion was made"
+
+        # create the redirect
+        try:
+            redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+            db.session.add(redirect)
+            db.session.commit()
+            print "Successfully created a internal redirect"
+            app.logger.debug(": Correctly created a new one")
+        except:
+            db.session.rollback()
+
+        # Update the file after every submit?
+        self.base.create_redirect_text_file()
+
+        app.logger.debug(": Correctly finished")
+        return str(redirect)
+
 RedirectsView.register(RedirectsBlueprint)
