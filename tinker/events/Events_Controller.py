@@ -51,13 +51,14 @@ class EventsController(TinkerController):
         # convert event dates to JSON
         return json.dumps(event_dates), dates_good, num_dates
 
-    def validate_form(self, rform, dates_good):
+    def validate_form(self, rform, dates_good, event_dates, num_dates):
 
-        from forms import EventForm;
+        from forms import EventForm
         form = EventForm()
 
         # todo move to TinkerBase?
         if not form.validate_on_submit() or not dates_good:
+            print "inside if statement"
             if 'event_id' in rform.keys():
                 event_id = rform['event_id']
             else:
