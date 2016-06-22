@@ -3,10 +3,9 @@ import time
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
 from tinker.events.cascade_events import *
-from flask import Blueprint, redirect, session, render_template, request, json as fjson
+from flask import Blueprint, redirect, session, render_template, request, json as fjson, url_for
 from tinker import app
 from events_metadata import metadata_list
-from bu_cascade.assets.page import Page
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
@@ -37,7 +36,6 @@ class EventsView(FlaskView):
         return render_template('event-in-workflow.html')
 
     def add(self):
-
         # import this here so we dont load all the content
         # from cascade during hoempage load
         from tinker.events.forms import EventForm
@@ -48,14 +46,11 @@ class EventsView(FlaskView):
 
     @route('/delete/<page_id>')
     def delete_page(self, page_id):
-        # workflow = get_event_delete_workflow()
-        # delete(page_id, workflow=workflow)
         proxy_page = self.base.read_page(page_id)
         response = proxy_page.delete_asset()
         app.logger.debug(time.strftime("%c") + ": New folder creation by " + session['username'] + " " + str(response))
-        # publish_event_xml()
         self.base.publish(app.config['EVENT_XML_ID'])
-        return redirect('/events/delete_confirm', code=302)
+        return redirect(url_for('events.EventsView:delete_confirm'), code=302)
 
     @route('/edit/<event_id>')
     def edit_event_page(self, event_id):
@@ -266,7 +261,6 @@ class EventsView(FlaskView):
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
 
         failed = self.base.validate_form(rform, dates_good, event_dates, num_dates)
-        print "Past validate_form"
         if failed:
             return failed
 
@@ -305,8 +299,8 @@ class EventsView(FlaskView):
 
         return event_id
 
-    # todo this is a test, delete later
-    def tim(self):
-        return str(self.base.create_folder('/_testing/tim-heck/test-event-folder3', 'f21ae7948c5865137725e12f0f26d863'))
+    # # todo this is a test, delete later
+    # def tim(self):
+    #     return str(self.base.copy_folder('/_testing/tim-heck/test-event-folder3', 'f21ae7948c5865137725e12f0f26d863'))
 
 EventsView.register(EventsBlueprint)
