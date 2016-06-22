@@ -204,7 +204,7 @@ class EventsView(FlaskView):
 
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
 
-        failed = self.base.validate_form(rform, dates_good)
+        failed = self.base.validate_form(rform, dates_good, event_dates, num_dates)
         if failed:
             return failed
 
