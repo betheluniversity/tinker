@@ -272,7 +272,7 @@ class TinkerController(object):
     def read_page(self, path_or_id):
         p = Page(self.cascade_connector, path_or_id)
         p.read_asset()
-        return p.structured_data()
+        return p
 
     def publish(self, path_or_id, asset_type='page'):
         return self.cascade_connector.publish(path_or_id, asset_type)
@@ -286,8 +286,8 @@ class TinkerController(object):
     def move(self, page_id, destination_path, type='page'):
         return self.cascade_connector.move(page_id, destination_path, type)
 
-    def delete(self, path_or_id, asset_type):
-        return self.cascade_connector.delete(path_or_id, asset_type)
+    def delete(self, path_or_id):
+        return self.cascade_connector.delete(path_or_id)
 
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)

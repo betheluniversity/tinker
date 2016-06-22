@@ -5,6 +5,7 @@ from tinker.events.Events_Controller import EventsController
 from tinker.events.cascade_events import *
 from flask import Blueprint, redirect, session, render_template, app, request, json as fjson
 from events_metadata import metadata_list
+from bu_cascade.assets.page import Page
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
@@ -48,7 +49,9 @@ class EventsView(FlaskView):
     def delete_page(self, page_id):
         # workflow = get_event_delete_workflow()
         # delete(page_id, workflow=workflow)
-        self.base.delete(page_id)
+        proxy_page = self.base.read_page(page_id)
+        response = proxy_page.delete_asset()
+        app.logger.debug(time.strftime("%c") + ": New folder creation by " + session['username'] + " " + str(response))
         # publish_event_xml()
         self.base.publish(app.config['EVENT_XML_ID'])
         return redirect('/events/delete_confirm', code=302)
