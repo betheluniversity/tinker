@@ -398,39 +398,6 @@ class EventsController(TinkerController):
 
         return node
 
-    def read_events_base_asset(self):
-
-        base_asset = self.read("/_cascade/base-assets/folders/event-folder", "folder")
-        if 'success = "false"' in str(base_asset):
-            return None
-
-        asset = base_asset.asset.folder.metadata.dynamicFields.dynamicField
-
-        # if there is no metadata, exit
-        if len(asset) == 0:
-            return None
-
-        dynamic_metadata = []
-        for field in asset:
-            # Builds the value string of 1 value
-            field_value = None
-            if field.fieldValues[0][0].value is not None:
-                field_value = str(field.fieldValues[0][0].value)
-
-            # create the dynamic metadata with values
-            dynamic_metadata.append(
-                {
-                    'name': str(field.name),
-                    'fieldValues': {
-                        'fieldValue':
-                        [{
-                            'value': field_value
-                        }]
-                    }
-                })
-
-        return dynamic_metadata
-
     # Returns (content/config path, parent path)
     def get_event_folder_path(self, data):
         # Check to see if this event should go in a specific folder
@@ -487,12 +454,9 @@ class EventsController(TinkerController):
             hide_site_nav = "Hide"
             path = 'events/%s/admissions' % max_year
 
-        self.create_event_folder(path)
+        self.copy_folder(path, app.config['EVENT_FOLDER_ID'])
 
         return hide_site_nav, path
-
-    def create_event_folder(self, folder_path, base_asset_path=None):
-        return self.create_folder(folder_path, base_asset_path)
 
     def structured_data_node(self, node_id, text, node_type=None):
 

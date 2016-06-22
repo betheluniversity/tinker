@@ -3,7 +3,8 @@ import time
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
 from tinker.events.cascade_events import *
-from flask import Blueprint, redirect, session, render_template, app, request, json as fjson
+from flask import Blueprint, redirect, session, render_template, request, json as fjson
+from tinker import app
 from events_metadata import metadata_list
 from bu_cascade.assets.page import Page
 
@@ -293,32 +294,6 @@ class EventsView(FlaskView):
         return redirect('/event/confirm', code=302)
         # Just print the response for now
 
-    # def post(self):
-    #
-    #     rform = request.form
-    #     eaid = rform.get('e_announcement_id')
-    #
-    #     failed = self.base.validate_form(rform)
-    #     if failed:
-    #         return failed
-    #
-    #     if not eaid:
-    #         bid = app.config['E_ANN_BASE_ASSET']
-    #         e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
-    #         asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
-    #         resp = self.base.create_block(asset)
-    #         self.base.log_sentry('New e-announcement submission', resp)
-    #         return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='new'), code=302)
-    #
-    #     else:
-    #         block = self.base.read_block(eaid)
-    #         e_announcement_data, mdata, sdata = block.read_asset()
-    #         asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
-    #         resp = str(block.edit_asset(asset))
-    #         self.base.log_sentry("E-Announcement edit submission", resp)
-    #         return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
-
-
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):
         ws_connector = self.base.Cascade(app.config['SOAP_URL'], app.config['AUTH'], app.config['SITE_ID'])
@@ -332,6 +307,6 @@ class EventsView(FlaskView):
 
     # todo this is a test, delete later
     def tim(self):
-        return self.base.create_event_folder('/_testing/tim-heck/test-event-folder3', '/_cascade/base-assets/folders/event-folder')
+        return str(self.base.create_folder('/_testing/tim-heck/test-event-folder3', 'f21ae7948c5865137725e12f0f26d863'))
 
 EventsView.register(EventsBlueprint)
