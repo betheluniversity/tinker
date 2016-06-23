@@ -7,13 +7,18 @@ from werkzeug.utils import secure_filename
 from flask import Blueprint
 from flask import redirect
 from flask import send_from_directory
-from tinker.admin.sync.sync_metadata import data_to_add
 
+from tinker.admin.sync.sync_metadata import data_to_add
 from tinker.faculty_bio.cascade_faculty_bio import *
 from tinker import app
 from tinker.tools import *
 
+from bu_cascade.asset_tools import find, update
+from bu_cascade.assets.page import Page
+from bu_cascade.cascade_connector import Cascade
+
 faculty_bio_blueprint = Blueprint('faculty-bio', __name__, template_folder='templates')
+
 
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
@@ -52,6 +57,31 @@ def delete_page(page_id):
     return redirect('/faculty-bio/delete-confirm', code=302)
 
 
+@faculty_bio_blueprint.route('/activate', methods=['post'])
+def activate_page():
+    data = json.loads(request.data)
+    page_id = data['id']
+    activate_page = data['activate']
+
+    ws_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
+    page = Page(ws_connector, page_id)
+    asset, md, sd = page.get_asset()
+
+    # activate bio
+    if activate_page == 'activate':
+        update(sd, 'deactivate', 'No')
+        page.edit_asset(asset)
+        page.publish_asset()
+    else:  # deactivate bio
+        update(sd, 'deactivate', 'Yes')
+        page.edit_asset(asset)
+        page.unpublish_asset()
+
+    publish_faculty_bio_xml()
+
+    return 'Success'
+
+
 @faculty_bio_blueprint.route('/delete-confirm')
 def delete_confirm():
     return render_template('faculty-bio-delete-confirm.html', **locals())
@@ -78,6 +108,7 @@ def faculty_bio_new_form():
 @faculty_bio_blueprint.route('/confirm-new')
 def submit_confirm_new():
     return render_template('faculty-bio-confirm-new.html', **locals())
+
 
 @faculty_bio_blueprint.route('/confirm-edit')
 def submit_confirm_edit():
