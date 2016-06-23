@@ -112,12 +112,8 @@ class EventsView(FlaskView):
 
         return render_template('event-form.html', **locals())
 
-<<<<<<< Updated upstream
     @route('/duplicate/<event_id>')
-=======
-    # @route('/duplicate/<event_id>')
     # todo Michael will do duplicate
->>>>>>> Stashed changes
     def duplicate_event_page(self, event_id):
 
         # import this here so we dont load all the content
