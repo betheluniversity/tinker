@@ -17,7 +17,7 @@ from flask import Response
 from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
-from bu_cascade.asset_tools import update
+from bu_cascade.asset_tools import update, find
 
 from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
@@ -213,41 +213,43 @@ class TinkerController(object):
 
         return matches
 
-    def get_edit_data(self, asset_data):
+    def get_edit_data(self, asset):
         edit_data = {}
         date_count = 0
         dates = {}
 
-        try:
-            form_data = asset_data['xhtmlDataDefinitionBlock']
-        except:
-            form_data = asset_data['page']
+        # try:
+        #     form_data = asset_data['xhtmlDataDefinitionBlock']
+        # except:
+        #     form_data = asset_data['page']
 
-        # the stuff from the data def
-        s_data = form_data['structuredData']['structuredDataNodes']['structuredDataNode']
-        # regular metadata
-        metadata = form_data['metadata']
-        # dynamic metadata
-        dynamic_fields = metadata['dynamicFields']['dynamicField']
+        # # the stuff from the data def
+        # s_data = form_data['structuredData']['structuredDataNodes']['structuredDataNode']
+        # # regular metadata
+        # metadata = form_data['metadata']
+        # # dynamic metadata
+        # dynamic_fields = metadata['dynamicFields']['dynamicField']
 
-        for node in s_data:
-            node_identifier = node['identifier'].replace('-', '_')
+        asset, structured_data, metadata = asset.get_asset()
+        dynamic_fields = find(asset, 'dynamicField')
 
-            node_type = node['type']
-
-            if node_type == "text":
-                has_text = 'text' in node.keys() and node['text']
-                if not has_text:
-                    continue
-                try:
-                    # todo move
-                    import datetime
-                    date = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
-                    edit_data[node_identifier] = date
-                except ValueError:
-                    # A fix to remove the &#160; character from appearing (non-breaking whitespace)
-                    # Cascade includes this, for whatever reason.
-                    edit_data[node_identifier] = node['text'].replace('&amp;#160;', ' ')
+        # for node in s_data:
+        #     node_identifier = node['identifier'].replace('-', '_')
+        #
+        #     node_type = node['type']
+        #
+        #     if node_type == "text":
+        #         has_text = 'text' in node.keys() and node['text']
+        #         if not has_text:
+        #             continue
+        #         try:
+        #             # todo move
+        #             date = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
+        #             edit_data[node_identifier] = date
+        #         except ValueError:
+        #             # A fix to remove the &#160; character from appearing (non-breaking whitespace)
+        #             # Cascade includes this, for whatever reason.
+        #             edit_data[node_identifier] = node['text'].replace('&amp;#160;', ' ')
 
         # now metadata dynamic fields
         for field in dynamic_fields:
@@ -259,6 +261,25 @@ class TinkerController(object):
         edit_data['title'] = metadata['title']
 
         return edit_data
+
+    def get_specific_data(self, structured_data, edit_data):
+        for node in structured_data:
+            node_identifier = node['identifier'].replace('-', '_')
+
+            node_type = node['type']
+
+            if node_type == "text":
+                has_text = 'text' in node.keys() and node['text']
+                if not has_text:
+                    continue
+                try:
+                    # todo move
+                    date = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
+                    edit_data[node_identifier] = date
+                except ValueError:
+                    # A fix to remove the &#160; character from appearing (non-breaking whitespace)
+                    # Cascade includes this, for whatever reason.
+                    edit_data[node_identifier] = node['text'].replace('&amp;#160;', ' ')
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
