@@ -117,7 +117,6 @@ class EventsView(FlaskView):
     @route('/duplicate/<event_id>')
     # todo Michael will do duplicate
     def duplicate_event_page(self, event_id):
-
         # import this here so we dont load all the content
         # from cascade during homepage load
         from tinker.events.forms import EventForm
@@ -126,18 +125,22 @@ class EventsView(FlaskView):
         event_data = read(event_id)
 
         # Get the different data sets from the response
-
         form_data = event_data.asset.page
+
         # the stuff from the data def
         s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
+
         # regular metadata
         metadata = form_data.metadata
+
         # dynamic metadata
         dynamic_fields = metadata.dynamicFields.dynamicField
+
         # This dict will populate our EventForm object
         edit_data = {}
         date_count = 0
         dates = {}
+
         # Start with structuredDataNodes (data def content)
         for node in s_data:
             node_identifier = node.identifier.replace('-', '_')
