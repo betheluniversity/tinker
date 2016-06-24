@@ -282,6 +282,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
 
     # Create a list of all the data nodes
     structured_data = [
+        structured_data_node("deactivate", 'No'),
         structured_data_node("first", add_data['first']),
         structured_data_node("last", add_data['last']),
         structured_data_node("email", add_data['email']),
@@ -520,7 +521,8 @@ def traverse_faculty_folder(traverse_xml, username):
                     'created-on': child.find('created-on').text or None,
                     'path': 'https://www.bethel.edu' + child.find('path').text or "",
                     'schools': school_array,
-                    'last-name': child.find('.//last').text or None
+                    'last-name': child.find('.//last').text or None,
+                    'deactivated': child.find('.//deactivate').text or None
                 }
                 # This is a match, add it to array
                 matches.append(page_values)
@@ -536,47 +538,48 @@ def traverse_faculty_folder(traverse_xml, username):
 
     matches = []
     for child in traverse_xml.findall('.//system-page'):
-        try:
+        if '_shared-content' not in child.find('path').text:
             # Author check
-            authors = child.find('author')
-            if authors is not None:
-                dict_of_authors = authors.text.split(", ")
+            try:
+                authors = child.find('author')
+                if authors is not None:
+                    dict_of_authors = authors.text.split(", ")
 
-                if username in dict_of_authors:
-                    page_values = {
-                        'author': child.find('author').text,
-                        'id': child.attrib['id'] or "",
-                        'title': child.find('title').text or None,
-                        'created-on': child.find('created-on').text or None,
-                        'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                        'last-name': child.find('.//last').text or None
-                    }
-                    # This is a match, add it to array
-                    matches.append(page_values)
-                    continue
-        finally:
+                    if username in dict_of_authors:
+                        page_values = {
+                            'author': child.find('author') or None,
+                            'id': child.attrib['id'] or "",
+                            'title': child.find('title').text or None,
+                            'created-on': child.find('created-on').text or None,
+                            'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                            'last-name': child.find('.//last').text or None,
+                            'deactivated': child.find('.//deactivate').text or None
+                        }
+                        # This is a match, add it to array
+                        matches.append(page_values)
+                        continue
             # Cascade Group check - by
-            for md in child.findall("dynamic-metadata"):
-                if (md.find('name').text == 'department' or md.find('name').text == 'seminary-program') and md.find('value') is not None:
-                    for allowedGroup in allowed_groups:
+            finally:
+                for md in child.findall("dynamic-metadata"):
+                    if (md.find('name').text == 'department' or md.find('name').text == 'seminary-program') and md.find('value') is not None:
+                        for allowedGroup in allowed_groups:
+                            if allowedGroup == get_web_author_group(md.find('value').text):
+                                page_values = {
+                                    'author': child.find('author') or None,
+                                    'id': child.attrib['id'] or "",
+                                    'title': child.find('title').text or None,
+                                    'created-on': child.find('created-on').text or None,
+                                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                                    'last-name': child.find('.//last').text or None,
+                                    'deactivated': child.find('.//deactivate').text or None
+                                }
+                                matches.append(page_values)
+                                break
 
-                        if allowedGroup == get_web_author_group(md.find('value').text):
-
-                            page_values = {
-                                'author': child.find('author') or None,
-                                'id': child.attrib['id'] or "",
-                                'title': child.find('title').text or None,
-                                'created-on': child.find('created-on').text or None,
-                                'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                                'last-name': child.find('.//last').text or None
-                            }
-                            matches.append(page_values)
-                            break
-
-                page_values = group_check(child, allowed_groups)
-                if page_values:
-                    matches.append(page_values)
-                    break
+                    page_values = group_check(child, allowed_groups)
+                    if page_values:
+                        matches.append(page_values)
+                        break
 
     return matches
 
@@ -601,6 +604,8 @@ def group_check(child, allowed_groups):
                 'title': child.find('title').text or None,
                 'created-on': child.find('created-on').text or None,
                 'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                'last-name': child.find('.//last').text or None,
+                'deactivated': child.find('.//deactivate').text or None
             }
             return page_values
         else:  # old job titles -- delete someday
@@ -613,6 +618,8 @@ def group_check(child, allowed_groups):
                             'title': child.find('title').text or None,
                             'created-on': child.find('created-on').text or None,
                             'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                            'last-name': child.find('.//last').text or None,
+                            'deactivated': child.find('.//deactivate').text or None
                         }
                         return page_values
     return False
