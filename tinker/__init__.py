@@ -52,6 +52,7 @@ from tinker.admin.cache.views import cache_blueprint
 
 app.register_blueprint(event_blueprint, url_prefix='/event')
 app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
+app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 app.register_blueprint(e_announcements_blueprint, url_prefix='/e-announcement')
 app.register_blueprint(sync_blueprint, url_prefix='/admin/sync')
