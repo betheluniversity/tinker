@@ -14,6 +14,7 @@ from wtforms import DateTimeField
 from wtforms import Field
 from wtforms.validators import DataRequired
 from tinker import tools
+from flask import session
 # local
 from tinker.web_services import read, read_identifier
 # from tinker import tools
@@ -147,12 +148,11 @@ class EventForm(Form):
     heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
     what = HeadingField(label="What is your event?")
+    author = HiddenField("Author")
     title = StringField('Event name', validators=[DataRequired()], description="This will be the title of your webpage")
-    teaser = StringField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.', validators=[DataRequired()])
+    metaDescription = StringField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.', validators=[DataRequired()])
 
-
-
-    if 'Event Approver' in tools.get_groups_for_user():
+    if 'Event Approver' in session['groups']:
         link = StringField("External Link", description="This field only seen by 'Event Approvers'. An external link will redirect this event to the external link url.")
     else:
         link = HiddenField("External Link")

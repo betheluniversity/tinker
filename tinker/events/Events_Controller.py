@@ -79,7 +79,7 @@ class EventsController(TinkerController):
         data = {}
         type = 'group'
 
-        if node['group'] == 'dates':
+        if node['identifier'] == 'event_dates':
             data[node['date_count']] = self.read_date_data_structure(node)
 
         return data, type
@@ -361,7 +361,7 @@ class EventsController(TinkerController):
                     'title': add_data['title'],
                     'summary': 'summary',
                     'author': author,
-                    'metaDescription': add_data['teaser'],
+                    'metaDescription': add_data['metaDescription'],
                     'dynamicFields': dynamic_fields,
                 }
             },

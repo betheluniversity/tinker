@@ -213,7 +213,7 @@ class TinkerController(object):
 
         return matches
 
-    def group_callback(self, asset, form, id):
+    def group_callback(self, node):
         pass
 
     def get_edit_data(self, asset, form, id):
@@ -224,10 +224,10 @@ class TinkerController(object):
         # dynamic_fields = metadata['dynamicFields']['dynamicField']
 
         event_asset, metadata, structured_data = asset.get_asset()
-        # dynamic_fields = find(asset, 'dynamicField')
-        dynamic_fields = metadata['dynamicFields']['dynamicField']
+        dynamic_fields = find(metadata, 'fieldValues')
+        # dynamic_fields = metadata['dynamicFields']['dynamicField']
 
-        for node in structured_data:
+        for node in find(structured_data, 'identifier'):
             node_identifier = node['identifier'].replace('-', '_')
 
             node_type = node['type']
@@ -254,6 +254,10 @@ class TinkerController(object):
                 data, group_or_edit_type = self.group_callback(node)
                 date_count += 1
 
+        for field in metadata:
+            if field != 'dynamicFields':
+                    edit_data[field.replace('-', '_')] = metadata[field]
+
         # now metadata dynamic fields
         for field in dynamic_fields:
             if field['fieldValues']:
@@ -269,7 +273,7 @@ class TinkerController(object):
 
         data = fjson.dumps(data)
 
-        return edit_data
+        return edit_data, form
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)

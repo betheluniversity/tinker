@@ -36,7 +36,7 @@ class EventsView(FlaskView):
 
     def add(self):
         # import this here so we dont load all the content
-        # from cascade during hoempage load
+        # from cascade during homepage load
         from tinker.events.forms import EventForm
 
         form = EventForm()
@@ -54,7 +54,6 @@ class EventsView(FlaskView):
     @route('/edit/<event_id>')
     def edit_event_page(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
-        # event_page = self.base.read_page(event_id)
         if self.base.asset_in_workflow(event_id, asset_type='page'):
             return redirect(url_for('events.EventsView:event_in_workflow'), code=302)
 
@@ -63,11 +62,7 @@ class EventsView(FlaskView):
         from tinker.events.forms import EventForm
 
         asset = self.base.read_page(event_id)
-        self.base.get_edit_data(asset, EventForm, event_id)
-
-        # todo add a loop through metadata in tinker controller
-        # edit_data['teaser'] = metadata.metaDescription
-        # author = metadata.author
+        edit_data, form = self.base.get_edit_data(asset, EventForm, event_id)
 
         return render_template('event-form.html', **locals())
 
