@@ -577,6 +577,10 @@ def get_web_author_group(department_metadata):
     return ""
 
 
+def publish_faculty_bio_xml():
+    pass
+
+
 def create_faculty_bio(asset):
     auth = app.config['CASCADE_LOGIN']
     client = get_client()

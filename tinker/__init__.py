@@ -60,7 +60,9 @@ app.register_blueprint(EAnnouncementsBlueprint)
 from tinker.faculty_bio import FacultyBioBlueprint
 app.register_blueprint(FacultyBioBlueprint)
 
-CsrfProtect(app).exempt(redirect_blueprint)
+csrf = CsrfProtect(app)
+csrf.exempt(redirect_blueprint)
+# CsrfProtect(app).exempt(redirect_blueprint)
 
 # Import error handling
 import error
@@ -69,4 +71,3 @@ import error
 @app.before_request
 def before_request():
     base.before_request()
-

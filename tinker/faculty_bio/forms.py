@@ -132,6 +132,8 @@ class FacultyBioForm(Form):
     # Manually override validate, in order to check the 3 headers below
     def validate(self):
         if not Form.validate(self):
+            for field, errors in self.errors.items():
+                print field, errors
             return False
         result = True
 
