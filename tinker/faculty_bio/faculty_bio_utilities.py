@@ -5,6 +5,7 @@ import urllib2
 from operator import itemgetter
 # from tinker import app
 from tinker.cascade_tools import *
+from tinker.tinker_controller import Cascade
 from tinker.tools import *
 from tinker.web_services import *
 from xml.etree import ElementTree
@@ -16,7 +17,7 @@ def check_degrees(form):
 
     num_degrees = int(form['num_degrees'])
 
-    for x in range(1, num_degrees+1):  # the page doesn't use 0-based indexing
+    for x in range(1, num_degrees + 1):  # the page doesn't use 0-based indexing
 
         i = str(x)
         school_l = 'school' + i
@@ -46,7 +47,7 @@ def check_job_titles(form):
 
     num_new_jobs = int(form['num_new_jobs'])
 
-    for x in range(1, num_new_jobs+1):  # the page doesn't use 0-based indexing
+    for x in range(1, num_new_jobs + 1):  # the page doesn't use 0-based indexing
 
         i = str(x)
         school_l = 'schools' + i
@@ -111,7 +112,8 @@ def check_job_titles(form):
         except:
             job_title = False
 
-        check = (school == 'Bethel University' and job_title) or ((undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty))
+        check = (school == 'Bethel University' and job_title) or (
+            (undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty))
         if check:
             new_jobs_good = True
 
@@ -351,6 +353,20 @@ def get_add_to_bio(add_data):
     return node
 
 
+def dynamic_field(name, values):
+    values_list = []
+    for value in values:
+        values_list.append({'value': value})
+    node = {
+        'name': name,
+        'fieldValues': {
+            'fieldValue': values_list,
+        },
+    }
+
+    return node
+
+
 def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=None):
     """
      Could this be cleaned up at all?
@@ -370,10 +386,12 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         else:
             # replace the image on the server already
             image_structure['file']['path'] = "/academics/faculty/images/" + image_name
-            edit_response = edit(image_structure)
+            from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
+            local_cascade_connection = Cascade(SOAP_URL, AUTH, SITE_ID)
+            edit_response = local_cascade_connection.edit(image_structure)
 
             # publish image
-            publish(image_structure['file']['path'], "file")
+            local_cascade_connection.publish(image_structure['file']['path'], "file")
             app.logger.debug("%s: Image edit/publish: %s %s" % (time.strftime("%c"), username, str(edit_response)))
 
             # clear the thumbor cache so the new image takes

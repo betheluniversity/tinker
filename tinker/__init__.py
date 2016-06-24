@@ -8,7 +8,7 @@ from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
 from flask_wtf.csrf import CsrfProtect
-from flask import session
+# from flask import session
 
 
 app = Flask(__name__)
@@ -60,8 +60,8 @@ app.register_blueprint(EAnnouncementsBlueprint)
 from tinker.faculty_bio import FacultyBioBlueprint
 app.register_blueprint(FacultyBioBlueprint)
 
-csrf = CsrfProtect(app)
-csrf.exempt(redirect_blueprint)
+CsrfProtect(app)
+# csrf.exempt(redirect_blueprint)
 # CsrfProtect(app).exempt(redirect_blueprint)
 
 # Import error handling
