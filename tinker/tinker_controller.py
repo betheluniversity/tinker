@@ -82,8 +82,11 @@ class TinkerController(object):
 
             dev = current_app.config['ENVIRON'] != 'prod'
 
+            # if not production, then clear our session variables on each call
             if dev:
-                session.clear()
+                for key in ['username', 'groups', 'roles', 'top_nav', 'user_email', 'name']:
+                    if key in session.keys():
+                        session.pop(key, None)
 
             if 'username' not in session.keys():
                 get_user()
