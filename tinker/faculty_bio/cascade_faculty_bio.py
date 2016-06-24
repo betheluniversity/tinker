@@ -282,6 +282,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
 
     # Create a list of all the data nodes
     structured_data = [
+        structured_data_node("deactivate", 'No'),
         structured_data_node("first", add_data['first']),
         structured_data_node("last", add_data['last']),
         structured_data_node("email", add_data['email']),

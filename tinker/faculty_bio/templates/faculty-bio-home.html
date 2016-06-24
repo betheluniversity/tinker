@@ -52,12 +52,13 @@
 {%- endmacro %}
 
 {% block main_content %}
-<input name=_csrf_token type=hidden value="{{ csrf_token() }}">
 <div class="row">
   <div class="large-12 columns">
 
-    <p>Below is a list of faculty bios you have access to edit. If you don't see your faculty bio, please contact your web author.
-    </p>
+    <p>Below is a list of faculty bios you have access to edit. If you don't see your faculty bio, please contact your web author. A deactivated bio will no longer appear in Faculty Listings.</p>
+    {% if show_special_admin_view %}
+        <p>The delete functionality is only available for Faculty Bio Administrators.</p>
+    {% endif %}
   </div>
  </div>
 <hr/>
@@ -128,7 +129,8 @@
 
 {% block scripts %}
 
-{#  Script to update the modal submit to delete the correct form#}
+{% if show_special_admin_view %}
+    {#  Script to update the modal submit to delete the correct form#}
   <script src="/static/csrf-activator.js"></script>
   <script type="text/javascript">
     var csrftoken = "{{ csrf_token() }}";
@@ -165,6 +167,7 @@
 
   $(document).foundation();
   </script>
+{% endif %}
 
 {% endblock %}
 
