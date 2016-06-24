@@ -36,7 +36,7 @@
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
 
-                {% if bio.deactivated == 'YES' %}
+                {% if bio.deactivated == 'Yes' %}
                     <li><div id="{{ bio.id }}" data-method='activate' data-faculty-bio-id="{{ bio.id }}" class="small button alert activate-press">Activate</div></li>
                 {% else %}
                     <li><div id="{{ bio.id }}" data-method='deactivate' data-faculty-bio-id="{{ bio.id }}" class="small button alert activate-press">Deactivate</div></li>
