@@ -70,10 +70,12 @@ def activate_page():
     # activate bio
     if activate_page == 'activate':
         update(sd, 'deactivate', 'No')
+        asset['page']['shouldBePublished'] = True
         page.edit_asset(asset)
         page.publish_asset()
     else:  # deactivate bio
         update(sd, 'deactivate', 'Yes')
+        asset['page']['shouldBePublished'] = False
         page.edit_asset(asset)
         page.unpublish_asset()
 
