@@ -1,4 +1,5 @@
 from tinker.tinker_controller import TinkerController
+import json as fjson
 import json
 import datetime
 import time
@@ -74,26 +75,14 @@ class EventsController(TinkerController):
             path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
             new_internal_redirect_submit(path, add_data['link'])
 
-    # todo may not need these next two methods
-    # def node(self, s_data, edit_data, date_count, dates):
-    #     for node in s_data:
-    #         node_identifier = node.identifier.replace('-', '_')
-    #         node_type = node.type
-    #         if node_type == "text":
-    #             edit_data[node_identifier] = node.text
-    #         elif node_type == 'group':
-    #             # These are the event dates. Create a dict so we can convert to JSON later.
-    #             dates[date_count] = read_date_data_structure(node)
-    #             date_count += 1
-    #         elif node_identifier == 'image':
-    #             edit_data['image'] = node.filePath
-    #
-    # def metadata(self, dynamic_fields, edit_data):
-    #     for field in dynamic_fields:
-    #         # This will fail if no metadata is set. It should be required but just in case
-    #         if field.fieldValues:
-    #             items = [item.value for item in field.fieldValues.fieldValue]
-    #             edit_data[field.name.replace('-', '_')] = items
+    def group_callback(self, node):
+        data = {}
+        type = 'group'
+
+        if node['group'] == 'dates':
+            data[node['date_count']] = self.read_date_data_structure(node)
+
+        return data, type
 
     # web services methods
     def date_to_java_unix(self, date):
@@ -512,6 +501,26 @@ class EventsController(TinkerController):
         date_data = {}
         for date in node_data:
             date_data[date['identifier']] = date['text']
+        # If there is no date, these will fail
+        try:
+            date_data['start-date'] = self.java_unix_to_date(date_data['start-date'])
+        except TypeError:
+            pass
+        try:
+            date_data['end-date'] = self.java_unix_to_date(date_data['end-date'])
+        except TypeError:
+            pass
+
+        return date_data
+
+    def read_date_data_structure(self, node):
+        node_data = node.structuredDataNodes.structuredDataNode
+        date_data = {}
+        for date in node_data:
+            if date.identifier == "all-day" and date.text == "::CONTENT-XML-CHECKBOX::":
+                continue
+            else:
+                date_data[date.identifier] = date.text
         # If there is no date, these will fail
         try:
             date_data['start-date'] = self.java_unix_to_date(date_data['start-date'])

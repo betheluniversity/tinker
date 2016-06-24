@@ -213,56 +213,20 @@ class TinkerController(object):
 
         return matches
 
-    def get_edit_data(self, asset):
+    def group_callback(self, asset, form, id):
+        pass
+
+    def get_edit_data(self, asset, form, id):
         edit_data = {}
         date_count = 0
-        dates = {}
 
-        # try:
-        #     form_data = asset_data['xhtmlDataDefinitionBlock']
-        # except:
-        #     form_data = asset_data['page']
-
-        # # the stuff from the data def
-        # s_data = form_data['structuredData']['structuredDataNodes']['structuredDataNode']
-        # # regular metadata
-        # metadata = form_data['metadata']
         # # dynamic metadata
         # dynamic_fields = metadata['dynamicFields']['dynamicField']
 
-        asset, structured_data, metadata = asset.get_asset()
-        dynamic_fields = find(asset, 'dynamicField')
+        event_asset, metadata, structured_data = asset.get_asset()
+        # dynamic_fields = find(asset, 'dynamicField')
+        dynamic_fields = metadata['dynamicFields']['dynamicField']
 
-        # for node in s_data:
-        #     node_identifier = node['identifier'].replace('-', '_')
-        #
-        #     node_type = node['type']
-        #
-        #     if node_type == "text":
-        #         has_text = 'text' in node.keys() and node['text']
-        #         if not has_text:
-        #             continue
-        #         try:
-        #             # todo move
-        #             date = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
-        #             edit_data[node_identifier] = date
-        #         except ValueError:
-        #             # A fix to remove the &#160; character from appearing (non-breaking whitespace)
-        #             # Cascade includes this, for whatever reason.
-        #             edit_data[node_identifier] = node['text'].replace('&amp;#160;', ' ')
-
-        # now metadata dynamic fields
-        for field in dynamic_fields:
-            if field['fieldValues']:
-                items = [item['value'] for item in field['fieldValues']['fieldValue']]
-                edit_data[field['name'].replace('-', '_')] = items
-
-        # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = metadata['title']
-
-        return edit_data
-
-    def get_specific_data(self, structured_data, edit_data):
         for node in structured_data:
             node_identifier = node['identifier'].replace('-', '_')
 
@@ -280,6 +244,32 @@ class TinkerController(object):
                     # A fix to remove the &#160; character from appearing (non-breaking whitespace)
                     # Cascade includes this, for whatever reason.
                     edit_data[node_identifier] = node['text'].replace('&amp;#160;', ' ')
+            # todo node_type image, error checking?
+            elif node_identifier == 'image':
+                edit_data['image'] = node.filePath
+            elif node_type == 'group':
+                # These are the event dates. Create a dict so we can convert to JSON later.
+                # dates[date_count] = self.read_date_data_structure(node)
+                node['date_count'] = date_count
+                data, group_or_edit_type = self.group_callback(node)
+                date_count += 1
+
+        # now metadata dynamic fields
+        for field in dynamic_fields:
+            if field['fieldValues']:
+                items = [item['value'] for item in field['fieldValues']['fieldValue']]
+                edit_data[field['name'].replace('-', '_')] = items
+
+        # Add the rest of the fields. Can't loop over these kinds of metadata
+        edit_data['title'] = metadata['title']
+
+        # Create a form object with the data
+        form = form(**edit_data)
+        form.id = id
+
+        data = fjson.dumps(data)
+
+        return edit_data
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
