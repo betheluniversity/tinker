@@ -63,6 +63,8 @@ class EventsView(FlaskView):
 
         asset = self.base.read_page(event_id)
         edit_data, form = self.base.get_edit_data(asset, EventForm, event_id)
+        if edit_data['dates']:
+            dates = edit_data['dates']
 
         return render_template('event-form.html', **locals())
 

@@ -245,8 +245,8 @@ class TinkerController(object):
                     # Cascade includes this, for whatever reason.
                     edit_data[node_identifier] = node['text'].replace('&amp;#160;', ' ')
             # todo node_type image, error checking?
-            elif node_identifier == 'image':
-                edit_data['image'] = node.filePath
+            # elif node_identifier == 'image':
+            #     edit_data['image'] = node.filePath
             elif node_type == 'group':
                 # These are the event dates. Create a dict so we can convert to JSON later.
                 # dates[date_count] = self.read_date_data_structure(node)
@@ -264,14 +264,13 @@ class TinkerController(object):
                 items = [item['value'] for item in field['fieldValues']['fieldValue']]
                 edit_data[field['name'].replace('-', '_')] = items
 
-        # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = metadata['title']
+        if data:
+            edit_data['dates'] = fjson.dumps(data)
 
         # Create a form object with the data
         form = form(**edit_data)
         form.id = id
 
-        data = fjson.dumps(data)
 
         return edit_data, form
 

@@ -79,7 +79,7 @@ class EventsController(TinkerController):
         data = {}
         type = 'group'
 
-        if node['identifier'] == 'event_dates':
+        if node['identifier'] == 'event-dates':
             data[node['date_count']] = self.read_date_data_structure(node)
 
         return data, type
@@ -514,13 +514,13 @@ class EventsController(TinkerController):
         return date_data
 
     def read_date_data_structure(self, node):
-        node_data = node.structuredDataNodes.structuredDataNode
+        node_data = node['structuredDataNodes']['structuredDataNode']
         date_data = {}
         for date in node_data:
-            if date.identifier == "all-day" and date.text == "::CONTENT-XML-CHECKBOX::":
+            if date['identifier'] == "all-day" and date['text'] == "::CONTENT-XML-CHECKBOX::":
                 continue
             else:
-                date_data[date.identifier] = date.text
+                date_data[date['identifier']] = date['text']
         # If there is no date, these will fail
         try:
             date_data['start-date'] = self.java_unix_to_date(date_data['start-date'])
