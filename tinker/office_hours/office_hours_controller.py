@@ -15,7 +15,26 @@ class OfficeHoursController(TinkerController):
         super(OfficeHoursController, self).__init__()
         self.datetime_format = "%I:%M %p"
 
-    # todo should this be in base controller?
+    def _iterate_child_xml(self, child, author):
+
+        page_values = {
+            'author': author,
+            'id': child.attrib['id'] or "",
+            'title': child.find('title').text or None,
+            'created-on': child.find('created-on').text or None,
+        }
+
+        # page_values = {
+        #     "created-on": "",
+        #     "child": child
+        # }
+        return page_values
+
+    def inspect_child(self, child):
+        # todo add permissions logic
+        author = session['username']
+        return self._iterate_child_xml(child, author)
+
     def get_add_data(self, lists, form):
 
         # A dict to populate with all the interesting data.
