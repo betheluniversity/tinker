@@ -35,10 +35,10 @@ class FacultyBioView(FlaskView):
         self.base.publish(app.config['FACULTY_BIO_XML_ID'])
 
         # Todo: only publish the corresponding faculty listing pages.
-        self.base.publish(app.config['FACULTY_LISTING_CAPS_ID'], 'publishset')
-        self.base.publish(app.config['FACULTY_LISTING_GS_ID'], 'publishset')
-        self.base.publish(app.config['FACULTY_LISTING_SEM_ID'], 'publishset')
-        self.base.publish(app.config['FACULTY_LISTING_CAS_ID'], 'publishset')
+        self.base.publish([app.config['FACULTY_LISTING_CAPS_ID']], 'publishset')
+        self.base.publish([app.config['FACULTY_LISTING_GS_ID']], 'publishset')
+        self.base.publish([app.config['FACULTY_LISTING_SEM_ID']], 'publishset')
+        self.base.publish([app.config['FACULTY_LISTING_CAS_ID']], 'publishset')
 
         return redirect('/faculty-bio/delete-confirm', code=302)
 
@@ -247,6 +247,7 @@ class FacultyBioView(FlaskView):
             return render_template('faculty-bio-confirm-new.html', **locals())
 
     # Was uploaded_file(filename), but renamed for simplification and FlaskClassy convention
+    @route('/uploads/<path:filename>')
     def uploads(self, filename):
         return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
