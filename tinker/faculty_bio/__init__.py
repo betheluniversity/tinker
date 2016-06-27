@@ -1,7 +1,6 @@
 from faculty_bio_utilities import *
 from flask import Blueprint, redirect, send_from_directory
 from flask.ext.classy import FlaskView, route
-from tinker.tinker_controller import TinkerController
 from tinker.admin.sync.sync_metadata import data_to_add
 from werkzeug.utils import secure_filename
 
@@ -12,14 +11,14 @@ class FacultyBioView(FlaskView):
     route_base = '/faculty-bio'
 
     def __init__(self):
-        self.base = TinkerController()
+        self.base = FacultyBioController()
 
     def index(self):
         username = session['username']
         roles = get_roles(username)
 
         # index page for adding events and things
-        forms = get_faculty_bios_for_user(username)
+        forms = self.base.get_faculty_bios_for_user(username)
 
         show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']
 
@@ -30,9 +29,7 @@ class FacultyBioView(FlaskView):
     def delete_page(self, page_id):
         # send to this workflow instead: 7747ea478c5865130c130b3a1a05240e
         self.base.delete(page_id, "page")
-        # This line below used to be publish_faculty_bio_xml(), but it was a simple call to publish this page,
-        # so I called it directly so it would have to be recreated somewhere else.
-        self.base.publish(app.config['FACULTY_BIO_XML_ID'])
+        self.base.publish_faculty_bio_xml()
 
         # Todo: only publish the corresponding faculty listing pages.
         self.base.publish([app.config['FACULTY_LISTING_CAPS_ID']], 'publishset')
@@ -186,8 +183,8 @@ class FacultyBioView(FlaskView):
         title = title.lower().replace(' ', '-')
         title = re.sub(r'[^a-zA-Z0-9-]', '', title)
 
-        degrees, degrees_good, num_degrees = check_degrees(rform)
-        new_jobs_good, num_new_jobs = check_job_titles(rform)
+        degrees, degrees_good, num_degrees = self.base.check_degrees(rform)
+        new_jobs_good, num_new_jobs = self.base.check_job_titles(rform)
 
         if not form.validate_on_submit() or (not new_jobs_good or not degrees_good):
             if 'faculty_bio_id' in request.form.keys():
@@ -200,7 +197,7 @@ class FacultyBioView(FlaskView):
             return render_template('faculty-bio-form.html', **locals())
 
         # Get all the form data
-        add_data = get_add_data(
+        add_data = self.base.get_add_data(
             ['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
 
         # Images
@@ -226,8 +223,8 @@ class FacultyBioView(FlaskView):
             faculty_bio_id = None
 
         workflow = None
-        workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data)
-        asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
+        workflow = self.base.get_bio_publish_workflow(title, username, faculty_bio_id, add_data)
+        asset = self.base.get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 
         if faculty_bio_id:
             # existing bio
@@ -240,7 +237,7 @@ class FacultyBioView(FlaskView):
             return render_template('faculty-bio-confirm-edit.html', **locals())
         else:
             # new bio
-            resp = create_faculty_bio(asset)
+            resp = self.base.create_faculty_bio(asset)
             faculty_bio_id = resp.createdAssetId
             if not workflow:
                 self.base.publish(faculty_bio_id, "page")
