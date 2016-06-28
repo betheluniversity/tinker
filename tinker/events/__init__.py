@@ -132,14 +132,12 @@ class EventsView(FlaskView):
 
     @route("/submit-edit", methods=['post'])
     def submit_edit_form(self):
-
         # import this here so we dont load all the content
         # from cascade during hoempage load
         from tinker.events.forms import EventForm
 
         form = EventForm()
         rform = request.form
-        title = rform['title']
         username = session['username']
         # workflow = get_event_publish_workflow(title, username)
         workflow = None
@@ -149,11 +147,6 @@ class EventsView(FlaskView):
         failed = self.base.validate_form(rform, dates_good, event_dates, num_dates)
         if failed:
             return failed
-
-        # ABOVE WAY INSTEAD?
-        # if not form.validate_on_submit() or not dates_good:
-        #     event_id = request.form['event_id']
-        #     return render_template('event-form.html', **locals())
 
         form = rform
         add_data = self.base.get_add_data(metadata_list, form)
@@ -185,39 +178,27 @@ class EventsView(FlaskView):
 
     @route("/submit", methods=['post'])
     def submit_form(self):
-
         # import this here so we dont load all the content
         # from cascade during homepage load
         from tinker.events.forms import EventForm
 
-        # form = EventForm()
+        # form = EventForm() needed????
         rform = request.form
-        # title = rform['title']
         username = session['username']
         workflow = None
         # workflow = self.base.get_event_publish_workflow(title, username)
 
-        # create a dict of date values so we can access them in Jinja later.
-        # they aren't part of the form so we can't just do form.start1, etc...
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
-
         failed = self.base.validate_form(rform, dates_good, event_dates, num_dates)
         if failed:
             return failed
 
         # Get all the form data
-
-        from events_metadata import metadata_list
         add_data = self.base.get_add_data(metadata_list, rform)
-
         dates = self.base.get_dates(add_data)
-
-        # Add it to the dict, we can just ignore the old entries
         add_data['event-dates'] = dates
 
-        # took out workflow=workflow parameter is it NEEDED?
         asset = self.base.get_event_structure(add_data, username, workflow=workflow)
-
         resp = self.base.create(asset)
 
         if username == 'amf39248':
