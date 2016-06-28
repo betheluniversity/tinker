@@ -55,6 +55,7 @@ class ProgramSearchView(FlaskView):
     def delete(self, tag_id=None):
         ProgramTag.query.filter_by(id=tag_id).delete()
         db.session.commit()
+        create_new_csv_file()
         return "done"
 
     @route('/search', methods=['post'])
