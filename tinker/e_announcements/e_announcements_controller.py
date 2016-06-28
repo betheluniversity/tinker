@@ -10,6 +10,7 @@ from tinker.cascade_tools import *
 
 from tinker.tinker_controller import TinkerController
 
+# todo: rename this
 BRM = [
         'CAS',
         'CAPS',
@@ -28,6 +29,7 @@ BRM = [
         'St. Paul',
         'San Diego'
 ]
+
 
 class EAnnouncementsController(TinkerController):
 
@@ -97,6 +99,7 @@ class EAnnouncementsController(TinkerController):
         }
         return page_values
 
+    # Todo: move this to the tinker controller and update the calls to it.
     def recurse_wysiwyg_xml(self, node):
         return_string = ''
         for child in node:
@@ -148,6 +151,7 @@ class EAnnouncementsController(TinkerController):
 
         return add_data
 
+    # todo: move this to call a more general method
     def get_e_announcement_publish_workflow(self, title=""):
 
         name = "New E-announcement Submission"
@@ -176,6 +180,7 @@ class EAnnouncementsController(TinkerController):
             brm = self.brm
             return render_template('form.html', **locals())
 
+    # todo: do what the events does
     def get_e_announcement_parent_folder(self, date):
         # break the date into Year/month
         split_date = date.split("-")
@@ -223,6 +228,7 @@ class EAnnouncementsController(TinkerController):
 
         return e_announcement_data
 
+    # todo: comment this
     def check_readonly(self, edit_data):
 
         today = datetime.datetime.now()

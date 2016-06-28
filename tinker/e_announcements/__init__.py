@@ -1,17 +1,15 @@
 # TODO: clean up these unused imports
 import re
 
-from flask import Blueprint, render_template, session, url_for, redirect, request
-from flask.ext.classy import FlaskView, route
-from flask import json as fjson
+from flask import Blueprint, render_template, url_for, redirect, request
+from flask.ext.classy import FlaskView
 
-from tinker import app
 from tinker.e_announcements.e_announcements_controller import EAnnouncementsController
 
 # todo: remove all references to this (these should all be in cascade connector)
 from tinker.web_services import *
 
-# TODO: is this blueprint now redundant now that we're using Flask Classy?
+# TODO: is this blueprint now redundant now that we're using Flask Classy? -- no. i think its needed?
 EAnnouncementsBlueprint = Blueprint('e-announcements', __name__, template_folder='templates')
 
 
@@ -76,6 +74,8 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('form.html', **locals())
 
+    # todo: merge this to be more reusable? also, just generally look over it
+    # todo: why redirect? why not directly go to the confirmation pages
     def post(self):
 
         rform = request.form
