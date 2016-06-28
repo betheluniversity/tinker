@@ -1,3 +1,4 @@
+# TODO: clean up these unused imports
 import re
 
 from flask import Blueprint, render_template, session, url_for, redirect, request
@@ -10,7 +11,7 @@ from tinker.e_announcements.e_announcements_controller import EAnnouncementsCont
 # todo: remove all references to this (these should all be in cascade connector)
 from tinker.web_services import *
 
-
+# TODO: is this blueprint now redundant now that we're using Flask Classy?
 EAnnouncementsBlueprint = Blueprint('e-announcements', __name__, template_folder='templates')
 
 
@@ -25,7 +26,7 @@ class EAnnouncementsView(FlaskView):
         print 'e-ann before request'
 
     def index(self):
-
+        # TODO: this local username isn't used in this method anywhere?
         username = session['username']
         forms = self.base.traverse_xml(app.config['E_ANN_URL'], 'system-block')
 
@@ -48,7 +49,7 @@ class EAnnouncementsView(FlaskView):
         form = EAnnouncementsForm()
         new_form = True
 
-        # todo can the tempalte access this directly?
+        # todo can the template access this directly?
         brm = self.base.brm
         return render_template('form.html', **locals())
 
