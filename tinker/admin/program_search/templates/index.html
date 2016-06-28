@@ -12,6 +12,7 @@
     <div>
         <div class="row">
             <form method="post" action="{{ url_for('program_search.ProgramSearchView:post') }}">
+                <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 <div class="large-6 columns">
                     <label for="key">Concentration Code or Program Name:</label>
                     <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />
