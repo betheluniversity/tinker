@@ -1,6 +1,8 @@
 import urllib2
 import gspread
 import csv
+import ast
+import json
 from xml.etree import ElementTree as ET
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -8,9 +10,11 @@ from flask.ext.classy import FlaskView
 from flask import render_template
 from flask import Blueprint
 from flask import jsonify
+from flask.ext.classy import route, request
 
 from tinker import app, db
 from tinker.admin.program_search.models import ProgramTag
+from tinker.admin.program_search.program_search_controller import *
 
 ProgramSearchBlueprint = Blueprint("program_search", __name__, template_folder='templates')
 
@@ -23,42 +27,73 @@ class ProgramSearchView(FlaskView):
         credentials = ServiceAccountCredentials.from_json_keyfile_name(path, scope)
         self.gc = gspread.authorize(credentials)
 
-        # #todo remove this after testing
-        # db.session.query(ProgramTag).delete()
-        # db.session.commit()
-
     def index(self):
         return render_template('index.html')
 
-    def put(self, tag_id=None):
-        return "put tag with id: %s" % tag_id
+    def post(self):
+        rform = request.form
+        key = rform.get('key')
+        tag = rform.get('tag')
+        outcome = ast.literal_eval(rform.get('outcome'))
+        topic = ast.literal_eval(rform.get('topic'))
+        other = ast.literal_eval(rform.get('other'))
+
+        try:
+            program_tag = ProgramTag(key=key, tag=tag, outcome=outcome, other=other, topic=topic)
+            session = db.session
+
+            session.add(program_tag)
+            session.commit()
+
+            create_new_csv_file()
+        except:
+            db.session.rollback()
+            return ""
+
+        return render_template('index.html')
 
     def delete(self, tag_id=None):
         ProgramTag.query.filter_by(id=tag_id).delete()
         db.session.commit()
         return "done"
 
-    def get(self, tag_id=None):
-        if tag_id == 'all':
-            results = ProgramTag.query.all()
-            tags = []
-            for tag in results:
-                tags.append({
-                    'id': tag.id,
-                    'key': tag.key,
-                    'tag': tag.tag,
-                    'outcome': tag.outcome,
-                    'topic': tag.topic,
-                    'other': tag.other})
-            return jsonify({'tags': tags})
+    @route('/search', methods=['post'])
+    def search(self):
+        data = json.loads(request.data)
+        search_tag = data['search_tag']
+        search_key = data['search_key']
+        search_results = []
+        results_from_search_tag = []
+        results_from_search_key = []
 
-        return "get tag with id: %s" % tag_id
+        # search
+        if search_tag:
+            results_from_search_tag = ProgramTag.query.filter(ProgramTag.tag.like(search_tag + "%")).all()
+        if search_key:
+            results_from_search_key = ProgramTag.query.filter(ProgramTag.key.like(search_key + "%")).all()
 
+        # return results
+        if search_tag and search_key:
+            for result in results_from_search_key:
+                if result in results_from_search_tag:
+                    search_results.append(result)
+        elif search_tag:
+            search_results = results_from_search_tag
+        elif search_key:
+            search_results = results_from_search_key
+
+        return render_template('program-search-ajax.html', **locals())
+
+    # This can be commented out once we stop using the csv files
     def load(self):
         """
         load all into the DB from google drive.
         :return: None
         """
+
+        # delete all before adding everything back
+        db.session.query(ProgramTag).delete()
+        db.session.commit()
 
         response = urllib2.urlopen(app.config['PROGRAMS_XML'])
         xml = ET.fromstring(response.read())
@@ -86,6 +121,7 @@ class ProgramSearchView(FlaskView):
                 self.process_sheet(name, page_name, concentration_code)
         return "<pre>%s</pre>" % "\n".join(names)
 
+    # This can be commented out once we stop using the csv files
     def process_sheet(self, program_name, concentration_name, concentration_code):
         try:
             drive_file = self.gc.open(program_name)
@@ -97,6 +133,7 @@ class ProgramSearchView(FlaskView):
         except:
             pass
 
+    # This can be commented out once we stop using the csv files
     def process_worksheet(self, workseet, concentration_code):
         try:
             session = db.session
@@ -114,18 +151,9 @@ class ProgramSearchView(FlaskView):
         except:
             pass
 
+    # This can be moved to a controller, this needs to be called from delete
     def dump(self):
-        outfile = open(app.config['PROGRAM_SEARCH_CSV'], 'wb')
-        outcsv = csv.writer(outfile)
-        rows = []
-        records = ProgramTag.query.all()
-        rows.append(['key', 'tag', 'outcome', 'other', 'topic'])
-        for record in records:
-            rows.append([record.key, record.tag, record.outcome, record.other, record.topic])
-
-        outcsv.writerows(iter(rows))
-        outfile.close()
-        return "<pre>%s</pre>" % str(rows)
+        create_new_csv_file()
 
 
 ProgramSearchView.register(ProgramSearchBlueprint)
