@@ -274,7 +274,6 @@ class TinkerController(object):
         form = form(**edit_data)
         form.id = id
 
-
         return edit_data, form
 
     def create_block(self, asset):

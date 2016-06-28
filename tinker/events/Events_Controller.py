@@ -84,6 +84,16 @@ class EventsController(TinkerController):
 
         return data, type
 
+    def build_edit_form(self, event_id):
+        from tinker.events.forms import EventForm
+
+        asset = self.read_page(event_id)
+        edit_data, form = self.get_edit_data(asset, EventForm, event_id)
+        if edit_data['dates']:
+            dates = edit_data['dates']
+
+        return edit_data, form, dates
+
     # web services methods
     def date_to_java_unix(self, date):
 
