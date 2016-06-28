@@ -1,10 +1,7 @@
 from tinker.tinker_controller import TinkerController
-import json as fjson
 import json
 import datetime
 import time
-# involves wysiwyg (need to get rid of)
-# from tinker.events.cascade_events import *
 
 import re
 import urllib2
@@ -15,7 +12,6 @@ from operator import itemgetter
 
 # local
 from tinker import app
-from tinker.tools import log_sentry
 
 from flask import render_template, session
 
@@ -74,6 +70,8 @@ class EventsController(TinkerController):
             from tinker.admin.redirects import new_internal_redirect_submit
             path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
             new_internal_redirect_submit(path, add_data['link'])
+
+        return #????
 
     def group_callback(self, node):
         data = {}
@@ -473,8 +471,8 @@ class EventsController(TinkerController):
 
     def get_current_year_folder(self, event_id):
         # read in te page and find the current year
-        asset = self.read(event_id)
-        path = asset.asset.page.path
+        asset = self.read(event_id, 'page')
+        path = asset['asset']['page']['path']
         try:
             year = re.search('events/(\d{4})/', path).group(1)
             return int(year)

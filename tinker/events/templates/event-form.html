@@ -26,9 +26,9 @@
     {% if add_form %}
       <form id="eventform" action="/event/submit" method="post">
     {% else %}
-      <form id="eventform" action="/event/submit-edit" method="post">
-      <input type="hidden" name="event_id" id="event_id" value="{{ id }}"/>
-      <input type="hidden" name="author" id="author" value="{{ author }}"/>
+      <form id="eventform" action="/event/submit/edit" method="post">
+      <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
+      <input type="hidden" name="author" id="author" value="{{ edit_data.author }}"/>
     {% endif %}
     <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
         {% if form.errors %}

@@ -2,7 +2,7 @@ import time
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
 # from tinker.events.cascade_events import *
-from flask import Blueprint, redirect, session, render_template, request, json as fjson, url_for
+from flask import Blueprint, redirect, session, render_template, request, url_for
 from tinker import app
 from events_metadata import metadata_list
 
@@ -70,59 +70,9 @@ class EventsView(FlaskView):
 
         return render_template('event-form.html', **locals())
 
-    @route("/submit-edit", methods=['post'])
-    def submit_edit_form(self):
-        # import this here so we dont load all the content
-        # from cascade during hoempage load
-        from tinker.events.forms import EventForm
-
-        form = EventForm()
-        rform = request.form
-        username = session['username']
-        # workflow = get_event_publish_workflow(title, username)
-        workflow = None
-
-        event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
-
-        failed = self.base.validate_form(rform, dates_good, event_dates, num_dates)
-        if failed:
-            return failed
-
-        form = rform
-        add_data = self.base.get_add_data(metadata_list, form)
-        dates = self.base.get_dates(add_data)
-        add_data['event-dates'] = dates
-        add_data['author'] = request.form['author']
-        event_id = form['event_id']
-
-        asset = self.base.get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
-
-        current_year = self.base.get_current_year_folder(event_id)
-        new_year = self.base.get_year_folder_value(add_data)
-
-        proxy_page = self.base.read_page(event_id)
-        response = proxy_page.edit_asset(asset)
-        self.base.log_sentry("Event edit submission", response)
-
-        if new_year > current_year:
-            response = self.base.move_event_year(event_id, add_data)
-            app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(response))
-
-        # 'link' must be a valid component
-        if 'link' in add_data and add_data['link'] != "":
-            from tinker.admin.redirects import new_internal_redirect_submit
-            path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
-            new_internal_redirect_submit(path, add_data['link'])
-
-        return redirect('/event/confirm', code=302)
-
+    @route("/submit/<edit>", methods=['post'])
     @route("/submit", methods=['post'])
-    def submit_form(self):
-        # import this here so we dont load all the content
-        # from cascade during homepage load
-        from tinker.events.forms import EventForm
-
-        # form = EventForm() needed????
+    def submit_form(self, edit=False):
         rform = request.form
         username = session['username']
         workflow = None
@@ -139,15 +89,34 @@ class EventsView(FlaskView):
         add_data['event-dates'] = dates
 
         asset = self.base.get_event_structure(add_data, username, workflow=workflow)
-        resp = self.base.create(asset)
+        response = self.base.create(asset)
 
         if username == 'amf39248':
             app.logger.debug(time.strftime("%c") + ": TESTING" + asset)
-            app.logger.debug(time.strftime("%c") + ": TESTING" + resp)
+            app.logger.debug(time.strftime("%c") + ": TESTING" + response)
 
+        # Checks if the link is valid
         self.base.link(add_data, asset)
 
-        return redirect('/event/confirm', code=302)
+        if edit:
+            form = rform
+            add_data['author'] = request.form['author']
+            event_id = form['event_id']
+
+            asset = self.base.get_event_structure(add_data, username, workflow=workflow, event_id=event_id)
+
+            current_year = self.base.get_current_year_folder(event_id)
+            new_year = self.base.get_year_folder_value(add_data)
+
+            proxy_page = self.base.read_page(event_id)
+            response = proxy_page.edit_asset(asset)
+            self.base.log_sentry("Event edit submission", response)
+
+            if new_year > current_year:
+                response = self.base.move_event_year(event_id, add_data)
+                app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(response))
+
+        return redirect(url_for('events.EventsView:confirm'), code=302)
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):
