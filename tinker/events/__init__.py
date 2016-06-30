@@ -58,13 +58,13 @@ class EventsView(FlaskView):
         if self.base.asset_in_workflow(event_id, asset_type='page'):
             return redirect(url_for('events.EventsView:event_in_workflow'), code=302)
 
-        edit_data, form, dates = self.base.build_edit_form(event_id)
+        edit_data, form, dates, author = self.base.build_edit_form(event_id)
 
         return render_template('event-form.html', **locals())
 
     @route('/duplicate/<event_id>')
     def duplicate_event_page(self, event_id):
-        edit_data, form, dates = self.base.build_edit_form(event_id)
+        edit_data, form, dates, author = self.base.build_edit_form(event_id)
 
         add_form = True
 

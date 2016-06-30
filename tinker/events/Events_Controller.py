@@ -55,11 +55,11 @@ class EventsController(TinkerController):
 
         # todo move to TinkerBase?
         if not form.validate_on_submit() or not dates_good:
-            print "inside if statement"
             if 'event_id' in rform.keys():
                 event_id = rform['event_id']
             else:
                 new_form = True
+            author = rform["author"]
             # bring in the mapping
             # brm = self.brm
             return render_template('event-form.html', **locals())
@@ -90,7 +90,9 @@ class EventsController(TinkerController):
         if edit_data['dates']:
             dates = edit_data['dates']
 
-        return edit_data, form, dates
+        author = edit_data['author']
+
+        return edit_data, form, dates, author
 
     # web services methods
     def date_to_java_unix(self, date):
