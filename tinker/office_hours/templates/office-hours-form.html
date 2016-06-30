@@ -41,12 +41,28 @@
                     {{ CheckFieldLabel(field) }}
                     <input type="text" name="{{ field.name }}" class="time end" size="4" value="{{ edit_data[f.name][name] }}"/>
                 </div>
-            {% elif name == 'next_start_date' %}
-                {% if field.name == 'next-start_date' %}
+            {% elif name in ['next_start_date', 'exceptions_date'] %}
+                {% if field.name in ['next-start_date', 'exceptions-date'] %}
                     {{ CheckFieldLabel(field) }}
                     <input type="date" name="{{ field.name }}" value="{{ edit_data[f.name][name].strftime('%Y-%m-%d') }}" />
                 {% endif %}
+            {% elif name in ['next_closed_for_chapel'] %}
+                <label for="next-closed_for_chapel">
+                    <label for="next-closed_for_chapel">Office closed for chapel</label>
+                </label>
+                {% set val = edit_data[f.name][name] %}
+                <ul id="next-closed_for_chapel">
+                    <li>
+                        <input id="next-closed_for_chapel-0" name="next-closed_for_chapel" type="radio" value="Yes" {% if val == 'Yes' %}checked="checked"{% endif %}>
+                        <label for="next-closed_for_chapel-0">Yes</label>
+                    </li>
+                    <li>
+                        <input id="next-closed_for_chapel-1" name="next-closed_for_chapel" type="radio" value="No" {% if val == 'No' %}checked="checked"{% endif %}>
+                        <label for="next-closed_for_chapel-1">No</label>
+                    </li>
+                </ul>
             {% else %}
+
                 {{ CheckFieldLabel(field) }}
                 {{ field() }}
             {% endif %}
@@ -54,51 +70,35 @@
     </fieldset>
 {% endmacro %}
 
-{% macro ExceptionsGroup(f) -%}
-    <fieldset>
-        <legend>{{ f.name.capitalize() }}</legend>
-        {% for field in f.form %}
-            {% set name = field.name.split('-')[1] %}
-            {% if field.type == "TimeOpenField" %}
-                <div id="timeRange" class="timeRange" stlye="float:left">
-                    {{ CheckFieldLabel(field) }}
-                    <input type="text" class="time start" size="4" value="{{ edit_data[f.name][name] }}"/> to
-            {% elif field.type == "TimeCloseField" %}
-                    {{ CheckFieldLabel(field) }}
-                    <input type="text" class="time end" size="4" value="{{ edit_data[f.name][name] }}"/>
-                </div>
-            {% elif name == 'start_date' %}
-                {% if field.name == 'next-start_date' %}
-                    {{ CheckFieldLabel(field) }}
-                    {{ field() }}
-                {% endif %}
-            {% else %}
-                {{ CheckFieldLabel(field) }}
-                {{ field() }}
-            {% endif %}
+{% macro current_hours(current, show_chapel=True) -%}
+    {% set days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] %}
+    <p>
+        {% for day in days %}
+            {% set open = day+ '_open' %}
+            {% set close = day + '_close' %}
+            {{ day.title() }}: {{ current[open] }} - {{ current[close] }}<br/>
         {% endfor %}
-    </fieldset>
+        {% if show_chapel %}
+            Office closed for Chapel: {{ current['closed_for_chapel'] }}
+        {% endif %}
+    </p>
+
 {% endmacro %}
+
 
 {% block main_content %}
   <div class="row">
   <div class="large-12 columns">
 
     <p>Some Copy</p>
-    <p>BU Standard Hours</p>
+    <h4>BU Standard Hours</h4>
+    {% set standard = standard_edit_data['current'] %}
+    {{ current_hours(standard, False) }}
 
-    <h3>{{ mdata['title'] }}</h3>
-
-    <h4>Current Hours</h4>
-    <p>
-        Monday: 8am-5pm<br/>
-        Tuesday: 8am-5pm<br/>
-        Wednesday: 8am-5pm<br/>
-        Thursday: 8am-5pm<br/>
-        Friday: 8am-5pm<br/>
-        Saturday: 8am-5pm<br/>
-        Sunday: 8am-5pm<br/>
-    </p>
+    <h4>{{ mdata['title'] }}</h4>
+{#    <h4>Current Hours</h4>#}
+    {% set current = edit_data['current'] %}
+    {{ current_hours(current) }}
 
       <form id="officehoursform" action="/office-hours/" method="post" enctype="multipart/form-data">
       <input type="hidden" name="block_id" id="block_id" value="{{ block_id }}"/>
@@ -130,6 +130,7 @@
                 </div>
             {% else %}
               {{ CheckFieldLabel(field) }}
+re              {{ field.value }}
               {{ field() }}
             {% endif %}
         {% endfor %}

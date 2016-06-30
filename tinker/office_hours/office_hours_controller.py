@@ -24,16 +24,22 @@ class OfficeHoursController(TinkerController):
             'created-on': child.find('created-on').text or None,
         }
 
-        # page_values = {
-        #     "created-on": "",
-        #     "child": child
-        # }
         return page_values
 
     def inspect_child(self, child):
         # todo add permissions logic
         author = session['username']
         return self._iterate_child_xml(child, author)
+
+    def load_office_hours_block(self, block_id=None):
+
+        if not block_id:
+            block_id = app.config['OFFICE_HOURS_STANDARD_BLOCK']
+
+        block = self.read_block(block_id)
+        data, mdata, sdata = block.read_asset()
+        edit_data = self.get_edit_data(data)
+        return edit_data, mdata, sdata
 
     def get_add_data(self, lists, form):
 
@@ -45,44 +51,42 @@ class OfficeHoursController(TinkerController):
             value = form.get(key)
             if not value:
                 continue
-            key = key.replace('-', '_')
 
-            split_key = key.split('-')
-            prefix = split_key[0]
+            if 'open' in key or 'close' in key and key not in ['next-closed_for_chapel']:
+                value = self.date_to_java_unix(value)
 
-            if '_open' in key or '_close' in key:
-                date = self.date_to_java_unix(value)
-                add_data[key] = date
-
-            elif 'start_date' in key:
-                # form is returnint default format even though it was overridden.
+            if 'date' in key:
+                # form is returning default format even though it was overridden.
                 # so, translate to date and then back into Cascade format.
                 date = datetime.datetime.strptime(value, '%Y-%m-%d')
-                date = date.strftime('%m-%d-%Y')
-                add_data[key] = date
+                value = date.strftime('%m-%d-%Y')
 
-            elif prefix in ['exceptions']:
-                if prefix not in add_data.keys():
-                    add_data[prefix] = {}
-                add_data[prefix][split_key[1]] = form.get(key)
+            key = key.replace('-', '_')
+
+            if 'exceptions' in key:
+
+                key = key.split('exceptions_')[1]
+
+                if 'exceptions' not in add_data.keys():
+                    add_data['exceptions'] = [{}]
+                add_data['exceptions'][0][key] = value
+
             elif key in lists:
                 add_data[key] = form.getlist(key)
             else:
                 add_data[key] = value
-
-        # Create the system-name from title, all lowercase
-        # system_name = add_data['title'].lower().replace(' ', '-')
-
-        # Now remove any non a-z, A-Z, 0-9
-        # system_name = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
-
-        # add_data['system_name'] = system_name
 
         return add_data
 
     def update_structure(self, data, rform, block_id):
 
         add_data = self.get_add_data([''], rform)
+
+        from copy import deepcopy
+
+        # add_data['exceptions'].append(deepcopy(add_data['exceptions'][0]))
+        # add_data['exceptions'].append(add_data['exceptions'][0])
+        # add_data['exceptions'].append(add_data['exceptions'][0])
 
         self.update_asset(data, add_data)
 

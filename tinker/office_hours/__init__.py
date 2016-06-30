@@ -35,9 +35,9 @@ class OfficeHoursView(FlaskView):
         resp = str(block.edit_asset(asset))
         self.base.log_sentry("Office Hour  Submission", resp)
 
-        return "edit confirm"
+        # return "edit confirm"
 
-        # return redirect(url_for('office-hours.OfficeHoursView:confirm', status='edit'), code=302)
+        return redirect(url_for('office-hours.OfficeHoursView:index', status='edit'), code=302)
 
     def index(self):
 
@@ -49,18 +49,22 @@ class OfficeHoursView(FlaskView):
 
     def edit(self, block_id):
 
-        block = self.base.read_block(block_id)
-        data, mdata, sdata = block.read_asset()
-        edit_data = self.base.get_edit_data(data)
+        edit_data, mdata, sdata = self.base.load_office_hours_block(block_id=block_id)
+        standard_edit_data, m, s = self.base.load_office_hours_block()
 
         for key, value in edit_data['next'].iteritems():
             if not value:
                 edit_data['next'][key] = ''
 
+        exceptions_new = {}
         for key, value in edit_data['exceptions'].iteritems():
             if not value:
                 edit_data['exceptions'][key] = ''
 
+            exceptions_new['exceptions_'+key] = edit_data['exceptions'][key]
+            exceptions_new[key] = edit_data['exceptions'][key]
+
+        edit_data['exceptions'] = exceptions_new
 
         form = OfficeHoursForm(**edit_data)
 
