@@ -79,7 +79,7 @@ class EventsView(FlaskView):
         # workflow = self.base.get_event_publish_workflow(title, username)
 
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
-        failed = self.base.validate_form(rform, dates_good, event_dates, num_dates)
+        failed = self.base.validate_form(rform, dates_good)
         if failed:
             return failed
 

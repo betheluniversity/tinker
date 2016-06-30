@@ -263,8 +263,8 @@ class TinkerController(object):
 
         # now metadata dynamic fields
         for field in dynamic_fields:
-            if field['fieldValues']:
-                items = [item['value'] for item in field['fieldValues']['fieldValue']]
+            if find(field, 'fieldValue'):
+                items = [find(item, 'value') for item in find(field, 'fieldValue')]
                 edit_data[field['name'].replace('-', '_')] = items
 
         if data:

@@ -48,7 +48,7 @@ class EventsController(TinkerController):
         # convert event dates to JSON
         return json.dumps(event_dates), dates_good, num_dates
 
-    def validate_form(self, rform, dates_good, event_dates, num_dates):
+    def validate_form(self, rform, dates_good):
 
         from forms import EventForm
         form = EventForm()
@@ -60,8 +60,6 @@ class EventsController(TinkerController):
             else:
                 new_form = True
             author = rform["author"]
-            # bring in the mapping
-            # brm = self.brm
             return render_template('event-form.html', **locals())
 
     def link(self, add_data, asset):
