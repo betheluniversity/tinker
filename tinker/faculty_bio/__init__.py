@@ -27,7 +27,6 @@ class FacultyBioView(FlaskView):
 
     @route('/delete/<page_id>', methods=['GET'])
     def delete_page(self, page_id):
-        # send to this workflow instead: 7747ea478c5865130c130b3a1a05240e
         self.base.delete(page_id, "page")
         self.base.publish_faculty_bio_xml()
 

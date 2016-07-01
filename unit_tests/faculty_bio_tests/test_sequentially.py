@@ -1,4 +1,5 @@
 import re
+import time
 import tinker
 import unittest
 
@@ -71,7 +72,7 @@ class SequentialTestCase(unittest.TestCase):
         assert b"<p>You've successfully created a new bio. Your brand new bio has been sent for approval but will be " \
                b"ready to view in 2-3 business days.</p>" in response.data
 
-        # Open up the new bio to edit it
+        # O`pen up the new bio to edit it
         response = self.send_get("/faculty-bio/edit/" + self.faculty_bio_id)
         assert b'<form id="facultybioform" action="/faculty-bio/submit" method="post" enctype="multipart/form-data">' \
                in response.data
@@ -83,6 +84,7 @@ class SequentialTestCase(unittest.TestCase):
                b"view in 2-3 business days. Thanks for keeping your bio up to date!" in response.data
 
         # Delete the new bio to make sure these tests don't bloat Cascade
+        time.sleep(20)
         response = self.send_get("/faculty-bio/delete/" + self.faculty_bio_id)
         assert b'Your faculty bio has been deleted. It will be removed from your <a href="https://tinker.bethel.edu">' \
                b'Tinker homepage</a> in a few minutes.' in response.data

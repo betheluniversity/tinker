@@ -4,7 +4,6 @@ import unittest
 
 class FacultyBioBaseTestCase(unittest.TestCase):
 
-    # This method is designed to set up a temporary database, such that the tests won't affect the real database
     def setUp(self):
         self.app = tinker.app.test_client()
 
@@ -14,7 +13,6 @@ class FacultyBioBaseTestCase(unittest.TestCase):
     def send_get(self, url):
         return self.app.get(url, follow_redirects=True)
 
-    # Corresponding to the setUp method, this method deletes the temporary database
     def tearDown(self):
         pass
 
