@@ -1,6 +1,7 @@
 import urllib2
 import re
 import time
+import cgi
 from functools import wraps
 from xml.etree import ElementTree as ET
 import requests
@@ -23,6 +24,8 @@ from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
 from tinker import app
 from tinker import sentry
+
+from BeautifulSoup import BeautifulStoneSoup
 
 
 def should_be_able_to_edit_image(roles):
@@ -343,3 +346,23 @@ class TinkerController(object):
 
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow
+
+    # Excape content so its Cascade WYSIWYG friendly
+    # There are a few edge cases for symbols it doesn't like.
+    def escape_wysiwyg_content(self, content):
+        if content:
+            uni = self.HTMLEntitiesToUnicode(content)
+            htmlent = self.unicodeToHTMLEntities(uni)
+            return htmlent
+        else:
+            return None
+
+    def HTMLEntitiesToUnicode(self, text):
+        """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
+        text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
+        return text
+
+    def unicodeToHTMLEntities(self, text):
+        """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
+        text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
+        return text

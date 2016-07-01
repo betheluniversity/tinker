@@ -76,6 +76,7 @@ class EventsView(FlaskView):
         rform = request.form
         username = session['username']
         workflow = None
+        eid = rform.get('event_id')
         # workflow = self.base.get_event_publish_workflow(title, username)
 
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
@@ -88,7 +89,10 @@ class EventsView(FlaskView):
         dates = self.base.get_dates(add_data)
         add_data['event-dates'] = dates
 
-        asset = self.base.get_event_structure(add_data, username, workflow=workflow)
+        page = self.base.read_page(eid)
+        event_id, metadata, structured_data = page.read_asset()
+
+        asset = self.base.get_event_structure(event_id, metadata, structured_data, add_data, username, workflow=workflow)
         response = self.base.create(asset)
 
         if username == 'amf39248':

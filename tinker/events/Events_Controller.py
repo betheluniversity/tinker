@@ -17,9 +17,6 @@ from tinker import app
 
 from flask import render_template, session
 
-from BeautifulSoup import BeautifulStoneSoup
-import cgi
-
 
 class EventsController(TinkerController):
 
@@ -113,30 +110,6 @@ class EventsController(TinkerController):
         else:
             return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
                                 datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
-
-    # casecade_tools methods
-    # todo move
-    # Excape content so its Cascade WYSIWYG friendly
-    # There are a few edge cases for sybmols it doesn't like.
-    def escape_wysiwyg_content(self, content):
-        if content:
-            uni = self.HTMLEntitiesToUnicode(content)
-            htmlent = self.unicodeToHTMLEntities(uni)
-            return htmlent
-        else:
-            return None
-
-    # todo move(?)
-    def HTMLEntitiesToUnicode(self, text):
-        """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
-        text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
-        return text
-
-    # todo move(?)
-    def unicodeToHTMLEntities(self, text):
-        """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
-        text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
-        return text
 
     # cascade event methods
     def get_forms_for_user(self, username):
@@ -286,7 +259,7 @@ class EventsController(TinkerController):
 
         return dates
 
-    def get_event_structure(self, add_data, username, workflow=None, event_id=None):
+    def get_event_structure(self, metadata, structured_data, add_data, username, workflow=None, event_id=None):
         """
          Could this be cleaned up at all?
         """
@@ -303,24 +276,42 @@ class EventsController(TinkerController):
             image_node = None
 
         # Create a list of all the data nodes
-        structured_data = [
-            self.structured_data_node("main-content", self.escape_wysiwyg_content(add_data['main_content'])),
-            self.structured_data_node("questions", self.escape_wysiwyg_content(add_data['questions'])),
-            self.structured_data_node("link", self.escape_wysiwyg_content(add_data['link'])),
-            self.structured_data_node("cancellations", add_data['cancellations']),
-            self.structured_data_node("registration-details", self.escape_wysiwyg_content(add_data['registration_details'])),
-            self.structured_data_node("registration-heading", add_data['registration_heading']),
-            self.structured_data_node("cost", add_data['cost']),
-            self.structured_data_node("sponsors", self.escape_wysiwyg_content(add_data['sponsors'])),
-            self.structured_data_node("maps-directions", self.escape_wysiwyg_content(add_data['maps_directions'])),
-            self.structured_data_node("off-campus-location", add_data['off_campus_location']),
-            self.structured_data_node("on-campus-location", add_data['on_campus_location']),
-            self.structured_data_node("other-on-campus", add_data['other_on_campus']),
-            self.structured_data_node("location", add_data['location']),
-            self.structured_data_node("featuring", add_data['featuring']),
-            self.structured_data_node("wufoo-code", add_data['wufoo_code']),
-            image_node,
-        ]
+        add_data['main-content'] = self.escape_wysiwyg_content(add_data['main_content'])
+        add_data['questions'] = self.escape_wysiwyg_content(add_data['questions'])
+        add_data['link'] = self.escape_wysiwyg_content(add_data['link'])
+        add_data['cancellations'] = add_data['cancellations']
+        add_data['registration-details'] = self.escape_wysiwyg_content(add_data['registration_details'])
+        add_data['registration-heading'] = add_data['registration_heading']
+        add_data['cost'] = add_data['cost']
+        add_data['sponsors'] = self.escape_wysiwyg_content(add_data['sponsors'])
+        add_data['maps-directions'] = self.escape_wysiwyg_content(add_data['maps_directions'])
+        add_data['off-campus-location'] = add_data['off_campus_location']
+        add_data['on-campus-location'] = add_data['on_campus_location']
+        add_data['other-on-campus'] = add_data['other_on_campus']
+        add_data['location'] = add_data['location']
+        add_data['featuring'] = add_data['featuring']
+        add_data['wufoo-code'] = add_data['wufoo_code']
+
+        self.update_asset(structured_data, add_data)
+
+        # structured_data = [
+        #     self.structured_data_node("main-content", self.escape_wysiwyg_content(add_data['main_content'])),
+        #     self.structured_data_node("questions", self.escape_wysiwyg_content(add_data['questions'])),
+        #     self.structured_data_node("link", self.escape_wysiwyg_content(add_data['link'])),
+        #     self.structured_data_node("cancellations", add_data['cancellations']),
+        #     self.structured_data_node("registration-details", self.escape_wysiwyg_content(add_data['registration_details'])),
+        #     self.structured_data_node("registration-heading", add_data['registration_heading']),
+        #     self.structured_data_node("cost", add_data['cost']),
+        #     self.structured_data_node("sponsors", self.escape_wysiwyg_content(add_data['sponsors'])),
+        #     self.structured_data_node("maps-directions", self.escape_wysiwyg_content(add_data['maps_directions'])),
+        #     self.structured_data_node("off-campus-location", add_data['off_campus_location']),
+        #     self.structured_data_node("on-campus-location", add_data['on_campus_location']),
+        #     self.structured_data_node("other-on-campus", add_data['other_on_campus']),
+        #     self.structured_data_node("location", add_data['location']),
+        #     self.structured_data_node("featuring", add_data['featuring']),
+        #     self.structured_data_node("wufoo-code", add_data['wufoo_code']),
+        #     image_node,
+        # ]
         # Add the dates at the end of the data
         structured_data.extend(add_data['event-dates'])
 
