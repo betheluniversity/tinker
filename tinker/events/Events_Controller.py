@@ -310,20 +310,27 @@ class EventsController(TinkerController):
         # put it all into the final asset with the rest of the SOAP structure
         hide_site_nav, parent_folder_path = self.get_event_folder_path(add_data)
 
+        # keys that are very similar in implemenation
+        for key in metadata['dynamic_fields']:
+            add_data[key] = add_data[key.replace("-", "_")]
+
+        add_data['hide-site-nav'] = [hide_site_nav]
+        add_data['tinker-edits'] = 1
+
         # create the dynamic metadata dict
-        dynamic_fields = {
-            'dynamicField': [
-                self.dynamic_field('general', add_data['general']),
-                self.dynamic_field('offices', add_data['offices']),
-                self.dynamic_field('cas-departments', add_data['cas_departments']),
-                self.dynamic_field('graduate-program', add_data['graduate_program']),
-                self.dynamic_field('adult-undergrad-program', add_data['adult_undergrad_program']),
-                self.dynamic_field('seminary-program', add_data['seminary_program']),
-                self.dynamic_field('internal', add_data['internal']),
-                self.dynamic_field('hide-site-nav', [hide_site_nav]),
-                self.dynamic_field('tinker-edits', '1')
-            ],
-        }
+        # dynamic_fields = {
+        #     'dynamicField': [
+        #         self.dynamic_field('general', add_data['general']),
+        #         self.dynamic_field('offices', add_data['offices']),
+        #         self.dynamic_field('cas-departments', add_data['cas_departments']),
+        #         self.dynamic_field('graduate-program', add_data['graduate_program']),
+        #         self.dynamic_field('adult-undergrad-program', add_data['adult_undergrad_program']),
+        #         self.dynamic_field('seminary-program', add_data['seminary_program']),
+        #         self.dynamic_field('internal', add_data['internal']),
+        #         self.dynamic_field('hide-site-nav', [hide_site_nav]),
+        #         self.dynamic_field('tinker-edits', '1')
+        #     ],
+        # }
 
         # allows for multiple authors. If none set, default to username
         if 'author' not in add_data or add_data['author'] == "":
