@@ -1,6 +1,7 @@
 import time
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
+from bu_cascade.asset_tools import update
 # from tinker.events.cascade_events import *
 from flask import Blueprint, redirect, session, render_template, request, url_for
 from tinker import app
@@ -51,7 +52,6 @@ class EventsView(FlaskView):
         self.base.publish(app.config['EVENT_XML_ID'])
         return redirect(url_for('events.EventsView:delete_confirm'), code=302)
 
-    # @route('/duplicate/<event_id>/<duplicate>')
     @route('/edit/<event_id>')
     def edit_event_page(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
@@ -96,7 +96,10 @@ class EventsView(FlaskView):
             app.logger.debug(time.strftime("%c") + ": TESTING" + response)
 
         # Checks if the link is valid
-        self.base.link(add_data, asset)
+        if 'link' in add_data and add_data['link'] != "":
+            from tinker.admin.redirects import new_internal_redirect_submit
+            path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
+            new_internal_redirect_submit(path, add_data['link'])
 
         if edit:
             form = rform
@@ -124,7 +127,7 @@ class EventsView(FlaskView):
         my_page = self.base.Page(ws_connector, event_id)
 
         asset, md, sd = my_page.get_asset()
-        self.base.update(md, 'tinker-edits', '0')
+        update(md, 'tinker-edits', '0')
         my_page.edit_asset(asset)
 
         return event_id

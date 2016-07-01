@@ -10,6 +10,8 @@ import arrow
 from xml.etree import ElementTree as ET
 from operator import itemgetter
 
+from bu_cascade.asset_tools import update
+
 # local
 from tinker import app
 
@@ -62,14 +64,12 @@ class EventsController(TinkerController):
             author = rform["author"]
             return render_template('event-form.html', **locals())
 
-    def link(self, add_data, asset):
-        # 'link' must be a valid component
-        if 'link' in add_data and add_data['link'] != "":
-            from tinker.admin.redirects import new_internal_redirect_submit
-            path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
-            new_internal_redirect_submit(path, add_data['link'])
-
-        return #????
+    # def link(self, add_data, asset):
+    #     # 'link' must be a valid component
+    #     if 'link' in add_data and add_data['link'] != "":
+    #         from tinker.admin.redirects import new_internal_redirect_submit
+    #         path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
+    #         new_internal_redirect_submit(path, add_data['link'])
 
     def group_callback(self, node):
         data = {}
@@ -386,6 +386,7 @@ class EventsController(TinkerController):
         values_list = []
         for value in values:
             values_list.append({'value': value})
+
         node = {
             'name': name,
             'fieldValues': {

@@ -32,7 +32,7 @@ def get_md(metadata_path):
     }
 
     md = read_identifier(identifier)
-    return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
+    return md.asset['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
 
 
 def get_event_choices():
@@ -41,35 +41,35 @@ def get_event_choices():
 
     md = {}
     for item in data:
-        md[item.name] = item.possibleValues.possibleValue
+        md[item.name] = item['possibleValues']['possibleValue']
 
     general = []
     for item in md['general']:
-        general.append((item.value, item.value))
+        general.append((item['value'], item['value']))
 
     offices = []
     for item in md['offices']:
-        offices.append((item.value, item.value))
+        offices.append((item['value'], item['value']))
 
     internal = []
     for item in md['internal']:
-        internal.append((item.value, item.value))
+        internal.append((item['value'], item['value']))
 
     cas_departments = []
     for item in md['cas-departments']:
-        cas_departments.append((item.value, item.value))
+        cas_departments.append((item['value'], item['value']))
 
     adult_undergrad_program = []
     for item in md['adult-undergrad-program']:
-        adult_undergrad_program.append((item.value, item.value))
+        adult_undergrad_program.append((item['value'], item['value']))
 
     graduate_program = []
     for item in md['graduate-program']:
-        graduate_program.append((item.value, item.value))
+        graduate_program.append((item['value'], item['value']))
 
     seminary_program = []
     for item in md['seminary-program']:
-        seminary_program.append((item.value, item.value))
+        seminary_program.append((item['value'], item['value']))
 
     # Get the building choices from the block
     building_choices = get_buildings()
