@@ -259,7 +259,7 @@ class EventsController(TinkerController):
 
         return dates
 
-    def get_event_structure(self, metadata, structured_data, add_data, username, workflow=None, event_id=None):
+    def get_event_structure(self, event_data, metadata, structured_data, add_data, username, workflow=None, event_id=None):
         """
          Could this be cleaned up at all?
         """
@@ -275,6 +275,8 @@ class EventsController(TinkerController):
         else:
             image_node = None
 
+        # for key in structured_data:
+        #     add_data[key.replace("_", "-")] = add_data[key]
         # Create a list of all the data nodes
         add_data['main-content'] = self.escape_wysiwyg_content(add_data['main_content'])
         add_data['questions'] = self.escape_wysiwyg_content(add_data['questions'])
@@ -294,24 +296,7 @@ class EventsController(TinkerController):
 
         self.update_asset(structured_data, add_data)
 
-        # structured_data = [
-        #     self.structured_data_node("main-content", self.escape_wysiwyg_content(add_data['main_content'])),
-        #     self.structured_data_node("questions", self.escape_wysiwyg_content(add_data['questions'])),
-        #     self.structured_data_node("link", self.escape_wysiwyg_content(add_data['link'])),
-        #     self.structured_data_node("cancellations", add_data['cancellations']),
-        #     self.structured_data_node("registration-details", self.escape_wysiwyg_content(add_data['registration_details'])),
-        #     self.structured_data_node("registration-heading", add_data['registration_heading']),
-        #     self.structured_data_node("cost", add_data['cost']),
-        #     self.structured_data_node("sponsors", self.escape_wysiwyg_content(add_data['sponsors'])),
-        #     self.structured_data_node("maps-directions", self.escape_wysiwyg_content(add_data['maps_directions'])),
-        #     self.structured_data_node("off-campus-location", add_data['off_campus_location']),
-        #     self.structured_data_node("on-campus-location", add_data['on_campus_location']),
-        #     self.structured_data_node("other-on-campus", add_data['other_on_campus']),
-        #     self.structured_data_node("location", add_data['location']),
-        #     self.structured_data_node("featuring", add_data['featuring']),
-        #     self.structured_data_node("wufoo-code", add_data['wufoo_code']),
-        #     image_node,
-        # ]
+        structured_data.extend(image_node)
         # Add the dates at the end of the data
         structured_data.extend(add_data['event-dates'])
 
@@ -346,31 +331,36 @@ class EventsController(TinkerController):
         else:
             author = add_data['author']
 
-        asset = {
-            'page': {
-                'name': add_data['system_name'],
-                'siteId': app.config['SITE_ID'],
-                'parentFolderPath': parent_folder_path,
-                'metadataSetPath': "/Event",
-                'contentTypePath': "Event",
-                'configurationSetPath': "Old/Event",
-                # Break this out more once its defined in the form
-                'structuredData': structured_data,
-                'metadata': {
-                    'title': add_data['title'],
-                    'summary': 'summary',
-                    'author': author,
-                    'metaDescription': add_data['metaDescription'],
-                    'dynamicFields': dynamic_fields,
-                }
-            },
-            'workflowConfiguration': workflow
-        }
+        add_data['name'] = add_data['title']
+        self.update_asset(event_data, add_data)
+
+        # asset = {
+        #     'page': {
+        #         'name': add_data['system_name'],
+        #         'siteId': app.config['SITE_ID'],
+        #         'parentFolderPath': parent_folder_path,
+        #         'metadataSetPath': "/Event",
+        #         'contentTypePath': "Event",
+        #         'configurationSetPath': "Old/Event",
+        #         # Break this out more once its defined in the form
+        #         'structuredData': structured_data,
+        #         'metadata': {
+        #             'title': add_data['title'],
+        #             'summary': 'summary',
+        #             'author': author,
+        #             'metaDescription': add_data['metaDescription'],
+        #             'dynamicFields': dynamic_fields,
+        #         }
+        #     },
+        #     'workflowConfiguration': workflow
+        # }
 
         if event_id:
-            asset['page']['id'] = event_id
+            add_data['id'] = event_id
+        # if event_id:
+        #     asset['page']['id'] = event_id
 
-        return asset
+        return event_data
 
     def dynamic_field(self, name, values):
 

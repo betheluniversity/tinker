@@ -90,9 +90,9 @@ class EventsView(FlaskView):
         add_data['event-dates'] = dates
 
         page = self.base.read_page(eid)
-        event_id, metadata, structured_data = page.read_asset()
+        event_data, metadata, structured_data = page.read_asset()
 
-        asset = self.base.get_event_structure(event_id, metadata, structured_data, add_data, username, workflow=workflow)
+        asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
         response = self.base.create(asset)
 
         if username == 'amf39248':
