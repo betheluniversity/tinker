@@ -92,7 +92,7 @@ def get_roles(username=None):
     if not username:
         username = session['username']
     url = current_app.config['API_URL'] + "/username/%s/roles" % username
-    r = requests.get(url, auth=(current_app.config['API_USERNAME'], current_app.config['API_PASSWORD']))
+    r = requests.get(url, verify=False)
     roles = fjson.loads(r.content)
     ret = []
     for key in roles.keys():
