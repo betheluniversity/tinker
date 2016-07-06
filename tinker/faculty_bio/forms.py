@@ -87,7 +87,7 @@ class DummyField(TextAreaField):
 
 def validate_username(form, field):
     username = field.data
-    host = "http://wsapi.bethel.edu"
+    host = "https://wsapi.bethel.edu"
     path = "/username/" + username + "/roles"
     req = requests.get(host+path)
 
@@ -97,7 +97,7 @@ def validate_username(form, field):
 
 
 class FacultyBioForm(Form):
-    roles = get_roles()
+    roles = session['roles']
 
     # if a cas faculty member or seminary faculty member, hide the image field.
     if 'Tinker Faculty Bios' in session['groups']:
