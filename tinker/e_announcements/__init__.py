@@ -19,22 +19,20 @@ class EAnnouncementsView(FlaskView):
     def __init__(self):
         self.base = EAnnouncementsController()
 
+    # currently not used
     def before_request(self, name, **kwargs):
-        # todo do this
-        print 'e-ann before request'
+        pass
 
     def index(self):
-        # TODO: this local username isn't used in this method anywhere?
-        username = session['username']
         forms = self.base.traverse_xml(app.config['E_ANN_URL'], 'system-block')
 
-        # todo why reverse twice?
-        forms.sort(key=lambda item:item['first_date'], reverse=True)
-        forms = reversed(forms)
+        forms.sort(key=lambda item: item['first_date'], reverse=False)
         return render_template('ea-home.html', **locals())
 
     def delete(self, block_id):
-        # Todo: check if user should have access to delete the block, before deleting
+        # must have access to delete
+        if session['username'] not in app.config['E_ANN_ADMINS']:
+            return redirect(url_for('e-announcements.EAnnouncementsView:index'), code=302)
 
         self.base.delete(block_id, 'block')
         self.base.publish(app.config['E_ANNOUNCEMENTS_XML_ID'])
@@ -42,12 +40,11 @@ class EAnnouncementsView(FlaskView):
         return render_template('delete-confirm.html', **locals())
 
     def new(self):
-
         from forms import EAnnouncementsForm
         form = EAnnouncementsForm()
         new_form = True
 
-        # todo can the template access this directly?
+        # extra variable the form uses
         brm = self.base.brm
         return render_template('form.html', **locals())
 
@@ -55,27 +52,24 @@ class EAnnouncementsView(FlaskView):
         return render_template('confirm.html', **locals())
 
     def edit(self, e_announcement_id):
+        from tinker.e_announcements.forms import EAnnouncementsForm
+
+        # if its in the workflow, give a warning
         if self.base.asset_in_workflow(e_announcement_id, asset_type='block'):
             return render_template('in-workflow.html')
 
-        from tinker.e_announcements.forms import EAnnouncementsForm
-
-        # Get the event data from cascade
+        # Get the e-ann data from cascade
         block = self.base.read_block(e_announcement_id)
         e_announcement_data, mdata, sdata = block.read_asset()
-
         edit_data = self.base.get_edit_data(e_announcement_data)
-        self.base.check_readonly(edit_data)
+
+        self.base.set_readonly_values(edit_data)
         form = EAnnouncementsForm(**edit_data)
-        form.e_announcement_id = e_announcement_id
 
-        # todo can the template access this directly?
+        # extra variable the form uses
         brm = self.base.brm
-
         return render_template('form.html', **locals())
 
-    # todo: merge this to be more reusable? also, just generally look over it
-    # todo: why redirect? why not directly go to the confirmation pages
     def post(self):
 
         rform = request.form
@@ -91,15 +85,13 @@ class EAnnouncementsView(FlaskView):
             asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
             resp = self.base.create_block(asset)
             self.base.log_sentry('New e-announcement submission', resp)
-            return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='new'), code=302)
-
         else:
             block = self.base.read_block(eaid)
             e_announcement_data, mdata, sdata = block.read_asset()
             asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
             resp = str(block.edit_asset(asset))
             self.base.log_sentry("E-Announcement edit submission", resp)
-            return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
 
+        return render_template('confirm.html', **locals())
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)

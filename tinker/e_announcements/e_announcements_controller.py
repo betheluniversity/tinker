@@ -6,11 +6,8 @@ import re
 from flask import session
 from flask import render_template
 from tinker import app
-from tinker.cascade_tools import *
-
 from tinker.tinker_controller import TinkerController
 
-# todo: rename this
 BRM = [
         'CAS',
         'CAPS',
@@ -50,7 +47,6 @@ class EAnnouncementsController(TinkerController):
                 return self._iterate_child_xml(child, author)
             except AttributeError:
                 # not a valid e-ann block
-                print 'bad'
                 return None
         else:
             return None
@@ -76,9 +72,6 @@ class EAnnouncementsController(TinkerController):
             if value.tag == 'value':
                 roles.append(value.text)
 
-        message = ''
-        message = self.recurse_wysiwyg_xml(child.find('system-data-structure/message'))
-
         try:
             workflow_status = child.find('workflow').find('status').text
         except AttributeError:
@@ -91,7 +84,6 @@ class EAnnouncementsController(TinkerController):
             'created-on': child.find('created-on').text or None,
             'first_date': first_date,
             'second_date': second_date,
-            'message': message,
             'roles': roles,
             'workflow_status': workflow_status,
             'first_date_past': first_date_past,
@@ -99,70 +91,30 @@ class EAnnouncementsController(TinkerController):
         }
         return page_values
 
-    # Todo: move this to the tinker controller and update the calls to it.
-    def recurse_wysiwyg_xml(self, node):
-        return_string = ''
-        for child in node:
-            child_text = ''
-            if child.text:
-                child_text = child.text
+    # dates are set to readonly if they occur before today
+    def set_readonly_values(self, edit_data):
 
-            # recursively renders children
-            try:
-                if child.tag == 'a':
-                    return_string += '<%s href="%s">%s%s</%s>' % (child.tag, child.attrib['href'], child_text, self.recurse_wysiwyg_xml(child), child.tag)
-                else:
-                    return_string += '<%s>%s%s</%s>' % (child.tag, child_text, self.recurse_wysiwyg_xml(child), child.tag)
-            except:
-                # gets the basic text
-                if child_text:
-                    if child.tag == 'a':
-                        return_string += '<%s href="%s">%s</%s>' % (child.tag, child.attrib['href'], child_text, child.tag)
-                    else:
-                        return_string += '<%s>%s</%s>' % (child.tag, child_text, child.tag)
+        today = datetime.datetime.now()
+        first_readonly = False
+        second_readonly = False
+        if edit_data['first_date'] < today:
+            first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
+        if 'second_date' in edit_data and edit_data['second_date'] and edit_data['second_date'] < today:
+            second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
 
-            # gets the text that follows the children
-            if child.tail:
-                return_string += child.tail
+        edit_data['first_readonly'] = first_readonly
+        edit_data['second_readonly'] = second_readonly
 
-        return return_string
+    def get_e_announcement_parent_folder(self, date):
+        # break the date into Year/month
+        split_date = date.split("-")
+        month = self.convert_month_num_to_name(split_date[0])
+        year = split_date[2]
 
-    ##########################################################
-    # Todo: every method below should probably be cleaned up
-    ###########################################################
-    def get_add_data(self, lists, form):
+        self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year, 'folder')
+        self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year + "/" + month, 'folder')
 
-        # A dict to populate with all the interesting data.
-        add_data = {}
-
-        for key in form.keys():
-            if key in lists:
-                add_data[key] = form.getlist(key)
-            else:
-                add_data[key] = form[key]
-
-        # Create the system-name from title, all lowercase
-        system_name = add_data['title'].lower().replace(' ', '-')
-
-        # Now remove any non a-z, A-Z, 0-9
-        system_name = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
-
-        # add_data['system_name'] = system_name
-
-        return add_data
-
-    # todo: move this to call a more general method
-    def get_e_announcement_publish_workflow(self, title=""):
-
-        name = "New E-announcement Submission"
-        if title:
-            name += ": " + title
-        workflow = {
-            "workflowName": name,
-            "workflowDefinitionId": app.config['E_ANNOUCNEMENT_WORKFLOW_ID'],
-            "workflowComments": "Send e-announcement for approval"
-        }
-        return workflow
+        return "/e-announcements/" + year + "/" + month
 
     # todo test
     def validate_form(self, rform):
@@ -175,31 +127,19 @@ class EAnnouncementsController(TinkerController):
             if 'e_announcement_id' in rform.keys():
                 e_announcement_id = rform['e_announcement_id']
             else:
+                # todo: can we do the new_form another way?
                 new_form = True
             # bring in the mapping
             brm = self.brm
             return render_template('form.html', **locals())
 
-    # todo: do what the events does
-    def get_e_announcement_parent_folder(self, date):
-        # break the date into Year/month
-        split_date = date.split("-")
-        month = self.convert_month_num_to_name(split_date[0])
-        year = split_date[2]
-
-        # check if the folders exist
-        self.create_folder("/e-announcements/" + year)
-        self.create_folder("/e-announcements/" + year + "/" + month)
-
-        return "/e-announcements/" + year + "/" + month
-
     def update_structure(self, e_announcement_data, sdata, rform, e_announcement_id=None):
-
-        title = self.format_title(rform['title'])
-        workflow = self.get_e_announcement_publish_workflow(title)
-        self.add_workflow_to_asset(workflow, e_announcement_data)
-
         add_data = self.get_add_data(['banner_roles'], rform)
+
+        # create workflow
+        workflow = self.create_workflow(app.config['E_ANNOUNCEMENT_WORKFLOW_ID'], add_data['title'])
+        workflow = None
+        self.add_workflow_to_asset(workflow, e_announcement_data)
 
         # if parent folder ID exists it will use that over path
         add_data['parentFolderId'] = ''
@@ -207,37 +147,29 @@ class EAnnouncementsController(TinkerController):
 
         # add missing data and make sure its in the right format.
         add_data['name'] = session['name']
+        add_data['message'] = self.escape_wysiwyg_content(add_data['message'])
+
+        # todo, update these to have _ instead of - in Cascade so we don't have to translate
         add_data['email'] = session['user_email']
-        add_data['message'] = escape_wysiwyg_content(add_data['message'])
-        #todo, update these to have _ instead of - in Cascade so we don't have to translate
         add_data['banner-roles'] = add_data['banner_roles']
         add_data['first-date'] = add_data['first_date']
         add_data['second-date'] = add_data['second_date']
 
+        # add id
         if e_announcement_id:
             add_data['id'] = e_announcement_id
 
-        # todo, revert this after 'name' in the Cascade data-def is changed so it doesn't conflict
+        # todo, revert this after 'name' in the Cascade data-def is changed so it doesn't conflict (then we don't have to call update_asset twice)
+        # update asset
         self.update_asset(sdata, add_data)
         add_data['name'] = add_data['title']
         self.update_asset(e_announcement_data, add_data)
 
+        # for some reason, title is not already set, so it must be set manually
+        e_announcement_data['xhtmlDataDefinitionBlock']['metadata']['title'] = add_data['title']
+
+        # once all editing is done, move it if it needs to be moved
         if e_announcement_id:
-            # todo: does this call every time just in case it moved?
             self.move(e_announcement_id, add_data['parentFolderPath'], type='block')
 
         return e_announcement_data
-
-    # todo: comment this
-    def check_readonly(self, edit_data):
-
-        today = datetime.datetime.now()
-        first_readonly = False
-        second_readonly = False
-        if edit_data['first_date'] < today:
-            first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
-        if edit_data['second_date'] and edit_data['second_date'] < today:
-            second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
-
-        edit_data['first_readonly'] = first_readonly
-        edit_data['second_readonly'] = second_readonly
