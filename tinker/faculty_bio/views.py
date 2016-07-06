@@ -23,7 +23,7 @@ faculty_bio_blueprint = Blueprint('faculty-bio', __name__, template_folder='temp
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
     username = session['username']
-    roles = get_roles(username)
+    roles = session['roles']
 
     # the faculty special admins should be able to see every bio, based on school.
     if username in app.config['FACULTY_BIO_ADMINS']:
