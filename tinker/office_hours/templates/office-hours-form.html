@@ -28,47 +28,49 @@
 
 {%  endmacro %}
 
-{% macro HoursGroup(f) -%}
-    <fieldset>
-        <legend>{{ f.name.capitalize() }}</legend>
-        {% for field in f.form %}
-            {% set name = field.name.replace('-', '_') %}
-            {% if field.type == "TimeOpenField" %}
-                <div id="timeRange" class="timeRange" stlye="float:left">
-                    {{ CheckFieldLabel(field) }}
-                    <input type="text" name="{{ field.name }}" class="time start" size="4" value="{{ edit_data[f.name][name] }}"/> to
-            {% elif field.type == "TimeCloseField" %}
-                    {{ CheckFieldLabel(field) }}
-                    <input type="text" name="{{ field.name }}" class="time end" size="4" value="{{ edit_data[f.name][name] }}"/>
-                </div>
-            {% elif name in ['next_start_date', 'exceptions_date'] %}
-                {% if field.name in ['next-start_date', 'exceptions-date'] %}
-                    {{ CheckFieldLabel(field) }}
-                    <input type="date" name="{{ field.name }}" value="{{ edit_data[f.name][name].strftime('%Y-%m-%d') }}" />
-                {% endif %}
-            {% elif name in ['next_closed_for_chapel'] %}
-                <label for="next-closed_for_chapel">
-                    <label for="next-closed_for_chapel">Office closed for chapel</label>
-                </label>
-                {% set val = edit_data[f.name][name] %}
-                <ul id="next-closed_for_chapel">
-                    <li>
-                        <input id="next-closed_for_chapel-0" name="next-closed_for_chapel" type="radio" value="Yes" {% if val == 'Yes' %}checked="checked"{% endif %}>
-                        <label for="next-closed_for_chapel-0">Yes</label>
-                    </li>
-                    <li>
-                        <input id="next-closed_for_chapel-1" name="next-closed_for_chapel" type="radio" value="No" {% if val == 'No' %}checked="checked"{% endif %}>
-                        <label for="next-closed_for_chapel-1">No</label>
-                    </li>
-                </ul>
-            {% else %}
-
-                {{ CheckFieldLabel(field) }}
-                {{ field() }}
-            {% endif %}
-        {% endfor %}
-    </fieldset>
-{% endmacro %}
+{#{% macro HoursGroup(f) -%}#}
+{#    <fieldset>#}
+{#        <legend>{{ f.name.capitalize() }}</legend>#}
+{#        {% for field in f.form %}#}
+{#            {% set name = field.name.replace('-', '_') %}#}
+{#            {% if field.type == "TimeOpenField" %}#}
+{#                <div id="timeRange" class="timeRange" stlye="float:left">#}
+{#                    {{ CheckFieldLabel(field) }}#}
+{#                    <input type="text" name="{{ field.name }}" class="time start" size="4" value="{{ edit_data[f.name][name] }}"/> to#}
+{#            {% elif field.type == "TimeCloseField" %}#}
+{#                    {{ CheckFieldLabel(field) }}#}
+{#                    <input type="text" name="{{ field.name }}" class="time end" size="4" value="{{ edit_data[f.name][name] }}"/>#}
+{#                </div>#}
+{#            {% elif name in ['next_start_date', 'exceptions_date'] %}#}
+{#                {% if field.name in ['next-start_date', 'exceptions-date'] %}#}
+{#                    {{ CheckFieldLabel(field) }}#}
+{#                    <input type="date" name="{{ field.name }}" value="{{ edit_data[f.name][name].strftime('%Y-%m-%d') }}" />#}
+{#                    <a href="javascript:void(0);" id="add_date_button" class="button tiny">Add Another Date</a>#}
+{#                    <a href="javascript:void(0);" id="remove_date_button" class="button tiny alert">Remove Date</a>#}
+{#                {% endif %}#}
+{#            {% elif name in ['next_closed_for_chapel'] %}#}
+{#                <label for="next-closed_for_chapel">#}
+{#                    <label for="next-closed_for_chapel">Office closed for chapel</label>#}
+{#                </label>#}
+{#                {% set val = edit_data[f.name][name] %}#}
+{#                <ul id="next-closed_for_chapel">#}
+{#                    <li>#}
+{#                        <input id="next-closed_for_chapel-0" name="next-closed_for_chapel" type="radio" value="Yes" {% if val == 'Yes' %}checked="checked"{% endif %}>#}
+{#                        <label for="next-closed_for_chapel-0">Yes</label>#}
+{#                    </li>#}
+{#                    <li>#}
+{#                        <input id="next-closed_for_chapel-1" name="next-closed_for_chapel" type="radio" value="No" {% if val == 'No' %}checked="checked"{% endif %}>#}
+{#                        <label for="next-closed_for_chapel-1">No</label>#}
+{#                    </li>#}
+{#                </ul>#}
+{#            {% else %}#}
+{##}
+{#                {{ CheckFieldLabel(field) }}#}
+{#                {{ field() }}#}
+{#            {% endif %}#}
+{#        {% endfor %}#}
+{#    </fieldset>#}
+{#{% endmacro %}#}
 
 {% macro current_hours(current, show_chapel=True) -%}
     {% set days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] %}
@@ -82,7 +84,6 @@
             Office closed for Chapel: {{ current['closed_for_chapel'] }}
         {% endif %}
     </p>
-
 {% endmacro %}
 
 
@@ -130,7 +131,7 @@
                 </div>
             {% else %}
               {{ CheckFieldLabel(field) }}
-re              {{ field.value }}
+              {{ field.value }}
               {{ field() }}
             {% endif %}
         {% endfor %}
@@ -160,6 +161,12 @@ re              {{ field.value }}
             $('.timeRange').datepair({
                 'defaultTimeDelta': null
             });
+        });
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+
         });
 
 

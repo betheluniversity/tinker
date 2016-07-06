@@ -31,6 +31,32 @@ class OfficeHoursController(TinkerController):
         author = session['username']
         return self._iterate_child_xml(child, author)
 
+    def validate_form(self, rform):
+
+        from forms import OfficeHoursForm
+        form = OfficeHoursForm()
+
+        # todo move to TinkerBase?
+        if not form.validate_on_submit():
+            edit_data, mdata, sdata = self.load_office_hours_block(block_id=rform.get('block_id'))
+            standard_edit_data, m, s = self.load_office_hours_block()
+
+            for key, value in edit_data['next'].iteritems():
+                if not value:
+                    edit_data['next'][key] = ''
+
+            exceptions_new = {}
+            for key, value in edit_data['exceptions'].iteritems():
+                if not value:
+                    edit_data['exceptions'][key] = ''
+
+                exceptions_new['exceptions_' + key] = edit_data['exceptions'][key]
+                exceptions_new[key] = edit_data['exceptions'][key]
+
+            edit_data['exceptions'] = exceptions_new
+
+            return render_template('office-hours-form.html', **locals())
+
     def load_office_hours_block(self, block_id=None):
 
         if not block_id:
@@ -84,7 +110,7 @@ class OfficeHoursController(TinkerController):
 
         from copy import deepcopy
 
-        # add_data['exceptions'].append(deepcopy(add_data['exceptions'][0]))
+        add_data['exceptions'].append(deepcopy(add_data['exceptions'][0]))
         # add_data['exceptions'].append(add_data['exceptions'][0])
         # add_data['exceptions'].append(add_data['exceptions'][0])
 

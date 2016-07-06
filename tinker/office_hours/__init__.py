@@ -26,6 +26,11 @@ class OfficeHoursView(FlaskView):
 
     def post(self):
         rform = request.form
+
+        failed = self.base.validate_form(rform)
+        if failed:
+            return failed
+
         block_id = rform.get('block_id')
 
         block = self.base.read_block(block_id)
@@ -51,10 +56,6 @@ class OfficeHoursView(FlaskView):
 
         edit_data, mdata, sdata = self.base.load_office_hours_block(block_id=block_id)
         standard_edit_data, m, s = self.base.load_office_hours_block()
-
-        for key, value in edit_data['next'].iteritems():
-            if not value:
-                edit_data['next'][key] = ''
 
         exceptions_new = {}
         for key, value in edit_data['exceptions'].iteritems():
