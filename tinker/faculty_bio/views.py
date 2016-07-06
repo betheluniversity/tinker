@@ -96,7 +96,7 @@ def faculty_bio_new_form():
     from forms import FacultyBioForm
 
     form = FacultyBioForm()
-    roles = get_roles()
+    roles = session['roles']
     edit_image = should_be_able_to_edit_image(roles)
 
     faculty_bio_id = ""
@@ -134,7 +134,7 @@ def faculty_bio_edit_form(faculty_bio_id):
     from forms import FacultyBioForm
 
     form = FacultyBioForm()
-    roles = get_roles()
+    roles = session['roles']
     edit_image = should_be_able_to_edit_image(roles)
 
     # Get the event data from cascade
