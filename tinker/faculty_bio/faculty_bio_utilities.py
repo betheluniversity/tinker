@@ -115,16 +115,10 @@ class FacultyBioController(TinkerController):
     def get_job_titles(self, add_data):
         job_titles = []
 
-        # format the dates
-        for i in range(1, 200):
-            i = str(i)
-            try:
-                job_title = add_data['job-title' + i]
-            except KeyError:
-                # This will break once we run out of dates
-                break
-
-            job_titles.append(structured_data_node("job-title", job_title))
+        for key in add_data:
+            if key.startswith('job-title'):
+                job_title = add_data[key]
+                job_titles.append(structured_data_node("job-title", job_title))
 
         return job_titles
 
