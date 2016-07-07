@@ -1,16 +1,14 @@
 # TODO: clean up these unused imports
-import re
-
-from flask import Blueprint, render_template, url_for, redirect, request
-from flask.ext.classy import FlaskView
+from flask import Blueprint, render_template, url_for, redirect, session
+from flask.ext.classy import FlaskView, route, request
 
 from tinker.e_announcements.e_announcements_controller import EAnnouncementsController
+from tinker import app
 
-# todo: remove all references to this (these should all be in cascade connector)
-from tinker.web_services import *
-
-# TODO: is this blueprint now redundant now that we're using Flask Classy? -- no. i think its needed?
+# TODO: is this blueprint now redundant now that we're using Flask Classy?
 EAnnouncementsBlueprint = Blueprint('e-announcements', __name__, template_folder='templates')
+
+# todo: add a duplicate method
 
 
 class EAnnouncementsView(FlaskView):
@@ -51,6 +49,8 @@ class EAnnouncementsView(FlaskView):
     def confirm(self, status='new'):
         return render_template('confirm.html', **locals())
 
+    @route('/edit/<e_announcement_id>')
+    @route('/duplicate/<e_announcement_id>')
     def edit(self, e_announcement_id):
         from tinker.e_announcements.forms import EAnnouncementsForm
 
