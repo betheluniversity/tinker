@@ -152,10 +152,10 @@ degree = [
 
 program_search_degree_types = [
     "All",
-    "Associate",
-    "Bachelor",
+    "Associate's",
+    "Bachelor's",
     "Master's",
-    "Doctorate",
+    "Doctoral",
     "License",
     "Certificate",
 ]
