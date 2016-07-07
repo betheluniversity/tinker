@@ -43,10 +43,21 @@ class FacultyBioController(TinkerController):
         return json.dumps(degrees), degrees_good, num_degrees
 
     def check_job_titles(self, form):
-        new_jobs = {}
         new_jobs_good = False
 
         num_new_jobs = int(form['num_new_jobs'])
+
+        def safe_get(key, default_return=False, preferred_return=None):
+            try:
+                to_return = form[key]
+                print key + ":", to_return
+                if to_return == 'None' or to_return == '':
+                    return False
+                if preferred_return is not None:
+                    return preferred_return
+                return to_return
+            except:
+                return default_return
 
         for x in range(1, num_new_jobs + 1):  # the page doesn't use 0-based indexing
 
@@ -61,60 +72,18 @@ class FacultyBioController(TinkerController):
             lead_faculty_l = 'lead-faculty' + i
             job_title_l = 'new-job-title' + i
 
-            # Todo: clean this up and put it in a nice function.
+            school = safe_get(school_l)
+            undergrad = safe_get(undergrad_l, preferred_return=True)
+            caps = safe_get(caps_l, preferred_return=True)
+            gs = safe_get(gs_l, preferred_return=True)
+            seminary = safe_get(seminary_l, preferred_return=True)
+            dept_chair = safe_get(dept_chair_l, preferred_return=True)
+            program_director = safe_get(program_director_l, preferred_return=True)
+            lead_faculty = safe_get(lead_faculty_l, preferred_return=True)
+            job_title = safe_get(job_title_l, preferred_return=True)
 
-            try:
-                school = form[school_l]
-            except:
-                school = False
-            try:
-                undergrad = form[undergrad_l]
-                if undergrad is not 'None':
-                    undergrad = True
-            except:
-                undergrad = False
-            try:
-                caps = form[caps_l]
-                if caps is not 'None':
-                    caps = True
-            except:
-                caps = False
-            try:
-                gs = form[gs_l]
-                if gs is not 'None':
-                    gs = True
-            except:
-                gs = False
-            try:
-                seminary = form[seminary_l]
-                if seminary is not 'None':
-                    seminary = True
-            except:
-                seminary = False
-            try:
-                dept_chair = form[dept_chair_l]
-                dept_chair = True
-            except:
-                dept_chair = False
-            try:
-                program_director = form[program_director_l]
-                program_director = True
-            except:
-                program_director = False
-            try:
-                lead_faculty = form[lead_faculty_l]
-                lead_faculty = True
-            except:
-                lead_faculty = False
-            try:
-                job_title = form[job_title_l]
-                if job_title != '':
-                    job_title = True
-            except:
-                job_title = False
-
-            check = (school == 'Bethel University' and job_title) or (
-                (undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty))
+            check = (school == 'Bethel University' and job_title) or \
+                    ((undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty))
             if check:
                 new_jobs_good = True
 
