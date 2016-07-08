@@ -10,7 +10,7 @@ import arrow
 from xml.etree import ElementTree as ET
 from operator import itemgetter
 
-from bu_cascade.asset_tools import update
+from bu_cascade.asset_tools import update, find
 
 # local
 from tinker import app
@@ -255,9 +255,55 @@ class EventsController(TinkerController):
                 app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
                 end = None
 
-            dates.append(self.event_date(start, end, all_day))
+            if all_day:
+                dates.append(
+                        {
+                            'start_date': start,
+                            'end_date': end,
+                            'all_day': '::CONTENT-XML-CHECKBOX::Yes'
+                        }
+                )
+            else:
+                dates.append(
+                    {
+                        'start_date': start,
+                        'end_date': end
+                    }
+                )
 
         return dates
+
+    # todo automated attempt to loop through add_data
+    # def traverse_add_data(self, add_data, structured_data):
+    #     for item in find(structured_data, 'structuredDataNode', False):
+    #         if item['type'] == 'group':
+    #             self.traverse_add_data(add_data, item)
+    #         elif item['type'] == 'text':
+    #             add_data[item['identifier']] = self.escape_wysiwyg_content(add_data[item['identifier'].replace("-", "_")])
+    #
+    # def traverse_add_data(self, add_data):
+    #     for item in add_data:
+    #         if type(add_data[item]) == list:
+    #             if type(add_data[item][0]) == dict:
+    #                 self.traverse_add_data(add_data[item])
+    #             else:
+    #                 add_data[item] = self.escape_wysiwyg_content(add_data[item.replace("-", "_")][0])
+    #         elif item == 'event-dates':
+    #             add_data[item] = add_data[item.replace("-", "_")]
+    #         else:
+    #             add_data[item] = self.escape_wysiwyg_content(add_data[item.replace("-", "_")])
+
+    # def traverse_add_data(self, add_data):
+    #     for item in add_data:
+    #         if type(add_data[item]) == unicode or type(add_data[item]) == str:
+    #             add_data[item] = self.escape_wysiwyg_content(add_data[item.replace("-", "_")])
+    #         elif type(add_data[item]) == list:
+    #             if type(add_data[item]) == dict:
+    #                 self.traverse_add_data(add_data[item])
+    #             else:
+    #                 add_data[item] = add_data[item.replace("-", "_")]
+    #         else:
+    #             add_data[item] = add_data[item.replace("-", "_")]
 
     def get_event_structure(self, event_data, metadata, structured_data, add_data, username, workflow=None, event_id=None):
         """
@@ -275,8 +321,7 @@ class EventsController(TinkerController):
         else:
             image_node = None
 
-        # for key in structured_data:
-        #     add_data[key.replace("_", "-")] = add_data[key]
+        # self.traverse_add_data(add_data)
         # Create a list of all the data nodes
         add_data['main-content'] = self.escape_wysiwyg_content(add_data['main_content'])
         add_data['questions'] = self.escape_wysiwyg_content(add_data['questions'])
@@ -651,3 +696,22 @@ class EventsController(TinkerController):
         """
 
         return response
+
+    def test_bu_cascade(self):
+        page = self.read_page('a7ee2eda8c58651305d7929947e3efff')
+        asset, metadata, structured_data = page.get_asset()
+
+        print asset
+
+        for key in structured_data['structuredDataNodes']['structuredDataNode']:
+            if key['type'] == 'group':
+                for key1 in key['structuredDataNodes']['structuredDataNode']:
+                    key1['text'] = self.escape_wysiwyg_content(key1['text'])
+            elif key['type'] == 'text':
+                key['text'] = self.escape_wysiwyg_content(key['text'])
+            else:
+                break
+
+        self.update_asset(asset, structured_data)
+
+        return asset

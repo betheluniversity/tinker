@@ -76,6 +76,8 @@ class EventsView(FlaskView):
     @route("/submit/<edit>", methods=['post'])
     @route("/submit", methods=['post'])
     def submit_form(self, edit=False):
+        # todo test for tim delete later
+        # self.base.test_bu_cascade()
         rform = request.form
         username = session['username']
         workflow = None
