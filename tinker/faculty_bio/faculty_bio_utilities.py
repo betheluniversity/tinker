@@ -126,7 +126,13 @@ class FacultyBioController(TinkerController):
         new_job_titles = []
 
         # format the dates
-        for i in range(1, 200):
+        for key in add_data:
+            if key.startswith('schools'):
+                schools = add_data[key]
+                i = key.split('schools')[1]
+            else:
+                continue
+
             undergrad = None
             adult_undergrad = None
             graduate = None
@@ -136,13 +142,6 @@ class FacultyBioController(TinkerController):
             program_director = None
             lead_faculty = None
             new_job_title = None
-
-            i = str(i)
-            try:
-                schools = add_data['schools' + i]
-            except KeyError:
-                # This will break once we run out of new job titles
-                break
 
             if 'undergrad' + i in add_data:
                 undergrad = add_data['undergrad' + i]
