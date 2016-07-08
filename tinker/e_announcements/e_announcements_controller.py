@@ -91,43 +91,14 @@ class EAnnouncementsController(TinkerController):
         }
         return page_values
 
-    # dates are set to readonly if they occur before today
-    def set_readonly_values(self, edit_data):
-
-        today = datetime.datetime.now()
-        first_readonly = False
-        second_readonly = False
-        if edit_data['first_date'] < today:
-            first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
-        if 'second_date' in edit_data and edit_data['second_date'] and edit_data['second_date'] < today:
-            second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
-
-        edit_data['first_readonly'] = first_readonly
-        edit_data['second_readonly'] = second_readonly
-
-    def get_e_announcement_parent_folder(self, date):
-        # break the date into Year/month
-        split_date = date.split("-")
-        month = self.convert_month_num_to_name(split_date[0])
-        year = split_date[2]
-
-        self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year, 'folder')
-        self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year + "/" + month, 'folder')
-
-        return "/e-announcements/" + year + "/" + month
-
-    # todo test
     def validate_form(self, rform):
-
         from forms import EAnnouncementsForm
         form = EAnnouncementsForm()
 
-        # todo move to TinkerBase?
         if not form.validate_on_submit():
             if 'e_announcement_id' in rform.keys():
                 e_announcement_id = rform['e_announcement_id']
             else:
-                # todo: can we do the new_form another way?
                 new_form = True
             # bring in the mapping
             brm = self.brm
@@ -173,3 +144,28 @@ class EAnnouncementsController(TinkerController):
             self.move(e_announcement_id, add_data['parentFolderPath'], type='block')
 
         return e_announcement_data
+
+    # dates are set to readonly if they occur before today
+    def set_readonly_values(self, edit_data):
+
+        today = datetime.datetime.now()
+        first_readonly = False
+        second_readonly = False
+        if edit_data['first_date'] < today:
+            first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
+        if 'second_date' in edit_data and edit_data['second_date'] and edit_data['second_date'] < today:
+            second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
+
+        edit_data['first_readonly'] = first_readonly
+        edit_data['second_readonly'] = second_readonly
+
+    def get_e_announcement_parent_folder(self, date):
+        # break the date into Year/month
+        split_date = date.split("-")
+        month = self.convert_month_num_to_name(split_date[0])
+        year = split_date[2]
+
+        self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year, 'folder')
+        self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year + "/" + month, 'folder')
+
+        return "/e-announcements/" + year + "/" + month
