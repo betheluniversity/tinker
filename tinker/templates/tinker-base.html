@@ -1,4 +1,4 @@
-{% extends "foundation_base.html" %}
+{% extends "creativeTim_base.html" %}
 {% import 'nav.html' as nav %}
 
 {% block styles %}
@@ -92,6 +92,21 @@
 
 
   {% block endbody %}
+
+          <!--   Core JS Files   -->
+    <script src="static/assets/js/jquery-1.10.2.js" type="text/javascript"></script>
+	<script src="static/assets/js/bootstrap.min.js" type="text/javascript"></script>
+
+	<!--  Checkbox, Radio & Switch Plugins -->
+	<script src="static/assets/js/bootstrap-checkbox-radio.js"></script>
+
+	<!--  Charts Plugin -->
+	<script src="static/assets/js/chartist.min.js"></script>
+
+    <!--  Notifications Plugin    -->
+    <script src="static/assets/js/bootstrap-notify.js"></script>
+
+
       <script type="text/javascript">
   $( document ).ready(function() {
       if (typeof(CKEDITOR) != "undefined") {
