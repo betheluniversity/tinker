@@ -340,7 +340,7 @@ class EventsController(TinkerController):
         add_data['wufoo-code'] = add_data['wufoo_code']
         add_data['image'] = image_node
 
-        # self.update_asset(structured_data, add_data)
+        self.update_asset(structured_data, add_data)
 
         # Add the dates at the end of the data
         # structured_data.extend(add_data['event-dates'])
@@ -373,7 +373,7 @@ class EventsController(TinkerController):
         add_data['hide-site-nav'] = [hide_site_nav]
         add_data['tinker-edits'] = 1
 
-        # self.update_asset(metadata, add_data)
+        self.update_asset(metadata, add_data)
 
         # create the dynamic metadata dict
         # dynamic_fields = {
@@ -557,6 +557,8 @@ class EventsController(TinkerController):
         # for date in node_data:
         #     date_data[date] = date['str']
         # If there is no date, these will fail
+        if type(date['start-date']) == str or type(date['end-date']) == str:
+            return date
         try:
             date['start-date'] = self.java_unix_to_date(date['start-date'])
         except TypeError:

@@ -120,11 +120,11 @@ class EventsView(FlaskView):
                 response = self.base.move_event_year(event_id, add_data)
                 app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(response))
 
-        # Checks if the link is valid
-        if 'link' in add_data and add_data['link'] != "":
-            from tinker.admin.redirects import new_internal_redirect_submit
-            path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
-            new_internal_redirect_submit(path, add_data['link'])
+        # # Checks if the link is valid
+        # if 'link' in add_data and add_data['link'] != "":
+        #     from tinker.admin.redirects import new_internal_redirect_submit
+        #     path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
+        #     new_internal_redirect_submit(path, add_data['link'])
 
         return redirect(url_for('events.EventsView:confirm'), code=302)
 
