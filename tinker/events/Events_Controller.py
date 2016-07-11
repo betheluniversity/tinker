@@ -258,16 +258,16 @@ class EventsController(TinkerController):
             if all_day:
                 dates.append(
                         {
-                            'start_date': start,
-                            'end_date': end,
-                            'all_day': '::CONTENT-XML-CHECKBOX::Yes'
+                            'start-date': start,
+                            'end-date': end,
+                            'all-day': '::CONTENT-XML-CHECKBOX::Yes'
                         }
                 )
             else:
                 dates.append(
                     {
-                        'start_date': start,
-                        'end_date': end
+                        'start-date': start,
+                        'end-date': end
                     }
                 )
 
@@ -338,29 +338,42 @@ class EventsController(TinkerController):
         add_data['location'] = add_data['location']
         add_data['featuring'] = add_data['featuring']
         add_data['wufoo-code'] = add_data['wufoo_code']
+        add_data['image'] = image_node
 
-        self.update_asset(structured_data, add_data)
+        # self.update_asset(structured_data, add_data)
 
-        structured_data.extend(image_node)
         # Add the dates at the end of the data
-        structured_data.extend(add_data['event-dates'])
+        # structured_data.extend(add_data['event-dates'])
 
         # Wrap in the required structure for SOAP
-        structured_data = {
-            'structuredDataNodes': {
-                'structuredDataNode': structured_data,
-            }
-        }
+        # structured_data = {
+        #     'structuredDataNodes': {
+        #         'structuredDataNode': structured_data,
+        #     }
+        # }
 
         # put it all into the final asset with the rest of the SOAP structure
         hide_site_nav, parent_folder_path = self.get_event_folder_path(add_data)
 
-        # keys that are very similar in implemenation
-        for key in metadata['dynamic_fields']:
-            add_data[key] = add_data[key.replace("-", "_")]
+        # todo automated attempt to loop through add_data
+        # # keys that are very similar in implemenation
+        # for key in metadata['dynamic_fields']:
+        #     add_data[key] = add_data[key.replace("-", "_")]
+        #
+        # add_data['hide-site-nav'] = [hide_site_nav]
+        # add_data['tinker-edits'] = 1
 
+        add_data['general'] = add_data['general']
+        add_data['offices'] = add_data['offices']
+        add_data['cas-departments'] = add_data['cas_departments']
+        add_data['graduate-program'] = add_data['graduate_program']
+        add_data['adult-undergrad-program'] = add_data['adult_undergrad_program']
+        add_data['seminary-program'] = add_data['seminary_program']
+        add_data['internal'] = add_data['internal']
         add_data['hide-site-nav'] = [hide_site_nav]
         add_data['tinker-edits'] = 1
+
+        # self.update_asset(metadata, add_data)
 
         # create the dynamic metadata dict
         # dynamic_fields = {
@@ -518,7 +531,7 @@ class EventsController(TinkerController):
 
         max_year = 0
         for node in dates:
-            date_data = self.read_date_data_dict(node[0])
+            date_data = self.read_date_data_dict(node)
             end_date = self.string_to_datetime(date_data['end-date'])
             try:
                 year = end_date.year
@@ -530,7 +543,7 @@ class EventsController(TinkerController):
 
         return max_year
 
-    # just duplicate a bunch for now
+    # just duplicate a bunch for now]
     def string_to_datetime(self, date_str):
 
         try:
@@ -538,22 +551,22 @@ class EventsController(TinkerController):
         except TypeError:
             return None
 
-    def read_date_data_dict(self, node):
-        node_data = node['structuredDataNodes']['structuredDataNode']
-        date_data = {}
-        for date in node_data:
-            date_data[date['identifier']] = date['text']
+    def read_date_data_dict(self, date):
+        # date_data = {}
+        # node_data = node
+        # for date in node_data:
+        #     date_data[date] = date['str']
         # If there is no date, these will fail
         try:
-            date_data['start-date'] = self.java_unix_to_date(date_data['start-date'])
+            date['start-date'] = self.java_unix_to_date(date['start-date'])
         except TypeError:
             pass
         try:
-            date_data['end-date'] = self.java_unix_to_date(date_data['end-date'])
+            date['end-date'] = self.java_unix_to_date(date['end-date'])
         except TypeError:
             pass
 
-        return date_data
+        return date
 
     def read_date_data_structure(self, node):
         node_data = node['structuredDataNodes']['structuredDataNode']
