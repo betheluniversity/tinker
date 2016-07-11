@@ -615,7 +615,7 @@ hr {
 .btn-group .btn + .btn-group,
 .btn-group .btn-group + .btn,
 .btn-group .btn-group + .btn-group {
-  margin-left: -2px;
+  margin-left: 4px;
 }
 
 .navbar .navbar-nav > li > a.btn-primary, .btn-primary {
@@ -936,7 +936,7 @@ hr {
 .btn-group.select .caret {
   position: absolute;
   top: 50%;
-  margin-top: -1px;
+  margin-top: 3px;
   right: 8px;
 }
 
@@ -1009,7 +1009,7 @@ hr {
 .form-control + .form-control-feedback {
   border-radius: 6px;
   font-size: 14px;
-  margin-top: -7px;
+  margin-top: 7px;
   position: absolute;
   right: 10px;
   top: 50%;
@@ -1121,7 +1121,7 @@ hr {
 }
 
 .input-group-btn:last-child > .btn {
-  margin-left: 0;
+  margin-left: 5;
 }
 
 textarea.form-control {
