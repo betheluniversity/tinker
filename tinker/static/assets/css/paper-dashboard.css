@@ -668,11 +668,7 @@ hr {
 .btn-group .btn + .btn-group,
 .btn-group .btn-group + .btn,
 .btn-group .btn-group + .btn-group {
-<<<<<<< HEAD
     margin-left: -2px;
-=======
-  margin-left: 4px;
->>>>>>> origin/creativeTim
 }
 
 .navbar .navbar-nav > li > a.btn-primary, .btn-primary {
@@ -1054,17 +1050,10 @@ hr {
 }
 
 .btn-group.select .caret {
-<<<<<<< HEAD
     position: absolute;
     top: 50%;
     margin-top: -1px;
     right: 8px;
-=======
-  position: absolute;
-  top: 50%;
-  margin-top: 3px;
-  right: 8px;
->>>>>>> origin/creativeTim
 }
 
 .form-control::-moz-placeholder {
@@ -1143,7 +1132,6 @@ hr {
 }
 
 .form-control + .form-control-feedback {
-<<<<<<< HEAD
     border-radius: 6px;
     font-size: 14px;
     margin-top: -7px;
@@ -1151,15 +1139,6 @@ hr {
     right: 10px;
     top: 50%;
     vertical-align: middle;
-=======
-  border-radius: 6px;
-  font-size: 14px;
-  margin-top: 7px;
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  vertical-align: middle;
->>>>>>> origin/creativeTim
 }
 
 .form-control.border-input {
@@ -1273,11 +1252,7 @@ hr {
 }
 
 .input-group-btn:last-child > .btn {
-<<<<<<< HEAD
     margin-left: 0;
-=======
-  margin-left: 5;
->>>>>>> origin/creativeTim
 }
 
 textarea.form-control {
