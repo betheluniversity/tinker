@@ -15,39 +15,39 @@
                 <ul class="nav navbar-nav navbar-right">
                     <li>
                         {% if request.path == '/' %}
-                            <li><a href="/" class="btn button-nav active">Home</a></li>
+                            <li><a href="/" class="btn button-nav active btn-info">Home</a></li>
                         {% else %}
-                            <li><a href="/" class="btn button-nav">Home</a></li>
+                            <li><a href="/" class="btn button-nav btn-info">Home</a></li>
                         {% endif %}
 
                     </li>
                     <li>
                         {% if '/event/' in request.path %}
-                            <li><a href="/event" class="btn button-nav active">Events</a></li>
+                            <li><a href="/event" class="btn button-nav active btn-info">Events</a></li>
                         {% else %}
-                            <li><a href="/event" class="btn button-nav">Events</a></li>
+                            <li><a href="/event" class="btn button-nav btn-info">Events</a></li>
                         {% endif %}
                     </li>
                     <li>
                         {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
                             {% if '/faculty-bio' in request.path %}
-                                <li><a href="/faculty-bio" class="btn button-nav active">Faculty Bios</a></li>
+                                <li><a href="/faculty-bio" class="btn button-nav active btn-info">Faculty Bios</a></li>
                             {% else %}
-                                <li><a href="/faculty-bio" class="btn button-nav">Faculty Bios</a></li>
+                                <li><a href="/faculty-bio" class="btn button-nav btn-info">Faculty Bios</a></li>
                             {% endif %}
                         {% endif %}
                     </li>
                     <li>
                         {% if '/e-announcement/' in request.path %}
-                            <li><a href="/e-announcement" class="btn button-nav active">E-Announcements</a></li>
+                            <li><a href="/e-announcement" class="btn button-nav active btn-info">E-Announcements</a></li>
                         {% else %}
-                            <li><a href="/e-announcement" class="btn button-nav">E-Announcements</a></li>
+                            <li><a href="/e-announcement" class="btn button-nav btn-info">E-Announcements</a></li>
                         {% endif %}
 
                     </li>
                     <li>
                         {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
-                            <li><a href="#" class="button button-nav" data-dropdown="drop">Admin Menu &raquo;</a>
+                            <li><a href="#" class="button button-nav btn-info" data-dropdown="drop">Admin Menu &raquo;</a>
                                 <ul id="drop" class="large f-dropdown" data-dropdown-content>
                                     {% if 'Administrators' in session['groups'] %}
                                         <li><a href="/admin/publish-manager" class="button-nav">Publisher</a></li>

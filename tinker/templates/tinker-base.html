@@ -49,7 +49,7 @@
       <div id="nav" class="nav-bar right">
         {{ nav.nav() }}
       </div>
-      <h1 id="page-title">{% block page_title %}Bethel University Tinker{% endblock %}</h1>
+      <h1 class="title">{% block page_title %}Bethel University Tinker{% endblock %}</h1>
       <hr />
     </div>
   </div>
@@ -57,37 +57,37 @@
   <div class="row">
 
             <!-- Main Blog Content -->
-            <div class="large-{% block row_width %}10{% endblock %} columns" role="content">
+            <div class="main-panel">
 
                   {% block main_content %}
                   {% endblock %}
             </div>
 
             <!-- End Main Content -->
-
-
-            <!-- Sidebar -->
-
-
-
-            <!-- End Sidebar -->
           </div>
 
           <!-- End Main Content and Sidebar -->
 
 
           <!-- Footer -->
-
-          <footer class="row">
-            <div class="large-12 columns">
-              <hr />
-              <div class="row">
-                <div class="large-6 columns">
-                  <p>&copy; Bethel University -- <a href="/about">About</a></p>
+            <footer class="footer">
+            <div class="container-fluid">
+				<div class="copyright pull-right">
+                     <p>&copy; Bethel University -- <a href="/about">About</a></p>
                 </div>
-              </div>
             </div>
-          </footer>
+        </footer>
+
+{#          <footer class="row">#}
+{#            <div class="large-12 columns">#}
+{#              <hr />#}
+{#              <div class="row">#}
+{#                <div class="large-6 columns">#}
+{#                  <p>&copy; Bethel University -- <a href="/about">About</a></p>#}
+{#                </div>#}
+{#              </div>#}
+{#            </div>#}
+{#          </footer>#}
     {% endblock %}
 
 
