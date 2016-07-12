@@ -18,7 +18,7 @@ from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
 from bu_cascade import asset_tools
-from bu_cascade.asset_tools import update
+from bu_cascade.asset_tools import update, find
 
 from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
@@ -270,33 +270,32 @@ class TinkerController(object):
             # Cascade includes this, for whatever reason.
             return node['text'].replace('&amp;#160;', ' ')
 
-    def get_edit_data(self, asset_data):
+    def get_edit_data(self, sdata, mdata, multiple=[]):
+        """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
         edit_data = {}
 
-        try:
-            form_data = asset_data['xhtmlDataDefinitionBlock']
-        except:
-            form_data = asset_data['page']
+        dynamic_fields = find(mdata, 'fieldValues')
 
-        # the stuff from the data def
-        s_data = form_data['structuredData']['structuredDataNodes']['structuredDataNode']
-        # regular metadata
-        metadata = form_data['metadata']
-        # dynamic metadata
-        dynamic_fields = metadata['dynamicFields']['dynamicField']
+        for m in multiple:
+            nodes = find(sdata, m)
+            edit_data[m] = []
+            for node in nodes:
+                edit_data[m].append(self.inspect_sdata_node(node))
 
-        for node in s_data:
+        for node in find(sdata, 'identifier'):
+            if node['identifier'] in multiple:
+                continue
             node_identifier = node['identifier'].replace('-', '_')
             edit_data[node_identifier] = self.inspect_sdata_node(node)
 
         # now metadata dynamic fields
         for field in dynamic_fields:
-            if field['fieldValues']:
-                items = [item.get('value') for item in field['fieldValues']['fieldValue']]
+            if find(field, 'fieldValue'):
+                items = [find(item, 'value') for item in find(field, 'fieldValue')]
                 edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = metadata['title']
+        edit_data['title'] = mdata['title']
 
         return edit_data
 

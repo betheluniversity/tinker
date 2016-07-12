@@ -27,10 +27,6 @@ class OfficeHoursView(FlaskView):
     def post(self):
         rform = request.form
 
-        failed = self.base.validate_form(rform)
-        if failed:
-            return failed
-
         block_id = rform.get('block_id')
 
         block = self.base.read_block(block_id)
@@ -54,18 +50,22 @@ class OfficeHoursView(FlaskView):
 
     def edit(self, block_id):
 
-        edit_data, mdata, sdata = self.base.load_office_hours_block(block_id=block_id)
-        standard_edit_data, m, s = self.base.load_office_hours_block()
+        edit_data, sdata, mdata = self.base.load_office_hours_block(block_id=block_id)
+        standard_edit_data, s, m = self.base.load_office_hours_block()
+        #
+        # exceptions_new = {}
+        # for key, value in edit_data['exceptions'].iteritems():
+        #     if not value:
+        #         edit_data['exceptions'][key] = ''
+        #
+        #     edit_data['exception_'+key] = edit_data['exceptions'][key]
+            # exceptions_new[key] = edit_data['exceptions'][key]
 
-        exceptions_new = {}
-        for key, value in edit_data['exceptions'].iteritems():
-            if not value:
-                edit_data['exceptions'][key] = ''
+        # edit_data['exceptions'] = exceptions_new
 
-            exceptions_new['exceptions_'+key] = edit_data['exceptions'][key]
-            exceptions_new[key] = edit_data['exceptions'][key]
-
-        edit_data['exceptions'] = exceptions_new
+        edit_data['next_start_date'] = edit_data['next_start_date'].strftime('%m/%d/%Y')
+        for e in edit_data['exceptions']:
+            e['date'] = e['date'].strftime('%m/%d/%Y')
 
         form = OfficeHoursForm(**edit_data)
 

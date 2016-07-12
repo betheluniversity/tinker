@@ -16,10 +16,11 @@
 {% endblock %}
 
 {% macro CheckFieldLabel(field) -%}
-
-    {% if field.label.text != '' and field.type not in ['TimeCloseField', 'FormField', 'CSRFTokenField'] and not field.hidden %}
+    {% if 'close' in field.name %}
+{#    {% elif '_open' in field.name %}#}
+    {% elif field.label.text != '' and field.type not in ['FormField', 'CSRFTokenField', 'ExceptionsField'] and not field.hidden %}
         <label for="{{ field.name }}">
-           {{ field.label }}{% if field.flags.required %} * {% endif %}
+           {{ field.label.text }}{% if field.flags.required %} * {% endif %}
          </label>
         {% if field.description != '' %}
             <p>{{ field.description }}</p>
@@ -28,49 +29,25 @@
 
 {%  endmacro %}
 
-{#{% macro HoursGroup(f) -%}#}
-{#    <fieldset>#}
-{#        <legend>{{ f.name.capitalize() }}</legend>#}
-{#        {% for field in f.form %}#}
-{#            {% set name = field.name.replace('-', '_') %}#}
-{#            {% if field.type == "TimeOpenField" %}#}
-{#                <div id="timeRange" class="timeRange" stlye="float:left">#}
-{#                    {{ CheckFieldLabel(field) }}#}
-{#                    <input type="text" name="{{ field.name }}" class="time start" size="4" value="{{ edit_data[f.name][name] }}"/> to#}
-{#            {% elif field.type == "TimeCloseField" %}#}
-{#                    {{ CheckFieldLabel(field) }}#}
-{#                    <input type="text" name="{{ field.name }}" class="time end" size="4" value="{{ edit_data[f.name][name] }}"/>#}
-{#                </div>#}
-{#            {% elif name in ['next_start_date', 'exceptions_date'] %}#}
-{#                {% if field.name in ['next-start_date', 'exceptions-date'] %}#}
-{#                    {{ CheckFieldLabel(field) }}#}
-{#                    <input type="date" name="{{ field.name }}" value="{{ edit_data[f.name][name].strftime('%Y-%m-%d') }}" />#}
-{#                    <a href="javascript:void(0);" id="add_date_button" class="button tiny">Add Another Date</a>#}
-{#                    <a href="javascript:void(0);" id="remove_date_button" class="button tiny alert">Remove Date</a>#}
-{#                {% endif %}#}
-{#            {% elif name in ['next_closed_for_chapel'] %}#}
-{#                <label for="next-closed_for_chapel">#}
-{#                    <label for="next-closed_for_chapel">Office closed for chapel</label>#}
-{#                </label>#}
-{#                {% set val = edit_data[f.name][name] %}#}
-{#                <ul id="next-closed_for_chapel">#}
-{#                    <li>#}
-{#                        <input id="next-closed_for_chapel-0" name="next-closed_for_chapel" type="radio" value="Yes" {% if val == 'Yes' %}checked="checked"{% endif %}>#}
-{#                        <label for="next-closed_for_chapel-0">Yes</label>#}
-{#                    </li>#}
-{#                    <li>#}
-{#                        <input id="next-closed_for_chapel-1" name="next-closed_for_chapel" type="radio" value="No" {% if val == 'No' %}checked="checked"{% endif %}>#}
-{#                        <label for="next-closed_for_chapel-1">No</label>#}
-{#                    </li>#}
-{#                </ul>#}
-{#            {% else %}#}
-{##}
-{#                {{ CheckFieldLabel(field) }}#}
-{#                {{ field() }}#}
-{#            {% endif %}#}
-{#        {% endfor %}#}
-{#    </fieldset>#}
-{#{% endmacro %}#}
+{% macro ExceptionsFeildset() -%}
+
+    <fieldset class="exceptions-fieldset">
+        <legend>Exception 1</legend>
+            <label for="exception_date">
+               Exception Date
+             </label>
+            <input class="datepicker" id="date1" name="date1" type="text" value="">
+            <label for="exception_open1">
+               Open *
+             </label>
+                <div class="large-12 columns timeRange">
+                    <input class="time start ui-timepicker-input" id="open1" name="open1" type="text" value="" autocomplete="off">
+                    - <input class="time end ui-timepicker-input" id="close1" name="close1" type="text" value="" autocomplete="off">
+                </div>
+    </fieldset>
+    <a href="javascript:void(0);" id="add_exception_button" class="button tiny">Add Another Exception</a>
+
+{% endmacro %}
 
 {% macro current_hours(current, show_chapel=True) -%}
     {% set days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] %}
@@ -115,6 +92,7 @@
 
         {{ form.hidden_tag() }}
         {% for field in form if field.widget.input_type != 'hidden' %}
+            {{ CheckFieldLabel(field) }}
 
             {% for error in form.errors[field.name] %}
                 <div class="alert alert-error">
@@ -127,11 +105,31 @@
 
             {% if field.type == 'FormField' %}
                 <div class="large-6 columns">
-                    {{ HoursGroup(field) }}
+                    {{ ExceptionForm(field) }}
                 </div>
+
+            {% elif field.type == 'StringField' %}
+                {% if 'open' in field.name %}
+                    <div class="large-12 columns timeRange">
+                    {{ field(class='time start') }}
+                {% elif 'close' in field.name %}
+                    - {{ field(class='time end') }}
+                    </div>
+                {% else %}
+                    {{ field(class='datepicker') }}
+                {% endif %}
+
+            {% elif field.type == 'NextOpenField' %}
+                <fieldset>
+                    <legend>Next</legend>
+
+            {% elif field.type == 'NextCloseField' %}
+                </fieldset>
+
+            {% elif field.type == 'ExceptionsField' %}
+                {{ ExceptionsFeildset() }}
+
             {% else %}
-              {{ CheckFieldLabel(field) }}
-              {{ field.value }}
               {{ field() }}
             {% endif %}
         {% endfor %}
@@ -149,23 +147,96 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datepair.js/0.4.14/jquery.datepair.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css">
+{#    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/css/bootstrap-datepicker.standalone.css">#}
 
 
     <script type="text/javascript">
-        $(document).ready(function(){
-            $('.timeRange .time').timepicker({
+
+        function dateTimePickers(){
+            $('.time').timepicker({
                 'minTime': '6:00am',
                 'maxTime': '8:00pm',
                 'timeFormat': 'h:i a'
             });
             $('.timeRange').datepair({
-                'defaultTimeDelta': null
+                'defaultTimeDelta': 32400000
             });
+            $('.datepicker').datepicker({
+                format: 'mm/dd/yyyy'
+            });
+        }
+
+        $(document).ready(function(){
+            dateTimePickers();
         });
     </script>
 
     <script type="text/javascript">
+
+        function populateFieldset(id, exception){
+            var dateid = '#date' + id;
+            var openid = '#open' + id;
+            var closeid = '#close' + id;
+            $(dateid).val(exception['date']);
+            $(openid).val(exception['open']);
+            $(closeid).val(exception['close']);
+        }
+
+        function newFieldset(id){
+                var date = 'date' + id;
+                var open = 'open' + id;
+                var close = 'close' + id;
+                var node = $('<fieldset>').addClass('exceptions-fieldset');
+                node.append($("<legend>").html("Exception " + id));
+
+                node.append($("<label>").attr('date', date).html("Exception Date"));
+                node.append($("<input type='text'>").attr('name', date).attr('id', date).addClass("datepicker"));
+
+                var div = $("<div>").addClass('timeRange');
+                div.append($("<label>").attr('for', open).html("Open"));
+
+                div.append($("<input type='text'>").attr('name', open).attr('id', open).addClass("time start"));
+                div.append(" - ");
+                div.append($("<input type='text'>").attr('name', close).attr('id', close).addClass("time end"));
+
+                node.append(div);
+
+                return node;
+         }
+
+
         $(document).ready(function(){
+
+            {% if edit_data['exceptions'] %}
+                var exceptions = {{ edit_data['exceptions']|safe }};
+                var i = 0;
+                while (i < 200){
+
+                    exception = exceptions[i];
+                    if (!exception){
+                      break;
+                    }
+                    //Convert to correct value
+                    id = i + 1;
+
+                    //If this is not the first node, create it before we can populate it and insert after the last one.
+                    //show the remove buton
+                    if(i != 0){
+                      var last = $(".exceptions-fieldset").last();
+                      var new_exception = newFieldset(id);
+                      new_exception.insertAfter(last);
+                      $("#remove_exception_button").show();
+                    }
+
+                    populateFieldset(id, exception);
+
+                    i++;
+
+                }
+{#                //dateTimePickers();#}
+
+            {% endif %}
+
 
         });
 

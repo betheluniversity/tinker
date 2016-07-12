@@ -31,41 +31,18 @@ class OfficeHoursController(TinkerController):
         author = session['username']
         return self._iterate_child_xml(child, author)
 
-    def validate_form(self, rform):
-
-        from forms import OfficeHoursForm
-        form = OfficeHoursForm()
-
-        # todo move to TinkerBase?
-        if not form.validate_on_submit():
-            edit_data, mdata, sdata = self.load_office_hours_block(block_id=rform.get('block_id'))
-            standard_edit_data, m, s = self.load_office_hours_block()
-
-            for key, value in edit_data['next'].iteritems():
-                if not value:
-                    edit_data['next'][key] = ''
-
-            exceptions_new = {}
-            for key, value in edit_data['exceptions'].iteritems():
-                if not value:
-                    edit_data['exceptions'][key] = ''
-
-                exceptions_new['exceptions_' + key] = edit_data['exceptions'][key]
-                exceptions_new[key] = edit_data['exceptions'][key]
-
-            edit_data['exceptions'] = exceptions_new
-
-            return render_template('office-hours-form.html', **locals())
-
     def load_office_hours_block(self, block_id=None):
 
+        multiple = ['exceptions']
         if not block_id:
             block_id = app.config['OFFICE_HOURS_STANDARD_BLOCK']
+            multiple = []
 
         block = self.read_block(block_id)
         data, mdata, sdata = block.read_asset()
-        edit_data = self.get_edit_data(data)
-        return edit_data, mdata, sdata
+
+        edit_data = self.get_edit_data(sdata, mdata,  multiple=multiple)
+        return edit_data, sdata, mdata
 
     def get_add_data(self, lists, form):
 
@@ -78,17 +55,18 @@ class OfficeHoursController(TinkerController):
             if not value:
                 continue
 
-            if 'open' in key or 'close' in key and key not in ['next-closed_for_chapel']:
+            if 'open' in key or 'close' in key and key not in ['next_closed_for_chapel']:
                 value = self.date_to_java_unix(value)
 
             if 'date' in key:
                 # form is returning default format even though it was overridden.
                 # so, translate to date and then back into Cascade format.
-                date = datetime.datetime.strptime(value, '%Y-%m-%d')
+                date = datetime.datetime.strptime(value, '%m/%d/%Y')
                 value = date.strftime('%m-%d-%Y')
 
             key = key.replace('-', '_')
 
+            # todo is this needed?
             if 'exceptions' in key:
 
                 key = key.split('exceptions_')[1]
@@ -110,7 +88,7 @@ class OfficeHoursController(TinkerController):
 
         from copy import deepcopy
 
-        add_data['exceptions'].append(deepcopy(add_data['exceptions'][0]))
+        # add_data['exceptions'].append(deepcopy(add_data['exceptions'][0]))
         # add_data['exceptions'].append(add_data['exceptions'][0])
         # add_data['exceptions'].append(add_data['exceptions'][0])
 
