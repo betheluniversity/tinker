@@ -1,3 +1,6 @@
+import os
+_basedir = os.path.abspath(os.path.dirname(__file__))
+
 REDIRECT_FILE_PATH = ""
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(_basedir, 'app.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(_basedir, 'db_repository')

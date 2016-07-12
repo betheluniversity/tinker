@@ -17,13 +17,16 @@ from flask import Response
 from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
-from bu_cascade import asset_tools
-from bu_cascade.asset_tools import update
+from bu_cascade.asset_tools import *
 
 from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
 from tinker import app
 from tinker import sentry
+
+from BeautifulSoup import BeautifulStoneSoup
+import cgi
+
 
 def should_be_able_to_edit_image(roles):
     if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
@@ -45,6 +48,7 @@ def authenticate():
     'Could not verify your access level for that URL.\n'
     'You have to login with proper credentials', 401,
     {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
 
 def requires_auth(f):
     @wraps(f)
@@ -136,7 +140,6 @@ class TinkerController(object):
             # from tinker.tinker_controller import TinkerController
             # base = TinkerController()
 
-
             if not username:
                 username = session['username']
             try:
@@ -157,15 +160,6 @@ class TinkerController(object):
             ret = []
             for key in roles.keys():
                 ret.append(roles[key]['userRole'])
-
-            # Manually give 'faculty' privileges.
-            # todo lets move this to a cascade group
-            # if username == 'ejc84332':
-            #    ret.append('FACULTY')
-            # if username == 'ces55739':
-            #     ret.append('FACULTY')
-            if username == 'celanna':
-                ret.append('FACULTY')
 
             session['roles'] = ret
 
@@ -241,8 +235,6 @@ class TinkerController(object):
                 if not has_text:
                     continue
                 try:
-                    # todo move
-                    import datetime
                     date = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
                     edit_data[node_identifier] = date
                 except ValueError:
@@ -260,6 +252,25 @@ class TinkerController(object):
         edit_data['title'] = metadata['title']
 
         return edit_data
+
+    def get_add_data(self, lists, form):
+        # A dict to populate with all the interesting data.
+        add_data = {}
+
+        for key in form.keys():
+            if key in lists:
+                add_data[key] = form.getlist(key)
+            else:
+                add_data[key] = form[key]
+
+        # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
+        system_name = add_data['title'].lower().replace(' ', '-')
+        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+
+        # add author
+        add_data['author'] = session['username']
+
+        return add_data
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
@@ -295,46 +306,94 @@ class TinkerController(object):
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)
 
-    def format_title(self, title):
-        #todo do we modify titles like this a lot of places?
-        title = title.lower().replace(' ', '-')
-        title = re.sub(r'[^a-zA-Z0-9-]', '', title)
-        return title
-
     def convert_month_num_to_name(self, month_num):
         return datetime.datetime.strptime(month_num, "%m").strftime("%B").lower()
 
-    def create_folder(self, folder_path):
+    def copy(self, old_asset_path, new_path_and_name, asset_type):
+        # add a slash in front of path if it doesn't already have one
+        if new_path_and_name[0] != "/":
+            new_path = "/%s" % new_path_and_name
 
-        if folder_path[0] != "/":
-            folder_path = "/%s" % folder_path
+        old_asset = self.read(new_path_and_name, asset_type)
 
-        old_folder_asset = self.read(folder_path, "folder")
-
-        if old_folder_asset['success'] == 'false':
-            array = folder_path.rsplit("/", 1)
+        if old_asset['success'] == 'false':
+            # gather parent path and name
+            array = new_path_and_name.rsplit("/", 1)
             parent_path = array[0]
             name = array[1]
 
-            asset = {
-                'folder': {
-                    'metadata': {
-                        'title': name
-                    },
-                    'metadataSetPath': "Basic",
-                    'name': name,
-                    'parentFolderPath': parent_path,
-                    'siteName': "Public"
-                }
-            }
-
-            return self.cascade_connector.create(asset)
-        return old_folder_asset
+            response = self.cascade_connector.copy(old_asset_path, asset_type, parent_path, name)
+            app.logger.debug(time.strftime("%c") + ": Copy folder creation by " + session['username'] + " From: " + old_asset_path + " To:" + new_path_and_name + str(response))
+            return response
+        return old_asset
 
     def update_asset(self, asset, data):
-
         for key, value in data.iteritems():
             update(asset, key, value)
 
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow
+
+    def create_workflow(self, workflow_id, subtitle=None):
+        asset = self.read(workflow_id, 'workflowdefinition')
+
+        workflow_name = find(asset, 'name', False)
+        if subtitle:
+            workflow_name += ": " + subtitle
+
+        workflow = {
+            "workflowName": workflow_name,
+            "workflowDefinitionId": workflow_id,
+            "workflowComments": workflow_name
+        }
+        return workflow
+
+    # to be used to escape content to give to Cascade
+    # Excape content so its Cascade WYSIWYG friendly
+    def escape_wysiwyg_content(self, content):
+        if content:
+            uni = self.__html_entities_to_unicode__(content)
+            htmlent = self.__unicode_to_html_entities__(uni)
+            return htmlent
+        else:
+            return None
+
+    def __html_entities_to_unicode__(self, text):
+        """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
+        text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
+        return text
+
+    def __unicode_to_html_entities__(self, text):
+        """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
+        text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
+        return text
+
+    def element_tree_to_html(self, node):
+        return_string = ''
+        for child in node:
+            child_text = ''
+            if child.text:
+                child_text = child.text
+
+            # recursively renders children
+            try:
+                if child.tag == 'a':
+                    return_string += '<%s href="%s">%s%s</%s>' % (
+                        child.tag, child.attrib['href'], child_text, self.element_tree_to_html(child), child.tag)
+                else:
+                    return_string += '<%s>%s%s</%s>' % (
+                        child.tag, child_text, self.element_tree_to_html(child), child.tag)
+            except:
+                # gets the basic text
+                if child_text:
+                    if child.tag == 'a':
+                        return_string += '<%s href="%s">%s</%s>' % (
+                            child.tag, child.attrib['href'], child_text, child.tag)
+                    else:
+                        return_string += '<%s>%s</%s>' % (child.tag, child_text, child.tag)
+
+            # gets the text that follows the children
+            if child.tail:
+                return_string += child.tail
+
+        return return_string
