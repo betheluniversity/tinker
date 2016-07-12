@@ -6,13 +6,12 @@ from flask.ext.classy import FlaskView, route, request
 from e_announcements_controller import EAnnouncementsController
 from campaign_controller import CampaignController
 from tinker import app
-from tinker_controller import requires_auth
+from tinker.tinker_controller import requires_auth
 
 from bu_cascade.asset_tools import *
 from createsend import *
 
 EAnnouncementsBlueprint = Blueprint('e-announcements', __name__, template_folder='templates')
-# TODO: add campaign code
 
 
 class EAnnouncementsView(FlaskView):
@@ -46,7 +45,6 @@ class EAnnouncementsView(FlaskView):
         block = self.base.read_block(e_announcement_id)
         asset, mdata, sdata = block.get_asset()
 
-        # todo: can this be automated more?
         title = find(mdata, 'title', False)
         message = find(sdata, 'message', False)
         first = find(sdata, 'first-date', False)
@@ -138,13 +136,14 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('confirm.html', **locals())
 
-    # todo: test this without sending mass amounts to people
     @route("/create_and_send_campaign/", methods=['get', 'post'])
     @route("/create_campaign/", methods=['get', 'post'])
     @route("/create_campaign/<date>", methods=['get', 'post'])
     @requires_auth
     def create_campaign(self, date=None):
         try:
+            resp = None
+
             if not date:
                 date = datetime.datetime.strptime(datetime.datetime.now().strftime("%m-%d-%Y"), "%m-%d-%Y")
             else:
@@ -159,7 +158,7 @@ class EAnnouncementsView(FlaskView):
 
             submitted_announcements = []
             current_announcement_role_list = []
-            for announcement in self.base.traverse_xml(app.config['E_ANN_URL'], 'system-block')():
+            for announcement in self.base.traverse_xml(app.config['E_ANN_URL'], 'system-block'):
                 date_matches = False
 
                 if announcement['first_date']:
@@ -227,7 +226,7 @@ class EAnnouncementsView(FlaskView):
                 ]
             }
 
-            # Todo: if a campaign already exists, delete the old one and create a new one
+            # Todo: someday ---- if a campaign already exists, delete the old one and create a new one
             resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to,
                                                      list_ids,
                                                      segment_ids, template_id, template_content)
@@ -245,7 +244,7 @@ class EAnnouncementsView(FlaskView):
             return str(resp)
 
         except:
-            self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.")
+            self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.", resp)
 
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)

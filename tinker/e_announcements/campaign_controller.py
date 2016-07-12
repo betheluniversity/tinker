@@ -1,12 +1,11 @@
 import datetime
-
-from flask import session
+from createsend import *
 from flask import render_template
-from tinker import app
 from tinker.tinker_controller import TinkerController
 
 
 class CampaignController(TinkerController):
+    # creates the campaign monitor 'if' structure along with the html
     def create_single_announcement(self, announcement):
         return_value = ''
         count = 1
@@ -25,38 +24,11 @@ class CampaignController(TinkerController):
 
         return return_value
 
+    # builds the html
     def e_announcement_html(self, announcement):
-        element = '''
-            <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center">
-                <tbody>
-                    <tr>
-                        <td class="column" style="padding: 0;text-align: left;vertical-align: top;color: #555;font-size: 14px;line-height: 21px;font-family: Georgia,serif;width: 600px;">
-                            <div style="Margin-left: 20px;Margin-right: 20px;">
-                                <h2 style="Margin-top: 0;Margin-bottom: 16px;font-style: normal;font-weight: normal;color: #555;font-size: 20px;line-height: 28px;font-family: sans-serif;">
-                                    <strong>%s</strong>
-                                </h2>
-                            </div>
-                            <div style="Margin-left: 20px;Margin-right: 20px;">
-                                %s
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            <div style="font-size: 50px;line-height: 60px;mso-line-height-rule: exactly;">&nbsp;</div>
-        ''' % (announcement['title'], announcement['message'])
-
-        return element
-
-    # Gets the template IDs
-    def get_templates_for_client(self, campaign_monitor_key, client_id):
-        for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
-            print template.TemplateID
-
-    # Gets the template IDs
-    def get_segments_for_client(self, campaign_monitor_key, client_id):
-        for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
-            print segment.SegmentID
+        title = announcement['title']
+        message = announcement['message']
+        return render_template('announcement.html', **locals())
 
     # Checks if the date provided is a valid date
     # Valid days are 1) not in the past
@@ -95,3 +67,14 @@ class CampaignController(TinkerController):
             count += 1
 
         return if_block + '[else]%s[endif]' % '<p>There are no E-Announcements for you today.</p>'
+
+    # Not currently used. However, this is helpful to find template IDs
+    def get_templates_for_client(self, campaign_monitor_key, client_id):
+        for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
+            print template.TemplateID
+
+
+    # Not currently used. However, this is helpful to find segment IDs
+    def get_segments_for_client(self, campaign_monitor_key, client_id):
+        for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
+            print segment.SegmentID

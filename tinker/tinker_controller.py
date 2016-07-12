@@ -352,18 +352,48 @@ class TinkerController(object):
     # Excape content so its Cascade WYSIWYG friendly
     def escape_wysiwyg_content(self, content):
         if content:
-            uni = self.html_entities_to_unicode(content)
-            htmlent = self.unicode_to_html_entities(uni)
+            uni = self.__html_entities_to_unicode__(content)
+            htmlent = self.__unicode_to_html_entities__(uni)
             return htmlent
         else:
             return None
 
-    def html_entities_to_unicode(self, text):
+    def __html_entities_to_unicode__(self, text):
         """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
         text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
         return text
 
-    def unicode_to_html_entities(self, text):
+    def __unicode_to_html_entities__(self, text):
         """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
         text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
         return text
+
+    def element_tree_to_html(self, node):
+        return_string = ''
+        for child in node:
+            child_text = ''
+            if child.text:
+                child_text = child.text
+
+            # recursively renders children
+            try:
+                if child.tag == 'a':
+                    return_string += '<%s href="%s">%s%s</%s>' % (
+                        child.tag, child.attrib['href'], child_text, self.element_tree_to_html(child), child.tag)
+                else:
+                    return_string += '<%s>%s%s</%s>' % (
+                        child.tag, child_text, self.element_tree_to_html(child), child.tag)
+            except:
+                # gets the basic text
+                if child_text:
+                    if child.tag == 'a':
+                        return_string += '<%s href="%s">%s</%s>' % (
+                            child.tag, child.attrib['href'], child_text, child.tag)
+                    else:
+                        return_string += '<%s>%s</%s>' % (child.tag, child_text, child.tag)
+
+            # gets the text that follows the children
+            if child.tail:
+                return_string += child.tail
+
+        return return_string

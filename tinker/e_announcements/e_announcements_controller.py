@@ -87,7 +87,8 @@ class EAnnouncementsController(TinkerController):
             'roles': roles,
             'workflow_status': workflow_status,
             'first_date_past': first_date_past,
-            'second_date_past': second_date_past
+            'second_date_past': second_date_past,
+            'message': self.element_tree_to_html(child.find('system-data-structure').find('message')) or None
         }
         return page_values
 
