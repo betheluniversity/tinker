@@ -2,7 +2,6 @@ import time
 from flask.ext.classy import FlaskView, route
 from tinker.events.Events_Controller import EventsController
 from bu_cascade.asset_tools import update
-# from tinker.events.cascade_events import *
 from flask import Blueprint, redirect, session, render_template, request, url_for
 from tinker import app
 from events_metadata import metadata_list

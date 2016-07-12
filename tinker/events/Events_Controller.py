@@ -94,9 +94,9 @@ class EventsController(TinkerController):
 
         return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
 
-    def java_unix_to_date(self, date):
+    def timestamp_to_date_str(self, timestamp_date):
 
-        return datetime.datetime.fromtimestamp(int(date) / 1000).strftime('%B %d  %Y, %I:%M %p')
+        return datetime.datetime.fromtimestamp(int(timestamp_date) / 1000).strftime('%B %d  %Y, %I:%M %p')
 
     def friendly_date_range(self, start, end):
         date_format = "%B %d, %Y %I:%M %p"
@@ -310,16 +310,16 @@ class EventsController(TinkerController):
          Could this be cleaned up at all?
         """
 
-        # Create Image asset
-        if 'image' in add_data.keys() and add_data['image'] is not None and add_data['image'] != "":
-            image_node = {
-                'identifier': "image",
-                'filePath': "/" + add_data['image'],
-                'assetType': "file",
-                'type': "asset"
-            }
-        else:
-            image_node = None
+        # # Create Image asset
+        # if 'image' in add_data.keys() and add_data['image'] is not None and add_data['image'] != "":
+        #     image_node = {
+        #         'identifier': "image",
+        #         'filePath': "/" + add_data['image'],
+        #         'assetType': "file",
+        #         'type': "asset"
+        #     }
+        # else:
+        #     image_node = ""
 
         # self.traverse_add_data(add_data)
         # Create a list of all the data nodes
@@ -338,22 +338,14 @@ class EventsController(TinkerController):
         add_data['location'] = add_data['location']
         add_data['featuring'] = add_data['featuring']
         add_data['wufoo-code'] = add_data['wufoo_code']
-        add_data['image'] = image_node
+        # add_data['image'] = image_node
 
         self.update_asset(structured_data, add_data)
 
-        # Add the dates at the end of the data
-        # structured_data.extend(add_data['event-dates'])
-
-        # Wrap in the required structure for SOAP
-        # structured_data = {
-        #     'structuredDataNodes': {
-        #         'structuredDataNode': structured_data,
-        #     }
-        # }
-
         # put it all into the final asset with the rest of the SOAP structure
         hide_site_nav, parent_folder_path = self.get_event_folder_path(add_data)
+
+        add_data['parent-folder-path'] = parent_folder_path
 
         # todo automated attempt to loop through add_data
         # # keys that are very similar in implemenation
@@ -374,21 +366,6 @@ class EventsController(TinkerController):
         add_data['tinker-edits'] = 1
 
         self.update_asset(metadata, add_data)
-
-        # create the dynamic metadata dict
-        # dynamic_fields = {
-        #     'dynamicField': [
-        #         self.dynamic_field('general', add_data['general']),
-        #         self.dynamic_field('offices', add_data['offices']),
-        #         self.dynamic_field('cas-departments', add_data['cas_departments']),
-        #         self.dynamic_field('graduate-program', add_data['graduate_program']),
-        #         self.dynamic_field('adult-undergrad-program', add_data['adult_undergrad_program']),
-        #         self.dynamic_field('seminary-program', add_data['seminary_program']),
-        #         self.dynamic_field('internal', add_data['internal']),
-        #         self.dynamic_field('hide-site-nav', [hide_site_nav]),
-        #         self.dynamic_field('tinker-edits', '1')
-        #     ],
-        # }
 
         # allows for multiple authors. If none set, default to username
         if 'author' not in add_data or add_data['author'] == "":
@@ -422,25 +399,8 @@ class EventsController(TinkerController):
 
         if event_id:
             add_data['id'] = event_id
-        # if event_id:
-        #     asset['page']['id'] = event_id
 
         return event_data
-
-    def dynamic_field(self, name, values):
-
-        values_list = []
-        for value in values:
-            values_list.append({'value': value})
-
-        node = {
-            'name': name,
-            'fieldValues': {
-                'fieldValue': values_list,
-            },
-        }
-
-        return node
 
     # Returns (content/config path, parent path)
     def get_event_folder_path(self, data):
@@ -502,20 +462,6 @@ class EventsController(TinkerController):
 
         return hide_site_nav, path
 
-    def structured_data_node(self, node_id, text, node_type=None):
-
-        if not node_type:
-            node_type = "text"
-
-        node = {
-
-            'identifier': node_id,
-            'text': text,
-            'type': node_type,
-        }
-
-        return node
-
     def get_current_year_folder(self, event_id):
         # read in te page and find the current year
         asset = self.read(event_id, 'page')
@@ -530,9 +476,8 @@ class EventsController(TinkerController):
         dates = data['event-dates']
 
         max_year = 0
-        for node in dates:
-            date_data = self.read_date_data_dict(node)
-            end_date = self.string_to_datetime(date_data['end-date'])
+        for date in dates:
+            end_date = self.timestamp_to_date_str(date['end-date'])
             try:
                 year = end_date.year
             except AttributeError:
@@ -551,25 +496,6 @@ class EventsController(TinkerController):
         except TypeError:
             return None
 
-    def read_date_data_dict(self, date):
-        # date_data = {}
-        # node_data = node
-        # for date in node_data:
-        #     date_data[date] = date['str']
-        # If there is no date, these will fail
-        if type(date['start-date']) == str or type(date['end-date']) == str:
-            return date
-        try:
-            date['start-date'] = self.java_unix_to_date(date['start-date'])
-        except TypeError:
-            pass
-        try:
-            date['end-date'] = self.java_unix_to_date(date['end-date'])
-        except TypeError:
-            pass
-
-        return date
-
     def read_date_data_structure(self, node):
         node_data = node['structuredDataNodes']['structuredDataNode']
         date_data = {}
@@ -578,15 +504,21 @@ class EventsController(TinkerController):
                 continue
             else:
                 date_data[date['identifier']] = date['text']
+        # if type(find(node, 'start-date')) == str or type(find(node, 'end-date')) == str:
+        #     return date_data
         # If there is no date, these will fail
         try:
-            date_data['start-date'] = self.java_unix_to_date(date_data['start-date'])
+            date_data['start-date'] = self.timestamp_to_date_str(date_data['start-date'])
         except TypeError:
             pass
+        except ValueError:
+            date_data['start-date'] = self.timestamp_to_date_str(int(date_data['start-date']))
         try:
-            date_data['end-date'] = self.java_unix_to_date(date_data['end-date'])
+            date_data['end-date'] = self.timestamp_to_date_str(date_data['end-date'])
         except TypeError:
             pass
+        except ValueError:
+            date_data['start-date'] = self.timestamp_to_date_str(int(date_data['start-date']))
 
         return date_data
 
@@ -649,25 +581,6 @@ class EventsController(TinkerController):
                 matches.append(page_values)
 
         return matches
-
-    def event_date(self, start, end, all_day=False):
-
-        date_list = [
-            self.structured_data_node("start-date", start),
-            self.structured_data_node("end-date", end),
-        ]
-        if all_day:
-            date_list.append(self.structured_data_node("all-day", "::CONTENT-XML-CHECKBOX::Yes"))
-
-        node = {
-            'type': "group",
-            'identifier': "event-dates",
-            'structuredDataNodes': {
-                'structuredDataNode': date_list,
-            },
-        },
-
-        return node
 
     def move_event_year(self, event_id, data):
         new_path = self.get_event_folder_path(data)
