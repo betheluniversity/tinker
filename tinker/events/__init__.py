@@ -59,7 +59,7 @@ class EventsView(FlaskView):
 
         edit_data, form, dates, author = self.base.build_edit_form(event_id)
         # todo convert 'On/Off campus' to 'On/Off Campus' for all events
-        if edit_data['location']:
+        if 'location' in edit_data:
             edit_data['location'].replace(' c', ' C')
 
         return render_template('event-form.html', **locals())
