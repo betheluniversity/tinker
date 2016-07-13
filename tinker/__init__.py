@@ -56,19 +56,18 @@ app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 from tinker.e_announcements import EAnnouncementsBlueprint
 from tinker.admin.cache import CacheBlueprint
 from tinker.admin.new_redirects import RedirectsBlueprint
-app.register_blueprint(EAnnouncementsBlueprint)
-<<<<<<< HEAD
-
 from tinker.office_hours import OfficeHoursBlueprint
+
+app.register_blueprint(EAnnouncementsBlueprint)
+app.register_blueprint(CacheBlueprint)
+app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
 
 csrf = CsrfProtect(app)
 csrf.exempt(redirect_blueprint)
 csrf.exempt(OfficeHoursBlueprint)
-=======
-app.register_blueprint(CacheBlueprint)
-app.register_blueprint(RedirectsBlueprint)
->>>>>>> create-base-view
+
+
 
 # Import error handling
 import error

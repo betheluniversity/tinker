@@ -22,12 +22,9 @@ from flask import Response
 from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
-<<<<<<< HEAD
 from bu_cascade import asset_tools
 from bu_cascade.asset_tools import update, find
-=======
 from bu_cascade.asset_tools import *
->>>>>>> create-base-view
 
 from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
@@ -278,41 +275,10 @@ class TinkerController(object):
         """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
         edit_data = {}
 
-<<<<<<< HEAD
         for node in find(sdata, 'identifier'):
             if node['identifier'] in multiple:
 
                 ## x =  node['identifier']
-=======
-        try:
-            form_data = asset_data['xhtmlDataDefinitionBlock']
-        except:
-            form_data = asset_data['page']
-
-        # the stuff from the data def
-        s_data = form_data['structuredData']['structuredDataNodes']['structuredDataNode']
-        # regular metadata
-        metadata = form_data['metadata']
-        # dynamic metadata
-        dynamic_fields = metadata['dynamicFields']['dynamicField']
-
-        for node in s_data:
-            node_identifier = node['identifier'].replace('-', '_')
-
-            node_type = node['type']
-
-            if node_type == "text":
-                has_text = 'text' in node.keys() and node['text']
-                if not has_text:
-                    continue
-                try:
-                    date = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
-                    edit_data[node_identifier] = date
-                except ValueError:
-                    # A fix to remove the &#160; character from appearing (non-breaking whitespace)
-                    # Cascade includes this, for whatever reason.
-                    edit_data[node_identifier] = node['text'].replace('&amp;#160;', ' ')
->>>>>>> create-base-view
 
                 nodes = find(sdata, node['identifier'])
                 edit_data[node['identifier']] = []
