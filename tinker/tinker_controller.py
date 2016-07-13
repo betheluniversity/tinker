@@ -5,6 +5,11 @@ from functools import wraps
 from xml.etree import ElementTree as ET
 import requests
 import datetime
+import fnmatch
+import hashlib
+import os
+from functools import wraps
+from subprocess import call
 
 # flask
 from flask import request
@@ -17,13 +22,13 @@ from flask import Response
 from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
-from bu_cascade import asset_tools
-from bu_cascade.asset_tools import update
+from bu_cascade.asset_tools import *
 
 from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
 from tinker import app
 from tinker import sentry
+
 
 def should_be_able_to_edit_image(roles):
     if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
@@ -45,6 +50,7 @@ def authenticate():
     'Could not verify your access level for that URL.\n'
     'You have to login with proper credentials', 401,
     {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
 
 def requires_auth(f):
     @wraps(f)
@@ -128,16 +134,13 @@ class TinkerController(object):
             session['name'] = "%s %s" % (fname, lname)
 
         def get_groups_for_user(username=None):
-
-            # temporary
-            from tinker.tinker_controller import TinkerController
             base = TinkerController()
 
             if not username:
                 username = session['username']
             try:
                 user = base.read(username, "user")
-                allowed_groups = user.asset.user.groups
+                allowed_groups = find(user, 'groups', False)
             except AttributeError:
                 allowed_groups = ""
             session['groups'] = allowed_groups
@@ -334,3 +337,34 @@ class TinkerController(object):
 
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow
+
+    def clear_image_cache(self, image_path):
+        # /academics/faculty/images/lundberg-kelsey.jpg"
+        # Make sure image path starts with a slash
+        if not image_path.startswith('/'):
+            image_path = '/%s' % image_path
+
+        resp = []
+
+        for prefix in ['http://www.bethel.edu', 'https://www.bethel.edu',
+                       'http://staging.bethel.edu', 'https://staging.bethel.edu']:
+            path = prefix + image_path
+            digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
+            path = "%s/%s/%s" % (app.config['THUMBOR_STORAGE_LOCATION'].rstrip('/'), digest[:2], digest[2:])
+            resp.append(path)
+            # remove the file at the path
+            # if config.ENVIRON == "prod":
+            call(['rm', path])
+
+        # now the result storage
+        file_name = image_path.split('/')[-1]
+        matches = []
+        for root, dirnames, filenames in os.walk(app.config['THUMBOR_RESULT_STORAGE_LOCATION']):
+            for filename in fnmatch.filter(filenames, file_name):
+                matches.append(os.path.join(root, filename))
+        for match in matches:
+            call(['rm', match])
+
+        matches.extend(resp)
+
+        return str(matches)

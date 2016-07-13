@@ -8,7 +8,7 @@
 
     <div class="large-6 columns">
             <label>Path
-                <input type="text" id="cpath"/>
+                <input type="text" value='/' id="cpath"/>
             </label>
             <a id="submit" class="button">Submit</a>
         <div id="output"></div>
@@ -25,7 +25,17 @@
             $("#output").text(urlpath);
         }
 
-        $("#submit").bind("click", submitpath)
+        $("#submit").bind("click", submitpath);
 
+        // Ensure the path contains a '/' in the front and no spaces
+        $('#cpath').keyup(function() {
+            var input = $(this);
+            input.val(input.val().replace(/ /g,''));
+            var value = input.val();
+            if (value[0] != '/' && value.length > 0) {
+              input.val("/" + value);
+              value = input.val();
+            }
+        });
     </script>
 {% endblock %}

@@ -55,17 +55,16 @@ app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 # New importing of routes and blueprints
 from tinker.e_announcements import EAnnouncementsBlueprint
 from tinker.admin.cache import CacheBlueprint
+from tinker.admin.new_redirects import RedirectsBlueprint
 app.register_blueprint(EAnnouncementsBlueprint)
 app.register_blueprint(CacheBlueprint)
-
-# CsrfProtect(app).exempt(redirect_blueprint)
-CsrfProtect(app).exempt(CacheBlueprint)
+app.register_blueprint(RedirectsBlueprint)
 
 # Import error handling
 import error
+
 
 # ensure session before each request
 @app.before_request
 def before_request():
     base.before_request()
-
