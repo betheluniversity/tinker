@@ -199,26 +199,6 @@ class EventsController(TinkerController):
         }
         return workflow
 
-    def get_add_data(self, lists, form):
-        # A dict to populate with all the interesting data.
-        add_data = {}
-
-        for key in form.keys():
-            if key in lists:
-                add_data[key] = form.getlist(key)
-            else:
-                add_data[key] = form[key]
-
-        # Create the system-name from title, all lowercase
-        system_name = add_data['title'].lower().replace(' ', '-')
-
-        # Now remove any non a-z, A-Z, 0-9
-        system_name = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
-
-        add_data['system_name'] = system_name
-
-        return add_data
-
     def get_dates(self, add_data):
         dates = []
 
@@ -314,7 +294,13 @@ class EventsController(TinkerController):
         """
          Could this be cleaned up at all?
         """
+        for key in add_data:
+            try:
+                add_data[key] = add_data[key.replace("_", "-")]
+            except:
+                pass
 
+        # Todo: add image asset properly
         # # Create Image asset
         # if 'image' in add_data.keys() and add_data['image'] is not None and add_data['image'] != "":
         #     image_node = {
@@ -326,23 +312,6 @@ class EventsController(TinkerController):
         # else:
         #     image_node = ""
 
-        # self.traverse_add_data(add_data)
-        # Create a list of all the data nodes
-        add_data['main-content'] = self.escape_wysiwyg_content(add_data['main_content'])
-        add_data['questions'] = self.escape_wysiwyg_content(add_data['questions'])
-        add_data['link'] = self.escape_wysiwyg_content(add_data['link'])
-        add_data['cancellations'] = add_data['cancellations']
-        add_data['registration-details'] = self.escape_wysiwyg_content(add_data['registration_details'])
-        add_data['registration-heading'] = add_data['registration_heading']
-        add_data['cost'] = add_data['cost']
-        add_data['sponsors'] = self.escape_wysiwyg_content(add_data['sponsors'])
-        add_data['maps-directions'] = self.escape_wysiwyg_content(add_data['maps_directions'])
-        add_data['off-campus-location'] = add_data['off_campus_location']
-        add_data['on-campus-location'] = add_data['on_campus_location']
-        add_data['other-on-campus'] = add_data['other_on_campus']
-        add_data['location'] = add_data['location']
-        add_data['featuring'] = add_data['featuring']
-        add_data['wufoo-code'] = add_data['wufoo_code']
         # add_data['image'] = image_node
 
         # put it all into the final asset with the rest of the SOAP structure
@@ -351,21 +320,6 @@ class EventsController(TinkerController):
         add_data['parentFolderID'] = ''
         add_data['parentFolderPath'] = parent_folder_path
 
-        # todo automated attempt to loop through add_data
-        # # keys that are very similar in implemenation
-        # for key in metadata['dynamic_fields']:
-        #     add_data[key] = add_data[key.replace("-", "_")]
-        #
-        # add_data['hide-site-nav'] = [hide_site_nav]
-        # add_data['tinker-edits'] = 1
-
-        add_data['general'] = add_data['general']
-        add_data['offices'] = add_data['offices']
-        add_data['cas-departments'] = add_data['cas_departments']
-        add_data['graduate-program'] = add_data['graduate_program']
-        add_data['adult-undergrad-program'] = add_data['adult_undergrad_program']
-        add_data['seminary-program'] = add_data['seminary_program']
-        add_data['internal'] = add_data['internal']
         add_data['hide-site-nav'] = [hide_site_nav]
         add_data['tinker-edits'] = 1
 
@@ -373,7 +327,9 @@ class EventsController(TinkerController):
         if 'author' not in add_data or add_data['author'] == "":
             add_data['author'] = username
 
+        # todo: do we need this?
         add_data['name'] = add_data['title']
+
         self.update_asset(event_data, add_data)
 
         if event_id:

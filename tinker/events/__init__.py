@@ -84,6 +84,8 @@ class EventsView(FlaskView):
         # workflow = self.base.get_event_publish_workflow(title, username)
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
         failed = self.base.validate_form(rform, dates_good)
+
+        wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']
         if failed:
             return failed
 
@@ -91,7 +93,7 @@ class EventsView(FlaskView):
             bid = app.config['EVENTS_BASE_ASSET']
             event_data, metadata, structured_data = self.base.cascade_connector.load_base_asset_by_id(bid, 'page')
             # Get all the form data
-            add_data = self.base.get_add_data(metadata_list, rform)
+            add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
             dates = self.base.get_dates(add_data)
 
             add_data['event-dates'] = dates
@@ -102,7 +104,7 @@ class EventsView(FlaskView):
             page = self.base.read_page(eid)
             event_data, metadata, structured_data = page.get_asset()
             # Get all the form data
-            add_data = self.base.get_add_data(metadata_list, rform)
+            add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
             dates = self.base.get_dates(add_data)
 
             add_data['event-dates'] = dates

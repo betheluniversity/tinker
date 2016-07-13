@@ -366,3 +366,25 @@ class TinkerController(object):
         """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
         text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
         return text
+
+    def get_add_data(self, lists, form, wysiwyg_keys):
+        # A dict to populate with all the interesting data.
+        add_data = {}
+
+        for key in form.keys():
+            if key in lists:
+                add_data[key] = form.getlist(key)
+            else:
+                if key in wysiwyg_keys:
+                    add_data[key] = self.escape_wysiwyg_content(form[key])
+                else:
+                    add_data[key] = form[key]
+
+        # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
+        system_name = add_data['title'].lower().replace(' ', '-')
+        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+
+        # add author
+        add_data['author'] = session['username']
+
+        return add_data
