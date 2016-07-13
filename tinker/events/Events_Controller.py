@@ -90,13 +90,18 @@ class EventsController(TinkerController):
         return edit_data, form, dates, author
 
     # web services methods
-    def date_to_java_unix(self, date):
-
-        return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+    def date_str_to_timestamp(self, date):
+        try:
+            return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+        except TypeError:
+            return None
 
     def timestamp_to_date_str(self, timestamp_date):
 
-        return datetime.datetime.fromtimestamp(int(timestamp_date) / 1000).strftime('%B %d  %Y, %I:%M %p')
+        try:
+            return datetime.datetime.fromtimestamp(int(timestamp_date) / 1000).strftime('%B %d  %Y, %I:%M %p')
+        except TypeError:
+            return None
 
     def friendly_date_range(self, start, end):
         date_format = "%B %d, %Y %I:%M %p"
@@ -245,12 +250,12 @@ class EventsController(TinkerController):
             # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
             # which use milliseconds instead of seconds
             try:
-                start = self.date_to_java_unix(start)
+                start = self.date_str_to_timestamp(start)
             except ValueError as e:
                 app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
                 start = None
             try:
-                end = self.date_to_java_unix(end)
+                end = self.date_str_to_timestamp(end)
             except ValueError as e:
                 app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
                 end = None
@@ -292,7 +297,7 @@ class EventsController(TinkerController):
     #             add_data[item] = add_data[item.replace("-", "_")]
     #         else:
     #             add_data[item] = self.escape_wysiwyg_content(add_data[item.replace("-", "_")])
-
+    #
     # def traverse_add_data(self, add_data):
     #     for item in add_data:
     #         if type(add_data[item]) == unicode or type(add_data[item]) == str:
@@ -340,12 +345,11 @@ class EventsController(TinkerController):
         add_data['wufoo-code'] = add_data['wufoo_code']
         # add_data['image'] = image_node
 
-        self.update_asset(structured_data, add_data)
-
         # put it all into the final asset with the rest of the SOAP structure
         hide_site_nav, parent_folder_path = self.get_event_folder_path(add_data)
 
-        add_data['parent-folder-path'] = parent_folder_path
+        add_data['parentFolderID'] = ''
+        add_data['parentFolderPath'] = parent_folder_path
 
         # todo automated attempt to loop through add_data
         # # keys that are very similar in implemenation
@@ -365,37 +369,12 @@ class EventsController(TinkerController):
         add_data['hide-site-nav'] = [hide_site_nav]
         add_data['tinker-edits'] = 1
 
-        self.update_asset(metadata, add_data)
-
         # allows for multiple authors. If none set, default to username
         if 'author' not in add_data or add_data['author'] == "":
-            author = username
-        else:
-            author = add_data['author']
+            add_data['author'] = username
 
         add_data['name'] = add_data['title']
         self.update_asset(event_data, add_data)
-
-        # asset = {
-        #     'page': {
-        #         'name': add_data['system_name'],
-        #         'siteId': app.config['SITE_ID'],
-        #         'parentFolderPath': parent_folder_path,
-        #         'metadataSetPath': "/Event",
-        #         'contentTypePath': "Event",
-        #         'configurationSetPath': "Old/Event",
-        #         # Break this out more once its defined in the form
-        #         'structuredData': structured_data,
-        #         'metadata': {
-        #             'title': add_data['title'],
-        #             'summary': 'summary',
-        #             'author': author,
-        #             'metaDescription': add_data['metaDescription'],
-        #             'dynamicFields': dynamic_fields,
-        #         }
-        #     },
-        #     'workflowConfiguration': workflow
-        # }
 
         if event_id:
             add_data['id'] = event_id
@@ -477,7 +456,8 @@ class EventsController(TinkerController):
 
         max_year = 0
         for date in dates:
-            end_date = self.timestamp_to_date_str(date['end-date'])
+            date_str = self.timestamp_to_date_str(date['end-date'])
+            end_date = datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
             try:
                 year = end_date.year
             except AttributeError:
@@ -624,22 +604,3 @@ class EventsController(TinkerController):
         """
 
         return response
-
-    def test_bu_cascade(self):
-        page = self.read_page('a7ee2eda8c58651305d7929947e3efff')
-        asset, metadata, structured_data = page.get_asset()
-
-        print asset
-
-        for key in structured_data['structuredDataNodes']['structuredDataNode']:
-            if key['type'] == 'group':
-                for key1 in key['structuredDataNodes']['structuredDataNode']:
-                    key1['text'] = self.escape_wysiwyg_content(key1['text'])
-            elif key['type'] == 'text':
-                key['text'] = self.escape_wysiwyg_content(key['text'])
-            else:
-                break
-
-        self.update_asset(asset, structured_data)
-
-        return asset
