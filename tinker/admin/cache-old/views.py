@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, abort, session, request
 from tinker import tools
+from flask.ext.classy import FlaskView, route
 
 cache_blueprint = Blueprint('cache_blueprint', __name__, template_folder='templates')
 
