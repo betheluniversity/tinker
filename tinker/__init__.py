@@ -40,7 +40,6 @@ from tinker.faculty_bio.views import faculty_bio_blueprint
 from tinker.admin.redirects.views import redirect_blueprint
 from tinker.heading_upgrade.views import heading_upgrade
 from tinker.admin.sync.views import sync_blueprint
-# from tinker.admin.publish.views import publish_blueprint
 from tinker.admin.roles.views import blink_roles_blueprint
 from tinker.admin.cache.views import cache_blueprint
 
@@ -60,9 +59,6 @@ app.register_blueprint(EAnnouncementsBlueprint)
 from tinker.admin.publish import PublishManagerBlueprint
 app.register_blueprint(PublishManagerBlueprint)
 
-# CsrfProtect(app).exempt(redirect_blueprint)
-CsrfProtect(app).exempt(PublishManagerBlueprint)
-
 # Import error handling
 import error
 
@@ -70,4 +66,3 @@ import error
 @app.before_request
 def before_request():
     base.before_request()
-
