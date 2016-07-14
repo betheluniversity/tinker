@@ -61,13 +61,6 @@ class EventsController(TinkerController):
             author = rform["author"]
             return render_template('event-form.html', **locals())
 
-    # def link(self, add_data, asset):
-    #     # 'link' must be a valid component
-    #     if 'link' in add_data and add_data['link'] != "":
-    #         from tinker.admin.redirects import new_internal_redirect_submit
-    #         path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
-    #         new_internal_redirect_submit(path, add_data['link'])
-
     def group_callback(self, node):
         data = {}
         type = 'group'
@@ -167,8 +160,6 @@ class EventsController(TinkerController):
                 dates = child.find('system-data-structure').findall('event-dates')
                 dates_str = []
                 for date in dates:
-                    # start = int(date.find('start-date').text) / 1000
-                    # end = int(date.find('end-date').text) / 1000
                     start = int(date.find('start-date').text) / 1000
                     end = int(date.find('end-date').text) / 1000
                     dates_str.append(self.friendly_date_range(start, end))
@@ -257,38 +248,6 @@ class EventsController(TinkerController):
                 )
 
         return dates
-
-    # todo automated attempt to loop through add_data
-    # def traverse_add_data(self, add_data, structured_data):
-    #     for item in find(structured_data, 'structuredDataNode', False):
-    #         if item['type'] == 'group':
-    #             self.traverse_add_data(add_data, item)
-    #         elif item['type'] == 'text':
-    #             add_data[item['identifier']] = self.escape_wysiwyg_content(add_data[item['identifier'].replace("-", "_")])
-    #
-    # def traverse_add_data(self, add_data):
-    #     for item in add_data:
-    #         if type(add_data[item]) == list:
-    #             if type(add_data[item][0]) == dict:
-    #                 self.traverse_add_data(add_data[item])
-    #             else:
-    #                 add_data[item] = self.escape_wysiwyg_content(add_data[item.replace("-", "_")][0])
-    #         elif item == 'event-dates':
-    #             add_data[item] = add_data[item.replace("-", "_")]
-    #         else:
-    #             add_data[item] = self.escape_wysiwyg_content(add_data[item.replace("-", "_")])
-    #
-    # def traverse_add_data(self, add_data):
-    #     for item in add_data:
-    #         if type(add_data[item]) == unicode or type(add_data[item]) == str:
-    #             add_data[item] = self.escape_wysiwyg_content(add_data[item.replace("-", "_")])
-    #         elif type(add_data[item]) == list:
-    #             if type(add_data[item]) == dict:
-    #                 self.traverse_add_data(add_data[item])
-    #             else:
-    #                 add_data[item] = add_data[item.replace("-", "_")]
-    #         else:
-    #             add_data[item] = add_data[item.replace("-", "_")]
 
     def get_event_structure(self, event_data, metadata, structured_data, add_data, username, workflow=None, event_id=None):
         """
@@ -399,8 +358,9 @@ class EventsController(TinkerController):
 
     def get_current_year_folder(self, event_id):
         # read in te page and find the current year
-        asset = self.read(event_id, 'page')
-        path = asset['asset']['page']['path']
+        page_asset = self.read(event_id, 'page')
+        path = find(page_asset, 'path', False)
+        # path = asset['asset']['page']['path']
         try:
             year = re.search('events/(\d{4})/', path).group(1)
             return int(year)
@@ -424,16 +384,8 @@ class EventsController(TinkerController):
 
         return max_year
 
-    # just duplicate a bunch for now]
-    def string_to_datetime(self, date_str):
-
-        try:
-            return datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
-        except TypeError:
-            return None
-
     def read_date_data_structure(self, node):
-        node_data = node['structuredDataNodes']['structuredDataNode']
+        node_data = find(node, 'structuredDataNode', False)
         date_data = {}
         for date in node_data:
             if date['identifier'] == "all-day" and date['text'] == "::CONTENT-XML-CHECKBOX::":
@@ -498,8 +450,6 @@ class EventsController(TinkerController):
                 dates = child.find('system-data-structure').findall('event-dates')
                 dates_str = []
                 for date in dates:
-                    # start = int(date.find('start-date').text) / 1000
-                    # end = int(date.find('end-date').text) / 1000
                     start = int(date.find('start-date').text) / 1000
                     end = int(date.find('end-date').text) / 1000
                     dates_str.append(self.friendly_date_range(start, end))
