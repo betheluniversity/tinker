@@ -29,4 +29,5 @@ redirects.txt.back
 
 tinker/.DS_Store
 
+config.py.dist
 config/*.py
