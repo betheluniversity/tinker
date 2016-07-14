@@ -60,9 +60,12 @@ app.register_blueprint(BlinkRolesBlueprint)
 app.register_blueprint(SyncBlueprint)
 app.register_blueprint(PublishManagerBlueprint)
 
+csrf = CsrfProtect(app)
+csrf.exempt(redirect_blueprint)
+csrf.exempt(OfficeHoursBlueprint)
+
 # Import error handling
 import error
-
 
 # ensure session before each request
 @app.before_request
