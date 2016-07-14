@@ -275,16 +275,14 @@ class TinkerController(object):
         """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
         edit_data = {}
 
+        for m in multiple:
+            edit_data[m] = []
+
         for node in find(sdata, 'identifier'):
             if node['identifier'] in multiple:
+                m = node['identifier']
+                edit_data[m].append(self.inspect_sdata_node(node))
 
-                ## x =  node['identifier']
-
-                nodes = find(sdata, node['identifier'])
-                edit_data[node['identifier']] = []
-                # todo fix for if  there is only 1 in group. doesn't return list.
-                for node in nodes:
-                    edit_data[node['identifier']].append(self.inspect_sdata_node(node))
             else:
                 node_identifier = node['identifier'].replace('-', '_')
                 edit_data[node_identifier] = self.inspect_sdata_node(node)
