@@ -121,7 +121,6 @@ class TinkerController(object):
                 get_users_name()
 
         def get_user():
-
             if current_app.config['ENVIRON'] == 'prod':
                 username = request.environ.get('REMOTE_USER')
             else:
@@ -346,8 +345,8 @@ class TinkerController(object):
         dd = DataDefinition(self.cascade_connector, path_or_id)
         return dd
 
-    def publish(self, path_or_id, asset_type='page'):
-        return self.cascade_connector.publish(path_or_id, asset_type)
+    def publish(self, path_or_id, asset_type='page', destination='production'):
+        return self.cascade_connector.publish(path_or_id, asset_type, destination)
 
     def unpublish(self, path_or_id, asset_type):
         return self.cascade_connector.unpublish(path_or_id, asset_type)
