@@ -1,3 +1,7 @@
+from e_announcements_config import *
+from redirects_config import *
+from sync_config import *
+
 # Foundation configs
 FOUNDATION_USE_MINIFIED = False
 FOUNDATION_USE_CDN = True

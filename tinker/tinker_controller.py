@@ -22,6 +22,8 @@ from flask import Response
 from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
+from bu_cascade.assets.metadata_set import MetadataSet
+from bu_cascade.assets.data_definition import DataDefinition
 from bu_cascade import asset_tools
 from bu_cascade.asset_tools import update, find
 from bu_cascade.asset_tools import *
@@ -335,6 +337,14 @@ class TinkerController(object):
         p = Page(self.cascade_connector, path_or_id)
         p.read_asset()
         return p.get_structured_data()
+
+    def read_metadata_set(self, path_or_id):
+        ms = MetadataSet(self.cascade_connector, path_or_id)
+        return ms
+
+    def read_datadefinition(self, path_or_id):
+        dd = DataDefinition(self.cascade_connector, path_or_id)
+        return dd
 
     def publish(self, path_or_id, asset_type='page'):
         return self.cascade_connector.publish(path_or_id, asset_type)

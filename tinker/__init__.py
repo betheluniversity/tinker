@@ -37,13 +37,11 @@ from tinker.events.views import event_blueprint
 from tinker.faculty_bio.views import faculty_bio_blueprint
 from tinker.admin.redirects.views import redirect_blueprint
 from tinker.heading_upgrade.views import heading_upgrade
-from tinker.admin.sync.views import sync_blueprint
 from tinker.admin.publish.views import publish_blueprint
 
 app.register_blueprint(event_blueprint, url_prefix='/event')
 app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
-app.register_blueprint(sync_blueprint, url_prefix='/admin/sync')
 app.register_blueprint(publish_blueprint, url_prefix='/admin/publish-manager')
 app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 
@@ -54,13 +52,14 @@ from tinker.admin.cache import CacheBlueprint
 from tinker.admin.new_redirects import RedirectsBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
 from tinker.admin.blink_roles import BlinkRolesBlueprint
+from tinker.admin.sync import SyncBlueprint
 
 app.register_blueprint(EAnnouncementsBlueprint)
 app.register_blueprint(CacheBlueprint)
 app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
 app.register_blueprint(BlinkRolesBlueprint)
-
+app.register_blueprint(SyncBlueprint)
 
 # Import error handling
 import error
