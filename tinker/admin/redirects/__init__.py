@@ -10,9 +10,9 @@ from flask.ext.classy import FlaskView, route
 
 from tinker import db, app
 from tinker.admin.redirects.redirects_controller import RedirectsController
-from tinker.redirects.models import BethelRedirect
+from tinker.admin.redirects.models import BethelRedirect
 
-RedirectsBlueprint = Blueprint('redirect', __name__, template_folder='templates')
+RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
 
 
 class RedirectsView(FlaskView):

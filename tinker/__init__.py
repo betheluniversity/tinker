@@ -44,16 +44,14 @@ app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 # New importing of routes and blueprints
 from tinker.e_announcements import EAnnouncementsBlueprint
 from tinker.admin.cache import CacheBlueprint
-from tinker.admin.new_redirects import RedirectsBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
 from tinker.admin.blink_roles import BlinkRolesBlueprint
 from tinker.admin.sync import SyncBlueprint
 from tinker.admin.publish import PublishManagerBlueprint
-app.register_blueprint(EAnnouncementsBlueprint)
+from tinker.admin.redirects import RedirectsBlueprint
 
 app.register_blueprint(EAnnouncementsBlueprint)
 app.register_blueprint(CacheBlueprint)
-app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
 app.register_blueprint(BlinkRolesBlueprint)
 app.register_blueprint(SyncBlueprint)
