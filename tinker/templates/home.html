@@ -29,26 +29,26 @@
     <div class="row">
         <div class="large-6 columns">
 
-            <a class="button expand" href="/event"><img src="get-image/events-icon.png" class="button-image" /><br />Manage events</a>
+            <a class="button expand" href="/event"><img src="get_image/events-icon.png" class="button-image" /><br />Manage events</a>
         </div>
 
         {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
             <div class="large-6 columns">
 
-                <a href="/faculty-bio" class="button expand"><img src="get-image/faculty-bio-icon.png" class="button-image" /><br />Faculty Bios</a>
+                <a href="/faculty-bio" class="button expand"><img src="get_image/faculty-bio-icon.png" class="button-image" /><br />Faculty Bios</a>
             </div>
         {% endif %}
     </div>
 
     <div class="row">
         <div class="large-6 columns">
-            <a href="/e-announcement" class="button expand"><img src="get-image/e-announcement.png" class="button-image" /><br />Manage E-Announcements</a>
+            <a href="/e-announcement" class="button expand"><img src="get_image/e-announcement.png" class="button-image" /><br />Manage E-Announcements</a>
         </div>
 
 
         {% if 'Redirects' in session['groups'] or 'Administrators' in session['groups'] %}
             <div class="large-6 columns">
-                <a href="/admin/redirect" class="button expand"><img src="get-image/redirect-icon.png" class="button-image" /><br />Manage Redirects</a>
+                <a href="/admin/redirect" class="button expand"><img src="get_image/redirect-icon.png" class="button-image" /><br />Manage Redirects</a>
             </div>
         {% endif %}
     </div>

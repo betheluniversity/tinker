@@ -1,13 +1,14 @@
 import logging
 
 # flask
-from flask import Flask
+from flask import Flask, Blueprint
+from flask.ext.classy import FlaskView
+from flask import render_template, send_file
 
 # flask extensions
 from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
-from flask_wtf.csrf import CsrfProtect
 
 app = Flask(__name__)
 app.config.from_object('config.config')
@@ -17,8 +18,7 @@ cors = CORS(app)
 from raven.contrib.flask import Sentry
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
-from tinker_controller import TinkerController
-base = TinkerController()
+
 
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
@@ -31,8 +31,10 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.DEBUG)
 
+
+
+
 # Import routes
-import views
 from tinker.events.views import event_blueprint
 from tinker.faculty_bio.views import faculty_bio_blueprint
 
@@ -47,6 +49,7 @@ from tinker.admin.blink_roles import BlinkRolesBlueprint
 from tinker.admin.sync import SyncBlueprint
 from tinker.admin.publish import PublishManagerBlueprint
 from tinker.admin.redirects import RedirectsBlueprint
+from tinker.views import BaseBlueprint
 
 app.register_blueprint(EAnnouncementsBlueprint)
 app.register_blueprint(CacheBlueprint)
@@ -55,11 +58,7 @@ app.register_blueprint(BlinkRolesBlueprint)
 app.register_blueprint(SyncBlueprint)
 app.register_blueprint(PublishManagerBlueprint)
 app.register_blueprint(RedirectsBlueprint)
+app.register_blueprint(BaseBlueprint)
 
 # Import error handling
 import error
-
-# ensure session before each request
-@app.before_request
-def before_request():
-    base.before_request()
