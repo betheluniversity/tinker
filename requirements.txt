@@ -4,6 +4,7 @@ Flask-Cache
 Flask-Foundation
 Flask-Script
 Flask-WTF
+WTForms-Components
 flask-hmacauth
 suds
 simplejson
@@ -20,4 +21,4 @@ createsend
 raven
 blinker
 Flask-Classy
-bu-cascade==2.03
+bu-cascade

@@ -1,3 +1,7 @@
+from e_announcements_config import *
+from redirects_config import *
+from sync_config import *
+
 # Foundation configs
 FOUNDATION_USE_MINIFIED = False
 FOUNDATION_USE_CDN = True
@@ -36,12 +40,9 @@ INSTALL_LOCATION = ''
 
 WSAPI_SECRET = ''
 
-##Wufoo
+# Wufoo
 API_KEYS = ['key1', 'key2']
 WUFOO_BASE_URL = ''
-
-
-
 
 UPLOAD_FOLDER = ""
 
@@ -61,4 +62,4 @@ FACULTY_LISTING_GS_ID = ''
 FACULTY_LISTING_SEM_ID = ''
 FACULTY_LISTING_CAS_ID = ''
 
-FACULTY_BIO_ADMINS = []
+FACULTY_BIO_ADMINS = ['']

@@ -15,7 +15,7 @@ db = SQLAlchemy(app)
 cors = CORS(app)
 
 from raven.contrib.flask import Sentry
-sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
+sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
 from tinker_controller import TinkerController
 base = TinkerController()
@@ -43,19 +43,28 @@ app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 
 # New importing of routes and blueprints
 from tinker.e_announcements import EAnnouncementsBlueprint
+from tinker.admin.cache import CacheBlueprint
+from tinker.admin.new_redirects import RedirectsBlueprint
+from tinker.office_hours import OfficeHoursBlueprint
+from tinker.admin.blink_roles import BlinkRolesBlueprint
+from tinker.admin.sync import SyncBlueprint
+from tinker.admin.publish import PublishManagerBlueprint
 app.register_blueprint(EAnnouncementsBlueprint)
-from tinker.admin.redirects import RedirectsBlueprint
+
+app.register_blueprint(EAnnouncementsBlueprint)
+app.register_blueprint(CacheBlueprint)
 app.register_blueprint(RedirectsBlueprint)
-
-from tinker.admin.redirects import RedirectsView
-
-CsrfProtect(app).exempt(RedirectsBlueprint)
+app.register_blueprint(OfficeHoursBlueprint)
+app.register_blueprint(BlinkRolesBlueprint)
+app.register_blueprint(SyncBlueprint)
+app.register_blueprint(PublishManagerBlueprint)
+app.register_blueprint(RedirectsBlueprint)
 
 # Import error handling
 import error
+
 
 # ensure session before each request
 @app.before_request
 def before_request():
     base.before_request()
-
