@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, session, abort, request
 from flask.ext.classy import FlaskView, route
 
-from tinker.admin.sync.metadata import data_to_add
+from tinker.admin.sync.sync_metadata import data_to_add
 from sync_controller import *
 
 SyncBlueprint = Blueprint('sync', __name__, template_folder='templates')
