@@ -6,11 +6,11 @@ import re
 import smtplib
 
 # flask
-from flask import Blueprint, render_template, abort, request
+from flask import Blueprint, render_template, abort, request, session
 from BeautifulSoup import BeautifulSoup
 
 # tinker
-from tinker import app, db, tools, session
+from tinker import app, db, tools
 from tinker.admin.redirects.models import BethelRedirect
 
 redirect_blueprint = Blueprint('redirect_blueprint', __name__, template_folder='templates')

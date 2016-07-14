@@ -1,8 +1,6 @@
 # modules
 from flask.ext.wtf import Form
 from wtforms.widgets import TextInput
-from wtforms.fields.html5 import DateField, DateTimeField
-from wtforms_components import TimeField
 from wtforms.fields import FormField, RadioField, StringField
 from wtforms import Field
 from wtforms import validators
@@ -51,8 +49,6 @@ class OfficeHoursForm(Form):
     next_close = NextCloseField()
 
     exceptions = ExceptionsField("Exception Date")
-
-
 
     # Manually override validate, in order to check the dates
     def validate(self):
