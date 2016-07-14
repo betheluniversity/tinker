@@ -45,11 +45,11 @@
               <li>This announcement is pending approval.</li>
             {% else %}
               {% if not form.first_date_past and not form.second_date_past %}
-                <li><a href="{{ url_for('e-announcements.EAnnouncementsView:edit', e_announcement_id=form.id) }}" class="small button">Edit</a></li>
+                    <li><a href="{{ url_for('e-announcements.EAnnouncementsView:edit', e_announcement_id=form.id) }}" class="small button">Edit</a></li>
               {% else %}
-                  <li><a href="/e-announcement/view/{{ form.id }}" class="small button">View</a></li>
-{#                  <li><a href="/e-announcement/duplicate/{{ form.id }}" class="small button">Duplicate</a></li>#}
+                    <li><a href="{{ url_for('e-announcements.EAnnouncementsView:view', e_announcement_id=form.id) }}" class="small button">View</a></li>
               {% endif %}
+              <li><a href="{{ url_for('e-announcements.EAnnouncementsView:duplicate', e_announcement_id=form.id) }}" class="small button">Duplicate</a></li>
               {% if not form.first_date_past %}
                   <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-e-announcement-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
               {% endif %}

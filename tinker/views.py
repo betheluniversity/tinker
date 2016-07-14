@@ -1,5 +1,6 @@
-from flask import render_template
+from flask import render_template, send_file
 from tinker import app
+from flask import send_file
 
 
 @app.route('/')
@@ -11,6 +12,11 @@ def home():
 @app.route('/about')
 def about():
     return render_template('about-page.html', **locals())
+
+
+@app.route('/get-image/<image_name>')
+def get_image(image_name):
+    return send_file('images/' + image_name, mimetype='image/png')
 
 
 @app.route('/read/<read_id>')

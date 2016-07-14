@@ -21,7 +21,6 @@
 </div>
 
 <form action="." id="publish-search-form">
-<input name=_csrf_token type=hidden value="{{ csrf_token() }}">
     <div class="row">
 
     <div class="large-6 columns">
@@ -44,11 +43,10 @@
       </label>
     </div>
     <div class="large-6 columns">
-      <label>Publish to:
-          <br />
-        <input type="radio" name="publish-to" value="staging" checked> Staging<br />
-        <input type="radio" name="publish-to" value="production"> Production and Staging
-      </label>
+        <p>Publish to:
+            <label><input type="radio" name="publish-to" value="staging" checked> Staging<br /></label>
+            <label><input type="radio" name="publish-to" value="production"> Production and Staging</label>
+        </p>
     </div>
 
     </div>
