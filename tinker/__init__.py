@@ -35,11 +35,9 @@ if not app.debug:
 import views
 from tinker.events.views import event_blueprint
 from tinker.faculty_bio.views import faculty_bio_blueprint
-from tinker.heading_upgrade.views import heading_upgrade
 
 app.register_blueprint(event_blueprint, url_prefix='/event')
 app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
-app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 
 # New importing of routes and blueprints
 from tinker.e_announcements import EAnnouncementsBlueprint
