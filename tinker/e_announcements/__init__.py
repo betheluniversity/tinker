@@ -21,7 +21,7 @@ class EAnnouncementsView(FlaskView):
         self.base = EAnnouncementsController()
         self.base_campaign = CampaignController()
 
-    # currently not used
+
     def before_request(self, name, **kwargs):
         pass
 

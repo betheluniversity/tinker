@@ -22,6 +22,8 @@ from flask import Response
 from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
+from bu_cascade import asset_tools
+from bu_cascade.asset_tools import update, find
 from bu_cascade.asset_tools import *
 
 from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
@@ -84,7 +86,7 @@ def requires_auth(f):
 class TinkerController(object):
     def __init__(self):
         self.cascade_connector = Cascade(SOAP_URL, AUTH, SITE_ID)
-        self.helper = object()
+        self.datetime_format = "%B %d  %Y, %I:%M %p"
 
     def before_request(self):
         def init_user():
@@ -212,46 +214,90 @@ class TinkerController(object):
 
         return matches
 
-    def get_edit_data(self, asset_data):
+    def date_to_java_unix(self, date, datetime_format=None):
+
+        if not datetime_format:
+            datetime_format = self.datetime_format
+
+        date = (datetime.datetime.strptime(date, datetime_format))
+
+        # if this is a time field with no date, the  year  will be 1900, and strftime("%s") will return -1000
+        if date.year == 1900:
+            date = date.replace(year=datetime.date.today().year)
+
+        return int(date.strftime("%s")) * 1000
+
+    def java_unix_to_date(self, date, date_format=None):
+        if not date_format:
+            date_format = self.datetime_format
+        return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
+
+    def inspect_sdata_node(self, node):
+
+        node_type = node['type']
+
+        if node_type =='group':
+            group = {}
+            for n in node['structuredDataNodes']['structuredDataNode']:
+                node_identifier = n['identifier'].replace('-', '_')
+                group[node_identifier] = self.inspect_sdata_node(n)
+            return group
+
+        elif node_type == 'text':
+            has_text = 'text' in node.keys() and node['text']
+            if not has_text:
+                return
+            try:
+                # todo move
+                import datetime
+                date = datetime.datetime.strptime(node['text'], '%m-%d-%Y')
+                if not date:
+                    date = ''
+                return date
+            except ValueError:
+                pass
+
+            try:
+                date = self.java_unix_to_date(node['text'])
+                if not date:
+                    date = ''
+                return date
+            except TypeError:
+                pass
+            except ValueError:
+                pass
+
+            # A fix to remove the &#160; character from appearing (non-breaking whitespace)
+            # Cascade includes this, for whatever reason.
+            return node['text'].replace('&amp;#160;', ' ')
+
+    def get_edit_data(self, sdata, mdata, multiple=[]):
+        """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
         edit_data = {}
 
-        try:
-            form_data = asset_data['xhtmlDataDefinitionBlock']
-        except:
-            form_data = asset_data['page']
+        for node in find(sdata, 'identifier'):
+            if node['identifier'] in multiple:
 
-        # the stuff from the data def
-        s_data = form_data['structuredData']['structuredDataNodes']['structuredDataNode']
-        # regular metadata
-        metadata = form_data['metadata']
-        # dynamic metadata
-        dynamic_fields = metadata['dynamicFields']['dynamicField']
+                ## x =  node['identifier']
 
-        for node in s_data:
-            node_identifier = node['identifier'].replace('-', '_')
+                nodes = find(sdata, node['identifier'])
+                edit_data[node['identifier']] = []
+                # todo fix for if  there is only 1 in group. doesn't return list.
+                for node in nodes:
+                    edit_data[node['identifier']].append(self.inspect_sdata_node(node))
+            else:
+                node_identifier = node['identifier'].replace('-', '_')
+                edit_data[node_identifier] = self.inspect_sdata_node(node)
 
-            node_type = node['type']
-
-            if node_type == "text":
-                has_text = 'text' in node.keys() and node['text']
-                if not has_text:
-                    continue
-                try:
-                    date = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
-                    edit_data[node_identifier] = date
-                except ValueError:
-                    # A fix to remove the &#160; character from appearing (non-breaking whitespace)
-                    # Cascade includes this, for whatever reason.
-                    edit_data[node_identifier] = node['text'].replace('&amp;#160;', ' ')
-
+        dynamic_fields = find(mdata, 'fieldValues')
         # now metadata dynamic fields
         for field in dynamic_fields:
-            if field['fieldValues']:
-                items = [item['value'] for item in field['fieldValues']['fieldValue']]
+            if find(field, 'fieldValue'):
+                items = [find(item, 'value') for item in find(field, 'fieldValue')]
                 edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = metadata['title']
+        edit_data['title'] = mdata['title']
 
         return edit_data
 
@@ -333,6 +379,8 @@ class TinkerController(object):
     def update_asset(self, asset, data):
         for key, value in data.iteritems():
             update(asset, key, value)
+
+        return True
 
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow
