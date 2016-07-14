@@ -1,5 +1,5 @@
 from roles_base import RolesBaseTestCase
-from tinker.admin.roles import RolesView as Roles
+from tinker.admin.blink_roles import RolesView as Roles
 
 
 class HomeTestCase(RolesBaseTestCase):

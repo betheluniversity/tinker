@@ -5,6 +5,11 @@ from functools import wraps
 from xml.etree import ElementTree as ET
 import requests
 import datetime
+import fnmatch
+import hashlib
+import os
+from functools import wraps
+from subprocess import call
 
 # flask
 from flask import request
@@ -18,12 +23,17 @@ from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
 from bu_cascade import asset_tools
-from bu_cascade.asset_tools import update
+from bu_cascade.asset_tools import update, find
+from bu_cascade.asset_tools import *
 
 from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
 from tinker import app
 from tinker import sentry
+
+from BeautifulSoup import BeautifulStoneSoup
+import cgi
+
 
 def should_be_able_to_edit_image(roles):
     if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
@@ -45,6 +55,7 @@ def authenticate():
     'Could not verify your access level for that URL.\n'
     'You have to login with proper credentials', 401,
     {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
 
 def requires_auth(f):
     @wraps(f)
@@ -75,15 +86,18 @@ def requires_auth(f):
 class TinkerController(object):
     def __init__(self):
         self.cascade_connector = Cascade(SOAP_URL, AUTH, SITE_ID)
-        self.helper = object()
+        self.datetime_format = "%B %d  %Y, %I:%M %p"
 
     def before_request(self):
         def init_user():
 
             dev = current_app.config['ENVIRON'] != 'prod'
 
+            # if not production, then clear our session variables on each call
             if dev:
-                session.clear()
+                for key in ['username', 'groups', 'roles', 'top_nav', 'user_email', 'name']:
+                    if key in session.keys():
+                        session.pop(key, None)
 
             if 'username' not in session.keys():
                 get_user()
@@ -128,16 +142,13 @@ class TinkerController(object):
             session['name'] = "%s %s" % (fname, lname)
 
         def get_groups_for_user(username=None):
-
-            # temporary
-            from tinker.tinker_controller import TinkerController
             base = TinkerController()
 
             if not username:
                 username = session['username']
             try:
                 user = base.read(username, "user")
-                allowed_groups = user.asset.user.groups
+                allowed_groups = find(user, 'groups', False)
             except AttributeError:
                 allowed_groups = ""
             session['groups'] = allowed_groups
@@ -153,15 +164,6 @@ class TinkerController(object):
             ret = []
             for key in roles.keys():
                 ret.append(roles[key]['userRole'])
-
-            # Manually give 'faculty' privileges.
-            # todo lets move this to a cascade group
-            # if username == 'ejc84332':
-            #    ret.append('FACULTY')
-            # if username == 'ces55739':
-            #     ret.append('FACULTY')
-            if username == 'celanna':
-                ret.append('FACULTY')
 
             session['roles'] = ret
 
@@ -212,50 +214,111 @@ class TinkerController(object):
 
         return matches
 
-    def get_edit_data(self, asset_data):
+    def date_to_java_unix(self, date, datetime_format=None):
+
+        if not datetime_format:
+            datetime_format = self.datetime_format
+
+        date = (datetime.datetime.strptime(date, datetime_format))
+
+        # if this is a time field with no date, the  year  will be 1900, and strftime("%s") will return -1000
+        if date.year == 1900:
+            date = date.replace(year=datetime.date.today().year)
+
+        return int(date.strftime("%s")) * 1000
+
+    def java_unix_to_date(self, date, date_format=None):
+        if not date_format:
+            date_format = self.datetime_format
+        return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
+
+    def inspect_sdata_node(self, node):
+
+        node_type = node['type']
+
+        if node_type =='group':
+            group = {}
+            for n in node['structuredDataNodes']['structuredDataNode']:
+                node_identifier = n['identifier'].replace('-', '_')
+                group[node_identifier] = self.inspect_sdata_node(n)
+            return group
+
+        elif node_type == 'text':
+            has_text = 'text' in node.keys() and node['text']
+            if not has_text:
+                return
+            try:
+                # todo move
+                import datetime
+                date = datetime.datetime.strptime(node['text'], '%m-%d-%Y')
+                if not date:
+                    date = ''
+                return date
+            except ValueError:
+                pass
+
+            try:
+                date = self.java_unix_to_date(node['text'])
+                if not date:
+                    date = ''
+                return date
+            except TypeError:
+                pass
+            except ValueError:
+                pass
+
+            # A fix to remove the &#160; character from appearing (non-breaking whitespace)
+            # Cascade includes this, for whatever reason.
+            return node['text'].replace('&amp;#160;', ' ')
+
+    def get_edit_data(self, sdata, mdata, multiple=[]):
+        """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
         edit_data = {}
 
-        try:
-            form_data = asset_data['xhtmlDataDefinitionBlock']
-        except:
-            form_data = asset_data['page']
+        for node in find(sdata, 'identifier'):
+            if node['identifier'] in multiple:
 
-        # the stuff from the data def
-        s_data = form_data['structuredData']['structuredDataNodes']['structuredDataNode']
-        # regular metadata
-        metadata = form_data['metadata']
-        # dynamic metadata
-        dynamic_fields = metadata['dynamicFields']['dynamicField']
+                ## x =  node['identifier']
 
-        for node in s_data:
-            node_identifier = node['identifier'].replace('-', '_')
+                nodes = find(sdata, node['identifier'])
+                edit_data[node['identifier']] = []
+                # todo fix for if  there is only 1 in group. doesn't return list.
+                for node in nodes:
+                    edit_data[node['identifier']].append(self.inspect_sdata_node(node))
+            else:
+                node_identifier = node['identifier'].replace('-', '_')
+                edit_data[node_identifier] = self.inspect_sdata_node(node)
 
-            node_type = node['type']
-
-            if node_type == "text":
-                has_text = 'text' in node.keys() and node['text']
-                if not has_text:
-                    continue
-                try:
-                    # todo move
-                    import datetime
-                    date = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
-                    edit_data[node_identifier] = date
-                except ValueError:
-                    # A fix to remove the &#160; character from appearing (non-breaking whitespace)
-                    # Cascade includes this, for whatever reason.
-                    edit_data[node_identifier] = node['text'].replace('&amp;#160;', ' ')
-
+        dynamic_fields = find(mdata, 'fieldValues')
         # now metadata dynamic fields
         for field in dynamic_fields:
-            if field['fieldValues']:
-                items = [item['value'] for item in field['fieldValues']['fieldValue']]
+            if find(field, 'fieldValue'):
+                items = [find(item, 'value') for item in find(field, 'fieldValue')]
                 edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = metadata['title']
+        edit_data['title'] = mdata['title']
 
         return edit_data
+
+    def get_add_data(self, lists, form):
+        # A dict to populate with all the interesting data.
+        add_data = {}
+
+        for key in form.keys():
+            if key in lists:
+                add_data[key] = form.getlist(key)
+            else:
+                add_data[key] = form[key]
+
+        # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
+        system_name = add_data['title'].lower().replace(' ', '-')
+        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+
+        # add author
+        add_data['author'] = session['username']
+
+        return add_data
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
@@ -271,7 +334,7 @@ class TinkerController(object):
     def read_page(self, path_or_id):
         p = Page(self.cascade_connector, path_or_id)
         p.read_asset()
-        return p.structured_data()
+        return p.get_structured_data()
 
     def publish(self, path_or_id, asset_type='page'):
         return self.cascade_connector.publish(path_or_id, asset_type)
@@ -291,46 +354,128 @@ class TinkerController(object):
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)
 
-    def format_title(self, title):
-        #todo do we modify titles like this a lot of places?
-        title = title.lower().replace(' ', '-')
-        title = re.sub(r'[^a-zA-Z0-9-]', '', title)
-        return title
-
     def convert_month_num_to_name(self, month_num):
         return datetime.datetime.strptime(month_num, "%m").strftime("%B").lower()
 
-    def create_folder(self, folder_path):
+    def copy(self, old_asset_path, new_path_and_name, asset_type):
+        old_asset = ''
+        # add a slash in front of path if it doesn't already have one
+        if new_path_and_name[0] != "/":
+            new_path = "/%s" % new_path_and_name
 
-        if folder_path[0] != "/":
-            folder_path = "/%s" % folder_path
+        old_asset = self.read(new_path_and_name, asset_type)
 
-        old_folder_asset = self.read(folder_path, "folder")
-
-        if old_folder_asset['success'] == 'false':
-            array = folder_path.rsplit("/", 1)
+        if old_asset['success'] == 'false':
+            # gather parent path and name
+            array = new_path_and_name.rsplit("/", 1)
             parent_path = array[0]
             name = array[1]
 
-            asset = {
-                'folder': {
-                    'metadata': {
-                        'title': name
-                    },
-                    'metadataSetPath': "Basic",
-                    'name': name,
-                    'parentFolderPath': parent_path,
-                    'siteName': "Public"
-                }
-            }
-
-            return self.cascade_connector.create(asset)
-        return old_folder_asset
+            response = self.cascade_connector.copy(old_asset_path, asset_type, parent_path, name)
+            app.logger.debug(time.strftime("%c") + ": Copy folder creation by " + session['username'] + " From: " + old_asset_path + " To:" + new_path_and_name + str(response))
+            return response
+        return old_asset
 
     def update_asset(self, asset, data):
-
         for key, value in data.iteritems():
             update(asset, key, value)
 
+        return True
+
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow
+
+    def clear_image_cache(self, image_path):
+        # /academics/faculty/images/lundberg-kelsey.jpg"
+        # Make sure image path starts with a slash
+        if not image_path.startswith('/'):
+            image_path = '/%s' % image_path
+
+        resp = []
+
+        for prefix in ['http://www.bethel.edu', 'https://www.bethel.edu',
+                       'http://staging.bethel.edu', 'https://staging.bethel.edu']:
+            path = prefix + image_path
+            digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
+            path = "%s/%s/%s" % (app.config['THUMBOR_STORAGE_LOCATION'].rstrip('/'), digest[:2], digest[2:])
+            resp.append(path)
+            # remove the file at the path
+            # if config.ENVIRON == "prod":
+            call(['rm', path])
+
+        # now the result storage
+        file_name = image_path.split('/')[-1]
+        matches = []
+        for root, dirnames, filenames in os.walk(app.config['THUMBOR_RESULT_STORAGE_LOCATION']):
+            for filename in fnmatch.filter(filenames, file_name):
+                matches.append(os.path.join(root, filename))
+        for match in matches:
+            call(['rm', match])
+
+        matches.extend(resp)
+
+        return str(matches)
+
+    def create_workflow(self, workflow_id, subtitle=None):
+        asset = self.read(workflow_id, 'workflowdefinition')
+
+        workflow_name = find(asset, 'name', False)
+        if subtitle:
+            workflow_name += ": " + subtitle
+
+        workflow = {
+            "workflowName": workflow_name,
+            "workflowDefinitionId": workflow_id,
+            "workflowComments": workflow_name
+        }
+        return workflow
+
+    # to be used to escape content to give to Cascade
+    # Excape content so its Cascade WYSIWYG friendly
+    def escape_wysiwyg_content(self, content):
+        if content:
+            uni = self.__html_entities_to_unicode__(content)
+            htmlent = self.__unicode_to_html_entities__(uni)
+            return htmlent
+        else:
+            return None
+
+    def __html_entities_to_unicode__(self, text):
+        """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
+        text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
+        return text
+
+    def __unicode_to_html_entities__(self, text):
+        """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
+        text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
+        return text
+
+    def element_tree_to_html(self, node):
+        return_string = ''
+        for child in node:
+            child_text = ''
+            if child.text:
+                child_text = child.text
+
+            # recursively renders children
+            try:
+                if child.tag == 'a':
+                    return_string += '<%s href="%s">%s%s</%s>' % (
+                        child.tag, child.attrib['href'], child_text, self.element_tree_to_html(child), child.tag)
+                else:
+                    return_string += '<%s>%s%s</%s>' % (
+                        child.tag, child_text, self.element_tree_to_html(child), child.tag)
+            except:
+                # gets the basic text
+                if child_text:
+                    if child.tag == 'a':
+                        return_string += '<%s href="%s">%s</%s>' % (
+                            child.tag, child.attrib['href'], child_text, child.tag)
+                    else:
+                        return_string += '<%s>%s</%s>' % (child.tag, child_text, child.tag)
+
+            # gets the text that follows the children
+            if child.tail:
+                return_string += child.tail
+
+        return return_string

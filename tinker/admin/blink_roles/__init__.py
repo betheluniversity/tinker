@@ -2,19 +2,19 @@ from flask.ext.classy import FlaskView
 from flask import Blueprint, abort, session, render_template
 from roles_roledata import uid, portal
 
-roles_blueprint = Blueprint('roles', __name__, template_folder='templates')
+BlinkRolesBlueprint = Blueprint('blink-roles', __name__, template_folder='templates')
 
 
-class RolesView(FlaskView):
-    route_base = '/admin/roles'
+class BlinkRolesView(FlaskView):
+    route_base = '/admin/blink-roles'
 
     def before_request(self, args):
         if 'Administrators' not in session['groups']:
             abort(403)
 
-    def home(self):
+    def index(self):
         uid_list = uid
         portal_list = portal
         return render_template('blink-roles-home.html', **locals())
 
-RolesView.register(roles_blueprint)
+BlinkRolesView.register(BlinkRolesBlueprint)

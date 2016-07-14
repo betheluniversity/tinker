@@ -39,31 +39,34 @@ from tinker.admin.redirects.views import redirect_blueprint
 from tinker.heading_upgrade.views import heading_upgrade
 from tinker.admin.sync.views import sync_blueprint
 from tinker.admin.publish.views import publish_blueprint
-from tinker.admin.cache.views import cache_blueprint
 
 app.register_blueprint(event_blueprint, url_prefix='/event')
 app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 app.register_blueprint(sync_blueprint, url_prefix='/admin/sync')
 app.register_blueprint(publish_blueprint, url_prefix='/admin/publish-manager')
-# app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
-app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear')
 app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 
 
 # New importing of routes and blueprints
 from tinker.e_announcements import EAnnouncementsBlueprint
-app.register_blueprint(EAnnouncementsBlueprint)
-from tinker.admin.roles import roles_blueprint
-app.register_blueprint(roles_blueprint)
+from tinker.admin.cache import CacheBlueprint
+from tinker.admin.new_redirects import RedirectsBlueprint
+from tinker.office_hours import OfficeHoursBlueprint
+from tinker.admin.blink_roles import BlinkRolesBlueprint
 
-CsrfProtect(app).exempt(redirect_blueprint)
+app.register_blueprint(EAnnouncementsBlueprint)
+app.register_blueprint(CacheBlueprint)
+app.register_blueprint(RedirectsBlueprint)
+app.register_blueprint(OfficeHoursBlueprint)
+app.register_blueprint(BlinkRolesBlueprint)
+
 
 # Import error handling
 import error
+
 
 # ensure session before each request
 @app.before_request
 def before_request():
     base.before_request()
-
