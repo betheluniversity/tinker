@@ -39,7 +39,6 @@ from tinker.events.views import event_blueprint
 from tinker.faculty_bio.views import faculty_bio_blueprint
 from tinker.admin.redirects.views import redirect_blueprint
 from tinker.heading_upgrade.views import heading_upgrade
-# from tinker.admin.sync.views import sync_blueprint
 from tinker.admin.publish.views import publish_blueprint
 from tinker.admin.roles.views import blink_roles_blueprint
 from tinker.admin.cache.views import cache_blueprint
@@ -57,12 +56,8 @@ app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 # New importing of routes and blueprints
 from tinker.e_announcements import EAnnouncementsBlueprint
 app.register_blueprint(EAnnouncementsBlueprint)
-from tinker.admin.sync_new import SyncBlueprint
+from tinker.admin.sync import SyncBlueprint
 app.register_blueprint(SyncBlueprint)
-
-# csrf_variable = CsrfProtect(app)
-# csrf_variable.exempt(redirect_blueprint)
-CsrfProtect(app).exempt(SyncBlueprint)
 
 # Import error handling
 import error

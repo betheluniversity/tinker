@@ -1,0 +1,76 @@
+from flask import Blueprint, render_template, session, abort, request
+from flask.ext.classy import FlaskView, route
+
+from tinker.admin.sync.metadata import data_to_add
+from sync_controller import *
+
+SyncBlueprint = Blueprint('sync', __name__, template_folder='templates')
+
+
+class SyncView(FlaskView):
+    route_base = '/admin/sync'
+
+    def __init__(self):
+        self.base = SyncController()
+
+    def before_request(self, name, **kwargs):
+        if 'Administrators' not in session['groups']:
+            abort(403)
+
+    def index(self):
+        # Todo: Fix this. This pull works the second time. maybe call the pull from a url?
+        # don't pull locally. It's just a bad idea.
+        if 'User' not in app.config['INSTALL_LOCATION']:
+            import commands
+            commands.getoutput(
+                "cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
+
+        metadata_sets_mapping = self.base.get_metadata_sets_mapping()
+        data_definition_mapping = self.base.get_data_definitions_mapping()
+
+        return render_template('sync-home.html', **locals())
+
+    @route("/all", methods=['post'])
+    def all(self):
+        data = data_to_add
+        returned_keys = []
+
+        # Get id's and names of md sets and data definitions
+        metadata_sets_mapping = self.base.get_metadata_sets_mapping()
+        data_definition_mapping = self.base.get_data_definitions_mapping()
+
+        # sync
+        returned_keys.extend(self.base.sync_metadata_sets(metadata_sets_mapping))
+        returned_keys.extend(self.base.sync_data_definitions(data_definition_mapping))
+
+        return render_template('sync-data.html', **locals())
+
+    @route("/metadata", methods=['post'])
+    def metadata(self):
+        id = request.form['id']
+        data = data_to_add
+
+        # Get id's and names of md sets and data definitions
+        metadata_sets_mapping = self.base.get_metadata_sets_mapping()
+        data_definition_mapping = self.base.get_data_definitions_mapping()
+
+        # sync
+        returned_keys = self.base.sync_metadata_set(id)
+
+        return render_template('sync-data.html', **locals())
+
+    @route("/datadefinition", methods=['post'])
+    def datadefinition(self):
+        id = request.form['id']
+        data = data_to_add
+
+        # Get id's and names of md sets and data definitions
+        metadata_sets_mapping = self.base.get_metadata_sets_mapping()
+        data_definition_mapping = self.base.get_data_definitions_mapping()
+
+        # sync
+        returned_keys = self.base.sync_data_definition(id)
+
+        return render_template('sync-data.html', **locals())
+
+SyncView.register(SyncBlueprint)
