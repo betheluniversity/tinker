@@ -8,8 +8,6 @@ from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
 from flask_wtf.csrf import CsrfProtect
-from flask import session
-
 
 app = Flask(__name__)
 app.config.from_object('config.config')
@@ -41,7 +39,6 @@ from tinker.admin.redirects.views import redirect_blueprint
 from tinker.heading_upgrade.views import heading_upgrade
 from tinker.admin.sync.views import sync_blueprint
 from tinker.admin.publish.views import publish_blueprint
-from tinker.admin.roles.views import blink_roles_blueprint
 from tinker.admin.cache.views import cache_blueprint
 
 app.register_blueprint(event_blueprint, url_prefix='/event')
@@ -57,7 +54,7 @@ app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
 # New importing of routes and blueprints
 from tinker.e_announcements import EAnnouncementsBlueprint
 app.register_blueprint(EAnnouncementsBlueprint)
-from tinker.new_roles import roles_blueprint
+from tinker.admin.roles import roles_blueprint
 app.register_blueprint(roles_blueprint)
 
 CsrfProtect(app).exempt(redirect_blueprint)
