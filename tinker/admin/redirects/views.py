@@ -22,6 +22,7 @@ def before_request():
     if not skip and 'Administrators' not in session['groups']:
         abort(403)
 
+
 @redirect_blueprint.route('/expire')
 def delete_expired_redirects():
     today = datetime.datetime.utcnow()
