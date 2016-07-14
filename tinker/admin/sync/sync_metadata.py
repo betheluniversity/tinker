@@ -150,16 +150,6 @@ degree = [
     'Doctor of Education',
 ]
 
-program_search_degree_types = [
-    "All",
-    "Associate's",
-    "Bachelor's",
-    "Master's",
-    "Doctoral",
-    "License's",
-    "Certificate's",
-]
-
 e_announcement_roles = [
     "STUDENT-CAS",
     "STUDENT-CAPS",
@@ -183,4 +173,3 @@ data_to_add['location'] = locations
 data_to_add['delivery_label'] = delivery_label
 data_to_add['delivery_subheading'] = delivery_subheading
 data_to_add['degree'] = degree
-data_to_add['program-search-degree'] = program_search_degree_types
