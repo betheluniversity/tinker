@@ -18,30 +18,22 @@ from wtforms import widgets
 # local
 from tinker import app
 from tinker.web_services import get_client, read
-
-
-def get_md(metadata_path):
-
-    #todo temp fix
-    from tinker.tinker_controller import TinkerController
-    base = TinkerController()
-
-    md = base.read(metadata_path, 'metadataset')
-
-    print str(md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition)
-
-    return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
+from bu_cascade.asset_tools import *
+from tinker.tinker_controller import TinkerController
 
 
 def get_audience_choices():
-
-    data = get_md("/Targeted")
-    audience_list = data[0].possibleValues.possibleValue
     audience = []
-    for item in audience_list:
-        if item.value != "":
-            audience.append(item.value)
 
+    base = TinkerController()
+    md = base.read('/Targeted', 'metadataset')
+    audience_list = find(md, 'banner-roles')['possibleValues']['possibleValue']
+
+    for item in audience_list:
+        if item['value'] != "":
+            audience.append(item['value'])
+
+    # Todo: find a better way to handle this mapping
     banner_roles_sort_mapping = {
         'STUDENT-CAS': 1,
         'STUDENT-CAPS': 2,
@@ -149,19 +141,15 @@ class EAnnouncementsForm(Form):
                       validators=[validators.DataRequired()])
 
     message = CKEditorTextAreaField('Message', validators=[validators.DataRequired()])
-
     info = InfoField("Date Info")
-
+    name = HiddenField('Name')
+    email = HiddenField('Email')
     first_date = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
-
     second_date = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y",
                        validators=[validators.Optional()])
 
     banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices(),
                                       validators=[validators.DataRequired()])
-
-    name = HiddenField('Name')
-    email = HiddenField('Email')
 
     # Manually override validate, in order to check the dates
     def validate(self):

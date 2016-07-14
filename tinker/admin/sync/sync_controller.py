@@ -110,7 +110,6 @@ class SyncController(TinkerController):
             app.config['DATA_DEF_PROGRAM_BLOCK_ID'],
             app.config['DATA_DEF_PORTAL_CHANNEL_ID'],
             app.config['DATA_DEF_PORTAL_TAB_ID'],
-            app.config['DATA_DEF_PROGRAM_SEARCH_ID']
         ]
         for data_definition_id in data_definitions:
             asset = self.read_datadefinition(data_definition_id)
