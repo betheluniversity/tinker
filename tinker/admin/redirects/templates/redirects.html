@@ -92,9 +92,9 @@ var delay = (function(){
   function loadTableForSearch(search_value, type){
     // type needs to be either 'from_path' or 'to_url'
     var search = {'type': type, 'search': search_value};
-    var url = "/admin/redirect/search";
-     $.post(url, search, function(data) {
-        updateTable(data);
+    var url = "{{ url_for('redirects.RedirectsView:search') }}";
+      $.post(url, search, function(data) {
+          updateTable(data);
       });
   }
 
@@ -130,11 +130,12 @@ var delay = (function(){
     input.attr('class', 'button postfix');
 {#    input.attr('style', 'display:none');#}
     input.click(function (event) {
+        console.log("BUTTON WAS CLICKED");
       document.getElementById('redirect-add').disabled = true;
         // when 'save' is clicked, gather the field mappings and send those
         // to the wufoo-silva app for storage
       var fieldMappings = $(this.form).serializeArray(),
-              url = '/admin/redirect/new-submit';
+              url = "{{ url_for('redirects.RedirectsView:new_redirect_submit') }}";
 
       $.post(url, fieldMappings, function(data) {
           loadTableForSearch($("#new-redirect-from").val(), 'from_path');
@@ -146,7 +147,7 @@ var delay = (function(){
 
     $("#modal-confirm").click(function(){
       var from_path = {"from_path": $(this).attr('data-delete-path')};
-      var url = '/admin/redirect/delete';
+      var url = "{{ url_for('redirects.RedirectsView:delete_redirect') }}";
       $.post(url, from_path, function(data) {
         if (data){
           loadTableForSearch($("#new-redirect-from").val(), 'from_path');
