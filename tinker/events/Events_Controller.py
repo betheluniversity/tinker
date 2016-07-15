@@ -47,7 +47,7 @@ class EventsController(TinkerController):
         # convert event dates to JSON
         return json.dumps(event_dates), dates_good, num_dates
 
-    def validate_form(self, rform, dates_good):
+    def validate_form(self, rform, dates_good, event_dates):
 
         from forms import EventForm
         form = EventForm()
@@ -59,6 +59,7 @@ class EventsController(TinkerController):
             else:
                 new_form = True
             author = rform["author"]
+            num_dates = int(rform['num_dates'])
             return render_template('event-form.html', **locals())
 
     def group_callback(self, node):

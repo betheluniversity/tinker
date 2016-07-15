@@ -31,7 +31,7 @@
       <input type="hidden" name="author" id="author" value="{{ author }}"/>
     {% endif %}
     <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-        {% if form.errors %}
+        {% if form.errors or not dates_good and num_dates  %}
           <div class="alert alert-error">
             <div data-alert class="alert-box alert radius">
                 There were errors with your form.
@@ -223,9 +223,8 @@
               }
 
             {% endif %}
-
             {% if dates_good == False %}
-              $( '<div data-alert="" class="alert-box alert radius">Event Dates are Required<a href="#" class="close">×</a></div>' ).insertBefore(".date-fieldset");
+                    $( '<div data-alert="" class="alert-box alert radius">Event Dates are Required<a href="#" class="close">×</a></div>' ).insertBefore(".date-fieldset");
             {% endif %}
 
             {% if form.errors or not dates_good and num_dates %}
