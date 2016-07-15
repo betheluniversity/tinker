@@ -8,6 +8,7 @@ from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
 from raven.contrib.flask import Sentry
+from flask_wtf.csrf import CsrfProtect
 
 app = Flask(__name__)
 app.config.from_object('config.config')
@@ -53,6 +54,8 @@ app.register_blueprint(PublishManagerBlueprint)
 app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(EAnnouncementsBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
+
+CsrfProtect(app)
 
 # todo: is this used?
 # Import error handling
