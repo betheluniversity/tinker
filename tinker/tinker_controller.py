@@ -17,13 +17,13 @@ from flask import Response
 from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
-from bu_cascade import asset_tools
-from bu_cascade.asset_tools import update
+from bu_cascade.asset_tools import *
 
 from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
 from tinker import app
 from tinker import sentry
+
 
 def should_be_able_to_edit_image(roles):
     if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
@@ -45,6 +45,7 @@ def authenticate():
     'Could not verify your access level for that URL.\n'
     'You have to login with proper credentials', 401,
     {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
 
 def requires_auth(f):
     @wraps(f)
@@ -131,17 +132,13 @@ class TinkerController(object):
             session['name'] = "%s %s" % (fname, lname)
 
         def get_groups_for_user(username=None):
-
-            # temporary
-            # from tinker.tinker_controller import TinkerController
-            # base = TinkerController()
-
+            base = TinkerController()
 
             if not username:
                 username = session['username']
             try:
-                user = self.read(username, "user")
-                allowed_groups = user.asset.user.groups
+                user = base.read(username, "user")
+                allowed_groups = find(user, 'groups', False)
             except AttributeError:
                 allowed_groups = ""
             session['groups'] = allowed_groups

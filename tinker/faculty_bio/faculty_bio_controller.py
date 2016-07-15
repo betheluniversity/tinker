@@ -13,6 +13,7 @@ from tinker.tinker_controller import TinkerController
 
 class FacultyBioController(TinkerController):
 
+    # todo: do what check_job_titles does
     def check_degrees(self, form):
         degrees = {}
         degrees_good = False
@@ -42,6 +43,7 @@ class FacultyBioController(TinkerController):
         # convert event dates to JSON
         return json.dumps(degrees), degrees_good, num_degrees
 
+    # todo: this method is pretty nasty. should refactor (maybe loop over each key to simplify?)
     def check_job_titles(self, form):
         new_jobs_good = False
 
@@ -90,6 +92,7 @@ class FacultyBioController(TinkerController):
         # convert event dates to JSON
         return new_jobs_good, num_new_jobs
 
+    # todo: delete
     def get_expertise(self, add_data):
         heading = add_data['heading']
         areas = add_data['areas']
@@ -122,6 +125,7 @@ class FacultyBioController(TinkerController):
 
         return job_titles
 
+    # todo: can be deleted, i think
     def get_new_job_titles(self, add_data):
         new_job_titles = []
 
@@ -187,6 +191,7 @@ class FacultyBioController(TinkerController):
 
         return new_job_titles
 
+    # todo: can be deleted, i think
     def get_add_a_degree(self, add_data):
         degrees = []
 
@@ -227,6 +232,7 @@ class FacultyBioController(TinkerController):
 
         return final_node
 
+    # todo: can be deleted, i think
     def get_add_to_bio(self, add_data):
         options = []
 
@@ -310,6 +316,7 @@ class FacultyBioController(TinkerController):
 
         return node
 
+    # todo: can be deleted
     def dynamic_field(self, name, values):
         values_list = []
         for value in values:
@@ -323,6 +330,7 @@ class FacultyBioController(TinkerController):
 
         return node
 
+    # todo: change this to how e-annz does. Might need to look at create-base-view branch
     def get_faculty_bio_structure(self, add_data, username, faculty_bio_id=None, workflow=None):
         """
          Could this be cleaned up at all?
@@ -331,6 +339,7 @@ class FacultyBioController(TinkerController):
         # Create Image asset
         image = None
 
+        # todo: clean up getting images
         if 'image_name' in add_data.keys():
             image_name = add_data['image_name']
             image_structure = self.get_image_structure(add_data, "/academics/faculty/images", image_name)
@@ -419,6 +428,7 @@ class FacultyBioController(TinkerController):
 
         return asset
 
+    # this can be shortened, i hope
     def build_description(self, add_data):
         description = "Meet " + add_data['first'] + " " + add_data['last']
 
@@ -465,6 +475,7 @@ class FacultyBioController(TinkerController):
 
         return description
 
+    # this can be deleted, i think
     def get_image_structure(self, add_data, image_dest, image_name, workflow=None):
         image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
         stream = image_file.read()
@@ -489,6 +500,7 @@ class FacultyBioController(TinkerController):
 
         return asset
 
+    # todo: convert this to a dict, so there isn't 20+ if statements
     # A lengthy hardcoded list that maps the metadata values to the Groups on Cascade.
     def get_web_author_group(self, department_metadata):
         # CAS
@@ -547,9 +559,11 @@ class FacultyBioController(TinkerController):
 
         return ""
 
+    # todo: this probably doesn't need its own function
     def publish_faculty_bio_xml(self):
         self.publish(app.config['FACULTY_BIO_XML_ID'])
 
+    # todo: this method can be replaced with create() in tinker_controller
     def create_faculty_bio(self, asset):
         auth = app.config['CASCADE_LOGIN']
         client = get_client()
@@ -564,6 +578,7 @@ class FacultyBioController(TinkerController):
 
         return response
 
+    # todo: this can be replaced by the travese_xml file in tinker controller
     def get_faculty_bios_for_user(self, username):
         if app.config['ENVIRON'] != "prod":
             response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/faculty-bios.xml')
@@ -575,6 +590,7 @@ class FacultyBioController(TinkerController):
 
         return matches
 
+    # todo: this can be replaced by the travese_xml file in tinker controller
     def traverse_faculty_folder(self, traverse_xml, username):
         # if no username is given, then pass over ALL faculty bios
         if username is None:
@@ -643,6 +659,7 @@ class FacultyBioController(TinkerController):
 
         return matches
 
+    # todo: this can be replaced by the travese_xml file in tinker controller
     def group_check(self, child, allowed_groups):
         for allowedGroup in allowed_groups:
             if allowedGroup == 'parlau':
@@ -679,6 +696,7 @@ class FacultyBioController(TinkerController):
                             return page_values
         return False
 
+    # todo: this method exists in tinker_controller
     def get_add_data(self, lists, form):
         # A dict to populate with all the interesting data.
         add_data = {}
@@ -702,6 +720,7 @@ class FacultyBioController(TinkerController):
 
         return add_data
 
+    # todo: the generic get_workflow method (can be found in create-base-view branch)
     def get_bio_publish_workflow(self, title="", username="", faculty_bio_id=None, add_data=None):
         schools = []
         for i in range(1, 100):
@@ -734,14 +753,3 @@ class FacultyBioController(TinkerController):
         }
 
         return workflow
-
-    def get_description_text(self, depts):
-        final_dept = None
-
-        # get depts
-        for dept in depts:
-            for item in dept:
-                if item != "None" and item != "Select":
-                    final_dept = item
-
-        return final_dept

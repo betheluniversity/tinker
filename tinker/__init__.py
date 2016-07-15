@@ -8,8 +8,6 @@ from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
 from flask_wtf.csrf import CsrfProtect
-# from flask import session
-
 
 app = Flask(__name__)
 app.config.from_object('config.config')
@@ -36,7 +34,6 @@ if not app.debug:
 # Import routes
 import views
 from tinker.events.views import event_blueprint
-# from tinker.faculty_bio_old.views import faculty_bio_blueprint
 from tinker.admin.redirects.views import redirect_blueprint
 from tinker.heading_upgrade.views import heading_upgrade
 from tinker.admin.sync.views import sync_blueprint
@@ -45,7 +42,6 @@ from tinker.admin.roles.views import blink_roles_blueprint
 from tinker.admin.cache.views import cache_blueprint
 
 app.register_blueprint(event_blueprint, url_prefix='/event')
-# app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
 app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
 app.register_blueprint(sync_blueprint, url_prefix='/admin/sync')
 app.register_blueprint(publish_blueprint, url_prefix='/admin/publish-manager')
@@ -61,8 +57,6 @@ from tinker.faculty_bio import FacultyBioBlueprint
 app.register_blueprint(FacultyBioBlueprint)
 
 CsrfProtect(app)
-# csrf.exempt(redirect_blueprint)
-# CsrfProtect(app).exempt(redirect_blueprint)
 
 # Import error handling
 import error

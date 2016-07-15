@@ -1,12 +1,13 @@
-from faculty_bio_utilities import *
+from faculty_bio_controller import *
 from flask import Blueprint, redirect, send_from_directory
 from flask.ext.classy import FlaskView, route
 from tinker.admin.sync.sync_metadata import data_to_add
 from werkzeug.utils import secure_filename
 
-FacultyBioBlueprint = Blueprint('events', __name__, template_folder='templates')
+FacultyBioBlueprint = Blueprint('faculty-bio', __name__, template_folder='templates')
 
 
+# todo: add a before_request method
 class FacultyBioView(FlaskView):
     route_base = '/faculty-bio'
 
@@ -17,6 +18,7 @@ class FacultyBioView(FlaskView):
         username = session['username']
         roles = get_roles(username)
 
+        # todo: call the appropriate traverse_xml method in tinker controller
         # index page for adding events and things
         forms = self.base.get_faculty_bios_for_user(username)
 
@@ -25,19 +27,22 @@ class FacultyBioView(FlaskView):
         # return forms
         return render_template('faculty-bio-home.html', **locals())
 
+    # todo: remove this 'route' line and use flask classy defaults
     @route('/delete/<page_id>', methods=['GET'])
     def delete_page(self, page_id):
         self.base.delete(page_id, "page")
         self.base.publish_faculty_bio_xml()
 
+        # todo: I believe we don't need to do these anymore. Double check this, though.
         # Todo: only publish the corresponding faculty listing pages.
-        self.base.publish([app.config['FACULTY_LISTING_CAPS_ID']], 'publishset')
-        self.base.publish([app.config['FACULTY_LISTING_GS_ID']], 'publishset')
-        self.base.publish([app.config['FACULTY_LISTING_SEM_ID']], 'publishset')
-        self.base.publish([app.config['FACULTY_LISTING_CAS_ID']], 'publishset')
+        # self.base.publish([app.config['FACULTY_LISTING_CAPS_ID']], 'publishset')
+        # self.base.publish([app.config['FACULTY_LISTING_GS_ID']], 'publishset')
+        # self.base.publish([app.config['FACULTY_LISTING_SEM_ID']], 'publishset')
+        # self.base.publish([app.config['FACULTY_LISTING_CAS_ID']], 'publishset')
 
         return redirect('/faculty-bio/delete-confirm', code=302)
 
+    # todo: remove this 'route' line and use flask classy defaults
     @route('/delete-confirm', methods=['GET'])
     def delete_confirm(self):
         return render_template('faculty-bio-delete-confirm.html')
@@ -48,9 +53,12 @@ class FacultyBioView(FlaskView):
         from forms import FacultyBioForm
 
         form = FacultyBioForm()
+        # todo: roles should be gotten from the session variable
         roles = get_roles()
+        # todo: this method currently is in tools.py. This needs to be fixed
         edit_image = should_be_able_to_edit_image(roles)
 
+        # todo: this id shouldn't have to have a default value
         faculty_bio_id = ""
 
         metadata = fjson.dumps(data_to_add)
@@ -58,19 +66,21 @@ class FacultyBioView(FlaskView):
         add_form = True
         return render_template('faculty-bio-form.html', **locals())
 
+    # todo: remove this 'route' line and use flask classy defaults
     @route('/confirm-new', methods=['GET'])
     def submit_confirm_new(self):
         return render_template('faculty-bio-confirm-new.html')
 
+    # todo: remove this 'route' line and use flask classy defaults
     @route('/confirm-edit', methods=['GET'])
     def submit_confirm_edit(self):
         return render_template('faculty-bio-confirm-edit.html')
 
+    # todo: remove this 'route' line and use flask classy defaults
     @route('/in-workflow', methods=['GET'])
     def faculty_bio_in_workflow(self):
         return render_template('faculty-bio-in-workflow.html')
 
-    # Was faculty_bio_edit_form(), but renamed for simplification and FlaskClassy convention
     def edit(self, faculty_bio_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         if self.base.asset_in_workflow(faculty_bio_id):
@@ -81,12 +91,15 @@ class FacultyBioView(FlaskView):
         from forms import FacultyBioForm
 
         form = FacultyBioForm()
+        # todo: roles should be gotten from the session variable
         roles = get_roles()
+        # todo: this method currently is in tools.py. This needs to be fixed
         edit_image = should_be_able_to_edit_image(roles)
 
+        # todo: this method should be called from tinker_controller
         # Get the event data from cascade
         faculty_data = read(faculty_bio_id)
-
+        # todo: these next few lines shouldn't be manual. use find and stuff to get them easier
         form_data = faculty_data.asset.page
         # the stuff from the data def
         s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
@@ -104,7 +117,7 @@ class FacultyBioView(FlaskView):
         new_job_title_count = 0
 
         # Start with structuredDataNodes (data def content)
-        # todo rewrite this so each for loop isn't using 'node'
+        # todo: this can call get_edit_data from tinker_controller
         for node in s_data:
             node_identifier = node.identifier.replace('-', '_')
             node_type = node.type
@@ -146,6 +159,7 @@ class FacultyBioView(FlaskView):
                 items = [item.value for item in field.fieldValues.fieldValue]
                 edit_data[field.name.replace('-', '_')] = items
 
+        # todo: this portion can call some method in the tinker_controller
         # Add the rest of the fields. Can't loop over these kinds of metadata
         authors = metadata.author
         try:
@@ -167,6 +181,7 @@ class FacultyBioView(FlaskView):
 
         return render_template('faculty-bio-form.html', **locals())
 
+    # todo: remove this 'route' line and use flask classy defaults
     # Was submit_faculty_bio_form(), but renamed for simplification and FlaskClassy convention
     @route('/submit', methods=['POST'])
     def submit(self):
@@ -177,14 +192,14 @@ class FacultyBioView(FlaskView):
 
         rform = request.form
         username = session['username']
-
+        # todo: this can call a method in the tinker_controller
         title = rform['last'] + "-" + rform['first']
         title = title.lower().replace(' ', '-')
         title = re.sub(r'[^a-zA-Z0-9-]', '', title)
 
         degrees, degrees_good, num_degrees = self.base.check_degrees(rform)
         new_jobs_good, num_new_jobs = self.base.check_job_titles(rform)
-
+        # todo: this should be separated out into a validate method
         if not form.validate_on_submit() or (not new_jobs_good or not degrees_good):
             if 'faculty_bio_id' in request.form.keys():
                 faculty_bio_id = request.form['faculty_bio_id']
@@ -199,9 +214,11 @@ class FacultyBioView(FlaskView):
         add_data = self.base.get_add_data(
             ['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
 
+        # todo: groups can be accessed from the session variable
         # Images
         groups = get_groups_for_user()
 
+        # todo: this should be cleaned up
         try:
             image_name = form.image.data.filename
         except AttributeError:
@@ -222,6 +239,7 @@ class FacultyBioView(FlaskView):
             faculty_bio_id = None
 
         workflow = None
+        # todo: the generic get_workflow method (can be found in create-base-view branch)
         workflow = self.base.get_bio_publish_workflow(title, username, faculty_bio_id, add_data)
         asset = self.base.get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 
@@ -242,6 +260,7 @@ class FacultyBioView(FlaskView):
                 self.base.publish(faculty_bio_id, "page")
             return render_template('faculty-bio-confirm-new.html', **locals())
 
+    # todo: remove this 'route' line and use flask classy defaults
     # Was uploaded_file(filename), but renamed for simplification and FlaskClassy convention
     @route('/uploads/<path:filename>')
     def uploads(self, filename):
