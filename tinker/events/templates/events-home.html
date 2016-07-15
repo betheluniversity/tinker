@@ -32,8 +32,8 @@
                 <hr/>
             {% endif %}
 
-            <!-- Button trigger modal -->
-            <a href="add#page-title" class="btn btn-primary btn-raised" data-toggle="modal" data-target="#myModal">
+            {# create an event button #}
+            <a href="add#page-title" class="btn btn-primary btn-raised">
                 Create New Event
             </a>
 
@@ -121,7 +121,12 @@
         </div>
     </div>
 
+    <br/>
 
+    <!-- Button trigger modal -->
+    <button class="btn btn-primary btn-raised" data-toggle="modal" data-target="#myModal">
+        Delete Event
+    </button>
     <!-- Modal Core -->
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -131,13 +136,7 @@
                     <h4 class="modal-title" id="myModalLabel">Modal title</h4>
                 </div>
                 <div class="modal-body">
-                    Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live
-                    the blind texts. Separated they live in Bookmarksgrove right at the coast of the Semantics, a large
-                    language ocean. A small river named Duden flows by their place and supplies it with the necessary
-                    regelialia. It is a paradisematic country, in which roasted parts of sentences fly into your mouth.
-                    Even the all-powerful Pointing has no control about the blind texts it is an almost unorthographic
-                    life One day however a small line of blind text by the name of Lorem Ipsum decided to leave for the
-                    far World of Grammar.
+                    Test Modal
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -147,6 +146,8 @@
         </div>
     </div>
 
+    <br/>
+     
     {#    <div id="confirmModal" class="reveal-modal" data-reveal>#}
     {#        <h2>Are you sure you want to delete?</h2>#}
     {#        <p class="lead">Your event page will be unpublished and removed from the calendar.</p>#}
