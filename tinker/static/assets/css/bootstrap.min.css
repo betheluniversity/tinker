@@ -4251,9 +4251,9 @@ input[type=submit].btn-block {
     opacity: 1
 }
 
-.collapse {
-    display: none
-}
+/*.collapse {*/
+    /*display: none*/
+/*}*/
 
 .collapse.in {
     display: block
@@ -5082,7 +5082,7 @@ textarea.input-group-sm>.input-group-btn>.btn {
 }
 
 .navbar-collapse {
-    padding-right: 15px;
+    /*padding-right: 15px;*/
     padding-left: 15px;
     overflow-x: visible;
     -webkit-overflow-scrolling: touch;
@@ -5097,13 +5097,12 @@ textarea.input-group-sm>.input-group-btn>.btn {
 
 @media (min-width:768px) {
     .navbar-collapse {
-        width: auto;
         border-top: 0;
         -webkit-box-shadow: none;
         box-shadow: none
     }
     .navbar-collapse.collapse {
-        display: block!important
+        display: block!important;
         padding-bottom: 0;
         overflow: visible!important
     }
