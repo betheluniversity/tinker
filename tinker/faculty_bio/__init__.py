@@ -19,8 +19,8 @@ class FacultyBioView(FlaskView):
         roles = get_roles(username)
 
         # todo: call the appropriate traverse_xml method in tinker controller
-        # index page for adding events and things
-        forms = self.base.get_faculty_bios_for_user(username)
+        forms = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page')
+        forms = sorted(forms, key=itemgetter('title'), reverse=False)
 
         show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']
 
