@@ -3,6 +3,7 @@ from flask import Blueprint, redirect, send_from_directory
 from flask.ext.classy import FlaskView, route
 from tinker.admin.sync.sync_metadata import data_to_add
 from werkzeug.utils import secure_filename
+from bu_cascade.asset_tools import *
 
 FacultyBioBlueprint = Blueprint('faculty-bio', __name__, template_folder='templates')
 
@@ -25,6 +26,7 @@ class FacultyBioView(FlaskView):
         if username in app.config['FACULTY_BIO_ADMINS']:
             show_special_admin_view = True
             show_create = True
+
             # This nastiness is to maintain order and have the class value
             all_schools = [
                 {'cas': 'College of Arts and Sciences'},
@@ -34,7 +36,7 @@ class FacultyBioView(FlaskView):
                 {'bu': 'Administration with Faculty Status'},
                 {'other': 'Other'}
             ]
-        else:  # normal view for everyone else
+        else:  # normal view
             show_special_admin_view = False
             show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']
 
@@ -94,26 +96,20 @@ class FacultyBioView(FlaskView):
         # import this here so we dont load all the content
         # from cascade during homepage load
         from forms import FacultyBioForm
-
         form = FacultyBioForm()
-        # todo: roles should be gotten from the session variable
-        roles = get_roles()
-        # todo: this method currently is in tools.py. This needs to be fixed
+
+        roles = session['roles']
+
+        # todo: do what phil does in the 'new' route
         edit_image = should_be_able_to_edit_image(roles)
 
-        # todo: this method should be called from tinker_controller
         # Get the event data from cascade
-        faculty_data = read(faculty_bio_id)
-        # todo: these next few lines shouldn't be manual. use find and stuff to get them easier
-        form_data = faculty_data.asset.page
-        # the stuff from the data def
-        s_data = form_data.structuredData.structuredDataNodes.structuredDataNode
-        # regular metadata
-        metadata = form_data.metadata
-        # dynamic metadata
-        dynamic_fields = metadata.dynamicFields.dynamicField
-        # This dict will populate our EventForm object
-        edit_data = {}
+        page = self.base.read_page(faculty_bio_id)
+        faculty_bio_data, mdata, sdata = page.read_asset()
+
+        form_data = find(sdata, 'page')
+
+        edit_data = self.base.get_edit_data(faculty_bio_data)
 
         degrees = {}
         degree_count = 0
@@ -123,50 +119,50 @@ class FacultyBioView(FlaskView):
 
         # Start with structuredDataNodes (data def content)
         # todo: this can call get_edit_data from tinker_controller
-        for node in s_data:
-            node_identifier = node.identifier.replace('-', '_')
-            node_type = node.type
-            if node_type == "text":
-                edit_data[node_identifier] = node.text
-
-            elif node_type == 'group':
-                if node_identifier == "add_to_bio" or node_identifier == "expertise":
-                    for group_node in node.structuredDataNodes.structuredDataNode:
-                        group_node_identifier = group_node.identifier.replace('-', '_')
-                        edit_data[group_node_identifier] = group_node.text
-                if node_identifier == "education":
-                    for node in node.structuredDataNodes.structuredDataNode:
-                        node_identifier = node.identifier.replace('-', '_')
-                        if node_identifier == "add_degree":
-                            degree_data = {}
-                            for degree in node.structuredDataNodes.structuredDataNode:
-                                degree_identifier = degree.identifier.replace('-', '_')
-                                degree_data[degree.identifier] = degree.text
-                            degrees[degree_count] = degree_data
-                            degree_count += 1
-                if node_identifier == "job_titles":
-                    new_job_title_data = {}
-                    for field in node.structuredDataNodes.structuredDataNode:
-                        node_identifier = field.identifier.replace('-', '_')
-                        new_job_title_data[node_identifier] = field.text
-                    new_job_titles[new_job_title_count] = new_job_title_data
-                    new_job_title_count += 1
-
-            elif node_identifier == 'image':
-                groups = get_groups_for_user()
-                edit_data['image'] = node.text
-                edit_data['image_url'] = node.filePath
-
-        # now metadata dynamic fields
-        for field in dynamic_fields:
-            # This will fail if no metadata is set. It should be required but just in case
-            if field.fieldValues:
-                items = [item.value for item in field.fieldValues.fieldValue]
-                edit_data[field.name.replace('-', '_')] = items
+        # for node in s_data:
+        #     node_identifier = node.identifier.replace('-', '_')
+        #     node_type = node.type
+        #     if node_type == "text":
+        #         edit_data[node_identifier] = node.text
+        #
+        #     elif node_type == 'group':
+        #         if node_identifier == "add_to_bio" or node_identifier == "expertise":
+        #             for group_node in node.structuredDataNodes.structuredDataNode:
+        #                 group_node_identifier = group_node.identifier.replace('-', '_')
+        #                 edit_data[group_node_identifier] = group_node.text
+        #         if node_identifier == "education":
+        #             for node in node.structuredDataNodes.structuredDataNode:
+        #                 node_identifier = node.identifier.replace('-', '_')
+        #                 if node_identifier == "add_degree":
+        #                     degree_data = {}
+        #                     for degree in node.structuredDataNodes.structuredDataNode:
+        #                         degree_identifier = degree.identifier.replace('-', '_')
+        #                         degree_data[degree.identifier] = degree.text
+        #                     degrees[degree_count] = degree_data
+        #                     degree_count += 1
+        #         if node_identifier == "job_titles":
+        #             new_job_title_data = {}
+        #             for field in node.structuredDataNodes.structuredDataNode:
+        #                 node_identifier = field.identifier.replace('-', '_')
+        #                 new_job_title_data[node_identifier] = field.text
+        #             new_job_titles[new_job_title_count] = new_job_title_data
+        #             new_job_title_count += 1
+        #
+        #     elif node_identifier == 'image':
+        #         groups = get_groups_for_user()
+        #         edit_data['image'] = node.text
+        #         edit_data['image_url'] = node.filePath
+        #
+        # # now metadata dynamic fields
+        # for field in dynamic_fields:
+        #     # This will fail if no metadata is set. It should be required but just in case
+        #     if field.fieldValues:
+        #         items = [item.value for item in field.fieldValues.fieldValue]
+        #         edit_data[field.name.replace('-', '_')] = items
 
         # todo: this portion can call some method in the tinker_controller
         # Add the rest of the fields. Can't loop over these kinds of metadata
-        authors = metadata.author
+        authors = find(mdata, 'author')
         try:
             authors = authors.split(", ")
             edit_data['author'] = authors[0]
