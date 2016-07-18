@@ -72,15 +72,27 @@ class FacultyBioController(TinkerController):
         except AttributeError:
             workflow_status = None
 
-        page_values = {
-            'author': author,
-            'id': child.attrib['id'] or "",
-            'title': child.find('title').text or None,
-            'created-on': child.find('created-on').text or None,
-            'path': 'https://www.bethel.edu' + child.find('path').text or "",
-            'workflow_status': workflow_status,
-        }
-        return page_values
+        if '_shared-content' not in child.find('path').text:
+            # get all associated schools
+            school_array = []
+            for school in child.findall('.//job-titles/school'):
+                school_array.append(school.text or 'Other')
+
+            school_array = list(set(school_array))
+
+            page_values = {
+                'author': child.find('author') or None,
+                'id': child.attrib['id'] or "",
+                'title': child.find('title').text or None,
+                'created-on': child.find('created-on').text or None,
+                'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                'schools': school_array,
+                'last-name': child.find('.//last').text or None,
+                'deactivated': child.find('.//deactivate').text or None
+            }
+            return page_values
+        else:
+            return None
 
     # if the department metadata is found return it, else return ''
     def check_web_author_groups(self, groups, program_elements):
