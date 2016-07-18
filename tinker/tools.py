@@ -50,7 +50,6 @@ def init_user():
     if 'name' not in session.keys():
         get_users_name()
 
-
 def get_user():
 
     if current_app.config['ENVIRON'] == 'prod':
