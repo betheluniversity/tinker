@@ -276,21 +276,3 @@ def sync_metadataset(metadataset_id, data):
     resp = edit(new_asset)
     app.logger.debug(time.strftime("%c") + ": Metadata set synced, id: " + metadataset_id)
     return resp
-
-
-def recursive_structure_build(xml):
-    to_return = []
-    if len(list(xml)) > 0:
-        for elem in xml:
-            if 'type' in elem.attrib and (elem.attrib['type'] == "dropdown"
-                                          or elem.attrib['type'] == "radiobutton"):
-                list_of_options = (elem.tag, elem.attrib, 0) + ([el.attrib['value'] for el in list(elem)],)
-                to_return.append(list_of_options)
-            else:
-                children_to_append = recursive_structure_build(elem)
-                if len(children_to_append) > 0:
-                    to_return.append((elem.tag, elem.attrib, len(children_to_append)))
-                    to_return.append(children_to_append)
-                else:
-                    to_return.append((elem.tag, elem.attrib, 0))
-    return to_return
