@@ -16,15 +16,28 @@ class FacultyBioView(FlaskView):
 
     def index(self):
         username = session['username']
-        roles = get_roles(username)
+        roles = session['roles']
 
-        # todo: call the appropriate traverse_xml method in tinker controller
-        # index page for adding events and things
-        forms = self.base.get_faculty_bios_for_user(username)
+        forms = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page')
+        forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
 
-        show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']
+        # the faculty special admins should be able to see every bio, based on school.
+        if username in app.config['FACULTY_BIO_ADMINS']:
+            show_special_admin_view = True
+            show_create = True
+            # This nastiness is to maintain order and have the class value
+            all_schools = [
+                {'cas': 'College of Arts and Sciences'},
+                {'caps': 'College of Adult and Professional Studies'},
+                {'gs': 'Graduate School'},
+                {'sem': 'Bethel Seminary'},
+                {'bu': 'Administration with Faculty Status'},
+                {'other': 'Other'}
+            ]
+        else:  # normal view for everyone else
+            show_special_admin_view = False
+            show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']
 
-        # return forms
         return render_template('faculty-bio-home.html', **locals())
 
     # todo: remove this 'route' line and use flask classy defaults

@@ -4,78 +4,170 @@
 
 {% block styles %}
   <style type="text/css">
+      {# Override the default height for a select field #}
+        select {
+            height: auto !important;
+        }
   </style>
 {% endblock %}
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 
-{% block main_content %}
-<div class="row">
-  <div class="large-12 columns">
-
-    <p>Below is a list of faculty bios you have access to edit. If you don't see your faculty bio, please contact your web author.
-    </p>
-  </div>
- </div>
-<hr/>
-<div class="row">
-
-  <div class="large-12 columns">
-    {% if show_create %}
-      <a href="/faculty-bio/new" class="small button success">Create New Bio</a>
-    {% endif %}
-   {% for form in forms%}
-      <div class="row">
-        <div class="large-6 columns">
+{# A little macro to be used with the 2 separate calls #}
+{% macro display_bio(bio) -%}
+    <div class="row">
+        <div class="large-5 columns">
           <p>
-            {% if form.path != '' %}
-              <a href={{ form.path }}>{{ form.title }}</a>
+            {% if bio.path != '' %}
+              <a href={{ bio.path }}>{{ bio.title }}</a>
             {% else %}
-              {{ form.title }}
+              {{ bio.title }}
             {% endif %}
             <br/>
-            {% if form.path != '' %}<small><a href={{ form.path }}>{{ form.path }}</a></small>{% endif %}
+            {% if bio.path != '' %}<small><a href={{ bio.path }}>{{ bio.path }}</a></small>{% endif %}
           </p>
         </div>
-        <div class="large-6 columns small-3">
+        <div class="large-7 columns small-3">
           <ul class="button-group">
-            {% if form.path != '' %}
-              <li><a href="{{ form.path }}" class="small button success">View</a></li>
-              <li><a href="/faculty-bio/edit/{{ form.id }}#page-title" class="small button">Edit</a></li>
+            {% if bio.path != '' %}
+              <li><a href="{{ bio.path }}" class="small button success">View</a></li>
+              <li><a href="/faculty-bio/edit/{{ bio.id }}#page-title" class="small button">Edit</a></li>
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
-            <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-faculty-bio-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
+
+                {% if bio.deactivated == 'Yes' %}
+                    <li><div id="{{ bio.id }}" data-method='activate' data-faculty-bio-id="{{ bio.id }}" class="small button alert activate-press">Activate</div></li>
+                {% else %}
+                    <li><div id="{{ bio.id }}" data-method='deactivate' data-faculty-bio-id="{{ bio.id }}" class="small button alert activate-press">Deactivate</div></li>
+                {% endif %}
+
+              {% if show_special_admin_view %}
+                <li><a href="#" data-reveal-id="confirmModalDelete" id="{{ bio.id }}" data-faculty-bio-id="{{ bio.id }}" class="small button alert delete-press">Delete</a></li>
+              {% endif %}
            </ul>
         </div>
         <hr/>
       </div>
-    {% endfor %}
+{%- endmacro %}
 
+{% block main_content %}
+<div class="row">
+  <div class="large-12 columns">
 
+    <p>Below is a list of faculty bios you have access to edit. If you don't see your faculty bio, please contact your web author. A deactivated bio will no longer appear in Faculty Listings.</p>
+    {% if show_special_admin_view %}
+        <p>The delete functionality is only available for Faculty Bio Administrators.</p>
+    {% endif %}
+  </div>
+ </div>
+<hr/>
+
+<div class="row">
+
+  <div class="large-12 columns">
+    {% if show_create %}
+      <a href="/faculty-bio/edit/new#page-title" class="small button success">Create New Bio</a>
+    {% endif %}
+    {% if show_special_admin_view %}
+        {# add extra sorting buttons #}
+        <div>
+            <label><h3>View:</h3>
+            <select size="{{ all_schools|length }}" id="school-selector" multiple>
+                {% for schools in all_schools %}
+                    {% for class_name, school_name in schools.items() %}
+                        <option value="{{ class_name }}" selected="selected">{{ school_name }}</option>
+                    {% endfor %}
+                {% endfor %}
+            </select>
+            </label>
+            <script type="text/javascript">
+                $("#school-selector").change(function () {
+                    $('.school-bios').hide();
+                    var array_of_values = $("#school-selector").val();
+                    for( i=0; i<array_of_values.length;i++) {
+                        $('.' + array_of_values[i]).show();
+                    }
+                });
+            </script>
+        </div>
+        <hr/>
+
+        {# show all bios #}
+        {% for schools in all_schools %}
+            {% for class_name, school_name in schools.items() %}
+                <div class="{{ class_name }} school-bios">
+                    <h3>{{ school_name }}</h3>
+                    <div style="padding-left: 5%">
+                        {% for bio in forms %}
+                            {% if school_name in bio.schools %}
+                                {{ display_bio(bio) }}
+                            {% elif 'Bethel University' in bio.schools and class_name == 'bu' %}
+                                {{ display_bio(bio) }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% else %} {# basic view #}
+       {% for bio in forms%}
+           {{ display_bio(bio) }}
+        {% endfor %}
+    {% endif %}
   </div>
 </div>
 
-
-{#Delete confirm modal#}
-<div id="confirmModal" class="reveal-modal" data-reveal>
+{# Delete confirm modal #}
+<div id="confirmModalDelete" class="reveal-modal" data-reveal>
   <h2>Are you sure you want to delete?</h2>
   <p class="lead">Your faculty bio page will be removed.</p>
-  <a class="modal-confirm" id="modal-confirm" href="/faculty-bio/delete/formid">Delete</a>
+  <a class="modal-confirm-delete" id="modal-confirm-delete" href="/faculty-bio/delete/formid">Delete</a>
   <a class="close-reveal-modal">&#215;</a>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
 
-{#  Script to update the modal submit to delete the correct form#}
+{% if show_special_admin_view %}
+    {#  Script to update the modal submit to delete the correct form#}
+  <script src="/static/csrf-activator.js"></script>
   <script type="text/javascript">
+    var csrftoken = "{{ csrf_token() }}";
+    activateCSRF(csrftoken);
+
     $(".delete-press").click(function(){
-      $("#modal-confirm").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
+      $("#modal-confirm-delete").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
     });
+
+    $(".activate-press").click(function(){
+        var current_element = $(this);
+        var inputs = {"id": current_element.data('faculty-bio-id'), "activate": current_element.attr('data-method')};
+        var url = '/faculty-bio/activate';
+
+        // temporarily create a placeholder.
+        // Todo: change this to a gif.
+        current_element.html('. . . Updating . . .');
+         $.ajax({
+            type : "POST",
+            url : url,
+            data: JSON.stringify(inputs),
+            contentType: 'application/json;charset=UTF-8',
+            success: function(result) {
+                  if( current_element.attr('data-method') == 'activate') {
+                      current_element.attr('data-method', 'deactivate');
+                      current_element.html('Deactivate');
+                  } else {
+                      current_element.attr('data-method', 'activate');
+                      current_element.html('Activate');
+                  }
+            }
+        });
+    });
+
   $(document).foundation();
   </script>
+{% endif %}
 
 {% endblock %}
 
