@@ -27,9 +27,7 @@ class FacultyBioView(FlaskView):
         # return forms
         return render_template('faculty-bio-home.html', **locals())
 
-    # todo: remove this 'route' line and use flask classy defaults
-    @route('/delete/<page_id>', methods=['GET'])
-    def delete_page(self, page_id):
+    def delete(self, page_id):
         self.base.delete(page_id, "page")
         self.base.publish_faculty_bio_xml()
 
@@ -181,7 +179,6 @@ class FacultyBioView(FlaskView):
 
         return render_template('faculty-bio-form.html', **locals())
 
-    # todo: remove this 'route' line and use flask classy defaults
     # Was submit_faculty_bio_form(), but renamed for simplification and FlaskClassy convention
     @route('/submit', methods=['POST'])
     def submit(self):
@@ -260,7 +257,6 @@ class FacultyBioView(FlaskView):
                 self.base.publish(faculty_bio_id, "page")
             return render_template('faculty-bio-confirm-new.html', **locals())
 
-    # todo: remove this 'route' line and use flask classy defaults
     # Was uploaded_file(filename), but renamed for simplification and FlaskClassy convention
     @route('/uploads/<path:filename>')
     def uploads(self, filename):
