@@ -55,7 +55,7 @@ class FacultyBioView(FlaskView):
         edit_image = self.base.should_be_able_to_edit_image(roles)
         metadata = fjson.dumps(data_to_add)
         add_form = True
-        
+
         return render_template('faculty-bio-form.html', **locals())
 
     # todo: remove this 'route' line and use flask classy defaults
@@ -183,10 +183,7 @@ class FacultyBioView(FlaskView):
 
         rform = request.form
         username = session['username']
-        # todo: this can call a method in the tinker_controller
-        title = rform['last'] + "-" + rform['first']
-        title = title.lower().replace(' ', '-')
-        title = re.sub(r'[^a-zA-Z0-9-]', '', title)
+        title = self.base.create_title(rform)
 
         degrees, degrees_good, num_degrees = self.base.check_degrees(rform)
         new_jobs_good, num_new_jobs = self.base.check_job_titles(rform)

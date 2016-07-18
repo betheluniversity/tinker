@@ -753,3 +753,14 @@ class FacultyBioController(TinkerController):
         }
 
         return workflow
+
+    def should_be_able_to_edit_image(self, roles):
+        if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
+            return False
+        else:
+            return True
+
+    def create_title(self, form_contents):
+        title = form_contents['last'] + "-" + form_contents['first']
+        title = title.lower().replace(' ', '-')
+        return re.sub(r'[^a-zA-Z0-9-]', '', title)
