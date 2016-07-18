@@ -3041,7 +3041,7 @@ textarea.form-control {
     }
     100% {
       top: 0px;
-      transform: rotate(0);
+      transform: rotate(0deg);
     }
   }
   @-webkit-keyframes topbar-back {
@@ -3057,7 +3057,7 @@ textarea.form-control {
     }
     100% {
       top: 0px;
-      -webkit-transform: rotate(0);
+      -webkit-transform: rotate(0deg);
     }
   }
   @-moz-keyframes topbar-back {
@@ -3073,7 +3073,7 @@ textarea.form-control {
     }
     100% {
       top: 0px;
-      -moz-transform: rotate(0);
+      -moz-transform: rotate(0deg);
     }
   }
   @keyframes bottombar-x {
@@ -3137,7 +3137,7 @@ textarea.form-control {
     }
     100% {
       bottom: 0px;
-      transform: rotate(0);
+      transform: rotate(0deg);
     }
   }
   @-webkit-keyframes bottombar-back {
@@ -3153,7 +3153,7 @@ textarea.form-control {
     }
     100% {
       bottom: 0px;
-      -webkit-transform: rotate(0);
+      -webkit-transform: rotate(0deg);
     }
   }
   @-moz-keyframes bottombar-back {
@@ -3169,7 +3169,7 @@ textarea.form-control {
     }
     100% {
       bottom: 0px;
-      -moz-transform: rotate(0);
+      -moz-transform: rotate(0deg);
     }
   }
   @-webkit-keyframes fadeIn {

@@ -5,7 +5,7 @@ from tinker import app
 @app.route('/')
 def home():
     # index page for adding events and things
-    return render_template('home.html', **locals())
+    return render_template('creativeTim_home.html', **locals())
 
 
 @app.route('/about')

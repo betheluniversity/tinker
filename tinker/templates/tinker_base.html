@@ -1,0 +1,27 @@
+{% extends 'creativeTim_base.html' %}
+{% import 'creativeTim_sidebar.html' as sidebar %}
+{% import 'creativeTim_nav.html' as nav %}
+{% import 'creativeTim_nav_collapse.html' as nav_collapse %}
+{% import 'creativeTim_footer.html' as footer %}
+
+{% block title %}{{ title }} | Tinker{% endblock %}
+
+<body>
+{% block body_content %}
+    <div class="wrapper">
+
+        {{ sidebar.render() }}
+
+        <div class="main-panel">
+            {{ nav.render() }}
+
+            {% block main_content %}
+            {% endblock %}
+
+            {{ footer.render() }}
+        </div>
+
+    </div>
+    {{ nav_collapse.render() }}
+{% endblock %}
+</body>
