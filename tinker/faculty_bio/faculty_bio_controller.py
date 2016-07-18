@@ -12,6 +12,125 @@ from tinker.tinker_controller import TinkerController
 
 
 class FacultyBioController(TinkerController):
+    # todo: this is better, but it still needs a little work
+    def inspect_child(self, child):
+        try:
+            author = child.find('author').text
+        except AttributeError:
+            author = None
+
+        username = session['username']
+        groups = session['groups']
+        iterate_bio = False
+
+        # 1) admin
+        if username in app.config['FACULTY_BIO_ADMINS']:
+            iterate_bio = True
+        # 2) user's bio
+        if author is not None and username in author:
+            iterate_bio = True
+
+        # 3) user is in special group -- check school
+        if 'parlau' in groups:
+            schools_to_check = ['College of Arts and Sciences']
+        elif 'Faculty Approver - CAPS GS' in groups:
+            schools_to_check = ['College of Adult and Professional Studies', 'Graduate School']
+        elif 'Faculty Approver - Seminary' in groups:
+            schools_to_check = ['Bethel Seminary']
+        else:
+            schools_to_check = None
+
+        if schools_to_check:
+            # todo: make this get job-title schools
+            school_value = child.find('system-data-structure/job-titles/school')['text']
+            if school_value in schools_to_check:
+                iterate_bio = True
+
+        # 4) user is in web admin group
+        program_elements = []
+        program_elements.append(child.find('system-data-structure/job-titles/department'))
+        program_elements.append(child.find('system-data-structure/job-titles/seminary-program'))
+
+        if self.check_web_author_groups(groups, program_elements):
+            iterate_bio = True
+
+        # get value of bio, if allowed
+        if iterate_bio:
+            try:
+                return self._iterate_child_xml(child, author)
+            except AttributeError:
+                # Todo: remove this print line, once this is tested
+                print 'bad'
+                return None
+        else:
+            return None
+
+    def _iterate_child_xml(self, child, author):
+
+        try:
+            workflow_status = child.find('workflow').find('status').text
+        except AttributeError:
+            workflow_status = None
+
+        if '_shared-content' not in child.find('path').text:
+            # get all associated schools
+            school_array = []
+            for school in child.findall('.//job-titles/school'):
+                school_array.append(school.text or 'Other')
+
+            school_array = list(set(school_array))
+
+            page_values = {
+                'author': child.find('author') or None,
+                'id': child.attrib['id'] or "",
+                'title': child.find('title').text or None,
+                'created-on': child.find('created-on').text or None,
+                'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                'schools': school_array,
+                'last-name': child.find('.//last').text or None,
+                'deactivated': child.find('.//deactivate').text or None
+            }
+            return page_values
+        else:
+            return None
+
+    # if the department metadata is found return it, else return ''
+    def check_web_author_groups(self, groups, program_elements):
+        mapping = {
+            'Anthropology, Sociology, & Reconciliation':    'Anthropology Sociology',
+            'Art & Design':                                 'Art',
+            'Biblical & Theological Studies':               'Biblical Theological',
+            'Biological Sciences':                          'Biology',
+            'Business & Economics':                         'Business Economics',
+            'Chemistry':                                    'Chemistry',
+            'Communication Studies':                        'Communication',
+            'Education':                                    'Education',
+            'English':                                      'English',
+            'Environmental Studies':                        'Environmental Studies',
+            'General Education':                            'General Education',
+            'History':                                      'History',
+            'Honors':                                       'Honors',
+            'Human Kinetics & Applied Health Science':      'Human Kinetics',
+            'Math & Computer Science':                      'Math CS',
+            'Modern World Languages':                       'World Languages',
+            'Music':                                        'Music',
+            'Nursing':                                      'Nursing',
+            'Philosophy':                                   'Philosophy',
+            'Physics & Engineering':                        'Physics',
+            'Political Science':                            'Political Science',
+            'Psychology':                                   'Psychology',
+            'Social Work':                                  'Social Work',
+            'Theatre Arts':                                 'Theatre',
+            'Doctor of Ministry':                           'Doctor of Ministry'
+        }
+
+        for program_element in program_elements:
+            try:
+                if mapping[program_element['text']] in groups:
+                    return True
+            except:
+                continue
+        return False
 
     # todo: do what check_job_titles does
     def check_degrees(self, form):
@@ -500,65 +619,6 @@ class FacultyBioController(TinkerController):
 
         return asset
 
-    # todo: convert this to a dict, so there isn't 20+ if statements
-    # A lengthy hardcoded list that maps the metadata values to the Groups on Cascade.
-    def get_web_author_group(self, department_metadata):
-        # CAS
-        if "Anthropology, Sociology, & Reconciliation" == department_metadata:
-            return "Anthropology Sociology"
-        if "Art & Design" == department_metadata:
-            return "Art"
-        if "Biblical & Theological Studies" == department_metadata:
-            return "Biblical Theological"
-        if "Biological Sciences" == department_metadata:
-            return "Biology"
-        if "Business & Economics" == department_metadata:
-            return "Business Economics"
-        if "Chemistry" == department_metadata:
-            return "Chemistry"
-        if "Communication Studies" == department_metadata:
-            return "Communication"
-        if "Education" == department_metadata:
-            return "Education"
-        if "English" == department_metadata:
-            return "English"
-        if "Environmental Studies" == department_metadata:
-            return "Environmental Studies"
-        if "General Education" == department_metadata:
-            return "General Education"
-        if "History" == department_metadata:
-            return "History"
-        if "Honors" == department_metadata:
-            return "Honors"
-        if "Human Kinetics & Applied Health Science" == department_metadata:
-            return "Human Kinetics"
-        if "Math & Computer Science" == department_metadata:
-            return "Math CS"
-        if "Modern World Languages" == department_metadata:
-            return "World Languages"
-        if "Music" == department_metadata:
-            return "Music"
-        if "Nursing" == department_metadata:
-            return "Nursing"
-        if "Philosophy" == department_metadata:
-            return "Philosophy"
-        if "Physics & Engineering" == department_metadata:
-            return "Physics"
-        if "Political Science" == department_metadata:
-            return "Political Science"
-        if "Psychology" == department_metadata:
-            return "Psychology"
-        if "Social Work" == department_metadata:
-            return "Social Work"
-        if "Theatre Arts" == department_metadata:
-            return "Theatre"
-
-        # Sem
-        if "Doctor of Ministry" == department_metadata:
-            return "Doctor of Ministry"
-
-        return ""
-
     # todo: this probably doesn't need its own function
     def publish_faculty_bio_xml(self):
         self.publish(app.config['FACULTY_BIO_XML_ID'])
@@ -577,124 +637,6 @@ class FacultyBioController(TinkerController):
         self.publish_faculty_bio_xml()
 
         return response
-
-    # todo: this can be replaced by the travese_xml file in tinker controller
-    def get_faculty_bios_for_user(self, username):
-        if app.config['ENVIRON'] != "prod":
-            response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/faculty-bios.xml')
-            form_xml = ElementTree.fromstring(response.read())
-        else:
-            form_xml = ElementTree.parse('/var/www/staging/public/_shared-content/xml/faculty-bios.xml').getroot()
-        matches = self.traverse_faculty_folder(form_xml, username)
-        matches = sorted(matches, key=itemgetter('title'), reverse=False)
-
-        return matches
-
-    # todo: this can be replaced by the travese_xml file in tinker controller
-    def traverse_faculty_folder(self, traverse_xml, username):
-        # if no username is given, then pass over ALL faculty bios
-        if username is None:
-            matches = []
-            for child in traverse_xml.findall('.//system-page'):
-                page_values = {
-                    'author': child.find('author') or None,
-                    'id': child.attrib['id'] or "",
-                    'title': child.find('title') or None,
-                    'created-on': child.find('created-on').text or None,
-                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                }
-                # This is a match, add it to array
-                matches.append(page_values)
-            return matches
-
-        # Traverse an XML folder, adding system-pages to a dict of matches
-        user = read(username, "user")
-        try:
-            allowed_groups = user.asset.user.groups
-            allowed_groups = allowed_groups.split(";")
-        except AttributeError:
-            allowed_groups = []
-
-        matches = []
-        for child in traverse_xml.findall('.//system-page'):
-            try:
-                # Author check
-                authors = child.find('author')
-                if authors is not None:
-                    dict_of_authors = authors.text.split(", ")
-
-                    if username in dict_of_authors:
-                        page_values = {
-                            'author': child.find('author').text,
-                            'id': child.attrib['id'] or "",
-                            'title': child.find('title').text or None,
-                            'created-on': child.find('created-on').text or None,
-                            'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                        }
-                        # This is a match, add it to array
-                        matches.append(page_values)
-                        continue
-            finally:
-                # Cascade Group check - by
-                for md in child.findall("dynamic-metadata"):
-                    if (md.find('name').text == 'department' or md.find('name').text == 'seminary-program') and md.find(
-                            'value') is not None:
-                        for allowedGroup in allowed_groups:
-
-                            if allowedGroup == self.get_web_author_group(md.find('value').text):
-                                page_values = {
-                                    'author': child.find('author') or None,
-                                    'id': child.attrib['id'] or "",
-                                    'title': child.find('title').text or None,
-                                    'created-on': child.find('created-on').text or None,
-                                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                                }
-                                matches.append(page_values)
-                                break
-
-                    page_values = self.group_check(child, allowed_groups)
-                    if page_values:
-                        matches.append(page_values)
-                        break
-
-        return matches
-
-    # todo: this can be replaced by the travese_xml file in tinker controller
-    def group_check(self, child, allowed_groups):
-        for allowedGroup in allowed_groups:
-            if allowedGroup == 'parlau':
-                schools_to_check = ['College of Arts and Sciences']
-            elif allowedGroup == 'Faculty Approver - CAPS GS':
-                schools_to_check = ['College of Adult and Professional Studies', 'Graduate School']
-            elif allowedGroup == 'Faculty Approver - Seminary':
-                schools_to_check = ['Bethel Seminary']
-            else:
-                continue
-
-            school_check = child.find('system-data-structure/job-titles/school')
-            # new job titles
-            if child.find('system-data-structure/job-titles/school') is not None and school_check.text in schools_to_check:
-                page_values = {
-                    'author': child.find('author') or None,
-                    'id': child.attrib['id'] or "",
-                    'title': child.find('title').text or None,
-                    'created-on': child.find('created-on').text or None,
-                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                }
-                return page_values
-            else:  # old job titles -- delete someday
-                for md in child.find('dynamic-metadata'):
-                    if md.find('name') is not None and md.find('name').text == 'school':
-                        if md.find('value').text in schools_to_check:
-                            page_values = {
-                                'author': child.find('author') or None,
-                                'id': child.attrib['id'] or "",
-                                'title': child.find('title').text or None,
-                                'created-on': child.find('created-on').text or None,
-                                'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                            }
-                            return page_values
-        return False
 
     # todo: this method exists in tinker_controller
     def get_add_data(self, lists, form):
