@@ -45,6 +45,7 @@
               {% if show_special_admin_view %}
                 <li><a href="#" data-reveal-id="confirmModalDelete" id="{{ bio.id }}" data-faculty-bio-id="{{ bio.id }}" class="small button alert delete-press">Delete</a></li>
               {% endif %}
+
            </ul>
         </div>
         <hr/>
@@ -59,13 +60,7 @@
     {% if show_special_admin_view %}
         <p>The delete functionality is only available for Faculty Bio Administrators.</p>
     {% endif %}
-  </div>
- </div>
-<hr/>
 
-<div class="row">
-
-  <div class="large-12 columns">
     {% if show_create %}
       <a href="/faculty-bio/edit/new#page-title" class="small button success">Create New Bio</a>
     {% endif %}
