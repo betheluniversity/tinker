@@ -51,17 +51,11 @@ class FacultyBioView(FlaskView):
         from forms import FacultyBioForm
 
         form = FacultyBioForm()
-        # todo: roles should be gotten from the session variable
-        roles = get_roles()
-        # todo: this method currently is in tools.py. This needs to be fixed
-        edit_image = should_be_able_to_edit_image(roles)
-
-        # todo: this id shouldn't have to have a default value
-        faculty_bio_id = ""
-
+        roles = session['roles']
+        edit_image = self.base.should_be_able_to_edit_image(roles)
         metadata = fjson.dumps(data_to_add)
-
         add_form = True
+        
         return render_template('faculty-bio-form.html', **locals())
 
     # todo: remove this 'route' line and use flask classy defaults

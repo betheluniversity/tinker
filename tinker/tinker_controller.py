@@ -335,3 +335,9 @@ class TinkerController(object):
 
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow
+
+    def should_be_able_to_edit_image(self, roles):
+        if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
+            return False
+        else:
+            return True
