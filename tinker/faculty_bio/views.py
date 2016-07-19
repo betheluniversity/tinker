@@ -23,6 +23,10 @@ faculty_bio_blueprint = Blueprint('faculty-bio', __name__, template_folder='temp
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
     username = session['username']
+    log_sentry('Faculty Bio attempt while upgrading', username)
+    return render_template('faculty-bio-come-back-later.html', **locals())
+
+    username = session['username']
     roles = session['roles']
 
     # the faculty special admins should be able to see every bio, based on school.
@@ -91,6 +95,10 @@ def delete_confirm():
 
 @faculty_bio_blueprint.route("/edit/new")
 def faculty_bio_new_form():
+    username = session['username']
+    log_sentry('Faculty Bio attempt while upgrading', username)
+    return render_template('faculty-bio-come-back-later.html', **locals())
+
     # import this here so we dont load all the content
     # from cascade during homepage load
     from forms import FacultyBioForm
@@ -124,6 +132,9 @@ def faculty_bio_in_workflow():
 
 @faculty_bio_blueprint.route("/edit/<faculty_bio_id>")
 def faculty_bio_edit_form(faculty_bio_id):
+    username = session['username']
+    log_sentry('Faculty Bio attempt while upgrading', username)
+    return render_template('faculty-bio-come-back-later.html', **locals())
 
     # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
     if is_asset_in_workflow(faculty_bio_id):
@@ -223,6 +234,9 @@ def faculty_bio_edit_form(faculty_bio_id):
 
 @faculty_bio_blueprint.route("/submit", methods=['POST'])
 def submit_faculty_bio_form():
+    username = session['username']
+    log_sentry('Faculty Bio attempt while upgrading', username)
+    return render_template('faculty-bio-come-back-later.html', **locals())
     # import this here so we dont load all the content
     # from cascade during homepage load
     from forms import FacultyBioForm
