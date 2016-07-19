@@ -254,9 +254,10 @@ class EventsController(TinkerController):
         """
          Could this be cleaned up at all?
         """
+        new_data = {}
         for key in add_data:
             try:
-                add_data[key] = add_data[key.replace("_", "-")]
+                new_data[key.replace("_", "-")] = add_data[key]
             except:
                 pass
 
@@ -275,25 +276,25 @@ class EventsController(TinkerController):
         # add_data['image'] = image_node
 
         # put it all into the final asset with the rest of the SOAP structure
-        hide_site_nav, parent_folder_path = self.get_event_folder_path(add_data)
+        hide_site_nav, parent_folder_path = self.get_event_folder_path(new_data)
 
-        add_data['parentFolderID'] = ''
-        add_data['parentFolderPath'] = parent_folder_path
+        new_data['parentFolderID'] = ''
+        new_data['parentFolderPath'] = parent_folder_path
 
-        add_data['hide-site-nav'] = [hide_site_nav]
-        add_data['tinker-edits'] = 1
+        new_data['hide-site-nav'] = [hide_site_nav]
+        new_data['tinker-edits'] = 1
 
         # allows for multiple authors. If none set, default to username
-        if 'author' not in add_data or add_data['author'] == "":
-            add_data['author'] = username
+        if 'author' not in new_data or new_data['author'] == "":
+            new_data['author'] = username
 
         # todo: do we need this?
-        add_data['name'] = add_data['title']
+        new_data['name'] = new_data['title']
 
-        self.update_asset(event_data, add_data)
+        self.update_asset(event_data, new_data)
 
         if event_id:
-            add_data['id'] = event_id
+            new_data['id'] = event_id
 
         return event_data
 
