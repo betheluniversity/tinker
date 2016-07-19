@@ -269,6 +269,11 @@ class TinkerController(object):
             # Cascade includes this, for whatever reason.
             return node['text'].replace('&amp;#160;', ' ')
 
+        elif node_type == 'asset':
+            asset_type = node['assetType']
+            if asset_type == 'file':
+                return node['filePath']
+
     def get_edit_data(self, sdata, mdata, multiple=[]):
         """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
         edit_data = {}
@@ -294,6 +299,14 @@ class TinkerController(object):
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
         edit_data['title'] = mdata['title']
+
+        # get the (first) author
+        authors = find(mdata, 'author', False)
+        try:
+            authors = authors.split(", ")
+            edit_data['author'] = authors[0]
+        except AttributeError:
+            edit_data['author'] = ''
 
         return edit_data
 
@@ -330,7 +343,7 @@ class TinkerController(object):
     def read_page(self, path_or_id):
         p = Page(self.cascade_connector, path_or_id)
         p.read_asset()
-        return p.get_structured_data()
+        return p
 
     def read_metadata_set(self, path_or_id):
         ms = MetadataSet(self.cascade_connector, path_or_id)
