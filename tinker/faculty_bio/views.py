@@ -20,10 +20,24 @@ def faculty_bio_home():
     username = session['username']
     roles = get_roles(username)
 
-    # index page for adding events and things
-    forms = get_faculty_bios_for_user(username)
-
-    show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']
+    # the faculty special admins should be able to see every bio, based on school.
+    if username in app.config['FACULTY_BIO_ADMINS']:
+        forms = get_faculty_bios_for_user(None)
+        show_create = True
+        # This nastiness is to maintain order and have the class value
+        all_schools = [
+            {'cas': 'College of Arts and Sciences'},
+            {'caps': 'College of Adult and Professional Studies'},
+            {'gs': 'Graduate School'},
+            {'sem': 'Bethel Seminary'},
+            {'bu': 'Administration with Faculty Status'},
+            {'other': 'Other'}
+        ]
+        show_special_admin_view = True
+    else:  # normal view for everyone else
+        forms = get_faculty_bios_for_user(username)
+        show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']
+        show_special_admin_view = False
 
     # return forms
     return render_template('faculty-bio-home.html', **locals())
@@ -34,12 +48,6 @@ def delete_page(page_id):
     # send to this workflow instead: 7747ea478c5865130c130b3a1a05240e
     delete(page_id, workflow="7747ea478c5865130c130b3a1a05240e")
     publish_faculty_bio_xml()
-
-    # Todo: only publish the corresponding faculty listing pages.
-    publish(app.config['FACULTY_LISTING_CAPS_ID'], 'publishset')
-    publish(app.config['FACULTY_LISTING_GS_ID'], 'publishset')
-    publish(app.config['FACULTY_LISTING_SEM_ID'], 'publishset')
-    publish(app.config['FACULTY_LISTING_CAS_ID'], 'publishset')
 
     return redirect('/faculty-bio/delete-confirm', code=302)
 

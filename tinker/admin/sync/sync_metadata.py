@@ -59,7 +59,7 @@ seminary_programs = [
     "Certificate in Church Planting",
     "Children's & Family Ministry (M.A.)",
     "Christian Studies Certificate",
-    "Christian Thought (M.A.)",
+    "M.A. (Christian Thought)",
     "Doctor of Ministry",
     "Marital & Family Therapy (M.A.)",
     "Marriage & Family Therapy Certificate",
@@ -69,7 +69,7 @@ seminary_programs = [
     "Ministry Practice Certificate",
     "Ministry Practice (M.A.)",
     "Theological Studies Certificate",
-    "Theological Studies (M.A.)",
+    "M.A. (Theological Studies)",
     "Transformational Leadership (M.A.)",
     "Young Life Youth Ministry Certificate",
 ]
@@ -81,6 +81,7 @@ graduate_programs = [
     "Certificate in International Baccalaureate Teaching and Learning",
     "Child and Adolescent Mental Health Certificate",
     "Counseling Psychology (M.A.)",
+    "Developmental Disabilities License",
     "Director of Special Education License",
     "Ed.D.",
     "Education K-12 (M.A.)",
@@ -133,6 +134,7 @@ delivery_subheading = [
 degree = [
     'Select',
     'Associate of Arts',
+    'Associate of Science',
     'Bachelor of Arts',
     'Bachelor of Music',
     'Bachelor of Science',
@@ -145,16 +147,6 @@ degree = [
     'Master of Divinity',
     'Doctor of Ministry',
     'Doctor of Education',
-]
-
-program_search_degree_types = [
-    "All",
-    "Associate",
-    "Bachelor",
-    "License",
-    "Certificate",
-    "Master's",
-    "Doctorate",
 ]
 
 e_announcement_roles = [
@@ -180,4 +172,3 @@ data_to_add['location'] = locations
 data_to_add['delivery_label'] = delivery_label
 data_to_add['delivery_subheading'] = delivery_subheading
 data_to_add['degree'] = degree
-data_to_add['program-search-degree'] = program_search_degree_types

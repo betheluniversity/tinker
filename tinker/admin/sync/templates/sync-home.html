@@ -5,6 +5,77 @@
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
-<a href="/admin/sync/all" class="small button success">Sync</a>
+<script>
+    function postToURLWithSpinner(url, value){
+        {# activate waiting gif #}
+        $('#spinner').show();
+        $.post(url, {'id': value}, function (data) {
+            $("#output").html(data);
+            $('#spinner').hide();
+        });
+    }
+</script>
+
+<p>The sync data is contained in this <a target="_blank" href="https://github.com/betheluniversity/tinker/blob/master/tinker/admin/sync/sync_metadata.py">file</a>. You can sync a specific metadata set, data definition, or sync all.</p>
+
+<div class="row">
+    <div class="large-6 columns">
+        <label>Data Definitions
+            <select id="data-definition">
+                {% for id, name in data_definition_mapping.iteritems() %}
+                    <option value="{{ id }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+    <div class="large-6 columns">
+        <div id='submit-data-definition' class="small button success" onclick="postToURLWithSpinner('{{ url_for("sync.SyncView:datadefinition") }}', $('#data-definition').val())">Sync Data Definition</div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="large-6 columns">
+        <label>Metadata Sets
+            <select id="metadata-set">
+                {% for id, name in metadata_sets_mapping.iteritems() %}
+                    <option value="{{ id }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+        </label>
+    </div>
+    <div class="large-6 columns">
+        <div id='submit-metadata-set' class="small button success" onclick="postToURLWithSpinner('{{ url_for("sync.SyncView:metadata") }}', $('#metadata-set').val())">Sync Metadata</div>
+    </div>
+</div>
+
+<hr/>
+<div id='sync-all' class="small button success" onclick="postToURLWithSpinner('{{ url_for("sync.SyncView:all") }}', 'un-used')">Sync All</div>
+
+<style>
+.spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-left: -50px; /* half width of the spinner gif */
+    margin-top: -50px; /* half height of the spinner gif */
+    text-align:center;
+    z-index:1234;
+    overflow: auto;
+    width: 100px; /* width of the spinner gif */
+    height: 102px; /*hight of the spinner gif +2px to fix IE8 issue */
+}
+</style>
+
+{# todo: format the gif better? #}
+{# spinner placeholder #}
+<div id="spinner" class="spinner" style="display:none;">
+    <img id="img-spinner" src="/get_image/waiting.gif" alt="Loading"/>
+</div>
+{# output results #}
+<div id="output"></div>
+
+
+
+
 
 {% endblock %}

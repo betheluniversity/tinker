@@ -1,31 +1,10 @@
-{% extends "tinker-base.html" %}
+{% extends 'tinker_base.html' %}
+{#{% import 'nav.html' as nav %}#}
+{#{% import 'creativeTim_footer.html' as footer %}#}
 
 {% block title %}Home{% endblock %}
 
-{#{% block styles %}#}
-{#  <style type="text/css">#}
-{#      .home-button{#}
-{#            height: 180px;#}
-{#            width: 180px;#}
-{#            margin: 10px;#}
-{#      }#}
-{#      .button-image{#}
-{#            padding: 5px;#}
-{#            height: 150px;#}
-{#            width: 150px;#}
-{#      }#}
-{#  </style>#}
-{#{% endblock %}#}
-
-{% block page_title %}Bethel University Tinker{% endblock %}
-
 {% block main_content %}
-    {#    <div>#}
-    {#        Welcome to Tinker!#}
-    {#    </div>#}
-    {##}
-    {#    </hr>#}
-
     <div class="content">
         <div class="container-fluid">
             <div class="row">
@@ -33,24 +12,11 @@
                     <div class="card">
                         <div class="header">
                             <h4 class="title">Manage Events</h4>
-                            {#                                <p class="category">Last Campaign Performance</p>#}
                         </div>
                         <div class="content">
                             <div class="icon-big icon-warning text-center">
                                 <img src="get-image/events-icon.png"/>
                             </div>
-
-                            {#                                <div class="footer">#}
-                            {#                                    <div class="chart-legend">#}
-                            {#                                        <i class="fa fa-circle text-info"></i> Open#}
-                            {#                                        <i class="fa fa-circle text-danger"></i> Bounce#}
-                            {#                                        <i class="fa fa-circle text-warning"></i> Unsubscribe#}
-                            {#                                    </div>#}
-                            {#                                    <hr>#}
-                            {#                                    <div class="stats">#}
-                            {#                                        <i class="ti-timer"></i> Campaign sent 2 days ago#}
-                            {#                                    </div>#}
-                            {#                                </div>#}
                         </div>
                     </div>
                 </div>
@@ -58,24 +24,11 @@
                     <div class="card">
                         <div class="header">
                             <h4 class="title">Faculty Bios</h4>
-                            {#                                <p class="category">Last Campaign Performance</p>#}
                         </div>
                         <div class="content">
                             <div class="icon-big icon-warning text-center">
                                 <img src="get-image/faculty-bio-icon.png"/>
                             </div>
-
-                            {#                                <div class="footer">#}
-                            {#                                    <div class="chart-legend">#}
-                            {#                                        <i class="fa fa-circle text-info"></i> Open#}
-                            {#                                        <i class="fa fa-circle text-danger"></i> Bounce#}
-                            {#                                        <i class="fa fa-circle text-warning"></i> Unsubscribe#}
-                            {#                                    </div>#}
-                            {#                                    <hr>#}
-                            {#                                    <div class="stats">#}
-                            {#                                        <i class="ti-timer"></i> Campaign sent 2 days ago#}
-                            {#                                    </div>#}
-                            {#                                </div>#}
                         </div>
                     </div>
                 </div>
@@ -83,24 +36,11 @@
                     <div class="card">
                         <div class="header">
                             <h4 class="title">Manage E-Announcements</h4>
-                            {#                                <p class="category">Last Campaign Performance</p>#}
                         </div>
                         <div class="content">
                             <div class="icon-big icon-warning text-center">
                                 <img src="get-image/e-announcement.png">
                             </div>
-
-                            {#                                <div class="footer">#}
-                            {#                                    <div class="chart-legend">#}
-                            {#                                        <i class="fa fa-circle text-info"></i> Open#}
-                            {#                                        <i class="fa fa-circle text-danger"></i> Bounce#}
-                            {#                                        <i class="fa fa-circle text-warning"></i> Unsubscribe#}
-                            {#                                    </div>#}
-                            {#                                    <hr>#}
-                            {#                                    <div class="stats">#}
-                            {#                                        <i class="ti-timer"></i> Campaign sent 2 days ago#}
-                            {#                                    </div>#}
-                            {#                                </div>#}
                         </div>
                     </div>
                 </div>
@@ -108,65 +48,15 @@
                     <div class="card">
                         <div class="header">
                             <h4 class="title">Manage Redirects</h4>
-                            {#                                <p class="category">Last Campaign Performance</p>#}
                         </div>
                         <div class="content">
                             <div class="icon-big icon-warning text-center">
                                 <img src="get-image/redirect-icon.png"/>
                             </div>
-
-                            {#                                <div class="footer">#}
-                            {#                                    <div class="chart-legend">#}
-                            {#                                        <i class="fa fa-circle text-info"></i> Open#}
-                            {#                                        <i class="fa fa-circle text-danger"></i> Bounce#}
-                            {#                                        <i class="fa fa-circle text-warning"></i> Unsubscribe#}
-                            {#                                    </div>#}
-                            {#                                    <hr>#}
-                            {#                                    <div class="stats">#}
-                            {#                                        <i class="ti-timer"></i> Campaign sent 2 days ago#}
-                            {#                                    </div>#}
-                            {#                                </div>#}
                         </div>
                     </div>
                 </div>
-
-
-                {#    <div class="main-panel">#}
-                {#        <div class="large-6 columns">#}
-                {##}
-                {#            <a class="button expand" href="/event"><img src="get-image/events-icon.png" class="button-image" /><br />Manage events</a>#}
-                {#        </div>#}
-                {##}
-                {#        {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}#}
-                {#            <div class="large-6 columns">#}
-                {##}
-                {#              <a href="/faculty-bio" class="button expand"><img src="get-image/faculty-bio-icon.png" class="button-image" /><br />Faculty Bios</a>#}
-                {#            </div>#}
-                {#        {% endif %}#}
-                {#    </div>#}
-                {##}
-                {##}
-                {#    {% if 'Redirects' in session['groups'] or 'Administrators' in session['groups'] %}#}
-                {#      <div class="main-panel">#}
-                {#        <div class="large-6 columns">#}
-                {#          <a href="/admin/redirect" class="button expand"><img src="get-image/redirect-icon.png" class="button-image" /><br />Manage Redirects</a>#}
-                {#        </div>#}
-                {##}
-                {#        <div class="large-6 columns">#}
-                {#          <a href="/wufoo" class="button expand"><img src="get-image/wufoo-icon.png" class="button-image" /><br />Manage wufoo</a>#}
-                {#        </div>#}
-                {#      </div>#}
-                {#    {% endif %}#}
-                {##}
-                {#      <div class="main-panel">#}
-                {#        <div class="large-6 columns">#}
-                {#          <a href="/e-announcement" class="button expand"><img src="get-image/e-announcement.png" class="button-image" /><br />Manage E-Announcements</a>#}
-                {#        </div>#}
-                {#      </div>#}
             </div>
         </div>
     </div>
-
 {% endblock %}
-
-

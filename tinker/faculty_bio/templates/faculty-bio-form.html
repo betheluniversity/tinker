@@ -398,7 +398,7 @@
                         metadata_value = metadata_value.replace('&', 'and');
                     }
                     opt.value = metadata_value;
-                    opt.innerHTML = metadata_value;
+                    opt.innerHTML = metadata_value.replace('Bethel University', 'Administration with Faculty Status');
                     $('#' + identifier + num).append(opt);
                 }
             }
