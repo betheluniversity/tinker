@@ -9,7 +9,7 @@
             </div>
 
             <ul class="nav">
-                <li class="active">
+                <li>
                     <a href="/">
                         <i class="ti-home"></i>
                         <p>Home</p>
@@ -35,7 +35,7 @@
                         <p>E-Announcements</p>
                     </a>
                 </li>
-                <li class="dropdown">
+                <li>
                     {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                             <i class="ti-menu"></i>
