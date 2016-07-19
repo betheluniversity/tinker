@@ -23,10 +23,6 @@ faculty_bio_blueprint = Blueprint('faculty-bio', __name__, template_folder='temp
 @faculty_bio_blueprint.route("/")
 def faculty_bio_home():
     username = session['username']
-    log_sentry('Faculty Bio attempt while upgrading', username)
-    return render_template('faculty-bio-come-back-later.html', **locals())
-
-    username = session['username']
     roles = session['roles']
 
     # the faculty special admins should be able to see every bio, based on school.
@@ -95,10 +91,6 @@ def delete_confirm():
 
 @faculty_bio_blueprint.route("/edit/new")
 def faculty_bio_new_form():
-    username = session['username']
-    log_sentry('Faculty Bio attempt while upgrading', username)
-    return render_template('faculty-bio-come-back-later.html', **locals())
-
     # import this here so we dont load all the content
     # from cascade during homepage load
     from forms import FacultyBioForm
@@ -132,10 +124,6 @@ def faculty_bio_in_workflow():
 
 @faculty_bio_blueprint.route("/edit/<faculty_bio_id>")
 def faculty_bio_edit_form(faculty_bio_id):
-    username = session['username']
-    log_sentry('Faculty Bio attempt while upgrading', username)
-    return render_template('faculty-bio-come-back-later.html', **locals())
-
     # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
     if is_asset_in_workflow(faculty_bio_id):
         return redirect('/faculty-bio/in-workflow', code=302)
@@ -181,15 +169,12 @@ def faculty_bio_edit_form(faculty_bio_id):
                     group_node_identifier = group_node.identifier.replace('-', '_')
                     edit_data[group_node_identifier] = group_node.text
             if node_identifier == "education":
-                for node in node.structuredDataNodes.structuredDataNode:
-                    node_identifier = node.identifier.replace('-', '_')
-                    if node_identifier == "add_degree":
-                        degree_data = {}
-                        for degree in node.structuredDataNodes.structuredDataNode:
-                            degree_identifier = degree.identifier.replace('-', '_')
-                            degree_data[degree.identifier] = degree.text
-                        degrees[degree_count] = degree_data
-                        degree_count += 1
+                degree_data = {}
+                for degree in node.structuredDataNodes.structuredDataNode:
+                    degree_identifier = degree.identifier.replace('-', '_')
+                    degree_data[degree.identifier] = degree.text
+                degrees[degree_count] = degree_data
+                degree_count += 1
             if node_identifier == "job_titles":
                 new_job_title_data = {}
                 for field in node.structuredDataNodes.structuredDataNode:
@@ -234,9 +219,6 @@ def faculty_bio_edit_form(faculty_bio_id):
 
 @faculty_bio_blueprint.route("/submit", methods=['POST'])
 def submit_faculty_bio_form():
-    username = session['username']
-    log_sentry('Faculty Bio attempt while upgrading', username)
-    return render_template('faculty-bio-come-back-later.html', **locals())
     # import this here so we dont load all the content
     # from cascade during homepage load
     from forms import FacultyBioForm
@@ -289,15 +271,16 @@ def submit_faculty_bio_form():
 
     workflow = None
     workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data)
+    workflow = None
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
     
     if faculty_bio_id:
         # existing bio
         resp = edit(asset)
-        log_sentry("Faculty bio edit submission", resp)
+        # log_sentry("Faculty bio edit submission", resp)
         # publish corresponding pubish set to make sure corresponding pages get edits
-        if not workflow:
-            publish(faculty_bio_id, "page")
+        # if not workflow:
+        #     publish(faculty_bio_id, "page")
         return render_template('faculty-bio-confirm-edit.html', **locals())
     else:
         # new bio

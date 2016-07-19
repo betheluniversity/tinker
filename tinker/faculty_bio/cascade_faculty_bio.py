@@ -141,7 +141,7 @@ def get_add_a_degree(add_data):
 
         node = {
             'type': "group",
-            'identifier': "add-degree",
+            'identifier': "education",
             'structuredDataNodes': {
                 'structuredDataNode': data_list,
             },
@@ -149,15 +149,7 @@ def get_add_a_degree(add_data):
 
         degrees.append(node)
 
-    final_node = {
-        'type': "group",
-        'identifier': "education",
-        'structuredDataNodes': {
-            'structuredDataNode': degrees,
-        },
-    }
-
-    return final_node
+    return degrees
 
 
 def get_add_to_bio(add_data):
