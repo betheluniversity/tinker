@@ -1,3 +1,4 @@
+{% import 'creativeTim_nav_collapse.html' as nav_collapse %}
 <!DOCTYPE html>
 
 {% block html_attribs %}
@@ -39,13 +40,10 @@
     </head>
 
     <body>
-    {% block body %}
         {% block body_content %}
         {% endblock %}
-    {% endblock %}
-    </body>
 
-    <!--   Core JS Files   -->
+         <!--   Core JS Files   -->
     <script src="http://127.0.0.1:5000/static/assets/js/jquery-1.10.2.js" type="text/javascript"></script>
     <script src="http://127.0.0.1:5000/static/assets/js/bootstrap.min.js" type="text/javascript"></script>
 
@@ -64,6 +62,10 @@
     <!-- Paper Dashboard Core javascript and methods for Demo purpose -->
     <script src="http://127.0.0.1:5000/static/assets/js/paper-dashboard.js"></script>
 
+
+    {{ nav_collapse.render() }}
+
+    </body>
 
 {% endblock %}
 </html>

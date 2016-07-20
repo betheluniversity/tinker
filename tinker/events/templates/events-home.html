@@ -1,6 +1,6 @@
 {% extends "tinker_base.html" %}
 
-{% block title %}Home{% endblock %}
+{% set title = 'Events' %}
 
 {% block styles %}
     <style type="text/css">
@@ -10,23 +10,20 @@
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
-    <br/>
-    <br/>
-    <div class="row">
-        <div class="large-12 columns">
+    <div class="content">
+        <div class="row">
+            <div class="large-12 columns">
 
-            <p>All events will be reviewed and approved within 2-3 business days by Conference and Event Services.
-                You'll receive an email to let you know when your event has been approved.</p>
+                <p>All events will be reviewed and approved within 2-3 business days by Conference and Event Services.
+                    You'll receive an email to let you know when your event has been approved.</p>
 
-            <p>If you have any questions, please contact Conference and Event Services at 651.638.6090.</p>
+                <p>If you have any questions, please contact Conference and Event Services at 651.638.6090.</p>
 
 
+            </div>
         </div>
-    </div>
-    <hr/>
-    <div>
-
-        <div class="content">
+        <hr/>
+        <div>
             {% if forms %}
                 <h3>Your Events</h3>
                 <hr/>
@@ -119,42 +116,42 @@
             {% endfor %}
 
         </div>
-    </div>
 
-    <br/>
+        <br/>
 
-    <!-- Button trigger modal -->
-    <button class="btn btn-primary btn-raised" data-toggle="modal" data-target="#myModal">
-        Delete Event
-    </button>
-    <!-- Modal Core -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-                </div>
-                <div class="modal-body">
-                    Test Modal
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-info ">Save</button>
+        <!-- Button trigger modal -->
+        <button class="btn btn-primary btn-raised" data-toggle="modal" data-target="#myModal">
+            Delete Event
+        </button>
+        <!-- Modal Core -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+                    </div>
+                    <div class="modal-body">
+                        Test Modal
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-info ">Save</button>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <br/>
+         
+        {#    <div id="confirmModal" class="reveal-modal" data-reveal>#}
+        {#        <h2>Are you sure you want to delete?</h2>#}
+        {#        <p class="lead">Your event page will be unpublished and removed from the calendar.</p>#}
+        {#        <a class="modal-confirm" id="modal-confirm" href="/delete/formid">Delete</a>#}
+        {#        <a class="close-reveal-modal">&#215;</a>#}
+        {#    </div>#}
     </div>
-
-    <br/>
-     
-    {#    <div id="confirmModal" class="reveal-modal" data-reveal>#}
-    {#        <h2>Are you sure you want to delete?</h2>#}
-    {#        <p class="lead">Your event page will be unpublished and removed from the calendar.</p>#}
-    {#        <a class="modal-confirm" id="modal-confirm" href="/delete/formid">Delete</a>#}
-    {#        <a class="close-reveal-modal">&#215;</a>#}
-    {#    </div>#}
-
 {% endblock %}
 
 {% block scripts %}
