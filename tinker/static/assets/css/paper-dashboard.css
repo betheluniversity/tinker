@@ -619,8 +619,9 @@ hr {
 }
 
 .navbar .navbar-nav > li > a.btn-primary, .btn-primary {
-  border-color: #7A9E9F;
-  color: #7A9E9F;
+  border-color: #0069AA;
+  color: white;
+  background-color: #0069AA;
 }
 .navbar .navbar-nav > li > a.btn-primary:hover, .navbar .navbar-nav > li > a.btn-primary:focus, .navbar .navbar-nav > li > a.btn-primary:active, .navbar .navbar-nav > li > a.btn-primary.active, .open > .navbar .navbar-nav > li > a.btn-primary.dropdown-toggle, .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open > .btn-primary.dropdown-toggle {
   background-color: #7A9E9F;

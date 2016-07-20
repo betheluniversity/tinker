@@ -9,32 +9,71 @@
                 </a>
             </div>
             <ul class="nav navbar-nav">
-                <li class="active">
-                    <a href="/">
-                        <i class="ti-panel"></i>
-                        <p>Home</p>
-                    </a>
-                </li>
-                <li>
-                    <a href="/event">
-                        <i class="ti-user"></i>
-                        <p>Events</p>
-                    </a>
-                </li>
-                <li>
-                    {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
-                        <a href="/faculty-bio">
-                            <i class="ti-view-list-alt"></i>
-                            <p>Faculty Bios</p>
+                {% if request.path == '/' %}
+                    <li class="active">
+                        <a href="/">
+                            <i class="ti-panel"></i>
+                            <p>Home</p>
                         </a>
-                    {% endif %}
-                </li>
-                <li>
-                    <a href="e-announcement">
-                        <i class="ti-text"></i>
-                        <p>E-Announcements</p>
-                    </a>
-                </li>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="/">
+                            <i class="ti-panel"></i>
+                            <p>Home</p>
+                        </a>
+
+                    </li>
+                {% endif %}
+                {% if request.path == '/event/' %}
+                    <li class="active">
+                        <a href="/event">
+                            <i class="ti-user"></i>
+                            <p>Events</p>
+                        </a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="/event">
+                            <i class="ti-user"></i>
+                            <p>Events</p>
+                        </a>
+                    </li>
+                {% endif %}
+                {% if request.path == '/faculty-bio/' %}
+                    <li class="active">
+                        {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
+                            <a href="/faculty-bio">
+                                <i class="ti-view-list-alt"></i>
+                                <p>Faculty Bios</p>
+                            </a>
+                        {% endif %}
+                    </li>
+                {% else %}
+                    <li>
+                        {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
+                            <a href="/faculty-bio">
+                                <i class="ti-view-list-alt"></i>
+                                <p>Faculty Bios</p>
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endif %}
+                {% if request.path == '/e-announcement/' %}
+                    <li class="active">
+                        <a href="e-announcement">
+                            <i class="ti-text"></i>
+                            <p>E-Announcements</p>
+                        </a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="e-announcement">
+                            <i class="ti-text"></i>
+                            <p>E-Announcements</p>
+                        </a>
+                    </li>
+                {% endif %}
                 <li class="dropdown">
                     {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
