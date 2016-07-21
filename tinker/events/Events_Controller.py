@@ -17,7 +17,7 @@ from tinker import app
 
 from flask import render_template, session
 
-# todo: change the file name to be lowercase, out of convention
+
 class EventsController(TinkerController):
 
     def check_event_dates(self, form):
@@ -62,7 +62,9 @@ class EventsController(TinkerController):
             num_dates = int(rform['num_dates'])
             return render_template('event-form.html', **locals())
 
-    # todo: this (and the reference in tinker_controller) can be replaced with what eric wrote in create-base-view branch
+    def authenticate_delete(self, event_page):
+
+
     def group_callback(self, node):
         data = {}
         type = 'group'
@@ -82,9 +84,9 @@ class EventsController(TinkerController):
 
         author = edit_data['author']
 
-        # todo: fix the pep8 error on dates
         return edit_data, form, dates, author
 
+    # web services methods
     def date_str_to_timestamp(self, date):
         try:
             return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
@@ -92,6 +94,7 @@ class EventsController(TinkerController):
             return None
 
     def timestamp_to_date_str(self, timestamp_date):
+
         try:
             return datetime.datetime.fromtimestamp(int(timestamp_date) / 1000).strftime('%B %d  %Y, %I:%M %p')
         except TypeError:
@@ -110,7 +113,6 @@ class EventsController(TinkerController):
             return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
                                 datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
 
-    # todo: can be deleted once replaced by traverse_xml
     # cascade event methods
     def get_forms_for_user(self, username):
         # todo: move this to config
@@ -124,7 +126,6 @@ class EventsController(TinkerController):
 
         return matches
 
-    # todo: can be deleted once replaced by traverse_xml/inspect_child and stuff
     def get_forms_for_event_approver(self):
         # todo: move this to config
         if app.config['ENVIRON'] != "prod":
@@ -182,7 +183,6 @@ class EventsController(TinkerController):
         matches = sorted(matches, key=itemgetter('title'), reverse=False)
         return matches
 
-    # todo: replace with create_workflow
     def get_event_publish_workflow(self, title="", username=""):
         if title:
             title = "-- %s" % title
@@ -236,7 +236,6 @@ class EventsController(TinkerController):
                 end = None
 
             if all_day:
-                # todo: it looks like the timezone code is not here
                 dates.append(
                         {
                             'start-date': start,
@@ -265,7 +264,6 @@ class EventsController(TinkerController):
             except:
                 pass
 
-        # todo: images need to be added
         # Todo: add image asset properly
         # # Create Image asset
         # if 'image' in add_data.keys() and add_data['image'] is not None and add_data['image'] != "":
@@ -380,7 +378,6 @@ class EventsController(TinkerController):
         max_year = 0
         for date in dates:
             date_str = self.timestamp_to_date_str(date['end-date'])
-            # todo: can this call an already created function?
             end_date = datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
             try:
                 year = end_date.year
@@ -392,7 +389,6 @@ class EventsController(TinkerController):
 
         return max_year
 
-    # todo: do we need this? (probably, but i just thought i would check)
     def read_date_data_structure(self, node):
         node_data = find(node, 'structuredDataNode', False)
         date_data = {}
@@ -419,7 +415,6 @@ class EventsController(TinkerController):
 
         return date_data
 
-    # todo: this can be replaced by traverse_xml() in tinker_controller
     def traverse_event_folder(self, traverse_xml, username):
         # Travserse an XML folder, adding system-pages to a dict of matches
         # todo use xpath instead of calling this?
@@ -478,13 +473,11 @@ class EventsController(TinkerController):
 
         return matches
 
-    # todo: this can be deleted. we can just call the move function in tinker_controller
     def move_event_year(self, event_id, data):
         new_path = self.get_event_folder_path(data)
         resp = self.move(event_id, new_path[1])
         return resp
 
-    # todo: this should be deleted. We should be calling the create function in tinker_controller
     def create(self, asset):
         auth = app.config['CASCADE_LOGIN']
         client = self.cascade_connector.get_client()

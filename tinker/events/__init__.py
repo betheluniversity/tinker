@@ -24,8 +24,7 @@ class EventsView(FlaskView):
         # todo: call traverse_xml() in tinker_controller
         forms = self.base.get_forms_for_user(session['username'])
         if 'Event Approver' in session['groups']:
-            # todo: call traverse_xml() in tinker_controller
-            event_approver_forms = self.base.get_forms_for_event_approver()
+            event_approver_forms = self.base.traverse_xml()
         return render_template('events-home.html', **locals())
 
     def delete_confirm(self):
@@ -50,6 +49,9 @@ class EventsView(FlaskView):
     def delete_page(self, page_id):
         # todo: maybe check if they have permission to delete?
         event_page = self.base.read_page(page_id)
+        failed = self.base.authenticate_delete(event_page)
+        if failed:
+            return failed
         response = event_page.delete_asset()
         app.logger.debug(time.strftime("%c") + ": New folder creation by " + session['username'] + " " + str(response))
         self.base.publish(app.config['EVENT_XML_ID'])
@@ -64,6 +66,7 @@ class EventsView(FlaskView):
         edit_data, form, dates, author = self.base.build_edit_form(event_id)
         # todo: fix this with the submit_all() functionality
         # todo convert 'On/Off campus' to 'On/Off Campus' for all events
+        # this will need to be changed once we have "submit all" functionality
         if 'location' in edit_data:
             edit_data['location'].replace(' c', ' C')
 
