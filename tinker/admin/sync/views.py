@@ -26,7 +26,7 @@ def show():
     if 'User' not in app.config['INSTALL_LOCATION']:
         import commands
         commands.getoutput("cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
-        return redirect('/admin/sync/', code=302)
+        return redirect('/admin/sync/all', code=302)
     data = data_to_add
 
     # Todo: sync a single one
