@@ -132,7 +132,8 @@ class PublishManagerView(FlaskView):
         # page
         if info_type == 'page':
             try:
-                asset = self.base.read_page(info_id)
+                page = self.base.read_page(info_id)
+                asset, mdata, sdata = page.read_asset()
                 ext = 'php'
             except:
                 return "Cannot find page."
@@ -149,13 +150,11 @@ class PublishManagerView(FlaskView):
         # name
         if asset:
             try:
-                path = find(asset, 'path')
-                title = find(asset, 'title')
+                path = find(asset, 'path', False)
+                title = find(asset, 'title', False)
 
-                www_publish_date = 'N/A'
-                staging_publish_date = 'N/A'
                 # prod
-                # www publish date
+                www_publish_date = 'N/A'
                 page3 = urllib.urlopen("https://www.bethel.edu/" + path + '.' + ext).read()
                 soup3 = BeautifulSoup(page3)
                 date = soup3.findAll(attrs={"name": "date"})
@@ -163,6 +162,7 @@ class PublishManagerView(FlaskView):
                     www_publish_date = self.base.convert_meta_date(date)
 
                 # staging
+                staging_publish_date = 'N/A'
                 page3 = urllib.urlopen("https://staging.bethel.edu/" + path + '.' + ext).read()
                 soup3 = BeautifulSoup(page3)
                 date = soup3.findAll(attrs={"name": "date"})
