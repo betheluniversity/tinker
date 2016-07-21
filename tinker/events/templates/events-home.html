@@ -123,7 +123,8 @@
 
 {% block scripts %}
 
-{#  Script to update the modal submit to delete the correct form#}
+{#  Script to update the modal submit to delete the correct form #}
+{#  todo add url_for() on the button of events-home.html #}
   <script type="text/javascript">
     $(".delete-press").click(function(){
       $("#modal-confirm").attr("href", "/event/delete/" + $(this).data('event-id'));

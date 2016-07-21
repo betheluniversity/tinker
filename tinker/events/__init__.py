@@ -22,10 +22,11 @@ class EventsView(FlaskView):
 
     def index(self):
         # todo: call traverse_xml() in tinker_controller
-        forms = self.base.get_forms_for_user(session['username'])
+        # forms = self.base.get_forms_for_user(session['username'])
+        forms = self.base.traverse_xml(app.config['EVENTS_URL'], 'system-page')
         if 'Event Approver' in session['groups']:
             # todo: call traverse_xml() in tinker_controller
-            event_approver_forms = self.base.get_forms_for_event_approver()
+            event_approver_forms = self.base.traverse_xml()
         return render_template('events-home.html', **locals())
 
     def delete_confirm(self):
@@ -48,7 +49,6 @@ class EventsView(FlaskView):
 
     @route('/delete/<page_id>')
     def delete_page(self, page_id):
-        # todo: maybe check if they have permission to delete?
         event_page = self.base.read_page(page_id)
         response = event_page.delete_asset()
         app.logger.debug(time.strftime("%c") + ": New folder creation by " + session['username'] + " " + str(response))

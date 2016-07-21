@@ -20,6 +20,56 @@ from flask import render_template, session
 # todo: change the file name to be lowercase, out of convention
 class EventsController(TinkerController):
 
+    def inspect_child(self, child):
+        try:
+            author = child.find('author').text
+        except AttributeError:
+            author = None
+        username = session['username']
+
+        if author is not None and username == author:
+            try:
+                return self._iterate_child_xml(child, author)
+            except AttributeError:
+                # not a valid event page
+                print 'bad'
+                return None
+        else:
+            return None
+
+    def _iterate_child_xml(self, child, author):
+
+        roles = []
+        values = child.find('dynamic-metadata')
+        for value in values:
+            if value.tag == 'value':
+                roles.append(value.text)
+
+        try:
+            is_published = child.find('last-published-on').text
+        except AttributeError:
+            is_published = False
+
+        dates = child.find('system-data-structure').findall('event-dates')
+        dates_str = []
+        for date in dates:
+            start = int(date.find('start-date').text) / 1000
+            end = int(date.find('end-date').text) / 1000
+            dates_str.append(self.friendly_date_range(start, end))
+
+        page_values = {
+            'author': author,
+            'id': child.attrib['id'] or None,
+            'title': child.find('title').text or None,
+            'created-on': child.find('created-on').text or None,
+            'path': 'https://www.bethel.edu' + child.find('path').text or None,
+            'is_published': is_published,
+            'event-dates': "<br/>".join(dates_str),
+        }
+        # This is a match, add it to array
+
+        return page_values
+
     def check_event_dates(self, form):
         event_dates = {}
         dates_good = False
@@ -110,78 +160,6 @@ class EventsController(TinkerController):
             return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
                                 datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
 
-    # todo: can be deleted once replaced by traverse_xml
-    # cascade event methods
-    def get_forms_for_user(self, username):
-        # todo: move this to config
-        if app.config['ENVIRON'] != "prod":
-            response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/events.xml')
-            form_xml = ET.fromstring(response.read())
-        else:
-            form_xml = ET.parse('/var/www/staging/public/_shared-content/xml/events.xml').getroot()
-        matches = self.traverse_event_folder(form_xml, username)
-        matches = sorted(matches, key=itemgetter('title'), reverse=False)
-
-        return matches
-
-    # todo: can be deleted once replaced by traverse_xml/inspect_child and stuff
-    def get_forms_for_event_approver(self):
-        # todo: move this to config
-        if app.config['ENVIRON'] != "prod":
-            response = urllib2.urlopen('http://staging.bethel.edu/_shared-content/xml/events.xml')
-            form_xml = ET.fromstring(response.read())
-        else:
-            form_xml = ET.parse('/var/www/staging/public/_shared-content/xml/events.xml').getroot()
-
-        # Travserse an XML folder, adding system-pages to a dict of matches
-        # todo use xpath instead of calling this?
-
-        matches = []
-        for child in form_xml.findall('.//system-page'):
-
-            try:
-                is_rental = False
-                for dynamic_field in child.findall("dynamic-metadata"):
-                    if dynamic_field.find("name").text == "general":
-                        for value in dynamic_field.findall("value"):
-                            if value is not None and "Meetings, Conferences and Rentals" == value.text:
-                                is_rental = True
-
-            except AttributeError:
-                continue
-
-            try:
-                author = child.find('author').text
-            except AttributeError:
-                author = None
-            try:
-                is_published = child.find('last-published-on').text
-            except AttributeError:
-                is_published = False
-
-            if is_rental:
-                dates = child.find('system-data-structure').findall('event-dates')
-                dates_str = []
-                for date in dates:
-                    start = int(date.find('start-date').text) / 1000
-                    end = int(date.find('end-date').text) / 1000
-                    dates_str.append(self.friendly_date_range(start, end))
-
-                page_values = {
-                    'author': author,
-                    'id': child.attrib['id'] or None,
-                    'title': child.find('title').text or None,
-                    'created-on': child.find('created-on').text or None,
-                    'path': 'https://www.bethel.edu' + child.find('path').text or None,
-                    'is_published': is_published,
-                    'event-dates': "<br/>".join(dates_str),
-                }
-                # This is a match, add it to array
-                matches.append(page_values)
-
-        matches = sorted(matches, key=itemgetter('title'), reverse=False)
-        return matches
-
     # todo: replace with create_workflow
     def get_event_publish_workflow(self, title="", username=""):
         if title:
@@ -238,11 +216,11 @@ class EventsController(TinkerController):
             if all_day:
                 # todo: it looks like the timezone code is not here
                 dates.append(
-                        {
-                            'start-date': start,
-                            'end-date': end,
-                            'all-day': '::CONTENT-XML-CHECKBOX::Yes'
-                        }
+                    {
+                        'start-date': start,
+                        'end-date': end,
+                        'all-day': '::CONTENT-XML-CHECKBOX::Yes'
+                    }
                 )
             else:
                 dates.append(
