@@ -271,16 +271,15 @@ def submit_faculty_bio_form():
 
     workflow = None
     workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data)
-    workflow = None
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
     
     if faculty_bio_id:
         # existing bio
         resp = edit(asset)
-        # log_sentry("Faculty bio edit submission", resp)
+        log_sentry("Faculty bio edit submission", resp)
         # publish corresponding pubish set to make sure corresponding pages get edits
-        # if not workflow:
-        #     publish(faculty_bio_id, "page")
+        if not workflow:
+            publish(faculty_bio_id, "page")
         return render_template('faculty-bio-confirm-edit.html', **locals())
     else:
         # new bio
