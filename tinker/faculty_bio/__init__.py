@@ -196,7 +196,6 @@ class FacultyBioView(FlaskView):
 
         degrees, degrees_good, num_degrees = self.base.check_degrees(rform)
         new_jobs_good, num_new_jobs = self.base.check_job_titles(rform)
-        # todo: this should be separated out into a validate method
         if not form.validate_on_submit() or (not new_jobs_good or not degrees_good):
             if 'faculty_bio_id' in request.form.keys():
                 faculty_bio_id = request.form['faculty_bio_id']
@@ -211,11 +210,9 @@ class FacultyBioView(FlaskView):
         add_data = self.base.get_add_data(
             ['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
 
-        # todo: groups can be accessed from the session variable
         # Images
-        groups = get_groups_for_user()
+        groups = session['groups']
 
-        # todo: this should be cleaned up
         try:
             image_name = form.image.data.filename
         except AttributeError:
@@ -235,9 +232,19 @@ class FacultyBioView(FlaskView):
         if faculty_bio_id == "":
             faculty_bio_id = None
 
-        workflow = None
-        # todo: the generic get_workflow method (can be found in create-base-view branch)
-        workflow = self.base.get_bio_publish_workflow(title, username, faculty_bio_id, add_data)
+        workflow_id = ""
+        schools = []
+        for key in add_data:
+            if key.startswith('schools'):
+                schools.append(add_data[key])
+        if "College of Arts and Sciences" in schools:
+            workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
+        elif "Graduate School" in schools or "College of Adult and Professional Studies" in schools:
+            workflow_id = '81dabbc78c5865130c130b3a2b567e75'
+        elif "Bethel Seminary" in schools:
+            workflow_id = '68ad793e8c5865137c9c2c89440cbbbc'
+        workflow = self.base.create_workflow(workflow_id, subtitle=title)
+        # workflow = self.base.get_bio_publish_workflow(title, username, faculty_bio_id, add_data)
         asset = self.base.get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 
         if faculty_bio_id:

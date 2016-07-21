@@ -330,7 +330,7 @@ class TinkerController(object):
     def read_page(self, path_or_id):
         p = Page(self.cascade_connector, path_or_id)
         p.read_asset()
-        return p.get_structured_data()
+        return p
 
     def read_metadata_set(self, path_or_id):
         ms = MetadataSet(self.cascade_connector, path_or_id)
