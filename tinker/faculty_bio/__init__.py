@@ -210,10 +210,4 @@ class FacultyBioView(FlaskView):
                 self.base.publish(faculty_bio_id, "page")
             return render_template('faculty-bio-confirm-new.html', **locals())
 
-    # todo: remove this 'route' line and use flask classy defaults
-    # Was uploaded_file(filename), but renamed for simplification and FlaskClassy convention
-    @route('/uploads/<path:filename>')
-    def uploads(self, filename):
-        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
-
 FacultyBioView.register(FacultyBioBlueprint)
