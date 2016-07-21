@@ -256,10 +256,11 @@ class TinkerController(object):
                 pass
 
             try:
-                date = self.java_unix_to_date(node['text'])
-                if not date:
-                    date = ''
-                return date
+                if len(node['text']) >= 9:
+                    date = self.java_unix_to_date(node['text'])
+                    if not date:
+                        date = ''
+                    return date
             except TypeError:
                 pass
             except ValueError:

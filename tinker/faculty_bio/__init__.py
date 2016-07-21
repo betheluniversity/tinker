@@ -42,8 +42,6 @@ class FacultyBioView(FlaskView):
 
         return render_template('faculty-bio-home.html', **locals())
 
-    # todo: remove this 'route' line and use flask classy defaults
-    @route('/delete/<page_id>', methods=['GET'])
     def delete_page(self, page_id):
         self.base.delete(page_id, "page")
         self.base.publish_faculty_bio_xml()
