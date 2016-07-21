@@ -35,7 +35,6 @@ undergrad_programs = [
     "Psychology",
     "Social Work",
     "Theatre Arts",
-    'test'
 ]
 
 adult_undergrad_programs = [

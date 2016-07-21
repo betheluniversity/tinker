@@ -6,7 +6,7 @@ from tinker.web_services import *
 from xml.sax.saxutils import escape
 import xml.etree.ElementTree as Et
 
-from flask import Blueprint, render_template, abort, request, redirect
+from flask import Blueprint, render_template, abort
 
 sync_blueprint = Blueprint('sync_blueprint', __name__, template_folder='templates')
 
@@ -26,7 +26,7 @@ def show():
     if 'User' not in app.config['INSTALL_LOCATION']:
         import commands
         commands.getoutput("cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
-        return redirect('/admin/sync/all', code=302)
+
     data = data_to_add
 
     # Todo: sync a single one
