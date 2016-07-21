@@ -215,6 +215,7 @@ class TinkerController(object):
         return matches
 
     def get_edit_data(self, asset_data):
+
         edit_data = {}
 
         try:
@@ -344,3 +345,14 @@ class TinkerController(object):
 
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow
+
+    def edit_all(self, child, author, edit_data, xml_url, 'system-block'):
+        type_to_find = 'system-block'
+        forms_to_edit = []
+        forms_to_edit = self.traverse_xml(self, xml_url, type_to_find)
+        new_value = self.base.edit_all_callback(self, child, author, edit_data, xml_url, forms_to_edit)
+        self.base.edit_asset(self, new_value)
+        self.base.publish_asset(self)
+
+    def edit_all_callback(self, child, author, edit_data, xml_url, forms_to_edit):
+        pass
