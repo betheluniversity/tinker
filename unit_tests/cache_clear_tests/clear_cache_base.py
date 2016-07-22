@@ -1,6 +1,3 @@
-import os
-import shutil
-import tempfile
 import tinker
 import unittest
 
