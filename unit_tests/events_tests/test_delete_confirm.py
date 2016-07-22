@@ -1,4 +1,4 @@
-from events_base import EventsBaseTestCase
+from . import EventsBaseTestCase
 
 class DeleteConfirmTestCase(EventsBaseTestCase):
     #######################
