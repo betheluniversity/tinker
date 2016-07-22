@@ -696,6 +696,18 @@ class FacultyBioController(TinkerController):
 
         return workflow
 
+    def get_correct_workflow_id(self, add_data):
+        schools = []
+        for key in add_data:
+            if key.startswith('schools'):
+                schools.append(add_data[key])
+        if "College of Arts and Sciences" in schools:
+            return 'f1638f598c58651313b6fe6b5ed835c5'
+        elif "Graduate School" in schools or "College of Adult and Professional Studies" in schools:
+            return '81dabbc78c5865130c130b3a2b567e75'
+        elif "Bethel Seminary" in schools:
+            return '68ad793e8c5865137c9c2c89440cbbbc'
+
     def should_be_able_to_edit_image(self, roles):
         if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
             return False
