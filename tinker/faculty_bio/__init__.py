@@ -42,7 +42,7 @@ class FacultyBioView(FlaskView):
 
         return render_template('faculty-bio-home.html', **locals())
 
-    def delete_page(self, page_id):
+    def delete(self, page_id):
         self.base.delete(page_id, "page")
         self.base.publish_faculty_bio_xml()
 
@@ -66,17 +66,11 @@ class FacultyBioView(FlaskView):
         from forms import FacultyBioForm
 
         form = FacultyBioForm()
-        # todo: roles should be gotten from the session variable
-        roles = get_roles()
-        # todo: this method currently is in tools.py. This needs to be fixed
-        edit_image = should_be_able_to_edit_image(roles)
-
-        # todo: this id shouldn't have to have a default value
-        faculty_bio_id = ""
-
+        roles = session['roles']
+        edit_image = self.base.should_be_able_to_edit_image(roles)
         metadata = fjson.dumps(data_to_add)
-
         add_form = True
+
         return render_template('faculty-bio-form.html', **locals())
 
     # todo: remove this 'route' line and use flask classy defaults
@@ -131,7 +125,6 @@ class FacultyBioView(FlaskView):
 
         return render_template('faculty-bio-form.html', **locals())
 
-    # todo: remove this 'route' line and use flask classy defaults
     # Was submit_faculty_bio_form(), but renamed for simplification and FlaskClassy convention
     @route('/submit', methods=['POST'])
     def submit(self):
@@ -142,14 +135,10 @@ class FacultyBioView(FlaskView):
 
         rform = request.form
         username = session['username']
-        # todo: this can call a method in the tinker_controller
-        title = rform['last'] + "-" + rform['first']
-        title = title.lower().replace(' ', '-')
-        title = re.sub(r'[^a-zA-Z0-9-]', '', title)
+        title = self.base.create_title(rform)
 
         degrees, degrees_good, num_degrees = self.base.check_degrees(rform)
         new_jobs_good, num_new_jobs = self.base.check_job_titles(rform)
-        # todo: this should be separated out into a validate method
         if not form.validate_on_submit() or (not new_jobs_good or not degrees_good):
             if 'faculty_bio_id' in request.form.keys():
                 faculty_bio_id = request.form['faculty_bio_id']
@@ -164,11 +153,9 @@ class FacultyBioView(FlaskView):
         add_data = self.base.get_add_data(
             ['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
 
-        # todo: groups can be accessed from the session variable
         # Images
-        groups = get_groups_for_user()
+        groups = session['groups']
 
-        # todo: this should be cleaned up
         try:
             image_name = form.image.data.filename
         except AttributeError:
@@ -188,9 +175,8 @@ class FacultyBioView(FlaskView):
         if faculty_bio_id == "":
             faculty_bio_id = None
 
-        workflow = None
-        # todo: the generic get_workflow method (can be found in create-base-view branch)
-        workflow = self.base.get_bio_publish_workflow(title, username, faculty_bio_id, add_data)
+        workflow_id = self.base.get_correct_workflow_id(add_data)
+        workflow = self.base.create_workflow(workflow_id, subtitle=title)
         asset = self.base.get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
 
         if faculty_bio_id:

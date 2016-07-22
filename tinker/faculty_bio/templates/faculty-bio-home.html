@@ -31,7 +31,7 @@
           <ul class="button-group">
             {% if bio.path != '' %}
               <li><a href="{{ bio.path }}" class="small button success">View</a></li>
-              <li><a href="/faculty-bio/edit/{{ bio.id }}#page-title" class="small button">Edit</a></li>
+              <li><a href="/faculty-bio/edit/{{ bio.id }}" class="small button">Edit</a></li>
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
@@ -62,7 +62,7 @@
     {% endif %}
 
     {% if show_create %}
-      <a href="/faculty-bio/edit/new#page-title" class="small button success">Create New Bio</a>
+      <a href="/faculty-bio/new" class="small button success">Create New Bio</a>
     {% endif %}
     {% if show_special_admin_view %}
         {# add extra sorting buttons #}
