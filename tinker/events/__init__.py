@@ -1,6 +1,6 @@
 import time
 from flask.ext.classy import FlaskView, route
-from tinker.events.Events_Controller import EventsController
+from tinker.events.events_controller import EventsController
 from bu_cascade.asset_tools import update
 from flask import Blueprint, redirect, session, render_template, request, url_for
 from tinker import app
@@ -80,8 +80,6 @@ class EventsView(FlaskView):
     @route("/submit/<edit>", methods=['post'])
     @route("/submit", methods=['post'])
     def submit_form(self, edit=False):
-        # todo test for tim delete later
-        # self.base.test_bu_cascade()
         rform = request.form
         username = session['username']
         workflow = None
@@ -105,6 +103,7 @@ class EventsView(FlaskView):
             add_data['event-dates'] = dates
             asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
             response = self.base.create(asset)
+            self.base.log_sentry("New event submission", response)
 
         else:
             page = self.base.read_page(eid)
@@ -129,7 +128,7 @@ class EventsView(FlaskView):
                 response = self.base.move_event_year(event_id, add_data)
                 app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(response))
 
-        # todo: we need to add back in the new_internal_redirect_submit
+        # # todo: we need to add back in the new_internal_redirect_submit
         # # Checks if the link is valid
         # if 'link' in add_data and add_data['link'] != "":
         #     from tinker.admin.redirects import new_internal_redirect_submit
@@ -140,7 +139,7 @@ class EventsView(FlaskView):
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):
-        # todo: these calls are broken.
+        # todo: these calls are broken. Need to update to the new methods
         ws_connector = self.base.Cascade(app.config['SOAP_URL'], app.config['AUTH'], app.config['SITE_ID'])
         my_page = self.base.Page(ws_connector, event_id)
 
@@ -149,9 +148,5 @@ class EventsView(FlaskView):
         my_page.edit_asset(asset)
 
         return event_id
-
-    # # todo this is a test, delete later
-    # def tim(self):
-    #     return str(self.base.copy_folder('/_testing/tim-heck/test-event-folder3', 'f21ae7948c5865137725e12f0f26d863'))
 
 EventsView.register(EventsBlueprint)

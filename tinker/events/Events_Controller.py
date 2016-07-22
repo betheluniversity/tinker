@@ -17,7 +17,6 @@ from tinker import app
 
 from flask import render_template, session
 
-# todo: change the file name to be lowercase, out of convention
 class EventsController(TinkerController):
 
     def inspect_child(self, child):
@@ -102,7 +101,6 @@ class EventsController(TinkerController):
         from forms import EventForm
         form = EventForm()
 
-        # todo move to TinkerBase?
         if not form.validate_on_submit() or not dates_good:
             if 'event_id' in rform.keys():
                 event_id = rform['event_id']
@@ -127,12 +125,12 @@ class EventsController(TinkerController):
 
         asset = self.read_page(event_id)
         edit_data, form = self.get_edit_data(asset, EventForm, event_id)
+        dates = None
         if edit_data['dates']:
             dates = edit_data['dates']
 
         author = edit_data['author']
 
-        # todo: fix the pep8 error on dates
         return edit_data, form, dates, author
 
     def date_str_to_timestamp(self, date):
@@ -214,7 +212,7 @@ class EventsController(TinkerController):
                 end = None
 
             if all_day:
-                # todo: it looks like the timezone code is not here
+                # todo: it looks like the timezone code is not here (needs to be added in when the branch has timezone code)
                 dates.append(
                     {
                         'start-date': start,
@@ -271,7 +269,6 @@ class EventsController(TinkerController):
         if 'author' not in new_data or new_data['author'] == "":
             new_data['author'] = username
 
-        # todo: do we need this?
         new_data['name'] = new_data['title']
 
         self.update_asset(event_data, new_data)
@@ -397,65 +394,6 @@ class EventsController(TinkerController):
 
         return date_data
 
-    # todo: this can be replaced by traverse_xml() in tinker_controller
-    def traverse_event_folder(self, traverse_xml, username):
-        # Travserse an XML folder, adding system-pages to a dict of matches
-        # todo use xpath instead of calling this?
-
-        if username == "":
-            matches = []
-            for child in traverse_xml.findall('.//system-page'):
-                author = None
-                if child.find('author'):
-                    author = child.find('author').text
-
-                page_values = {
-                    'author': author,
-                    'id': child.attrib['id'] or None,
-                    'title': child.find('title').text or None,
-                    'created-on': child.find('created-on').text or None,
-                }
-                # This is a match, add it to array
-                matches.append(page_values)
-            return matches
-
-        matches = []
-        for child in traverse_xml.findall('.//system-page'):
-            try:
-                author = child.find('author').text
-            except AttributeError:
-                continue
-
-            try:
-                is_published = child.find('last-published-on').text
-            except AttributeError:
-                is_published = False
-
-            author = author.replace(" ", "")
-            author = author.split(",")
-
-            if username in author:
-                dates = child.find('system-data-structure').findall('event-dates')
-                dates_str = []
-                for date in dates:
-                    start = int(date.find('start-date').text) / 1000
-                    end = int(date.find('end-date').text) / 1000
-                    dates_str.append(self.friendly_date_range(start, end))
-
-                page_values = {
-                    'author': child.find('author').text,
-                    'id': child.attrib['id'] or None,
-                    'title': child.find('title').text or None,
-                    'created-on': child.find('created-on').text or None,
-                    'path': 'https://www.bethel.edu' + child.find('path').text or None,
-                    'is_published': is_published,
-                    'event-dates': "<br/>".join(dates_str),
-                }
-                # This is a match, add it to array
-                matches.append(page_values)
-
-        return matches
-
     # todo: this can be deleted. we can just call the move function in tinker_controller
     def move_event_year(self, event_id, data):
         new_path = self.get_event_folder_path(data)
@@ -482,7 +420,6 @@ class EventsController(TinkerController):
             'Response': str(response)
         })
 
-        self.log_sentry("New event submission", response)
         """
 
         <complexType name="workflow-configuration">
