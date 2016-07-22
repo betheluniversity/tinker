@@ -32,9 +32,7 @@ if not app.debug:
 
 # Import routes -- These will be removed when we are done with the refactor
 from tinker.events.views import event_blueprint
-from tinker.faculty_bio.views import faculty_bio_blueprint
 app.register_blueprint(event_blueprint, url_prefix='/event')
-app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
 
 # New importing of routes and blueprints
 from tinker.views import BaseBlueprint
@@ -44,6 +42,7 @@ from tinker.admin.sync import SyncBlueprint
 from tinker.admin.publish import PublishManagerBlueprint
 from tinker.admin.redirects import RedirectsBlueprint
 from tinker.e_announcements import EAnnouncementsBlueprint
+from tinker.faculty_bio import FacultyBioBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
 
 app.register_blueprint(BaseBlueprint)
@@ -53,6 +52,7 @@ app.register_blueprint(SyncBlueprint)
 app.register_blueprint(PublishManagerBlueprint)
 app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(EAnnouncementsBlueprint)
+app.register_blueprint(FacultyBioBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
 
 CsrfProtect(app)

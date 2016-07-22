@@ -27,8 +27,12 @@
   <div class="row">
   <div class="large-12 columns">
       <form id="facultybioform" action="/faculty-bio/submit" method="post" enctype="multipart/form-data">
-      <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-      <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
+      {{ form.csrf_token }}
+      {% if faculty_bio_id %}
+          <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
+      {% else %}
+          <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value=""/>
+      {% endif %}
 
         {% if form.errors %}
           <div class="alert alert-error">
@@ -478,7 +482,6 @@
 
         }
 
-
         {% if new_job_titles %}
           var new_job_titles = {{ new_job_titles|safe }};
           var i = 0;
@@ -492,7 +495,7 @@
               }
               //Convert to correct value
               id = i + 1;
-              
+
               //If this is not the first node, create it before we can populate it and insert after the last one.
               //show the remove button
               if (i != 0) {
@@ -538,7 +541,7 @@
               $("#remove_jdegree_button").show();
             }
             //Now populate the fieldset
-            populateDegreeFieldset(id, degree['school'], degree['degree-earned'], degree['year'] )
+            populateDegreeFieldset(id, degree['school'], degree['degree_earned'], degree['year'] )
             //no infinite loops today
             i++;
 
