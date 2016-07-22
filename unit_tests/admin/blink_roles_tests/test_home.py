@@ -1,4 +1,4 @@
-from roles_base import RolesBaseTestCase
+from . import RolesBaseTestCase
 
 
 class HomeTestCase(RolesBaseTestCase):

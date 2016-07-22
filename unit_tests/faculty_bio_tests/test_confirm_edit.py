@@ -1,4 +1,4 @@
-from faculty_bio_base import FacultyBioBaseTestCase
+from . import FacultyBioBaseTestCase
 
 
 class ConfirmEditTestCase(FacultyBioBaseTestCase):

@@ -1,4 +1,4 @@
-from e_announcements_base import EAnnouncementsBaseTestCase
+from . import EAnnouncementsBaseTestCase
 
 
 class IndexTestCase(EAnnouncementsBaseTestCase):

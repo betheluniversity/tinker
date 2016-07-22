@@ -1,4 +1,4 @@
-from clear_cache_base import ClearCacheBaseTestCase
+from . import ClearCacheBaseTestCase
 
 
 class SubmitTestCase(ClearCacheBaseTestCase):

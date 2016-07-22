@@ -1,4 +1,4 @@
-from redirects_base import RedirectsBaseTestCase
+from . import RedirectsBaseTestCase
 
 
 class DeleteTestCase(RedirectsBaseTestCase):
