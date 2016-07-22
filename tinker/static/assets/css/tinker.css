@@ -1,0 +1,68 @@
+.horizontal-scroll {
+    overflow: auto;
+}
+
+p#faculty-p {
+    margin: 0 0 10px;
+    width: 90%;
+}
+
+.small-link {
+    font-size: 80%;
+    overflow-wrap: break-word;
+}
+
+.btn {
+    margin-left: 0px !important;
+}
+
+.btn,
+.navbar .navbar-nav > li > a.btn {
+    border-radius: 4px !important;
+}
+
+.navbar .navbar-nav > li > a.btn-primary, .btn-primary {
+    border-color: #0069AA;
+    color: white;
+    background-color: #0069AA;
+}
+
+.btn:hover, .btn:focus, .btn:active, .btn.active, .open > .btn.dropdown-toggle,
+.navbar .navbar-nav > li > a.btn:hover,
+.navbar .navbar-nav > li > a.btn:focus,
+.navbar .navbar-nav > li > a.btn:active,
+.navbar .navbar-nav > li > a.btn.active, .open >
+.navbar .navbar-nav > li > a.btn.dropdown-toggle {
+    background-color: #0069AA;
+    border-color: #0069AA;
+}
+
+.navbar .navbar-brand {
+    margin: 5px 0px !important;
+}
+
+.btn-alert {
+    background-color: #DE8626 !important;
+    border-color: #DE8626 !important;
+}
+
+ul.btn-group-horizontal {
+    padding: 0px;
+}
+
+ul.btn-group-horizontal li {
+    display: inline;
+}
+
+@media (min-width: 992px) {
+    .navbar .navbar-header {
+        margin: 0px !important;
+        padding-left: 15px !important;
+    }
+}
+
+@media (max-width: 350px) {
+    select#school-selector {
+        max-width: 90%;
+    }
+}

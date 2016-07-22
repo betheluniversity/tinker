@@ -15,8 +15,8 @@
 
 {# A little macro to be used with the 2 separate calls #}
 {% macro display_bio(bio) -%}
-    <div class="row">
-        <div class="large-6 columns">
+    <div class="card">
+        <div class="content">
             <p>
                 {% if bio.path != '' %}
                     <a href={{ bio.path }}>{{ bio.title }}</a>
@@ -25,51 +25,49 @@
                 {% endif %}
                 <br/>
                 {% if bio.path != '' %}
-                    <small><a href={{ bio.path }}>{{ bio.path }}</a></small>{% endif %}
+                    <a href="{{ bio.path }}" class="small-link">{{ bio.path }}</a>{% endif %}
             </p>
-        </div>
-        <div class="large-6 columns small-3">
-            <ul class="button-group">
+
+            <ul class="btn-group-horizontal">
                 {% if bio.path != '' %}
-                    <li><a href="{{ bio.path }}" class="small button success">View</a></li>
-                    <li><a href="/faculty-bio/edit/{{ bio.id }}#page-title" class="small button">Edit</a></li>
+                    <li><a href="{{ bio.path }}" class="btn btn-primary">View</a></li>
+                    <li><a href="/faculty-bio/edit/{{ bio.id }}#page-title" class="btn btn-primary">Edit</a></li>
                 {% else %}
-                    <li><a class="small button success">Not Approved</a></li>
+                    <li><a class="btn btn-primary">Not Approved</a></li>
                 {% endif %}
                 <li><a href="#" data-reveal-id="confirmModal" id="{{ bio.id }}" data-faculty-bio-id="{{ bio.id }}"
-                       class="small button alert delete-press">Delete</a></li>
+                       class="btn btn-primary btn-alert">Delete</a></li>
             </ul>
         </div>
-        <hr/>
     </div>
+    <hr/>
 {%- endmacro %}
 
 {% block main_content %}
     <div class="content">
-        <div class="row">
-            <div class="large-12 columns">
-
-                <p>Below is a list of faculty bios you have access to edit. If you don't see your faculty bio, please
-                    contact your web author.
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <p id="faculty-p">Below is a list of faculty bios you have access to edit. If you don't see your faculty
+                    bio,
+                    please contact your web author.
                 </p>
+                <hr/>
             </div>
-        </div>
-        <hr/>
 
-        <div class="row">
-
-            <div class="large-12 columns">
+            <div class="col-md-12">
                 {% if show_create %}
-                    <a href="/faculty-bio/edit/new#page-title" class="small button success">Create New Bio</a>
+                    <a href="/faculty-bio/edit/new#page-title" class="btn btn-primary">Create New Bio</a>
                 {% endif %}
                 {% if show_special_admin_view %}
                     {# add extra sorting buttons #}
                     <div>
                         <label><h3>View:</h3>
-                            <select size="{{ all_schools|length }}" id="school-selector" multiple>
+                            <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
+                                    multiple>
                                 {% for schools in all_schools %}
                                     {% for class_name, school_name in schools.items() %}
-                                        <option value="{{ class_name }}" selected="selected">{{ school_name }}</option>
+                                        <option value="{{ class_name }}"
+                                                selected="selected">{{ school_name }}</option>
                                     {% endfor %}
                                 {% endfor %}
                             </select>
@@ -91,7 +89,7 @@
                         {% for class_name, school_name in schools.items() %}
                             <div class="{{ class_name }} school-bios">
                                 <h3>{{ school_name }}</h3>
-                                <div style="padding-left: 5%">
+                                <div>
                                     {% for bio in forms %}
                                         {% if school_name in bio.schools %}
                                             {{ display_bio(bio) }}
@@ -109,16 +107,16 @@
                     {% endfor %}
                 {% endif %}
             </div>
-        </div>
 
-
-        {#Delete confirm modal#}
-        <div id="confirmModal" class="reveal-modal" data-reveal>
-            <h2>Are you sure you want to delete?</h2>
-            <p class="lead">Your faculty bio page will be removed.</p>
-            <a class="modal-confirm" id="modal-confirm" href="/faculty-bio/delete/formid">Delete</a>
-            <a class="close-reveal-modal">&#215;</a>
         </div>
+    </div>
+
+    {#Delete confirm modal#}
+    <div id="confirmModal" class="reveal-modal" data-reveal>
+        <h2>Are you sure you want to delete?</h2>
+        <p class="lead">Your faculty bio page will be removed.</p>
+        <a class="modal-confirm" id="modal-confirm" href="/faculty-bio/delete/formid">Delete</a>
+        <a class="close-reveal-modal">&#215;</a>
     </div>
 
 {% endblock %}
