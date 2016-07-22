@@ -80,6 +80,7 @@ class EventsController(TinkerController):
             end_l = 'end' + i
             all_day_l = 'allday' + i
 
+
             start = form[start_l]
             end = form[end_l]
             all_day = all_day_l in form.keys()
@@ -180,10 +181,14 @@ class EventsController(TinkerController):
                 start = 'start' + i
                 end = 'end' + i
                 all_day = 'allday' + i
+                time_zone = 'timezone' + i
+                need_time_zone = 'needtimezone' + i
 
                 start = add_data[start]
                 end = add_data[end]
                 all_day = all_day in add_data.keys()
+                need_time_zone = need_time_zone in add_data.keys()
+                time_zone = add_data[time_zone]
 
             except KeyError:
                 # This will break once we run out of dates
@@ -198,6 +203,10 @@ class EventsController(TinkerController):
             start = " ".join(start)
             end = " ".join(end)
 
+            # Get rid of any timezones called "-select-" and change them to Central Time
+            if time_zone == '-select-':
+                time_zone = 'Central Time'
+
             # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
             # which use milliseconds instead of seconds
             try:
@@ -211,22 +220,15 @@ class EventsController(TinkerController):
                 app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
                 end = None
 
+            # todo: it looks like the timezone code is not here (needs to be added in when the branch has timezone code)
+            new_date = {'start-date': start, 'end-date': end, 'time-zone': time_zone}
+
             if all_day:
-                # todo: it looks like the timezone code is not here (needs to be added in when the branch has timezone code)
-                dates.append(
-                    {
-                        'start-date': start,
-                        'end-date': end,
-                        'all-day': '::CONTENT-XML-CHECKBOX::Yes'
-                    }
-                )
-            else:
-                dates.append(
-                    {
-                        'start-date': start,
-                        'end-date': end
-                    }
-                )
+                new_date['all-day'] = '::CONTENT-XML-CHECKBOX::Yes'
+            if need_time_zone:
+                new_date['outside-of-minnesota'] = '::CONTENT-XML-CHECKBOX::Yes'
+
+            dates.append(new_date)
 
         return dates
 

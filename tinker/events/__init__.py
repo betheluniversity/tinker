@@ -85,6 +85,7 @@ class EventsView(FlaskView):
         workflow = None
         eid = rform.get('event_id')
         # workflow = self.base.get_event_publish_workflow(title, username)
+        # todo check these two method calls-- do we need them?
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
         failed = self.base.validate_form(rform, dates_good, event_dates)
 
@@ -98,9 +99,8 @@ class EventsView(FlaskView):
             event_data, metadata, structured_data = self.base.cascade_connector.load_base_asset_by_id(bid, 'page')
             # Get all the form data
             add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
-            dates = self.base.get_dates(add_data)
+            add_data['event-dates'] = self.base.get_dates(add_data)
 
-            add_data['event-dates'] = dates
             asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
             response = self.base.create(asset)
             self.base.log_sentry("New event submission", response)
@@ -110,9 +110,8 @@ class EventsView(FlaskView):
             event_data, metadata, structured_data = page.get_asset()
             # Get all the form data
             add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
-            dates = self.base.get_dates(add_data)
+            add_data['event-dates'] = self.base.get_dates(add_data)
 
-            add_data['event-dates'] = dates
             add_data['author'] = request.form['author']
             event_id = rform['event_id']
             asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow, event_id=event_id)
