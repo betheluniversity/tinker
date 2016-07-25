@@ -1,0 +1,7 @@
+.publish-head{
+    margin-left: 10px;
+}
+
+.publish-head > a {
+    margin-left: 0px;
+}
