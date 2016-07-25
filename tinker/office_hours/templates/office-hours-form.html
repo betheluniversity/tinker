@@ -16,12 +16,12 @@
 {% endblock %}
 
 {% macro CheckFieldLabel(field) -%}
-    {% if 'close' in field.name %}
+    {% if 'close' in field.name and 'next_closed_for_chapel' not in field.name %}
 {#    {% elif '_open' in field.name %}#}
     {% elif field.label.text != '' and field.type not in ['FormField', 'CSRFTokenField', 'ExceptionsField'] and not field.hidden %}
         <label for="{{ field.name }}">
            {{ field.label.text }}{% if field.flags.required %} * {% endif %}
-         </label>
+        </label>
         {% if field.description != '' %}
             <p>{{ field.description }}</p>
         {% endif %}
@@ -130,6 +130,10 @@
             {% elif field.type == 'ExceptionsField' %}
                 {{ ExceptionsFieldset() }}
 
+            {% elif field.type == 'RadioField' %}
+                {% for subfield in field %}
+                    <label>{{ subfield }}{{ subfield.label }}</label>
+                {% endfor %}
             {% else %}
               {{ field() }}
             {% endif %}
@@ -157,7 +161,7 @@
             $('.time').timepicker({
                 'minTime': '6:00am',
                 'maxTime': '8:00pm',
-                'timeFormat': 'h:i a'
+                'timeFormat': 'h:i A'
             });
             $('.timeRange').datepair({
                 'defaultTimeDelta': 32400000

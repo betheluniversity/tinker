@@ -5,6 +5,7 @@ from flask import session
 from flask import render_template
 from tinker import app
 from tinker.cascade_tools import *
+from bu_cascade.asset_tools import *
 
 from tinker.tinker_controller import TinkerController
 
@@ -75,9 +76,7 @@ class OfficeHoursController(TinkerController):
             except KeyError:
                 break
 
-
         for key in form.keys():
-
             value = form.get(key)
             if not value:
                 continue
@@ -109,9 +108,10 @@ class OfficeHoursController(TinkerController):
 
         return add_data
 
-    def update_structure(self, data, rform, block_id):
+    def update_structure(self, data, rform):
 
         add_data = self.get_add_data([''], rform)
+        add_data['summary'] = self.create_summary(data, add_data)
 
         from copy import deepcopy
 
@@ -123,3 +123,108 @@ class OfficeHoursController(TinkerController):
         self.update_asset(data, add_data)
 
         return data
+
+    # todo: make this only do it for current. Write another method to replace current with next
+    def create_summary(self, data, add_data):
+        week_dict = []
+        week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+
+        # todo: maybe try to add the group separating stuff here
+        # build week_dict
+        if datetime.datetime.now() <= datetime.datetime.strptime(add_data['next_start_date'], '%m-%d-%Y'):
+            # next
+            for week_day in week_days:
+                try:
+                    open = add_data['next_' + week_day + '_open']
+                    close = add_data['next_' + week_day + '_close']
+                    week_dict.append({
+                        'open': self.timestamp_to_bethel_string(open),
+                        'close': self.timestamp_to_bethel_string(close),
+                        'string_comparer': open + close
+                    })
+                except:  # if a open/close key doesn't exist, set 'Closed'
+                    week_dict.append({
+                        'other': 'Closed',
+                        'string_comparer': 'Closed'
+                    })
+                    continue
+        else:
+            # current
+            for week_day in week_days:
+                try:
+                    open = find(data,  week_day + '_open', False)
+                    close = find(data, week_day + '_close', False)
+                    week_dict.append({
+                        'open': self.timestamp_to_bethel_string(open),
+                        'close': self.timestamp_to_bethel_string(close),
+                        'string_comparer': open + close
+                    })
+                except:  # if a open/close key doesn't exist, set 'Closed'
+                    week_dict.append({
+                        'other': 'Closed',
+                        'string_comparer': 'Closed'
+                    })
+                    continue
+
+        # group categories together
+        keys_already_used = []
+        day_groupings = []
+        current_grouping = []
+        for index, week_day in enumerate(week_dict):
+            if index not in keys_already_used:
+                current_grouping.append(index)
+                keys_already_used.append(index)
+                for inner_index, inner_week_day in enumerate(week_dict):
+                    if index < inner_index:
+                        try:
+                            if week_dict[index]['string_comparer'] == week_dict[inner_index]['string_comparer']:
+                                current_grouping.append(inner_index)
+                                keys_already_used.append(inner_index)
+                        except:
+                            continue
+            if len(current_grouping) > 0:
+                day_groupings.append(current_grouping)
+                current_grouping = []
+
+        # create summary
+        summary = ''
+        for grouping in day_groupings:
+            day_array = []
+            for item in grouping:
+                day = self.convert_index_to_day(item)
+                day_array.append(day)
+
+            summary = summary + self.format_days(day_array) + ': ' + self.format_date_groupings(week_dict[grouping[0]]) + '</br>'
+
+        return summary
+
+    # todo: do what tim decides
+    def format_days(self, day_array):
+        return ', '.join(day_array)
+
+    def format_date_groupings(self, date_object):
+        if 'other' in date_object:
+            return date_object['other']
+        else:
+            return date_object['open'] + ' - ' + date_object['close']
+
+    # todo: do we want any other date formating stuff?
+    def convert_ampm(self, date):
+        return date.replace('AM', 'a.m.').replace('PM', 'p.m.')
+
+    def timestamp_to_bethel_string(self, timestamp):
+        date = datetime.datetime.fromtimestamp(int(timestamp) / 1000).strftime('%I:%M %p')
+        return self.convert_ampm(date)
+
+    def convert_index_to_day(self, index):
+        day_of_week = [
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+            'Sunday',
+        ]
+
+        return day_of_week[index]

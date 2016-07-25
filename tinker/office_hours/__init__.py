@@ -26,13 +26,12 @@ class OfficeHoursView(FlaskView):
 
     def post(self):
         rform = request.form
-
         block_id = rform.get('block_id')
 
         block = self.base.read_block(block_id)
 
         data, mdata, sdata = block.read_asset()
-        asset = self.base.update_structure(data, rform, block_id)
+        asset = self.base.update_structure(data, rform)
         resp = str(block.edit_asset(asset))
         self.base.log_sentry("Office Hour  Submission", resp)
 
