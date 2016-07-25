@@ -5,3 +5,179 @@
 .publish-head > a {
     margin-left: 0px;
 }
+
+@media (min-width:992px) {
+    .col-md-1,
+    .col-md-10,
+    .col-md-11,
+    .col-md-12,
+    .col-md-2,
+    .col-md-3,
+    .col-md-4,
+    .col-md-5,
+    .col-md-6,
+    .col-md-7,
+    .col-md-8,
+    .col-md-9 {
+        float: None
+    }
+}
+
+.horizontal-scroll {
+    overflow: auto;
+}
+
+p#faculty-p {
+    margin: 0 0 10px;
+    width: 90%;
+}
+
+.small-link {
+    font-size: 80%;
+    overflow-wrap: break-word;
+}
+
+.btn {
+    margin-left: 0px !important;
+}
+
+.navbar {
+    z-index: 0;
+}
+
+.btn,
+.navbar .navbar-nav > li > a.btn {
+    border-radius: 4px !important;
+}
+
+.navbar .navbar-nav > li > a.btn-primary, .btn-primary {
+    border-color: #0069AA;
+    color: white;
+    background-color: #0069AA;
+}
+
+.btn:hover, .btn:focus, .btn:active, .btn.active, .open > .btn.dropdown-toggle,
+.navbar .navbar-nav > li > a.btn:hover,
+.navbar .navbar-nav > li > a.btn:focus,
+.navbar .navbar-nav > li > a.btn:active,
+.navbar .navbar-nav > li > a.btn.active, .open >
+.navbar .navbar-nav > li > a.btn.dropdown-toggle {
+    background-color: #0069AA;
+    color: white;
+    border-color: #0069AA;
+}
+
+.navbar .navbar-brand {
+    margin: 5px 0px !important;
+}
+
+.btn-alert {
+    background-color: #DE8626 !important;
+    border-color: #DE8626 !important;
+}
+
+ul.btn-group-horizontal {
+    padding: 0px;
+}
+
+ul.btn-group-horizontal li {
+    display: inline;
+}
+
+.job {
+    margin-left: -15px;
+}
+
+label {
+    margin-bottom: 5px!important;
+    width: 100%
+}
+
+input#author {
+    margin-bottom: 0px;
+}
+
+input {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+select {
+    width: 50%;
+    margin-bottom: 15px;
+}
+
+.radio label {
+    padding: 0px;
+    margin-bottom: -5px!important;
+}
+
+small.required {
+    font-size: 65%;
+    color: #ff0000
+}
+
+small.extra-required {
+    font-size: 70%;
+}
+
+textarea {
+    width: 100%;
+    min-height: 50px;
+    height: 150px;
+}
+
+.modal-backdrop {
+    z-index: 0;
+}
+
+/* todo: come up with a way to generalize these tags */
+
+select#heading {
+    margin-left: 15px;
+}
+
+div#cke_biography {
+    margin: 0px 15px 10px 15px;
+}
+
+div#cke_courses {
+    margin: 0px 15px 10px 15px;
+}
+
+div#cke_awards {
+    margin: 0px 15px 10px 15px;
+}
+
+div#cke_publications {
+    margin: 0px 15px 10px 15px;
+}
+
+div#cke_presentations {
+    margin: 0px 15px 10px 15px;
+}
+
+div#cke_certificates {
+    margin: 0px 15px 10px 15px;
+}
+
+div#cke_organizations {
+    margin: 0px 15px 10px 15px;
+}
+
+div#cke_hobbies {
+    margin: 0px 15px 10px 15px;
+}
+
+@media (min-width: 992px) {
+    .navbar .navbar-header {
+        margin: 0px !important;
+        padding-left: 15px !important;
+    }
+}
+
+@media (max-width: 350px) {
+    select#school-selector {
+        max-width: 90%;
+    }
+}
