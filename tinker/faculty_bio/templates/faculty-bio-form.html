@@ -77,24 +77,24 @@ to be in it's own card div, something to think about in the future -->
 
 
                         {% elif field.name == "areas" %}
-                            <div id="areas_wrap" style="display:none;">
+                            <div id="areas_wrap" class="col-md-12" style="display:none;">
                                 {{ field.label }}
-                                <small>{{ field.description }}</small>
-                                <small id="areas_current_count">0</small>
+                                <small class="extra-required">{{ field.description }}</small>
+                                <small id="areas_current_count" class="extra-required">0</small>
                                 {{ field(class="large-text-area") }}
                             </div>
                         {% elif field.name == "research_interests" %}
-                            <div id="research_interests_wrap" style="display:none;">
+                            <div id="research_interests_wrap" class="col-md-12" style="display:none;">
                                 {{ field.label }}
-                                <small>{{ field.description }}</small>
-                                <small id="research_interests_current_count">0</small>
+                                <small class="extra-required">{{ field.description }}</small>
+                                <small id="research_interests_current_count" class="extra-required">0</small>
                                 {{ field(class="large-text-area") }}
                             </div>
                         {% elif field.name == "teaching_specialty" %}
-                            <div id="teaching_specialty_wrap" style="display:none;">
+                            <div id="teaching_specialty_wrap" class="col-md-12" style="display:none;">
                                 {{ field.label }}
-                                <small>{{ field.description }}</small>
-                                <small id="teaching_specialty_current_count">0</small>
+                                <small class="extra-required">{{ field.description }}</small>
+                                <small id="teaching_specialty_current_count" class="extra-required">0</small>
                                 {{ field(class="large-text-area") }}
                             </div>
 
