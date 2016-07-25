@@ -1,3 +1,20 @@
+@media (min-width:992px) {
+    .col-md-1,
+    .col-md-10,
+    .col-md-11,
+    .col-md-12,
+    .col-md-2,
+    .col-md-3,
+    .col-md-4,
+    .col-md-5,
+    .col-md-6,
+    .col-md-7,
+    .col-md-8,
+    .col-md-9 {
+        float: None
+    }
+}
+
 .horizontal-scroll {
     overflow: auto;
 }
@@ -34,6 +51,7 @@ p#faculty-p {
 .navbar .navbar-nav > li > a.btn.active, .open >
 .navbar .navbar-nav > li > a.btn.dropdown-toggle {
     background-color: #0069AA;
+    color: white;
     border-color: #0069AA;
 }
 
@@ -54,6 +72,90 @@ ul.btn-group-horizontal li {
     display: inline;
 }
 
+.job {
+    margin-left: -15px;
+}
+
+label {
+    margin-bottom: 5px!important;
+    width: 100%
+}
+
+input#author {
+    margin-bottom: 0px;
+}
+
+input {
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+select {
+    width: 50%;
+    margin-bottom: 15px;
+}
+
+.radio label {
+    padding: 0px;
+    margin-bottom: -5px!important;
+}
+
+small.required {
+    font-size: 65%;
+    color: #ff0000
+}
+
+small.extra-required {
+    font-size: 70%;
+    /*margin: -15px 0px 0px 15px;*/
+}
+
+/* todo: come up with a way to generalize these tags */
+
+select#heading {
+    margin-left: 15px;
+}
+
+div#cke_biography {
+    margin-left: 15px;
+    margin-bottom: 10px;
+}
+
+div#cke_courses {
+    margin-left: 15px;
+    margin-bottom: 10px;
+}
+
+div#cke_awards {
+    margin-left: 15px;
+    margin-bottom: 10px;
+}
+
+div#cke_publications {
+    margin-left: 15px;
+    margin-bottom: 10px;
+}
+
+div#cke_presentations {
+    margin-left: 15px;
+    margin-bottom: 10px;
+}
+
+div#cke_certificates {
+    margin-left: 15px;
+    margin-bottom: 10px;
+}
+
+div#cke_organizations {
+    margin-left: 15px;
+    margin-bottom: 10px;
+}
+
+div#cke_hobbies {
+    margin-left: 15px;
+    margin-bottom: 10px;
+}
+
 @media (min-width: 992px) {
     .navbar .navbar-header {
         margin: 0px !important;
@@ -66,3 +168,4 @@ ul.btn-group-horizontal li {
         max-width: 90%;
     }
 }
+

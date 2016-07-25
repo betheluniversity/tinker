@@ -12,6 +12,7 @@
             <link rel="apple-touch-icon" sizes="76x76" href="http://127.0.0.1:5000/static/assets/img/apple-icon.png">
             <link rel="icon" type="image/png" sizes="96x96" href="http://127.0.0.1:5000/static/assets/img/favicon.png">
             <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+            <script src="{{ url_for('static', filename='jquery.js') }}"></script>
 
             <title>{% block title %}{{ title }}{% endblock %}</title>
 
@@ -39,6 +40,8 @@
 
     <body>
     {% block body_content %}
+    {% endblock %}
+    {% block scripts %}
     {% endblock %}
 
     <!--   Core JS Files   -->
