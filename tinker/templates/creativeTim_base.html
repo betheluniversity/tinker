@@ -19,6 +19,8 @@
             <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0' name='viewport'/>
             <meta name="viewport" content="width=device-width"/>
 
+            <link href="http://127.0.0.1:5000/static/assets/css/tinker.css" rel="stylesheet"/>
+
             <!-- Bootstrap core CSS     -->
             <link href="http://127.0.0.1:5000/static/assets/css/bootstrap.min.css" rel="stylesheet"/>
 
@@ -41,8 +43,8 @@
     <body>
     {% block body_content %}
     {% endblock %}
-    {% block scripts %}
-    {% endblock %}
+
+    {% block scripts %}{% endblock %}
 
     <!--   Core JS Files   -->
     <script src="http://127.0.0.1:5000/static/assets/js/jquery-1.10.2.js" type="text/javascript"></script>

@@ -12,14 +12,14 @@
                 {% if request.path == '/' %}
                     <li class="active">
                         <a href="/">
-                            <i class="ti-panel"></i>
+                            <i class="ti-home"></i>
                             <p>Home</p>
                         </a>
                     </li>
                 {% else %}
                     <li>
                         <a href="/">
-                            <i class="ti-panel"></i>
+                            <i class="ti-home"></i>
                             <p>Home</p>
                         </a>
 
@@ -28,14 +28,14 @@
                 {% if request.path == '/event/' %}
                     <li class="active">
                         <a href="/event">
-                            <i class="ti-user"></i>
+                            <i class="ti-calendar"></i>
                             <p>Events</p>
                         </a>
                     </li>
                 {% else %}
                     <li>
                         <a href="/event">
-                            <i class="ti-user"></i>
+                            <i class="ti-calendar"></i>
                             <p>Events</p>
                         </a>
                     </li>
@@ -44,7 +44,7 @@
                     <li class="active">
                         {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
                             <a href="/faculty-bio">
-                                <i class="ti-view-list-alt"></i>
+                                <i class="ti-user"></i>
                                 <p>Faculty Bios</p>
                             </a>
                         {% endif %}
@@ -53,7 +53,7 @@
                     <li>
                         {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
                             <a href="/faculty-bio">
-                                <i class="ti-view-list-alt"></i>
+                                <i class="ti-user"></i>
                                 <p>Faculty Bios</p>
                             </a>
                         {% endif %}
@@ -62,14 +62,14 @@
                 {% if request.path == '/e-announcement/' %}
                     <li class="active">
                         <a href="e-announcement">
-                            <i class="ti-text"></i>
+                            <i class="ti-comment"></i>
                             <p>E-Announcements</p>
                         </a>
                     </li>
                 {% else %}
                     <li>
                         <a href="e-announcement">
-                            <i class="ti-text"></i>
+                            <i class="ti-comment"></i>
                             <p>E-Announcements</p>
                         </a>
                     </li>
@@ -77,7 +77,7 @@
                 <li class="dropdown">
                     {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                            <i class="ti-pencil-alt2"></i>
+                            <i class="ti-menu"></i>
                             <p>Admin Menu &raquo;</p>
                         </a>
                         <ul class="dropdown-menu">

@@ -1,3 +1,11 @@
+.publish-head{
+    margin-left: 10px;
+}
+
+.publish-head > a {
+    margin-left: 0px;
+}
+
 @media (min-width:992px) {
     .col-md-1,
     .col-md-10,
@@ -31,6 +39,10 @@ p#faculty-p {
 
 .btn {
     margin-left: 0px !important;
+}
+
+.navbar {
+    z-index: 0;
 }
 
 .btn,
@@ -115,6 +127,10 @@ textarea {
     height: 150px;
 }
 
+.modal-backdrop {
+    z-index: 0;
+}
+
 /* todo: come up with a way to generalize these tags */
 
 select#heading {
@@ -165,4 +181,3 @@ div#cke_hobbies {
         max-width: 90%;
     }
 }
-

@@ -11,183 +11,202 @@
 
 {% block main_content %}
     <div class="content">
-        <h3>Here are the automated publishers</h3>
-        <a href='/admin/publish-manager/program-feeds' class="button">Program Feeds</a>
+        <div class="container-fluid">
+            <div class="row card">
+                <div class="publish-head">
+                    <h3>Here are the automated publishers</h3>
+                    <a href='/admin/publish-manager/program-feeds' class="btn btn-primary">Program Feeds</a>
+                    </br>
+                    </br>
+                    <p>Blocks that are published publish out each page in the relationships tab.</p>
+                </div>
+                {#                <div id="dialog" class="reveal-modal" data-reveal>#}
+                {#                    <p class='dialog-text'>. . . Loading . . .</p>#}
+                {#                    <a class="close-reveal-modal">&#215;</a>#}
+                {#                </div>#}
+                <form action="." id="publish-search-form">
+                    <div class="row">
 
-        <p>Blocks that are published publish out each page in the relationships tab.</p>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                Search by Name:
+                                <input type="text" value="" class="form-control publish-search"/>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                Search by Content:
+                                <input type="text" value="" class="form-control publish-search"/>
+                            </div>
+                        </div>
 
-        <div id="dialog" class="reveal-modal" data-reveal>
-            <p class='dialog-text'>. . . Loading . . .</p>
-            <a class="close-reveal-modal">&#215;</a>
-        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                Search by Metadata:
+                                <input type="text" value="" class="form-control publish-search"/>
+                            </div>
+                        </div>
+                        <div class="large-6 columns">
+                            <p>Publish to:
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="optionsRadios" checked="true">
+                                    Staging
+                                </label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="optionsRadios">
+                                    Production and Staging
+                                </label>
+                            </div>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="large-2 columns">
+                            <label>Asset Types: </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="optionsCheckboxes" checked>
+                                Pages
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="optionsCheckboxes" checked>
+                                Blocks
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="optionsCheckboxes" checked>
+                                Files
+                            </label>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="optionsCheckboxes" checked>
+                                Folders
+                            </label>
+                        </div>
+                    </div>
+                    <div class="large-2 columns"></div>
 
-        <form action="." id="publish-search-form">
+            </div>
+
+
+            </form>
+
             <div class="row">
-
-                <div class="large-6 columns">
-                    <label>Search by Name
-                        <input type="text" class="publish-search" name="publish-search-by-name"
-                               id="publish-search-by-name"/>
-                    </label>
+                <div class="large-12 columns">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th width="200">Asset Type</th>
+                            <th width="600">Page URL</th>
+                            <th width="200">Publish</th>
+                            <th width="400">Messages</th>
+                            <th width="200">More info</th>
+                        </tr>
+                        </thead>
+                        <tbody id="publish-table">
+                        </tbody>
+                    </table>
                 </div>
-                <div class="large-6 columns">
-                    <label>Search by Content
-                        <input type="text" class="publish-search" name="publish-search-by-content"
-                               id="publish-search-by-content"/>
-                    </label>
-                </div>
-
             </div>
-            <div class="row">
-
-                <div class="large-6 columns">
-                    <label>Search by Metadata
-                        <input type="text" class="publish-search" name="publish-search-by-metadata"
-                               id="publish-search-by-metadata"/>
-                    </label>
-                </div>
-                <div class="large-6 columns">
-                    <p>Publish to:
-                        <label><input type="radio" name="publish-to" value="staging" checked> Staging<br/></label>
-                        <label><input type="radio" name="publish-to" value="production"> Production and Staging</label>
-                    </p>
-                </div>
-
-            </div>
-            <div class="row">
-
-                <div class="large-2 columns">
-                    <label>Asset Types: </label>
-                </div>
-                <div class="large-2 columns">
-                    <label>
-                        <input class="publish-search" type="checkbox" name="publish-pages" value="page"
-                               id="publish-pages"
-                               onchange="search()" checked> Pages<br>
-                    </label>
-                </div>
-                <div class="large-2 columns">
-                    <label>
-                        <input class="publish-search" type="checkbox" name="publish-blocks" value="block"
-                               id="publish-blocks"
-                               onchange="search()" checked> Blocks<br>
-                    </label>
-                </div>
-                <div class="large-2 columns">
-                    <label>
-                        <input class="publish-search" type="checkbox" name="publish-files" value="file"
-                               id="publish-files"
-                               onchange="search()" checked> Files<br>
-                    </label>
-                </div>
-                <div class="large-2 columns">
-                    <label>
-                        <input class="publish-search" type="checkbox" name="publish-folders" value="folder"
-                               id="publish-folders"
-                               onchange="search()" checked> Folders<br>
-                    </label>
-                </div>
-                <div class="large-2 columns"></div>
-
-            </div>
-
-
-        </form>
-
-        <div class="row">
-            <div class="large-12 columns">
-                <table>
-                    <thead>
-                    <tr>
-                        <th width="200">Asset Type</th>
-                        <th width="600">Page URL</th>
-                        <th width="200">Publish</th>
-                        <th width="400">Messages</th>
-                        <th width="200">More info</th>
-                    </tr>
-                    </thead>
-                    <tbody id="publish-table">
-                    </tbody>
-                </table>
-            </div>
+            </br>
         </div>
     </div>
 
-<script type="text/javascript">
+    <script type="text/javascript">
 
-    var delay = (function () {
-        var timer = 0;
-        return function (callback, ms) {
-            clearTimeout(timer);
-            timer = setTimeout(callback, ms);
-        };
-    })();
+        $(document).ready(function () {
+            var csrftoken = "{{ csrf_token() }}";
+            activateCSRF(csrftoken);
 
-    function updateTable(data) {
-        // Todo if no data exists, display message
-        $("#publish-table").html(data);
-    }
 
-    function loadTableForSearch(name_value, content_value, metadata_value, pages_value, blocks_value, files_value, folders_value) {
-        var search = {
-            'name': name_value, 'content': content_value, 'metadata': metadata_value, 'pages': pages_value,
-            'blocks': blocks_value, 'files': files_value, 'folders': folders_value
-        };
-        var url = "{{ url_for('publish-manager.PublishManagerView:search') }}";
-        $.post(url, search, function (data) {
-            updateTable(data)
-        });
-    }
+            var delay = (function () {
+                var timer = 0;
+                return function (callback, ms) {
+                    clearTimeout(timer);
+                    timer = setTimeout(callback, ms);
+                };
+            })();
 
-    function search() {
-        var name = '*' + $('#publish-search-by-name').val() + '*';
-        var content = '*' + $('#publish-search-by-content').val() + '*';
-        var metadata = '*' + $('#publish-search-by-metadata').val() + '*';
+            function updateTable(data) {
+                // Todo if no data exists, display message
+                $("#publish-table").html(data);
+            }
 
-        if ($('#publish-pages').is(":checked"))
-            var pages = true;
-        else
-            pages = false;
-        if ($('#publish-blocks').is(":checked"))
-            var blocks = true;
-        else
-            blocks = false;
-        if ($('#publish-files').is(":checked"))
-            var files = true;
-        else
-            files = false;
-        if ($('#publish-folders').is(":checked"))
-            var folders = true;
-        else
-            folders = false;
-        delay(function () {
-            loadTableForSearch(name, content, metadata, pages, blocks, files, folders);
-        }, 300);
-    }
+            function loadTableForSearch(name_value, content_value, metadata_value, pages_value, blocks_value, files_value, folders_value) {
+                var search = {
+                    'name': name_value, 'content': content_value, 'metadata': metadata_value, 'pages': pages_value,
+                    'blocks': blocks_value, 'files': files_value, 'folders': folders_value
+                };
+                var url = "{{ url_for('publish-manager.PublishManagerView:search') }}";
+                $.post(url, search, function (data) {
+                    updateTable(data)
+                });
+            }
 
-    $('.publish-search').keyup(function () {
-        search()
-    });
+            function search() {
+                var name = '*' + $('#publish-search-by-name').val() + '*';
+                var content = '*' + $('#publish-search-by-content').val() + '*';
+                var metadata = '*' + $('#publish-search-by-metadata').val() + '*';
 
-    function publishAsset(type, id, counter) {
-        var destination = $('input[name=publish-to]:checked', '#publish-search-form').val();
-        var url = "/admin/publish-manager/publish/" + destination + "/" + type + "/" + id;
-        $.post(url, function (data) {
-            $("#publish_button_" + counter).text(data);
-        });
-    }
+                if ($('#publish-pages').is(":checked"))
+                    var pages = true;
+                else
+                    pages = false;
+                if ($('#publish-blocks').is(":checked"))
+                    var blocks = true;
+                else
+                    blocks = false;
+                if ($('#publish-files').is(":checked"))
+                    var files = true;
+                else
+                    files = false;
+                if ($('#publish-folders').is(":checked"))
+                    var folders = true;
+                else
+                    folders = false;
+                delay(function () {
+                    loadTableForSearch(name, content, metadata, pages, blocks, files, folders);
+                }, 300);
+            }
 
-    function moreInfo(type, id) {
-        var input_data = {'type': type, 'id': id};
-        var url = "{{ url_for('publish-manager.PublishManagerView:more_info') }}";
-        $.post(url, input_data, function (data) {
-            $('.dialog-text').html(data);
-        });
-    }
+            $('.publish-search').keyup(function () {
+                search()
+            });
 
-    $(".close-reveal-modal").click(function () {
-        $('.dialog-text').html(". . . Loading . . .");
-    });
-</script>
+            function publishAsset(type, id, counter) {
+                var destination = $('input[name=publish-to]:checked', '#publish-search-form').val();
+                var url = "/admin/publish-manager/publish/" + destination + "/" + type + "/" + id;
+                $.post(url, function (data) {
+                    $("#publish_button_" + counter).text(data);
+                });
+            }
 
+            function moreInfo(type, id) {
+                var input_data = {'type': type, 'id': id};
+                var url = "{{ url_for('publish-manager.PublishManagerView:more_info') }}";
+                $.post(url, input_data, function (data) {
+                    $('.dialog-text').html(data);
+                });
+            }
+
+            $(".close-reveal-modal").click(function () {
+                $('.dialog-text').html(". . . Loading . . .");
+            });
+
+        })
+        ;
+    </script>
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
 {% endblock %}
