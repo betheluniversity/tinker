@@ -30,7 +30,9 @@ to be in it's own card div, something to think about in the future -->
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
-            {#            <div class="col-md-12">#}
+            <h3>Edit Your Bio</h3>
+            <hr/>
+
             <form action="/faculty-bio/submit" method="post" enctype="multipart/form-data">
                 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
@@ -149,7 +151,6 @@ to be in it's own card div, something to think about in the future -->
                     <button type="submit" id="faculty-bio-submit-btn" class="btn btn-primary">Submit</button>
                 </div>
             </form>
-            {#            </div>#}
         </div>
     </div>
 

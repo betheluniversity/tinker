@@ -11,26 +11,25 @@
 
 {% block main_content %}
     <div class="content">
-        <div class="card">
+        <div class="container-fluid">
             <div class="row">
-                <div class="large-12 columns">
-                    </br>
-                    <p>Below is the list of E-Announcements you have access to edit. These are sorted by the first date
-                        entered, newest dates first.
-                    </p>
-                </div>
+                <p>Below is the list of E-Announcements you have access to edit. These are sorted by the first date
+                    entered, newest dates first.
+                </p>
+
+                <hr/>
+
+                <a href="{{ url_for('e-announcements.EAnnouncementsView:new') }}" class="btn btn-primary">Submit New
+                    E-Announcement</a>
             </div>
-            <a href="{{ url_for('e-announcements.EAnnouncementsView:new') }}" class="btn btn-primary">Submit New
-                E-Announcement</a>
-            <hr/>
 
             <div class="row">
 
-                <div class="large-12 columns">
+                <div class="col-md-12">
 
                     {% for form in forms %}
                         <div class="row">
-                            <div class="large-6 columns">
+                            <div class="col-md-6">
                                 <p>
                                     {% if form.path != '' %}
                                         <a href={{ form.path }}>{{ form.title }}</a>
@@ -76,11 +75,13 @@
                 </div>
             </div>
 
-
+            </br>
             <!-- Button trigger modal -->
-            <button class="btn btn-primary" id="modal-delete" data-toggle="modal" data-target="#myModal">
-                Delete E-Annz
-            </button>
+            <div class="row">
+                <button class="btn btn-primary btn-alert" id="modal-delete" data-toggle="modal" data-target="#myModal">
+                    Delete E-Annz
+                </button>
+            </div>
             </br>
 
             <!-- Modal Core -->
