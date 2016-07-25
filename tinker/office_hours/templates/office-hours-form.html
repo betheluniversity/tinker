@@ -29,7 +29,7 @@
 
 {%  endmacro %}
 
-{% macro ExceptionsFeildset() -%}
+{% macro ExceptionsFieldset() -%}
 
     <fieldset class="exceptions-fieldset">
         <legend>Exception 1</legend>
@@ -128,7 +128,7 @@
                 </fieldset>
 
             {% elif field.type == 'ExceptionsField' %}
-                {{ ExceptionsFeildset() }}
+                {{ ExceptionsFieldset() }}
 
             {% else %}
               {{ field() }}
