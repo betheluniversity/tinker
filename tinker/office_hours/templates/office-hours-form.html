@@ -46,6 +46,7 @@
                 </div>
     </fieldset>
     <a href="javascript:void(0);" id="add_exception_button" class="button tiny">Add Another Exception</a>
+    <a href="javascript:void(0);" id="remove_exception_button" style="display:none" class="button tiny alert">Remove Exception</a>
 
 {% endmacro %}
 
@@ -172,6 +173,27 @@
     </script>
 
     <script type="text/javascript">
+
+
+        $("#add_exception_button").on('click', function(){
+            var last = $(".exceptions-fieldset").last();
+            var old_num = last.children()[0].textContent.replace("Exception ", "");
+            var new_num = (parseInt(old_num) + 1);
+            var new_exception = newFieldset(new_num);
+            new_exception.insertAfter(last);
+            $("#remove_exception_button").show();
+            dateTimePickers();
+
+        });
+
+
+        $("#remove_exception_button").click(function(){
+            var list = $(".exceptions-fieldset");
+            if (list.length == 2){
+              $("#remove_exception_button").hide();
+            }
+            list.last().remove();
+        });
 
         function populateFieldset(id, exception){
             var dateid = '#date' + id;

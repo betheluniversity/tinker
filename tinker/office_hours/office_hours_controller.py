@@ -49,6 +49,33 @@ class OfficeHoursController(TinkerController):
         # A dict to populate with all the interesting data.
         add_data = {}
 
+        add_data['exceptions'] = []
+
+        # handle exceptions
+        for i in range(1, 200):
+            i = str(i)
+            try:
+                date = 'date' + i
+                open = 'open' + i
+                close = 'close' + i
+
+                try:
+                    date = form[date]
+                    open = self.date_to_java_unix(form[open])
+                    close = self.date_to_java_unix(form[close])
+
+                except:
+                    continue
+
+                date = datetime.datetime.strptime(date, '%m/%d/%Y')
+                date = date.strftime('%m-%d-%Y')
+
+                add_data['exceptions'].append({'date': date, 'open': open, 'close': close})
+
+            except KeyError:
+                break
+
+
         for key in form.keys():
 
             value = form.get(key)
@@ -92,6 +119,7 @@ class OfficeHoursController(TinkerController):
         # add_data['exceptions'].append(add_data['exceptions'][0])
         # add_data['exceptions'].append(add_data['exceptions'][0])
 
+        # todo: doesn't work if there are no existing Exceptions
         self.update_asset(data, add_data)
 
         return data
