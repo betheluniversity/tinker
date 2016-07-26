@@ -149,14 +149,21 @@
                 return node;
          }
 
-         function populateFieldset(id, allday, start, end){
+         function populateFieldset(id, allday, start, end, out, timezone){
             var startid = '#start' + id;
             var endid = '#end' + id;
             var alldayid = '#allday' + id;
+            var outid = '#needtimezone' + id;
+            var timezoneid = '#timezone' + id;
             $(startid).val(start);
             $(endid).val(end);
+            $(timezoneid).val(timezone);
             if(allday){
               $(alldayid).prop('checked', true);
+            }
+            if(out){
+              $(outid).prop('checked', true);
+              checkNeedTimezone(id)
             }
          }
 
@@ -238,7 +245,7 @@
                 if( allday && allday.substr(-3) == "Yes" ){
                   allday = true;
                 }
-                populateFieldset(id, allday, date['start-date'], date['end-date']);
+                populateFieldset(id, allday, date['start-date'], date['end-date'], date['outside-of-minnesota'], date['time-zone']);
                 //no infinite loops today
                 i++;
 

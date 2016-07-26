@@ -79,19 +79,28 @@ class EventsController(TinkerController):
             start_l = 'start' + i
             end_l = 'end' + i
             all_day_l = 'allday' + i
-
+            need_time_zone_l = 'needtimezone' + i
+            time_zone_l = 'timezone' + i
 
             start = form[start_l]
             end = form[end_l]
             all_day = all_day_l in form.keys()
+            need_time_zone = need_time_zone_l in form.keys()
+            time_zone = form[time_zone_l]
 
             event_dates[start_l] = start
             event_dates[end_l] = end
             event_dates[all_day_l] = all_day
+            event_dates[need_time_zone] = need_time_zone
+            event_dates[time_zone] = time_zone
 
             start_and_end = start and end
 
-            if start_and_end:
+            condition = True
+            if need_time_zone and str(time_zone) == '':
+                condition = False
+
+            if start_and_end and condition:
                 dates_good = True
 
         # convert event dates to JSON
@@ -203,10 +212,6 @@ class EventsController(TinkerController):
             start = " ".join(start)
             end = " ".join(end)
 
-            # Get rid of any timezones called "-select-" and change them to Central Time
-            if time_zone == '-select-':
-                time_zone = 'Central Time'
-
             # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
             # which use milliseconds instead of seconds
             try:
@@ -224,9 +229,13 @@ class EventsController(TinkerController):
             new_date = {'start-date': start, 'end-date': end, 'time-zone': time_zone}
 
             if all_day:
-                new_date['all-day'] = '::CONTENT-XML-CHECKBOX::Yes'
+                new_date['all-day'] = 'Yes'
+            else:
+                new_date['all-day'] = 'No'
             if need_time_zone:
-                new_date['outside-of-minnesota'] = '::CONTENT-XML-CHECKBOX::Yes'
+                new_date['outside-of-minnesota'] = 'Yes'
+            else:
+                new_date['outside-of-minnesota'] = 'No'
 
             dates.append(new_date)
 
@@ -375,6 +384,8 @@ class EventsController(TinkerController):
         date_data = {}
         for date in node_data:
             if date['identifier'] == "all-day" and date['text'] == "::CONTENT-XML-CHECKBOX::":
+                continue
+            if date['identifier'] == "outside-of-minnesota" and date['text'] == "::CONTENT-XML-CHECKBOX::":
                 continue
             else:
                 date_data[date['identifier']] = date['text']
