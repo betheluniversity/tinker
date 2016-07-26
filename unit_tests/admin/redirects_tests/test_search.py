@@ -20,10 +20,10 @@ class SearchTestCase(RedirectsBaseTestCase):
         form_contents = {'type': None,
                          'search': "/"}
         response = self.send_post('/admin/redirect/search', form_contents)
-        assert b'<span class="from_path">' not in response.data
+        assert b'400 Bad Request' in response.data
 
     def test_search_invalid_term(self):
         form_contents = {'type': "from_path",
                          'search': None}
         response = self.send_post('/admin/redirect/search', form_contents)
-        assert b'<span class="from_path">' not in response.data
+        assert b'400 Bad Request' in response.data

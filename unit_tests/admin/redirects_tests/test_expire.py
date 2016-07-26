@@ -10,6 +10,6 @@ class ExpireTestCase(RedirectsBaseTestCase):
     ### Testing methods ###
     #######################
 
-    def test_expire_valid(self):
+    def test_expire(self):
         response = self.send_get('/admin/redirect/expire')
         assert b'done' in response.data
