@@ -175,6 +175,7 @@ class EventForm(Form):
     registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices)
     registration_details = CKEditorTextAreaField('Registration/ticketing details', description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
     wufoo_code = StringField('Approved wufoo hash code')
+    ticketing_url = StringField('Ticketing URL')
     cost = TextAreaField('Cost')
     cancellations = TextAreaField('Cancellations and refunds')
 

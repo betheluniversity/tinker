@@ -1,0 +1,28 @@
+{% if data %}
+    <h3>Successfully Synced
+        {% if id in metadata_sets_mapping %}
+            {{ metadata_sets_mapping[id] }}
+        {% elif id in data_definition_mapping %}
+            {{ data_definition_mapping[id] }}
+        {% endif %}
+    </h3>
+    <hr/>
+{% endif %}
+
+{# only display the keys that were updated #}
+{% for key in returned_keys %}
+    {% if key != None %}
+        <h4>{{ key }}</h4>
+
+        {# department and cas-departments link to department #}
+        {% if key == 'cas-departments' %}
+            {% set key = 'department' %}
+        {% endif %}
+
+        <ul>
+        {% for response in data[key] %}
+            <li>{{ response }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endfor %}

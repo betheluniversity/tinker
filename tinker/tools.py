@@ -28,8 +28,8 @@ def init_user():
 
     dev = current_app.config['ENVIRON'] != 'prod'
 
-    if dev:
-        session.clear()
+    # if dev:
+    #     session.clear()
 
     if 'username' not in session.keys():
         get_user()
@@ -49,7 +49,6 @@ def init_user():
 
     if 'name' not in session.keys():
         get_users_name()
-
 
 def get_user():
 
