@@ -104,8 +104,10 @@
   </div>
 </div>
 
-
+<script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
 <script type="text/javascript">
+var csrftoken = "{{ csrf_token() }}";
+activateCSRF(csrftoken);
 
 var delay = (function(){
   var timer = 0;

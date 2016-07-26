@@ -256,10 +256,11 @@ class TinkerController(object):
                 pass
 
             try:
-                date = self.java_unix_to_date(node['text'])
-                if not date:
-                    date = ''
-                return date
+                if len(node['text']) >= 9:
+                    date = self.java_unix_to_date(node['text'])
+                    if not date:
+                        date = ''
+                    return date
             except TypeError:
                 pass
             except ValueError:
@@ -268,6 +269,11 @@ class TinkerController(object):
             # A fix to remove the &#160; character from appearing (non-breaking whitespace)
             # Cascade includes this, for whatever reason.
             return node['text'].replace('&amp;#160;', ' ')
+
+        elif node_type == 'asset':
+            asset_type = node['assetType']
+            if asset_type == 'file':
+                return node['filePath']
 
     def get_edit_data(self, sdata, mdata, multiple=[]):
         """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
@@ -294,6 +300,14 @@ class TinkerController(object):
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
         edit_data['title'] = mdata['title']
+
+        # get the (first) author
+        authors = find(mdata, 'author', False)
+        try:
+            authors = authors.split(", ")
+            edit_data['author'] = authors[0]
+        except AttributeError:
+            edit_data['author'] = ''
 
         return edit_data
 
