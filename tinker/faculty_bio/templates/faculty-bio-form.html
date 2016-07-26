@@ -30,7 +30,7 @@ to be in it's own card div, something to think about in the future -->
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
-            <h3>Edit Your Bio</h3>
+            <h3 class="row subtitle">Edit Your Bio</h3>
             <hr/>
 
             <form action="/faculty-bio/submit" method="post" enctype="multipart/form-data">
@@ -696,13 +696,13 @@ to be in it's own card div, something to think about in the future -->
                 <fieldset class="degree-fieldset">
                     <legend>Degree 1</legend>
                     <label for="school1">School</label>
-                    <input type="text" name="school1" id="school1"/>
+                    <input class="form-control" type="text" name="school1" id="school1"/>
 
                     <label for="degree-earned1">Degree earned</label>
-                    <input type="text" name="degree-earned1" id="degree-earned1"/>
+                    <input class="form-control" type="text" name="degree-earned1" id="degree-earned1"/>
 
                     <label for="year1">Year</label>
-                    <input type="text" name="year1" id="year1"/>
+                    <input class="form-control" type="text" name="year1" id="year1"/>
 
                 </fieldset>
 
@@ -789,7 +789,7 @@ to be in it's own card div, something to think about in the future -->
 
                     <div id="new-job-title-div1" class="hide-when-school-changes1"><label>
                         Title
-                        <input type="text" name="new-job-title1" id="new-job-title1"/>
+                        <input class="form-control" type="text" name="new-job-title1" id="new-job-title1"/>
                     </label></div>
                 </fieldset>
                 <a href="javascript:void(0);" id="add_new_job_button" class="btn btn-primary">Add Another Job Title</a>

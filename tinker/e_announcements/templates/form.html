@@ -36,7 +36,6 @@
 
 {% block main_content %}
     <div class="content">
-        {#        <div class="">#}
         <div class="container-fluid row">
             {% if new_form %}
                 <form id="eannouncementform" action="/e-announcement/" method="post" enctype="multipart/form-data">
@@ -114,7 +113,7 @@
 {#                    <hr/>#}
 
                 {% elif field.type == "HeadingField" %}
-                    <h3>{{ field.label }}</h3>
+                    <h3 class="subtitle">{{ field.label }}</h3>
 
                 {% elif field.type == "CKEditorTextAreaField" %}
                     {{ field(class="ckeditor") }}
@@ -148,7 +147,6 @@
             <button type="submit" id="e-announcement-submit-btn" class="btn btn-primary">Submit</button>
             </form>
         </div>
-        {#        </div>#}
     </div>
 
 {% endblock %}

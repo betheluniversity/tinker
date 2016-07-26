@@ -59,38 +59,61 @@
                         {% endif %}
                     </li>
                 {% endif %}
-                {% if request.path == '/e-announcement/' %}
+                {% if request.path == '/e-announcement/' or request.path == '/e-announcement/new/' %}
                     <li class="active">
-                        <a href="e-announcement">
+                        <a href="/e-announcement">
                             <i class="ti-comment"></i>
                             <p>E-Announcements</p>
                         </a>
                     </li>
                 {% else %}
                     <li>
-                        <a href="e-announcement">
+                        <a href="/e-announcement">
                             <i class="ti-comment"></i>
                             <p>E-Announcements</p>
                         </a>
                     </li>
                 {% endif %}
-                <li class="dropdown">
-                    {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                            <i class="ti-menu"></i>
-                            <p>Admin Menu &raquo;</p>
-                        </a>
-                        <ul class="dropdown-menu">
-                            {% if 'Administrators' in session['groups'] %}
-                                <li><a href="/admin/publish-manager">Publisher</a></li>
-                                <li><a href="/admin/sync">Sync Metadata</a></li>
-                                {#                                <li><a href="/admin/blink-roles" class="button-nav">Blink Layout Owners</a></li>#}
-                            {% endif %}
-                            <li><a href="/admin/cache-clear">Clear Cache</a></li>
-                            <li><a href="/admin/redirect">Redirects</a></li>
-                        </ul>
-                    {% endif %}
-                </li>
+                {% if request.path == '/admin/publish-manager/' or request.path == '/admin/sync/'
+                or request.path == '/admin/cache-clear/' or request.path == '/admin/redirect/' %}
+                    <li class="dropdown active">
+                        {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                <i class="ti-menu"></i>
+                                <p>Admin Menu &raquo;</p>
+                            </a>
+                            {# todo make this menu look like the sidebars #}
+                            <ul class="dropdown-menu">
+                                {% if 'Administrators' in session['groups'] %}
+                                    <li><a href="/admin/publish-manager">Publisher</a></li>
+                                    <li><a href="/admin/sync">Sync Metadata</a></li>
+                                    {#                                <li><a href="/admin/blink-roles" class="button-nav">Blink Layout Owners</a></li>#}
+                                {% endif %}
+                                <li><a href="/admin/cache-clear">Clear Cache</a></li>
+                                <li><a href="/admin/redirect">Redirects</a></li>
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% else %}
+                    <li class="dropdown">
+                        {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                <i class="ti-menu"></i>
+                                <p>Admin Menu &raquo;</p>
+                            </a>
+                            {# todo make this menu look like the sidebars #}
+                            <ul class="dropdown-menu">
+                                {% if 'Administrators' in session['groups'] %}
+                                    <li><a href="/admin/publish-manager">Publisher</a></li>
+                                    <li><a href="/admin/sync">Sync Metadata</a></li>
+                                    {#                                <li><a href="/admin/blink-roles" class="button-nav">Blink Layout Owners</a></li>#}
+                                {% endif %}
+                                <li><a href="/admin/cache-clear">Clear Cache</a></li>
+                                <li><a href="/admin/redirect">Redirects</a></li>
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>
