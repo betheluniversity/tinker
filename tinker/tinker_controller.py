@@ -346,13 +346,13 @@ class TinkerController(object):
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow
 
-    def edit_all(self, child, author, edit_data, xml_url, 'system-block'):
-        type_to_find = 'system-block'
+    def edit_all(self, type_to_find, xml_url):
         forms_to_edit = []
         forms_to_edit = self.traverse_xml(self, xml_url, type_to_find)
-        new_value = self.base.edit_all_callback(self, child, author, edit_data, xml_url, forms_to_edit)
-        self.base.edit_asset(self, new_value)
-        self.base.publish_asset(self)
+        for page_values in forms_to_edit:
+            id = page_values['id']
+            page = self.read_page(id).page_values
+            self.e_announcements_controller.edit_all_callback(self, child, author, edit_data, xml_url, page, forms_to_edit, type_to_find)
 
     def edit_all_callback(self, child, author, edit_data, xml_url, forms_to_edit):
         pass

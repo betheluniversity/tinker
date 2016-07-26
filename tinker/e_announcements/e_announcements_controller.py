@@ -237,19 +237,8 @@ class EAnnouncementsController(TinkerController):
         edit_data['first_readonly'] = first_readonly
         edit_data['second_readonly'] = second_readonly
 
-    def edit_all(self, child, author, edit_data, xml_url, forms_to_edit):
-        for page_values in forms_to_edit:
-            id = page_values['id']
-            page = self.read_page(id).page_values
-            if attribute in page:
-                for key in page:
-                        if key == attribute:
-                            self.edit_asset(self, attribute)
-            return
+    def edit_all_callback(self, child, author, edit_data, xml_url, page, forms_to_edit, type_to_find, asset):
+            self.base.update(asset)
 
-    def get_attribute(self):
-        attribute = thing
-        #Attribute should be gotten from user dynamically
-        return attribute
 
 

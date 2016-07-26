@@ -100,5 +100,8 @@ class EAnnouncementsView(FlaskView):
             self.base.log_sentry("E-Announcement edit submission", resp)
             return redirect(url_for('e-announcements.EAnnouncementsView:confirm', status='edit'), code=302)
 
+    def edit_all(self):
+        type_to_find = 'system-block'
+        self.edit_all(self, type_to_find, xml_url)
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)
