@@ -7,17 +7,21 @@
 {% block main_content %}
 
     <div class="large-6 columns">
-            <label>Path
-                <input type="text" value='/' id="cpath"/>
-            </label>
-            <a id="submit" class="button">Submit</a>
+        <form>
+            {{ form.csrf_token }}
+        </form>
+        <label>Path
+            <input type="text" value='/' id="cpath"/>
+        </label>
+        <a id="submit" class="button">Submit</a>
         <div id="output"></div>
     </div>
 
     <script>
         function submitpath() {
             var urlpath = $("#cpath").val();
-            var input_data = {'url': urlpath};
+            var input_data = {'url': urlpath,
+                              'csrf_token': document.getElementById("csrf_token").value};
             var cacheurl = "{{ url_for('CacheBlueprint.CacheClear:submit') }}";
             $.post(cacheurl, input_data, function (data) {
                 $("#output").text(data);
