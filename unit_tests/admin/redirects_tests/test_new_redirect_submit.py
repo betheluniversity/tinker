@@ -1,4 +1,4 @@
-from . import RedirectsBaseTestCase
+from redirects_base import RedirectsBaseTestCase
 
 
 class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
@@ -20,16 +20,16 @@ class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
 
     def test_new_redirect_submit_valid(self):
         form_contents = self.create_new_form_submission("from?", "to!", "on", "Fri Jul 01 2016")
-        response = super(SubmitNewTestCase, self).send_post('/admin/redirect/new-redirect-submit', form_contents)
+        response = super(NewRedirectSubmitTestCase, self).send_post('/admin/redirect/new-redirect-submit', form_contents)
         assert b'<Redirect /from? to to!>' in response.data
         # add an assertion that it got added to the database
 
     def test_new_redirect_submit_invalid_from(self):
         form_contents = self.create_new_form_submission(None, "to!", "on", "Fri Jul 01 2016")
-        response = super(SubmitNewTestCase, self).send_post('/admin/redirect/new-redirect-submit', form_contents)
+        response = super(NewRedirectSubmitTestCase, self).send_post('/admin/redirect/new-redirect-submit', form_contents)
         assert b'400 Bad Request' in response.data
 
     def test_new_redirect_submit_invalid_to(self):
         form_contents = self.create_new_form_submission("from?", None, "on", "Fri Jul 01 2016")
-        response = super(SubmitNewTestCase, self).send_post('/admin/redirect/new-redirect-submit', form_contents)
+        response = super(NewRedirectSubmitTestCase, self).send_post('/admin/redirect/new-redirect-submit', form_contents)
         assert b'400 Bad Request' in response.data

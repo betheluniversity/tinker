@@ -1,4 +1,4 @@
-from . import ClearCacheBaseTestCase
+from cache_base import ClearCacheBaseTestCase
 
 
 class SubmitTestCase(ClearCacheBaseTestCase):
@@ -17,6 +17,8 @@ class SubmitTestCase(ClearCacheBaseTestCase):
         # files and folders in there, not on my local machine.
         form_contents = {'url': "yes"}
         response = super(SubmitTestCase, self).send_post('/admin/cache-clear/submit', form_contents)
+        # TODO: CSRF token error
+        print "ClearCache/SubmitTestCase/Valid response.data:", response.data
         assert b'[' in response.data
 
     def test_submit_invalid_url(self):

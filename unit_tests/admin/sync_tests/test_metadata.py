@@ -1,4 +1,4 @@
-from . import SyncBaseTestCase
+from sync_base import SyncBaseTestCase
 
 
 class MetadataTestCase(SyncBaseTestCase):
@@ -11,5 +11,5 @@ class MetadataTestCase(SyncBaseTestCase):
     #######################
 
     def test_index(self):
-        response = self.send_post("/admin/sync/metadata", {})
+        response = super(MetadataTestCase, self).send_post("/admin/sync/metadata", {})
         assert b'<h3>Successfully Synced' in response.data

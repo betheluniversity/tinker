@@ -1,4 +1,4 @@
-from . import RedirectsBaseTestCase
+from redirects_base import RedirectsBaseTestCase
 
 
 class ExpireTestCase(RedirectsBaseTestCase):
@@ -11,5 +11,5 @@ class ExpireTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_expire(self):
-        response = self.send_get('/admin/redirect/expire')
+        response = super(ExpireTestCase, self).send_get('/admin/redirect/expire')
         assert b'done' in response.data

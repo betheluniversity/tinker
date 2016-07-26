@@ -1,4 +1,4 @@
-from . import OfficeHoursBaseTestCase
+from office_hours_base import OfficeHoursBaseTestCase
 
 
 class IndexTestCase(OfficeHoursBaseTestCase):
@@ -11,7 +11,7 @@ class IndexTestCase(OfficeHoursBaseTestCase):
     #######################
 
     def test_index(self):
-        response = self.send_get("/office-hours")
+        response = super(IndexTestCase, self).send_get("/office-hours")
         assert b'<div class="row">\
           <div class="large-12 columns">\
             <p>Below is the list of Office Hours you have access to edit.\

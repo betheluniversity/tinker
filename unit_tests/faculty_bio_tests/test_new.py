@@ -1,4 +1,4 @@
-from . import FacultyBioBaseTestCase
+from faculty_bio_base import FacultyBioBaseTestCase
 
 
 class NewTestCase(FacultyBioBaseTestCase):
@@ -11,6 +11,5 @@ class NewTestCase(FacultyBioBaseTestCase):
     #######################
 
     def test_new(self):
-        response = self.send_get("/faculty-bio/new")
-        assert b'<form id="facultybioform" action="/faculty-bio/submit" method="post" enctype="multipart/form-data">'\
-               in response.data
+        response = super(NewTestCase, self).send_get("/faculty-bio/new")
+        assert b'<form id="facultybioform" action="/faculty-bio/submit" method="post" enctype="multipart/form-data">' in response.data

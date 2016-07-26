@@ -1,4 +1,4 @@
-from . import SyncBaseTestCase
+from sync_base import SyncBaseTestCase
 
 
 class DataDefinitionTestCase(SyncBaseTestCase):
@@ -11,5 +11,5 @@ class DataDefinitionTestCase(SyncBaseTestCase):
     #######################
 
     def test_index(self):
-        response = self.send_post("/admin/sync/datadefinition", {})
+        response = super(DataDefinitionTestCase, self).send_post("/admin/sync/datadefinition", {})
         assert b'<h3>Successfully Synced' in response.data

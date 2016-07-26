@@ -1,4 +1,4 @@
-from . import FacultyBioBaseTestCase
+from faculty_bio_base import FacultyBioBaseTestCase
 
 
 class SubmitTestCase(FacultyBioBaseTestCase):
@@ -52,6 +52,6 @@ class SubmitTestCase(FacultyBioBaseTestCase):
     # test, this will have to be tested in test_sequentially.py.
     # def test_submit_valid(self):
     #     form_contents = self.create_form_submission()
-    #     response = self.send_post("/faculty-bio/submit", form_contents)
+    #     response = super(SubmitTestCase, self).send_post("/faculty-bio/submit", form_contents)
     #     print response.data
     #     assert b'???????' in response.data

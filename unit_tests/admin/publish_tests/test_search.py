@@ -1,4 +1,4 @@
-from . import PublishBaseTestCase
+from publish_base import PublishBaseTestCase
 
 
 class SearchTestCase(PublishBaseTestCase):
