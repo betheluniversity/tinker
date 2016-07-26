@@ -11,14 +11,12 @@
 
 {% block main_content %}
     <div class="content">
-        <div class="card">
-            <div class="row">
-                <div class="large-12 columns">
-                    </br>
-                    <p>Below is the list of E-Announcements you have access to edit. These are sorted by the first date
-                        entered, newest dates first.
-                    </p>
-                </div>
+        <div class="container-fluid card">
+            <div class="large-12 columns">
+                </br>
+                <p>Below is the list of E-Announcements you have access to edit. These are sorted by the first date
+                    entered, newest dates first.
+                </p>
             </div>
             <a href="{{ url_for('e-announcements.EAnnouncementsView:new') }}" class="btn btn-primary">Submit New
                 E-Announcement</a>

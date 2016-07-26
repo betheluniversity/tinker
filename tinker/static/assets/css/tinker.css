@@ -90,7 +90,8 @@ ul.btn-group-horizontal li {
 
 label {
     margin-bottom: 5px!important;
-    width: 100%
+    width: 100%;
+    font-family: georgia,serif;
 }
 
 input#author {
@@ -119,6 +120,10 @@ small.required {
 
 small.extra-required {
     font-size: 70%;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 }
 
 textarea {

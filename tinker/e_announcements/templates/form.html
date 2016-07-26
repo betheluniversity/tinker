@@ -36,122 +36,119 @@
 
 {% block main_content %}
     <div class="content">
-        <div class="card">
-            <div class="row">
-                {% if new_form %}
-                    <form id="eannouncementform" action="/e-announcement/" method="post" enctype="multipart/form-data">
-                {% else %}
-                    <form id="eannouncementform" action="/e-announcement/" method="post" enctype="multipart/form-data">
-                    <input type="hidden" name="e_announcement_id" id="e_announcement_id"
-                           value="{{ e_announcement_id }}"/>
-                {% endif %}
-                {% if form.errors %}
+        {#        <div class="">#}
+        <div class="container-fluid row">
+            {% if new_form %}
+                <form id="eannouncementform" action="/e-announcement/" method="post" enctype="multipart/form-data">
+            {% else %}
+                <form id="eannouncementform" action="/e-announcement/" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="e_announcement_id" id="e_announcement_id"
+                       value="{{ e_announcement_id }}"/>
+            {% endif %}
+            {% if form.errors %}
+                <div class="alert alert-error">
+                    <div data-alert class="alert-box alert radius">
+                        There were errors with your form.
+                        <a href="#" class="close">&times;</a>
+                    </div>
+                </div>
+            {% endif %}
+
+            {{ form.hidden_tag() }}
+            {% for field in form if field.widget.input_type != 'hidden' %}
+
+                {# Print any errors for this field#}
+                {% for error in form.errors[field.name] %}
                     <div class="alert alert-error">
                         <div data-alert class="alert-box alert radius">
-                            There were errors with your form.
+                            {{ error }}
                             <a href="#" class="close">&times;</a>
                         </div>
                     </div>
+                {% endfor %}
+
+                {# print the label #}
+                {% if field.label.text != '' %}
+                    <label for="{{ field.name }}">
+                        {{ field.label.text }}
+                        <small class="required">{% if field.flags.required %}Required{% endif %}</small>
+                    </label>
+                    {% if field.description != '' %}
+                        <p>{{ field.description }}</p>
+                    {% endif %}
                 {% endif %}
 
-                {{ form.hidden_tag() }}
-                {% for field in form if field.widget.input_type != 'hidden' %}
 
-                    {# Print any errors for this field#}
-                    {% for error in form.errors[field.name] %}
-                        <div class="alert alert-error">
-                            <div data-alert class="alert-box alert radius">
-                                {{ error }}
-                                <a href="#" class="close">&times;</a>
-                            </div>
-                        </div>
-                    {% endfor %}
 
-                    {# print the label #}
-                    {% if field.label.text != '' %}
-                        <label for="{{ field.name }}">
-                            {{ field.label.text }}
-                            {% if field.flags.required %} * {% endif %}
-                        </label>
-                        {% if field.description != '' %}
-                            <p>{{ field.description }}</p>
-                        {% endif %}
+                {# Print the field #}
+                {% if field.type == "SelectMultipleField" %}
+                    {{ field(size=10, class="largeselect") }}
+
+                {% elif field.type == "MultiCheckboxField" %}
+                    <h4 class='audience-header' for="{{ field.name }}">
+                        Audiences
+                        <small class="required" style="font-size: 47%">{% if field.flags.required %}Required{% endif %}</small>
+                    </h4>
+                    {% if field.description != '' %}
+                        <p>{{ field.description }}</p>
                     {% endif %}
-
-
-
-                    {# Print the field #}
-                    {% if field.type == "SelectMultipleField" %}
-                        {{ field(size=10, class="largeselect") }}
-
-                    {% elif field.type == "MultiCheckboxField" %}
-                        <h4 class='audience-header' for="{{ field.name }}">
-                            Audiences
-                            {% if field.flags.required %} * {% endif %}
-                        </h4>
-                        {% if field.description != '' %}
-                            <p>{{ field.description }}</p>
-                        {% endif %}
-                        <div class="row">
-                            {% for column in ['STUDENT', 'FACULTY', 'STAFF'] %}
-                                <div class="large-4 columns">
-                                    </br>
-                                    <label class="audience-header">{{ column }}</label>
-                                    <hr/>
-                                    {% for item in field %}
-                                        {% if column in item.object_data %}
-                                            {# zero-based indexing #}
-                                            {#                                            {{ item }}#}
-                                            <div class="checkbox">
-                                                <label>
-                                                    <input type="checkbox" name="optionsCheckboxes" checked>
-                                                    {{ brm[loop.index - 1] }}
-                                                </label>
-                                            </div>
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
+                    {% for column in ['STUDENT', 'FACULTY', 'STAFF'] %}
+                        <div class="large-4 columns container-fluid card">
+                            </br>
+                            <label class="audience-header">{{ column }}</label>
+                            <hr/>
+                            {% for item in field %}
+                                {% if column in item.object_data %}
+                                    {# zero-based indexing #}
+                                    {#                                            {{ item }}#}
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" name="optionsCheckboxes" unchecked>
+                                            {{ brm[loop.index - 1] }}
+                                        </label>
+                                    </div>
+                                {% endif %}
                             {% endfor %}
                         </div>
-                        <hr/>
+                    {% endfor %}
+{#                    <hr/>#}
 
-                    {% elif field.type == "HeadingField" %}
-                        <h3>{{ field.label }}</h3>
+                {% elif field.type == "HeadingField" %}
+                    <h3>{{ field.label }}</h3>
 
-                    {% elif field.type == "CKEditorTextAreaField" %}
-                        {{ field(class="ckeditor") }}
+                {% elif field.type == "CKEditorTextAreaField" %}
+                    {{ field(class="ckeditor") }}
 
-                    {% elif field.type == "InfoField" %}
-                        <p>
-                        <div>Your announcement can run twice/semester.</div></br>
-                        <div>Announcements must be submitted by 1 p.m. on the business day before they are sent.</div>
-                        </p>
+                {% elif field.type == "InfoField" %}
+                    <p>
+                    <div>Your announcement can run twice/semester.</div></br>
+                    <div>Announcements must be submitted by 1 p.m. on the business day before they are sent.</div>
+                    </p>
 
-                    {% elif field.type == "DateField" %}
-                        {% if field.name == 'first_date' and first_readonly %}
-                            <div>
-                                <p>{{ first_readonly }}</p>
-                            </div>
-                            {{ field(class="datepicker", readonly=True, style="display:none") }}
-                        {% elif field.name == 'second_date' and second_readonly %}
-                            <div>
-                                <p>{{ second_readonly }}</p>
-                            </div>
-                            {{ field(class="datepicker", readonly=True, style="display:none") }}
-                        {% else %}
-                            {{ field(class="datepicker", readonly=True) }}
-                        {% endif %}
-
+                {% elif field.type == "DateField" %}
+                    {% if field.name == 'first_date' and first_readonly %}
+                        <div>
+                            <p>{{ first_readonly }}</p>
+                        </div>
+                        {{ field(class="datepicker", readonly=True, style="display:none") }}
+                    {% elif field.name == 'second_date' and second_readonly %}
+                        <div>
+                            <p>{{ second_readonly }}</p>
+                        </div>
+                        {{ field(class="datepicker", readonly=True, style="display:none") }}
                     {% else %}
-                        {{ field(size=20) }}
+                        {{ field(class="datepicker", readonly=True) }}
                     {% endif %}
-                    </br>
-                {% endfor %}
-                <button type="submit" id="e-announcement-submit-btn" class="btn btn-primary">Submit</button>
-                </form>
-            </div>
-            </br>
+
+                {% else %}
+                    {{ field(size=20) }}
+                {% endif %}
+                </br>
+            {% endfor %}
+            <button type="submit" id="e-announcement-submit-btn" class="btn btn-primary">Submit</button>
+            </form>
         </div>
+        {#        </div>#}
     </div>
 
 {% endblock %}
