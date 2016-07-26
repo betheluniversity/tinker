@@ -6,46 +6,48 @@
 
 {% block main_content %}
     <div class="content">
-        <div class="large-6 columns">
-            <label>Path
-               <input type="text" value="" id="cpath" class="form-control"/>
-            </label>
-            <a id="submit" class="btn btn-primary">Submit</a>
-            <div id="output"></div>
-        </div>
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <label>Path
+                    <input type="text" value="" id="cpath" class="form-control"/>
+                </label>
+                <a id="submit" class="btn btn-primary">Submit</a>
+                <div id="output"></div>
+            </div>
 
-        <script>
-            $(document).ready(function () {
-                var csrftoken = "{{ csrf_token() }}";
-                activateCSRF(csrftoken);
+            <script>
+                $(document).ready(function () {
+                    var csrftoken = "{{ csrf_token() }}";
+                    activateCSRF(csrftoken);
 
 
-                function submitpath() {
-                    var urlpath = $("#cpath").val();
-                    var input_data = {'url': urlpath};
-                    var cacheurl = "{{ url_for('CacheBlueprint.CacheClear:submit') }}";
-                    $.post(cacheurl, input_data, function (data) {
-                        $("#output").text(data);
-                    });
-                    $("#output").text(urlpath);
-                }
-
-                $("#submit").bind("click", submitpath);
-
-                // Ensure the path contains a '/' in the front and no spaces
-                $('#cpath').keyup(function () {
-                    var input = $(this);
-                    input.val(input.val().replace(/ /g, ''));
-                    var value = input.val();
-                    if (value[0] != '/' && value.length > 0) {
-                        input.val("/" + value);
-                        value = input.val();
+                    function submitpath() {
+                        var urlpath = $("#cpath").val();
+                        var input_data = {'url': urlpath};
+                        var cacheurl = "{{ url_for('CacheBlueprint.CacheClear:submit') }}";
+                        $.post(cacheurl, input_data, function (data) {
+                            $("#output").text(data);
+                        });
+                        $("#output").text(urlpath);
                     }
-                });
 
-            })
-            ;
-        </script>
+                    $("#submit").bind("click", submitpath);
+
+                    // Ensure the path contains a '/' in the front and no spaces
+                    $('#cpath').keyup(function () {
+                        var input = $(this);
+                        input.val(input.val().replace(/ /g, ''));
+                        var value = input.val();
+                        if (value[0] != '/' && value.length > 0) {
+                            input.val("/" + value);
+                            value = input.val();
+                        }
+                    });
+
+                })
+                ;
+            </script>
+        </div>
     </div>
 {% endblock %}
 
