@@ -35,8 +35,12 @@
                 {% else %}
                     <li><a class="btn btn-primary">Not Approved</a></li>
                 {% endif %}
-                <li><a href="#" data-reveal-id="confirmModal" id="{{ bio.id }}" data-faculty-bio-id="{{ bio.id }}"
-                       class="btn btn-primary btn-alert">Delete</a></li>
+                <li>
+                    <button class="btn btn-primary btn-alert" data-toggle="modal" data-target="#myModal" href="#"
+                            data-reveal-id="confirmModal" id="{{ bio.id }}" data-faculty-bio-id="{{ bio.id }}">
+                            Delete
+                    </button>
+                </li>
             </ul>
         </div>
     </div>
@@ -111,12 +115,23 @@
         </div>
     </div>
 
-    {#Delete confirm modal#}
-    <div id="confirmModal" class="reveal-modal" data-reveal>
-        <h2>Are you sure you want to delete?</h2>
-        <p class="lead">Your faculty bio page will be removed.</p>
-        <a class="modal-confirm" id="modal-confirm" href="/faculty-bio/delete/formid">Delete</a>
-        <a class="close-reveal-modal">&#215;</a>
+    <!-- Modal Core -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" id="confirmModal" class="reveal-modal" data-reveal>
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+                </div>
+                <div class="modal-body">
+                    <p class="lead">Your faculty bio page will be removed.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-simple" data-dismiss="modal"
+                    href="/faculty-bio/delete/formid">Delete</button>
+                </div>
+            </div>
+        </div>
     </div>
 
 {% endblock %}
