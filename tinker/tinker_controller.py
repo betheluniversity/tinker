@@ -352,7 +352,8 @@ class TinkerController(object):
         for page_values in forms_to_edit:
             id = page_values['id']
             page = self.read_page(id).page_values
-            self.e_announcements_controller.edit_all_callback(child, author, edit_data, xml_url, page, forms_to_edit, type_to_find)
+            asset = node.get_asset()
+            self.e_announcements_controller.edit_all_callback(page, asset)
 
     def edit_all_callback(self, child, author, edit_data, xml_url, forms_to_edit):
         pass

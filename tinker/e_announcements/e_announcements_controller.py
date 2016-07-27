@@ -237,7 +237,7 @@ class EAnnouncementsController(TinkerController):
         edit_data['first_readonly'] = first_readonly
         edit_data['second_readonly'] = second_readonly
 
-    def edit_all_callback(self, child, author, edit_data, xml_url, page, forms_to_edit, type_to_find, asset):
+    def edit_all_callback(self, asset):
             self.base.update(asset)
 
 
