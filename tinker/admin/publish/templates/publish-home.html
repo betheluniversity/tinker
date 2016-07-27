@@ -34,20 +34,20 @@
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         Search by Name:
-                                        <input type="text" value="" class="form-control publish-search"/>
+                                        <input type="text"id="publish-search-by-name" class="form-control publish-search"/>
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         Search by Content:
-                                        <input type="text" value="" class="form-control publish-search"/>
+                                        <input type="text" id="publish-search-by-content" class="form-control publish-search"/>
                                     </div>
                                 </div>
 
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         Search by Metadata:
-                                        <input type="text" value="" class="form-control publish-search"/>
+                                        <input type="text" id="publish-search-by-metadata" class="form-control publish-search"/>
                                     </div>
                                 </div>
                                 <div class="large-6 columns">
@@ -73,25 +73,25 @@
                                 </div>
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" name="optionsCheckboxes" checked>
+                                        <input type="checkbox" id="publish-pages" name="optionsCheckboxes" checked>
                                         Pages
                                     </label>
                                 </div>
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" name="optionsCheckboxes" checked>
+                                        <input type="checkbox" id="publish-blocks" name="optionsCheckboxes" checked>
                                         Blocks
                                     </label>
                                 </div>
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" name="optionsCheckboxes" checked>
+                                        <input type="checkbox" id="publish-files" name="optionsCheckboxes" checked>
                                         Files
                                     </label>
                                 </div>
                                 <div class="checkbox">
                                     <label>
-                                        <input type="checkbox" name="optionsCheckboxes" checked>
+                                        <input type="checkbox" id="publish-folders" name="optionsCheckboxes" checked>
                                         Folders
                                     </label>
                                 </div>
@@ -186,6 +186,7 @@
             function publishAsset(type, id, counter) {
                 var destination = $('input[name=publish-to]:checked', '#publish-search-form').val();
                 var url = "/admin/publish-manager/publish/" + destination + "/" + type + "/" + id;
+                console.log("TEST");
                 $.post(url, function (data) {
                     $("#publish_button_" + counter).text(data);
                 });

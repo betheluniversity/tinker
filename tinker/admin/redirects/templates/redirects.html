@@ -10,168 +10,168 @@
     <div class="content">
         <div class="container-fluid">
             <div class="row card">
-                {#                <div class="content">#}
                 <form action="" id="new-redirect-form">
                     <div class="row">
                         <div class="col-sm-4">
                             <div class="form-group">
                                 From Path:
-                                <input type="text" value="" class="form-control publish-search"/>
+                                <input type="text" id="new-redirect-from" class="form-control publish-search"/>
                             </div>
                         </div>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 To URL:
-                                <input type="text" value="" class="form-control publish-search"/>
+                                <input type="text" id="new-redirect-to" class="form-control publish-search"/>
                             </div>
                         </div>
                         <div class="col-sm-4">
                             <div class="form-group">
                                 Expiration Date:
-                                <input type="text" value="" class="form-control publish-search"/>
+                                <input type="text" id="expiration-date" class="form-control publish-search"/>
                             </div>
                         </div>
                     </div>
-                    <div class="content">
+                    <div class="row">
                         <div class="checkbox">
                             <label>
                                 <input type="checkbox" name="optionsCheckboxes">
                                 Short URL
                             </label>
                         </div>
-                    </div>
-                    {#                        </div>#}
-                    <div class="row">
                         <div class="btn btn-primary">Save</div>
                     </div>
                 </form>
                 </br>
-
-                <div class="row">
-                    <div class="large-12 columns">
-                        <table>
-                            <thead>
-                            <tr>
-                                <th width="400">From Path</th>
-                                <th width="400">To URL</th>
-                                <th width="400">Expiration Date</th>
-                            </tr>
-                            </thead>
-                            <tbody id="redirects-table">
-                            </tbody>
-                        </table>
-                    </div>
+            </div>
+            <div class="row">
+                <div>
+                    <table>
+                        <thead>
+                        <tr>
+                            <th width="400">From Path</th>
+                            <th width="400">To URL</th>
+                            <th width="400">Expiration Date</th>
+                        </tr>
+                        </thead>
+                        <tbody id="redirects-table">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
 
     <script type="text/javascript">
 
-        function updateTable(data) {
-            $("#redirects-table").html(data);
-            $('#new-redirect-to').attr("disabled", false)
-            //should the inputs be disabled?
-            var search_val = $("#new-redirect-from").val();
-            $(".from_path").each(function () {
-                var this_val = $(this).html();
-                if (search_val == this_val) {
-                    $("#new-redirect-to").val('');
-                    $('#new-redirect-to').attr("disabled", true);
-                    return false;
-                }
-            });
-            $(".redirect-row").on('click', function () {
-                $("#modal-confirm").attr("data-delete-path", $(this).find('.from_path').html());
-                $(document).foundation();
-                $("#confirmModal").foundation('reveal', 'open');
-            });
-        }
-
-        var delay = (function () {
-            var timer = 0;
-            return function (callback, ms) {
-                clearTimeout(timer);
-                timer = setTimeout(callback, ms);
-            };
-        })();
-
-        function showAdd() {
-            $("#new-redirect-to").show();
-            $("#redirect-add").show();
-        }
-
-        function loadTableForSearch(search_value, type) {
-            // type needs to be either 'from_path' or 'to_url'
-            var search = {'type': type, 'search': search_value};
-            var url = "{{ url_for('redirects.RedirectsView:search') }}";
-            $.post(url, search, function (data) {
-                updateTable(data);
-            });
-        }
-
-        $('#new-redirect-to').keyup(function () {
-            var input = $(this);
-            input.val(input.val().replace(/ /g, ''));
-            var value = input.val();
-            {#    delay(function(){#}
-            {#      loadTableForSearch(value, 'to_url');#}
-            {#    }, 300 );#}
-        });
-
-        $('#new-redirect-from').keyup(function () {
-            var input = $(this);
-            input.val(input.val().replace(/ /g, ''));
-            var value = input.val();
-            if (value[0] != '/' && value.length > 0) {
-                input.val("/" + value);
-                value = input.val();
-            }
-            delay(function () {
-                loadTableForSearch(value, 'from_path');
-            }, 300);
-        });
-
         $(document).ready(function () {
+            var csrftoken = "{{ csrf_token() }}";
+            activateCSRF(csrftoken);
 
-            var d = document;
-            var input = $(d.createElement('input'));
-            input.attr('value', 'Save');
-            input.attr('type', 'button');
-            input.attr('id', 'redirect-add');
-            input.attr('class', 'button postfix');
-            {#    input.attr('style', 'display:none');#}
-            input.click(function (event) {
-                console.log("BUTTON WAS CLICKED");
-                document.getElementById('redirect-add').disabled = true;
-                // when 'save' is clicked, gather the field mappings and send those
-                // to the wufoo-silva app for storage
-                var fieldMappings = $(this.form).serializeArray(),
-                        url = "{{ url_for('redirects.RedirectsView:new_redirect_submit') }}";
-
-                $.post(url, fieldMappings, function (data) {
-                    loadTableForSearch($("#new-redirect-from").val(), 'from_path');
-                    document.getElementById('redirect-add').disabled = false;
-                });
-
-            });
-            $("#form-save-button").append(input);
-
-            $("#modal-confirm").click(function () {
-                var from_path = {"from_path": $(this).attr('data-delete-path')};
-                var url = "{{ url_for('redirects.RedirectsView:delete_redirect') }}";
-                $.post(url, from_path, function (data) {
-                    if (data) {
-                        loadTableForSearch($("#new-redirect-from").val(), 'from_path');
-                        $("#confirmModal").foundation('reveal', 'close');
+            function updateTable(data) {
+                $("#redirects-table").html(data);
+                $('#new-redirect-to').attr("disabled", false)
+                //should the inputs be disabled?
+                var search_val = $("#new-redirect-from").val();
+                $(".from_path").each(function () {
+                    var this_val = $(this).html();
+                    if (search_val == this_val) {
+                        $("#new-redirect-to").val('');
+                        $('#new-redirect-to').attr("disabled", true);
+                        return false;
                     }
                 });
+                {#            $(".redirect-row").on('click', function () {#}
+                {#                $("#modal-confirm").attr("data-delete-path", $(this).find('.from_path').html());#}
+                {#                $(document).foundation();#}
+                {#                $("#confirmModal").foundation('reveal', 'open');#}
+                {#            });#}
+            }
+
+            var delay = (function () {
+                var timer = 0;
+                return function (callback, ms) {
+                    clearTimeout(timer);
+                    timer = setTimeout(callback, ms);
+                };
+            })();
+
+            function showAdd() {
+                $("#new-redirect-to").show();
+                $("#redirect-add").show();
+            }
+
+            function loadTableForSearch(search_value, type) {
+                // type needs to be either 'from_path' or 'to_url'
+                var search = {'type': type, 'search': search_value};
+                var url = "{{ url_for('redirects.RedirectsView:search') }}";
+                $.post(url, search, function (data) {
+                    updateTable(data);
+                });
+            }
+
+            $('#new-redirect-to').keyup(function () {
+                var input = $(this);
+                input.val(input.val().replace(/ /g, ''));
+                var value = input.val();
+                {#    delay(function(){#}
+                {#      loadTableForSearch(value, 'to_url');#}
+                {#    }, 300 );#}
             });
 
-        });
+            $('#new-redirect-from').keyup(function () {
+                var input = $(this);
+                input.val(input.val().replace(/ /g, ''));
+                var value = input.val();
+                if (value[0] != '/' && value.length > 0) {
+                    input.val("/" + value);
+                    value = input.val();
+                }
+                delay(function () {
+                    loadTableForSearch(value, 'from_path');
+                }, 300);
+            });
 
+            $(document).ready(function () {
+
+                var d = document;
+                var input = $(d.createElement('input'));
+                input.attr('value', 'Save');
+                input.attr('type', 'button');
+                input.attr('id', 'redirect-add');
+                input.attr('class', 'button postfix');
+                {#    input.attr('style', 'display:none');#}
+                input.click(function (event) {
+                    console.log("BUTTON WAS CLICKED");
+                    document.getElementById('redirect-add').disabled = true;
+                    // when 'save' is clicked, gather the field mappings and send those
+                    // to the wufoo-silva app for storage
+                    var fieldMappings = $(this.form).serializeArray(),
+                            url = "{{ url_for('redirects.RedirectsView:new_redirect_submit') }}";
+
+                    $.post(url, fieldMappings, function (data) {
+                        loadTableForSearch($("#new-redirect-from").val(), 'from_path');
+                        document.getElementById('redirect-add').disabled = false;
+                    });
+
+                });
+                $("#form-save-button").append(input);
+
+                $("#modal-confirm").click(function () {
+                    var from_path = {"from_path": $(this).attr('data-delete-path')};
+                    var url = "{{ url_for('redirects.RedirectsView:delete_redirect') }}";
+                    $.post(url, from_path, function (data) {
+                        if (data) {
+                            loadTableForSearch($("#new-redirect-from").val(), 'from_path');
+                            $("#confirmModal").foundation('reveal', 'close');
+                        }
+                    });
+                });
+
+            });
+
+        })
+        ;
     </script>
 
     {#Delete confirm modal#}
@@ -186,15 +186,18 @@
 {% endblock %}
 
 
+{#{% block scripts %}#}
+{#    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">#}
+{#    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>#}
+{#    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>#}
+{#    <script>#}
+{#        $(document).ready(function () {#}
+{#            var picker = new Pikaday({#}
+{#                field: document.getElementById('expiration-date')#}
+{#            });#}
+{#        });#}
+{#    </script>#}
+{#{% endblock %}#}
 {% block scripts %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
-    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
-    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
-    <script>
-        $(document).ready(function () {
-            var picker = new Pikaday({
-                field: document.getElementById('expiration-date')
-            });
-        });
-    </script>
+    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
 {% endblock %}
