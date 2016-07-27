@@ -2,7 +2,6 @@ from tinker.tinker_controller import TinkerController
 import json
 import datetime
 import time
-
 import re
 import urllib2
 import arrow
@@ -11,6 +10,7 @@ from xml.etree import ElementTree as ET
 from operator import itemgetter
 
 from bu_cascade.asset_tools import update, find
+from flask import json as fjson
 
 # local
 from tinker import app
@@ -120,28 +120,18 @@ class EventsController(TinkerController):
             num_dates = int(rform['num_dates'])
             return render_template('event-form.html', **locals())
 
-    # todo: this (and the reference in tinker_controller) can be replaced with what eric wrote in create-base-view branch
-    def group_callback(self, node):
-        data = {}
-        type = 'group'
-
-        if node['identifier'] == 'event-dates':
-            data[node['date_count']] = self.read_date_data_structure(node)
-
-        return data, type
-
     def build_edit_form(self, event_id):
-        from tinker.events.forms import EventForm
-
-        asset = self.read_page(event_id)
-        edit_data, form = self.get_edit_data(asset, EventForm, event_id)
-        dates = None
-        if edit_data['dates']:
-            dates = edit_data['dates']
+        page = self.read_page(event_id)
+        multiple = ['event-dates']
+        edit_data = self.get_edit_data(page.get_structured_data(), page.get_metadata(), multiple)
+        # set dates and return for use in form
+        # convert dates to json so we can use Javascript to create custom DateTime fields on the form
+        dates = self.format_dates_to_time_picker(edit_data['event-dates'])
+        dates = fjson.dumps(dates)
 
         author = edit_data['author']
 
-        return edit_data, form, dates, author
+        return edit_data, dates, author
 
     def date_str_to_timestamp(self, date):
         try:
@@ -378,11 +368,10 @@ class EventsController(TinkerController):
 
         return max_year
 
-    # todo: do we need this? (probably, but i just thought i would check)
-    def read_date_data_structure(self, node):
-        node_data = find(node, 'structuredDataNode', False)
+    # Converts date dict to the date picker format that front-end tinker can read
+    def format_dates_to_time_picker(self, dates):
         date_data = {}
-        for date in node_data:
+        for date in dates:
             if date['identifier'] == "all-day" and date['text'] == "::CONTENT-XML-CHECKBOX::":
                 continue
             if date['identifier'] == "outside-of-minnesota" and date['text'] == "::CONTENT-XML-CHECKBOX::":

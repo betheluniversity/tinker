@@ -61,18 +61,21 @@ class EventsView(FlaskView):
         if self.base.asset_in_workflow(event_id, asset_type='page'):
             return redirect(url_for('events.EventsView:event_in_workflow'), code=302)
 
-        edit_data, form, dates, author = self.base.build_edit_form(event_id)
+        edit_data, dates, author = self.base.build_edit_form(event_id)
         # todo: fix this with the submit_all() functionality
         # todo convert 'On/Off campus' to 'On/Off Campus' for all events
-        if 'location' in edit_data:
+        from tinker.events.forms import EventForm
+        form = EventForm(**edit_data)
+        if 'location' in edit_data and edit_data['location']:
             edit_data['location'].replace(' c', ' C')
 
         return render_template('event-form.html', **locals())
 
     @route('/duplicate/<event_id>')
     def duplicate_event_page(self, event_id):
-        edit_data, form, dates, author = self.base.build_edit_form(event_id)
-
+        edit_data, dates, author = self.base.build_edit_form(event_id)
+        from tinker.events.forms import EventForm
+        form = EventForm(**edit_data)
         add_form = True
 
         return render_template('event-form.html', **locals())

@@ -213,90 +213,90 @@ class TinkerController(object):
     def group_callback(self, node):
         pass
 
-#     def get_edit_data(self, asset, form, id):
-#         edit_data = {}
-#         date_count = 0
-#
-# <<<<<<< HEAD
-#         # # dynamic metadata
-#         # dynamic_fields = metadata['dynamicFields']['dynamicField']
-#
-#         event_asset, metadata, structured_data = asset.get_asset()
-#         dynamic_fields = find(metadata, 'fieldValues')
-#         # dynamic_fields = metadata['dynamicFields']['dynamicField']
-#
-#         for node in find(structured_data, 'identifier'):
-#             node_identifier = node['identifier'].replace('-', '_')
-#
-#             node_type = node['type']
-#
-#             if node_type == "text":
-#                 has_text = 'text' in node.keys() and node['text']
-#                 if not has_text:
-#                     continue
-#                 try:
-#                     # todo move
-#                     date = datetime.datetime.strptime(node['text'], "%m-%d-%Y")
-#                     edit_data[node_identifier] = date
-#                 except ValueError:
-#                     # A fix to remove the &#160; character from appearing (non-breaking whitespace)
-#                     # Cascade includes this, for whatever reason.
-#                     edit_data[node_identifier] = node['text'].replace('&amp;#160;', ' ')
-#             # todo node_type image, error checking?
-#             # elif node_identifier == 'image':
-#             #     edit_data['image'] = node.filePath
-#             elif node_type == 'group':
-#                 # These are the event dates. Create a dict so we can convert to JSON later.
-#                 # dates[date_count] = self.read_date_data_structure(node)
-#                 node['date_count'] = date_count
-#                 data, group_or_edit_type = self.group_callback(node)
-#                 date_count += 1
-#
-#         for field in metadata:
-#             if field != 'dynamicFields':
-#                     edit_data[field.replace('-', '_')] = metadata[field]
-# =======
-#         for m in multiple:
-#             edit_data[m] = []
-#
-#         for node in find(sdata, 'identifier'):
-#             if node['identifier'] in multiple:
-#                 m = node['identifier']
-#                 edit_data[m].append(self.inspect_sdata_node(node))
-# >>>>>>> create-base-view
-#
-#             else:
-#                 node_identifier = node['identifier'].replace('-', '_')
-#                 edit_data[node_identifier] = self.inspect_sdata_node(node)
-#
-#         dynamic_fields = find(mdata, 'fieldValues')
-#         # now metadata dynamic fields
-#         for field in dynamic_fields:
-#             if find(field, 'fieldValue'):
-#                 items = [find(item, 'value') for item in find(field, 'fieldValue')]
-#                 edit_data[field['name'].replace('-', '_')] = items
-#
-# <<<<<<< HEAD
-#         if data:
-#             edit_data['dates'] = fjson.dumps(data)
-# =======
-#         # Add the rest of the fields. Can't loop over these kinds of metadata
-#         edit_data['title'] = mdata['title']
-#
-#         # get the (first) author
-#         authors = find(mdata, 'author', False)
-#         try:
-#             authors = authors.split(", ")
-#             edit_data['author'] = authors[0]
-#         except AttributeError:
-#             edit_data['author'] = ''
-# >>>>>>> create-base-view
-#
-#         # Create a form object with the data
-#         form = form(**edit_data)
-#         form.id = id
-#
-#         return edit_data, form
+    def get_edit_data(self, sdata, mdata, multiple=[]):
+        """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
+        edit_data = {}
+
+        for m in multiple:
+            edit_data[m] = []
+
+        for node in find(sdata, 'identifier'):
+            if node['identifier'] in multiple:
+                m = node['identifier']
+                edit_data[m].append(self.inspect_sdata_node(node))
+
+            else:
+                node_identifier = node['identifier'].replace('-', '_')
+                edit_data[node_identifier] = self.inspect_sdata_node(node)
+
+        dynamic_fields = find(mdata, 'fieldValues')
+        # now metadata dynamic fields
+        for field in dynamic_fields:
+            if find(field, 'fieldValue'):
+                items = [find(item, 'value') for item in find(field, 'fieldValue')]
+                edit_data[field['name'].replace('-', '_')] = items
+
+        # Add the rest of the fields. Can't loop over these kinds of metadata
+        edit_data['title'] = mdata['title']
+        edit_data['metaDescription'] = mdata['metaDescription']
+
+        # get the (first) author
+        authors = find(mdata, 'author', False)
+        try:
+            authors = authors.split(", ")
+            edit_data['author'] = authors[0]
+        except AttributeError:
+            edit_data['author'] = ''
+
+        return edit_data
+
+    def inspect_sdata_node(self, node):
+
+        node_type = node['type']
+
+        if node_type =='group':
+            group = {}
+            for n in node['structuredDataNodes']['structuredDataNode']:
+                node_identifier = n['identifier'].replace('-', '_')
+                group[node_identifier] = self.inspect_sdata_node(n)
+            return group
+
+        elif node_type == 'text':
+            has_text = 'text' in node.keys() and node['text']
+            if not has_text:
+                return
+            try:
+                # todo move
+                import datetime
+                date = datetime.datetime.strptime(node['text'], '%m-%d-%Y')
+                if not date:
+                    date = ''
+                return date
+            except ValueError:
+                pass
+
+            try:
+                if len(node['text']) >= 9:
+                    date = self.__unicode_to_html_entities__(node['text'])
+                    if not date:
+                        date = ''
+                    return date
+            except TypeError:
+                pass
+            except ValueError:
+                pass
+
+            # A fix to remove the &#160; character from appearing (non-breaking whitespace)
+            # Cascade includes this, for whatever reason.
+            return node['text'].replace('&amp;#160;', ' ')
+
+        elif node_type == 'asset':
+            asset_type = node['assetType']
+            if asset_type == 'file':
+                if 'filePath' in node:
+                    return node['filePath']
+                else:
+                    return ''
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
