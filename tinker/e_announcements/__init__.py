@@ -102,6 +102,7 @@ class EAnnouncementsView(FlaskView):
 
     def edit_all(self):
         type_to_find = 'system-block'
-        self.edit_all(self, type_to_find, xml_url)
+        xml_url = app.config['E_ANN_URL']
+        self.base.edit_all(type_to_find, xml_url)
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)

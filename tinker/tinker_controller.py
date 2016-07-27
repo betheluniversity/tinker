@@ -348,11 +348,11 @@ class TinkerController(object):
 
     def edit_all(self, type_to_find, xml_url):
         forms_to_edit = []
-        forms_to_edit = self.traverse_xml(self, xml_url, type_to_find)
+        forms_to_edit = self.traverse_xml(xml_url, type_to_find)
         for page_values in forms_to_edit:
             id = page_values['id']
             page = self.read_page(id).page_values
-            self.e_announcements_controller.edit_all_callback(self, child, author, edit_data, xml_url, page, forms_to_edit, type_to_find)
+            self.e_announcements_controller.edit_all_callback(child, author, edit_data, xml_url, page, forms_to_edit, type_to_find)
 
     def edit_all_callback(self, child, author, edit_data, xml_url, forms_to_edit):
         pass
