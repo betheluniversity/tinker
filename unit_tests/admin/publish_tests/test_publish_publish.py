@@ -12,10 +12,7 @@ class PublishPublishTestCase(PublishBaseTestCase):
 
     def test_publish_publish(self):
         destination = "staging"  # or "production"
-        publish_type = "yes"
-        publish_id = "no"
+        publish_type = "page"
+        publish_id = "a7404faa8c58651375fc4ed23d7468d5"
         response = super(PublishPublishTestCase, self).send_get("/admin/publish-manager/publish/" + destination + "/" + publish_type + "/" + publish_id)
-        assert b'<h3>Publish Program Feeds</h3>' in response.data
-
-        # <a href=\'/admin/publish-manager/program-feeds/staging\' class="button">Publish to Staging</a>\
-        # <a href=\'/admin/publish-manager/program-feeds/production\' class="button">Publish to Production and Staging</a>' in response.data
+        assert b'This asset already exists in the publish queue' in response.data or b'Publishing. . .' in response.data

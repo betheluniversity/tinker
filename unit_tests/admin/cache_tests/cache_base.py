@@ -17,8 +17,8 @@ class ClearCacheBaseTestCase(unittest.TestCase):
     def get_csrf_token(self, url):
         import re
         response = self.send_get(url)
-        form = re.search('<form.*>\s*.+?\s*</form>', response.data).group(0)  # Returns whole result
-        csrf_token = re.search('<input(.*)id="csrf_token"(.*)value="(.+)"(/?)>', form).group(3)  # Returns 3rd () group
+        # Returns 3rd parentheses group
+        csrf_token = re.search('<input(.*)id="csrf_token"(.*)value="(.+)"(/?)>', response.data).group(3)
         return csrf_token
 
     # Corresponding to the setUp method, this method deletes the temporary database
