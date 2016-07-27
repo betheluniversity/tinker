@@ -31,6 +31,10 @@ h3 {
     }
 }
 
+.col-sm-4 {
+    padding-bottom: 0px!important;
+}
+
 .horizontal-scroll {
     overflow: auto;
 }
@@ -114,6 +118,10 @@ ul.btn-group-horizontal li {
 
 .job {
     margin-left: -15px;
+}
+
+.no-margin-bottom {
+    margin-bottom: 0px;
 }
 
 label {
