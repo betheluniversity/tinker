@@ -1,4 +1,4 @@
-.publish-head{
+.publish-head {
     margin-left: 10px;
 }
 
@@ -14,7 +14,7 @@ h3 {
     margin-top: 0px;
 }
 
-@media (min-width:992px) {
+@media (min-width: 992px) {
     .col-md-1,
     .col-md-10,
     .col-md-11,
@@ -31,6 +31,10 @@ h3 {
     }
 }
 
+.col-sm-4 {
+    padding-bottom: 0px!important;
+}
+
 .horizontal-scroll {
     overflow: auto;
 }
@@ -45,8 +49,28 @@ p#faculty-p {
     overflow-wrap: break-word;
 }
 
+ul.dropdown-menu {
+    float: left !important;
+    background-color: #FFFCF5 !important;
+    top: 100%;
+    width: 100% !important;
+    border-radius: 6px;
+    margin-top: 8px;
+    box-shadow: 0 2px rgba(17, 16, 15, 0.1), 0 2px 10px rgba(17, 16, 15, 0.1) !important;
+}
+
+.dropdown-menu > li > a:hover {
+    color: #FFFFFF !important;
+    background-color: #66615B !important;
+}
+
 .btn {
     margin-left: 0px !important;
+    font-weight: 300 !important;
+}
+
+a.btn {
+    font-weight: 600 !important;
 }
 
 .navbar {
@@ -96,10 +120,14 @@ ul.btn-group-horizontal li {
     margin-left: -15px;
 }
 
+.no-margin-bottom {
+    margin-bottom: 0px;
+}
+
 label {
-    margin-bottom: 5px!important;
+    margin-bottom: 5px !important;
     width: 100%;
-    font-family: georgia,serif;
+    font-family: georgia, serif;
 }
 
 input#author {
@@ -112,13 +140,17 @@ input {
 }
 
 select {
-    width: 50%;
+    width: 35%;
     margin-bottom: 15px;
+}
+
+select#school-selector {
+    width: 100%;
 }
 
 .radio label {
     padding: 0px;
-    margin-bottom: -5px!important;
+    margin-bottom: -5px !important;
 }
 
 small.required {
@@ -191,6 +223,6 @@ div#cke_hobbies {
 
 @media (max-width: 350px) {
     select#school-selector {
-        max-width: 90%;
+        max-width: 100%;
     }
 }
