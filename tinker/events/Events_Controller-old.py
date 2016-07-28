@@ -335,7 +335,7 @@ class EventsController(TinkerController):
             hide_site_nav = "Hide"
             path = 'events/%s/admissions' % max_year
 
-        self.copy_folder(path, app.config['EVENTS_FOLDER_ID'])
+        self.copy(path, app.config['EVENTS_FOLDER_ID'])
 
         return hide_site_nav, path
 
@@ -370,31 +370,51 @@ class EventsController(TinkerController):
 
     # Converts date dict to the date picker format that front-end tinker can read
     def format_dates_to_time_picker(self, dates):
-        date_data = {}
-        for date in dates:
-            if date['identifier'] == "all-day" and date['text'] == "::CONTENT-XML-CHECKBOX::":
-                continue
-            if date['identifier'] == "outside-of-minnesota" and date['text'] == "::CONTENT-XML-CHECKBOX::":
-                continue
-            else:
-                date_data[date['identifier']] = date['text']
-        # if type(find(node, 'start-date')) == str or type(find(node, 'end-date')) == str:
-        #     return date_data
-        # If there is no date, these will fail
-        try:
-            date_data['start-date'] = self.timestamp_to_date_str(date_data['start-date'])
-        except TypeError:
-            pass
-        except ValueError:
-            date_data['start-date'] = self.timestamp_to_date_str(int(date_data['start-date']))
-        try:
-            date_data['end-date'] = self.timestamp_to_date_str(date_data['end-date'])
-        except TypeError:
-            pass
-        except ValueError:
-            date_data['start-date'] = self.timestamp_to_date_str(int(date_data['start-date']))
+        # date_data = {}
+        # for date in dates:
+        #     for x, y in enumerate(date):
+        #         try:
+        #             if x == "all-day" and y == "::CONTENT-XML-CHECKBOX::No":
+        #                 continue
+        #             if x == "outside-of-minnesota" and y == "::CONTENT-XML-CHECKBOX::No":
+        #                 continue
+        #             else:
+        #                 date_data[x] = y
+        #         except KeyError:
+        #             break
+        #
+        # # if type(find(node, 'start-date')) == str or type(find(node, 'end-date')) == str:
+        # #     return date_data
+        # # If there is no date, these will fail
+        # try:
+        #     date_data['start-date'] = self.timestamp_to_date_str(date_data['start-date'])
+        # except TypeError:
+        #     pass
+        # except ValueError:
+        #     date_data['start-date'] = self.timestamp_to_date_str(int(date_data['start-date']))
+        # try:
+        #     date_data['end-date'] = self.timestamp_to_date_str(date_data['end-date'])
+        # except TypeError:
+        #     pass
+        # except ValueError:
+        #     date_data['start-date'] = self.timestamp_to_date_str(int(date_data['start-date']))
 
-        return date_data
+        for date in dates:
+            if 'all_day' in date and (date['all_day'] == "::CONTENT-XML-CHECKBOX::No" or date['all_day'] == "::CONTENT-XML-CHECKBOX::"):
+                date['all_day'] = None
+            if 'outside_of_minnesota' in date and (date['outside_of_minnesota'] == "::CONTENT-XML-CHECKBOX::No" or date['outside_of_minnesota'] == "::CONTENT-XML-CHECKBOX::"):
+                date['outside_of_minnesota'] = None
+            try:
+                date['start_date'] = self.timestamp_to_date_str(int(date['start_date']))
+            except TypeError:
+                pass
+            try:
+                date['end_date'] = self.timestamp_to_date_str(int(date['end_date']))
+            except TypeError:
+                pass
+
+
+        return dates
 
     # todo: this can be deleted. we can just call the move function in tinker_controller
     def move_event_year(self, event_id, data):

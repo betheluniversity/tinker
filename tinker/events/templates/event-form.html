@@ -277,11 +277,11 @@
                   $("#remove_date_button").show();
                 }
                 //Now populate the fieldset
-                var allday = date['all-day'];
+                var allday = date['all_day'];
                 if( allday && allday.substr(-3) == "Yes" ){
                   allday = true;
                 }
-                populateFieldset(id, allday, date['start-date'], date['end-date'], date['outside-of-minnesota'], date['time-zone']);
+                populateFieldset(id, allday, date['start_date'], date['end_date'], date['outside_of_minnesota'], date['time_zone']);
                 //no infinite loops today
                 i++;
 
