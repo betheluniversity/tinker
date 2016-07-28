@@ -25,7 +25,7 @@
 
                     </li>
                 {% endif %}
-                {% if request.path == '/event/' %}
+                {% if 'event/' in request.path %}
                     <li class="active">
                         <a href="/event">
                             <i class="ti-calendar"></i>
@@ -40,7 +40,7 @@
                         </a>
                     </li>
                 {% endif %}
-                {% if request.path == '/faculty-bio/' %}
+                {% if 'faculty-bio/' in request.path %}
                     <li class="active">
                         {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
                             <a href="/faculty-bio">
@@ -59,7 +59,7 @@
                         {% endif %}
                     </li>
                 {% endif %}
-                {% if request.path == '/e-announcement/' or request.path == '/e-announcement/new/' %}
+                {% if 'e-announcement/' in request.path %}
                     <li class="active">
                         <a href="/e-announcement">
                             <i class="ti-comment"></i>
@@ -74,8 +74,7 @@
                         </a>
                     </li>
                 {% endif %}
-                {% if request.path == '/admin/publish-manager/' or request.path == '/admin/sync/'
-                or request.path == '/admin/cache-clear/' or request.path == '/admin/redirect/' %}
+                {% if 'admin/' in request.path %}
                     <li class="dropdown active">
                         {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">

@@ -16,19 +16,19 @@
                             <div class="col-sm-4">
                                 <div class="form-group">
                                     From Path:
-                                    <input type="text" value="" class="form-control no-margin-bottom"/>
+                                    <input type="text" id="new-redirect-from" class="form-control no-margin-bottom"/>
                                 </div>
                             </div>
                             <div class="col-sm-4">
                                 <div class="form-group">
                                     To URL:
-                                    <input type="text" value="" class="form-control no-margin-bottom"/>
+                                    <input type="text" id="new-redirect-to" class="form-control no-margin-bottom"/>
                                 </div>
                             </div>
                             <div class="col-sm-4">
                                 <div class="form-group">
                                     Expiration Date:
-                                    <input type="text" value="" class="form-control no-margin-bottom"/>
+                                    <input type="text" id="expiration-date" class="form-control no-margin-bottom"/>
                                 </div>
                             </div>
                         </div>
@@ -136,14 +136,13 @@
             });
 
             $(document).ready(function () {
-
+                console.log("Reached");
                 var d = document;
                 var input = $(d.createElement('input'));
                 input.attr('value', 'Save');
                 input.attr('type', 'button');
-                input.attr('id', 'redirect-add');
-                input.attr('class', 'button postfix');
-                {#    input.attr('style', 'display:none');#}
+                input.attr('class', 'btn btn-primary');
+                input.attr('style', 'display:none');
                 input.click(function (event) {
                     console.log("BUTTON WAS CLICKED");
                     document.getElementById('redirect-add').disabled = true;
@@ -166,7 +165,7 @@
                     $.post(url, from_path, function (data) {
                         if (data) {
                             loadTableForSearch($("#new-redirect-from").val(), 'from_path');
-                            $("#confirmModal").foundation('reveal', 'close');
+{#                            $("#confirmModal").foundation('reveal', 'close');#}
                         }
                     });
                 });
@@ -188,19 +187,6 @@
 
 {% endblock %}
 
-
-{#{% block scripts %}#}
-{#    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">#}
-{#    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>#}
-{#    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>#}
-{#    <script>#}
-{#        $(document).ready(function () {#}
-{#            var picker = new Pikaday({#}
-{#                field: document.getElementById('expiration-date')#}
-{#            });#}
-{#        });#}
-{#    </script>#}
-{#{% endblock %}#}
 {% block scripts %}
     <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
 {% endblock %}
