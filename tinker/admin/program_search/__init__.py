@@ -10,6 +10,8 @@ from flask.ext.classy import FlaskView
 from flask import render_template
 from flask import Blueprint
 from flask import jsonify
+from flask import session
+from flask import abort
 from flask.ext.classy import route, request
 
 from tinker import app, db
@@ -26,6 +28,11 @@ class ProgramSearchView(FlaskView):
         path = app.config["GSPREAD_PATH"]
         credentials = ServiceAccountCredentials.from_json_keyfile_name(path, scope)
         self.gc = gspread.authorize(credentials)
+
+    def before_request(self, args):
+        # give access to admins and lauren
+        if 'Administrators' not in session['groups'] and session['username'] != 'parlau':
+            abort(403)
 
     def index(self):
         return render_template('index.html')
