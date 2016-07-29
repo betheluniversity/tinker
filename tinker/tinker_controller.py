@@ -347,7 +347,7 @@ class TinkerController(object):
         old_asset = ''
         # add a slash in front of path if it doesn't already have one
         if new_path_and_name[0] != "/":
-            new_path = "/%s" % new_path_and_name
+            new_path_and_name = "/%s" % new_path_and_name
 
         old_asset = self.read(new_path_and_name, asset_type)
 

@@ -335,7 +335,7 @@ class EventsController(TinkerController):
             hide_site_nav = "Hide"
             path = 'events/%s/admissions' % max_year
 
-        self.copy(path, app.config['EVENTS_FOLDER_ID'])
+        self.copy(app.config['BASE_ASSET_EVENT_FOLDER'], path, 'folder')
 
         return hide_site_nav, path
 
