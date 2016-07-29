@@ -1,7 +1,6 @@
 __author__ = 'ces55739'
 
 import datetime
-import re
 
 from flask import session
 from flask import render_template
@@ -93,7 +92,9 @@ class EAnnouncementsController(TinkerController):
         return page_values
 
     def validate_form(self, rform):
-        from forms import EAnnouncementsForm
+
+        from forms import EAnnouncementsForm;
+
         form = EAnnouncementsForm()
 
         if not form.validate_on_submit():

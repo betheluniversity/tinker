@@ -1,7 +1,7 @@
 import urllib2
 import re
 import time
-from functools import wraps
+import cgi
 from xml.etree import ElementTree as ET
 import requests
 import datetime
@@ -32,7 +32,6 @@ from tinker import app
 from tinker import sentry
 
 from BeautifulSoup import BeautifulStoneSoup
-import cgi
 
 def should_be_able_to_edit_image(roles):
     if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
@@ -140,12 +139,11 @@ class TinkerController(object):
             session['name'] = "%s %s" % (fname, lname)
 
         def get_groups_for_user(username=None):
-            base = TinkerController()
 
             if not username:
                 username = session['username']
             try:
-                user = base.read(username, "user")
+                user = self.read(username, "user")
                 allowed_groups = find(user, 'groups', False)
             except AttributeError:
                 allowed_groups = ""
@@ -212,23 +210,45 @@ class TinkerController(object):
 
         return matches
 
-    def date_to_java_unix(self, date, datetime_format=None):
+    def group_callback(self, node):
+        pass
 
-        if not datetime_format:
-            datetime_format = self.datetime_format
+    def get_edit_data(self, sdata, mdata, multiple=[]):
+        """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
+        edit_data = {}
 
-        date = (datetime.datetime.strptime(date, datetime_format))
+        for m in multiple:
+            edit_data[m] = []
 
-        # if this is a time field with no date, the  year  will be 1900, and strftime("%s") will return -1000
-        if date.year == 1900:
-            date = date.replace(year=datetime.date.today().year)
+        for node in find(sdata, 'identifier'):
+            if node['identifier'] in multiple:
+                m = node['identifier']
+                edit_data[m].append(self.inspect_sdata_node(node))
 
-        return int(date.strftime("%s")) * 1000
+            else:
+                node_identifier = node['identifier'].replace('-', '_')
+                edit_data[node_identifier] = self.inspect_sdata_node(node)
 
-    def java_unix_to_date(self, date, date_format=None):
-        if not date_format:
-            date_format = self.datetime_format
-        return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
+        dynamic_fields = find(mdata, 'fieldValues')
+        # now metadata dynamic fields
+        for field in dynamic_fields:
+            if find(field, 'fieldValue'):
+                items = [find(item, 'value') for item in find(field, 'fieldValue')]
+                edit_data[field['name'].replace('-', '_')] = items
+
+        # Add the rest of the fields. Can't loop over these kinds of metadata
+        edit_data['title'] = mdata['title']
+        edit_data['metaDescription'] = mdata['metaDescription']
+
+        # get the (first) author
+        authors = find(mdata, 'author', False)
+        try:
+            authors = authors.split(", ")
+            edit_data['author'] = authors[0]
+        except AttributeError:
+            edit_data['author'] = ''
+
+        return edit_data
 
     def inspect_sdata_node(self, node):
 
@@ -257,7 +277,7 @@ class TinkerController(object):
 
             try:
                 if len(node['text']) >= 9:
-                    date = self.java_unix_to_date(node['text'])
+                    date = self.__unicode_to_html_entities__(node['text'])
                     if not date:
                         date = ''
                     return date
@@ -273,62 +293,10 @@ class TinkerController(object):
         elif node_type == 'asset':
             asset_type = node['assetType']
             if asset_type == 'file':
-                return node['filePath']
-
-    def get_edit_data(self, sdata, mdata, multiple=[]):
-        """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
-        edit_data = {}
-
-        for m in multiple:
-            edit_data[m] = []
-
-        for node in find(sdata, 'identifier'):
-            if node['identifier'] in multiple:
-                m = node['identifier']
-                edit_data[m].append(self.inspect_sdata_node(node))
-
-            else:
-                node_identifier = node['identifier'].replace('-', '_')
-                edit_data[node_identifier] = self.inspect_sdata_node(node)
-
-        dynamic_fields = find(mdata, 'fieldValues')
-        # now metadata dynamic fields
-        for field in dynamic_fields:
-            if find(field, 'fieldValue'):
-                items = [find(item, 'value') for item in find(field, 'fieldValue')]
-                edit_data[field['name'].replace('-', '_')] = items
-
-        # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = mdata['title']
-
-        # get the (first) author
-        authors = find(mdata, 'author', False)
-        try:
-            authors = authors.split(", ")
-            edit_data['author'] = authors[0]
-        except AttributeError:
-            edit_data['author'] = ''
-
-        return edit_data
-
-    def get_add_data(self, lists, form):
-        # A dict to populate with all the interesting data.
-        add_data = {}
-
-        for key in form.keys():
-            if key in lists:
-                add_data[key] = form.getlist(key)
-            else:
-                add_data[key] = form[key]
-
-        # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
-        system_name = add_data['title'].lower().replace(' ', '-')
-        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
-
-        # add author
-        add_data['author'] = session['username']
-
-        return add_data
+                if 'filePath' in node:
+                    return node['filePath']
+                else:
+                    return ''
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
@@ -366,8 +334,8 @@ class TinkerController(object):
     def move(self, page_id, destination_path, type='page'):
         return self.cascade_connector.move(page_id, destination_path, type)
 
-    def delete(self, path_or_id, asset_type):
-        return self.cascade_connector.delete(path_or_id, asset_type)
+    def delete(self, path_or_id):
+        return self.cascade_connector.delete(path_or_id)
 
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)
@@ -379,7 +347,7 @@ class TinkerController(object):
         old_asset = ''
         # add a slash in front of path if it doesn't already have one
         if new_path_and_name[0] != "/":
-            new_path = "/%s" % new_path_and_name
+            new_path_and_name = "/%s" % new_path_and_name
 
         old_asset = self.read(new_path_and_name, asset_type)
 
@@ -388,7 +356,6 @@ class TinkerController(object):
             array = new_path_and_name.rsplit("/", 1)
             parent_path = array[0]
             name = array[1]
-
             response = self.cascade_connector.copy(old_asset_path, asset_type, parent_path, name)
             app.logger.debug(time.strftime("%c") + ": Copy folder creation by " + session['username'] + " From: " + old_asset_path + " To:" + new_path_and_name + str(response))
             return response
@@ -467,6 +434,29 @@ class TinkerController(object):
         """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
         text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
         return text
+
+
+    def get_add_data(self, lists, form, wysiwyg_keys = None):
+        # A dict to populate with all the interesting data.
+        add_data = {}
+
+        for key in form.keys():
+            if key in lists:
+                add_data[key] = form.getlist(key)
+            else:
+                if key in wysiwyg_keys:
+                    add_data[key] = self.escape_wysiwyg_content(form[key])
+                else:
+                    add_data[key] = form[key]
+
+        # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
+        system_name = add_data['title'].lower().replace(' ', '-')
+        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+
+        # add author
+        add_data['author'] = session['username']
+
+        return add_data
 
     def element_tree_to_html(self, node):
         return_string = ''

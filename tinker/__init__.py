@@ -30,10 +30,6 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.DEBUG)
 
-# Import routes -- These will be removed when we are done with the refactor
-from tinker.events.views import event_blueprint
-app.register_blueprint(event_blueprint, url_prefix='/event')
-
 # New importing of routes and blueprints
 from tinker.views import BaseBlueprint
 from tinker.admin.cache import CacheBlueprint
@@ -44,6 +40,7 @@ from tinker.admin.redirects import RedirectsBlueprint
 from tinker.e_announcements import EAnnouncementsBlueprint
 from tinker.faculty_bio import FacultyBioBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
+from tinker.events import EventsBlueprint
 
 app.register_blueprint(BaseBlueprint)
 app.register_blueprint(CacheBlueprint)
@@ -52,6 +49,7 @@ app.register_blueprint(SyncBlueprint)
 app.register_blueprint(PublishManagerBlueprint)
 app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(EAnnouncementsBlueprint)
+app.register_blueprint(EventsBlueprint)
 app.register_blueprint(FacultyBioBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
 
