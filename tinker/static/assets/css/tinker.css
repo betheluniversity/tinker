@@ -159,7 +159,7 @@ select {
 }
 
 select#school-selector {
-    width: 100%;
+    width: auto;
 }
 
 .radio label {
@@ -366,7 +366,7 @@ a {
 }
 
 a p {
-    font-family: Helvetica Neue, sans-serif;
+    font-family: Muli, Helvetica Neue, sans-serif;
 }
 
 label {
@@ -377,6 +377,12 @@ label {
     .navbar .navbar-header {
         margin: 0px !important;
         padding-left: 15px !important;
+    }
+}
+
+@media (min-width: 1050px) {
+    p.description {
+        width: 60%;
     }
 }
 
