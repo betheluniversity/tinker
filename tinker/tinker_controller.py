@@ -26,8 +26,6 @@ from bu_cascade.assets.metadata_set import MetadataSet
 from bu_cascade.assets.data_definition import DataDefinition
 from bu_cascade.asset_tools import *
 
-from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
-
 from tinker import app
 from tinker import sentry
 
@@ -83,7 +81,7 @@ def requires_auth(f):
 
 class TinkerController(object):
     def __init__(self):
-        self.cascade_connector = Cascade(SOAP_URL, AUTH, SITE_ID)
+        self.cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
         self.datetime_format = "%B %d  %Y, %I:%M %p"
 
     def before_request(self):
@@ -302,6 +300,10 @@ class TinkerController(object):
         b = Block(self.cascade_connector, asset=asset)
         return b
 
+    def create_page(self, asset):
+        p = Page(self.cascade_connector, asset=asset)
+        return p
+
     def read(self, path_or_id, type):
         return self.cascade_connector.read(path_or_id, type)
 
@@ -402,6 +404,8 @@ class TinkerController(object):
         return str(matches)
 
     def create_workflow(self, workflow_id, subtitle=None):
+        if not workflow_id:
+            return None
         asset = self.read(workflow_id, 'workflowdefinition')
 
         workflow_name = find(asset, 'name', False)
