@@ -63,6 +63,7 @@ class RedirectsView(FlaskView):
     # Saves the new redirect created
     @route("/new-redirect-submit", methods=['post'])
     def new_redirect_submit(self):
+        print "Test method"
         form = request.form
         from_path = form['new-redirect-from']
         to_url = form['new-redirect-to']
