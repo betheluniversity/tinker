@@ -26,12 +26,12 @@
     {% if new_form %}
       <form id="eventform" action="/event/submit" method="post">
     {% else %}
-      <form id="eventform" action="/event/submit-edit" method="post">
+      <form id="eventform" action="/event/submit/edit" method="post">
       <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
       <input type="hidden" name="author" id="author" value="{{ author }}"/>
     {% endif %}
     <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-        {% if form.errors %}
+        {% if form.errors or not dates_good and num_dates  %}
           <div class="alert alert-error">
             <div data-alert class="alert-box alert radius">
                 There were errors with your form.
@@ -171,15 +171,36 @@
                 return node;
          }
 
-         function populateFieldset(id, allday, start, end){
+         function populateFieldset(id, allday, start, end, out, timezone){
             var startid = '#start' + id;
             var endid = '#end' + id;
             var alldayid = '#allday' + id;
+            var outid = '#needtimezone' + id;
+            var timezoneid = '#timezone' + id;
             $(startid).val(start);
             $(endid).val(end);
+            $(timezoneid).val(timezone);
             if(allday){
               $(alldayid).prop('checked', true);
             }
+            if(out){
+              $(outid).prop('checked', true);
+              checkNeedTimezone(id)
+            }
+         }
+
+         function checkNeedTimezone(id){
+             var out = 'needtimezone' + id;
+             var time = 'timezone' + id;
+             var timelabel = 'timezonelabel' + id;
+             if(document.getElementById(out).checked) {
+                 document.getElementById(time).style.display = "inline-block";
+                 document.getElementById(timelabel).style.display = "block";
+             }
+             else{
+                 document.getElementById(time).style.display = "none";
+                 document.getElementById(timelabel).style.display = "none";
+             }
          }
 
          function checkNeedTimezone(id){
@@ -256,20 +277,19 @@
                   $("#remove_date_button").show();
                 }
                 //Now populate the fieldset
-                var allday = date['all-day'];
+                var allday = date['all_day'];
                 if( allday && allday.substr(-3) == "Yes" ){
                   allday = true;
                 }
-                populateFieldset(id, allday, date['start-date'], date['end-date']);
+                populateFieldset(id, allday, date['start_date'], date['end_date'], date['outside_of_minnesota'], date['time_zone']);
                 //no infinite loops today
                 i++;
 
               }
 
             {% endif %}
-
             {% if dates_good == False %}
-              $( '<div data-alert="" class="alert-box alert radius">Event Dates are Required<a href="#" class="close">×</a></div>' ).insertBefore(".date-fieldset");
+                    $( '<div data-alert="" class="alert-box alert radius">Event Dates are Required<a href="#" class="close">×</a></div>' ).insertBefore(".date-fieldset");
             {% endif %}
 
             {% if form.errors or not dates_good and num_dates %}
@@ -350,7 +370,6 @@
             <input type="text" name="end1" id="end1" class="datepicker"/>
 
           <input id="needtimezone1" name="needtimezone1" class="needtimezonecheck" type="checkbox" value="False" onclick="checkNeedTimezone(1)"><label for="needtimezone1">Outside of Minnesota?</label>
-
           <label for="timezone1" style="display: none" id="timezonelabel1">Timezone</label>
           <select id="timezone1" name="timezone1" class="timezoneselect" style="display: none">
               <option value>-select-</option>
@@ -359,8 +378,6 @@
               <option value="Central Time">Central Time</option>
               <option value="Eastern Time">Eastern Time</option>
           </select>
-
-
       </fieldset>
       <a href="javascript:void(0);" id="add_date_button" class="button tiny">Add Another Date</a>
       <a href="javascript:void(0);" id="remove_date_button" style="display:none" class="button tiny alert">Remove Date</a>

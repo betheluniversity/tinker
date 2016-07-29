@@ -38,7 +38,7 @@
                 <li>
                     <button class="btn btn-primary btn-alert" data-toggle="modal" data-target="#myModal" href="#"
                             data-reveal-id="confirmModal" id="{{ bio.id }}" data-faculty-bio-id="{{ bio.id }}">
-                            Delete
+                        Delete
                     </button>
                 </li>
             </ul>
@@ -51,7 +51,8 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
-                <p id="faculty-p" class="description">Below is a list of faculty bios you have access to edit. If you don't see your faculty
+                <p id="faculty-p" class="description">Below is a list of faculty bios you have access to edit. If you
+                    don't see your faculty
                     bio,
                     please contact your web author.
                 </p>
@@ -128,23 +129,58 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default btn-simple" data-dismiss="modal"
-                    href="/faculty-bio/delete/formid">Delete</button>
+                            href="/faculty-bio/delete/formid">Delete
+                    </button>
                 </div>
             </div>
         </div>
     </div>
-
 {% endblock %}
 
 {% block scripts %}
 
-    {#  Script to update the modal submit to delete the correct form#}
-    <script type="text/javascript">
-        $(".delete-press").click(function () {
-            $("#modal-confirm").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
-        });
-        $(document).foundation();
-    </script>
+    {% if show_special_admin_view %}
+        {#  Script to update the modal submit to delete the correct form#}
+        <script src="/static/csrf-activator.js"></script>
+        <script type="text/javascript">
+            var csrftoken = "{{ csrf_token() }}";
+            activateCSRF(csrftoken);
+
+            $(".delete-press").click(function () {
+                $("#modal-confirm-delete").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
+            });
+
+            $(".activate-press").click(function () {
+                var current_element = $(this);
+                var inputs = {
+                    "id": current_element.data('faculty-bio-id'),
+                    "activate": current_element.attr('data-method')
+                };
+                var url = '/faculty-bio/activate';
+
+                // temporarily create a placeholder.
+                // Todo: change this to a gif.
+                current_element.html('. . . Updating . . .');
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: JSON.stringify(inputs),
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (result) {
+                        if (current_element.attr('data-method') == 'activate') {
+                            current_element.attr('data-method', 'deactivate');
+                            current_element.html('Deactivate');
+                        } else {
+                            current_element.attr('data-method', 'activate');
+                            current_element.html('Activate');
+                        }
+                    }
+                });
+            });
+
+            $(document).foundation();
+        </script>
+    {% endif %}
 
 {% endblock %}
 
