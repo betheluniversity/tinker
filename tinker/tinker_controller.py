@@ -274,7 +274,7 @@ class TinkerController(object):
     def read_page(self, path_or_id):
         p = Page(self.cascade_connector, path_or_id)
         p.read_asset()
-        return p.structured_data()
+        return p
 
     def read_metadata_set(self, path_or_id):
         ms = MetadataSet(self.cascade_connector, path_or_id)
@@ -347,13 +347,16 @@ class TinkerController(object):
         data['workflowConfiguration'] = workflow
 
     def edit_all(self, type_to_find, xml_url):
-        forms_to_edit = []
+        #form_to_edit is the dictionary created by traverse xml
         forms_to_edit = self.traverse_xml(xml_url, type_to_find)
         for page_values in forms_to_edit:
             id = page_values['id']
-            page = self.read_page(id).page_values
-            asset = node.get_asset()
-            self.e_announcements_controller.edit_all_callback(page, asset)
+            block = self.read_block(id)
+            block_asset, mdata, sdata = block.get_asset()
+            #The dictionary should be editedfor whatever asset needs to be edited over all
+            dictionary = {'author': 'Something else'}
+            self.edit_all_callback(block_asset, dictionary)
+            block.edit()
 
     def edit_all_callback(self, child, author, edit_data, xml_url, forms_to_edit):
         pass

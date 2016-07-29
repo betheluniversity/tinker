@@ -237,8 +237,11 @@ class EAnnouncementsController(TinkerController):
         edit_data['first_readonly'] = first_readonly
         edit_data['second_readonly'] = second_readonly
 
-    def edit_all_callback(self, asset):
-            self.base.update(asset)
+    def edit_all_callback(self, asset, dictionary):
+        #Uncomment the pass below when this is not being used
+        pass
+        #update may need an extra parameter or two to specify.
+        self.update_asset(asset, dictionary)
 
 
 
