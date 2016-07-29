@@ -14,6 +14,10 @@ h3 {
     margin-top: 0px;
 }
 
+.no-border {
+    border: 0;
+}
+
 @media (min-width: 992px) {
     .col-md-1,
     .col-md-10,
@@ -65,6 +69,22 @@ ul.dropdown-menu {
 
 a.btn {
     font-weight: 600 !important;
+}
+
+a#add_degree_button {
+    margin-bottom: 15px;
+}
+
+a#remove_degree_button {
+    margin-bottom: 15px;
+}
+
+a#add_new_job_button {
+    margin-bottom: 15px;
+}
+
+a#remove_new_job_button {
+    margin-bottom: 15px;
 }
 
 .navbar {
@@ -129,6 +149,7 @@ input#author {
 
 input {
     margin-bottom: 15px;
+    height: 26px;
     width: 100%;
 }
 
@@ -153,10 +174,6 @@ small.required {
 
 small.extra-required {
     font-size: 70%;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    font-family: "Helvetica Neue", "Helvetica", Helvetica, Arial, sans-serif;
 }
 
 textarea {
@@ -231,9 +248,8 @@ div#cke_hobbies {
     color: #555555 !important;
 }
 
-.nav .active li a:hover {
-    color: #FFFFFF !important;
-    background-color: #555555 !important;
+ul.dropdown-menu a:hover {
+    background-color: #555555
 }
 
 .sidebar-wrapper {
@@ -329,12 +345,24 @@ li > .dropdown-menu:after {
 
 /* Fonts */
 
+h1, h2, h3, h4, h5, h6 {
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+}
+
 p {
     font-family: Georgia, serif;
 }
 
 p#school-name {
     font-family: Helvetica Neue, sans-serif;
+}
+
+p#image {
+    font-family: Muli, Helvetica Neue, sans-serif;
+}
+
+a {
+    font-family: Muli, Helvetica Neue, sans-serif;
 }
 
 a p {
@@ -349,6 +377,21 @@ label {
     .navbar .navbar-header {
         margin: 0px !important;
         padding-left: 15px !important;
+    }
+}
+
+@media(max-width: 450px) {
+    input {
+        border: 1px solid #CCCCCC;
+    }
+
+    input#image {
+        border: 0;
+    }
+
+    select {
+        border: .5px solid #CCCCCC;
+        width: 100%;
     }
 }
 
