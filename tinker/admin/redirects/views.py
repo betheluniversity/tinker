@@ -6,11 +6,11 @@ import re
 import smtplib
 
 # flask
-from flask import Blueprint, render_template, abort, request
+from flask import Blueprint, render_template, abort, request, session
 from BeautifulSoup import BeautifulSoup
 
 # tinker
-from tinker import app, db, tools, session
+from tinker import app, db, tools
 from tinker.admin.redirects.models import BethelRedirect
 
 redirect_blueprint = Blueprint('redirect_blueprint', __name__, template_folder='templates')
@@ -21,6 +21,7 @@ def before_request():
     skip = request.environ.get('skip-groups', None) == 'skip'
     if not skip and 'Administrators' not in session['groups']:
         abort(403)
+
 
 @redirect_blueprint.route('/expire')
 def delete_expired_redirects():

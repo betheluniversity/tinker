@@ -13,9 +13,10 @@ from wtforms import HiddenField
 from wtforms import DateTimeField
 from wtforms import Field
 from wtforms.validators import DataRequired
-
+from tinker import tools
+from flask import session
 # local
-# from tinker.web_services import read, read_identifier
+from tinker.web_services import read, read_identifier
 # from tinker import tools
 
 
@@ -31,7 +32,7 @@ def get_md(metadata_path):
     }
 
     md = read_identifier(identifier)
-    return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
+    return md.asset['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
 
 
 def get_event_choices():
@@ -40,35 +41,35 @@ def get_event_choices():
 
     md = {}
     for item in data:
-        md[item.name] = item.possibleValues.possibleValue
+        md[item.name] = item['possibleValues']['possibleValue']
 
     general = []
     for item in md['general']:
-        general.append((item.value, item.value))
+        general.append((item['value'], item['value']))
 
     offices = []
     for item in md['offices']:
-        offices.append((item.value, item.value))
+        offices.append((item['value'], item['value']))
 
     internal = []
     for item in md['internal']:
-        internal.append((item.value, item.value))
+        internal.append((item['value'], item['value']))
 
     cas_departments = []
     for item in md['cas-departments']:
-        cas_departments.append((item.value, item.value))
+        cas_departments.append((item['value'], item['value']))
 
     adult_undergrad_program = []
     for item in md['adult-undergrad-program']:
-        adult_undergrad_program.append((item.value, item.value))
+        adult_undergrad_program.append((item['value'], item['value']))
 
     graduate_program = []
     for item in md['graduate-program']:
-        graduate_program.append((item.value, item.value))
+        graduate_program.append((item['value'], item['value']))
 
     seminary_program = []
     for item in md['seminary-program']:
-        seminary_program.append((item.value, item.value))
+        seminary_program.append((item['value'], item['value']))
 
     # Get the building choices from the block
     building_choices = get_buildings()
@@ -147,12 +148,11 @@ class EventForm(Form):
     heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
     what = HeadingField(label="What is your event?")
+    author = HiddenField("Author")
     title = StringField('Event name', validators=[DataRequired()], description="This will be the title of your webpage")
-    teaser = StringField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.', validators=[DataRequired()])
+    metaDescription = StringField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.', validators=[DataRequired()])
 
-
-
-    if 'Event Approver' in tools.get_groups_for_user():
+    if 'Event Approver' in session['groups']:
         link = StringField("External Link", description="This field only seen by 'Event Approvers'. An external link will redirect this event to the external link url.")
     else:
         link = HiddenField("External Link")
@@ -175,6 +175,7 @@ class EventForm(Form):
     registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices)
     registration_details = CKEditorTextAreaField('Registration/ticketing details', description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
     wufoo_code = StringField('Approved wufoo hash code')
+    ticketing_url = StringField('Ticketing URL')
     cost = TextAreaField('Cost')
     cancellations = TextAreaField('Cancellations and refunds')
 

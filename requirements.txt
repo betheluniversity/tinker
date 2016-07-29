@@ -4,6 +4,7 @@ Flask-Cache
 Flask-Foundation
 Flask-Script
 Flask-WTF
+WTForms-Components
 flask-hmacauth
 suds
 simplejson
