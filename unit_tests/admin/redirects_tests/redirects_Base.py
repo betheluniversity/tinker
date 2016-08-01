@@ -14,6 +14,7 @@ class RedirectsBaseTestCase(unittest.TestCase):
         self.permanent_path = tinker.app.config['SQLALCHEMY_DATABASE_URI']
         shutil.copy2(tinker.app.config['SQLALCHEMY_DATABASE_URI'].split('sqlite://')[1], self.temp_path)
         tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + self.temp_path
+        tinker.app.testing = True
         self.app = tinker.app.test_client()
 
     def send_post(self, url, form_contents):

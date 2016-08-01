@@ -148,14 +148,14 @@ class EAnnouncementsController(TinkerController):
 
     # dates are set to readonly if they occur before today
     def set_readonly_values(self, edit_data):
-
+        # print edit_data
         today = datetime.datetime.now()
         first_readonly = False
         second_readonly = False
         if edit_data['first_date'] < today:
-            first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
+            first_readonly = edit_data['first_date'].strftime('%A %B %d, %Y')
         if 'second_date' in edit_data and edit_data['second_date'] and edit_data['second_date'] < today:
-            second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
+            second_readonly = edit_data['second_date'].strftime('%A %B %d, %Y')
 
         edit_data['first_readonly'] = first_readonly
         edit_data['second_readonly'] = second_readonly
