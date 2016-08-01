@@ -9,6 +9,7 @@ from tinker.tools import *
 from tinker.web_services import *
 from xml.etree import ElementTree
 from tinker.tinker_controller import TinkerController
+from tinker.admin.sync.sync_metadata import data_to_add
 
 
 class FacultyBioController(TinkerController):
@@ -26,6 +27,7 @@ class FacultyBioController(TinkerController):
         # 1) admin
         if username in app.config['FACULTY_BIO_ADMINS']:
             iterate_bio = True
+
         # 2) user's bio
         if author is not None and username in author:
             iterate_bio = True
@@ -162,7 +164,6 @@ class FacultyBioController(TinkerController):
         # convert event dates to JSON
         return json.dumps(degrees), degrees_good, num_degrees
 
-    # todo: this method is pretty nasty. should refactor (maybe loop over each key to simplify?)
     def check_job_titles(self, form):
         new_jobs_good = False
 
@@ -171,7 +172,6 @@ class FacultyBioController(TinkerController):
         def safe_get(key, default_return=False, preferred_return=None):
             try:
                 to_return = form[key]
-                print key + ":", to_return
                 if to_return == 'None' or to_return == '':
                     return False
                 if preferred_return is not None:
@@ -211,341 +211,104 @@ class FacultyBioController(TinkerController):
         # convert event dates to JSON
         return new_jobs_good, num_new_jobs
 
-    # todo: delete
-    def get_expertise(self, add_data):
-        heading = add_data['heading']
-        areas = add_data['areas']
-        interests = add_data['research_interests']
-        teaching = add_data['teaching_specialty']
+    def update_structure(self, faculty_bio_data, sdata, rform, faculty_bio_id=None):
 
-        data_list = [
-            structured_data_node("heading", heading),
-            structured_data_node("areas", areas),
-            structured_data_node("research-interests", interests),
-            structured_data_node("teaching-specialty", teaching),
-        ]
+        wysiwyg_keys = ['biography', 'courses', 'awards', 'publications', 'presentations', 'certificates', 'organizations', 'hobbies']
+        add_data = self.get_add_data([], rform, wysiwyg_keys)
 
-        node = {
-            'type': "group",
-            'identifier': "expertise",
-            'structuredDataNodes': {
-                'structuredDataNode': data_list,
-            },
-        }
-        return node
+        add_data['education'] = self.get_degrees(add_data)
+        # todo: these wysiwyg checkboxes aren't returning correctly for the wysiwygs
+        add_data['options'] = self.get_wysiwyg_checkboxes(add_data)
+        add_data['job-titles'] = self.get_job_titles(add_data)
 
-    def get_job_titles(self, add_data):
-        job_titles = []
+        add_data['parentFolderID'] = None
+        add_data['parentFolderPath'] = '/academics/faculty'
+        add_data['path'] = None
+        add_data['author'] = session['username']
+        faculty_bio_data['page']['metadata']['metaDescription'] = self.build_description(add_data)
 
-        for key in add_data:
-            if key.startswith('job-title'):
-                job_title = add_data[key]
-                job_titles.append(structured_data_node("job-title", job_title))
+        for wysiwyg_key in wysiwyg_keys:
+            add_data[wysiwyg_key] = escape_wysiwyg_content(add_data[wysiwyg_key])
 
-        return job_titles
+        # todo: eventually adjust the keys in cascade to work.
+        add_data['started-at-bethel'] = add_data['started_at_bethel']
+        add_data['image'] = self.create_faculty_bio_image(add_data)
 
-    # todo: can be deleted, i think
-    def get_new_job_titles(self, add_data):
-        new_job_titles = []
-
-        # format the dates
-        for key in add_data:
-            if key.startswith('schools'):
-                schools = add_data[key]
-                i = key.split('schools')[1]
-            else:
-                continue
-
-            undergrad = None
-            adult_undergrad = None
-            graduate = None
-            seminary = None
-
-            dept_chair = None
-            program_director = None
-            lead_faculty = None
-            new_job_title = None
-
-            if 'undergrad' + i in add_data:
-                undergrad = add_data['undergrad' + i]
-            if 'adult-undergrad' + i in add_data:
-                adult_undergrad = add_data['adult-undergrad' + i]
-            if 'graduate' + i in add_data:
-                graduate = add_data['graduate' + i]
-            if 'seminary' + i in add_data:
-                seminary = add_data['seminary' + i]
-
-            if 'dept-chair' + i in add_data:
-                dept_chair = add_data['dept-chair' + i]
-            if 'program-director' + i in add_data:
-                program_director = add_data['program-director' + i]
-            if 'lead-faculty' + i in add_data:
-                lead_faculty = add_data['lead-faculty' + i]
-            if 'new-job-title' + i in add_data:
-                new_job_title = add_data['new-job-title' + i]
-
-            data_list = [
-                structured_data_node("school", schools),
-                structured_data_node("department", undergrad),
-                structured_data_node("adult-undergrad-program", adult_undergrad),
-                structured_data_node("graduate-program", graduate),
-                structured_data_node("seminary-program", seminary),
-
-                structured_data_node("department-chair", dept_chair),
-                structured_data_node("program-director", program_director),
-                structured_data_node("lead-faculty", lead_faculty),
-
-                structured_data_node("job_title", new_job_title),
-            ]
-
-            node = {
-                'type': "group",
-                'identifier': "job-titles",
-                'structuredDataNodes': {
-                    'structuredDataNode': data_list,
-                },
-            }
-
-            new_job_titles.append(node)
-
-        return new_job_titles
-
-    # todo: can be deleted, i think
-    def get_add_a_degree(self, add_data):
-        degrees = []
-
-        # format the dates
-        for i in range(1, 200):
-            i = str(i)
-            try:
-                school = add_data['school' + i]
-                degree = add_data['degree-earned' + i]
-                year = add_data['year' + i]
-            except KeyError:
-                # This will break once we run out of degrees
-                break
-
-            data_list = [
-                structured_data_node("school", school),
-                structured_data_node("degree-earned", degree),
-                structured_data_node("year", year),
-            ]
-
-            node = {
-                'type': "group",
-                'identifier': "add-degree",
-                'structuredDataNodes': {
-                    'structuredDataNode': data_list,
-                },
-            }
-
-            degrees.append(node)
-
-        final_node = {
-            'type': "group",
-            'identifier': "education",
-            'structuredDataNodes': {
-                'structuredDataNode': degrees,
-            },
-        }
-
-        return final_node
-
-    # todo: can be deleted, i think
-    def get_add_to_bio(self, add_data):
-        options = []
-
-        biography = ""
-        awards = ""
-        courses = ""
-        publications = ""
-        presentations = ""
-        certificates = ""
-        organizations = ""
-        hobbies = ""
-        quote = ""
-        website = ""
-
-        if 'biography' in add_data.keys():
-            biography = add_data['biography']
-        if 'awards' in add_data.keys():
-            awards = add_data['awards']
-        if 'courses' in add_data.keys():
-            courses = add_data['courses']
-        if 'publications' in add_data.keys():
-            publications = add_data['publications']
-        if 'presentations' in add_data.keys():
-            presentations = add_data['presentations']
-        if 'certificates' in add_data.keys():
-            certificates = add_data['certificates']
-        if 'organizations' in add_data.keys():
-            organizations = add_data['organizations']
-        if 'hobbies' in add_data.keys():
-            hobbies = add_data['hobbies']
-        if 'quote' in add_data.keys():
-            quote = add_data['quote']
-        if 'website' in add_data.keys():
-            website = add_data['website']
-
-        if biography != "":
-            options.append("::CONTENT-XML-CHECKBOX::Biography")
-        if awards != "":
-            options.append("::CONTENT-XML-CHECKBOX::Awards")
-        if courses != "":
-            options.append("::CONTENT-XML-CHECKBOX::Courses Taught")
-        if publications != "":
-            options.append("::CONTENT-XML-CHECKBOX::Publications")
-        if presentations != "":
-            options.append("::CONTENT-XML-CHECKBOX::Presentations")
-        if certificates != "":
-            options.append("::CONTENT-XML-CHECKBOX::Certificates and Licenses")
-        if organizations != "":
-            options.append("::CONTENT-XML-CHECKBOX::Professional Organizations, Committees, and Boards")
-        if hobbies != "":
-            options.append("::CONTENT-XML-CHECKBOX::Hobbies and Interests")
-        if quote != "":
-            options.append("::CONTENT-XML-CHECKBOX::Quote")
-        if website != "":
-            options.append("::CONTENT-XML-CHECKBOX::Website")
-
-        options = ''.join(options)
-
-        data_list = [
-            structured_data_node("options", options),
-            structured_data_node("biography", escape_wysiwyg_content(biography)),
-            structured_data_node("awards", escape_wysiwyg_content(awards)),
-            structured_data_node("courses", escape_wysiwyg_content(courses)),
-            structured_data_node("publications", escape_wysiwyg_content(publications)),
-            structured_data_node("presentations", escape_wysiwyg_content(presentations)),
-            structured_data_node("certificates", escape_wysiwyg_content(certificates)),
-            structured_data_node("organizations", escape_wysiwyg_content(organizations)),
-            structured_data_node("hobbies", escape_wysiwyg_content(hobbies)),
-            structured_data_node("quote", quote),
-            structured_data_node("website", website),
-
-        ]
-
-        node = {
-            'type': "group",
-            'identifier': "add-to-bio",
-            'structuredDataNodes': {
-                'structuredDataNode': data_list,
-            },
-        }
-
-        return node
-
-    # todo: can be deleted
-    def dynamic_field(self, name, values):
-        values_list = []
-        for value in values:
-            values_list.append({'value': value})
-        node = {
-            'name': name,
-            'fieldValues': {
-                'fieldValue': values_list,
-            },
-        }
-
-        return node
-
-    # todo: change this to how e-annz does. Might need to look at create-base-view branch
-    def get_faculty_bio_structure(self, add_data, username, faculty_bio_id=None, workflow=None):
-        """
-         Could this be cleaned up at all?
-        """
-
-        # Create Image asset
-        image = None
-
-        # todo: clean up getting images
-        if 'image_name' in add_data.keys():
-            image_name = add_data['image_name']
-            image_structure = self.get_image_structure(add_data, "/academics/faculty/images", image_name)
-            r = requests.get('https://www.bethel.edu/academics/faculty/images/' + image_name)
-
-            # does this person have a live image already?
-            if r.status_code == 404:
-                create_image(image_structure)
-            else:
-                # replace the image on the server already
-                image_structure['file']['path'] = "/academics/faculty/images/" + image_name
-                from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
-                local_cascade_connection = Cascade(SOAP_URL, AUTH, SITE_ID)
-                edit_response = local_cascade_connection.edit(image_structure)
-
-                # publish image
-                local_cascade_connection.publish(image_structure['file']['path'], "file")
-                app.logger.debug("%s: Image edit/publish: %s %s" % (time.strftime("%c"), username, str(edit_response)))
-
-                # clear the thumbor cache so the new image takes
-                clear_resp = clear_image_cache(image_structure['file']['path'])
-                app.logger.debug("%s: Images Cleared: %s" % (time.strftime("%c"), clear_resp))
-            image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
-        elif 'image_url' in add_data.keys() and add_data['image_url'] is not None and add_data['image_url'] != "":
-            # If you don't supply an Image Cascade will clear it out,
-            # so create a node out of the existing asset so it maintains the link
-            image_name = add_data['image_url'].split('/')[-1]
-            image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
-
-        # Create a list of all the data nodes
-        structured_data = [
-            structured_data_node("first", add_data['first']),
-            structured_data_node("last", add_data['last']),
-            structured_data_node("email", add_data['email']),
-            structured_data_node("started-at-bethel", add_data['started_at_bethel']),
-            self.get_job_titles(add_data),
-        ]
-
-        if image:
-            structured_data.append(image)
-
-        structured_data.append(self.get_expertise(add_data))
-        structured_data.append(self.get_add_a_degree(add_data))
-        structured_data.append(self.get_add_to_bio(add_data))
-        structured_data.append(self.get_new_job_titles(add_data))
-
-        # Wrap in the required structure for SOAP
-        structured_data = {
-            'structuredDataNodes': {
-                'structuredDataNode': structured_data,
-            }
-        }
-
-        # create the dynamic metadata dict
-        dynamic_fields = {
-            'dynamicField': [
-                self.dynamic_field('hide-site-nav', ["Hide"]),
-            ],
-        }
-
-        description = self.build_description(add_data)
-
-        asset = {
-            'page': {
-                'name': add_data['system_name'],
-                'siteId': app.config['SITE_ID'],
-                'parentFolderPath': "/academics/faculty",
-                'metadataSetPath': "/Robust",
-                'contentTypePath': "Academics/Faculty Bio",
-                'configurationSetPath': "Faculty Bio",
-                # Break this out more once its defined in the form
-                'structuredData': structured_data,
-                'metadata': {
-                    'title': add_data['first'] + " " + add_data['last'],
-                    'summary': 'summary',
-                    'metaDescription': description,
-                    'author': add_data['author'],
-                    'dynamicFields': dynamic_fields,
-                }
-            },
-            'workflowConfiguration': workflow
-        }
+        workflow_id = self.get_correct_workflow_id(add_data)
+        workflow = self.create_workflow(workflow_id, subtitle=add_data['title'])
+        workflow = None
+        self.add_workflow_to_asset(workflow, faculty_bio_data)
 
         if faculty_bio_id:
-            asset['page']['id'] = faculty_bio_id
+            add_data['id'] = faculty_bio_id
+        else:
+            add_data['id'] = None
 
-        return asset
+        self.update_asset(faculty_bio_data, add_data)
+
+        return faculty_bio_data
+
+    def create_faculty_bio_image(self, add_data):
+        from forms import FacultyBioForm
+        form = FacultyBioForm()
+
+        # a quick check to quit out if necessary.
+        try:
+            uploaded_image = form.image.data.filename
+        except AttributeError:
+            return None
+
+        image_name = add_data['system_name'] + '.jpg'
+        image_sub_path = 'academics/faculty/images'
+        image_path = image_sub_path + '/' + image_name
+        description = self.build_description(add_data)
+
+        # todo: someday change how this is done.
+        form.image.data.save(app.config['UPLOAD_FOLDER'] + image_name)
+        image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
+        stream = image_file.read()
+        encoded_stream = base64.b64encode(stream)
+
+        file_asset = self.read(image_path, 'file')
+        # edit existing
+        if file_asset['success'] == 'true':
+            image_asset = file_asset['asset']['file']
+            # update data
+            new_values = {
+                'data': encoded_stream,
+                'metaDescription': description,
+            }
+
+            self.update_asset(image_asset, new_values)
+            resp = self.cascade_connector.create(image_asset)
+            clear_resp = clear_image_cache(image_path)
+            self.log_sentry('Editted Faculty Bio Image', resp)
+
+        # create new from base_asset
+        else:
+            try:
+                image_asset = self.read(app.config['IMAGE_WITH_DEFAULT_IMAGE_BASE_ASSET'], 'file')['asset']
+            except:
+                return None
+
+            new_values = {
+                'createdBy': 'tinker',
+                'createdDate': None,
+                'data': encoded_stream,
+                'id': None,
+                'metaDescription': description,
+                'name': image_name,
+                'path': None,
+                'parentFolderId': None,
+                'parentFolderPath': image_sub_path
+            }
+
+            self.update_asset(image_asset, new_values)
+            resp = self.cascade_connector.create(image_asset)
+            self.log_sentry('Created Faculty Bio Image', resp)
+
+        self.publish(image_path, 'file')
+        return image_path
 
     # this can be shortened, i hope
     def build_description(self, add_data):
@@ -594,108 +357,6 @@ class FacultyBioController(TinkerController):
 
         return description
 
-    # this can be deleted, i think
-    def get_image_structure(self, add_data, image_dest, image_name, workflow=None):
-        image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
-        stream = image_file.read()
-        encoded_stream = base64.b64encode(stream)
-
-        asset = {
-            'file': {
-                'name': image_name,
-                'parentFolderPath': image_dest,
-                'metadataSetPath': "Images",
-                'siteId': app.config['SITE_ID'],
-                'siteName': 'Public',
-                'data': encoded_stream,
-                'metadata': {
-                    'metaDescription': "Meet " + add_data['first'] + " " + add_data['last'] + ", " + add_data[
-                        'new-job-title1'] + " at Bethel University.",
-                }
-
-            },
-            'workflowConfiguration': workflow
-        }
-
-        return asset
-
-    # todo: this probably doesn't need its own function
-    def publish_faculty_bio_xml(self):
-        self.publish(app.config['FACULTY_BIO_XML_ID'])
-
-    # todo: this method can be replaced with create() in tinker_controller
-    def create_faculty_bio(self, asset):
-        auth = app.config['CASCADE_LOGIN']
-        client = get_client()
-
-        username = session['username']
-
-        response = client.service.create(auth, asset)
-        app.logger.info(time.strftime("%c") + ": Create faculty bio submission by " + username + " " + str(response))
-
-        # publish the xml file so the new bio shows up
-        self.publish_faculty_bio_xml()
-
-        return response
-
-    # todo: this method exists in tinker_controller
-    def get_add_data(self, lists, form):
-        # A dict to populate with all the interesting data.
-        add_data = {}
-
-        for key in form.keys():
-            if key in lists:
-                add_data[key] = form.getlist(key)
-            else:
-                add_data[key] = form[key]
-
-        # Make it lastname firstname
-        system_name = add_data['last'] + " " + add_data['first']
-
-        # Create the system-name from title, all lowercase
-        system_name = system_name.lower().replace(' ', '-')
-
-        # Now remove any non a-z, A-Z, 0-9
-        system_name = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
-
-        add_data['system_name'] = system_name
-
-        return add_data
-
-    # todo: the generic get_workflow method (can be found in create-base-view branch)
-    def get_bio_publish_workflow(self, title="", username="", faculty_bio_id=None, add_data=None):
-        schools = []
-        for i in range(1, 100):
-            try:
-                schools.append(add_data['schools' + str(i)])
-            finally:
-                break
-
-        # only submit workflow if it is a new CAS
-        if "College of Arts and Sciences" in schools:
-            workflow_id = 'f1638f598c58651313b6fe6b5ed835c5'
-        elif "Graduate School" in schools or "College of Adult and Professional Studies" in schools:
-            workflow_id = '81dabbc78c5865130c130b3a2b567e75'
-        elif "Bethel Seminary" in schools:
-            workflow_id = '68ad793e8c5865137c9c2c89440cbbbc'
-        else:
-            return None
-
-        if faculty_bio_id:
-            name = "Faculty Bio Edit - %s" % username
-        else:
-            name = "New Faculty Bio Submission - %s" % username
-
-        if title:
-            name += ": " + title
-        workflow = {
-            "workflowName": name,
-            "workflowDefinitionId": workflow_id,
-            "workflowComments": "Faculty Bio Approval Request"
-        }
-
-        return workflow
-
     def get_correct_workflow_id(self, add_data):
         schools = []
         for key in add_data:
@@ -714,7 +375,100 @@ class FacultyBioController(TinkerController):
         else:
             return True
 
-    def create_title(self, form_contents):
-        title = form_contents['last'] + "-" + form_contents['first']
-        title = title.lower().replace(' ', '-')
-        return re.sub(r'[^a-zA-Z0-9-]', '', title)
+    def validate_form(self, rform):
+        from forms import FacultyBioForm
+        form = FacultyBioForm()
+
+        degrees, degrees_good, num_degrees = self.check_degrees(rform)
+        new_jobs_good, num_new_jobs = self.check_job_titles(rform)
+        if not form.validate_on_submit() or (not new_jobs_good or not degrees_good):
+            if 'faculty_bio_id' in request.form.keys():
+                faculty_bio_id = request.form['faculty_bio_id']
+            else:
+                # This error came from the add form because event_id wasn't set
+                add_form = True
+
+            metadata = fjson.dumps(data_to_add)
+            return render_template('faculty-bio-form.html', **locals())
+
+    def get_degrees(self, add_data):
+        degrees = []
+
+        # format the dates
+        for i in range(1, 200):
+            i = str(i)
+            try:
+                school = add_data['school' + i]
+                degree = add_data['degree-earned' + i]
+                year = add_data['year' + i]
+            except KeyError:
+                # This will break once we run out of degrees
+                break
+
+            education = {
+                'school': school,
+                'degree-earned': degree,
+                'year': year
+            }
+
+            degrees.append(education)
+
+        return degrees
+
+    def get_job_titles(self, add_data):
+        job_titles = []
+
+        # format the dates
+        for i in range(1, 200):
+            i = str(i)
+            # todo: update this try/except block
+            try:
+                # currently this is just making sure a school exists, if it doesn't break out.
+                schools = add_data['schools' + i]
+            except KeyError:
+                # This will break once we run out of new job titles
+                break
+
+            full_job_title = {
+                'school': add_data.get('schools' + i, ''),
+                'department': add_data.get('undergrad' + i, 'None'),
+                'adult-undergrad-program': add_data.get('adult-undergrad' + i, 'None'),
+                'graduate-program': add_data.get('graduate' + i, 'None'),
+                'seminary': add_data.get('seminary' + i, 'None'),
+                'department-chair': add_data.get('dept-chair' + i, 'No'),
+                'program-director': add_data.get('program-director' + i, 'No'),
+                'lead-faculty': add_data.get('lead-faculty' + i, 'Other'),
+                'job_title': add_data.get('new-job-title' + i, '')
+            }
+
+            job_titles.append(full_job_title)
+
+        return job_titles
+
+    # this is used to generate the checkboxes that aren't on the tinker form, but are on the Cascade DataDef
+    def get_wysiwyg_checkboxes(self, add_data):
+
+        options = []
+
+        if add_data.get('biography', '') != "":
+            options.append("::CONTENT-XML-CHECKBOX::Biography")
+        if add_data.get('awards', '') != "":
+            options.append("::CONTENT-XML-CHECKBOX::Awards")
+        if add_data.get('courses', '') != "":
+            options.append("::CONTENT-XML-CHECKBOX::Courses Taught")
+        if add_data.get('publications', '') != "":
+            options.append("::CONTENT-XML-CHECKBOX::Publications")
+        if add_data.get('presentations', '') != "":
+            options.append("::CONTENT-XML-CHECKBOX::Presentations")
+        if add_data.get('certificates', '') != "":
+            options.append("::CONTENT-XML-CHECKBOX::Certificates and Licenses")
+        if add_data.get('courses', '') != "":
+            options.append("::CONTENT-XML-CHECKBOX::Professional Organizations, Committees, and Boards")
+        if add_data.get('hobbies', '') != "":
+            options.append("::CONTENT-XML-CHECKBOX::Hobbies and Interests")
+        if add_data.get('quote', '') != "":
+            options.append("::CONTENT-XML-CHECKBOX::Quote")
+        if add_data.get('website', '') != "":
+            options.append("::CONTENT-XML-CHECKBOX::Website")
+
+        return ''.join(options)

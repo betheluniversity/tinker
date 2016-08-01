@@ -12,6 +12,11 @@ h3 {
 
 .subtitle {
     margin-top: 0px;
+    margin-bottom: -10px;
+}
+
+label.checkbox-radio-label {
+    margin-bottom: 0px!important;
 }
 
 .no-border {
@@ -162,6 +167,10 @@ select#school-selector {
     width: auto;
 }
 
+select.large-select {
+    width: 100%;
+}
+
 .radio label {
     padding: 0px;
     margin-bottom: -5px !important;
@@ -224,6 +233,14 @@ div#cke_hobbies {
     margin: 0px 15px 10px 15px;
 }
 
+div#cke_sponsors {
+    margin-bottom: 10px;
+}
+
+div#cke_registration_details {
+    margin-bottom: 10px;
+}
+
 /* Colors */
 
 .main-panel {
@@ -249,7 +266,8 @@ div#cke_hobbies {
 }
 
 ul.dropdown-menu a:hover {
-    background-color: #555555
+    background-color: #555555;
+    color: #f5f5f5!important;
 }
 
 .sidebar-wrapper {
@@ -261,7 +279,7 @@ ul.dropdown-menu a:hover {
 }
 
 .navbar-brand:hover {
-    bachground-color: #FFFFFF;
+    background-color: #FFFFFF;
     opacity: .75;
 }
 
