@@ -472,3 +472,8 @@ class FacultyBioController(TinkerController):
             options.append("::CONTENT-XML-CHECKBOX::Website")
 
         return ''.join(options)
+
+    def edit_all_callback(self, asset, dictionary):
+        #Uncomment the pass below when this is not being used
+        pass
+        #self.update_asset(asset, dictionary)
