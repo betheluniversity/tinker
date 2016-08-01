@@ -68,7 +68,7 @@ seminary_programs = [
     "Master of Divinity",
     "Mental Health Counseling (M.A.)",
     "Ministry Practice Certificate",
-    "Ministry Practice (M.A.)",
+    "Ministry (M.A.)",
     "Theological Studies Certificate",
     "M.A. (Theological Studies)",
     "Transformational Leadership (M.A.)",
