@@ -26,8 +26,8 @@
                 {% endif %}
                 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 {% if form.errors or not dates_good and num_dates %}
-                    <div class="alert alert-error">
-                        <div data-alert class="alert-box alert radius">
+                    <div class="error-alert">
+                        <div data-alert class="red-alert">
                             There were errors with your form.
                             <a href="#" class="close">&times;</a>
                         </div>
@@ -38,8 +38,8 @@
 
                     {# Print any errors for this field#}
                     {% for error in form.errors[field.name] %}
-                        <div class="alert alert-error">
-                            <div data-alert class="alert-box alert radius">
+                        <div class="error-alert">
+                            <div data-alert class="red-alert">
                                 {{ error }}
                                 <a href="#" class="close">&times;</a>
                             </div>
@@ -213,20 +213,6 @@
             }
         }
 
-        {#        function checkNeedTimezone(id) {#}
-        {#            var out = 'needtimezone' + id;#}
-        {#            var time = 'timezone' + id;#}
-        {#            var timelabel = 'timezonelabel' + id;#}
-        {#            if (document.getElementById(out).checked) {#}
-        {#                document.getElementById(time).style.display = "inline-block";#}
-        {#                document.getElementById(timelabel).style.display = "block";#}
-        {#            }#}
-        {#            else {#}
-        {#                document.getElementById(time).style.display = "none";#}
-        {#                document.getElementById(timelabel).style.display = "none";#}
-        {#            }#}
-        {#        }#}
-
         function testOffCampusLocation() {
             var location = $("#location")[0];
             var val = location.options[location.selectedIndex].innerHTML;
@@ -299,7 +285,7 @@
 
             {% endif %}
             {% if dates_good == False %}
-                $('<div data-alert="" class="alert-box alert radius">Event Dates are Required<a href="#" class="close">×</a></div>').insertBefore(".date-fieldset");
+                $('<div class="error-alert"><div data-alert="" class="red-alert">Event Dates are Required<a href="#" class="close">×</a></div></div>').insertBefore(".date-fieldset");
             {% endif %}
 
             {% if form.errors or not dates_good and num_dates %}
@@ -368,7 +354,6 @@
 
 
 {% macro datetime_fieldset() -%}
-    {#    <div class="col-md-12">#}
     <fieldset class="date-fieldset">
         <div class="card">
             <div class="content">
@@ -376,8 +361,8 @@
 
                 <div class="checkbox">
                     <label for="allday1" class="checkbox-radio-label">
-                        <input class="alldaycheck" id="allday1" name="optionsCheckboxes" type="checkbox"
-                           value="True">
+                        <input class="alldaycheck" id="allday1" name="allday1" type="checkbox"
+                               value="True">
                         All Day</label>
                 </div>
 
@@ -408,6 +393,5 @@
     <a href="javascript:void(0);" id="add_date_button" class="btn btn-primary">Add Another Date</a>
     <a href="javascript:void(0);" id="remove_date_button" style="display:none" class="btn btn-primary btn-alert">Remove
         Date</a>
-    {#    </div>#}
 {%- endmacro %}
 

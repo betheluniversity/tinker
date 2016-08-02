@@ -25,7 +25,7 @@ class EAnnouncementsView(FlaskView):
         pass
 
     def index(self):
-        forms = self.base.traverse_xml(app.config['E_ANN_URL'], 'system-block')
+        forms = self.base.traverse_xml(app.config['E_ANN_XML_URL'], 'system-block')
 
         forms.sort(key=lambda item: item['first_date'], reverse=False)
         return render_template('ea-home.html', **locals())
@@ -157,7 +157,7 @@ class EAnnouncementsView(FlaskView):
 
             submitted_announcements = []
             current_announcement_role_list = []
-            for announcement in self.base.traverse_xml(app.config['E_ANN_URL'], 'system-block'):
+            for announcement in self.base.traverse_xml(app.config['E_ANN_XML_URL'], 'system-block'):
                 date_matches = False
 
                 if announcement['first_date']:

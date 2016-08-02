@@ -14,10 +14,12 @@
         <div class="container-fluid">
             <div class="col-md-12">
 
-                <p class="description">All events will be reviewed and approved within 2-3 business days by Conference and Event Services.
+                <p class="description">All events will be reviewed and approved within 2-3 business days by Conference
+                    and Event Services.
                     You'll receive an email to let you know when your event has been approved.</p>
 
-                <p class="description">If you have any questions, please contact Conference and Event Services at 651.638.6090.</p>
+                <p class="description">If you have any questions, please contact Conference and Event Services at
+                    651.638.6090.</p>
 
                 <hr/>
                 <div>
@@ -27,46 +29,71 @@
                     {% endif %}
 
                     {# create an event button #}
-                    <a href="add#page-title" class="btn btn-primary btn-raised">
+                    <a href="add#page-title" id="event-create" class="btn btn-primary btn-raised">
                         Create New Event
                     </a>
 
                     {% for form in forms %}
-                        <div class="row">
-                            <div class="large-6 columns">
-                                <p>
-                                    {% if form.is_published %}
-                                        <a href={{ form.path }}>{{ form.title }}</a>
-                                    {% else %}
-                                        {{ form.title }}
-                                    {% endif %}
-                                    <br/>
-                                    {% if form.is_published %}
-                                        <small>
-                                        <p>{{ form.dates | safe }}</p>
-                                        <a href={{ form.path }}>{{ form.path }}</a>
-                                        </small>
-                                    {% endif %}
-                                </p>
-                            </div>
-                            <div class="large-6 columns small-3">
-                                <ul class="button-group">
-                                    {% if form.is_published %}
-                                        <li><a href="{{ form.path }}" class="small button success">View</a></li>
-                                        <li><a href="/event/edit/{{ form.id }}#page-title" class="small button">Edit</a>
-                                        </li>
-                                        <li><a href="/event/duplicate/{{ form.id }}#page-title"
-                                               class="small button">Duplicate</a></li>
-                                    {% else %}
-                                        <li><a class="small button success">Not Approved</a></li>
-                                    {% endif %}
+                        <div class="card">
+                            <div class="content">
+                                <div class="large-6 columns">
+                                    <p>
+                                        {% if form.is_published %}
+                                            <a href={{ form.path }}>{{ form.title }}</a>
+                                        {% else %}
+                                            {{ form.title }}
+                                        {% endif %}
+                                        <br/>
+                                        {% if form.is_published %}
+                                            <small>
+                                            <p>{{ form.dates | safe }}</p>
+                                            <a href={{ form.path }}>{{ form.path }}</a>
+                                            </small>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="large-6 columns small-3">
+                                    <ul class="btn-group-horizontal">
+                                        {% if form.is_published %}
+                                            <li><a href="{{ form.path }}" class="small btn btn-primary">View</a></li>
+                                            <li><a href="/event/edit/{{ form.id }}#page-title"
+                                                   class="small btn btn-primary">Edit</a>
+                                            </li>
+                                            <li><a href="/event/duplicate/{{ form.id }}#page-title"
+                                                   class="small btn btn-primary">Duplicate</a></li>
+                                        {% else %}
+                                            <li><a class="small btn btn-primary">Not Approved</a></li>
+                                        {% endif %}
 
-                                    <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}"
-                                           data-event-id="{{ form.id }}"
-                                           class="small button alert delete-press">Delete</a></li>
-                                </ul>
+                                        <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}"
+                                               data-event-id="{{ form.id }}"
+                                               class="small btn btn-primary btn-alert delete-press"
+                                               data-toggle="modal" data-target="#myModal">Delete</a></li>
+                                    </ul>
+                                </div>
                             </div>
-                            <hr/>
+                        </div>
+                        <hr/>
+
+                        <!-- Modal Core -->
+                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                             aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal"
+                                                aria-hidden="true">&times;</button>
+                                        <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+                                    </div>
+                                    <div class="modal-body">
+                                        Your event page will be unpublished and removed from the calendar.
+                                    </div>
+                                    <div class="modal-footer">
+                                        <a href="/event/delete/{{ form.id }}" class="btn btn-primary btn-alert">Delete</a>
+                                        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     {% endfor %}
 
@@ -107,6 +134,7 @@
                                     {% else %}
                                         <li><a class="small button success">Not Approved</a></li>
                                     {% endif %}
+
                                     <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}"
                                            data-event-id="{{ form.id }}"
                                            class="small button alert delete-press">Delete</a></li>
@@ -120,39 +148,8 @@
 
                 <br/>
 
-                <!-- Button trigger modal -->
-                <button class="btn btn-primary btn-alert" data-toggle="modal" data-target="#myModal">
-                    Delete Event
-                </button>
-                <!-- Modal Core -->
-                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-                     aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal"
-                                        aria-hidden="true">&times;</button>
-                                <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-                            </div>
-                            <div class="modal-body">
-                                Test Modal
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-info ">Save</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <br/>
-                 
-                {#    <div id="confirmModal" class="reveal-modal" data-reveal>#}
-                {#        <h2>Are you sure you want to delete?</h2>#}
-                {#        <p class="lead">Your event page will be unpublished and removed from the calendar.</p>#}
-                {#        <a class="modal-confirm" id="modal-confirm" href="/delete/formid">Delete</a>#}
-                {#        <a class="close-reveal-modal">&#215;</a>#}
-                {#    </div>#}
+
             </div>
         </div>
     </div>
