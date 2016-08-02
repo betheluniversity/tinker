@@ -229,19 +229,7 @@ class EventsController(TinkerController):
             except:
                 pass
 
-        # todo: images need to be added ASK CALEB
-        # # Create Image asset
-        # if 'image' in add_data.keys() and add_data['image'] is not None and add_data['image'] != "":
-        #     image_node = {
-        #         'identifier': "image",
-        #         'filePath': "/" + add_data['image'],
-        #         'assetType': "file",
-        #         'type': "asset"
-        #     }
-        # else:
-        #     image_node = ""
-
-        # add_data['image'] = image_node
+        # todo: images should be working ASK CALEB
 
         # put it all into the final asset with the rest of the SOAP structure
         hide_site_nav, parent_folder_path = self.get_event_folder_path(new_data)
