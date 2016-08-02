@@ -158,18 +158,6 @@ class EventsController(TinkerController):
             return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
                                 datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
 
-    # todo: replace with create_workflow
-    def get_event_publish_workflow(self, title="", username=""):
-        if title:
-            title = "-- %s" % title
-        workflow = {
-            "workflowName": "%s, %s at %s (%s)" %
-                            (title, time.strftime("%m-%d-%Y"), time.strftime("%I:%M %p"), username),
-            "workflowDefinitionId": "1ca9794e8c586513742d45fd39c5ffe3",
-            "workflowComments": "New event submission"
-        }
-        return workflow
-
     def get_dates(self, add_data):
         dates = []
 
@@ -215,7 +203,6 @@ class EventsController(TinkerController):
                 app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
                 end = None
 
-            # todo: it looks like the timezone code is not here (needs to be added in when the branch has timezone code)
             new_date = {'start-date': start, 'end-date': end, 'time-zone': time_zone}
 
             if all_day:
@@ -242,8 +229,7 @@ class EventsController(TinkerController):
             except:
                 pass
 
-        # todo: images need to be added
-        # Todo: add image asset properly
+        # todo: images need to be added ASK CALEB
         # # Create Image asset
         # if 'image' in add_data.keys() and add_data['image'] is not None and add_data['image'] != "":
         #     image_node = {
@@ -356,7 +342,6 @@ class EventsController(TinkerController):
         max_year = 0
         for date in dates:
             date_str = self.timestamp_to_date_str(date['end-date'])
-            # todo: can this call an already created function?
             end_date = datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
             try:
                 year = end_date.year
@@ -370,34 +355,6 @@ class EventsController(TinkerController):
 
     # Converts date dict to the date picker format that front-end tinker can read
     def format_dates_to_time_picker(self, dates):
-        # date_data = {}
-        # for date in dates:
-        #     for x, y in enumerate(date):
-        #         try:
-        #             if x == "all-day" and y == "::CONTENT-XML-CHECKBOX::No":
-        #                 continue
-        #             if x == "outside-of-minnesota" and y == "::CONTENT-XML-CHECKBOX::No":
-        #                 continue
-        #             else:
-        #                 date_data[x] = y
-        #         except KeyError:
-        #             break
-        #
-        # # if type(find(node, 'start-date')) == str or type(find(node, 'end-date')) == str:
-        # #     return date_data
-        # # If there is no date, these will fail
-        # try:
-        #     date_data['start-date'] = self.timestamp_to_date_str(date_data['start-date'])
-        # except TypeError:
-        #     pass
-        # except ValueError:
-        #     date_data['start-date'] = self.timestamp_to_date_str(int(date_data['start-date']))
-        # try:
-        #     date_data['end-date'] = self.timestamp_to_date_str(date_data['end-date'])
-        # except TypeError:
-        #     pass
-        # except ValueError:
-        #     date_data['start-date'] = self.timestamp_to_date_str(int(date_data['start-date']))
 
         for date in dates:
             if 'all_day' in date and (date['all_day'] == "::CONTENT-XML-CHECKBOX::No" or date['all_day'] == "::CONTENT-XML-CHECKBOX::"):
@@ -412,17 +369,10 @@ class EventsController(TinkerController):
                 date['end_date'] = self.timestamp_to_date_str(int(date['end_date']))
             except TypeError:
                 pass
-
-
         return dates
 
-    # todo: this can be deleted. we can just call the move function in tinker_controller
-    def move_event_year(self, event_id, data):
-        new_path = self.get_event_folder_path(data)
-        resp = self.move(event_id, new_path[1])
-        return resp
-
     # todo: this should be deleted. We should be calling the create function in tinker_controller
+    # todo Maybe we actually need this? ASK CALEB
     def create(self, asset):
         auth = app.config['CASCADE_LOGIN']
         client = self.cascade_connector.get_client()

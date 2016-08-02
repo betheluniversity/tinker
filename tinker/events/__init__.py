@@ -21,12 +21,10 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-        # todo: call traverse_xml() in tinker_controller
-        # forms = self.base.get_forms_for_user(session['username'])
         forms = self.base.traverse_xml(app.config['EVENTS_URL'], 'system-page')
         if 'Event Approver' in session['groups']:
-            # todo: call traverse_xml() in tinker_controller
-            event_approver_forms = self.base.traverse_xml()
+            # todo: Is this right? This is grabbing from the xml? ASK CALEB
+            event_approver_forms = self.base.traverse_xml(app.config['EVENTS_URL'], 'system-page')
         return render_template('events-home.html', **locals())
 
     def delete_confirm(self):
@@ -62,7 +60,7 @@ class EventsView(FlaskView):
             return redirect(url_for('events.EventsView:event_in_workflow'), code=302)
 
         edit_data, dates, author = self.base.build_edit_form(event_id)
-        # todo: fix this with the submit_all() functionality
+        # todo: fix this with the submit_all() functionality ASK CALEB
         # todo convert 'On/Off campus' to 'On/Off Campus' for all events
         from tinker.events.forms import EventForm
         form = EventForm(**edit_data)
@@ -87,8 +85,8 @@ class EventsView(FlaskView):
         username = session['username']
         workflow = None
         eid = rform.get('event_id')
-        # workflow = self.base.get_event_publish_workflow(title, username)
-        # todo check these two method calls-- do we need them?
+        # workflow = self.base.create_workflow("1ca9794e8c586513742d45fd39c5ffe3")
+        # todo check these two method calls-- do we need them? ASK CALEB
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
         failed = self.base.validate_form(rform, dates_good, event_dates)
 
@@ -121,14 +119,14 @@ class EventsView(FlaskView):
             # todo: want to explain these to me (caleb). Seems like we could refactor this process
             current_year = self.base.get_current_year_folder(event_id)
             new_year = self.base.get_year_folder_value(add_data)
+            if new_year > current_year:
+                new_path = self.base.get_event_folder_path(add_data)
+                response = self.base.move(event_id, new_path[1])
+                app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(response))
 
             proxy_page = self.base.read_page(event_id)
             response = proxy_page.edit_asset(asset)
             self.base.log_sentry("Event edit submission", response)
-
-            if new_year > current_year:
-                response = self.base.move_event_year(event_id, add_data)
-                app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(response))
 
         # # todo: we need to add back in the new_internal_redirect_submit
         # # Checks if the link is valid
@@ -141,7 +139,7 @@ class EventsView(FlaskView):
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):
-        # todo: these calls are broken. Need to update to the new methods
+        # todo: these calls are broken. Need to update to the new methods ASK CALEB
         ws_connector = self.base.Cascade(app.config['SOAP_URL'], app.config['AUTH'], app.config['SITE_ID'])
         my_page = self.base.Page(ws_connector, event_id)
 

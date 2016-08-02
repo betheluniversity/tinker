@@ -110,7 +110,7 @@ class TinkerController(object):
                 get_nav()
 
             if 'user_email' not in session.keys():
-                # todo, get prefered email (alias) from wsapi once its added.
+                # todo, get prefered email (alias) from wsapi once its added ASK CALEB
                 session['user_email'] = session['username'] + "@bethel.edu"
 
             if 'name' not in session.keys():
@@ -204,7 +204,7 @@ class TinkerController(object):
                 if match:
                     matches.append(match)
 
-        # Todo: maybe add some parameter as a search?
+        # Todo: maybe add some parameter as a search? ASK CALEB
         # sort by created-on date.
         matches = sorted(matches, key=lambda k: k['created-on'])
 
@@ -266,8 +266,6 @@ class TinkerController(object):
             if not has_text:
                 return
             try:
-                # todo move
-                import datetime
                 date = datetime.datetime.strptime(node['text'], '%m-%d-%Y')
                 if not date:
                     date = ''
