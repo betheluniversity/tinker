@@ -18,7 +18,11 @@ class EventsView(FlaskView):
 
     # Allows any user to access events
     def before_request(self, name, **kwargs):
-        pass
+        if 'groups' not in session:
+            # This if statement block has been added for unit testing purposes
+            from tinker.tinker_controller import TinkerController
+            tc = TinkerController()
+            tc.before_request()
 
     def index(self):
         # todo: call traverse_xml() in tinker_controller
@@ -106,6 +110,7 @@ class EventsView(FlaskView):
 
             asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
             response = self.base.create(asset)
+            eid = response['createdAssetId']
             self.base.log_sentry("New event submission", response)
 
         else:
@@ -137,7 +142,8 @@ class EventsView(FlaskView):
         #     path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
         #     new_internal_redirect_submit(path, add_data['link'])
 
-        return redirect(url_for('events.EventsView:confirm'), code=302)
+        # return redirect(url_for('events.EventsView:confirm'), code=302)
+        return render_template("submit-confirm.html", eid=eid)
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):

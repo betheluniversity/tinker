@@ -26,29 +26,19 @@ class EAnnouncementsBaseTestCase(unittest.TestCase):
         return re.search('<input(.*)id="new_eaid"(.*)value="(.+)"(/?)>', text).group(3)
 
     def create_form(self, title, eaid=None):
+        to_return = {
+            'csrf_token': self.csrf_token,
+            'title': title,
+            'message': "This E-Announcement should never be seen by the public, I hope",
+            'name': "Philip Gibbens",
+            'email': "phg49389@bethel.edu",
+            'first_date': '08-01-2016',
+            'second_date': '08-05-2016',
+            'banner_roles': 'STUDENT-CAS'
+        }
         if eaid:
-            return {
-                'csrf_token': self.csrf_token,
-                'e_announcement_id': eaid,
-                'title': title,
-                'message': "This E-Announcement should never be seen by the public, I hope",
-                'name': "Philip Gibbens",
-                'email': "phg49389@bethel.edu",
-                'first_date': '08-01-2016',
-                'second_date': '08-05-2016',
-                'banner_roles': 'STUDENT-CAS'
-            }
-        else:
-            return {
-                'csrf_token': self.csrf_token,
-                'title': title,
-                'message': "This E-Announcement should never be seen by the public, I hope",
-                'name': "Philip Gibbens",
-                'email': "phg49389@bethel.edu",
-                'first_date': '08-01-2016',
-                'second_date': '08-05-2016',
-                'banner_roles': 'STUDENT-CAS'
-            }
+            to_return['e_announcement_id'] = eaid
+        return to_return
 
     def test_sequence(self):
         # Get new form

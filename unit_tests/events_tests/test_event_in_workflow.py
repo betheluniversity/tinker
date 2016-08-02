@@ -1,4 +1,4 @@
-from . import EventsBaseTestCase
+from events_base import EventsBaseTestCase
 
 class EventInWorkflowTestCase(EventsBaseTestCase):
     #######################

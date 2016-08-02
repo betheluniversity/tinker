@@ -2,7 +2,7 @@ import tinker
 import unittest
 
 
-class EAnnouncementsBaseTestCase(unittest.TestCase):
+class EventsBaseTestCase(unittest.TestCase):
 
     def setUp(self):
         tinker.app.testing = True
