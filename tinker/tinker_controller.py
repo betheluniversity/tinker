@@ -381,13 +381,13 @@ class TinkerController(object):
         for page_values in forms_to_edit:
             id = page_values['id']
             #To test uncomment and indent below
-            #ifid == '32e188998c58651378e3158c497c9d85':
-            block = self.read_block(id)
-            block_asset, mdata, sdata = block.get_asset()
+            if id == '4693de5b8c58651378e3158c787189':
+                block = self.read_block(id)
+                block_asset, mdata, sdata = block.get_asset()
             #The dictionary should be editedfor whatever asset needs to be edited over all
-            dictionary = {'author': 'Something else'}
-            self.edit_all_callback(block_asset, dictionary)
-            block.edit()
+                dictionary = {'author': 'Something else'}
+                self.edit_all_callback(block_asset, dictionary)
+                block.edit()
 
     def edit_all_callback(self, child, author, edit_data, xml_url, forms_to_edit):
         pass
