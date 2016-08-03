@@ -462,5 +462,5 @@ class EventsController(TinkerController):
 
     def edit_all_callback(self, asset, dictionary):
         #Uncomment the pass below when this is not being used
-        #pass
-        self.update_asset(asset, dictionary)
+        pass
+        #self.update_asset(asset, dictionary)
