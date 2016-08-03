@@ -25,7 +25,6 @@ undergrad_programs = [
     "History",
     "Honors",
     "Math & Computer Science",
-    "Modern World Languages",
     "Music",
     "Nursing",
     "Philosophy",
@@ -35,6 +34,7 @@ undergrad_programs = [
     "Psychology",
     "Social Work",
     "Theatre Arts",
+    "World Lanuguages and Cultures",
 ]
 
 adult_undergrad_programs = [
