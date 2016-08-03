@@ -23,8 +23,7 @@ class EventsView(FlaskView):
     def index(self):
         forms = self.base.traverse_xml(app.config['EVENTS_URL'], 'system-page')
         if 'Event Approver' in session['groups']:
-            # todo: Is this right? This is grabbing from the xml? ASK CALEB
-            event_approver_forms = self.base.traverse_xml(app.config['EVENTS_URL'], 'system-page')
+            forms, event_approver_forms = self.base.get_approver_forms(forms)
         return render_template('events-home.html', **locals())
 
     def delete_confirm(self):

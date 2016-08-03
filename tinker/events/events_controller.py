@@ -26,15 +26,25 @@ class EventsController(TinkerController):
             author = None
         username = session['username']
 
-        if author is not None and username == author:
+        if (author is not None and username == author) or 'Event Approver' in session['groups']:
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
                 # not a valid event page
-                print 'bad'
                 return None
         else:
             return None
+
+    def get_approver_forms(self, forms):
+        username = session['username']
+        user_forms = []
+        approver_forms = []
+        for form in forms:
+            if form['author'] == username:
+                user_forms.append(form)
+            else:
+                approver_forms.append(form)
+        return user_forms, approver_forms
 
     def _iterate_child_xml(self, child, author):
 
@@ -229,8 +239,6 @@ class EventsController(TinkerController):
             except:
                 pass
 
-        # todo: images should be working ASK CALEB
-
         # put it all into the final asset with the rest of the SOAP structure
         hide_site_nav, parent_folder_path = self.get_event_folder_path(new_data)
 
@@ -359,8 +367,7 @@ class EventsController(TinkerController):
                 pass
         return dates
 
-    # todo: this should be deleted. We should be calling the create function in tinker_controller
-    # todo Maybe we actually need this? ASK CALEB
+    # todo: this should be deleted. Use the read_page() function instead
     def create(self, asset):
         auth = app.config['CASCADE_LOGIN']
         client = self.cascade_connector.get_client()
@@ -379,21 +386,5 @@ class EventsController(TinkerController):
             'Author': username,
             'Response': str(response)
         })
-
-        """
-
-        <complexType name="workflow-configuration">
-      <sequence>
-        <element maxOccurs="1" minOccurs="1" name="workflowName" type="xsd:string"/>
-        <choice>
-          <element maxOccurs="1" minOccurs="1" name="workflowDefinitionId" type="xsd:string"/>
-          <element maxOccurs="1" minOccurs="1" name="workflowDefinitionPath" type="xsd:string"/>
-        </choice>
-        <element maxOccurs="1" minOccurs="1" name="workflowComments" type="xsd:string"/>
-        <element maxOccurs="1" minOccurs="0" name="workflowStepConfigurations" type="impl:workflow-step-configurations"/>
-      </sequence>
-    </complexType>
-
-        """
 
         return response
