@@ -34,7 +34,7 @@ undergrad_programs = [
     "Psychology",
     "Social Work",
     "Theatre Arts",
-    "World Lanuguages and Cultures",
+    "World Languages and Cultures",
 ]
 
 adult_undergrad_programs = [
