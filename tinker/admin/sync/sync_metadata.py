@@ -165,6 +165,7 @@ e_announcement_roles = [
 data_to_add = {}
 data_to_add['school'] = school
 data_to_add['department'] = undergrad_programs
+data_to_add['cas-departments'] = undergrad_programs
 data_to_add['adult-undergrad-program'] = adult_undergrad_programs
 data_to_add['graduate-program'] = graduate_programs
 data_to_add['seminary-program'] = seminary_programs
