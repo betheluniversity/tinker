@@ -25,7 +25,6 @@ undergrad_programs = [
     "History",
     "Honors",
     "Math & Computer Science",
-    "Modern World Languages",
     "Music",
     "Nursing",
     "Philosophy",
@@ -35,6 +34,7 @@ undergrad_programs = [
     "Psychology",
     "Social Work",
     "Theatre Arts",
+    "World Languages and Cultures",
 ]
 
 adult_undergrad_programs = [
@@ -42,7 +42,8 @@ adult_undergrad_programs = [
     "Accounting (B.S.)",
     "Addiction Studies Certificate",
     "Alcohol and Drug Counseling Certificate",
-    "Associate's Degree",
+    "Associate of Arts (A.A.)",
+    "Associate of Science (A.S.)",
     "Business Management (B.A.)",
     "Christian Ministries (B.A.)",
     "Communication Studies (B.A.)",
@@ -67,7 +68,7 @@ seminary_programs = [
     "Master of Divinity",
     "Mental Health Counseling (M.A.)",
     "Ministry Practice Certificate",
-    "Ministry Practice (M.A.)",
+    "Ministry (M.A.)",
     "Theological Studies Certificate",
     "M.A. (Theological Studies)",
     "Transformational Leadership (M.A.)",
