@@ -380,14 +380,16 @@ class TinkerController(object):
         forms_to_edit = self.traverse_xml(xml_url, type_to_find)
         for page_values in forms_to_edit:
             id = page_values['id']
-            #To test uncomment and indent below
-            if id == '4693de5b8c58651378e3158c787189':
+            block = id
+            if type_to_find == 'system-page':
+                block = self.read_page(id)
+            elif type_to_find == 'system-block':
                 block = self.read_block(id)
-                block_asset, mdata, sdata = block.get_asset()
+            block_asset, mdata, sdata = block.get_asset()
             #The dictionary should be editedfor whatever asset needs to be edited over all
-                dictionary = {'author': 'Something else'}
-                self.edit_all_callback(block_asset, dictionary)
-                block.edit()
+            dictionary = {'author': 'Something else'}
+            self.edit_all_callback(block_asset, dictionary)
+            block.edit()
 
     def edit_all_callback(self, child, author, edit_data, xml_url, forms_to_edit):
         pass

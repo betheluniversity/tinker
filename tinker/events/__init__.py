@@ -152,7 +152,7 @@ class EventsView(FlaskView):
         return event_id
 
     def edit_all(self):
-        type_to_find = 'system-block'
+        type_to_find = 'system-page'
         xml_url = app.config['EVENTS_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'Hello world!'
