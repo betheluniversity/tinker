@@ -17,11 +17,11 @@ cors = CORS(app)
 
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
-# todo: is this used?
+# The below is the flask-cache
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
 
-# todo: is this used?
+# The below is for Flask logging
 # create logging
 if not app.debug:
     import logging
@@ -55,6 +55,7 @@ app.register_blueprint(OfficeHoursBlueprint)
 
 CsrfProtect(app)
 
-# todo: is this used?
+# Used to import error.py, which handles 403, 404, 500, and 503 server-errors
 # Import error handling
 import error
+
