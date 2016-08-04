@@ -15,6 +15,13 @@ class FacultyBioView(FlaskView):
     def __init__(self):
         self.base = FacultyBioController()
 
+    def before_request(self, name, **kwargs):
+        if 'groups' not in session:
+            # This if statement block has been added for unit testing purposes
+            from tinker.tinker_controller import TinkerController
+            tc = TinkerController()
+            tc.before_request()
+
     def index(self):
         username = session['username']
         roles = session['roles']
@@ -42,10 +49,12 @@ class FacultyBioView(FlaskView):
 
         return render_template('faculty-bio-home.html', **locals())
 
+    @route('delete/<page_id>', methods=['GET'])
     def delete(self, page_id):
+        # TODO: this method is riddled with errors now
         self.base.delete(page_id, "page")
         # todo: recreate this method....i like it.
-        self.base.publish_faculty_bio_xml()
+        self.base.publish(page_id)
 
         return redirect('/faculty-bio/delete-confirm', code=302)
 
@@ -139,6 +148,7 @@ class FacultyBioView(FlaskView):
             faculty_bio_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(base_asset_id, 'page')
             asset = self.base.update_structure(faculty_bio_data, sdata, rform, faculty_bio_id=faculty_bio_id)
             resp = self.base.create_page(asset)
+            faculty_bio_id = resp.asset['page']['id']
 
             log_sentry("Faculty bio new submission", resp)
             status = 'new'

@@ -34,8 +34,8 @@ class EventsBaseTestCase(unittest.TestCase):
             'featuring': "Testing things!",  # Featuring
             'sponsors': "Eric Jameson",  # Sponsors
             'main_content': "This is an event created to make sure that Tinker's connection with Cascade via events continues working as we make changes",  # Event description
-            'start1': "August 3rd 2016, 12:00 am",
-            'end1': "August 5th 2016, 12:00 am",
+            'start1': "August 3rd 2017, 12:00 am",
+            'end1': "August 5th 2017, 12:00 am",
             'location': "On Campus",  # Location
             'on_campus_location': "Clauson Center (CC)",  # On campus location
             'other_on_campus': "No.",  # Other on campus location
@@ -68,6 +68,9 @@ class EventsBaseTestCase(unittest.TestCase):
         return to_return
 
     def test_sequence(self):
+        # To be clear, these events do get made in Cascade, and they are publicly visible. If they're not deleted, they
+        # will be located in /events/2016/athletics/
+
         # Get new form
         response = self.send_get("event/add")
         self.csrf_token = self.get_csrf_token("event/add")
