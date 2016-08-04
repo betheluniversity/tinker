@@ -374,18 +374,3 @@ class EventsController(TinkerController):
             except TypeError:
                 pass
         return dates
-
-    # todo: this should be deleted. Use the read_page() function instead
-    def create(self, asset):
-        auth = app.config['CASCADE_LOGIN']
-        client = self.cascade_connector.get_client()
-        username = session['username']
-        response = client.service.create(auth, asset)
-        from tinker import sentry
-        client = sentry.client
-        client.extra_context({
-            'Time': time.strftime("%c"),
-            'Author': username,
-            'Response': str(response)
-        })
-        return response
