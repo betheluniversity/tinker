@@ -9,7 +9,6 @@ from events_metadata import metadata_list
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
 
-# todo: clean up the commented out code
 class EventsView(FlaskView):
     route_base = '/event'
 
@@ -36,8 +35,7 @@ class EventsView(FlaskView):
         return render_template('event-in-workflow.html')
 
     def add(self):
-        # import this here so we dont load all the content
-        # from cascade during homepage load
+        # import this here so we dont load all the content from cascade during homepage load
         from tinker.events.forms import EventForm
 
         form = EventForm()
@@ -60,7 +58,7 @@ class EventsView(FlaskView):
 
         edit_data, dates, author = self.base.build_edit_form(event_id)
         # todo: fix this with the submit_all() functionality ASK CALEB
-        # todo convert 'On/Off campus' to 'On/Off Campus' for all events
+        # convert 'On/Off campus' to 'On/Off Campus' for all events
         from tinker.events.forms import EventForm
         form = EventForm(**edit_data)
         if 'location' in edit_data and edit_data['location']:
@@ -82,10 +80,8 @@ class EventsView(FlaskView):
     def submit_form(self, edit=False):
         rform = request.form
         username = session['username']
-        workflow = None
         eid = rform.get('event_id')
-        # workflow = self.base.create_workflow("1ca9794e8c586513742d45fd39c5ffe3")
-        # todo check these two method calls-- do we need them? ASK CALEB
+        workflow = self.base.create_workflow("1ca9794e8c586513742d45fd39c5ffe3")
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
         failed = self.base.validate_form(rform, dates_good, event_dates)
 
@@ -93,54 +89,40 @@ class EventsView(FlaskView):
         if failed:
             return failed
 
-        # todo: these two parts should look similar. they both should log sentry, set author, etc.
         if not eid:
             bid = app.config['EVENTS_BASE_ASSET']
             event_data, metadata, structured_data = self.base.cascade_connector.load_base_asset_by_id(bid, 'page')
-            # Get all the form data
             add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
             add_data['event-dates'] = self.base.get_dates(add_data)
-
+            add_data['author'] = request.form['author']
             asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
-            response = self.base.create(asset)
-            self.base.log_sentry("New event submission", response)
 
+            resp = self.base.create_page(asset)
+            self.base.log_sentry("New event submission", resp)
         else:
             page = self.base.read_page(eid)
             event_data, metadata, structured_data = page.get_asset()
-            # Get all the form data
             add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
             add_data['event-dates'] = self.base.get_dates(add_data)
-
             add_data['author'] = request.form['author']
-            event_id = rform['event_id']
-            asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow, event_id=event_id)
-            # todo: want to explain these to me (caleb). Seems like we could refactor this process
-            current_year = self.base.get_current_year_folder(event_id)
-            new_year = self.base.get_year_folder_value(add_data)
-            if new_year > current_year:
-                new_path = self.base.get_event_folder_path(add_data)
-                response = self.base.move(event_id, new_path[1])
-                app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(response))
+            asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow, event_id=eid)
 
-            proxy_page = self.base.read_page(event_id)
-            response = proxy_page.edit_asset(asset)
-            self.base.log_sentry("Event edit submission", response)
+            self.base.check_new_year_folder(eid, add_data, username)
+            proxy_page = self.base.read_page(eid)
+            resp = proxy_page.edit_asset(asset)
+            self.base.log_sentry("Event edit submission", resp)
 
-        # # todo: we need to add back in the new_internal_redirect_submit
-        # # Checks if the link is valid
-        # if 'link' in add_data and add_data['link'] != "":
-        #     from tinker.admin.redirects import new_internal_redirect_submit
-        #     path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
-        #     new_internal_redirect_submit(path, add_data['link'])
+        # todo: ASK CALEB IF THIS IS OKAY.
+        if 'link' in add_data and add_data['link'] != "":
+            from tinker.admin.redirects import new_internal_redirect_submit
+            path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
+            new_internal_redirect_submit(path, add_data['link'])
 
         return redirect(url_for('events.EventsView:confirm'), code=302)
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):
-        # todo: these calls are broken. Need to update to the new methods ASK CALEB
-        ws_connector = self.base.Cascade(app.config['SOAP_URL'], app.config['AUTH'], app.config['SITE_ID'])
-        my_page = self.base.Page(ws_connector, event_id)
+        my_page = self.base.read_page(event_id)
 
         asset, md, sd = my_page.get_asset()
         update(md, 'tinker-edits', '0')

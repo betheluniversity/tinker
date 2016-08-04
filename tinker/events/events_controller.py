@@ -46,6 +46,14 @@ class EventsController(TinkerController):
                 approver_forms.append(form)
         return user_forms, approver_forms
 
+    def check_new_year_folder(self, event_id, add_data, username):
+        current_year = self.get_current_year_folder(event_id)
+        new_year = self.get_year_folder_value(add_data)
+        if new_year > current_year:
+            new_path = self.get_event_folder_path(add_data)
+            response = self.move(event_id, new_path[1])
+            app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(response))
+
     def _iterate_child_xml(self, child, author):
 
         roles = []
@@ -371,20 +379,13 @@ class EventsController(TinkerController):
     def create(self, asset):
         auth = app.config['CASCADE_LOGIN']
         client = self.cascade_connector.get_client()
-
         username = session['username']
-
         response = client.service.create(auth, asset)
-
         from tinker import sentry
-        # sentry.captureMessage()
-
         client = sentry.client
-
         client.extra_context({
             'Time': time.strftime("%c"),
             'Author': username,
             'Response': str(response)
         })
-
         return response

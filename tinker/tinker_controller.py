@@ -300,6 +300,9 @@ class TinkerController(object):
         b = Block(self.cascade_connector, asset=asset)
         return b
 
+    def create_page(self, asset):
+        p = Page(self.cascade_connector, asset=asset)
+
     def read(self, path_or_id, type):
         return self.cascade_connector.read(path_or_id, type)
 
@@ -421,7 +424,7 @@ class TinkerController(object):
             htmlent = self.__unicode_to_html_entities__(uni)
             return htmlent
         else:
-            return None
+            return ""
 
     def __html_entities_to_unicode__(self, text):
         """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
