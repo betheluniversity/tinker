@@ -300,7 +300,7 @@ class TinkerController(object):
 
         return edit_data
 
-    def get_add_data(self, lists, form):
+    def get_add_data(self, lists, form, wysiwyg_keys):
         # A dict to populate with all the interesting data.
         add_data = {}
 
@@ -308,11 +308,25 @@ class TinkerController(object):
             if key in lists:
                 add_data[key] = form.getlist(key)
             else:
-                add_data[key] = form[key]
+                if key in wysiwyg_keys:
+                    add_data[key] = self.escape_wysiwyg_content(form[key])
+                else:
+                    add_data[key] = form[key]
 
-        # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
-        system_name = add_data['title'].lower().replace(' ', '-')
-        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+        if 'title' in add_data:
+            title = add_data['title']
+        elif 'first' in add_data and 'last' in add_data:
+            title = add_data['first'] + ' ' + add_data['last']
+        else:
+            title = None
+
+        if title:
+            add_data['title'] = title
+
+            # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
+            system_name = title.lower().replace(' ', '-')
+            add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+            add_data['name'] = add_data['system_name']
 
         # add author
         add_data['author'] = session['username']
