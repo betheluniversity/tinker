@@ -92,19 +92,19 @@ class OfficeHoursController(TinkerController):
 
         return data
 
-    def create_summary(self, data):
+    def create_summary(self, data, prefix='', show_chapel_text=True):
         week_dict = []
         week_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
         for week_day in week_days:
             week_day_lower = week_day.lower()
             try:
-                open_key = 'next_' + week_day_lower + '_open'
-                close_key = 'next_' + week_day_lower + '_close'
+                open_key = prefix + week_day_lower + '_open'
+                close_key = prefix + week_day_lower + '_close'
 
                 open = find(data, open_key, False)
                 close = find(data, close_key, False)
-                chapel = find(data, 'next_closed_for_chapel', False)
+                chapel = find(data, prefix + 'closed_for_chapel', False)
 
                 if week_day in ['Monday', 'Wednesday', 'Friday'] and chapel == 'Yes':
                     chapel = 'Yes'
@@ -124,12 +124,11 @@ class OfficeHoursController(TinkerController):
                 })
                 continue
 
-        summary = self.convert_week_dict_to_string(week_dict)
+        summary = self.convert_week_dict_to_string(week_dict, show_chapel_text)
 
         return summary
 
-    # todo: make this method use an html template
-    def convert_week_dict_to_string(self, week_dict):
+    def convert_week_dict_to_string(self, week_dict, show_chapel_text=True):
         summary = []
         has_chapel = False
 
@@ -143,7 +142,7 @@ class OfficeHoursController(TinkerController):
             summary.append(day.get('day') + add_chapel + ': ' + day.get('time'))
 
         summary = '</br>'.join(summary)
-        if has_chapel:
+        if has_chapel and show_chapel_text:
             summary += '<p>*Closed 10:10-11a.m. for chapel.</p>'
         return summary
 
@@ -182,29 +181,64 @@ class OfficeHoursController(TinkerController):
         return open + '-' + close
 
     def rotate_hours(self, sdata):
+        seconds_in_two_weeks = 1209600
 
         next_start_date = find(sdata, 'next_start_date', False)
-        if next_start_date is not None and next_start_date != '' and datetime.datetime.now() >= datetime.datetime.strptime(next_start_date, '%m-%d-%Y'):
-            week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+        if next_start_date is not None and next_start_date != '':
+            # set the current hours
+            if datetime.datetime.now() >= datetime.datetime.strptime(next_start_date, '%m-%d-%Y'):
+                week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 
-            for week_day in week_days:
-                try:
-                    # gather keys
-                    open_key = week_day + '_open'
-                    next_open_key = 'next_' + week_day + '_open'
-                    close_key = week_day + '_close'
-                    next_close_key = 'next_' + week_day + '_close'
+                for week_day in week_days:
+                    try:
+                        # gather keys
+                        open_key = week_day + '_open'
+                        next_open_key = 'next_' + week_day + '_open'
+                        close_key = week_day + '_close'
+                        next_close_key = 'next_' + week_day + '_close'
 
-                    # find values
-                    next_open = find(sdata, next_open_key, False)
-                    next_close = find(sdata, next_close_key, False)
+                        # find values
+                        next_open = find(sdata, next_open_key, False)
+                        next_close = find(sdata, next_close_key, False)
 
-                    # update values
-                    update(sdata, open_key, next_open)
-                    update(sdata, close_key, next_close)
+                        # update values
+                        update(sdata, open_key, next_open)
+                        update(sdata, close_key, next_close)
 
-                except:
-                    continue
+                    except:
+                        continue
 
-            update(sdata, 'closed_for_chapel', find(sdata, 'next_closed_for_chapel', False))
-            update(sdata, 'summary', self.create_summary(sdata))
+                update(sdata, 'closed_for_chapel', find(sdata, 'next_closed_for_chapel', False))
+                update(sdata, 'summary', self.create_summary(sdata, 'next_') + self.create_exceptions_text(sdata))
+
+            # if the 'next' hours are within 2 weeks, append them to the summary
+            elif (datetime.datetime.strptime(next_start_date, '%m-%d-%Y') - datetime.datetime.now()).total_seconds() <= seconds_in_two_weeks:
+                current_summary = self.create_summary(sdata, '', False)
+                next_summary = self.create_summary(sdata, 'next_')
+
+                title = '<p><b>New hours starting ' + next_start_date + '</b></p>'
+
+                new_summary = current_summary + title + next_summary + self.create_exceptions_text(sdata)
+
+                update(sdata, 'summary', new_summary)
+
+    def create_exceptions_text(self, sdata):
+        # add exceptions
+        exceptions = find(sdata, 'exceptions')
+        exceptions_text = ''
+
+        for exception in exceptions:
+            exception = find(find(sdata, 'exceptions')[0], 'date', False)
+            date = find(exception, 'date', False)
+
+            if (datetime.datetime.strptime(date,
+                                           '%m-%d-%Y') - datetime.datetime.now()).total_seconds() <= seconds_in_two_weeks:
+                open = find(exception, 'open', False)
+                close = find(exception, 'close', False)
+
+                exceptions_text += '<br/>on ' + date + ', ' + self.convert_timestamps_to_bethel_string(open, close)
+
+        if exceptions_text:
+            return '<p>Exceptions:<br/>' + exceptions_text + '</p>'
+        else:
+            return ''
