@@ -84,11 +84,11 @@
                         return false;
                     }
                 });
-                {#            $(".redirect-row").on('click', function () {#}
-                {#                $("#modal-confirm").attr("data-delete-path", $(this).find('.from_path').html());#}
-                {#                $(document).foundation();#}
-                {#                $("#confirmModal").foundation('reveal', 'open');#}
-                {#            });#}
+{#                $(".redirect-row").on('click', function () {#}
+{#                    $("#modal-confirm").attr("data-delete-path", $(this).find('.from_path').html());#}
+{#                    $(document).foundation();#}
+{#                    $("#confirmModal").foundation('reveal', 'open');#}
+{#                });#}
             }
 
             var delay = (function () {
@@ -117,9 +117,9 @@
                 var input = $(this);
                 input.val(input.val().replace(/ /g, ''));
                 var value = input.val();
-                {#    delay(function(){#}
-                {#      loadTableForSearch(value, 'to_url');#}
-                {#    }, 300 );#}
+                    delay(function(){
+                      loadTableForSearch(value, 'to_url');
+                    }, 300 );
             });
 
             $('#new-redirect-from').keyup(function () {
@@ -157,32 +157,32 @@
                 });
                 $("#redirect-add").append(input);
 
-                $("#modal-confirm").click(function () {
-
-                    var from_path = {"from_path": $(this).attr('data-delete-path')};
-                    var url = "{{ url_for('redirects.RedirectsView:delete_redirect') }}";
-                    $.post(url, from_path, function (data) {
-                        if (data) {
-                            loadTableForSearch($("#new-redirect-from").val(), 'from_path');
-                            {#                            $("#confirmModal").foundation('reveal', 'close');#}
-                        }
-                    });
-                });
+{#                $("#modal-confirm").click(function () {#}
+{##}
+{#                    var from_path = {"from_path": $(this).attr('data-delete-path')};#}
+{#                    var url = "{{ url_for('redirects.RedirectsView:delete_redirect') }}";#}
+{#                    $.post(url, from_path, function (data) {#}
+{#                        if (data) {#}
+{#                            loadTableForSearch($("#new-redirect-from").val(), 'from_path');#}
+{#                                                        $("#confirmModal").foundation('reveal', 'close');#}
+{#                        }#}
+{#                    });#}
+{#                });#}
 
             });
 
         })
         ;
     </script>
-    {##}
-    {#    Delete confirm modal#}
-    {#    <div id="confirmModal" class="reveal-modal" data-reveal>#}
-    {#        <h2>Are you sure you want to delete?</h2>#}
-    {#        <p class="lead">The redirect will be gone forever and forever.</p>#}
-    {##}
-    {#        <button class="modal-confirm" id="modal-confirm" data-delete-path="/delete/path">Delete</button>#}
-    {#        <a class="close-reveal-modal">&#215;</a>#}
-    {#    </div>#}
+
+        Delete confirm modal
+        <div id="confirmModal" class="reveal-modal" data-reveal>
+            <h2>Are you sure you want to delete?</h2>
+            <p class="lead">The redirect will be gone forever and forever.</p>
+
+            <button class="modal-confirm" id="modal-confirm" data-delete-path="/delete/path">Delete</button>
+            <a class="close-reveal-modal">&#215;</a>
+        </div>
 
 {% endblock %}
 
