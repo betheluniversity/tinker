@@ -295,6 +295,39 @@ class TinkerController(object):
                     return node['filePath']
                 else:
                     return ''
+                
+    def get_add_data(self, lists, form, wysiwyg_keys):
+        # A dict to populate with all the interesting data.
+        add_data = {}
+
+        for key in form.keys():
+            if key in lists:
+                add_data[key] = form.getlist(key)
+            else:
+                if key in wysiwyg_keys:
+                    add_data[key] = self.escape_wysiwyg_content(form[key])
+                else:
+                    add_data[key] = form[key]
+
+        if 'title' in add_data:
+            title = add_data['title']
+        elif 'first' in add_data and 'last' in add_data:
+            title = add_data['first'] + ' ' + add_data['last']
+        else:
+            title = None
+
+        if title:
+            add_data['title'] = title
+
+            # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
+            system_name = title.lower().replace(' ', '-')
+            add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+            add_data['name'] = add_data['system_name']
+
+        # add author
+        add_data['author'] = session['username']
+
+        return add_data
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
@@ -365,6 +398,8 @@ class TinkerController(object):
 
     def update_asset(self, asset, data):
         for key, value in data.iteritems():
+            if key == 'exceptions':
+                print 'TEST'
             update(asset, key, value)
 
         return True
@@ -438,29 +473,6 @@ class TinkerController(object):
         """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
         text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
         return text
-
-
-    def get_add_data(self, lists, form, wysiwyg_keys = None):
-        # A dict to populate with all the interesting data.
-        add_data = {}
-
-        for key in form.keys():
-            if key in lists:
-                add_data[key] = form.getlist(key)
-            else:
-                if key in wysiwyg_keys:
-                    add_data[key] = self.escape_wysiwyg_content(form[key])
-                else:
-                    add_data[key] = form[key]
-
-        # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
-        system_name = add_data['title'].lower().replace(' ', '-')
-        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
-
-        # add author
-        add_data['author'] = session['username']
-
-        return add_data
 
     def element_tree_to_html(self, node):
         return_string = ''
