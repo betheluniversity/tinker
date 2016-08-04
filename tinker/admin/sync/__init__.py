@@ -18,12 +18,8 @@ class SyncView(FlaskView):
             abort(403)
 
     def index(self):
-        # Todo: Fix this. This pull works the second time. maybe call the pull from a url?
-        # don't pull locally. It's just a bad idea.
-        if 'User' not in app.config['INSTALL_LOCATION']:
-            import commands
-            commands.getoutput(
-                "cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
+        # get the most recent code
+        self.base.git_pull()
 
         metadata_sets_mapping = self.base.get_metadata_sets_mapping()
         data_definition_mapping = self.base.get_data_definitions_mapping()
@@ -32,6 +28,9 @@ class SyncView(FlaskView):
 
     @route("/all", methods=['post'])
     def all(self):
+        # get the most recent code
+        self.base.git_pull()
+
         data = data_to_add
         returned_keys = []
 

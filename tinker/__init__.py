@@ -7,6 +7,7 @@ from flask import Flask
 from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.cors import CORS
+from raven.contrib.flask import Sentry
 from flask_wtf.csrf import CsrfProtect
 
 app = Flask(__name__)
@@ -14,15 +15,13 @@ app.config.from_object('config.config')
 db = SQLAlchemy(app)
 cors = CORS(app)
 
-from raven.contrib.flask import Sentry
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
-from tinker_controller import TinkerController
-base = TinkerController()
-
+# todo: is this used?
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 cache.init_app(app)
 
+# todo: is this used?
 # create logging
 if not app.debug:
     import logging
@@ -31,43 +30,31 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.DEBUG)
 
-# Import routes
-import views
-from tinker.events.views import event_blueprint
-from tinker.faculty_bio.views import faculty_bio_blueprint
-from tinker.admin.redirects.views import redirect_blueprint
-from tinker.heading_upgrade.views import heading_upgrade
-
-app.register_blueprint(event_blueprint, url_prefix='/event')
-app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
-app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
-app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
-
 # New importing of routes and blueprints
-from tinker.e_announcements import EAnnouncementsBlueprint
+from tinker.views import BaseBlueprint
 from tinker.admin.cache import CacheBlueprint
-from tinker.admin.new_redirects import RedirectsBlueprint
-from tinker.office_hours import OfficeHoursBlueprint
 from tinker.admin.blink_roles import BlinkRolesBlueprint
 from tinker.admin.sync import SyncBlueprint
 from tinker.admin.publish import PublishManagerBlueprint
+from tinker.admin.redirects import RedirectsBlueprint
+from tinker.e_announcements import EAnnouncementsBlueprint
+from tinker.faculty_bio import FacultyBioBlueprint
+from tinker.office_hours import OfficeHoursBlueprint
+from tinker.events import EventsBlueprint
 
-app.register_blueprint(EAnnouncementsBlueprint)
+app.register_blueprint(BaseBlueprint)
 app.register_blueprint(CacheBlueprint)
-app.register_blueprint(RedirectsBlueprint)
-app.register_blueprint(OfficeHoursBlueprint)
 app.register_blueprint(BlinkRolesBlueprint)
 app.register_blueprint(SyncBlueprint)
 app.register_blueprint(PublishManagerBlueprint)
+app.register_blueprint(RedirectsBlueprint)
+app.register_blueprint(EAnnouncementsBlueprint)
+app.register_blueprint(EventsBlueprint)
+app.register_blueprint(FacultyBioBlueprint)
+app.register_blueprint(OfficeHoursBlueprint)
 
-csrf = CsrfProtect(app)
-csrf.exempt(redirect_blueprint)
-csrf.exempt(OfficeHoursBlueprint)
+CsrfProtect(app)
 
+# todo: is this used?
 # Import error handling
 import error
-
-# ensure session before each request
-@app.before_request
-def before_request():
-    base.before_request()

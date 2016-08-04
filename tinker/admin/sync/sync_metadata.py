@@ -25,7 +25,6 @@ undergrad_programs = [
     "History",
     "Honors",
     "Math & Computer Science",
-    "Modern World Languages",
     "Music",
     "Nursing",
     "Philosophy",
@@ -35,6 +34,7 @@ undergrad_programs = [
     "Psychology",
     "Social Work",
     "Theatre Arts",
+    "World Languages and Cultures",
 ]
 
 adult_undergrad_programs = [
@@ -42,7 +42,8 @@ adult_undergrad_programs = [
     "Accounting (B.S.)",
     "Addiction Studies Certificate",
     "Alcohol and Drug Counseling Certificate",
-    "Associate's Degree",
+    "Associate of Arts (A.A.)",
+    "Associate of Science (A.S.)",
     "Business Management (B.A.)",
     "Christian Ministries (B.A.)",
     "Communication Studies (B.A.)",
@@ -59,7 +60,7 @@ seminary_programs = [
     "Certificate in Church Planting",
     "Children's & Family Ministry (M.A.)",
     "Christian Studies Certificate",
-    "Christian Thought (M.A.)",
+    "M.A. (Christian Thought)",
     "Doctor of Ministry",
     "Marital & Family Therapy (M.A.)",
     "Marriage & Family Therapy Certificate",
@@ -67,9 +68,9 @@ seminary_programs = [
     "Master of Divinity",
     "Mental Health Counseling (M.A.)",
     "Ministry Practice Certificate",
-    "Ministry Practice (M.A.)",
+    "Ministry (M.A.)",
     "Theological Studies Certificate",
-    "Theological Studies (M.A.)",
+    "M.A. (Theological Studies)",
     "Transformational Leadership (M.A.)",
     "Young Life Youth Ministry Certificate",
 ]
@@ -81,6 +82,7 @@ graduate_programs = [
     "Certificate in International Baccalaureate Teaching and Learning",
     "Child and Adolescent Mental Health Certificate",
     "Counseling Psychology (M.A.)",
+    "Developmental Disabilities License",
     "Director of Special Education License",
     "Ed.D.",
     "Education K-12 (M.A.)",
@@ -133,6 +135,7 @@ delivery_subheading = [
 degree = [
     'Select',
     'Associate of Arts',
+    'Associate of Science',
     'Bachelor of Arts',
     'Bachelor of Music',
     'Bachelor of Science',
