@@ -39,6 +39,7 @@ class OfficeHoursController(TinkerController):
         data, mdata, sdata = block.read_asset()
 
         edit_data = self.get_edit_data(sdata, mdata,  multiple=multiple)
+
         return edit_data, sdata, mdata
 
     def get_exceptions(self, form):
@@ -73,7 +74,6 @@ class OfficeHoursController(TinkerController):
 
         add_data = self.get_add_data(mdata, rform, wysiwyg_keys)
         add_data['exceptions'] = self.get_exceptions(rform)
-        add_data['summary'] = self.create_summary(data, add_data)
 
         for key, value in add_data.iteritems():
             if not value:
@@ -88,37 +88,39 @@ class OfficeHoursController(TinkerController):
                 date = datetime.datetime.strptime(value, '%m/%d/%Y')
                 add_data[key] = date.strftime('%m-%d-%Y')
 
-        from copy import deepcopy
-
-        # add_data['exceptions'].append(deepcopy(add_data['exceptions'][0]))
-        # add_data['exceptions'].append(add_data['exceptions'][0])
-
-        # todo: doesn't work if there are no existing Exceptions
         self.update_asset(data, add_data)
 
         return data
 
-    def create_summary(self, data, add_data):
+    def create_summary(self, data):
         week_dict = []
         week_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
         for week_day in week_days:
             week_day_lower = week_day.lower()
             try:
-                open = find(data, week_day_lower + '_open', False)
-                close = find(data, week_day_lower + '_close', False)
-                chapel = add_data['closed_for_chapel']
+                open_key = 'next_' + week_day_lower + '_open'
+                close_key = 'next_' + week_day_lower + '_close'
+
+                open = find(data, open_key, False)
+                close = find(data, close_key, False)
+                chapel = find(data, 'next_closed_for_chapel', False)
+
+                if week_day in ['Monday', 'Wednesday', 'Friday'] and chapel == 'Yes':
+                    chapel = 'Yes'
+                else:
+                    chapel = 'No'
 
                 week_dict.append({
                     'day': week_day,
                     'time': self.convert_timestamps_to_bethel_string(open, close),
-                    'chapel': chapel
+                    'chapel': chapel,
                 })
             except:  # if a open/close key doesn't exist, set 'Closed'
                 week_dict.append({
                     'day': week_day,
                     'time': 'Closed',
-                    'chapel': 'No'
+                    'chapel': 'No',
                 })
                 continue
 
@@ -126,12 +128,24 @@ class OfficeHoursController(TinkerController):
 
         return summary
 
+    # todo: make this method use an html template
     def convert_week_dict_to_string(self, week_dict):
         summary = []
-        for day in week_dict:
-            summary.append(day.get('day') + ': ' + day.get('time'))
+        has_chapel = False
 
-        return '</br>'.join(summary)
+        for day in week_dict:
+            chapel = day.get('chapel')
+            if chapel == 'Yes':
+                add_chapel = '*'
+                has_chapel = True
+            else:
+                add_chapel = ''
+            summary.append(day.get('day') + add_chapel + ': ' + day.get('time'))
+
+        summary = '</br>'.join(summary)
+        if has_chapel:
+            summary += '<p>*Closed 10:10-11a.m. for chapel.</p>'
+        return summary
 
     def convert_ampm(self, date):
         return date.replace('AM', 'a.m.').replace('PM', 'p.m.')
@@ -146,8 +160,8 @@ class OfficeHoursController(TinkerController):
 
     def convert_timestamps_to_bethel_string(self, open, close):
 
-        open = datetime.datetime.fromtimestamp(int(open) / 1000).strftime('%I:%M %p')
-        close = datetime.datetime.fromtimestamp(int(close) / 1000).strftime('%I:%M %p')
+        open = datetime.datetime.fromtimestamp(int(open) / 1000).strftime('%-I:%M%p')
+        close = datetime.datetime.fromtimestamp(int(close) / 1000).strftime('%-I:%M%p')
 
         # if times are 12:00 -- adjust to noon or midnight
         open = self.convert_to_noon_or_midnight(open)
@@ -159,10 +173,38 @@ class OfficeHoursController(TinkerController):
 
         # if times are both am/pm -- remove am/pm on first
         if ('AM' in open and 'AM' in close) or ('PM' in open and 'PM' in close):
-            open = open.replace(' AM', '').replace(' PM', '')
+            open = open.replace('AM', '').replace('PM', '')
 
         # convert AM to a.m. and PM to p.m
         open = self.convert_ampm(open)
         close = self.convert_ampm(close)
 
-        return open + ' - ' + close
+        return open + '-' + close
+
+    def rotate_hours(self, sdata):
+
+        next_start_date = find(sdata, 'next_start_date', False)
+        if next_start_date is not None and next_start_date != '' and datetime.datetime.now() >= datetime.datetime.strptime(next_start_date, '%m-%d-%Y'):
+            week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+
+            for week_day in week_days:
+                try:
+                    # gather keys
+                    open_key = week_day + '_open'
+                    next_open_key = 'next_' + week_day + '_open'
+                    close_key = week_day + '_close'
+                    next_close_key = 'next_' + week_day + '_close'
+
+                    # find values
+                    next_open = find(sdata, next_open_key, False)
+                    next_close = find(sdata, next_close_key, False)
+
+                    # update values
+                    update(sdata, open_key, next_open)
+                    update(sdata, close_key, next_close)
+
+                except:
+                    continue
+
+            update(sdata, 'closed_for_chapel', find(sdata, 'next_closed_for_chapel', False))
+            update(sdata, 'summary', self.create_summary(sdata))

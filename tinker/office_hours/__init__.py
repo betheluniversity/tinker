@@ -32,6 +32,8 @@ class OfficeHoursView(FlaskView):
 
         data, mdata, sdata = block.read_asset()
         asset = self.base.update_structure(data, mdata, rform)
+        self.base.rotate_hours(asset)
+
         resp = str(block.edit_asset(asset))
         self.base.log_sentry("Office Hour Submission", resp)
 
@@ -51,16 +53,7 @@ class OfficeHoursView(FlaskView):
 
         edit_data, sdata, mdata = self.base.load_office_hours_block(block_id=block_id)
         standard_edit_data, s, m = self.base.load_office_hours_block(block_id=app.config['OFFICE_HOURS_STANDARD_BLOCK'])
-        #
-        # exceptions_new = {}
-        # for key, value in edit_data['exceptions'].iteritems():
-        #     if not value:
-        #         edit_data['exceptions'][key] = ''
-        #
-        #     edit_data['exception_'+key] = edit_data['exceptions'][key]
-            # exceptions_new[key] = edit_data['exceptions'][key]
-
-        # edit_data['exceptions'] = exceptions_new
+        
         try:
             edit_data['next_start_date'] = edit_data['next_start_date'].strftime('%m/%d/%Y')
         except:
@@ -74,10 +67,13 @@ class OfficeHoursView(FlaskView):
 
         return render_template('office-hours-form.html', **locals())
 
-    # def rotate_hours(self, block_id):
-    #     block = self.base.read_block(block_id)
-    #     data, mdata, sdata = block.read_asset()
-    #
-    #     self.base.rotate_hours()
+    def rotate_hours(self, block_id):
+        block = self.base.read_block(block_id)
+        data, mdata, sdata = block.read_asset()
+
+        self.base.rotate_hours(sdata)
+        block.edit_asset(data)
+
+        return 'success'
 
 OfficeHoursView.register(OfficeHoursBlueprint)

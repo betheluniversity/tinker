@@ -399,6 +399,8 @@ class TinkerController(object):
 
     def update_asset(self, asset, data):
         for key, value in data.iteritems():
+            if key == 'exceptions':
+                print 'TEST'
             update(asset, key, value)
 
         return True
