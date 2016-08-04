@@ -142,23 +142,23 @@
                 input.attr('value', 'Save');
                 input.attr('type', 'button');
                 input.attr('id', 'redirect-add')
-                input.click(function() {
+                input.click(function () {
                     console.log("BUTTON WAS CLICKED");
                     document.getElementById('redirect-add').disabled = true;
                     // when 'save' is clicked, gather the field mappings and send those
                     // to the wufoo-silva app for storage
                     var fieldMappings = $(this.form).serializeArray(),
                             url = "{{ url_for('redirects.RedirectsView:new_redirect_submit') }}";
-
-                    $.ajaxSetup({url: url, data: fieldMappings, beforeSend:function (data) {
-                        loadTableForSearch($("#new-redirect-from").val(), 'from_path');
+                    $.ajaxSetup({ url: url, data: fieldMappings, success: function (data) {
+                        loadTableForSearch($('#new-redirect-from').val(), 'from_path');
                         document.getElementById('redirect-add').disabled = false;
                     }});
 
                 });
-                $("#form-save-button").append(input);
+                $("#redirect-add").append(input);
 
                 $("#modal-confirm").click(function () {
+
                     var from_path = {"from_path": $(this).attr('data-delete-path')};
                     var url = "{{ url_for('redirects.RedirectsView:delete_redirect') }}";
                     $.post(url, from_path, function (data) {
@@ -174,15 +174,15 @@
         })
         ;
     </script>
-{##}
-{#    Delete confirm modal#}
-{#    <div id="confirmModal" class="reveal-modal" data-reveal>#}
-{#        <h2>Are you sure you want to delete?</h2>#}
-{#        <p class="lead">The redirect will be gone forever and forever.</p>#}
-{##}
-{#        <button class="modal-confirm" id="modal-confirm" data-delete-path="/delete/path">Delete</button>#}
-{#        <a class="close-reveal-modal">&#215;</a>#}
-{#    </div>#}
+    {##}
+    {#    Delete confirm modal#}
+    {#    <div id="confirmModal" class="reveal-modal" data-reveal>#}
+    {#        <h2>Are you sure you want to delete?</h2>#}
+    {#        <p class="lead">The redirect will be gone forever and forever.</p>#}
+    {##}
+    {#        <button class="modal-confirm" id="modal-confirm" data-delete-path="/delete/path">Delete</button>#}
+    {#        <a class="close-reveal-modal">&#215;</a>#}
+    {#    </div>#}
 
 {% endblock %}
 
