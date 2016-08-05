@@ -23,7 +23,7 @@ class EventsView(FlaskView):
     def index(self):
         # todo: call traverse_xml() in tinker_controller
         # forms = self.base.get_forms_for_user(session['username'])
-        forms = self.base.traverse_xml(app.config['EVENTS_URL'], 'system-page')
+        forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         if 'Event Approver' in session['groups']:
             # todo: call traverse_xml() in tinker_controller
             event_approver_forms = self.base.traverse_xml()
@@ -153,7 +153,7 @@ class EventsView(FlaskView):
 
     def edit_all(self):
         type_to_find = 'system-page'
-        xml_url = app.config['EVENTS_URL']
+        xml_url = app.config['EVENTS_XML_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 
