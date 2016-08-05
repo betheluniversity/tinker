@@ -208,6 +208,9 @@ class TinkerController(object):
 
         return matches
 
+    def get_edit_data(self, asset_data):
+        pass
+
     def group_callback(self, node):
         pass
 
@@ -296,7 +299,7 @@ class TinkerController(object):
                 else:
                     return ''
                 
-    def get_add_data(self, lists, form, wysiwyg_keys):
+    def get_add_data(self, lists, form, wysiwyg_keys=[]):
         # A dict to populate with all the interesting data.
         add_data = {}
 
@@ -406,6 +409,25 @@ class TinkerController(object):
 
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow
+
+    def edit_all(self, type_to_find, xml_url):
+        assets_to_edit = self.traverse_xml(xml_url, type_to_find)
+        for page_values in assets_to_edit:
+            id = page_values['id']
+            if type_to_find == 'system-page':
+                asset = self.read_page(id)
+            elif type_to_find == 'system-block':
+                asset = self.read_block(id)
+            else:
+                continue
+
+            asset_data, mdata, sdata = asset.get_asset()
+            self.edit_all_callback(asset_data)
+            asset.edit_asset(asset_data)
+            asset.publish_asset()
+
+    def edit_all_callback(self, asset_data):
+        pass
 
     def clear_image_cache(self, image_path):
         # /academics/faculty/images/lundberg-kelsey.jpg"

@@ -245,5 +245,10 @@ class EAnnouncementsView(FlaskView):
         except:
             self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.", resp)
 
+    def edit_all(self):
+        type_to_find = 'system-block'
+        xml_url = app.config['E_ANN_URL']
+        self.base.edit_all(type_to_find, xml_url)
+        return 'success'
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)
