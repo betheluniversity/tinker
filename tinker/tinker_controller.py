@@ -26,10 +26,9 @@ from bu_cascade.assets.metadata_set import MetadataSet
 from bu_cascade.assets.data_definition import DataDefinition
 from bu_cascade.asset_tools import *
 
-from config.config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
-
 from tinker import app
 from tinker import sentry
+from tinker import cascade_connector
 
 from BeautifulSoup import BeautifulStoneSoup
 
@@ -83,7 +82,7 @@ def requires_auth(f):
 
 class TinkerController(object):
     def __init__(self):
-        self.cascade_connector = Cascade(SOAP_URL, AUTH, SITE_ID)
+        self.cascade_connector = cascade_connector
         self.datetime_format = "%B %d  %Y, %I:%M %p"
 
     def before_request(self):
@@ -209,6 +208,9 @@ class TinkerController(object):
 
         return matches
 
+    def get_edit_data(self, asset_data):
+        pass
+
     def group_callback(self, node):
         pass
 
@@ -294,6 +296,39 @@ class TinkerController(object):
                     return node['filePath']
                 else:
                     return ''
+                
+    def get_add_data(self, lists, form, wysiwyg_keys=[]):
+        # A dict to populate with all the interesting data.
+        add_data = {}
+
+        for key in form.keys():
+            if key in lists:
+                add_data[key] = form.getlist(key)
+            else:
+                if key in wysiwyg_keys:
+                    add_data[key] = self.escape_wysiwyg_content(form[key])
+                else:
+                    add_data[key] = form[key]
+
+        if 'title' in add_data:
+            title = add_data['title']
+        elif 'first' in add_data and 'last' in add_data:
+            title = add_data['first'] + ' ' + add_data['last']
+        else:
+            title = None
+
+        if title:
+            add_data['title'] = title
+
+            # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
+            system_name = title.lower().replace(' ', '-')
+            add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+            add_data['name'] = add_data['system_name']
+
+        # add author
+        add_data['author'] = session['username']
+
+        return add_data
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
@@ -364,12 +399,33 @@ class TinkerController(object):
 
     def update_asset(self, asset, data):
         for key, value in data.iteritems():
+            if key == 'exceptions':
+                print 'TEST'
             update(asset, key, value)
 
         return True
 
     def add_workflow_to_asset(self, workflow, data):
         data['workflowConfiguration'] = workflow
+
+    def edit_all(self, type_to_find, xml_url):
+        assets_to_edit = self.traverse_xml(xml_url, type_to_find)
+        for page_values in assets_to_edit:
+            id = page_values['id']
+            if type_to_find == 'system-page':
+                asset = self.read_page(id)
+            elif type_to_find == 'system-block':
+                asset = self.read_block(id)
+            else:
+                continue
+
+            asset_data, mdata, sdata = asset.get_asset()
+            self.edit_all_callback(asset_data)
+            asset.edit_asset(asset_data)
+            asset.publish_asset()
+
+    def edit_all_callback(self, asset_data):
+        pass
 
     def clear_image_cache(self, image_path):
         # /academics/faculty/images/lundberg-kelsey.jpg"
@@ -403,6 +459,8 @@ class TinkerController(object):
         return str(matches)
 
     def create_workflow(self, workflow_id, subtitle=None):
+        if not workflow_id:
+            return None
         asset = self.read(workflow_id, 'workflowdefinition')
 
         workflow_name = find(asset, 'name', False)
@@ -435,29 +493,6 @@ class TinkerController(object):
         """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
         text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
         return text
-
-
-    def get_add_data(self, lists, form, wysiwyg_keys = None):
-        # A dict to populate with all the interesting data.
-        add_data = {}
-
-        for key in form.keys():
-            if key in lists:
-                add_data[key] = form.getlist(key)
-            else:
-                if key in wysiwyg_keys:
-                    add_data[key] = self.escape_wysiwyg_content(form[key])
-                else:
-                    add_data[key] = form[key]
-
-        # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
-        system_name = add_data['title'].lower().replace(' ', '-')
-        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
-
-        # add author
-        add_data['author'] = session['username']
-
-        return add_data
 
     def element_tree_to_html(self, node):
         return_string = ''

@@ -33,6 +33,7 @@ class EAnnouncementsController(TinkerController):
         super(EAnnouncementsController, self).__init__()
         self.brm = BRM
 
+
     def inspect_child(self, child):
 
         try:
@@ -111,7 +112,6 @@ class EAnnouncementsController(TinkerController):
 
         # create workflow
         workflow = self.create_workflow(app.config['E_ANNOUNCEMENT_WORKFLOW_ID'], add_data['title'])
-        workflow = None
         self.add_workflow_to_asset(workflow, e_announcement_data)
 
         # if parent folder ID exists it will use that over path
@@ -171,3 +171,7 @@ class EAnnouncementsController(TinkerController):
         self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year + "/" + month, 'folder')
 
         return "/e-announcements/" + year + "/" + month
+
+    # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
+    def edit_all_callback(self, asset_data):
+        pass

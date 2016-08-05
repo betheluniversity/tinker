@@ -374,3 +374,7 @@ class EventsController(TinkerController):
             except TypeError:
                 pass
         return dates
+
+    # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
+    def edit_all_callback(self, asset_data):
+        pass

@@ -44,18 +44,11 @@ class FacultyBioView(FlaskView):
 
     def delete(self, page_id):
         self.base.delete(page_id, "page")
+        # todo: recreate this method....i like it.
         self.base.publish_faculty_bio_xml()
-
-        # todo: I believe we don't need to do these anymore. Double check this, though.
-        # Todo: only publish the corresponding faculty listing pages.
-        # self.base.publish([app.config['FACULTY_LISTING_CAPS_ID']], 'publishset')
-        # self.base.publish([app.config['FACULTY_LISTING_GS_ID']], 'publishset')
-        # self.base.publish([app.config['FACULTY_LISTING_SEM_ID']], 'publishset')
-        # self.base.publish([app.config['FACULTY_LISTING_CAS_ID']], 'publishset')
 
         return redirect('/faculty-bio/delete-confirm', code=302)
 
-    # todo: remove this 'route' line and use flask classy defaults
     @route('/delete-confirm', methods=['GET'])
     def delete_confirm(self):
         return render_template('faculty-bio-delete-confirm.html')
@@ -73,17 +66,9 @@ class FacultyBioView(FlaskView):
 
         return render_template('faculty-bio-form.html', **locals())
 
-    # todo: remove this 'route' line and use flask classy defaults
-    @route('/confirm-new', methods=['GET'])
-    def submit_confirm_new(self):
-        return render_template('faculty-bio-confirm-new.html')
+    def confirm(self):
+        return render_template('faculty-bio-confirm.html')
 
-    # todo: remove this 'route' line and use flask classy defaults
-    @route('/confirm-edit', methods=['GET'])
-    def submit_confirm_edit(self):
-        return render_template('faculty-bio-confirm-edit.html')
-
-    # todo: remove this 'route' line and use flask classy defaults
     @route('/in-workflow', methods=['GET'])
     def faculty_bio_in_workflow(self):
         return render_template('faculty-bio-in-workflow.html')
@@ -110,8 +95,8 @@ class FacultyBioView(FlaskView):
 
         # turn the image into the correct identifier
         edit_data['image_url'] = edit_data['image']
-        # todo: do what phil does in the 'new' route
-        edit_image = should_be_able_to_edit_image(roles)
+
+        edit_image = self.base.should_be_able_to_edit_image(roles)
 
         # Create an EventForm object with our data
         form = FacultyBioForm(**edit_data)
@@ -125,75 +110,47 @@ class FacultyBioView(FlaskView):
 
         return render_template('faculty-bio-form.html', **locals())
 
-    # Was submit_faculty_bio_form(), but renamed for simplification and FlaskClassy convention
     @route('/submit', methods=['POST'])
     def submit(self):
-        # import this here so we dont load all the content
-        # from cascade during homepage load
-        from forms import FacultyBioForm
-        form = FacultyBioForm()
 
         rform = request.form
         username = session['username']
-        title = self.base.create_title(rform)
-
-        degrees, degrees_good, num_degrees = self.base.check_degrees(rform)
-        new_jobs_good, num_new_jobs = self.base.check_job_titles(rform)
-        if not form.validate_on_submit() or (not new_jobs_good or not degrees_good):
-            if 'faculty_bio_id' in request.form.keys():
-                faculty_bio_id = request.form['faculty_bio_id']
-            else:
-                # This error came from the add form because event_id wasn't set
-                add_form = True
-
-            metadata = fjson.dumps(data_to_add)
-            return render_template('faculty-bio-form.html', **locals())
-
-        # Get all the form data
-        add_data = self.base.get_add_data(
-            ['school', 'department', 'adult_undergrad_program', 'graduate_program', 'seminary_program'], rform)
-
-        # Images
         groups = session['groups']
 
-        try:
-            image_name = form.image.data.filename
-        except AttributeError:
-            image_name = ""
-        if image_name != "":
-            image_name = add_data['system_name'] + '.jpg'
-            image_path = secure_filename(image_name)
+        faculty_bio_id = rform.get('faculty_bio_id')
 
-            form.image.data.save(app.config['UPLOAD_FOLDER'] + image_path)
+        failed = self.base.validate_form(rform)
+        if failed:
+            return failed
 
-            add_data['image_name'] = image_name
-            add_data['image_path'] = image_path
-
-        # End Images
-
-        faculty_bio_id = rform['faculty_bio_id']
-        if faculty_bio_id == "":
-            faculty_bio_id = None
-
-        workflow_id = self.base.get_correct_workflow_id(add_data)
-        workflow = self.base.create_workflow(workflow_id, subtitle=title)
-        asset = self.base.get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
-
+        # todo: finish putting the data in these functions
         if faculty_bio_id:
             # existing bio
-            block = self.base.read_block(app.config['FACULTY_BIO_XML_ID'])
-            resp = str(block.edit_asset(asset))
+            page = self.base.read_page(faculty_bio_id)
+            page_asset, mdata, sdata, = page.read_asset()
+            new_asset = self.base.update_structure(page_asset, sdata, rform, faculty_bio_id=faculty_bio_id)
+            resp = page.edit_asset(new_asset)
+
             log_sentry("Faculty bio edit submission", resp)
-            # publish corresponding pubish set to make sure corresponding pages get edits
-            if not workflow:
-                self.base.publish(faculty_bio_id, "page")
-            return render_template('faculty-bio-confirm-edit.html', **locals())
+            status = 'edit'
         else:
             # new bio
-            resp = self.base.create_faculty_bio(asset)
-            faculty_bio_id = resp.createdAssetId
-            if not workflow:
-                self.base.publish(faculty_bio_id, "page")
-            return render_template('faculty-bio-confirm-new.html', **locals())
+            base_asset_id = app.config['FACULTY_BIO_BASE_ASSET']
+            faculty_bio_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(base_asset_id, 'page')
+            asset = self.base.update_structure(faculty_bio_data, sdata, rform, faculty_bio_id=faculty_bio_id)
+            resp = self.base.create_page(asset)
+
+            log_sentry("Faculty bio new submission", resp)
+            status = 'new'
+
+        self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
+        return render_template('faculty-bio-confirm.html', **locals())
+
+    def edit_all(self):
+        type_to_find = 'system-page'
+        xml_url = app.config['FACULTY_BIOS_XML_URL']
+        self.base.edit_all(type_to_find, xml_url)
+        return 'success'
+
 
 FacultyBioView.register(FacultyBioBlueprint)

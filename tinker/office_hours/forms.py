@@ -13,6 +13,7 @@ class NextOpenField(Field):
 class NextCloseField(Field):
     widget = TextInput()
 
+
 class ExceptionsField(Field):
     widget = TextInput()
 

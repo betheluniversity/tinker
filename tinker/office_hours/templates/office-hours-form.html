@@ -16,12 +16,12 @@
 {% endblock %}
 
 {% macro CheckFieldLabel(field) -%}
-    {% if 'close' in field.name %}
+    {% if 'close' in field.name and 'next_closed_for_chapel' not in field.name %}
 {#    {% elif '_open' in field.name %}#}
     {% elif field.label.text != '' and field.type not in ['FormField', 'CSRFTokenField', 'ExceptionsField'] and not field.hidden %}
         <label for="{{ field.name }}">
            {{ field.label.text }}{% if field.flags.required %} * {% endif %}
-         </label>
+        </label>
         {% if field.description != '' %}
             <p>{{ field.description }}</p>
         {% endif %}
@@ -29,7 +29,7 @@
 
 {%  endmacro %}
 
-{% macro ExceptionsFeildset() -%}
+{% macro ExceptionsFieldset() -%}
 
     <fieldset class="exceptions-fieldset">
         <legend>Exception 1</legend>
@@ -46,6 +46,7 @@
                 </div>
     </fieldset>
     <a href="javascript:void(0);" id="add_exception_button" class="button tiny">Add Another Exception</a>
+    <a href="javascript:void(0);" id="remove_exception_button" style="display:none" class="button tiny alert">Remove Exception</a>
 
 {% endmacro %}
 
@@ -127,8 +128,12 @@
                 </fieldset>
 
             {% elif field.type == 'ExceptionsField' %}
-                {{ ExceptionsFeildset() }}
+                {{ ExceptionsFieldset() }}
 
+            {% elif field.type == 'RadioField' %}
+                {% for subfield in field %}
+                    <label>{{ subfield }}{{ subfield.label }}</label>
+                {% endfor %}
             {% else %}
               {{ field() }}
             {% endif %}
@@ -147,7 +152,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datepair.js/0.4.14/jquery.datepair.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css">
-{#    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/css/bootstrap-datepicker.standalone.css">#}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/css/bootstrap-datepicker.standalone.css">
 
 
     <script type="text/javascript">
@@ -156,7 +161,7 @@
             $('.time').timepicker({
                 'minTime': '6:00am',
                 'maxTime': '8:00pm',
-                'timeFormat': 'h:i a'
+                'timeFormat': 'h:i A'
             });
             $('.timeRange').datepair({
                 'defaultTimeDelta': 32400000
@@ -172,6 +177,27 @@
     </script>
 
     <script type="text/javascript">
+
+
+        $("#add_exception_button").on('click', function(){
+            var last = $(".exceptions-fieldset").last();
+            var old_num = last.children()[0].textContent.replace("Exception ", "");
+            var new_num = (parseInt(old_num) + 1);
+            var new_exception = newFieldset(new_num);
+            new_exception.insertAfter(last);
+            $("#remove_exception_button").show();
+            dateTimePickers();
+
+        });
+
+
+        $("#remove_exception_button").click(function(){
+            var list = $(".exceptions-fieldset");
+            if (list.length == 2){
+              $("#remove_exception_button").hide();
+            }
+            list.last().remove();
+        });
 
         function populateFieldset(id, exception){
             var dateid = '#date' + id;
