@@ -23,7 +23,7 @@ class FacultyBioView(FlaskView):
         forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
 
         # the faculty special admins should be able to see every bio, based on school.
-        if username in app.config['FACULTY_BIO_ADMINS']:
+        if username in app.config['FACULTY_BIOS_ADMINS']:
             show_special_admin_view = True
             show_create = True
 
@@ -135,7 +135,7 @@ class FacultyBioView(FlaskView):
             status = 'edit'
         else:
             # new bio
-            base_asset_id = app.config['FACULTY_BIO_BASE_ASSET']
+            base_asset_id = app.config['FACULTY_BIOS_BASE_ASSET']
             faculty_bio_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(base_asset_id, 'page')
             asset = self.base.update_structure(faculty_bio_data, sdata, rform, faculty_bio_id=faculty_bio_id)
             resp = self.base.create_page(asset)

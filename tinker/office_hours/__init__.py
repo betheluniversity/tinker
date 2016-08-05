@@ -45,7 +45,7 @@ class OfficeHoursView(FlaskView):
 
         username = session['username']
 
-        forms = self.base.traverse_xml(app.config['OFFICE_HOURS_URL'], 'system-block')
+        forms = self.base.traverse_xml(app.config['OFFICE_HOURS_XML_URL'], 'system-block')
 
         return render_template('index.html', **locals())
 

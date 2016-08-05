@@ -25,7 +25,7 @@ class FacultyBioController(TinkerController):
         iterate_bio = False
 
         # 1) admin
-        if username in app.config['FACULTY_BIO_ADMINS']:
+        if username in app.config['FACULTY_BIOS_ADMINS']:
             iterate_bio = True
 
         # 2) user's bio

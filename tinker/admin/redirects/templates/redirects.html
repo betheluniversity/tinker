@@ -164,7 +164,7 @@ var delay = (function(){
   <h2>Are you sure you want to delete?</h2>
   <p class="lead">The redirect will be gone forever and forever.</p>
 
-  <button class="modal-confirm" id="modal-confirm" data-delete-path="/delete/path">Delete</button>
+  <button class="modal-confirm" id="modal-confirm" data-delete-path="{{ url_for('redirects.RedirectsView:delete_redirect', path="path")}}">Delete</button>
   <a class="close-reveal-modal">&#215;</a>
 </div>
 

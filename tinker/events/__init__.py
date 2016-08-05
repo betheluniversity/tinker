@@ -133,7 +133,7 @@ class EventsView(FlaskView):
 
     def edit_all(self):
         type_to_find = 'system-page'
-        xml_url = app.config['EVENTS_URL']
+        xml_url = app.config['EVENTS_XML_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 
