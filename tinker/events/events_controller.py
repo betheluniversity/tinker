@@ -26,15 +26,33 @@ class EventsController(TinkerController):
             author = None
         username = session['username']
 
-        if author is not None and username == author:
+        if (author is not None and username == author) or 'Event Approver' in session['groups']:
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
                 # not a valid event page
-                print 'bad'
                 return None
         else:
             return None
+
+    def get_approver_forms(self, forms):
+        username = session['username']
+        user_forms = []
+        approver_forms = []
+        for form in forms:
+            if form['author'] == username:
+                user_forms.append(form)
+            else:
+                approver_forms.append(form)
+        return user_forms, approver_forms
+
+    def check_new_year_folder(self, event_id, add_data, username):
+        current_year = self.get_current_year_folder(event_id)
+        new_year = self.get_year_folder_value(add_data)
+        if new_year > current_year:
+            new_path = self.get_event_folder_path(add_data)
+            response = self.move(event_id, new_path[1])
+            app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(response))
 
     def _iterate_child_xml(self, child, author):
 
@@ -158,18 +176,6 @@ class EventsController(TinkerController):
             return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
                                 datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
 
-    # todo: replace with create_workflow
-    def get_event_publish_workflow(self, title="", username=""):
-        if title:
-            title = "-- %s" % title
-        workflow = {
-            "workflowName": "%s, %s at %s (%s)" %
-                            (title, time.strftime("%m-%d-%Y"), time.strftime("%I:%M %p"), username),
-            "workflowDefinitionId": "1ca9794e8c586513742d45fd39c5ffe3",
-            "workflowComments": "New event submission"
-        }
-        return workflow
-
     def get_dates(self, add_data):
         dates = []
 
@@ -215,7 +221,6 @@ class EventsController(TinkerController):
                 app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
                 end = None
 
-            # todo: it looks like the timezone code is not here (needs to be added in when the branch has timezone code)
             new_date = {'start-date': start, 'end-date': end, 'time-zone': time_zone}
 
             if all_day:
@@ -241,21 +246,6 @@ class EventsController(TinkerController):
                 new_data[key.replace("_", "-")] = add_data[key]
             except:
                 pass
-
-        # todo: images need to be added
-        # Todo: add image asset properly
-        # # Create Image asset
-        # if 'image' in add_data.keys() and add_data['image'] is not None and add_data['image'] != "":
-        #     image_node = {
-        #         'identifier': "image",
-        #         'filePath': "/" + add_data['image'],
-        #         'assetType': "file",
-        #         'type': "asset"
-        #     }
-        # else:
-        #     image_node = ""
-
-        # add_data['image'] = image_node
 
         # put it all into the final asset with the rest of the SOAP structure
         hide_site_nav, parent_folder_path = self.get_event_folder_path(new_data)
@@ -356,7 +346,6 @@ class EventsController(TinkerController):
         max_year = 0
         for date in dates:
             date_str = self.timestamp_to_date_str(date['end-date'])
-            # todo: can this call an already created function?
             end_date = datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
             try:
                 year = end_date.year
@@ -370,34 +359,6 @@ class EventsController(TinkerController):
 
     # Converts date dict to the date picker format that front-end tinker can read
     def format_dates_to_time_picker(self, dates):
-        # date_data = {}
-        # for date in dates:
-        #     for x, y in enumerate(date):
-        #         try:
-        #             if x == "all-day" and y == "::CONTENT-XML-CHECKBOX::No":
-        #                 continue
-        #             if x == "outside-of-minnesota" and y == "::CONTENT-XML-CHECKBOX::No":
-        #                 continue
-        #             else:
-        #                 date_data[x] = y
-        #         except KeyError:
-        #             break
-        #
-        # # if type(find(node, 'start-date')) == str or type(find(node, 'end-date')) == str:
-        # #     return date_data
-        # # If there is no date, these will fail
-        # try:
-        #     date_data['start-date'] = self.timestamp_to_date_str(date_data['start-date'])
-        # except TypeError:
-        #     pass
-        # except ValueError:
-        #     date_data['start-date'] = self.timestamp_to_date_str(int(date_data['start-date']))
-        # try:
-        #     date_data['end-date'] = self.timestamp_to_date_str(date_data['end-date'])
-        # except TypeError:
-        #     pass
-        # except ValueError:
-        #     date_data['start-date'] = self.timestamp_to_date_str(int(date_data['start-date']))
 
         for date in dates:
             if 'all_day' in date and (date['all_day'] == "::CONTENT-XML-CHECKBOX::No" or date['all_day'] == "::CONTENT-XML-CHECKBOX::"):
@@ -412,53 +373,7 @@ class EventsController(TinkerController):
                 date['end_date'] = self.timestamp_to_date_str(int(date['end_date']))
             except TypeError:
                 pass
-
-
         return dates
-
-    # todo: this can be deleted. we can just call the move function in tinker_controller
-    def move_event_year(self, event_id, data):
-        new_path = self.get_event_folder_path(data)
-        resp = self.move(event_id, new_path[1])
-        return resp
-
-    # todo: this should be deleted. We should be calling the create function in tinker_controller
-    def create(self, asset):
-        auth = app.config['CASCADE_LOGIN']
-        client = self.cascade_connector.get_client()
-
-        username = session['username']
-
-        response = client.service.create(auth, asset)
-
-        from tinker import sentry
-        # sentry.captureMessage()
-
-        client = sentry.client
-
-        client.extra_context({
-            'Time': time.strftime("%c"),
-            'Author': username,
-            'Response': str(response)
-        })
-
-        """
-
-        <complexType name="workflow-configuration">
-      <sequence>
-        <element maxOccurs="1" minOccurs="1" name="workflowName" type="xsd:string"/>
-        <choice>
-          <element maxOccurs="1" minOccurs="1" name="workflowDefinitionId" type="xsd:string"/>
-          <element maxOccurs="1" minOccurs="1" name="workflowDefinitionPath" type="xsd:string"/>
-        </choice>
-        <element maxOccurs="1" minOccurs="1" name="workflowComments" type="xsd:string"/>
-        <element maxOccurs="1" minOccurs="0" name="workflowStepConfigurations" type="impl:workflow-step-configurations"/>
-      </sequence>
-    </complexType>
-
-        """
-
-        return response
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
