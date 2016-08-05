@@ -25,9 +25,6 @@ class EventsView(FlaskView):
             forms, event_approver_forms = self.base.get_approver_forms(forms)
         return render_template('events-home.html', **locals())
 
-    def delete_confirm(self):
-        return render_template('events-delete-confirm.html', **locals())
-
     def confirm(self):
         return render_template('submit-confirm.html', **locals())
 
@@ -41,14 +38,6 @@ class EventsView(FlaskView):
         form = EventForm()
         add_form = True
         return render_template('event-form.html', **locals())
-
-    @route('/delete/<page_id>')
-    def delete_page(self, page_id):
-        event_page = self.base.read_page(page_id)
-        response = event_page.delete_asset()
-        app.logger.debug(time.strftime("%c") + ": New folder creation by " + session['username'] + " " + str(response))
-        self.base.publish(app.config['EVENT_XML_ID'])
-        return redirect(url_for('events.EventsView:delete_confirm'), code=302)
 
     @route('/edit/<event_id>')
     def edit_event_page(self, event_id):
