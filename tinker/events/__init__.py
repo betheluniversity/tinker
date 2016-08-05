@@ -113,10 +113,11 @@ class EventsView(FlaskView):
             self.base.log_sentry("Event edit submission", resp)
 
         # todo: ASK CALEB IF THIS IS OKAY.
-        if 'link' in add_data and add_data['link'] != "":
-            from tinker.admin.redirects import new_internal_redirect_submit
+        if 'link' in add_data and add_data['link']:
+            from tinker.admin.redirects import RedirectsView
+            view = RedirectsView()
             path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
-            new_internal_redirect_submit(path, add_data['link'])
+            view.new_internal_redirect_submit(path, add_data['link'])
 
         return redirect(url_for('events.EventsView:confirm'), code=302)
 

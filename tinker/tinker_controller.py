@@ -110,7 +110,7 @@ class TinkerController(object):
                 get_nav()
 
             if 'user_email' not in session.keys():
-                # todo, get prefered email (alias) from wsapi once its added ASK CALEB
+                # todo, get prefered email (alias) from wsapi once its added
                 session['user_email'] = session['username'] + "@bethel.edu"
 
             if 'name' not in session.keys():
@@ -204,7 +204,6 @@ class TinkerController(object):
                 if match:
                     matches.append(match)
 
-        # Todo: maybe add some parameter as a search? ASK CALEB
         # sort by created-on date.
         matches = sorted(matches, key=lambda k: k['created-on'])
 
@@ -302,6 +301,7 @@ class TinkerController(object):
 
     def create_page(self, asset):
         p = Page(self.cascade_connector, asset=asset)
+        return p
 
     def read(self, path_or_id, type):
         return self.cascade_connector.read(path_or_id, type)
@@ -424,7 +424,7 @@ class TinkerController(object):
             htmlent = self.__unicode_to_html_entities__(uni)
             return htmlent
         else:
-            return ""
+            return None
 
     def __html_entities_to_unicode__(self, text):
         """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
