@@ -147,10 +147,10 @@ class FacultyBioView(FlaskView):
         return render_template('faculty-bio-confirm.html', **locals())
 
     def edit_all(self):
-        type_to_find = 'system-block'
-        xml_url = app.config['E_ANN_URL']
+        type_to_find = 'system-page'
+        xml_url = app.config['FACULTY_BIOS_XML_URL']
         self.base.edit_all(type_to_find, xml_url)
-        return 'Hello world!'
+        return 'success'
 
 
 FacultyBioView.register(FacultyBioBlueprint)

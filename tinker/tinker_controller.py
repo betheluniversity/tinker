@@ -376,22 +376,22 @@ class TinkerController(object):
         data['workflowConfiguration'] = workflow
 
     def edit_all(self, type_to_find, xml_url):
-        #form_to_edit is the dictionary created by traverse xml
-        forms_to_edit = self.traverse_xml(xml_url, type_to_find)
-        for page_values in forms_to_edit:
+        assets_to_edit = self.traverse_xml(xml_url, type_to_find)
+        for page_values in assets_to_edit:
             id = page_values['id']
-            block = id
             if type_to_find == 'system-page':
-                block = self.read_page(id)
+                asset = self.read_page(id)
             elif type_to_find == 'system-block':
-                block = self.read_block(id)
-            block_asset, mdata, sdata = block.get_asset()
-            #The dictionary should be editedfor whatever asset needs to be edited over all
-            dictionary = {'author': 'Something else'}
-            self.edit_all_callback(block_asset, dictionary)
-            block.edit()
+                asset = self.read_block(id)
+            else:
+                continue
 
-    def edit_all_callback(self, child, author, edit_data, xml_url, forms_to_edit):
+            asset_data, mdata, sdata = asset.get_asset()
+            self.edit_all_callback(asset_data)
+            asset.edit_asset(asset_data)
+            asset.publish_asset()
+
+    def edit_all_callback(self, asset_data):
         pass
 
     def clear_image_cache(self, image_path):

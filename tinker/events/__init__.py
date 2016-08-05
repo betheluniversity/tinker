@@ -155,6 +155,6 @@ class EventsView(FlaskView):
         type_to_find = 'system-page'
         xml_url = app.config['EVENTS_URL']
         self.base.edit_all(type_to_find, xml_url)
-        return 'Hello world!'
+        return 'success'
 
 EventsView.register(EventsBlueprint)

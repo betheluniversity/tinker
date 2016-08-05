@@ -161,12 +161,6 @@ class EAnnouncementsController(TinkerController):
         edit_data['first_readonly'] = first_readonly
         edit_data['second_readonly'] = second_readonly
 
-    def edit_all_callback(self, asset, dictionary):
-        #Uncomment the pass below when this is not being used
-        pass
-        #self.update_asset(asset, dictionary)
-
-
     def get_e_announcement_parent_folder(self, date):
         # break the date into Year/month
         split_date = date.split("-")
@@ -177,3 +171,7 @@ class EAnnouncementsController(TinkerController):
         self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year + "/" + month, 'folder')
 
         return "/e-announcements/" + year + "/" + month
+
+    # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
+    def edit_all_callback(self, asset_data):
+        pass

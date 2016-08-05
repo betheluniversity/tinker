@@ -460,7 +460,6 @@ class EventsController(TinkerController):
 
         return response
 
-    def edit_all_callback(self, asset, dictionary):
-        #Uncomment the pass below when this is not being used
+    # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
+    def edit_all_callback(self, asset_data):
         pass
-        #self.update_asset(asset, dictionary)
