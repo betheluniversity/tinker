@@ -4,31 +4,26 @@ import logging
 from flask import Flask
 
 # flask extensions
-from flask.ext.cache import Cache
 from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.cors import CORS
 from raven.contrib.flask import Sentry
 from flask_wtf.csrf import CsrfProtect
+from bu_cascade.cascade_connector import Cascade
 
 app = Flask(__name__)
 app.config.from_object('config.config')
 db = SQLAlchemy(app)
-cors = CORS(app)
 
-sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
+cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
 
-# todo: is this used?
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-cache.init_app(app)
+sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
 
-# todo: is this used?
 # create logging
 if not app.debug:
-    import logging
     from logging import FileHandler
     file_handler = FileHandler(app.config['INSTALL_LOCATION'] + '/error.log')
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.DEBUG)
+
 
 # New importing of routes and blueprints
 from tinker.views import BaseBlueprint
@@ -55,6 +50,5 @@ app.register_blueprint(OfficeHoursBlueprint)
 
 CsrfProtect(app)
 
-# todo: is this used?
-# Import error handling
+# Import global HTTP error code handling
 import error

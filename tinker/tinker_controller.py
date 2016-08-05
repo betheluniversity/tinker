@@ -28,6 +28,7 @@ from bu_cascade.asset_tools import *
 
 from tinker import app
 from tinker import sentry
+from tinker import cascade_connector
 
 from BeautifulSoup import BeautifulStoneSoup
 
@@ -81,10 +82,11 @@ def requires_auth(f):
 
 class TinkerController(object):
     def __init__(self):
-        self.cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
+        self.cascade_connector = cascade_connector
         self.datetime_format = "%B %d  %Y, %I:%M %p"
 
     def before_request(self):
+
         def init_user():
 
             dev = current_app.config['ENVIRON'] != 'prod'
