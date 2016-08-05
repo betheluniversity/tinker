@@ -299,7 +299,7 @@ class TinkerController(object):
                 else:
                     return ''
                 
-    def get_add_data(self, lists, form, wysiwyg_keys):
+    def get_add_data(self, lists, form, wysiwyg_keys=[]):
         # A dict to populate with all the interesting data.
         add_data = {}
 
