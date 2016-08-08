@@ -1,3 +1,7 @@
+.redirect-row{
+    cursor: pointer;
+}
+
 .publish-head {
     margin-left: 10px;
 }
@@ -225,7 +229,7 @@ textarea {
 }
 
 .modal-backdrop {
-    z-index: 0;
+    z-index: -1;
 }
 
 /* todo: come up with a way to generalize these tags */

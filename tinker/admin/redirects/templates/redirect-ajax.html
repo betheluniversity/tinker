@@ -1,5 +1,5 @@
 {% for redirect in redirects %}
-  <tr class="redirect-row table-hover">
+  <tr class="redirect-row table-hover" data-reveal-id="confirmModal" data-toggle="modal" data-target="#myModal">
     <td>
         <span class="from_path">{{ redirect.from_path }}</span>
         {% if redirect.short_url %}

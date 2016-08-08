@@ -121,231 +121,237 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
     <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
     <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
     <script type="text/javascript">
 
-        $('#registration_heading').change(function () {
-            var headingValue = $('#registration_heading').val();
-
-            if (headingValue == 'Registration') {
-                $('#wufoo_code').show();
-                $("label[for='wufoo_code']").show();
-                $('#ticketing_url').hide();
-                $("label[for='ticketing_url']").hide();
-            } else if (headingValue == 'Ticketing') {
-                $('#wufoo_code').hide();
-                $("label[for='wufoo_code']").hide();
-                $('#ticketing_url').show();
-                $("label[for='ticketing_url']").show();
-            } else {
-                $('#wufoo_code').hide();
-                $("label[for='wufoo_code']").hide();
-                $('#ticketing_url').hide();
-                $("label[for='ticketing_url']").hide();
-            }
-        });
-        // force the heading to call the change function
-        $('#registration_heading').change();
-
-        function newFieldset(id) {
-            var start = 'start' + id;
-            var end = 'end' + id;
-            var all = 'allday' + id;
-            var time = 'timezone' + id;
-            var out = 'needtimezone' + id;
-            var check = 'checkNeedTimezone(' + id + ')';
-            var timelabel = 'timezonelabel' + id;
-            var fieldset_node = $('<fieldset>').addClass('date-fieldset');
-            var inner_node = $("<div>").addClass('content');
-            inner_node.append($("<legend>").html("Date " + id));
-            inner_node.append($("<div>").addClass('checkbox')
-                    .append($('<span>').addClass('icons')
-                            .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-square').addClass('fa-base'))
-                            .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-check-square').addClass('fa-base')))
-                    .append("<input type='checkbox'>").attr('name', all).attr('id', all).addClass('alldaycheck')
-                    .append($("<label>").attr('for', all).html("All Day").addClass('checkbox-radio-label')));
-            inner_node.append($("<label>").attr('for', start).html("Start Date"));
-            inner_node.append($("<input type='text'>").attr('name', start).attr('id', start).addClass("datepicker"));
-            inner_node.append($("<label>").attr('for', end).html("End Date"));
-            inner_node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
-            inner_node.append($("<div>").addClass('checkbox')
-                    .append($('<span>').addClass('icons')
-                            .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-square').addClass('fa-base'))
-                            .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-check-square').addClass('fa-base')))
-                    .append($("<input type='checkbox'>").attr('name', out).attr('id', out).attr('class', 'needtimezonecheck').attr('onclick', check))
-                    .append($("<label>").attr('for', out).html("Outside of Minnesota?")));
-            inner_node.append($("<label>").attr('for', time).attr('style', 'display: none').attr('id', timelabel).html("Timezone"));
-            inner_node.append($("<select>").attr('name', time).attr('id', time).attr('class', 'timezoneselect').attr('style', 'display: none').html($("<option value>-select-</option><option value='Pacific Time'>Pacific Time</option><option value='Mountain Time'>Mountain Time</option><option value='Central Time'>Central Time</option><option value='Eastern Time'>Eastern Time</option>")));
-
-            fieldset_node.append($("<div>").addClass('card').append(inner_node));
-
-            return fieldset_node;
-        }
-
-        function populateFieldset(id, allday, start, end, out, timezone) {
-            var startid = '#start' + id;
-            var endid = '#end' + id;
-            var alldayid = '#allday' + id;
-            var outid = '#needtimezone' + id;
-            var timezoneid = '#timezone' + id;
-            $(startid).val(start);
-            $(endid).val(end);
-            $(timezoneid).val(timezone);
-            if (allday) {
-                $(alldayid).prop('checked', true);
-            }
-            if (out) {
-                $(outid).prop('checked', true);
-                checkNeedTimezone(id)
-            }
-        }
-
-        function checkNeedTimezone(id) {
-            var out = 'needtimezone' + id;
-            var time = 'timezone' + id;
-            var timelabel = 'timezonelabel' + id;
-            if (document.getElementById(out).checked) {
-                document.getElementById(time).style.display = "inline-block";
-                document.getElementById(timelabel).style.display = "block";
-            }
-            else {
-                document.getElementById(time).style.display = "none";
-                document.getElementById(timelabel).style.display = "none";
-            }
-        }
-
-        function testOffCampusLocation() {
-            var location = $("#location")[0];
-            var val = location.options[location.selectedIndex].innerHTML;
-            if (val == "Off Campus") {
-                $("#off_location_wrap").show();
-                $("#on_campus_wrap").hide();
-                $("#other_wrap").hide();
-            }
-            else {
-                $("#off_location_wrap").hide();
-                $("#on_campus_wrap").show();
-                $("#other_wrap").show();
-            }
-        }
-
-        function createPicker(fieldset) {
-            // fieldset is a "Date x" fieldset from the form.
-            var picker = new Pikaday({
-                field: fieldset.find('.datepicker')[0],
-                format: 'MMMM Do YYYY, h:mm a',
-                showTime: true
-            });
-            var picker = new Pikaday({
-                field: fieldset.find('.datepicker')[1],
-                format: 'MMMM Do YYYY, h:mm a',
-                showTime: true
-            });
-        }
-
         $(document).ready(function () {
-            $('.datepicker').each(function (index) {
+            var csrftoken = "{{ csrf_token() }}";
+            activateCSRF(csrftoken);
+
+            $('#registration_heading').change(function () {
+                var headingValue = $('#registration_heading').val();
+
+                if (headingValue == 'Registration') {
+                    $('#wufoo_code').show();
+                    $("label[for='wufoo_code']").show();
+                    $('#ticketing_url').hide();
+                    $("label[for='ticketing_url']").hide();
+                } else if (headingValue == 'Ticketing') {
+                    $('#wufoo_code').hide();
+                    $("label[for='wufoo_code']").hide();
+                    $('#ticketing_url').show();
+                    $("label[for='ticketing_url']").show();
+                } else {
+                    $('#wufoo_code').hide();
+                    $("label[for='wufoo_code']").hide();
+                    $('#ticketing_url').hide();
+                    $("label[for='ticketing_url']").hide();
+                }
+            });
+            // force the heading to call the change function
+            $('#registration_heading').change();
+
+            function newFieldset(id) {
+                var start = 'start' + id;
+                var end = 'end' + id;
+                var all = 'allday' + id;
+                var time = 'timezone' + id;
+                var out = 'needtimezone' + id;
+                var check = 'checkNeedTimezone(' + id + ')';
+                var timelabel = 'timezonelabel' + id;
+                var fieldset_node = $('<fieldset>').addClass('date-fieldset');
+                var inner_node = $("<div>").addClass('content');
+                inner_node.append($("<legend>").html("Date " + id));
+                inner_node.append($("<div>").addClass('checkbox')
+                        .append($('<span>').addClass('icons')
+                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-square').addClass('fa-base'))
+                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-check-square').addClass('fa-base')))
+                        .append("<input type='checkbox'>").attr('name', all).attr('id', all).addClass('alldaycheck')
+                        .append($("<label>").attr('for', all).html("All Day").addClass('checkbox-radio-label')));
+                inner_node.append($("<label>").attr('for', start).html("Start Date"));
+                inner_node.append($("<input type='text'>").attr('name', start).attr('id', start).addClass("datepicker"));
+                inner_node.append($("<label>").attr('for', end).html("End Date"));
+                inner_node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
+                inner_node.append($("<div>").addClass('checkbox')
+                        .append($('<span>').addClass('icons')
+                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-square').addClass('fa-base'))
+                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-check-square').addClass('fa-base')))
+                        .append($("<input type='checkbox'>").attr('name', out).attr('id', out).attr('class', 'needtimezonecheck').attr('onclick', check))
+                        .append($("<label>").attr('for', out).html("Outside of Minnesota?")));
+                inner_node.append($("<label>").attr('for', time).attr('style', 'display: none').attr('id', timelabel).html("Timezone"));
+                inner_node.append($("<select>").attr('name', time).attr('id', time).attr('class', 'timezoneselect').attr('style', 'display: none').html($("<option value>-select-</option><option value='Pacific Time'>Pacific Time</option><option value='Mountain Time'>Mountain Time</option><option value='Central Time'>Central Time</option><option value='Eastern Time'>Eastern Time</option>")));
+
+                fieldset_node.append($("<div>").addClass('card').append(inner_node));
+
+                return fieldset_node;
+            }
+
+            function populateFieldset(id, allday, start, end, out, timezone) {
+                var startid = '#start' + id;
+                var endid = '#end' + id;
+                var alldayid = '#allday' + id;
+                var outid = '#needtimezone' + id;
+                var timezoneid = '#timezone' + id;
+                $(startid).val(start);
+                $(endid).val(end);
+                $(timezoneid).val(timezone);
+                if (allday) {
+                    $(alldayid).prop('checked', true);
+                }
+                if (out) {
+                    $(outid).prop('checked', true);
+                    checkNeedTimezone(id)
+                }
+            }
+
+            function checkNeedTimezone(id) {
+                var out = 'needtimezone' + id;
+                var time = 'timezone' + id;
+                var timelabel = 'timezonelabel' + id;
+                if (document.getElementById(out).checked) {
+                    document.getElementById(time).style.display = "inline-block";
+                    document.getElementById(timelabel).style.display = "block";
+                }
+                else {
+                    document.getElementById(time).style.display = "none";
+                    document.getElementById(timelabel).style.display = "none";
+                }
+            }
+
+            function testOffCampusLocation() {
+                var location = $("#location")[0];
+                var val = location.options[location.selectedIndex].innerHTML;
+                if (val == "Off Campus") {
+                    $("#off_location_wrap").show();
+                    $("#on_campus_wrap").hide();
+                    $("#other_wrap").hide();
+                }
+                else {
+                    $("#off_location_wrap").hide();
+                    $("#on_campus_wrap").show();
+                    $("#other_wrap").show();
+                }
+            }
+
+            function createPicker(fieldset) {
+                // fieldset is a "Date x" fieldset from the form.
                 var picker = new Pikaday({
-                    field: this,
+                    field: fieldset.find('.datepicker')[0],
                     format: 'MMMM Do YYYY, h:mm a',
                     showTime: true
                 });
-            });
+                var picker = new Pikaday({
+                    field: fieldset.find('.datepicker')[1],
+                    format: 'MMMM Do YYYY, h:mm a',
+                    showTime: true
+                });
+            }
+
+            $(document).ready(function () {
+                $('.datepicker').each(function (index) {
+                    var picker = new Pikaday({
+                        field: this,
+                        format: 'MMMM Do YYYY, h:mm a',
+                        showTime: true
+                    });
+                });
 
 
-            {% if dates %}
-                var dates = {{ dates|safe }};
-                var i = 0;
-                while (i < 200) {
+                {% if dates %}
+                    var dates = {{ dates|safe }};
+                    var i = 0;
+                    while (i < 200) {
 
-                    date = dates[i];
-                    if (!date) {
-                        break;
+                        date = dates[i];
+                        if (!date) {
+                            break;
+                        }
+                        //Convert to correct value
+                        id = i + 1;
+
+                        //If this is not the first node, create it before we can populate it and insert after the last one.
+                        //show the remove buton
+                        if (i != 0) {
+                            var last = $(".date-fieldset").last();
+                            var new_date = newFieldset(id);
+                            new_date.insertAfter(last);
+                            $("#remove_date_button").show();
+                        }
+                        //Now populate the fieldset
+                        var allday = date['all_day'];
+                        if (allday && allday.substr(-3) == "Yes") {
+                            allday = true;
+                        }
+                        populateFieldset(id, allday, date['start_date'], date['end_date'], date['outside_of_minnesota'], date['time_zone']);
+                        //no infinite loops today
+                        i++;
+
                     }
-                    //Convert to correct value
-                    id = i + 1;
 
-                    //If this is not the first node, create it before we can populate it and insert after the last one.
-                    //show the remove buton
-                    if (i != 0) {
-                        var last = $(".date-fieldset").last();
-                        var new_date = newFieldset(id);
-                        new_date.insertAfter(last);
-                        $("#remove_date_button").show();
+                {% endif %}
+                {% if dates_good == False %}
+                    $('<div class="error-alert"><div data-alert="" class="red-alert">Event Dates are Required<a href="#" class="close">×</a></div></div>').insertBefore(".date-fieldset");
+                {% endif %}
+
+                {% if form.errors or not dates_good and num_dates %}
+                    var event_dates = {{ event_dates|safe }};
+                    var tt = {{ num_dates }};
+                    for (var i = 1; i < {{ num_dates + 1}}; i++) {
+                        if (i == 1) {
+                            $('#allday1').prop('checked', event_dates['allday1']);
+                            $('#start1').val(event_dates['start1']);
+                            $('#end1').val(event_dates['end1']);
+                        } else {
+                            newFieldset(i);
+                            var fieldsets = $(".date-fieldset");
+                            var last = fieldsets.last();
+                            newFieldset(i).insertAfter(last);
+                            $('#allday' + i).prop('checked', event_dates['allday' + i]);
+                            $('#start' + i).val(event_dates['start' + i]);
+                            $('#end' + i).val(event_dates['end' + i]);
+                        }
                     }
-                    //Now populate the fieldset
-                    var allday = date['all_day'];
-                    if (allday && allday.substr(-3) == "Yes") {
-                        allday = true;
+
+                {% endif %}
+
+                $("#add_date_button").click(function () {
+                    var fieldsets = $(".date-fieldset");
+                    var last = fieldsets.last();
+                    var old_num = last.children()[0].textContent.replace("Date ", ""); // "Date X" is the variable name, where X is an integer.
+                    var new_num = (parseInt(old_num) + 1);
+                    var new_date = newFieldset(new_num);
+                    new_date.insertAfter(last);
+                    $("#remove_date_button").show();
+                    createPicker(new_date);
+                });
+
+                $("#remove_date_button").click(function () {
+                    var list = $(".date-fieldset");
+                    var length = list.length;
+                    //Hide remove button if there will only be one date left
+                    if (length == 2) {
+                        $("#remove_date_button").hide();
                     }
-                    populateFieldset(id, allday, date['start_date'], date['end_date'], date['outside_of_minnesota'], date['time_zone']);
-                    //no infinite loops today
-                    i++;
+                    list.last().remove();
+                });
+                $("#location").change(function () {
+                    testOffCampusLocation();
+                });
 
-                }
+                $("#eventform").submit(function () {
+                    //add a hidden field with the number of dates
+                    var dates = $(".date-fieldset");
+                    var input = $("<input>").attr("type", "hidden").attr("name", "num_dates").val(dates.length);
+                    $("#eventform").append(input);
+                    return true;
 
-            {% endif %}
-            {% if dates_good == False %}
-                $('<div class="error-alert"><div data-alert="" class="red-alert">Event Dates are Required<a href="#" class="close">×</a></div></div>').insertBefore(".date-fieldset");
-            {% endif %}
+                });
 
-            {% if form.errors or not dates_good and num_dates %}
-                var event_dates = {{ event_dates|safe }};
-                var tt = {{ num_dates }};
-                for (var i = 1; i < {{ num_dates + 1}}; i++) {
-                    if (i == 1) {
-                        $('#allday1').prop('checked', event_dates['allday1']);
-                        $('#start1').val(event_dates['start1']);
-                        $('#end1').val(event_dates['end1']);
-                    } else {
-                        newFieldset(i);
-                        var fieldsets = $(".date-fieldset");
-                        var last = fieldsets.last();
-                        newFieldset(i).insertAfter(last);
-                        $('#allday' + i).prop('checked', event_dates['allday' + i]);
-                        $('#start' + i).val(event_dates['start' + i]);
-                        $('#end' + i).val(event_dates['end' + i]);
-                    }
-                }
-
-            {% endif %}
-
-            $("#add_date_button").click(function () {
-                var fieldsets = $(".date-fieldset");
-                var last = fieldsets.last();
-                var old_num = last.children()[0].textContent.replace("Date ", ""); // "Date X" is the variable name, where X is an integer.
-                var new_num = (parseInt(old_num) + 1);
-                var new_date = newFieldset(new_num);
-                new_date.insertAfter(last);
-                $("#remove_date_button").show();
-                createPicker(new_date);
-            });
-
-            $("#remove_date_button").click(function () {
-                var list = $(".date-fieldset");
-                var length = list.length;
-                //Hide remove button if there will only be one date left
-                if (length == 2) {
-                    $("#remove_date_button").hide();
-                }
-                list.last().remove();
-            });
-            $("#location").change(function () {
+                //Test this right away if we are editing because the callback won't fire
                 testOffCampusLocation();
-            });
 
-            $("#eventform").submit(function () {
-                //add a hidden field with the number of dates
-                var dates = $(".date-fieldset");
-                var input = $("<input>").attr("type", "hidden").attr("name", "num_dates").val(dates.length);
-                $("#eventform").append(input);
-                return true;
 
             });
-
-            //Test this right away if we are editing because the callback won't fire
-            testOffCampusLocation();
-
-
         });
 
     </script>
