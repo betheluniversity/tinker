@@ -37,7 +37,7 @@ def get_md(metadata_path):
 
 def get_event_choices():
 
-    data = get_md("/Event")
+    data = get_md("/Events")
 
     md = {}
     for item in data:

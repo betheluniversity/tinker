@@ -38,7 +38,7 @@ from tinker.admin.sync import SyncBlueprint
 from tinker.admin.publish import PublishManagerBlueprint
 from tinker.admin.redirects import RedirectsBlueprint
 from tinker.e_announcements import EAnnouncementsBlueprint
-from tinker.faculty_bio import FacultyBioBlueprint
+from tinker.faculty_bios import FacultyBioBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
 from tinker.events import EventsBlueprint
 

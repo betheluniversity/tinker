@@ -290,19 +290,19 @@ def get_client():
         abort(503)
 
 
-def publish_event_xml():
+def publish_events_xml():
 
     # publish the event XML page
-    publish(app.config['EVENT_XML_ID'])
+    publish(app.config['EVENTS_XML_ID'])
 
 
-def publish_faculty_bio_xml():
+def publish_faculty_bios_xml():
 
     # publish the event XML page
-    publish(app.config['FACULTY_BIO_XML_ID'])
+    publish(app.config['FACULTY_BIOS_XML_ID'])
 
 
-def publish_e_announcement_xml():
+def publish_e_announcements_xml():
 
     # publish the event XML page
     publish(app.config['E_ANNOUNCEMENTS_XML_ID'])

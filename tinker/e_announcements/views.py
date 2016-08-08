@@ -107,7 +107,7 @@ def edit_e_announcement(e_announcement_id):
     # This dict will populate our EventForm object
     dates, edit_data = get_announcement_data(dynamic_fields, metadata, s_data) # Create an EventForm object with our data
     form = EAnnouncementsForm(**edit_data)
-    form.e_announcement_id = e_announcement_id
+    form.e_announcements_id = e_announcement_id
 
     # convert dates to json so we can use Javascript to create custom DateTime fields on the form
     dates = fjson.dumps(dates)
@@ -188,7 +188,7 @@ def submit_e_announcement_form():
             # This error came from the add form because e-annoucnements_id wasn't set
             new_form = True
 
-        app.logger.debug(time.strftime("%c") + ": E-Announcement submission failed by  " + username + ". Submission could not be validated")
+        app.logger.debug(time.strftime("%c") + ": E-Announcements submission failed by  " + username + ". Submission could not be validated")
 
         # bring in the mapping
         banner_roles_mapping = get_banner_roles_mapping()
@@ -197,24 +197,24 @@ def submit_e_announcement_form():
 
     # Get all the form data
     add_data = get_add_data(['banner_roles'], rform)
-    if 'e_announcement_id' in rform:
-        e_announcement_id = rform['e_announcement_id']
+    if 'e_announcements_id' in rform:
+        e_announcements_id = rform['e_announcements_id']
     else:
-        e_announcement_id = None
+        e_announcements_id = None
 
-    workflow = get_e_announcement_publish_workflow(title)
-    asset = get_e_announcement_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcement_id)
+    workflow = get_e_announcements_publish_workflow(title)
+    asset = get_e_announcements_structure(add_data, username, workflow=workflow, e_announcement_id=e_announcements_id)
 
     if e_announcement_id:
         resp = edit(asset)
-        log_sentry("E-Announcement edit submission", resp)
-        return redirect('/e-announcement/edit/confirm', code=302)
+        log_sentry("E-Announcements edit submission", resp)
+        return redirect('/e-announcements/edit/confirm', code=302)
     else:
         resp = create_e_announcement(asset)
 
-    log_sentry('New e-announcement submission', resp)
+    log_sentry('New e-announcements submission', resp)
 
-    return redirect('/e-announcement/new/confirm', code=302)
+    return redirect('/e-announcements/new/confirm', code=302)
 
 
 @e_announcements_blueprint.route('/view/<block_id>')

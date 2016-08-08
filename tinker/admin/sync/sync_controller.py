@@ -47,7 +47,7 @@ class SyncController(TinkerController):
     def get_metadata_sets_mapping(self):
         metadata_sets_mapping = {}
         metadata_sets = [
-            app.config['METADATA_EVENT_ID'],
+            app.config['METADATA_EVENTS_ID'],
             app.config['METADATA_ROBUST_ID'],
             app.config['METADATA_JOB_POSTING_ID'],
             app.config['METADATA_PORTAL_ROLES_ID']
@@ -74,16 +74,16 @@ class SyncController(TinkerController):
             data_definition_asset, empty_variable, empty_variable = asset.get_asset()
 
             # Faculty bios need '&' replaced by 'and'
-            faculty_bio_schools = []
-            if data_definition_id == app.config['DATA_DEF_FACULTY_BIO_ID']:
+            faculty_bios_schools = []
+            if data_definition_id == app.config['DATA_DEF_FACULTY_BIOS_ID']:
                 for school in data_to_add['school']:
-                    faculty_bio_schools.append(school.replace('&', 'and'))
+                    faculty_bios_schools.append(school.replace('&', 'and'))
             else:
-                faculty_bio_schools = data_to_add['school']
+                faculty_bios_schools = data_to_add['school']
 
             # Attempt to update each applicable key/value for a data definition.
             # If it doesn't find the field, it returns None
-            returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'school', faculty_bio_schools))
+            returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'school', faculty_bios_schools))
             returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'department', data_to_add['department']))
             returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'adult-undergrad-program', data_to_add['adult-undergrad-program']))
             returned_keys.append(asset_tools.update_data_definition(data_definition_asset, 'graduate-program', data_to_add['graduate-program']))
@@ -105,7 +105,7 @@ class SyncController(TinkerController):
     def get_data_definitions_mapping(self):
         data_definition_mapping = {}
         data_definitions = [
-            app.config['DATA_DEF_FACULTY_BIO_ID'],
+            app.config['DATA_DEF_FACULTY_BIOSID'],
             app.config['DATA_DEF_PROGRAM_FEED_ID'],
             app.config['DATA_DEF_PROGRAM_BLOCK_ID'],
             app.config['DATA_DEF_PORTAL_CHANNEL_ID'],

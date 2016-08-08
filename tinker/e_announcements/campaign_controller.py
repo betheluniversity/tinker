@@ -17,7 +17,7 @@ class CampaignController(TinkerController):
             else:
                 return_value += '[elseif:%s=Y]' % prepended_role
 
-            return_value += self.e_announcement_html(announcement)
+            return_value += self.e_announcements_html(announcement)
             count = count + 1
 
         return_value += '[endif]'
@@ -25,7 +25,7 @@ class CampaignController(TinkerController):
         return return_value
 
     # builds the html
-    def e_announcement_html(self, announcement):
+    def e_announcements_html(self, announcement):
         title = announcement['title']
         message = announcement['message']
         return render_template('announcement.html', **locals())
