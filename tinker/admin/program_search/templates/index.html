@@ -15,7 +15,19 @@
                 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 <div class="large-6 columns">
                     <label for="key">Concentration Code or Program Name:</label>
-                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />
+{#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
+                    <select name="key" id="search-key" class="search-input">
+                        <option value="">Any</option>
+                        {% for school_label in school_labels %}
+                            <optgroup label="{{ school_label }}">
+                            {% for program_concentration in program_concentrations %}
+                                {% if program_concentration.school == school_label %}
+                                    <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
                     <label for="tag">Tag:</label>
                     <input type="text" name="tag" id='search-tag' class='search-input' placeholder="Filter Tag" />
                 </div>
@@ -42,11 +54,12 @@
         <table>
             <thead>
                 <tr>
-                    <th>Concentration Code or Program Name</th>
+                    <th>Program Concentration</th>
                     <th>Tag</th>
                     <th>Outcome</th>
                     <th>Topic</th>
                     <th>Other</th>
+                    <th><a class="button" id="delete-all">Delete</a></th>
                 </tr>
             </thead>
             <tbody id="table-body">
@@ -64,74 +77,72 @@
   <button class="modal-confirm" id="modal-confirm" data-delete-path="">Delete</button>
   <a class="close-reveal-modal">&#215;</a>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
     {#  Script to update the modal submit to delete the correct form#}
     <script src="/static/csrf-activator.js"></script>
     <script type="text/javascript">
-{#        $(document).ready(function() {#}
-            var csrftoken = "{{ csrf_token() }}";
-            activateCSRF(csrftoken);
+        var csrftoken = "{{ csrf_token() }}";
+        activateCSRF(csrftoken);
 
-            var delay = (function () {
-                var timer = 0;
-                return function (callback, ms) {
-                    clearTimeout(timer);
-                    timer = setTimeout(callback, ms);
-                };
-            })();
+        var delay = (function () {
+            var timer = 0;
+            return function (callback, ms) {
+                clearTimeout(timer);
+                timer = setTimeout(callback, ms);
+            };
+        })();
 
-            $(".search-input").keyup(function () {
-                delay(function () {
+        $(".search-input").keyup(function () {
+            delay(function () {
+                loadTableForSearch();
+            }, 300);
+        }).change(function () {
+            delay(function () {
+                loadTableForSearch();
+            }, 300);
+        });
+
+        function loadTableForSearch() {
+            var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";
+            search_tag = $('#search-tag')[0].value;
+            search_key = $('#search-key')[0].value;
+
+            var inputs = {
+                'search_tag': search_tag,
+                'search_key': search_key
+            };
+
+            $.ajax({
+                type: "POST",
+                url: search_url,
+                data: JSON.stringify(inputs),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    $('#table-body').html(result);
+                }
+            });
+        }
+
+        $("#delete-all").click(function(){
+            var delete_url = "{{ url_for('program_search.ProgramSearchView:multi_delete')}}";
+            var checkboxes_to_delete = [];
+            var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");
+            for( var i=0;i<checkbox_elements.length;i++){
+                checkboxes_to_delete.push(checkbox_elements[i].id);
+            }
+
+            $.ajax({
+                type: "POST",
+                url: delete_url,
+                data: JSON.stringify(checkboxes_to_delete),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
                     loadTableForSearch();
-                }, 300);
+                }
             });
-
-            function loadTableForSearch() {
-                var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";
-
-                var inputs = {
-                    'search_tag': $('#search-tag')[0].value,
-                    'search_key': $('#search-key')[0].value
-                };
-
-                $.ajax({
-                    type: "POST",
-                    url: search_url,
-                    data: JSON.stringify(inputs),
-                    contentType: 'application/json;charset=UTF-8',
-                    success: function (result) {
-                        $('#table-body').html(result);
-                        addHandlersToDelete();
-                    }
-                });
-            }
-
-            function addHandlersToDelete() {
-                var url = "{{ url_for('program_search.ProgramSearchView:index') }}";
-                $('.program-search-row').click(function() {
-                    $("#modal-confirm").attr("data-delete-path", url + $(this)[0].id);
-                    $(document).foundation();
-                    $("#confirmModal").foundation('reveal', 'open');
-                });
-            }
-
-            $("#modal-confirm").click(function(){
-                var search_url = $("#modal-confirm").attr("data-delete-path");
-                $.ajax({
-                    type: "DELETE",
-                    url: search_url,
-                    contentType: 'application/json;charset=UTF-8',
-                    success: function (result) {
-                        $("#confirmModal").foundation('reveal', 'close');
-                        loadTableForSearch();
-                    }
-                });
-            });
+        });
     </script>
 
-{#    <script src="{{ url_for('static', filename='scripts/js/admin/program_search/scripts/program_search.js') }}"></script>#}
 {% endblock %}
-

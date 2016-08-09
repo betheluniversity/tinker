@@ -35,12 +35,22 @@ class ProgramSearchView(FlaskView):
             abort(403)
 
     def index(self):
-        return render_template('index.html')
+        school_labels = get_school_labels()
+        program_concentrations = get_programs_for_dropdown()
+
+        return render_template('index.html', **locals())
 
     def post(self):
+        school_labels = get_school_labels()
+        program_concentrations = get_programs_for_dropdown()
+
         rform = request.form
         key = rform.get('key')
         tag = rform.get('tag')
+
+        if key == 'Any' or tag == '' or tag is None:
+            return render_template('index.html', **locals())
+
         outcome = ast.literal_eval(rform.get('outcome'))
         topic = ast.literal_eval(rform.get('topic'))
         other = ast.literal_eval(rform.get('other'))
@@ -55,9 +65,17 @@ class ProgramSearchView(FlaskView):
             create_new_csv_file()
         except:
             db.session.rollback()
-            return ""
 
-        return render_template('index.html')
+        return render_template('index.html', **locals())
+
+    @route('/multi-delete', methods=['POST'])
+    def multi_delete(self):
+        ids_to_delete = json.loads(request.data)
+        for id in ids_to_delete:
+            ProgramTag.query.filter_by(id=id).delete()
+        db.session.commit()
+        create_new_csv_file()
+        return 'TEST'
 
     def delete(self, tag_id=None):
         ProgramTag.query.filter_by(id=tag_id).delete()
@@ -76,7 +94,7 @@ class ProgramSearchView(FlaskView):
 
         # search
         if search_tag:
-            results_from_search_tag = ProgramTag.query.filter(ProgramTag.tag.like(search_tag + "%")).all()
+            results_from_search_tag = ProgramTag.query.filter(ProgramTag.tag.like("%" + search_tag + "%")).all()
         if search_key:
             results_from_search_key = ProgramTag.query.filter(ProgramTag.key.like(search_key + "%")).all()
 
@@ -90,6 +108,14 @@ class ProgramSearchView(FlaskView):
         elif search_key:
             search_results = results_from_search_key
 
+        # gather the 'Actual name' for each program, instead of concentration code or name of program block.
+        # todo: this is a pretty slow process, will need to speed it up.
+        program_concentrations = get_programs_for_dropdown()
+        actual_search_result = []
+        for search_result in search_results:
+            actual_name = filter(lambda person: person['value'] == search_result.key, program_concentrations)[0]
+            if actual_name:
+                search_result.actual_name = actual_name['name']
         return render_template('program-search-ajax.html', **locals())
 
     # This can be commented out once we stop using the csv files
