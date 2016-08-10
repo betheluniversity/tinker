@@ -21,76 +21,70 @@
                 <div class="card">
                     <div class="content">
                         <p>Blocks that are published publish out each page in the relationships tab.</p>
-                        {#                    </div>#}
-                        {#                <div id="dialog" class="reveal-modal" data-reveal>#}
-                        {#                    <p class='dialog-text'>. . . Loading . . .</p>#}
-                        {#                    <a class="close-reveal-modal">&#215;</a>#}
-                        {#                </div>#}
+
+{#                        <div id="dialog" class="reveal-modal" data-reveal>#}
+{#                            <p class='dialog-text'>. . . Loading . . .</p>#}
+{#                            <a class="close-reveal-modal">&#215;</a>#}
+{#                        </div>#}
 
                         <form action="." id="publish-search-form">
 
-                                <div class="col-sm-4">
-                                    <div class="form-group">
-                                        Search by Name:
-                                        <input type="text"id="publish-search-by-name" class="form-control publish-search"/>
-                                    </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    Search by Name:
+                                    <input type="text" id="publish-search-by-name" class="form-control publish-search"/>
                                 </div>
-                                <div class="col-sm-4">
-                                    <div class="form-group">
-                                        Search by Content:
-                                        <input type="text" id="publish-search-by-content" class="form-control publish-search"/>
-                                    </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    Search by Content:
+                                    <input type="text" id="publish-search-by-content"
+                                           class="form-control publish-search"/>
                                 </div>
+                            </div>
 
-                                <div class="col-sm-4">
-                                    <div class="form-group">
-                                        Search by Metadata:
-                                        <input type="text" id="publish-search-by-metadata" class="form-control publish-search"/>
-                                    </div>
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    Search by Metadata:
+                                    <input type="text" id="publish-search-by-metadata"
+                                           class="form-control publish-search"/>
                                 </div>
-                                <div class="large-6 columns">
-                                    <p>Publish to:
-                                    <div class="radio">
-                                        <label>
-                                            <input type="radio" name="optionsRadios" checked="true">
-                                            Staging
-                                        </label>
-                                    </div>
-                                    <div class="radio">
-                                        <label>
-                                            <input type="radio" name="optionsRadios">
-                                            Production and Staging
-                                        </label>
-                                    </div>
-                                    </p>
-                                </div>
-                                <div class="large-2 columns">
-                                    <label>Asset Types: </label>
-                                </div>
-                                <div class="checkbox">
+                            </div>
+                            <div class="large-6 columns">
+                                <label>Publish to:
+                                <div class="radio">
                                     <label>
-                                        <input type="checkbox" id="publish-pages" name="optionsCheckboxes" checked>
-                                        Pages
+                                        <input type="radio" name="optionsRadios" checked="true">
+                                        Staging
                                     </label>
                                 </div>
-                                <div class="checkbox">
+                                <div class="radio">
                                     <label>
-                                        <input type="checkbox" id="publish-blocks" name="optionsCheckboxes" checked>
-                                        Blocks
+                                        <input type="radio" name="optionsRadios">
+                                        Production and Staging
                                     </label>
                                 </div>
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" id="publish-files" name="optionsCheckboxes" checked>
-                                        Files
-                                    </label>
-                                </div>
-                                <div class="checkbox">
-                                    <label>
-                                        <input type="checkbox" id="publish-folders" name="optionsCheckboxes" checked>
-                                        Folders
-                                    </label>
-                                </div>
+                                </label>
+                            </div>
+                            <div class="large-2 columns">
+                                <label>Asset Types: </label>
+                            </div>
+                            <input type="checkbox" id="publish-pages" name="optionsCheckboxes" checked>
+                            <div class="checkbox-label">
+                                <label class="checkbox-label">Pages</label>
+                            </div>
+                            <input type="checkbox" id="publish-blocks" name="optionsCheckboxes" checked>
+                            <div class="checkbox-label">
+                                <label class="checkbox-label">Blocks</label>
+                            </div>
+                            <input type="checkbox" id="publish-files" name="optionsCheckboxes" checked>
+                            <div class="checkbox-label">
+                                <label class="checkbox-label">Files</label>
+                            </div>
+                            <input type="checkbox" id="publish-folders" name="optionsCheckboxes" checked>
+                            <div class="checkbox-label">
+                                <label class="checkbox-label">Folders</label>
+                            </div>
                             <div class="large-2 columns"></div>
                         </form>
                     </div>

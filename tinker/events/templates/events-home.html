@@ -29,9 +29,10 @@
                     {% endif %}
 
                     {# create an event button #}
-                    <a href="add#page-title" id="event-create" class="btn btn-primary btn-raised">
+                    <a href="add#page-title" id="event-create" class="btn btn-primary new-btn">
                         Create New Event
                     </a>
+
 
                     {% for form in forms %}
                         <div class="card">
@@ -75,26 +76,6 @@
                         </div>
                         <hr/>
 
-                        <!-- Modal Core -->
-                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-                             aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal"
-                                                aria-hidden="true">&times;</button>
-                                        <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
-                                    </div>
-                                    <div class="modal-body">
-                                        Your event page will be unpublished and removed from the calendar.
-                                    </div>
-                                    <div class="modal-footer">
-                                        <a href="/event/delete/{{ form.id }}" class="btn btn-primary btn-alert">Delete</a>
-                                        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     {% endfor %}
 
 
@@ -147,8 +128,26 @@
                 </div>
 
                 <br/>
-
-                <br/>
+                <!-- Modal Core -->
+                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal"
+                                        aria-hidden="true">&times;</button>
+                                <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+                            </div>
+                            <div class="modal-body">
+                                Your event page will be unpublished and removed from the calendar.
+                            </div>
+                            <div class="modal-footer">
+                                <a id="modal-confirm" href="/event/delete/formid"
+                                   class="btn btn-primary btn-alert modal-confirm">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -157,13 +156,11 @@
 
 {% block scripts %}
 
-
     {#    Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/event/delete/" + $(this).data('event-id'));
         });
-        $(document).foundation();
     </script>
 
 {% endblock %}

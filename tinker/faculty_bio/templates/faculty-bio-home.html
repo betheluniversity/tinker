@@ -35,12 +35,10 @@
                 {% else %}
                     <li><a class="btn btn-primary">Not Approved</a></li>
                 {% endif %}
-                <li>
-                    <button class="btn btn-primary btn-alert" data-toggle="modal" data-target="#myModal" href="#"
-                            data-reveal-id="confirmModal" id="{{ bio.id }}" data-faculty-bio-id="{{ bio.id }}">
-                        Delete
-                    </button>
-                </li>
+                <li><a href="#" data-reveal-id="confirmModal" id="{{ bio.id }}"
+                       data-faculty-bio-id="{{ bio.id }}"
+                       class="small btn btn-primary btn-alert delete-press"
+                       data-toggle="modal" data-target="#myModal">Delete</a></li>
             </ul>
         </div>
     </div>
@@ -51,17 +49,16 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
-                <p id="faculty-p" class="description">Below is a list of faculty bios you have access to edit. If you
-                    don't see your faculty
-                    bio,
-                    please contact your web author.
+                <p id="faculty-p" class="description">
+                    Below is a list of faculty bios you have access to edit. If you don't see your faculty
+                    bio, please contact your web author.
                 </p>
                 <hr/>
             </div>
 
             <div class="col-md-12">
                 {% if show_create %}
-                    <a href="/faculty-bio/edit/new#page-title" class="btn btn-primary">Create New Bio</a>
+                    <a href="/faculty-bio/new#page-title" class="btn btn-primary">Create New Bio</a>
                 {% endif %}
                 {% if show_special_admin_view %}
                     {# add extra sorting buttons #}
@@ -117,20 +114,21 @@
     </div>
 
     <!-- Modal Core -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content" id="confirmModal" class="reveal-modal" data-reveal>
+            <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
                     <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
                 </div>
                 <div class="modal-body">
-                    <p class="lead">Your faculty bio page will be removed.</p>
+                    Your faculty bio page will be removed.
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default btn-simple" data-dismiss="modal"
-                            href="/faculty-bio/delete/formid">Delete
-                    </button>
+                    <a id="modal-confirm" href="/event/delete/formid"
+                       class="btn btn-primary btn-alert modal-confirm">Delete</a>
                 </div>
             </div>
         </div>
@@ -147,7 +145,7 @@
             activateCSRF(csrftoken);
 
             $(".delete-press").click(function () {
-                $("#modal-confirm-delete").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
+                $("#modal-confirm").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
             });
 
             $(".activate-press").click(function () {

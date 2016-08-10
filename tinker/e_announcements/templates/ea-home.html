@@ -12,98 +12,83 @@
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
-            <div class="row">
-                <p class="description">Below is the list of E-Announcements you have access to edit. These are sorted by the first date
+            <div class="col-md-12">
+                <p class="description">Below is the list of E-Announcements you have access to edit. These are sorted by
+                    the first date
                     entered, newest dates first.
                 </p>
                 <hr/>
-                <a href="{{ url_for('e-announcements.EAnnouncementsView:new') }}" class="btn btn-primary">Submit New
+                <a href="{{ url_for('e-announcements.EAnnouncementsView:new') }}" class="btn btn-primary new-btn">Submit
+                    New
                     E-Announcement</a>
-            </div>
 
-            <div class="row">
-
-                <div class="col-md-12">
-
-                    {% for form in forms %}
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p>
-                                    {% if form.path != '' %}
-                                        <a href={{ form.path }}>{{ form.title }}</a>
-                                    {% else %}
-                                        {{ form.title }}
-                                    {% endif %}
-                                    <br/>
-                                    <small>{{ form.first_date | safe }}</small>
-                                    <br/>
-                                    <small>{{ form.second_date | safe }}</small>
-                                </p>
-                            </div>
+                {% for form in forms %}
+                    <div class="card">
+                        <div class="content">
+                            <p>
+                                {% if form.path != '' %}
+                                    <a href={{ form.path }}>{{ form.title }}</a>
+                                {% else %}
+                                    {{ form.title }}
+                                {% endif %}
+                                <br/>
+                                <small>{{ form.first_date | safe }}</small>
+                                <br/>
+                                <small>{{ form.second_date | safe }}</small>
+                            </p>
                             <div class="large-6 columns small-3">
-                                <ul class="button-group">
+                                <ul class="btn-group-horizontal">
                                     {% if form.workflow_status %}
                                         <li>This announcement is pending approval.</li>
                                     {% else %}
                                         {% if not form.first_date_past and not form.second_date_past %}
                                             <li>
                                                 <a href="{{ url_for('e-announcements.EAnnouncementsView:edit', e_announcement_id=form.id) }}"
-                                                   class="small button">Edit</a></li>
+                                                   class="btn btn-primary">Edit</a></li>
                                         {% else %}
                                             <li>
                                                 <a href="{{ url_for('e-announcements.EAnnouncementsView:view', e_announcement_id=form.id) }}"
-                                                   class="small button">View</a></li>
+                                                   class="btn btn-primary">View</a></li>
                                         {% endif %}
                                         <li>
                                             <a href="{{ url_for('e-announcements.EAnnouncementsView:duplicate', e_announcement_id=form.id) }}"
-                                               class="small button">Duplicate</a></li>
+                                               class="btn btn-primary">Duplicate</a></li>
                                         {% if not form.first_date_past %}
                                             <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}"
                                                    data-e-announcement-id="{{ form.id }}"
-                                                   class="small button alert delete-press">Delete</a></li>
+                                                   class="small btn btn-primary btn-alert delete-press"
+                                                   data-toggle="modal" data-target="#myModal">Delete</a></li>
                                         {% endif %}
                                     {% endif %}
                                 </ul>
                             </div>
-                            <hr/>
-                        </div>
-                    {% endfor %}
-
-
-                </div>
-            </div>
-
-            </br>
-            <!-- Button trigger modal -->
-            <div class="row">
-                <button class="btn btn-primary btn-alert" id="modal-delete" data-toggle="modal" data-target="#myModal">
-                    Delete E-Annz
-                </button>
-            </div>
-            </br>
-
-            <!-- Modal Core -->
-            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-                 aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                            <h4 class="modal-title" id="myModalLabel">Delete E-Announcement</h4>
-                        </div>
-                        <div class="modal-body">
-                            Are you sure you wante to delete?
-                            Your E-Announcement will be removed.
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default btn-simple" data-dismiss="modal">Close</button>
-                            <a href="/e-announcement/delete/formid" type="button"
-                               class="btn btn-info btn-simple">Delete</a>
                         </div>
                     </div>
+                    <hr/>
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Core -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+                </div>
+                <div class="modal-body">
+                    Your E-Announcement will be removed.
+                </div>
+                <div class="modal-footer">
+                    <a id="modal-confirm" href="/e-announcement/delete/formid" type="button"
+                       class="btn btn-primary btn-alert modal-confirm">Delete</a>
                 </div>
             </div>
-            </br>
         </div>
     </div>
 
@@ -113,8 +98,8 @@
 
     {#  Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
-        $(".modal-delete").click(function () {
-            $(".btn-info").attr("href", "/e-announcement/delete/" + $(this).data('e-announcement-id'));
+        $(".delete-press").click(function () {
+            $("#modal-confirm").attr("href", "/e-announcement/delete/" + $(this).data('e-announcement-id'));
         });
     </script>
 

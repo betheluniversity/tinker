@@ -26,6 +26,7 @@ from bu_cascade.assets.metadata_set import MetadataSet
 from bu_cascade.assets.data_definition import DataDefinition
 from bu_cascade.asset_tools import *
 
+from tinker import cascade_connector
 from tinker import app
 from tinker import sentry
 from tinker import cascade_connector
@@ -338,8 +339,8 @@ class TinkerController(object):
     def move(self, page_id, destination_path, type='page'):
         return self.cascade_connector.move(page_id, destination_path, type)
 
-    def delete(self, path_or_id):
-        return self.cascade_connector.delete(path_or_id)
+    def delete(self, path_or_id, asset_type):
+        return self.cascade_connector.delete(path_or_id, asset_type)
 
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)
@@ -441,8 +442,7 @@ class TinkerController(object):
         text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
         return text
 
-
-    def get_add_data(self, lists, form, wysiwyg_keys = None):
+    def get_add_data(self, lists, form, wysiwyg_keys=[]):
         # A dict to populate with all the interesting data.
         add_data = {}
 

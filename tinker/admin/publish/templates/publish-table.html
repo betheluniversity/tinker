@@ -1,6 +1,6 @@
 {% set counter = 1 %}
 {% for result in results %}
-    <tr>
+    <tr class="publish-table">
         <td>
             {{ result.type }}
         </td>
@@ -8,11 +8,14 @@
             <a href="https://cms.bethel.edu/entity/open.act?id={{ result.id }}&type={{ result.type }}">/{{ result.path.path }}</a>
         </td>
         <td>
-            <button class="publishButton" onclick="publishAsset('{{ result.type }}', '{{ result.id }}', '{{ counter }}');">Publish</button>
+            <a class="btn btn-primary publishButton"
+               onclick="publishAsset('{{ result.type }}', '{{ result.id }}', '{{ counter }}');">Publish</a>
         </td>
         <td id="publish_button_{{ counter }}"></td>
-{#        <td><button class='more-info' id='more-info-{{ result.id }}' onclick="moreInfo('{{ result.type }}', '{{ result.id }}')">More Info</button></td>#}
-        <td><button onclick="moreInfo('{{ result.type }}', '{{ result.id }}')" data-reveal-id="dialog" id="more-info-{{ result.id }}" data-publish-id="{{ result.id }}" data-publish-type="{{ result.type }}" class="more-info">More Info</button></td>
+        {#        <td><button class='more-info' id='more-info-{{ result.id }}' onclick="moreInfo('{{ result.type }}', '{{ result.id }}')">More Info</button></td>#}
+        <td><a onclick="moreInfo('{{ result.type }}', '{{ result.id }}')" data-reveal-id="dialog"
+               id="more-info-{{ result.id }}" data-publish-id="{{ result.id }}" data-publish-type="{{ result.type }}"
+               class="btn btn-primary more-info">More Info</a></td>
     </tr>
     {% set counter = counter + 1 %}
 {% endfor %}

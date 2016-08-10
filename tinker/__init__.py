@@ -51,4 +51,6 @@ app.register_blueprint(OfficeHoursBlueprint)
 CsrfProtect(app)
 
 # Import global HTTP error code handling
+
 import error
+
