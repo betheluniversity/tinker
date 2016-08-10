@@ -9,7 +9,6 @@ from raven.contrib.flask import Sentry
 from flask_wtf.csrf import CsrfProtect
 from bu_cascade.cascade_connector import Cascade
 
-
 app = Flask(__name__)
 app.config.from_object('config.config')
 db = SQLAlchemy(app)
@@ -52,4 +51,6 @@ app.register_blueprint(OfficeHoursBlueprint)
 CsrfProtect(app)
 
 # Import global HTTP error code handling
+
 import error
+

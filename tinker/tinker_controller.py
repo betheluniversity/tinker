@@ -29,6 +29,7 @@ from bu_cascade.asset_tools import *
 from tinker import cascade_connector
 from tinker import app
 from tinker import sentry
+from tinker import cascade_connector
 
 from BeautifulSoup import BeautifulStoneSoup
 
@@ -86,6 +87,7 @@ class TinkerController(object):
         self.datetime_format = "%B %d  %Y, %I:%M %p"
 
     def before_request(self):
+
         def init_user():
 
             dev = current_app.config['ENVIRON'] != 'prod'
