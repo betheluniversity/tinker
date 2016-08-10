@@ -41,7 +41,7 @@ def get_programs_for_dropdown():
                 continue
 
             # get school
-            school_element = block.find("dynamic-metadata[name='school']/value")
+            school_element = search_for_key_in_dynamic_md(block, 'school')
             if hasattr(school_element, 'text'):
                 school = school_element.text
             else:
@@ -73,7 +73,8 @@ def get_program_name(block, concentration):
         return None
 
     # add in major/minor
-    major_or_minor = block.find("dynamic-metadata[name='program-type']/value")
+
+    major_or_minor = search_for_key_in_dynamic_md(block, 'program-type')
     if hasattr(major_or_minor, 'text') and major_or_minor.text:
         if 'minor' not in program_name.lower() and 'major' not in program_name.lower() and 'program' not in program_name.lower():
             program_name += ' ' + major_or_minor.text
@@ -89,3 +90,12 @@ def get_school_labels():
         'Bethel Seminary'
     ]
     return school_labels
+
+
+# this function is necessary because we don't have python2.7 on the server (we use python2.6)
+def search_for_key_in_dynamic_md(block, key_to_find):
+    metadata = block.findall("dynamic-metadata")
+    for md in metadata:
+        if md.find('name').text == key_to_find:
+            return md.find('value')
+    return None
