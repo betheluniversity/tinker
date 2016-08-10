@@ -8,12 +8,11 @@ from flask import session
 from flask import abort
 
 # modules
-from suds.client import Client
+
 from suds.transport import TransportError
 
 # local
 from tinker import app
-from tinker import tools
 
 
 def email_tinker_admins(response):

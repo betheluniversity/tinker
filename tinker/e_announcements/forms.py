@@ -17,7 +17,6 @@ from wtforms import widgets
 
 # local
 from tinker import app
-from tinker.web_services import get_client, read
 from bu_cascade.asset_tools import *
 from tinker.tinker_controller import TinkerController
 

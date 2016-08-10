@@ -1,5 +1,4 @@
 from flask import Flask, render_template, Blueprint, session, abort, request
-from tinker import tools
 from flask.ext.classy import FlaskView, route
 from tinker.admin.cache.cache_controller import CacheController
 CacheBlueprint = Blueprint('CacheBlueprint', __name__, template_folder='templates')

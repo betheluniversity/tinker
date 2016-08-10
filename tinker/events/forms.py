@@ -15,7 +15,7 @@ from wtforms import Field
 from wtforms.validators import DataRequired
 from flask import session
 # local
-from tinker.web_services import read, read_identifier
+# from tinker.web_services import read, read_identifier
 
 
 def get_md(metadata_path):

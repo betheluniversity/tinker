@@ -1,6 +1,8 @@
 from flask.ext.wtf import Form
 from flask_wtf.file import FileField
-from tinker.tools import *
+from tinker import app
+import requests
+from tinker.faculty_bio.faculty_bio_controller import *
 from tinker.web_services import get_client
 from wtforms import Field
 from wtforms import HiddenField
@@ -84,7 +86,8 @@ def validate_username(form, field):
 
 
 class FacultyBioForm(Form):
-    roles = get_roles()
+
+    roles = session['roles']
 
     # if a cas faculty member or seminary faculty member, hide the image field.
     if 'Tinker Faculty Bios' in session['groups']:
