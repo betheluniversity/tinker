@@ -248,9 +248,9 @@ textarea {
 
 /* todo: come up with a way to generalize these tags */
 
-select#heading {
-    margin-left: 15px;
-}
+/*select#heading {*/
+    /*margin-left: 15px;*/
+/*}*/
 
 div#cke_biography {
     margin: 0px 0px 10px 0px;

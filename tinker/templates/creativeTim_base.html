@@ -35,6 +35,9 @@
             <link href='https://fonts.googleapis.com/css?family=Muli:400,300' rel='stylesheet' type='text/css'>
             <link href="https://cdn3.bethel.edu/tinker/css/themify-icons.css" rel="stylesheet">
 
+            <!-- JQuery -->
+            <script src="https://cdn4.bethel.edu/tinker/js/jquery-1.10.2.js" type="text/javascript"></script>
+
 
         {% endblock %}
     </head>
@@ -43,10 +46,7 @@
     {% block body_content %}
     {% endblock %}
 
-    {% block scripts %}{% endblock %}
-
     <!--   Core JS Files   -->
-    <script src="https://cdn4.bethel.edu/tinker/js/jquery-1.10.2.js" type="text/javascript"></script>
     <script src="https://cdn1.bethel.edu/tinker/js/bootstrap.min.js" type="text/javascript"></script>
 
     <!--  Checkbox, Radio & Switch Plugins -->
@@ -64,6 +64,7 @@
     <!-- Paper Dashboard Core javascript and methods for Demo purpose -->
     <script src="https://cdn1.bethel.edu/tinker/js/paper-dashboard.js"></script>
 
+    {% block scripts %}{% endblock %}
 
     {{ nav_collapse.render() }}
 
