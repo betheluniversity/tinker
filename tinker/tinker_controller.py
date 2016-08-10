@@ -26,6 +26,7 @@ from bu_cascade.assets.metadata_set import MetadataSet
 from bu_cascade.assets.data_definition import DataDefinition
 from bu_cascade.asset_tools import *
 
+from tinker import cascade_connector
 from tinker import app
 from tinker import sentry
 
@@ -81,7 +82,7 @@ def requires_auth(f):
 
 class TinkerController(object):
     def __init__(self):
-        self.cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
+        self.cascade_connector = cascade_connector
         self.datetime_format = "%B %d  %Y, %I:%M %p"
 
     def before_request(self):
@@ -336,8 +337,8 @@ class TinkerController(object):
     def move(self, page_id, destination_path, type='page'):
         return self.cascade_connector.move(page_id, destination_path, type)
 
-    def delete(self, path_or_id):
-        return self.cascade_connector.delete(path_or_id)
+    def delete(self, path_or_id, asset_type):
+        return self.cascade_connector.delete(path_or_id, asset_type)
 
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)
@@ -439,8 +440,7 @@ class TinkerController(object):
         text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
         return text
 
-
-    def get_add_data(self, lists, form, wysiwyg_keys = None):
+    def get_add_data(self, lists, form, wysiwyg_keys=[]):
         # A dict to populate with all the interesting data.
         add_data = {}
 

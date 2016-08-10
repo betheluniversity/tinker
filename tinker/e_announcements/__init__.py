@@ -30,6 +30,7 @@ class EAnnouncementsView(FlaskView):
         forms.sort(key=lambda item: item['first_date'], reverse=False)
         return render_template('ea-home.html', **locals())
 
+    @route('/delete/<e_announcement_id>')
     def delete(self, e_announcement_id):
         # must have access to delete
         if session['username'] not in app.config['E_ANN_ADMINS']:

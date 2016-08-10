@@ -21,127 +21,121 @@ to be in it's own card div, something to think about in the future -->
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
-            <h3 class="row subtitle">Edit Your Bio</h3>
-            <hr/>
+            <div class="col-md-12">
+                <h3 class="subtitle">Edit Your Bio</h3>
+                <hr/>
 
-            <form action="/faculty-bio/submit" method="post" enctype="multipart/form-data">
-                <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-                <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
+                <form id="facultybioform" action="/faculty-bio/submit" method="post">
+                    <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+                    <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
 
-                {% if form.errors %}
-                    <div class="alert alert-error">
-                        <div data-alert class="alert-box alert radius">
-                            There were errors with your form.
-                            <a href="#" class="close">&times;</a>
+                    {% if form.errors %}
+                        <div class="error-alert">
+                            <div data-alert class="red-alert">
+                                There were errors with your form.
+                                <a href="#" class="close">&times;</a>
+                            </div>
                         </div>
-                    </div>
-                {% endif %}
-                {{ form.hidden_tag() }}
-                {% for field in form %}
-                    {% if field.widget.input_type != 'hidden' %}
-                        {# Print any errors for this field#}
-                        {% for error in form.errors[field.name] %}
-                            <div class="alert alert-error">
-                                <div data-alert class="alert-box alert radius">
-                                    {{ error }}
-                                    <a href="#" class="close">&times;</a>
-                                </div>
-                            </div>
-                        {% endfor %}
-
-                        {# print the label #}
-
-                        {% if field.name not in ["areas", "research_interests", "teaching_specialty"] %}
-                            <div class="col-md-12">
-                                <label for="{{ field.name }}">
-                                    {{ field.label.text }}
-                                    {% if field.flags.required %}
-                                        <small class="required">Required</small>
-                                    {% endif %}
-                                </label>
-
-                                <small class="extra-required">{{ field.description }}</small>
-                            </div>
-                        {% endif %}
-
-                        {# Print the field #}
-                        {% if field.name == "degree" %}
-                            {{ degree_fieldset() }}
-
-
-                        {% elif field.name == "areas" %}
-                            <div id="areas_wrap" class="col-md-12" style="display:none;">
-                                {{ field.label }}
-                                <small class="extra-required">{{ field.description }}</small>
-                                <small id="areas_current_count" class="extra-required">0</small>
-                                {{ field(class="large-text-area") }}
-                            </div>
-                        {% elif field.name == "research_interests" %}
-                            <div id="research_interests_wrap" class="col-md-12" style="display:none;">
-                                {{ field.label }}
-                                <small class="extra-required">{{ field.description }}</small>
-                                <small id="research_interests_current_count" class="extra-required">0</small>
-                                {{ field(class="large-text-area") }}
-                            </div>
-                        {% elif field.name == "teaching_specialty" %}
-                            <div id="teaching_specialty_wrap" class="col-md-12" style="display:none;">
-                                {{ field.label }}
-                                <small class="extra-required">{{ field.description }}</small>
-                                <small id="teaching_specialty_current_count" class="extra-required">0</small>
-                                {{ field(class="large-text-area") }}
-                            </div>
-
-                        {% elif field.type == "SelectMultipleField" %}
-                            {{ field(class="largeselect") }}
-
-                        {% elif field.type == "HeadingField" %}
-                            <h3 id="{{ field.id }}">{{ field.label }}</h3>
-
-                        {% elif field.name == "new_job_titles" %}
-                            {{ new_job_title_fieldset() }}
-
-                        {% elif field.type == "SelectField" %}
-                            {{ field }}
-
-                        {% elif field.type == "CKEditorTextAreaField" %}
-                            {{ field(class="ckeditor") }}
-
-                        {% elif field.name == "image" %}
-                            {# The image_url field is hidden. So get the image from this. #}
-                            <div class="col-md-12">
-                                <p id="image">Is your image a perfect square? Don't forget to crop it at <a
-                                        href="http://www.croppola.com">croppola.com</a>. Thanks!</p>
-                                {{ form['image'] }}
-                                {{ form['image_url'] }}
-                                <img id="display_image" src="" style="height:300px; display: none;"/>
-                            </div>
-                            <script type="text/javascript">
-                                if ($("#image_url").val() == "")
-                                    $("#display_image").hide();
-                                else {
-                                    $("#display_image").attr("src", "http://cdn1.bethel.edu/resize/unsafe/400x0/smart/http://www.bethel.edu/" + ($("#image_url").val()));
-                                    $("#display_image").show();
-                                }
-
-                                if ("False" == "{{ edit_image}}") {
-                                    $("#image").hide();
-                                }
-
-                            </script>
-                            <hr/>
-
-                        {% else %}
-                            <div class="col-md-12">
-                                {{ field(size=20) }}
-                            </div>
-                        {% endif %}
                     {% endif %}
-                {% endfor %}
+                    {{ form.hidden_tag() }}
+                    {% for field in form %}
+                        {% if field.widget.input_type != 'hidden' %}
+                            {# Print any errors for this field#}
+                            {% for error in form.errors[field.name] %}
+                                <div class="error-alert">
+                                    <div data-alert class="red-alert">
+                                        {{ error }}
+                                        <a href="#" class="close">&times;</a>
+                                    </div>
+                                </div>
+                            {% endfor %}
 
-                <div class="col-md-12">
-                    <button type="submit" id="faculty-bio-submit-btn" class="btn btn-primary">Submit</button>
-                </div>
-            </form>
+                            {# print the label #}
+
+                            {% if field.name not in ["areas", "research_interests", "teaching_specialty"] %}
+                                    <label for="{{ field.name }}">
+                                        {{ field.label.text }}
+                                        {% if field.flags.required %}
+                                            <small class="required">Required</small>
+                                        {% endif %}
+                                    </label>
+
+                                    <small class="extra-required">{{ field.description }}</small>
+                            {% endif %}
+
+                            {# Print the field #}
+                            {% if field.name == "degree" %}
+                                {{ degree_fieldset() }}
+
+
+                            {% elif field.name == "areas" %}
+                                <div id="areas_wrap"style="display:none;">
+                                    {{ field.label }}
+                                    <small class="extra-required">{{ field.description }}</small>
+                                    <small id="areas_current_count" class="extra-required">0</small>
+                                    {{ field(class="large-text-area") }}
+                                </div>
+                            {% elif field.name == "research_interests" %}
+                                <div id="research_interests_wrap"style="display:none;">
+                                    {{ field.label }}
+                                    <small class="extra-required">{{ field.description }}</small>
+                                    <small id="research_interests_current_count" class="extra-required">0</small>
+                                    {{ field(class="large-text-area") }}
+                                </div>
+                            {% elif field.name == "teaching_specialty" %}
+                                <div id="teaching_specialty_wrap" style="display:none;">
+                                    {{ field.label }}
+                                    <small class="extra-required">{{ field.description }}</small>
+                                    <small id="teaching_specialty_current_count" class="extra-required">0</small>
+                                    {{ field(class="large-text-area") }}
+                                </div>
+
+                            {% elif field.type == "SelectMultipleField" %}
+                                {{ field(class="largeselect") }}
+
+                            {% elif field.type == "HeadingField" %}
+                                <h3 id="{{ field.id }}">{{ field.label }}</h3>
+
+                            {% elif field.name == "new_job_titles" %}
+                                {{ new_job_title_fieldset() }}
+
+                            {% elif field.type == "SelectField" %}
+                                {{ field }}
+
+                            {% elif field.type == "CKEditorTextAreaField" %}
+                                {{ field(class="ckeditor") }}
+
+                            {% elif field.name == "image" %}
+                                {# The image_url field is hidden. So get the image from this. #}
+                                    <p id="image">Is your image a perfect square? Don't forget to crop it at <a
+                                            href="http://www.croppola.com">croppola.com</a>. Thanks!</p>
+                                    {{ form['image'] }}
+                                    {{ form['image_url'] }}
+                                    <img id="display_image" src="" style="height:300px; display: none;"/>
+                                <script type="text/javascript">
+                                    if ($("#image_url").val() == "")
+                                        $("#display_image").hide();
+                                    else {
+                                        $("#display_image").attr("src", "http://cdn1.bethel.edu/resize/unsafe/400x0/smart/http://www.bethel.edu/" + ($("#image_url").val()));
+                                        $("#display_image").show();
+                                    }
+
+                                    if ("False" == "{{ edit_image}}") {
+                                        $("#image").hide();
+                                    }
+
+                                </script>
+                                <hr/>
+
+                            {% else %}
+                                    {{ field(size=20) }}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+
+                        <button type="submit" id="faculty-bio-submit-btn" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -278,27 +272,27 @@ to be in it's own card div, something to think about in the future -->
             inner_node.append($("<legend>").html("Job Title " + id));
 
             inner_node.append($('<div>').attr('class', 'schools-div' + id).append(
-                    $("<label>").addClass('col-md-12').addClass('job').html('School')).append(
+                    $("<label>").html('School')).append(
                     $("<select>").attr('id', 'schools' + id).attr('name', 'schools' + id))
             );
 
             inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'undergrad-div' + id).append(
-                    $("<label>").addClass('col-md-12').addClass('job').html('Program')).append(
+                    $("<label>").html('Program')).append(
                     $("<select>").attr('id', 'undergrad' + id).attr('name', 'undergrad' + id))
             );
 
             inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'adult-undergrad-div' + id).append(
-                    $("<label>").addClass('col-md-12').addClass('job').html('Program')).append(
+                    $("<label>").html('Program')).append(
                     $("<select>").attr('id', 'adult-undergrad' + id).attr('name', 'adult-undergrad' + id))
             );
 
             inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'graduate-div' + id).append(
-                    $("<label>").addClass('col-md-12').addClass('job').html('Program')).append(
+                    $("<label>").html('Program')).append(
                     $("<select>").attr('id', 'graduate' + id).attr('name', 'graduate' + id))
             );
 
             inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'seminary-div' + id).append(
-                    $("<label>").addClass('col-md-12').addClass('job').html('Program')).append(
+                    $("<label>").html('Program')).append(
                     $("<select>").attr('id', 'seminary' + id).attr('name', 'seminary' + id))
             );
 
@@ -612,11 +606,11 @@ to be in it's own card div, something to think about in the future -->
             {% endif %}
 
             {% if degrees_good == False %}
-                $('<div data-alert="" class="alert-box alert radius">A Degree is required<a href="#" class="close">×</a></div>').insertBefore(".degree-fieldset");
+                $('<div class="alert-error"><div data-alert="" class="red-alert">A Degree is required<a href="#" class="close">×</a></div></div><br/>').insertBefore(".degree-fieldset");
             {% endif %}
 
             {% if new_jobs_good == False %}
-                $('<div data-alert="" class="alert-box alert radius">A Job Title is Required<a href="#" class="close">×</a></div>').insertBefore(".new-job-fieldset");
+                $('<div class="alert-error"><div data-alert="" class="red-alert">A Job Title is Required<a href="#" class="close">×</a></div></div><br/>').insertBefore(".new-job-fieldset");
             {% endif %}
 
 
@@ -713,7 +707,6 @@ to be in it's own card div, something to think about in the future -->
 {% endblock %}
 
 {% macro degree_fieldset() -%}
-    <div class="col-md-12">
         <fieldset class="degree-fieldset">
             <div class="card">
                 <div class="content">
@@ -734,34 +727,32 @@ to be in it's own card div, something to think about in the future -->
            class="btn btn-primary btn-alert">Remove
             Degree</a>
 
-    </div>
 {%- endmacro %}
 
 {% macro new_job_title_fieldset() -%}
-    <div class="col-md-12">
         <fieldset class="new-job-fieldset">
             <div class="card">
                 <div class="content">
                     <legend>Job Title 1</legend>
                     <div id="schools-div">
-                        <label class="col-md-12 job">School</label>
+                        <label>School</label>
                         <select name='schools1' id='schools1'></select>
                     </div>
 
                     <div id="undergrad-div1" class="hide-when-school-changes1">
-                        <label class="col-md-12 job">Program</label>
+                        <label>Program</label>
                         <select name='undergrad1' id='undergrad1'></select>
                     </div>
                     <div id="adult-undergrad-div1" class="hide-when-school-changes1">
-                        <label class="col-md-12 job">Program</label>
+                        <label>Program</label>
                         <select name='adult-undergrad1' id='adult-undergrad1'></select>
                     </div>
                     <div id="graduate-div1" class="hide-when-school-changes1">
-                        <label class="col-md-12 job">Program</label>
+                        <label>Program</label>
                         <select name='graduate1' id='graduate1'></select>
                     </div>
                     <div id="seminary-div1" class="hide-when-school-changes1">
-                        <label class="col-md-12 job">Program</label>
+                        <label>Program</label>
                         <select name='seminary1' id='seminary1'></select>
                     </div>
 
@@ -809,5 +800,4 @@ to be in it's own card div, something to think about in the future -->
            class="btn btn-primary btn-alert">Remove
             Job
             Title</a>
-    </div>
 {%- endmacro %}

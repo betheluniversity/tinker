@@ -359,11 +359,10 @@
             <div class="content">
                 <legend>Date 1</legend>
 
-                <div class="checkbox">
-                    <label for="allday1" class="checkbox-radio-label">
-                        <input class="alldaycheck" id="allday1" name="allday1" type="checkbox"
-                               value="True">
-                        All Day</label>
+                <input class="alldaycheck" id="allday1" name="allday1" type="checkbox"
+                       value="True">
+                <div class="checkbox-label">
+                    <label for="allday1" class="checkbox-label">All Day</label>
                 </div>
 
                 <label for="start1">Start Date</label>
@@ -372,11 +371,10 @@
                 <label for="end1">End Date</label>
                 <input type="text" name="end1" id="end1" class="datepicker"/>
 
-                <div class="checkbox">
-                    <label for="needtimezone1" class="checkbox-radio-label">
-                        <input type="checkbox" id="needtimezone1" name="needtimezone1" class="needtimezonecheck"
-                               value="False" onclick="checkNeedTimezone(1)">
-                        Outside of Minnesota?</label>
+                <input type="checkbox" id="needtimezone1" name="needtimezone1" class="needtimezonecheck"
+                       value="False" onclick="checkNeedTimezone(1)">
+                <div class="checkbox-label">
+                    <label for="needtimezone1" class="checkbox-label">Outside of Minnesota?</label>
                 </div>
 
                 <label for="timezone1" style="display: none" id="timezonelabel1">Timezone</label>

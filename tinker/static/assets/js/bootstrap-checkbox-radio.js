@@ -72,9 +72,9 @@
     });
   }
 
-  $.fn.checkbox.defaults = {
-    template: '<span class="icons"><span class="first-icon fa fa-square fa-base"></span><span class="second-icon fa fa-check-square fa-base"></span></span>'
-  }
+  //$.fn.checkbox.defaults = {
+  //  template: '<span class="icons"><span class="first-icon fa fa-square-o"></span><span class="second-icon fa fa-check-square-o"></span></span>'
+  //}
 
 
  /* CHECKBOX NO CONFLICT
