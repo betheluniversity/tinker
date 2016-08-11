@@ -76,8 +76,7 @@ def get_event_choices():
 
 def get_buildings():
     page = tinker.read('ba1355ea8c586513100ee2a725b9ebea', type="block")
-    buildings = page['asset']['xhtmlDataDefinitionBlock']['structuredData']['structuredDataNodes']['structuredDataNode'][0]['structuredDataNodes']['structuredDataNode']
-    # find(page, 'structuredDataNode')
+    buildings = find(page, 'main-campus')['structuredDataNodes']['structuredDataNode']
     labels = [("none", '-select-')]
     for building in buildings:
         label = building['structuredDataNodes']['structuredDataNode'][0]['text']

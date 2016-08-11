@@ -420,6 +420,12 @@ class TinkerController(object):
             "workflowDefinitionId": workflow_id,
             "workflowComments": workflow_name
         }
+
+        if app.config['ENVIRON'] == 'prod':
+            return workflow
+        else:
+            return None
+
         return workflow
 
     # to be used to escape content to give to Cascade
