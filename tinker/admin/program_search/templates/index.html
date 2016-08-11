@@ -11,7 +11,7 @@
 <div id="main">
     <div>
         <div class="row">
-            <form method="post" action="{{ url_for('program_search.ProgramSearchView:post') }}">
+            <form id='program_search_form' method="post">
                 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 <div class="large-6 columns">
                     <label for="key">Concentration Code or Program Name:</label>
@@ -34,16 +34,16 @@
                 <div class="large-6 columns">
                     <p>These are for creating new Program Tags.</p>
                     <label for="outcome">Outcome:</label>
-                    <input type="radio" name="outcome" value="True"> True
-                    <input type="radio" name="outcome" value="False" checked="checked"> False<br/>
+                    <input type="radio" name="outcome" value="True"> Yes
+                    <input type="radio" name="outcome" value="False" checked="checked"> No<br/>
 
                     <label for="topic">Topic:</label>
-                    <input type="radio" name="topic" value="True"> True
-                    <input type="radio" name="topic" value="False" checked="checked"> False<br/>
+                    <input type="radio" name="topic" value="True"> Yes
+                    <input type="radio" name="topic" value="False" checked="checked"> No<br/>
 
                     <label for="other">Other:</label>
-                    <input type="radio" name="other" value="True"> True
-                    <input type="radio" name="other" value="False" checked="checked"> False
+                    <input type="radio" name="other" value="True"> Yes
+                    <input type="radio" name="other" value="False" checked="checked"> No
 
                     <br/>
                     <input type="submit" class="button"/>
@@ -105,6 +105,8 @@
         });
 
         function loadTableForSearch() {
+            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');
+
             var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";
             search_tag = $('#search-tag')[0].value;
             search_key = $('#search-key')[0].value;
@@ -126,7 +128,6 @@
         }
 
         $("#delete-all").click(function(){
-            var delete_url = "{{ url_for('program_search.ProgramSearchView:multi_delete')}}";
             var checkboxes_to_delete = [];
             var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");
             for( var i=0;i<checkbox_elements.length;i++){
@@ -135,13 +136,34 @@
 
             $.ajax({
                 type: "POST",
-                url: delete_url,
+                url: "{{ url_for('program_search.ProgramSearchView:multi_delete')}}",
                 data: JSON.stringify(checkboxes_to_delete),
                 contentType: 'application/json;charset=UTF-8',
                 success: function (result) {
                     loadTableForSearch();
                 }
             });
+        });
+
+        $('#program_search_form').submit(function () {
+            var formData = {
+                'key':                      $('select[name=key]').val(),
+                'tag':                      $('input[name=tag]').val(),
+                'outcome':                  $('input[name=outcome]:checked').val(),
+                'topic':                    $('input[name=topic]:checked').val(),
+                'other':                    $('input[name=other]:checked').val()
+            };
+
+             $.ajax({
+                type: "POST",
+                url: "{{ url_for('program_search.ProgramSearchView:post') }}",
+                data: JSON.stringify(formData),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    loadTableForSearch();
+                }
+            });
+             return false;
         });
     </script>
 

@@ -44,7 +44,7 @@ class ProgramSearchView(FlaskView):
         school_labels = get_school_labels()
         program_concentrations = get_programs_for_dropdown()
 
-        rform = request.form
+        rform = json.loads(request.data)
         key = rform.get('key')
         tag = rform.get('tag')
 
