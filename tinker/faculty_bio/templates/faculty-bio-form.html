@@ -26,7 +26,7 @@
 {% block main_content %}
   <div class="row">
   <div class="large-12 columns">
-      <form id="facultybioform" action="/faculty-bio/submit" method="post" enctype="multipart/form-data">
+      <form id="facultybioform" action="{{ url_for('faculty-bio.FacultyBioView:submit') }}" method="post" enctype="multipart/form-data">
       {{ form.csrf_token }}
       {% if faculty_bio_id %}
           <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>

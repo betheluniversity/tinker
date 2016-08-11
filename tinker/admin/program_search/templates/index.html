@@ -11,27 +11,40 @@
 <div id="main">
     <div>
         <div class="row">
-            <form method="post" action="{{ url_for('program_search.ProgramSearchView:submit') }}">
-                <input id="csrf_token" name="csrf_token" type="hidden" value="{{ csrf_token() }}"/>
+            <form id='program_search_form' method="post">
+                <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 <div class="large-6 columns">
                     <label for="key">Concentration Code or Program Name:</label>
-                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />
+{#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
+                    <select name="key" id="search-key" class="search-input">
+                        <option value="">Any</option>
+                        {% for school_label in school_labels %}
+                            <optgroup label="{{ school_label }}">
+                            {% for program_concentration in program_concentrations %}
+                                {% if program_concentration.school == school_label %}
+                                    <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
+                                {% endif %}
+                            {% endfor %}
+                            </optgroup>
+                        {% endfor %}
+                    </select>
                     <label for="tag">Tag:</label>
                     <input type="text" name="tag" id='search-tag' class='search-input' placeholder="Filter Tag" />
                 </div>
                 <div class="large-6 columns">
                     <p>These are for creating new Program Tags.</p>
                     <label for="outcome">Outcome:</label>
-                    <input type="radio" name="outcome" value="True"> True
-                    <input type="radio" name="outcome" value="False" checked="checked"> False<br/>
+
+                    <input type="radio" name="outcome" value="True"> Yes
+                    <input type="radio" name="outcome" value="False" checked="checked"> No<br/>
 
                     <label for="topic">Topic:</label>
-                    <input type="radio" name="topic" value="True"> True
-                    <input type="radio" name="topic" value="False" checked="checked"> False<br/>
+                    <input type="radio" name="topic" value="True"> Yes
+                    <input type="radio" name="topic" value="False" checked="checked"> No<br/>
 
                     <label for="other">Other:</label>
-                    <input type="radio" name="other" value="True"> True
-                    <input type="radio" name="other" value="False" checked="checked"> False
+                    <input type="radio" name="other" value="True"> Yes
+                    <input type="radio" name="other" value="False" checked="checked"> No
 
                     <br/>
                     <input type="submit" class="button"/>
@@ -42,11 +55,12 @@
         <table>
             <thead>
                 <tr>
-                    <th>Concentration Code or Program Name</th>
+                    <th>Program Concentration</th>
                     <th>Tag</th>
                     <th>Outcome</th>
                     <th>Topic</th>
                     <th>Other</th>
+                    <th><a class="button" id="delete-all">Delete</a></th>
                 </tr>
             </thead>
             <tbody id="table-body">
@@ -71,67 +85,88 @@
     {#  Script to update the modal submit to delete the correct form#}
     <script src="/static/csrf-activator.js"></script>
     <script type="text/javascript">
-{#        $(document).ready(function() {#}
-            var csrftoken = "{{ csrf_token() }}";
-            activateCSRF(csrftoken);
+        var csrftoken = "{{ csrf_token() }}";
+        activateCSRF(csrftoken);
 
-            var delay = (function () {
-                var timer = 0;
-                return function (callback, ms) {
-                    clearTimeout(timer);
-                    timer = setTimeout(callback, ms);
-                };
-            })();
+        var delay = (function () {
+            var timer = 0;
+            return function (callback, ms) {
+                clearTimeout(timer);
+                timer = setTimeout(callback, ms);
+            };
+        })();
 
-            $(".search-input").keyup(function () {
-                delay(function () {
+        $(".search-input").keyup(function () {
+            delay(function () {
+                loadTableForSearch();
+            }, 300);
+        }).change(function () {
+            delay(function () {
+                loadTableForSearch();
+            }, 300);
+        });
+
+        function loadTableForSearch() {
+            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');
+
+            var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";
+            search_tag = $('#search-tag')[0].value;
+            search_key = $('#search-key')[0].value;
+
+            var inputs = {
+                'search_tag': search_tag,
+                'search_key': search_key
+            };
+
+            $.ajax({
+                type: "POST",
+                url: search_url,
+                data: JSON.stringify(inputs),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    $('#table-body').html(result);
+                }
+            });
+        }
+
+        $("#delete-all").click(function(){
+            var checkboxes_to_delete = [];
+            var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");
+            for( var i=0;i<checkbox_elements.length;i++){
+                checkboxes_to_delete.push(checkbox_elements[i].id);
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('program_search.ProgramSearchView:multi_delete')}}",
+                data: JSON.stringify(checkboxes_to_delete),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
                     loadTableForSearch();
-                }, 300);
+                }
             });
+        });
 
-            function loadTableForSearch() {
-                var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";
+        $('#program_search_form').submit(function () {
+            var formData = {
+                'key':                      $('select[name=key]').val(),
+                'tag':                      $('input[name=tag]').val(),
+                'outcome':                  $('input[name=outcome]:checked').val(),
+                'topic':                    $('input[name=topic]:checked').val(),
+                'other':                    $('input[name=other]:checked').val()
+            };
 
-                var inputs = {
-                    'search_tag': $('#search-tag')[0].value,
-                    'search_key': $('#search-key')[0].value
-                };
-
-                $.ajax({
-                    type: "POST",
-                    url: search_url,
-                    data: JSON.stringify(inputs),
-                    contentType: 'application/json;charset=UTF-8',
-                    success: function (result) {
-                        $('#table-body').html(result);
-                        addHandlersToDelete();
-                    }
-                });
-            }
-
-            function addHandlersToDelete() {
-                var url = "{{ url_for('program_search.ProgramSearchView:index') }}";
-                $('.program-search-row').click(function() {
-                    $("#modal-confirm").attr("data-delete-path", url + $(this)[0].id);
-                    $(document).foundation();
-                    $("#confirmModal").foundation('reveal', 'open');
-                });
-            }
-
-            $("#modal-confirm").click(function(){
-                var search_url = $("#modal-confirm").attr("data-delete-path");
-                $.ajax({
-                    type: "DELETE",
-                    url: search_url,
-                    contentType: 'application/json;charset=UTF-8',
-                    success: function (result) {
-                        $("#confirmModal").foundation('reveal', 'close');
-                        loadTableForSearch();
-                    }
-                });
+             $.ajax({
+                type: "POST",
+                url: "{{ url_for('program_search.ProgramSearchView:post') }}",
+                data: JSON.stringify(formData),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    loadTableForSearch();
+                }
             });
+             return false;
+        });
     </script>
 
-{#    <script src="{{ url_for('static', filename='scripts/js/admin/program_search/scripts/program_search.js') }}"></script>#}
 {% endblock %}
-

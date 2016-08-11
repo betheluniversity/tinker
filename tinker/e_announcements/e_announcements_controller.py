@@ -93,7 +93,7 @@ class EAnnouncementsController(TinkerController):
 
     def validate_form(self, rform):
 
-        from forms import EAnnouncementsForm;
+        from forms import EAnnouncementsForm
 
         form = EAnnouncementsForm()
 
@@ -119,7 +119,6 @@ class EAnnouncementsController(TinkerController):
 
         # add missing data and make sure its in the right format.
         add_data['name'] = session['name']
-        # add_data['message'] = self.escape_wysiwyg_content(add_data['message'])
 
         # todo, update these to have _ instead of - in Cascade so we don't have to translate
         add_data['email'] = session['user_email']
@@ -170,3 +169,7 @@ class EAnnouncementsController(TinkerController):
         self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year + "/" + month, 'folder')
 
         return "/e-announcements/" + year + "/" + month
+
+    # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
+    def edit_all_callback(self, asset_data):
+        pass

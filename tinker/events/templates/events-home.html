@@ -15,7 +15,7 @@
 
     <p>All events will be reviewed and approved within 2-3 business days by Conference and Event Services. You'll receive an email to let you know when your event has been approved.</p>
 
-    <p>If you have any questions, please contact Conference and Event Services at 651.638.6090.</p>
+    <p>If you have any questions or would like to cancel an event, please contact Conference and Event Services at 651.638.6090.</p>
 
 
   </div>
@@ -58,7 +58,6 @@
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
 
-            <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-event-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
            </ul>
         </div>
         <hr/>
@@ -100,7 +99,6 @@
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
-            <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-event-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
            </ul>
         </div>
         <hr/>
@@ -110,26 +108,11 @@
   </div>
 </div>
 
-
-{#Delete confirm modal#}
-<div id="confirmModal" class="reveal-modal" data-reveal>
-  <h2>Are you sure you want to delete?</h2>
-  <p class="lead">Your event page will be unpublished and removed from the calendar.</p>
-  <a class="modal-confirm" id="modal-confirm" href="#">Delete</a>
-  <a class="close-reveal-modal">&#215;</a>
-</div>
-
 {% endblock %}
 
 {% block scripts %}
 
-{#  Script to update the modal submit to delete the correct form #}
-{#  todo add url_for() on the button of events-home.html #}
   <script type="text/javascript">
-    $(".delete-press").click(function(){
-      $("#modal-confirm").attr("href", "/event/delete/" + $(this).data('event-id'));
-
-    });
   $(document).foundation();
   </script>
 
