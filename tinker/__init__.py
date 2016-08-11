@@ -32,6 +32,7 @@ from tinker.admin.cache import CacheBlueprint
 from tinker.admin.blink_roles import BlinkRolesBlueprint
 from tinker.admin.sync import SyncBlueprint
 from tinker.admin.publish import PublishManagerBlueprint
+from tinker.admin.program_search import ProgramSearchBlueprint
 from tinker.admin.redirects import RedirectsBlueprint
 from tinker.e_announcements import EAnnouncementsBlueprint
 from tinker.faculty_bio import FacultyBioBlueprint
@@ -43,6 +44,7 @@ app.register_blueprint(CacheBlueprint)
 app.register_blueprint(BlinkRolesBlueprint)
 app.register_blueprint(SyncBlueprint)
 app.register_blueprint(PublishManagerBlueprint)
+app.register_blueprint(ProgramSearchBlueprint)
 app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(EAnnouncementsBlueprint)
 app.register_blueprint(EventsBlueprint)
