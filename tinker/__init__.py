@@ -34,6 +34,7 @@ if not app.debug:
 from tinker.views import BaseBlueprint
 from tinker.admin.cache import CacheBlueprint
 from tinker.admin.blink_roles import BlinkRolesBlueprint
+from tinker.admin.program_search import ProgramSearchBlueprint
 from tinker.admin.sync import SyncBlueprint
 from tinker.admin.publish import PublishManagerBlueprint
 from tinker.admin.redirects import RedirectsBlueprint
@@ -45,6 +46,7 @@ from tinker.events import EventsBlueprint
 app.register_blueprint(BaseBlueprint)
 app.register_blueprint(CacheBlueprint)
 app.register_blueprint(BlinkRolesBlueprint)
+app.register_blueprint(ProgramSearchBlueprint)
 app.register_blueprint(SyncBlueprint)
 app.register_blueprint(PublishManagerBlueprint)
 app.register_blueprint(RedirectsBlueprint)

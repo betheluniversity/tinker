@@ -1,0 +1,31 @@
+{% for row in search_results %}
+  <tr id='{{ row.id }}' class="program-search-row table-hover">
+    <td >
+        <span class="key">{{ row.key }}</span>
+    </td>
+    <td>
+        <span class="tag">{{ row.tag }}</span>
+    </td>
+    <td>
+        <span class="outcome">
+        {% if row.outcome %}
+            X
+        {% endif %}
+        </span>
+    </td>
+    <td>
+        <span class="other">
+        {% if row.other %}
+            X
+        {% endif %}
+        </span>
+    </td>
+    <td>
+        <span class="topic">
+        {% if row.topic %}
+            X
+        {% endif %}
+        </span>
+    </td>
+  </tr>
+{% endfor %}

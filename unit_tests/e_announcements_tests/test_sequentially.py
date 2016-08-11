@@ -32,8 +32,8 @@ class EAnnouncementsBaseTestCase(unittest.TestCase):
             'message': "This E-Announcement should never be seen by the public, I hope",
             'name': "Philip Gibbens",
             'email': "phg49389@bethel.edu",
-            'first_date': '08-01-2016',
-            'second_date': '08-05-2016',
+            'first_date': '08-01-2017',
+            'second_date': '08-05-2017',
             'banner_roles': 'STUDENT-CAS'
         }
         if eaid:
@@ -51,9 +51,13 @@ class EAnnouncementsBaseTestCase(unittest.TestCase):
         assert b"You've successfully created your E-Announcement. Once your E-Announcement has been approved, it will appear on your Tinker" in response.data
         self.eaid = self.get_eaid(response.data)
 
+        ###################################################################################
+        ### The new submission goes to workflow; thus /edit and /duplicate should fail. ###
+        ###################################################################################
+
         # Get edit form
         response = self.send_get("/e-announcement/edit/" + self.eaid)
-        assert b'<input type="hidden" name="e_announcement_id" id="e_announcement_id" value="' in response.data
+        assert b'<input type="hidden" name="e_announcement_id" id="e_announcement_id" value="' not in response.data
 
         # Edit that new object
         response = self.send_post("/e-announcement/submit", self.create_form("Second title", eaid=self.eaid))
@@ -61,7 +65,7 @@ class EAnnouncementsBaseTestCase(unittest.TestCase):
 
         # Call the duplicate form to make sure it works
         response = self.send_get("/e-announcement/duplicate/" + self.eaid)
-        assert b'<form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">' in response.data
+        assert b'<form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">' not in response.data
 
         # Delete the new object
         response = self.send_get("/e-announcement/delete/" + self.eaid)
