@@ -41,7 +41,7 @@
                                 <label class="checkbox-label">Short URL</label>
                             </div>
                         </div>
-                        <div class="btn btn-primary">Save</div>
+                        <div class="btn btn-primary btn-save">Save</div>
                     </form>
                 </div>
             </div>
@@ -86,11 +86,11 @@
                         return false;
                     }
                 });
-                {#                $(".redirect-row").on('click', function () {#}
-                {#                    $("#modal-confirm").attr("data-delete-path", $(this).find('.from_path').html());#}
-                {#                    $(document).foundation();#}
-                {#                    $("#confirmModal").foundation('reveal', 'open');#}
-                {#                });#}
+                $(".redirect-row").on('click', function () {
+                    $("#modal-confirm").attr("data-delete-path", $(this).data('from-path'));
+                    {#                                    $(document).foundation();#}
+                    {#                                    $("#confirmModal").foundation('reveal', 'open');#}
+                });
             }
 
             var delay = (function () {
@@ -139,12 +139,11 @@
 
             $(document).ready(function () {
                 var d = document;
-                var input = $(d.getElementsByClassName('btn-primary'));
+                var input = $(d.getElementsByClassName('btn-save'));
                 input.attr('value', 'Save');
                 input.attr('type', 'button');
                 input.attr('id', 'redirect-add')
                 input.click(function () {
-                    console.log("BUTTON WAS CLICKED");
                     document.getElementById('redirect-add').disabled = true;
                     // when 'save' is clicked, gather the field mappings and send those
                     // to the wufoo-silva app for storage
@@ -158,7 +157,7 @@
                 });
                 $("#redirect-add").append(input);
 
-                $(".btn-simple").click(function () {
+                $(".btn-alert").click(function () {
                     var from_path = {"from_path": $(this).attr('data-delete-path')};
                     var url = "{{ url_for('redirects.RedirectsView:delete_redirect') }}";
                     $.post(url, from_path, function (data) {
@@ -177,24 +176,44 @@
 
 
     <!-- Modal Core -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content" id="confirmModal" class="reveal-modal" data-reveal>
+            <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
                     <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
                 </div>
                 <div class="modal-body">
-                    <p class="lead">Your redirect will be gone forever and ever.</p>
+                    Your redirect will be gone forever and ever.
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default btn-simple" data-dismiss="modal"
-                            data-delete-path="/delete/path">Delete
-                    </button>
+                    <a id="modal-confirm" data-delete-path="/delete/path" data-dismiss="modal"
+                       class="btn btn-primary btn-alert modal-confirm">Delete</a>
                 </div>
             </div>
         </div>
     </div>
+
+    {#    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">#}
+    {#        <div class="modal-dialog">#}
+    {#            <div class="modal-content" id="confirmModal" class="reveal-modal" data-reveal>#}
+    {#                <div class="modal-header">#}
+    {#                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>#}
+    {#                    <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>#}
+    {#                </div>#}
+    {#                <div class="modal-body">#}
+    {#                    <p class="lead">Your redirect will be gone forever and ever.</p>#}
+    {#                </div>#}
+    {#                <div class="modal-footer">#}
+    {#                    <button type="button" class="btn btn-simple btn-alert" data-dismiss="modal"#}
+    {#                            data-delete-path="/delete/path">Delete#}
+    {#                    </button>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#    </div>#}
 
 {% endblock %}
 
