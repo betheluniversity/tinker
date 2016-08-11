@@ -523,44 +523,10 @@ class TinkerController(object):
         form_xml = ET.fromstring(response.read())
 
         matches = []
-<<<<<<< HEAD
-        for root, dirnames, filenames in os.walk(app.config['THUMBOR_RESULT_STORAGE_LOCATION']):
-            for filename in fnmatch.filter(filenames, file_name):
-                matches.append(os.path.join(root, filename))
-        for match in matches:
-            call(['rm', match])
-
-        matches.extend(resp)
-
-        return str(matches)
-
-    def create_workflow(self, workflow_id, subtitle=None):
-        if not workflow_id:
-            return None
-        asset = self.read(workflow_id, 'workflowdefinition')
-
-        workflow_name = find(asset, 'name', False)
-        if subtitle:
-            workflow_name += ": " + subtitle
-
-        workflow = {
-            "workflowName": workflow_name,
-            "workflowDefinitionId": workflow_id,
-            "workflowComments": workflow_name
-        }
-
-        if app.config['ENVIRON'] == 'prod':
-            return workflow
-        else:
-            return None
-
-        return workflow
-=======
         for child in form_xml.findall('.//' + type_to_find):
             match = self.inspect_child(child)
             if match:
                 matches.append(match)
->>>>>>> create-base-view
 
         # Todo: maybe add some parameter as a search?
         # sort by created-on date.
@@ -573,57 +539,6 @@ class TinkerController(object):
         text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
         return text
 
-<<<<<<< HEAD
-    def get_add_data(self, lists, form, wysiwyg_keys=[]):
-        # A dict to populate with all the interesting data.
-        add_data = {}
-
-        for key in form.keys():
-            if key in lists:
-                add_data[key] = form.getlist(key)
-            else:
-                if key in wysiwyg_keys:
-                    add_data[key] = self.escape_wysiwyg_content(form[key])
-                else:
-                    add_data[key] = form[key]
-
-        # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
-        system_name = add_data['title'].lower().replace(' ', '-')
-        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
-
-        # add author
-        add_data['author'] = session['username']
-
-        return add_data
-
-    def element_tree_to_html(self, node):
-        return_string = ''
-        for child in node:
-            child_text = ''
-            if child.text:
-                child_text = child.text
-
-            # recursively renders children
-            try:
-                if child.tag == 'a':
-                    return_string += '<%s href="%s">%s%s</%s>' % (
-                        child.tag, child.attrib['href'], child_text, self.element_tree_to_html(child), child.tag)
-                else:
-                    return_string += '<%s>%s%s</%s>' % (
-                        child.tag, child_text, self.element_tree_to_html(child), child.tag)
-            except:
-                # gets the basic text
-                if child_text:
-                    if child.tag == 'a':
-                        return_string += '<%s href="%s">%s</%s>' % (
-                            child.tag, child.attrib['href'], child_text, child.tag)
-                    else:
-                        return_string += '<%s>%s</%s>' % (child.tag, child_text, child.tag)
-
-            # gets the text that follows the children
-            if child.tail:
-                return_string += child.tail
-=======
     def unpublish(self, path_or_id, asset_type):
         return self.cascade_connector.unpublish(path_or_id, asset_type)
 
@@ -632,6 +547,5 @@ class TinkerController(object):
             if key == 'exceptions':
                 print 'TEST'
             update(asset, key, value)
->>>>>>> create-base-view
 
         return True
