@@ -8,9 +8,6 @@ from tinker import app
 from tinker.office_hours.office_hours_controller import OfficeHoursController
 from tinker.office_hours.forms import OfficeHoursForm
 
-# todo: remove all references to this (these should all be in cascade connector)
-from tinker.web_services import *
-
 
 OfficeHoursBlueprint = Blueprint('office-hours', __name__, template_folder='templates')
 
