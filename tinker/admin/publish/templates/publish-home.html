@@ -10,24 +10,6 @@
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
-    {#    <script type="text/javascript">#}
-    {#        function publishAsset(type, id, counter) {#}
-    {#            var destination = $('input[name=publish-to]:checked', '#publish-search-form').val();#}
-    {#            var url = "/admin/publish-manager/publish/" + destination + "/" + type + "/" + id;#}
-    {#            $.post(url, function (data) {#}
-    {#                $("#publish_button_" + counter).text(data);#}
-    {#            });#}
-    {#        }#}
-    {##}
-    {#        function moreInfo(type, id) {#}
-    {#            var input_data = {'type': type, 'id': id};#}
-    {#            var url = "{{ url_for('publish-manager.PublishManagerView:more_info') }}";#}
-    {#            $.post(url, input_data, function (data) {#}
-    {#                $('.dialog-text').html(data);#}
-    {#            });#}
-    {#        }#}
-    {#    </script>#}
-
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
@@ -220,11 +202,14 @@
          aria-hidden="true" data-reveal>
         <div id="publish-modal" class="modal-dialog">
             <div class="modal-content">
+                <div id="more-info-title" class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">More Info</h4>
+                </div>
                 <div id="dialog-text" class="modal-body">
                 </div>
             </div>
         </div>
-        <a class="close-reveal-modal">&#215;</a>
     </div>
 {% endblock %}
 

@@ -1,39 +1,33 @@
-<div id="more-info-content" class="content">
-    <div class="container-fluid">
-        <div class="col-md-12">
+<div class="col-md-12">
 
-            {% if name %}
-                <h2>{{ name }}</h2>
-            {% endif %}
-            <div class="col-md-12">
-                <div class="row">
+    {% if name %}
+        <h2>{{ name }}</h2>
+    {% endif %}
+    <div class="col-md-12">
 
-                    <div><p>Title: {{ title }}</p></div>
+        <div><h5>Title: {{ title }}</h5></div>
 
-                    <div><p>Path: {{ path }}</p></div>
+        <div><h5>Path: {{ path }}</h5></div>
 
-                    <div><p>Type: {{ info_type }}</p></div>
-                </div>
-            </div>
+        <div><h5>Type: {{ info_type }}</h5></div>
+    </div>
 
-            <div class="row">
+    <div class="row">
 
-                <div class="col-sm-6">
-                    <h4>WWW last published</h4>
-                    <p><a href="https://www.bethel.edu/{{ path }}" target="_blank">{{ www_publish_date }}</a>
-                    </p>
-                    <iframe src="https://www.bethel.edu/{{ path }}" height="400" width="400"></iframe>
-                </div>
+        <div class="col-sm-6 last-published-header">
+            <h4 class="first-subtitle">WWW last published</h4>
+            <p><a href="https://www.bethel.edu/{{ path }}" target="_blank">{{ www_publish_date }}</a>
+            </p>
+            <iframe src="https://www.bethel.edu/{{ path }}" height="400" width="400"></iframe>
+        </div>
 
-                <div class="col-sm-6">
-                    <h4>Staging last published</h4>
-                    <p><a href="https://staging.bethel.edu/{{ path }}"
-                          target="_blank">{{ staging_publish_date }}</a>
-                    </p>
-                    <iframe src="https://staging.bethel.edu/{{ path }}" height="400" width="400"></iframe>
-                </div>
-            </div>
-
+        <div class="col-sm-6 last-published-header">
+            <h4 class="first-subtitle">Staging last published</h4>
+            <p><a href="https://staging.bethel.edu/{{ path }}"
+                  target="_blank">{{ staging_publish_date }}</a>
+            </p>
+            <iframe src="https://staging.bethel.edu/{{ path }}" height="400" width="400"></iframe>
         </div>
     </div>
+
 </div>
