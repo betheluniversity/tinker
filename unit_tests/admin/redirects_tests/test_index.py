@@ -1,4 +1,4 @@
-from redirects_base import RedirectsBaseTestCase
+from redirects_Base import RedirectsBaseTestCase
 
 
 class IndexTestCase(RedirectsBaseTestCase):

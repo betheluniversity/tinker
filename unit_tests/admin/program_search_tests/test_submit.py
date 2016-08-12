@@ -1,4 +1,5 @@
 from program_search_base import ProgramSearchBaseTestCase
+import json
 
 
 class SubmitTestCase(ProgramSearchBaseTestCase):
@@ -7,15 +8,13 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
     #######################
 
     def create_form(self):
-        csrf_token = super(SubmitTestCase, self).get_csrf_token('/admin/program-search')
-        return {
-            'csrf_token': csrf_token,
+        return json.dumps({
             'key': "x",
             'tag': "z",
             'outcome': "False",
             'topic': "False",
             'other': "False"
-        }
+        })
 
     #######################
     ### Testing methods ###
@@ -24,4 +23,4 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
     def test_submit_valid(self):
         form_contents = self.create_form()
         response = super(SubmitTestCase, self).send_post('/admin/program-search/submit', form_contents)
-        assert b'<input type="text" name="key" id=\'search-key\' class=\'search-input\' placeholder="Filter Key" />' in response.data
+        assert b'<label for="key">Concentration Code or Program Name:</label>' in response.data

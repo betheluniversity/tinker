@@ -90,7 +90,7 @@ class EventsView(FlaskView):
             add_data['author'] = request.form['author']
             asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
             resp = self.base.create_page(asset)
-            eid = resp['createdAssetId']
+            eid = resp.asset['page']['id']
             self.base.log_sentry("New event submission", resp)
         else:
             page = self.base.read_page(eid)

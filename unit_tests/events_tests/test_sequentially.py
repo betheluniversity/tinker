@@ -93,9 +93,8 @@ class EventsBaseTestCase(unittest.TestCase):
         response = self.send_get("event/duplicate/" + self.eid)
         assert b'<p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>' in response.data
 
-        # Delete the testing object
-        response = self.send_get("event/delete/" + self.eid)
-        assert b'Your event has been deleted. It will be removed from your' in response.data
+        print "Event ID to be deleted:", self.eid
+        # TODO: I want to make these all self-deleting once more, but that involves interfacting with bu_cascade directly.
 
     def tearDown(self):
         pass

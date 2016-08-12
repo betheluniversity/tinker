@@ -12,14 +12,4 @@ class IndexTestCase(OfficeHoursBaseTestCase):
 
     def test_index(self):
         response = super(IndexTestCase, self).send_get("/office-hours")
-        assert b'<div class="row">\
-          <div class="large-12 columns">\
-            <p>Below is the list of Office Hours you have access to edit.\
-            </p>\
-          </div>\
-         </div>\
-        <hr/>\
-        \
-        <div class="row">\
-        \
-          <div class="large-12 columns">' in response.data
+        assert b'<p>Below is the list of Office Hours you have access to edit.' in response.data

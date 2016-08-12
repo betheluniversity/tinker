@@ -37,6 +37,7 @@ class OfficeHoursController(TinkerController):
 
         block = self.read_block(block_id)
         data, mdata, sdata = block.read_asset()
+        print "mdata:", mdata
 
         edit_data = self.get_edit_data(sdata, mdata,  multiple=multiple)
 

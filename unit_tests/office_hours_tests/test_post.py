@@ -8,7 +8,7 @@ class PostTestCase(OfficeHoursBaseTestCase):
 
     def create_form(self):
         return {
-            "block_id": ""
+            "block_id": "4f78feca8c58651305d79299fb5aa2bb"
         }
 
     #######################
@@ -18,14 +18,6 @@ class PostTestCase(OfficeHoursBaseTestCase):
     def test_post(self):
         form_contents = self.create_form()
         response = super(PostTestCase, self).send_post("/office-hours", form_contents)
+        print "Post:", response
         # Because this redirects to index, it uses the same assertion
         assert b'<div class="row"><div class="large-12 columns">' in response.data
-        #     <p>Below is the list of Office Hours you have access to edit.\
-        #     </p>\
-        #   </div>\
-        #  </div>\
-        # <hr/>\
-        # \
-        # <div class="row">\
-        # \
-        #   <div class="large-12 columns">' in response.data

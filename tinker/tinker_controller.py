@@ -259,8 +259,8 @@ class TinkerController(object):
         }
         return workflow
 
-    def delete(self, path_or_id):
-        return self.cascade_connector.delete(path_or_id)
+    def delete(self, path_or_id, asset_type):
+        return self.cascade_connector.delete(path_or_id, asset_type)
 
     def element_tree_to_html(self, node):
         return_string = ''
