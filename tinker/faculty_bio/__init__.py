@@ -146,6 +146,29 @@ class FacultyBioView(FlaskView):
         self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
         return render_template('faculty-bio-confirm.html', **locals())
 
+    @route('/activate', methods=['post'])
+    def activate(self):
+        data = json.loads(request.data)
+        faculty_bio_id = data['id']
+        activate_page = data['activate']
+
+        page = self.base.read_page(faculty_bio_id)
+        asset, md, sd = page.get_asset()
+
+        # activate bio
+        if activate_page == 'activate':
+            update(sd, 'deactivate', 'No')
+            page.edit_asset(asset)
+            page.publish_asset()
+        else:  # deactivate bio
+            update(sd, 'deactivate', 'Yes')
+            page.edit_asset(asset)
+            page.unpublish_asset()
+
+        publish(app.config['FACULTY_BIOS_XML_ID'])
+
+        return 'Success'
+
     def edit_all(self):
         type_to_find = 'system-page'
         xml_url = app.config['FACULTY_BIOS_XML_URL']
