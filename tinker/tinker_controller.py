@@ -350,6 +350,7 @@ class TinkerController(object):
         for m in multiple:
             edit_data[m] = []
 
+
         for node in find(sdata, 'identifier'):
             if node['identifier'] in multiple:
                 m = node['identifier']
@@ -360,6 +361,7 @@ class TinkerController(object):
                 edit_data[node_identifier] = self.inspect_sdata_node(node)
 
         dynamic_fields = find(mdata, 'fieldValues')
+
         # now metadata dynamic fields
         for field in dynamic_fields:
             if find(field, 'fieldValue'):
@@ -367,8 +369,11 @@ class TinkerController(object):
                 edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = mdata['title']
-        edit_data['metaDescription'] = mdata['metaDescription']
+        # TODO errors coming on these if statements
+        if 'title' in mdata:
+            edit_data['title'] = mdata['title']
+        if 'metaDescription' in mdata:
+            edit_data['metaDescription'] = mdata['metaDescription']
 
         # get the (first) author
         authors = find(mdata, 'author', False)

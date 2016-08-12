@@ -36,8 +36,10 @@ class OfficeHoursController(TinkerController):
         multiple = ['exceptions']
 
         block = self.read_block(block_id)
+
         data, mdata, sdata = block.read_asset()
 
+        # TODO error is on this line
         edit_data = self.get_edit_data(sdata, mdata,  multiple=multiple)
 
         return edit_data, sdata, mdata

@@ -51,13 +51,9 @@
 
     {#  Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
-        $(document).ready(function () {
-            var csrftoken = "{{ csrf_token() }}";
-            activateCSRF(csrftoken);
 
-            $(".delete-press").click(function () {
-                $("#modal-confirm").attr("href", "" + $(this).data(''));
-            });
+        $(".delete-press").click(function () {
+            $("#modal-confirm").attr("href", "" + $(this).data(''));
         });
     </script>
 
