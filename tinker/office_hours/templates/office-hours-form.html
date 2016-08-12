@@ -1,6 +1,6 @@
-{% extends "tinkerbase.html" %}
+{% extends "tinker_base.html" %}
 
-{% block title %}Office Hours{% endblock %}
+{% set title = 'Office Hours' %}
 
 {% block styles %}
     <style type="text/css">
@@ -36,7 +36,7 @@
         <label for="exception_date">
             Exception Date
         </label>
-        <input class="datepicker" id="date1" name="date1" type="text" value="">
+        <input class="datepicker" id="date1" name="date1" type="text" value=""/>
         <label for="exception_open1">
             Open *
         </label>
@@ -47,8 +47,9 @@
                      autocomplete="off">
         </div>
     </fieldset>
-    <a href="javascript:void(0);" id="add_exception_button" class="button tiny">Add Another Exception</a>
-    <a href="javascript:void(0);" id="remove_exception_button" style="display:none" class="button tiny alert">Remove
+    <a href="javascript:void(0);" id="add_exception_button" class="btn btn-primary tiny">Add Another Exception</a>
+    <a href="javascript:void(0);" id="remove_exception_button" style="display:none"
+       class="btn btn-primary tiny btn-alert">Remove
         Exception</a>
 
 {% endmacro %}
@@ -69,80 +70,85 @@
 
 
 {% block main_content %}
-    <div class="row">
-        <div class="large-12 columns">
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
 
-            <p>Some Copy</p>
-            <h4>BU Standard Hours</h4>
-            {% set standard = standard_edit_data['current'] %}
-            {{ current_hours(standard, False) }}
+                {# todo: what should the copy be? #}
+                {#                <p>Some Copy</p>#}
+                <h3 class="subtitle">Edit Office Hours</h3>
+                <hr/>
+                <h4>BU Standard Hours</h4>
+                {% set standard = standard_edit_data['current'] %}
+                {{ current_hours(standard, False) }}
 
-            <h4>{{ mdata['title'] }}</h4>
-            {#    <h4>Current Hours</h4>#}
-            {% set current = edit_data['current'] %}
-            {{ current_hours(current) }}
+                <h4>{{ mdata['title'] }}</h4>
+                {#    <h4>Current Hours</h4>#}
+                {% set current = edit_data['current'] %}
+                {{ current_hours(current) }}
 
-            <form id="officehoursform" action="/office-hours/" method="post" enctype="multipart/form-data">
-                <input type="hidden" name="block_id" id="block_id" value="{{ block_id }}"/>
+                <form id="officehoursform" action="/office-hours/" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="block_id" id="block_id" value="{{ block_id }}"/>
 
-                {% if form.errors %}
-                    <div class="alert alert-error">
-                        <div data-alert class="alert-box alert radius">
-                            There were errors with your form.
-                            <a href="#" class="close">&times;</a>
-                        </div>
-                    </div>
-                {% endif %}
-
-                {{ form.hidden_tag() }}
-                {% for field in form if field.widget.input_type != 'hidden' %}
-                    {{ CheckFieldLabel(field) }}
-
-                    {% for error in form.errors[field.name] %}
+                    {% if form.errors %}
                         <div class="alert alert-error">
                             <div data-alert class="alert-box alert radius">
-                                {{ error }}
+                                There were errors with your form.
                                 <a href="#" class="close">&times;</a>
                             </div>
                         </div>
-                    {% endfor %}
-
-                    {% if field.type == 'FormField' %}
-                        <div class="large-6 columns">
-                            {{ ExceptionForm(field) }}
-                        </div>
-
-                    {% elif field.type == 'StringField' %}
-                        {% if 'open' in field.name %}
-                            <div class="large-12 columns timeRange">
-                                {{ field(class='time start') }}
-                                {% elif 'close' in field.name %}
-                                - {{ field(class='time end') }}
-                            </div>
-                        {% else %}
-                            {{ field(class='datepicker') }}
-                        {% endif %}
-
-                    {% elif field.type == 'NextOpenField' %}
-                        <fieldset>
-                            <legend>Next</legend>
-
-                            {% elif field.type == 'NextCloseField' %}
-                        </fieldset>
-
-                    {% elif field.type == 'ExceptionsField' %}
-                        {{ ExceptionsFieldset() }}
-
-                    {% elif field.type == 'RadioField' %}
-                        {% for subfield in field %}
-                            <label>{{ subfield }}{{ subfield.label }}</label>
-                        {% endfor %}
-                    {% else %}
-                        {{ field() }}
                     {% endif %}
-                {% endfor %}
-                <button type="submit" id="office-hours-submit-btn" class="button postfix">Submit</button>
-            </form>
+
+                    {{ form.hidden_tag() }}
+                    {% for field in form if field.widget.input_type != 'hidden' %}
+                        {{ CheckFieldLabel(field) }}
+
+                        {% for error in form.errors[field.name] %}
+                            <div class="alert alert-error">
+                                <div data-alert class="alert-box alert radius">
+                                    {{ error }}
+                                    <a href="#" class="close">&times;</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        {% if field.type == 'FormField' %}
+                            <div class="large-6 columns">
+                                {{ ExceptionForm(field) }}
+                            </div>
+
+                        {% elif field.type == 'StringField' %}
+                            {% if 'open' in field.name %}
+                                <div class="large-12 columns timeRange">
+                                    {{ field(class='time start') }}
+                                    {% elif 'close' in field.name %}
+                                    - {{ field(class='time end') }}
+                                </div>
+                            {% else %}
+                                {{ field(class='datepicker') }}
+                            {% endif %}
+
+                        {% elif field.type == 'NextOpenField' %}
+                            <fieldset>
+                                <legend>Next</legend>
+
+                                {% elif field.type == 'NextCloseField' %}
+                            </fieldset>
+
+                        {% elif field.type == 'ExceptionsField' %}
+                            {{ ExceptionsFieldset() }}
+
+                        {% elif field.type == 'RadioField' %}
+                            {% for subfield in field %}
+                                <label>{{ subfield }}{{ subfield.label }}</label>
+                            {% endfor %}
+                        {% else %}
+                            {{ field() }}
+                        {% endif %}
+                    {% endfor %}
+                    <a type="submit" id="office-hours-submit-btn" class="btn btn-primary postfix">Submit</a>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -154,6 +160,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datepair.js/0.4.14/jquery.datepair.min.js"></script>
+    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
+
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css">
     <link rel="stylesheet"
@@ -178,10 +186,6 @@
                     format: 'mm/dd/yyyy'
                 });
             }
-
-            $(document).ready(function () {
-                dateTimePickers();
-            });
 
 
             $("#add_exception_button").on('click', function () {
@@ -236,8 +240,6 @@
             }
 
 
-            $(document).ready(function () {
-
                 {% if edit_data['exceptions'] %}
                     var exceptions = {{ edit_data['exceptions']|safe }};
                     var i = 0;
@@ -268,8 +270,7 @@
 
                 {% endif %}
 
-
-            });
+            dateTimePickers();
         });
 
     </script>
