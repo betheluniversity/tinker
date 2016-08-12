@@ -1,0 +1,70 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'Office Hours' %}
+
+{% block styles %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+
+{#{% block page_title %}Bethel University Tinker{% endblock %}#}
+
+{% block main_content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <p>Below is the list of Office Hours you have access to edit.
+                </p>
+            </div>
+
+            <hr/>
+
+            <div class="card">
+
+                <div class="content">
+
+                    {% for form in forms %}
+                        <div class="row">
+                            <div class="large-6 columns">
+                                <p>{{ form.title }}</p>
+                            </div>
+                            <div class="large-6 columns small-3">
+                                <a href="{{ url_for('office-hours.OfficeHoursView:edit', block_id=form.id) }}"
+                                   class="btn btn-primary">Edit</a></li>
+                            </div>
+                            <hr/>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+
+            {#Delete confirm modal#}
+            {#            <div id="confirmModal" class="reveal-modal" data-reveal>#}
+            {#                <h2>Are you sure you want to delete?</h2>#}
+            {#                <p class="lead">Your E-Announcement will removed.</p>#}
+            {#                <a class="modal-confirm" id="modal-confirm" href="">Delete</a>#}
+            {#                <a class="close-reveal-modal">&#215;</a>#}
+            {#            </div>#}
+        </div>
+    </div>
+
+    {#  Script to update the modal submit to delete the correct form#}
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var csrftoken = "{{ csrf_token() }}";
+            activateCSRF(csrftoken);
+
+            $(".delete-press").click(function () {
+                $("#modal-confirm").attr("href", "" + $(this).data(''));
+            });
+        });
+    </script>
+
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
+{% endblock %}
+
+
