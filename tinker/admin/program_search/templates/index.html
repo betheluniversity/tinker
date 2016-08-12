@@ -1,4 +1,6 @@
-{% extends "tinker-base.html" %}
+{% extends "tinker_base.html" %}
+
+{% set title = 'Program Search' %}
 
 {% block title %}Program Search Tags{% endblock %}
 
@@ -8,66 +10,87 @@
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
-<div id="main">
-    <div>
+    <div class="content">
         <div class="row">
-            <form id='program_search_form' method="post">
-                <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-                <div class="large-6 columns">
-                    <label for="key">Concentration Code or Program Name:</label>
-{#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
-                    <select name="key" id="search-key" class="search-input">
-                        <option value="">Any</option>
-                        {% for school_label in school_labels %}
-                            <optgroup label="{{ school_label }}">
-                            {% for program_concentration in program_concentrations %}
-                                {% if program_concentration.school == school_label %}
-                                    <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
-                                {% endif %}
+            <form id='program_search_form' method="post" class="card">
+                <div class="content">
+                    <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+                    <div class="large-6 columns">
+                        <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
+    {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
+                        <select name="key" id="search-key" class="search-input">
+                            <option value="">Any</option>
+                            {% for school_label in school_labels %}
+                                <optgroup label="{{ school_label }}">
+                                {% for program_concentration in program_concentrations %}
+                                    {% if program_concentration.school == school_label %}
+                                        <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                                </optgroup>
                             {% endfor %}
-                            </optgroup>
-                        {% endfor %}
-                    </select>
-                    <label for="tag">Tag:</label>
-                    <input type="text" name="tag" id='search-tag' class='search-input' placeholder="Filter Tag" />
-                </div>
-                <div class="large-6 columns">
-                    <p>These are for creating new Program Tags.</p>
-                    <label for="outcome">Outcome:</label>
-                    <input type="radio" name="outcome" value="True"> Yes
-                    <input type="radio" name="outcome" value="False" checked="checked"> No<br/>
+                        </select>
+                        <label for="tag" style="color: #252422">Search by Tag:</label>
+                        <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
+                    </div>
+                    <div class="large-6 columns">
+                        <p>These are for creating new Program Tags.</p>
+                        <label>
+                        <div class="col-sm-4">
+                            Outcome:
+                            <div class="radio">
+                                <label><input type="radio" name="outcome" value="True">Yes</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" name="outcome" value="False">No</label>
+                            </div>
+                        </div>
 
-                    <label for="topic">Topic:</label>
-                    <input type="radio" name="topic" value="True"> Yes
-                    <input type="radio" name="topic" value="False" checked="checked"> No<br/>
+                        <div class="col-sm-4">
+                            Topic:
+                            <div class="radio">
+                                <label><input type="radio" name="topic" value="True">Yes</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" name="topic" value="False">No</label>
+                            </div>
+                        </div>
 
-                    <label for="other">Other:</label>
-                    <input type="radio" name="other" value="True"> Yes
-                    <input type="radio" name="other" value="False" checked="checked"> No
-
-                    <br/>
-                    <input type="submit" class="button"/>
+                        <div class="col-sm-4">
+                            Other:
+                            <div class="radio">
+                                <label><input type="radio" name="other" value="True">Yes</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" name="other" value="False">No</label>
+                            </div>
+                        </div>
+                        </label>
+                    </div>
+                    <div class="large-2 columns"></div>
                 </div>
             </form>
         </div>
+        <div class="row">
+            <div class="large-12 columns">
+                <table>
+                    <thead>
+                    <tr>
+                        <th width="600">Program Concentration</th>
+                        <th width="500">Tag</th>
+                        <th width="100">Outcome</th>
+                        <th width="100">Topic</th>
+                        <th width="100">Other</th>
+                        <th><a class="btn btn-primary" id="delete-all">Delete</a></th>
+                    </tr>
+                    </thead>
+                    <tbody id="table-body">
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Program Concentration</th>
-                    <th>Tag</th>
-                    <th>Outcome</th>
-                    <th>Topic</th>
-                    <th>Other</th>
-                    <th><a class="button" id="delete-all">Delete</a></th>
-                </tr>
-            </thead>
-            <tbody id="table-body">
-
-            </tbody>
-        </table>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
 
 {# Delete confirm modal #}
 <div id="confirmModal" class="reveal-modal" data-reveal>
@@ -76,6 +99,26 @@
 
   <button class="modal-confirm" id="modal-confirm" data-delete-path="">Delete</button>
   <a class="close-reveal-modal">&#215;</a>
+</div>
+<!-- Modal Core -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+            </div>
+            <div class="modal-body">
+                The redirect will be gone forever and forever.
+            </div>
+            <div class="modal-footer">
+                <a id="modal-confirm" href="#"
+                   class="btn btn-primary btn-alert modal-confirm" id="modal-confirm">Delete</a>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
