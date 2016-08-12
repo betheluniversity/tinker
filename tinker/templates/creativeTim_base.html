@@ -31,7 +31,8 @@
             <link href="/static/assets/css/tinker.css" rel="stylesheet"/>
 
             <!--  Fonts and icons     -->
-            <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
+            <link href="https://opensource.keycdn.com/fontawesome/4.6.3/font-awesome.min.css" rel="stylesheet">
+{#            <link href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">#}
             <link href='https://fonts.googleapis.com/css?family=Muli:400,300' rel='stylesheet' type='text/css'>
             <link href="https://cdn3.bethel.edu/tinker/css/themify-icons.css" rel="stylesheet">
 
@@ -43,8 +44,9 @@
     </head>
 
     <body>
-    {% block body_content %}
-    {% endblock %}
+    {% block body_content %}{% endblock %}
+
+    {% block modalhtml %}{% endblock %}
 
     <!--   Core JS Files   -->
     <script src="https://cdn1.bethel.edu/tinker/js/bootstrap.min.js" type="text/javascript"></script>
