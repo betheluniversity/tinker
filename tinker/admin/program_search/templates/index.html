@@ -81,7 +81,9 @@
                         <th width="100">Outcome</th>
                         <th width="100">Topic</th>
                         <th width="100">Other</th>
-                        <th><a class="btn btn-primary" id="delete-all">Delete</a></th>
+                        <th><li><a href="#" data-reveal-id="confirmModal" id="delete-all"
+                                               class="delete-press"
+                                               data-toggle="modal" data-target="#myModal" style="display:none">Delete</a></li></th>
                     </tr>
                     </thead>
                     <tbody id="table-body">
@@ -91,15 +93,6 @@
             </div>
         </div>
     </div>
-
-{# Delete confirm modal #}
-<div id="confirmModal" class="reveal-modal" data-reveal>
-  <h2>Are you sure you want to delete?</h2>
-  <p class="lead">The redirect will be gone forever and forever.</p>
-
-  <button class="modal-confirm" id="modal-confirm" data-delete-path="">Delete</button>
-  <a class="close-reveal-modal">&#215;</a>
-</div>
 <!-- Modal Core -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
@@ -111,7 +104,7 @@
                 <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
             </div>
             <div class="modal-body">
-                The redirect will be gone forever and forever.
+                The redirects will be gone forever and forever.
             </div>
             <div class="modal-footer">
                 <a id="modal-confirm" href="#"
@@ -170,7 +163,7 @@
             });
         }
 
-        $("#delete-all").click(function(){
+        $("#modal-confirm").click(function(){
             var checkboxes_to_delete = [];
             var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");
             for( var i=0;i<checkbox_elements.length;i++){
@@ -186,6 +179,16 @@
                     loadTableForSearch();
                 }
             });
+        });
+
+        $(".delete-checkbox").click(function(){
+            var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");
+            if(checkbox_elements[0]){
+                $("#delete-all").style.display = "inline";
+            }
+            else{
+                $("#delete-all").style.display = "none";
+            }
         });
 
         $('#program_search_form').submit(function () {
