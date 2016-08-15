@@ -9,14 +9,13 @@ from raven.contrib.flask import Sentry
 from flask_wtf.csrf import CsrfProtect
 from bu_cascade.cascade_connector import Cascade
 
-
 app = Flask(__name__)
 app.config.from_object('config.config')
 db = SQLAlchemy(app)
 
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
 
-sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)  # , logging_exclusions=("werkzeug",))
+sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
 # create logging
 if not app.debug:
@@ -57,3 +56,10 @@ CsrfProtect(app)
 
 # Import global HTTP error code handling
 import error
+from tinker_controller import TinkerController
+
+
+@app.before_request
+def before_request():
+    base = TinkerController()
+    base.before_request()

@@ -19,11 +19,6 @@ class ProgramSearchView(FlaskView):
         self.base = ProgramSearchController()
 
     def before_request(self, args):
-        if 'groups' not in session:
-            # This if statement block has been added for unit testing purposes
-            from tinker.tinker_controller import TinkerController
-            tc = TinkerController()
-            tc.before_request()
         # give access to admins and lauren
         if 'Administrators' not in session['groups'] and session['username'] != 'parlau':
             abort(403)

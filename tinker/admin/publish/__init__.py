@@ -21,11 +21,6 @@ class PublishManagerView(FlaskView):
 
     # This method is called before any request to check user's credentials
     def before_request(self, name, **kwargs):
-        if 'groups' not in session:
-            # This if statement block has been added for unit testing purposes
-            from tinker.tinker_controller import TinkerController
-            tc = TinkerController()
-            tc.before_request()
         if 'Administrators' not in session['groups']:
             abort(403)
 

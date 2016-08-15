@@ -89,6 +89,7 @@ class TinkerController(object):
         self.datetime_format = "%B %d  %Y, %I:%M %p"
 
     def before_request(self):
+
         def init_user():
 
             dev = current_app.config['ENVIRON'] != 'prod'

@@ -22,11 +22,7 @@ class EAnnouncementsView(FlaskView):
         self.base_campaign = CampaignController()
 
     def before_request(self, name, **kwargs):
-        if 'name' not in session or 'email' not in session:
-            # This if statement block has been added for unit testing purposes
-            from tinker.tinker_controller import TinkerController
-            tc = TinkerController()
-            tc.before_request()
+        pass
 
     def index(self):
         forms = self.base.traverse_xml(app.config['E_ANN_XML_URL'], 'system-block')

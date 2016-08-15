@@ -17,11 +17,7 @@ class EventsView(FlaskView):
 
     # Allows any user to access events
     def before_request(self, name, **kwargs):
-        if 'groups' not in session:
-            # This if statement block has been added for unit testing purposes
-            from tinker.tinker_controller import TinkerController
-            tc = TinkerController()
-            tc.before_request()
+        pass
 
     def index(self):
         forms = self.base.traverse_xml(app.config['EVENTS_URL'], 'system-page')
