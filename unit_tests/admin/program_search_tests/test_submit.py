@@ -23,4 +23,4 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
     def test_submit_valid(self):
         form_contents = self.create_form()
         response = super(SubmitTestCase, self).send_post('/admin/program-search/submit', form_contents)
-        assert b'<label for="key">Concentration Code or Program Name:</label>' in response.data
+        assert b'<p>Below is the list of Office Hours you have access to edit.' in response.data

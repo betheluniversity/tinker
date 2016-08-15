@@ -12,4 +12,4 @@ class IndexTestCase(ProgramSearchBaseTestCase):
 
     def test_index(self):
         response = super(IndexTestCase, self).send_get("/admin/program-search")
-        assert b'<label for="key">Concentration Code or Program Name:</label>' in response.data
+        assert b'<p>Below is the list of Office Hours you have access to edit.' in response.data

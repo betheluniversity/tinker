@@ -131,4 +131,14 @@ class EventsView(FlaskView):
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 
+    # This endpoint is being re-added so that unit tests will be self-deleting. This endpoint is publicly visible, but
+    # it is not referenced anywhere on any page, so the public shouldn't know of its existence.
+    @route("/delete/<page_id>", methods=['GET'])
+    def delete(self, page_id):
+        event_page = self.base.read_page(page_id)
+        response = event_page.delete_asset()
+        app.logger.debug(time.strftime("%c") + ": Event deleted by " + session['username'] + " " + str(response))
+        self.base.publish(app.config['EVENT_XML_ID'])
+        return render_template('events-delete-confirm.html')
+
 EventsView.register(EventsBlueprint)

@@ -54,7 +54,7 @@ class OfficeHoursView(FlaskView):
         return render_template('office_hours_index.html', **locals())
 
     def edit(self, block_id):
-
+        print session['username']
         edit_data, sdata, mdata = self.base.load_office_hours_block(block_id=block_id)
         standard_edit_data, s, m = self.base.load_office_hours_block(block_id=app.config['OFFICE_HOURS_STANDARD_BLOCK'])
         
