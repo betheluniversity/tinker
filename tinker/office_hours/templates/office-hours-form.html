@@ -158,15 +158,19 @@
 {% block scripts %}
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>
+    {#    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>#}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datepair.js/0.4.14/jquery.datepair.min.js"></script>
     <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css">
-    <link rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/css/bootstrap-datepicker.standalone.css">
-
+    {#    <link rel="stylesheet"#}
+    {#          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/css/bootstrap-datepicker.standalone.css">#}
 
     <script type="text/javascript">
         $(document).ready(function () {
@@ -182,11 +186,19 @@
                 $('.timeRange').datepair({
                     'defaultTimeDelta': 32400000
                 });
-                $('.datepicker').datepicker({
-                    format: 'mm/dd/yyyy'
+                {#                $('.datepicker').datepicker({#}
+                {#                    format: 'mm/dd/yyyy'#}
+                {#                });#}
+                $('.datepicker').each(function (index) {
+                    var picker = new Pikaday({
+                        field: this,
+                        format: 'MM/DD/YYYY',
+                    });
                 });
             }
 
+
+            dateTimePickers();
 
             $("#add_exception_button").on('click', function () {
                 var last = $(".exceptions-fieldset").last();
@@ -240,39 +252,37 @@
             }
 
 
-                {% if edit_data['exceptions'] %}
-                    var exceptions = {{ edit_data['exceptions']|safe }};
-                    var i = 0;
-                    while (i < 200) {
+            {% if edit_data['exceptions'] %}
+                var exceptions = {{ edit_data['exceptions']|safe }};
+                var i = 0;
+                while (i < 200) {
 
-                        exception = exceptions[i];
-                        if (!exception) {
-                            break;
-                        }
-                        //Convert to correct value
-                        id = i + 1;
-
-                        //If this is not the first node, create it before we can populate it and insert after the last one.
-                        //show the remove buton
-                        if (i != 0) {
-                            var last = $(".exceptions-fieldset").last();
-                            var new_exception = newFieldset(id);
-                            new_exception.insertAfter(last);
-                            $("#remove_exception_button").show();
-                        }
-
-                        populateFieldset(id, exception);
-
-                        i++;
-
+                    exception = exceptions[i];
+                    if (!exception) {
+                        break;
                     }
-                    {#                //dateTimePickers();#}
+                    //Convert to correct value
+                    id = i + 1;
 
-                {% endif %}
+                    //If this is not the first node, create it before we can populate it and insert after the last one.
+                    //show the remove buton
+                    if (i != 0) {
+                        var last = $(".exceptions-fieldset").last();
+                        var new_exception = newFieldset(id);
+                        new_exception.insertAfter(last);
+                        $("#remove_exception_button").show();
+                    }
+
+                    populateFieldset(id, exception);
+
+                    i++;
+
+                }
+
+            {% endif %}
 
             dateTimePickers();
         });
-
     </script>
 
 {% endblock %}
