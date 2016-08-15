@@ -225,6 +225,8 @@ class OfficeHoursController(TinkerController):
                 update(sdata, 'summary', new_summary)
 
     def create_exceptions_text(self, sdata):
+        seconds_in_two_weeks = 1209600
+
         # add exceptions
         exceptions = find(sdata, 'exceptions')
         exceptions_text = ''
