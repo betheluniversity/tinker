@@ -35,7 +35,7 @@
             <div class="content">
                 <legend>Exception 1</legend>
                 <label for="exception_date">
-                    Exception Date
+                    Exception Date <small class="required">required</small>
                 </label>
                 <input class="datepicker auto-width" id="date1" name="date1" type="text" value=""/>
                 <label for="exception_open1">
@@ -248,7 +248,8 @@
                 var inner_node = $("<div>").addClass('content');
                 inner_node.append($("<legend>").html("Exception " + id));
 
-                inner_node.append($("<label>").attr('date', date).html("Exception Date"));
+                inner_node.append($("<label>").attr('date', date).html("Exception Date ")
+                        .append($("<small>").addClass("required").html("required")));
                 inner_node.append($("<input type='text'>").attr('name', date).attr('id', date).addClass("datepicker auto-width"));
 
                 var div = $("<div>").addClass('timeRange');
