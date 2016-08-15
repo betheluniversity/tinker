@@ -14,7 +14,7 @@ class OfficeHoursController(TinkerController):
 
     def __init__(self):
         super(OfficeHoursController, self).__init__()
-        self.datetime_format = "%I:%M %p"
+        self.datetime_format = "%-I:%M %p"
 
     def _iterate_child_xml(self, child, author):
 

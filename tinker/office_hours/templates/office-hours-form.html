@@ -20,7 +20,7 @@
         {#    {% elif '_open' in field.name %}#}
     {% elif field.label.text != '' and field.type not in ['FormField', 'CSRFTokenField', 'ExceptionsField'] and not field.hidden %}
         <label for="{{ field.name }}">
-            {{ field.label.text }}{% if field.flags.required %} * {% endif %}
+            {{ field.label.text }}{% if field.flags.required %} <small class="required">required</small>{% endif %}
         </label>
         {% if field.description != '' %}
             <p>{{ field.description }}</p>
@@ -31,7 +31,7 @@
 
 {% macro ExceptionsFieldset() -%}
     <fieldset class="exceptions-fieldset">
-        <div class="card">
+        <div id="exception1" class="card">
             <div class="content">
                 <legend>Exception 1</legend>
                 <label for="exception_date">
@@ -39,7 +39,7 @@
                 </label>
                 <input class="datepicker auto-width" id="date1" name="date1" type="text" value=""/>
                 <label for="exception_open1">
-                    Open *
+                    Open <small class="required">required</small>
                 </label>
                 <div class="large-12 columns timeRange">
                     <input class="time start ui-timepicker-input auto-width" id="open1" name="open1" type="text"
@@ -79,11 +79,10 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
-
-                {# todo: what should the copy be? #}
-                <p>Some Copy</p>
                 <h3 class="subtitle">Edit Office Hours</h3>
                 <hr/>
+                {# todo: what should the copy be? #}
+                <p>Some Copy</p>
                 <h4 class="first-subtitle">BU Standard Hours</h4>
                 {% set standard = standard_edit_data['current'] %}
                 {{ current_hours(standard, False) }}
@@ -136,8 +135,6 @@
 
                         {% elif field.type == 'NextOpenField' %}
                             <hr/>
-                            {#                            <br/>#}
-                            {#                            <br/>#}
                             <fieldset>
                                 <div class="card">
                                     <div class="content">
@@ -161,8 +158,8 @@
                             {{ field() }}
                         {% endif %}
                     {% endfor %}
-                <br/>
-                <br/>
+                    <br/>
+                    <br/>
                     <div class="col-md-12 less-left-margin">
                         <a type="submit" id="office-hours-submit-btn" class="btn btn-primary postfix">Submit</a>
                     </div>
@@ -196,27 +193,22 @@
             var csrftoken = "{{ csrf_token() }}";
             activateCSRF(csrftoken);
 
-            function dateTimePickers() {
-                $('.time').timepicker({
+            function dateTimePickers(selection_string) {
+                $(selection_string + '.time').timepicker({
                     'minTime': '6:00am',
                     'maxTime': '8:00pm',
-                    'timeFormat': 'h:i A'
+                    'timeFormat': 'g:i A'
                 });
-                $('.timeRange').datepair({
+                $(selection_string + '.timeRange').datepair({
                     'defaultTimeDelta': 32400000
                 });
-                {#                $('.datepicker').datepicker({#}
-                {#                    format: 'mm/dd/yyyy'#}
-                {#                });#}
-                $('.datepicker').each(function (index) {
+                $(selection_string + '.datepicker').each(function (index) {
                     var picker = new Pikaday({
                         field: this,
                         format: 'MM/DD/YYYY',
                     });
                 });
             }
-
-            dateTimePickers();
 
             $("#add_exception_button").on('click', function () {
                 var last = $(".exceptions-fieldset").last();
@@ -225,10 +217,9 @@
                 var new_exception = newFieldset(new_num);
                 new_exception.insertAfter(last);
                 $("#remove_exception_button").show();
-                dateTimePickers();
+                dateTimePickers('#exception' + new_num + ' ')
 
             });
-
 
             $("#remove_exception_button").click(function () {
                 var list = $(".exceptions-fieldset");
@@ -252,6 +243,7 @@
                 var date = 'date' + id;
                 var open = 'open' + id;
                 var close = 'close' + id;
+                var exception_id = 'exception' + id;
                 var fieldset_node = $('<fieldset>').addClass('exceptions-fieldset');
                 var inner_node = $("<div>").addClass('content');
                 inner_node.append($("<legend>").html("Exception " + id));
@@ -260,14 +252,15 @@
                 inner_node.append($("<input type='text'>").attr('name', date).attr('id', date).addClass("datepicker auto-width"));
 
                 var div = $("<div>").addClass('timeRange');
-                div.append($("<label>").attr('for', open).html("Open *"));
+                div.append($("<label>").attr('for', open).html("Open ")
+                        .append($("<small>").addClass("required").html("required")));
 
                 div.append($("<input type='text'>").attr('name', open).attr('id', open).addClass("time start auto-width"));
                 div.append(" - ");
                 div.append($("<input type='text'>").attr('name', close).attr('id', close).addClass("time end auto-width"));
 
                 inner_node.append(div);
-                fieldset_node.append($("<div>").addClass('card').append(inner_node));
+                fieldset_node.append($("<div>").addClass('card').attr('id', exception_id).append(inner_node));
 
                 return fieldset_node;
             }
@@ -302,7 +295,7 @@
 
             {% endif %}
 
-            {#            dateTimePickers();#}
+            dateTimePickers("");
         });
     </script>
 
