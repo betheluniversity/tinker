@@ -37,7 +37,7 @@
                 <label for="exception_date">
                     Exception Date
                 </label>
-                <input class="datepicker" id="date1" name="date1" type="text" value=""/>
+                <input class="datepicker auto-width" id="date1" name="date1" type="text" value=""/>
                 <label for="exception_open1">
                     Open *
                 </label>
@@ -84,7 +84,7 @@
                 <p>Some Copy</p>
                 <h3 class="subtitle">Edit Office Hours</h3>
                 <hr/>
-                <h4>BU Standard Hours</h4>
+                <h4 class="first-subtitle">BU Standard Hours</h4>
                 {% set standard = standard_edit_data['current'] %}
                 {{ current_hours(standard, False) }}
 
@@ -131,10 +131,13 @@
                                     - {{ field(class='time end auto-width') }}
                                 </div>
                             {% else %}
-                                {{ field(class='datepicker') }}
+                                {{ field(class='datepicker auto-width') }}
                             {% endif %}
 
                         {% elif field.type == 'NextOpenField' %}
+                            <hr/>
+                            {#                            <br/>#}
+                            {#                            <br/>#}
                             <fieldset>
                                 <div class="card">
                                     <div class="content">
@@ -158,7 +161,11 @@
                             {{ field() }}
                         {% endif %}
                     {% endfor %}
-                    <a type="submit" id="office-hours-submit-btn" class="btn btn-primary postfix">Submit</a>
+                <br/>
+                <br/>
+                    <div class="col-md-12 less-left-margin">
+                        <a type="submit" id="office-hours-submit-btn" class="btn btn-primary postfix">Submit</a>
+                    </div>
                 </form>
             </div>
         </div>
@@ -250,7 +257,7 @@
                 inner_node.append($("<legend>").html("Exception " + id));
 
                 inner_node.append($("<label>").attr('date', date).html("Exception Date"));
-                inner_node.append($("<input type='text'>").attr('name', date).attr('id', date).addClass("datepicker"));
+                inner_node.append($("<input type='text'>").attr('name', date).attr('id', date).addClass("datepicker auto-width"));
 
                 var div = $("<div>").addClass('timeRange');
                 div.append($("<label>").attr('for', open).html("Open *"));
