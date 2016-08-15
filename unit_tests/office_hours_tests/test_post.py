@@ -7,8 +7,13 @@ class PostTestCase(OfficeHoursBaseTestCase):
     #######################
 
     def create_form(self):
+        # This form is essentially a "blank" edit. The update methods should see that there's no changes being made, and
+        # therefore make no changes.
+        id_to_test = "4f78feca8c58651305d79299fb5aa2bb"
+        csrf_token = super(PostTestCase, self).get_csrf_token("/office-hours/edit/" + id_to_test)
         return {
-            "block_id": "4f78feca8c58651305d79299fb5aa2bb"
+            "csrf_token": csrf_token,
+            "block_id": id_to_test
         }
 
     #######################
@@ -18,6 +23,5 @@ class PostTestCase(OfficeHoursBaseTestCase):
     def test_post(self):
         form_contents = self.create_form()
         response = super(PostTestCase, self).send_post("/office-hours", form_contents)
-        print "Post:", response
         # Because this redirects to index, it uses the same assertion
-        assert b'<div class="row"><div class="large-12 columns">' in response.data
+        assert b'<p>Below is the list of Office Hours you have access to edit.' in response.data

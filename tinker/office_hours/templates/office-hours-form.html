@@ -81,6 +81,7 @@
 
       <form id="officehoursform" action="{{ url_for('office-hours.OfficeHoursView:post') }}" method="post" enctype="multipart/form-data">
       <input type="hidden" name="block_id" id="block_id" value="{{ block_id }}"/>
+      {{ form.csrf_token() }}
 
         {% if form.errors %}
           <div class="alert alert-error">
