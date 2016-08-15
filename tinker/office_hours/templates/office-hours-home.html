@@ -15,30 +15,30 @@
             <div class="col-md-12">
                 <p>Below is the list of Office Hours you have access to edit.
                 </p>
-            </div>
 
-            <hr/>
+                <hr/>
 
-            <div class="card">
+                <div class="card">
 
-                <div class="content">
+                    <div class="content">
 
-                    {% for form in forms %}
-                        <div class="row">
-                            <div class="large-6 columns">
-                                <p>{{ form.title }}</p>
+                        {% for form in forms %}
+                            <div class="row">
+                                <div class="large-6 columns">
+                                    <p>{{ form.title }}</p>
+                                </div>
+                                <div class="large-6 columns small-3">
+                                    <a href="{{ url_for('office-hours.OfficeHoursView:edit', block_id=form.id) }}"
+                                       class="btn btn-primary">Edit</a></li>
+                                </div>
+                                <hr/>
                             </div>
-                            <div class="large-6 columns small-3">
-                                <a href="{{ url_for('office-hours.OfficeHoursView:edit', block_id=form.id) }}"
-                                   class="btn btn-primary">Edit</a></li>
-                            </div>
-                            <hr/>
-                        </div>
-                    {% endfor %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
 
-
+            {# todo: is a modal needed? Currently no delete button #}
             {#Delete confirm modal#}
             {#            <div id="confirmModal" class="reveal-modal" data-reveal>#}
             {#                <h2>Are you sure you want to delete?</h2>#}
@@ -48,6 +48,27 @@
             {#            </div>#}
         </div>
     </div>
+
+    {#    <!-- Modal Core -->#}
+    {#    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"#}
+    {#         aria-hidden="true">#}
+    {#        <div class="modal-dialog">#}
+    {#            <div class="modal-content">#}
+    {#                <div class="modal-header">#}
+    {#                    <button type="button" class="close" data-dismiss="modal"#}
+    {#                            aria-hidden="true">&times;</button>#}
+    {#                    <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>#}
+    {#                </div>#}
+    {#                <div class="modal-body">#}
+    {#                    Office hours will be deleted.#}
+    {#                </div>#}
+    {#                <div class="modal-footer">#}
+    {#                    <a id="modal-confirm" href="/office-hours/delete/formid"#}
+    {#                       class="btn btn-primary btn-alert modal-confirm">Delete</a>#}
+    {#                </div>#}
+    {#            </div>#}
+    {#        </div>#}
+    {#    </div>#}
 
     {#  Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
