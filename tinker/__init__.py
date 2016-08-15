@@ -16,7 +16,7 @@ db = SQLAlchemy(app)
 
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
 
-sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
+sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)  # , logging_exclusions=("werkzeug",))
 
 # create logging
 if not app.debug:
@@ -30,6 +30,7 @@ if not app.debug:
 from tinker.views import BaseBlueprint
 from tinker.admin.cache import CacheBlueprint
 from tinker.admin.blink_roles import BlinkRolesBlueprint
+from tinker.admin.program_search import ProgramSearchBlueprint
 from tinker.admin.sync import SyncBlueprint
 from tinker.admin.publish import PublishManagerBlueprint
 from tinker.admin.program_search import ProgramSearchBlueprint
@@ -42,6 +43,7 @@ from tinker.events import EventsBlueprint
 app.register_blueprint(BaseBlueprint)
 app.register_blueprint(CacheBlueprint)
 app.register_blueprint(BlinkRolesBlueprint)
+app.register_blueprint(ProgramSearchBlueprint)
 app.register_blueprint(SyncBlueprint)
 app.register_blueprint(PublishManagerBlueprint)
 app.register_blueprint(ProgramSearchBlueprint)

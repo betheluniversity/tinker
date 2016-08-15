@@ -3,6 +3,7 @@ import urllib
 
 from flask import Blueprint, render_template, request, abort, session
 from flask.ext.classy import FlaskView, route
+from flask.ext.wtf import Form
 
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
 from bu_cascade.asset_tools import *
@@ -20,12 +21,19 @@ class PublishManagerView(FlaskView):
 
     # This method is called before any request to check user's credentials
     def before_request(self, name, **kwargs):
+        if 'groups' not in session:
+            # This if statement block has been added for unit testing purposes
+            from tinker.tinker_controller import TinkerController
+            tc = TinkerController()
+            tc.before_request()
         if 'Administrators' not in session['groups']:
             abort(403)
 
     # Publish manager's homepage
     def index(self):
         username = session['username']
+        # This form is defined solely for CSRF token validation
+        form = Form()
         return render_template('publish-home.html', **locals())
 
     @route("/program-feeds", methods=['get', 'post'])
@@ -102,7 +110,6 @@ class PublishManagerView(FlaskView):
     def publish_publish(self, destination, type, id):
         if destination != "staging":
             destination = ""
-        print destination
         # todo create method for publishing blocks
         if type == "block":
             try:

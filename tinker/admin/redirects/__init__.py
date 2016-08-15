@@ -7,6 +7,7 @@ from datetime import datetime
 from BeautifulSoup import BeautifulSoup
 from flask import Blueprint, render_template, request, abort, session
 from flask.ext.classy import FlaskView, route
+from flask.ext.wtf import Form
 
 from tinker import db, app
 from tinker.admin.redirects.redirects_controller import RedirectsController
@@ -23,6 +24,11 @@ class RedirectsView(FlaskView):
 
     # This method is called before a request is made
     def before_request(self, name, **kwargs):
+        if 'groups' not in session:
+            # This if statement block has been added for unit testing purposes
+            from tinker.tinker_controller import TinkerController
+            tc = TinkerController()
+            tc.before_request()
         # Checks to see what group the user is in
         if 'Tinker Redirects' not in session['groups']:
             abort(403)
@@ -30,6 +36,7 @@ class RedirectsView(FlaskView):
     # Redirects homepage
     def index(self):
         redirects = BethelRedirect.query.all()
+        form = Form()
         return render_template('redirects.html', **locals())
 
     # Deletes the chosen redirect

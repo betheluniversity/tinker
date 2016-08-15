@@ -19,6 +19,11 @@ class ProgramSearchView(FlaskView):
         self.base = ProgramSearchController()
 
     def before_request(self, args):
+        if 'groups' not in session:
+            # This if statement block has been added for unit testing purposes
+            from tinker.tinker_controller import TinkerController
+            tc = TinkerController()
+            tc.before_request()
         # give access to admins and lauren
         if 'Administrators' not in session['groups'] and session['username'] != 'parlau':
             abort(403)
@@ -27,9 +32,10 @@ class ProgramSearchView(FlaskView):
         school_labels = self.base.get_school_labels()
         program_concentrations = self.base.get_programs_for_dropdown()
 
-        return render_template('index.html', **locals())
+        return render_template('office_hours_index.html', **locals())
 
-    def post(self):
+    @route('/submit', methods=['post'])
+    def submit(self):
         school_labels = self.base.get_school_labels()
         program_concentrations = self.base.get_programs_for_dropdown()
 
@@ -38,7 +44,7 @@ class ProgramSearchView(FlaskView):
         tag = rform.get('tag')
 
         if key == 'Any' or tag == '' or tag is None:
-            return render_template('index.html', **locals())
+            return render_template('office_hours_index.html', **locals())
 
         outcome = ast.literal_eval(rform.get('outcome'))
         topic = ast.literal_eval(rform.get('topic'))
@@ -55,7 +61,7 @@ class ProgramSearchView(FlaskView):
         except:
             db.session.rollback()
 
-        return render_template('index.html', **locals())
+        return render_template('office_hours_index.html', **locals())
 
     @route('/multi-delete', methods=['POST'])
     def multi_delete(self):
@@ -100,6 +106,5 @@ class ProgramSearchView(FlaskView):
             if actual_name:
                 search_result.actual_name = actual_name['name']
         return render_template('program-search-ajax.html', **locals())
-
 
 ProgramSearchView.register(ProgramSearchBlueprint)

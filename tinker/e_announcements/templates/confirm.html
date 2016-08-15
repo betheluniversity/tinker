@@ -9,6 +9,7 @@
     <div class="large-12 columns">
         <h1>Congrats!</h1>
         {% if status == 'new' %}
+            <input type="hidden" id="new_eaid" value="{{ new_eaid }}"/>
             <p>
               You've successfully created your E-Announcement. Once your E-Announcement has been approved, it will appear on your Tinker <a href="{{ url_for('e-announcements.EAnnouncementsView:index') }}">E-Announcement page</a> where you'll be able to view the announcement page or make changes to it.
             </p>

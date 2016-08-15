@@ -8,6 +8,7 @@
 
 {% block main_content %}
 <form action="" id="new-redirect-form">
+{{ form.csrf_token }}
   <div class="row">
     <div class="large-6 columns">
       <label>From Path

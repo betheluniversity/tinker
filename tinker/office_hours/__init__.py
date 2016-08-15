@@ -22,7 +22,11 @@ class OfficeHoursView(FlaskView):
         self.base = OfficeHoursController()
 
     def before_request(self, name, **kwargs):
-        pass
+        if 'groups' not in session:
+            # This if statement block has been added for unit testing purposes
+            from tinker.tinker_controller import TinkerController
+            tc = TinkerController()
+            tc.before_request()
 
     def post(self):
         rform = request.form
@@ -47,10 +51,9 @@ class OfficeHoursView(FlaskView):
 
         forms = self.base.traverse_xml(app.config['OFFICE_HOURS_XML_URL'], 'system-block')
 
-        return render_template('index.html', **locals())
+        return render_template('office_hours_index.html', **locals())
 
     def edit(self, block_id):
-
         edit_data, sdata, mdata = self.base.load_office_hours_block(block_id=block_id)
         standard_edit_data, s, m = self.base.load_office_hours_block(block_id=app.config['OFFICE_HOURS_STANDARD_BLOCK'])
         

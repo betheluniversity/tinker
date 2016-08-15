@@ -259,8 +259,8 @@ class TinkerController(object):
         }
         return workflow
 
-    def delete(self, path_or_id):
-        return self.cascade_connector.delete(path_or_id)
+    def delete(self, path_or_id, asset_type):
+        return self.cascade_connector.delete(path_or_id, asset_type)
 
     def element_tree_to_html(self, node):
         return_string = ''
@@ -365,8 +365,8 @@ class TinkerController(object):
                 edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = mdata['title']
-        edit_data['metaDescription'] = mdata['metaDescription']
+        edit_data['title'] = mdata.get('title')
+        edit_data['metaDescription'] = mdata.get('metaDescription')
 
         # get the (first) author
         authors = find(mdata, 'author', False)
@@ -498,6 +498,7 @@ class TinkerController(object):
     def read_block(self, path_or_id):
         b = Block(self.cascade_connector, path_or_id)
         return b
+
 
     def read_datadefinition(self, path_or_id):
         dd = DataDefinition(self.cascade_connector, path_or_id)
