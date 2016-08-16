@@ -15,11 +15,8 @@
             <div class="col-md-12">
                 <h3 class="subtitle">Publish Program Feeds</h3>
                 <br/>
-
-                <a href='/admin/publish-manager/program-feeds/staging' class="btn btn-primary">Publish to Staging</a>
-                <a href='/admin/publish-manager/program-feeds/production' class="btn btn-primary">Publish to Production
-                    and
-                    Staging</a>
+                <a href='{{ url_for('publish-manager.PublishManagerView:publish_program_feeds_return', destination = "staging") }}' class="button">Publish to Staging</a>
+                <a href='{{ url_for('publish-manager.PublishManagerView:publish_program_feeds_return', destination = "production") }}' class="button">Publish to Production and Staging</a>
             </div>
         </div>
     </div>

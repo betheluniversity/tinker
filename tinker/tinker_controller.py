@@ -26,12 +26,11 @@ from bu_cascade.assets.metadata_set import MetadataSet
 from bu_cascade.assets.data_definition import DataDefinition
 from bu_cascade.asset_tools import *
 
-from tinker import cascade_connector
 from tinker import app
 from tinker import sentry
-from tinker import cascade_connector
 
 from BeautifulSoup import BeautifulStoneSoup
+
 
 def should_be_able_to_edit_image(roles):
     if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
@@ -50,9 +49,9 @@ def check_auth(username, password):
 def authenticate():
     """Sends a 401 response that enables basic auth"""
     return Response(
-    'Could not verify your access level for that URL.\n'
-    'You have to login with proper credentials', 401,
-    {'WWW-Authenticate': 'Basic realm="Login Required"'})
+        'Could not verify your access level for that URL.\n'
+        'You have to login with proper credentials', 401,
+        {'WWW-Authenticate': 'Basic realm="Login Required"'})
 
 
 def requires_auth(f):
@@ -62,7 +61,9 @@ def requires_auth(f):
         if not auth or not check_auth(auth.username, auth.password):
             return authenticate()
         return f(*args, **kwargs)
+
     return decorated
+
 
 # def can_user_access_asset( username, id, type):
 #     try:
@@ -83,11 +84,10 @@ def requires_auth(f):
 
 class TinkerController(object):
     def __init__(self):
-        self.cascade_connector = cascade_connector
+        self.cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
         self.datetime_format = "%B %d  %Y, %I:%M %p"
 
     def before_request(self):
-
         def init_user():
 
             dev = current_app.config['ENVIRON'] != 'prod'
@@ -201,9 +201,9 @@ class TinkerController(object):
 
         matches = []
         for child in form_xml.findall('.//' + type_to_find):
-                match = self.inspect_child(child)
-                if match:
-                    matches.append(match)
+            match = self.inspect_child(child)
+            if match:
+                matches.append(match)
 
         # Todo: maybe add some parameter as a search?
         # sort by created-on date.
@@ -238,8 +238,10 @@ class TinkerController(object):
                 edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
-        edit_data['title'] = mdata['title']
-        edit_data['metaDescription'] = mdata['metaDescription']
+        if 'title' in mdata:
+            edit_data['title'] = mdata['title']
+        if 'metaDescription' in mdata:
+            edit_data['metaDescription'] = mdata['metaDescription']
 
         # get the (first) author
         authors = find(mdata, 'author', False)
@@ -251,11 +253,29 @@ class TinkerController(object):
 
         return edit_data
 
+    def date_to_java_unix(self, date, datetime_format=None):
+
+        if not datetime_format:
+            datetime_format = self.datetime_format
+
+        date = (datetime.datetime.strptime(date, datetime_format))
+
+        # if this is a time field with no date, the  year  will be 1900, and strftime("%s") will return -1000
+        if date.year == 1900:
+            date = date.replace(year=datetime.date.today().year)
+
+        return int(date.strftime("%s")) * 1000
+
+    def java_unix_to_date(self, date, date_format=None):
+        if not date_format:
+            date_format = self.datetime_format
+        return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
+
     def inspect_sdata_node(self, node):
 
         node_type = node['type']
 
-        if node_type =='group':
+        if node_type == 'group':
             group = {}
             for n in node['structuredDataNodes']['structuredDataNode']:
                 node_identifier = n['identifier'].replace('-', '_')
@@ -278,7 +298,7 @@ class TinkerController(object):
 
             try:
                 if len(node['text']) >= 9:
-                    date = self.__unicode_to_html_entities__(node['text'])
+                    date = self.java_unix_to_date(node['text'])
                     if not date:
                         date = ''
                     return date
@@ -298,6 +318,39 @@ class TinkerController(object):
                     return node['filePath']
                 else:
                     return ''
+
+    def get_add_data(self, lists, form, wysiwyg_keys):
+        # A dict to populate with all the interesting data.
+        add_data = {}
+
+        for key in form.keys():
+            if key in lists:
+                add_data[key] = form.getlist(key)
+            else:
+                if key in wysiwyg_keys:
+                    add_data[key] = self.escape_wysiwyg_content(form[key])
+                else:
+                    add_data[key] = form[key]
+
+        if 'title' in add_data:
+            title = add_data['title']
+        elif 'first' in add_data and 'last' in add_data:
+            title = add_data['first'] + ' ' + add_data['last']
+        else:
+            title = None
+
+        if title:
+            add_data['title'] = title
+
+            # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
+            system_name = title.lower().replace(' ', '-')
+            add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+            add_data['name'] = add_data['system_name']
+
+        # add author
+        add_data['author'] = session['username']
+
+        return add_data
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
@@ -339,8 +392,8 @@ class TinkerController(object):
     def move(self, page_id, destination_path, type='page'):
         return self.cascade_connector.move(page_id, destination_path, type)
 
-    def delete(self, path_or_id, asset_type):
-        return self.cascade_connector.delete(path_or_id, asset_type)
+    def delete(self, path_or_id):
+        return self.cascade_connector.delete(path_or_id)
 
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)
@@ -362,12 +415,15 @@ class TinkerController(object):
             parent_path = array[0]
             name = array[1]
             response = self.cascade_connector.copy(old_asset_path, asset_type, parent_path, name)
-            app.logger.debug(time.strftime("%c") + ": Copy folder creation by " + session['username'] + " From: " + old_asset_path + " To:" + new_path_and_name + str(response))
+            app.logger.debug(time.strftime("%c") + ": Copy folder creation by " + session[
+                'username'] + " From: " + old_asset_path + " To:" + new_path_and_name + str(response))
             return response
         return old_asset
 
     def update_asset(self, asset, data):
         for key, value in data.iteritems():
+            if key == 'exceptions':
+                print 'TEST'
             update(asset, key, value)
 
         return True
@@ -420,12 +476,6 @@ class TinkerController(object):
             "workflowDefinitionId": workflow_id,
             "workflowComments": workflow_name
         }
-
-        if app.config['ENVIRON'] == 'prod':
-            return workflow
-        else:
-            return None
-
         return workflow
 
     # to be used to escape content to give to Cascade
@@ -447,28 +497,6 @@ class TinkerController(object):
         """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
         text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
         return text
-
-    def get_add_data(self, lists, form, wysiwyg_keys=[]):
-        # A dict to populate with all the interesting data.
-        add_data = {}
-
-        for key in form.keys():
-            if key in lists:
-                add_data[key] = form.getlist(key)
-            else:
-                if key in wysiwyg_keys:
-                    add_data[key] = self.escape_wysiwyg_content(form[key])
-                else:
-                    add_data[key] = form[key]
-
-        # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
-        system_name = add_data['title'].lower().replace(' ', '-')
-        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
-
-        # add author
-        add_data['author'] = session['username']
-
-        return add_data
 
     def element_tree_to_html(self, node):
         return_string = ''

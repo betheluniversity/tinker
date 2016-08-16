@@ -59,6 +59,21 @@
                         {% endif %}
                     </li>
                 {% endif %}
+                {% if 'office-hours/' in request.path %}
+                    <li class="active">
+                        <a href="/office-hours">
+                            <i class="ti-alarm-clock"></i>
+                            <p>Office Hours</p>
+                        </a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a href="/office-hours">
+                            <i class="ti-alarm-clock"></i>
+                            <p>Office Hours</p>
+                        </a>
+                    </li>
+                {% endif %}
                 {% if 'e-announcement/' in request.path %}
                     <li class="active">
                         <a href="/e-announcement">

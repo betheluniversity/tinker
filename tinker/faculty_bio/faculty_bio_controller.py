@@ -23,7 +23,7 @@ class FacultyBioController(TinkerController):
         iterate_bio = False
 
         # 1) admin
-        if username in app.config['FACULTY_BIO_ADMINS']:
+        if username in app.config['FACULTY_BIOS_ADMINS']:
             iterate_bio = True
 
         # 2) user's bio
@@ -470,3 +470,7 @@ class FacultyBioController(TinkerController):
             options.append("::CONTENT-XML-CHECKBOX::Website")
 
         return ''.join(options)
+
+    # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
+    def edit_all_callback(self, asset_data):
+        pass
