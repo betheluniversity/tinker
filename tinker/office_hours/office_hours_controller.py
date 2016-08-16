@@ -39,7 +39,6 @@ class OfficeHoursController(TinkerController):
 
         data, mdata, sdata = block.read_asset()
 
-        # TODO error is on this line
         edit_data = self.get_edit_data(sdata, mdata,  multiple=multiple)
 
         return edit_data, sdata, mdata

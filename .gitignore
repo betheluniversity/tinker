@@ -7,31 +7,25 @@ tasks.xml
 error.log
 redirects.txt
 app.db
-.idea
-.idea/tinker.iml
 upgrade.txt
 node_modules/
 tinker/static/bower_components
 tinker/static/scripts/js/
+tinker/.DS_Store
+
+.idea
+.idea/tinker.iml
 .idea/inspectionProfiles/profiles_settings.xml
-
 .idea/modules.xml
-
-.idea/misc.xml
-
 .idea/misc.xml
 
 db_repository/versions/002_migration.py
-
 db_repository/versions/003_migration.py
 
 redirects.txt.back
 
-tinker/.DS_Store
 
 config.py.dist
 config/*.py
 
-tinker/.DS_Store
-
-tinker/.DS_Store
+*.csv

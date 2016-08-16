@@ -2,4 +2,4 @@
 from migrate.versioning.shell import main
 
 if __name__ == '__main__':
-    main(six='<module 'six' from '/Users/ejc84332/evns/tinker/lib/python2.7/site-packages/six.pyc'>')
+    main(six="<module 'six' from '/Users/phg49389/evns/tinker/lib/python2.7/site-packages/six.pyc'>")
