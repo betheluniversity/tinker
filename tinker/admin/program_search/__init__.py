@@ -28,7 +28,7 @@ class ProgramSearchView(FlaskView):
 
     def before_request(self, args):
         # give access to admins and lauren
-        if 'Administrators' not in session['groups'] and session['username'] != 'parlau' and session['username'] == 'dmf23632':
+        if 'Administrators' not in session['groups'] and session['username'] != 'parlau' and session['username'] != 'dmf23632':
             abort(403)
 
     def index(self):
