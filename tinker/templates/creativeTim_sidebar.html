@@ -1,134 +1,69 @@
 {% macro render() %}
-
-    <div class="sidebar" data-active-color="green">
-        <div class="sidebar-wrapper">
-            <div class="logo">
-                <a href="https://tinker.bethel.edu/" class="simple-text">
-                    Tinker
-                </a>
-            </div>
-
-            <ul class="nav">
-                {% if request.path == '/' %}
-                    <li class="active">
-                        <a href="/">
-                            <i class="ti-home"></i>
-                            <p>Home</p>
-                        </a>
-                    </li>
-                {% else %}
-                    <li>
-                        <a href="/">
-                            <i class="ti-home"></i>
-                            <p>Home</p>
-                        </a>
-
-                    </li>
-                {% endif %}
-                {% if 'event/' in request.path %}
-                    <li class="active">
-                        <a href="/event">
-                            <i class="ti-calendar"></i>
-                            <p>Events</p>
-                        </a>
-                    </li>
-                {% else %}
-                    <li>
-                        <a href="/event">
-                            <i class="ti-calendar"></i>
-                            <p>Events</p>
-                        </a>
-                    </li>
-                {% endif %}
-                {% if 'faculty-bio/' in request.path %}
-                    <li class="active">
-                        {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
-                            <a href="/faculty-bio">
-                                <i class="ti-user"></i>
-                                <p>Faculty Bios</p>
-                            </a>
-                        {% endif %}
-                    </li>
-                {% else %}
-                    <li>
-                        {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
-                            <a href="/faculty-bio">
-                                <i class="ti-user"></i>
-                                <p>Faculty Bios</p>
-                            </a>
-                        {% endif %}
-                    </li>
-                {% endif %}
-                {% if 'office-hours/' in request.path %}
-                    <li class="active">
-                        <a href="/office-hours">
-                            <i class="ti-alarm-clock"></i>
-                            <p>Office Hours</p>
-                        </a>
-                    </li>
-                {% else %}
-                    <li>
-                        <a href="/office-hours">
-                            <i class="ti-alarm-clock"></i>
-                            <p>Office Hours</p>
-                        </a>
-                    </li>
-                {% endif %}
-                {% if 'e-announcement/' in request.path %}
-                    <li class="active">
-                        <a href="/e-announcement">
-                            <i class="ti-comment"></i>
-                            <p>E-Announcements</p>
-                        </a>
-                    </li>
-                {% else %}
-                    <li>
-                        <a href="/e-announcement">
-                            <i class="ti-comment"></i>
-                            <p>E-Announcements</p>
-                        </a>
-                    </li>
-                {% endif %}
-                {% if 'admin/' in request.path %}
-                    <li class="dropdown active">
-                        {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                <i class="ti-menu"></i>
-                                <p>Admin Menu &raquo;</p>
-                            </a>
-                            <ul class="dropdown-menu">
-                                {% if 'Administrators' in session['groups'] %}
-                                    <li><a href="/admin/publish-manager">Publisher</a></li>
-                                    <li><a href="/admin/sync">Sync Metadata</a></li>
-                                    {#                                <li><a href="/admin/blink-roles" class="button-nav">Blink Layout Owners</a></li>#}
-                                {% endif %}
-                                <li><a href="/admin/program-search">Program Search Tags</a></li>
-                                <li><a href="/admin/cache-clear">Clear Cache</a></li>
-                                <li><a href="/admin/redirect">Redirects</a></li>
-                            </ul>
-                        {% endif %}
-                    </li>
-                {% else %}
-                    <li class="dropdown">
-                        {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                <i class="ti-menu"></i>
-                                <p>Admin Menu &raquo;</p>
-                            </a>
-                            <ul class="dropdown-menu">
-                                {% if 'Administrators' in session['groups'] %}
-                                    <li><a href="/admin/publish-manager">Publisher</a></li>
-                                    <li><a href="/admin/sync">Sync Metadata</a></li>
-                                    {#                                <li><a href="/admin/blink-roles" class="button-nav">Blink Layout Owners</a></li>#}
-                                {% endif %}
-                                <li><a href="/admin/cache-clear">Clear Cache</a></li>
-                                <li><a href="/admin/redirect">Redirects</a></li>
-                            </ul>
-                        {% endif %}
-                    </li>
-                {% endif %}
-            </ul>
+    <div class="sidebar-wrapper">
+        <div class="logo">
+            <a href="https://tinker.bethel.edu/" class="simple-text">
+                Tinker
+            </a>
         </div>
+
+        <ul class="nav">
+
+            <li class="{% if request.path == '/' %}active{% endif %}">
+                <a href="/">
+                    <i class="fa fa-home"></i>
+                    <p>Home</p>
+                </a>
+            </li>
+
+            <li class="{% if request.path == 'event/' %}active{% endif %}">
+                <a href="/event">
+                    <i class="fa fa-calendar"></i>
+                    <p>Events</p>
+                </a>
+            </li>
+
+            {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
+                <li class="{% if request.path == 'faculty-bio/' %}active{% endif %}">
+                    <a href="/faculty-bio">
+                        <i class="fa fa-user"></i>
+                        <p>Faculty Bios</p>
+                    </a>
+                </li>
+            {% endif %}
+
+            <li class="{% if request.path == 'office-hours/' %}active{% endif %}">
+                <a href="/office-hours">
+                    <i class="fa fa-clock-o"></i>
+                    <p>Office Hours</p>
+                </a>
+            </li>
+
+           <li class="{% if request.path == 'e-announcement/' %}active{% endif %}">
+                <a href="/e-announcement">
+                    <i class="fa fa-envelope-o"></i>
+                    <p>E-Announcements</p>
+                </a>
+            </li>
+
+            {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
+                <li class="dropdown {% if request.path == 'e-announcement/' %}active{% endif %}">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-menu"></i>
+                        <p>Admin Menu &raquo;</p>
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% if 'Administrators' in session['groups'] %}
+                            <li><a href="/admin/publish-manager">Publisher</a></li>
+                            <li><a href="/admin/sync">Sync Metadata</a></li>
+                            <li><a href="/admin/blink-roles" class="button-nav">Blink Layout Owners</a></li>
+                            <li><a href="/admin/program-search">Program Search Tags</a></li>
+                        {% endif %}
+                        <li><a href="/admin/cache-clear">Clear Cache</a></li>
+                        <li><a href="/admin/redirect"><i class="fa fa-arrows-alt" aria-hidden="true"></i>Redirects</a></li>
+                    </ul>
+                </li>
+            {% endif %}
+        </ul>
     </div>
 
 {% endmacro %}

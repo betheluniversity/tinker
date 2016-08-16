@@ -7,11 +7,11 @@
 
 {% block body_content %}
     <div class="wrapper">
-
-        {{ sidebar.render() }}
+        <div class="sidebar" data-active-color="green">
+            {{ sidebar.render() }}
+        </div>
 
         <div class="main-panel">
-
             {{ nav.render(title) }}
 
             {% block main_content %}

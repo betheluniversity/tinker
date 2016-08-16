@@ -1,4 +1,4 @@
-{% import 'creativeTim_nav_collapse.html' as nav_collapse %}
+{% import 'creativeTim_sidebar.html' as nav_collapse %}
 <!DOCTYPE html>
 
 {% block html_attribs %}
@@ -69,7 +69,9 @@
 
     {% block scripts %}{% endblock %}
 
-    {{ nav_collapse.render() }}
+    <div class="collapse navbar-collapse off-canvas-sidebar" data-background-color="white" data-active-color="danger">
+        {{ nav_collapse.render() }}
+    </div>
 
     </body>
 
