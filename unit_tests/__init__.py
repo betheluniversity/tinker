@@ -5,8 +5,11 @@
 #       respective DB or Cascade object gets updated appropriately so that there's no possibility of silent failures
 # 3. A web interface that could be integrated into our future dashboard, such that they can select which module (or all)
 #       they want to test, click a button online, and the tests all get run and the results displayed in a browser
+<<<<<<< HEAD
+=======
 # 4. Find some way to pass test object ids back and forth between unit tests so that the test_sequentially files can be
 #       split into individual, granular unit tests.
+>>>>>>> create-base-view
 
 if __name__ == "__main__":
     import unittest

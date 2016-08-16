@@ -1,7 +1,8 @@
 from flask.ext.wtf import Form
 from flask_wtf.file import FileField
-from tinker.tools import *
-from tinker.web_services import get_client
+from tinker import app
+import requests
+from tinker.faculty_bio.faculty_bio_controller import *
 from wtforms import Field
 from wtforms import HiddenField
 from wtforms import SelectField
@@ -10,22 +11,11 @@ from wtforms import TextField
 from wtforms import ValidationError
 from wtforms import validators
 
+tinker = TinkerController
 
 def get_md(metadata_path):
-    # todo move this to a read()
-    auth = app.config['CASCADE_LOGIN']
-
-    identifier = {
-        'path': {
-            'path': metadata_path,
-            'siteName': 'Public'
-        },
-        'type': 'metadataset',
-    }
-
-    client = get_client()
-    md = client.service.read(auth, identifier)
-    return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
+    md = tinker.read(metadata_path, type='metadataset')
+    return md['asset']['metadataSetdynamic']['MetadataFieldDefinitionsdynamic']['MetadataFieldDefinition']
 
 
 # Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
@@ -35,11 +25,9 @@ class CKEditorTextAreaField(TextAreaField):
 
 
 class HeadingField(Field):
-
     def __init__(self, label=None, validators=None, filters=tuple(),
                  description='', id=None, default=None, widget=None,
                  _form=None, _name=None, _prefix='', _translations=None):
-
         self.default = default
         self.description = description
         self.filters = filters
@@ -76,7 +64,7 @@ def validate_username(form, field):
     username = field.data
     host = "http://wsapi.bethel.edu"
     path = "/username/" + username + "/roles"
-    req = requests.get(host+path)
+    req = requests.get(host + path)
 
     content = req.content
     if content == str({}):
@@ -84,7 +72,7 @@ def validate_username(form, field):
 
 
 class FacultyBioForm(Form):
-    roles = get_roles()
+    roles = session['roles']
 
     # if a cas faculty member or seminary faculty member, hide the image field.
     if 'Tinker Faculty Bios' in session['groups']:
@@ -105,14 +93,26 @@ class FacultyBioForm(Form):
     new_job_titles = TextField('')
 
     email = TextField('Email', validators=[validators.DataRequired()])
-    started_at_bethel = TextField('Started at Bethel in', validators=[validators.DataRequired()], description="Enter a year")
+    started_at_bethel = TextField('Started at Bethel in', validators=[validators.DataRequired()],
+                                  description="Enter a year")
 
-    heading_choices = (('', "-select-"), ('Areas of expertise', 'Areas of expertise'), ('Research interests', 'Research interests'), ('Teaching Specialty', 'Teaching Specialty'))
+    heading_choices = (
+        ('', "-select-"), ('Areas of expertise', 'Areas of expertise'), ('Research interests', 'Research interests'),
+        ('Teaching Specialty', 'Teaching Specialty'))
 
-    heading = SelectField('Choose a heading that best fits your discipline', choices=heading_choices, validators=[validators.DataRequired()])
-    areas = TextAreaField('Areas of expertise', description="A max of 3000 characters is permitted. Current count: ", validators=[validators.length(max=3000,message="Character limit exceeded. A max of 3000 characters is allowed.")])
-    research_interests = TextAreaField('Research interests', description="A max of 3000 characters is permitted. Current count: ", validators=[validators.length(max=3000,message="Character limit exceeded. A max of 3000 characters is allowed.")])
-    teaching_specialty = TextAreaField('Teaching specialty', description="A max of 3000 characters is permitted. Current count: ", validators=[validators.length(max=3000,message="Character limit exceeded. A max of 3000 characters is allowed.")])
+    heading = SelectField('Choose a heading that best fits your discipline', choices=heading_choices,
+                          validators=[validators.DataRequired()])
+    areas = TextAreaField('Areas of expertise', description="A max of 3000 characters is permitted. Current count: ",
+                          validators=[validators.length(max=3000,
+                                                        message="Character limit exceeded. A max of 3000 characters is allowed.")])
+    research_interests = TextAreaField('Research interests',
+                                       description="A max of 3000 characters is permitted. Current count: ",
+                                       validators=[validators.length(max=3000,
+                                                                     message="Character limit exceeded. A max of 3000 characters is allowed.")])
+    teaching_specialty = TextAreaField('Teaching specialty',
+                                       description="A max of 3000 characters is permitted. Current count: ",
+                                       validators=[validators.length(max=3000,
+                                                                     message="Character limit exceeded. A max of 3000 characters is allowed.")])
 
     degree = DummyField('')
 

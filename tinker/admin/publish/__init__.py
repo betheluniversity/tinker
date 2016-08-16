@@ -27,6 +27,8 @@ class PublishManagerView(FlaskView):
     # Publish manager's homepage
     def index(self):
         username = session['username']
+        # This form is defined solely for CSRF token validation
+        form = Form()
         return render_template('publish-home.html', **locals())
 
     @route("/program-feeds", methods=['get', 'post'])

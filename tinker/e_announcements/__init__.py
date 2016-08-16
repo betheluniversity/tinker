@@ -36,6 +36,7 @@ class EAnnouncementsView(FlaskView):
         if session['username'] not in app.config['E_ANN_ADMINS']:
             return redirect(url_for('e-announcements.EAnnouncementsView:index'), code=302)
 
+        print 'Delete E-Announcement' + e_announcement_id
         self.base.delete(e_announcement_id, 'block')
         self.base.publish(app.config['E_ANNOUNCEMENTS_XML_ID'])
 
@@ -161,7 +162,7 @@ class EAnnouncementsView(FlaskView):
 
             submitted_announcements = []
             current_announcement_role_list = []
-            for announcement in self.base.traverse_xml(app.config['E_ANN_URL'], 'system-block'):
+            for announcement in self.base.traverse_xml(app.config['E_ANN_XML_URL'], 'system-block'):
                 date_matches = False
 
                 if announcement['first_date']:

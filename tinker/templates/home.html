@@ -1,55 +1,65 @@
-{% extends "tinker-base.html" %}
+{% extends 'tinker_base.html' %}
+{#{% import 'nav.html' as nav %}#}
+{#{% import 'creativeTim_footer.html' as footer %}#}
 
-{% block title %}Home{% endblock %}
-
-{% block styles %}
-    <style type="text/css">
-        .home-button{
-            height: 180px;
-            width: 180px;
-            margin: 10px;
-        }
-        .button-image{
-            padding: 5px;
-            height: 150px;
-            width: 150px;
-        }
-    </style>
-{% endblock %}
-
-{% block page_title %}Bethel University Tinker{% endblock %}
+{% set title = 'Home' %}
+{#{% block title %}Home{% endblock %}#}
 
 {% block main_content %}
-    <div>
-        Welcome to Tinker!
-    </div>
-
-    <hr />
-
-    <div class="row">
-        <div class="large-6 columns">
-
-            <a class="button expand" href="/event"><img src="get_image/events-icon.png" class="button-image" /><br />Manage events</a>
-        </div>
-
-        {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
-            <div class="large-6 columns">
-
-                <a href="/faculty-bio" class="button expand"><img src="get_image/faculty-bio-icon.png" class="button-image" /><br />Faculty Bios</a>
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="header">
+                        <h4 class="title">Manage Events</h4>
+                    </div>
+                    <div class="content">
+                        <div class="icon-big icon-warning text-center">
+                            <a href="{{ url_for('events.EventsView:index') }}"><img
+                                    src="get-image/events-icon.png"/></a>
+                        </div>
+                    </div>
+                </div>
             </div>
-        {% endif %}
-    </div>
-
-    <div class="row">
-        <div class="large-6 columns">
-            <a href="/e-announcement" class="button expand"><img src="get_image/e-announcement.png" class="button-image" /><br />Manage E-Announcements</a>
-        </div>
-
-
-        {% if 'Redirects' in session['groups'] or 'Administrators' in session['groups'] %}
-            <div class="large-6 columns">
-                <a href="/admin/redirect" class="button expand"><img src="get_image/redirect-icon.png" class="button-image" /><br />Manage Redirects</a>
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="header">
+                        <h4 class="title">Faculty Bios</h4>
+                    </div>
+                    <div class="content">
+                        <div class="icon-big icon-warning text-center">
+                            <a href="{{ url_for('faculty-bio.FacultyBioView:index') }}"><img
+                                    src="get-image/faculty-bio-icon.png"/></a>
+                        </div>
+                    </div>
+                </div>
             </div>
-        {% endif %}
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="header">
+                        <h4 class="title">Manage E-Announcements</h4>
+                    </div>
+                    <div class="content">
+                        <div class="icon-big icon-warning text-center">
+                            <a href="{{ url_for('e-announcements.EAnnouncementsView:index') }}"><img
+                                    src="get-image/e-announcement.png"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="header">
+                        <h4 class="title">Manage Redirects</h4>
+                    </div>
+                    <div class="content">
+                        <div class="icon-big icon-warning text-center">
+                            <a href="{{ url_for('redirects.RedirectsView:index') }}"><img
+                                    src="get-image/redirect-icon.png"/></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}

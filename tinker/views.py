@@ -1,4 +1,3 @@
-
 from flask.ext.classy import FlaskView
 from flask import Flask, Blueprint
 from flask import render_template, send_file
