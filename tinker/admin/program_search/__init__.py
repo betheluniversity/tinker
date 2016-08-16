@@ -29,7 +29,8 @@ class ProgramSearchView(FlaskView):
 
         return render_template('program-search-home.html', **locals())
 
-    def post(self):
+    @route('/submit', methods=['post'])
+    def submit(self):
         school_labels = self.base.get_school_labels()
         program_concentrations = self.base.get_programs_for_dropdown()
 
@@ -100,6 +101,5 @@ class ProgramSearchView(FlaskView):
             if actual_name:
                 search_result.actual_name = actual_name['name']
         return render_template('program-search-ajax.html', **locals())
-
 
 ProgramSearchView.register(ProgramSearchBlueprint)

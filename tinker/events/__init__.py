@@ -20,7 +20,7 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-        forms = self.base.traverse_xml(app.config['EVENTS_URL'], 'system-page')
+        forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         if 'Event Approver' in session['groups']:
             forms, event_approver_forms = self.base.get_approver_forms(forms)
         return render_template('events-home.html', **locals())
@@ -85,8 +85,8 @@ class EventsView(FlaskView):
             add_data['event-dates'] = self.base.get_dates(add_data)
             add_data['author'] = request.form['author']
             asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
-
             resp = self.base.create_page(asset)
+            eid = resp.asset['page']['id']
             self.base.log_sentry("New event submission", resp)
         else:
             page = self.base.read_page(eid)
@@ -108,7 +108,8 @@ class EventsView(FlaskView):
             path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
             view.new_internal_redirect_submit(path, add_data['link'])
 
-        return redirect(url_for('events.EventsView:confirm'), code=302)
+        # return redirect(url_for('events.EventsView:confirm'), code=302)
+        return render_template("submit-confirm.html", eid=eid)
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):
@@ -125,5 +126,15 @@ class EventsView(FlaskView):
         xml_url = app.config['EVENTS_XML_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
+
+    # This endpoint is being re-added so that unit tests will be self-deleting. This endpoint is publicly visible, but
+    # it is not referenced anywhere on any page, so the public shouldn't know of its existence.
+    @route("/delete/<page_id>", methods=['GET'])
+    def delete(self, page_id):
+        event_page = self.base.read_page(page_id)
+        response = event_page.delete_asset()
+        app.logger.debug(time.strftime("%c") + ": Event deleted by " + session['username'] + " " + str(response))
+        self.base.publish(app.config['EVENT_XML_ID'])
+        return render_template('events-delete-confirm.html')
 
 EventsView.register(EventsBlueprint)

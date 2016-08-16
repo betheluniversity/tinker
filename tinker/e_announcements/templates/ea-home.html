@@ -71,27 +71,30 @@
         </div>
     </div>
 
-    <!-- Modal Core -->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"
-                            aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
-                </div>
-                <div class="modal-body">
-                    Your E-Announcement will be removed.
-                </div>
-                <div class="modal-footer">
-                    <a id="modal-confirm" href="/e-announcement/delete/formid" type="button"
-                       class="btn btn-primary btn-alert modal-confirm">Delete</a>
-                </div>
+
+{% endblock %}
+
+{% block modalhtml %}
+<!-- Modal Core -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+            </div>
+            <div class="modal-body">
+                Your E-Announcement will be removed.
+            </div>
+            <div class="modal-footer">
+                <a id="modal-confirm" href="/e-announcement/delete/formid" type="button"
+                   class="btn btn-primary btn-alert modal-confirm">Delete</a>
             </div>
         </div>
     </div>
-
+</div>
 {% endblock %}
 
 {% block scripts %}

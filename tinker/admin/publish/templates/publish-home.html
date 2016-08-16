@@ -22,48 +22,37 @@
                     <div class="content">
                         <p>Blocks that are published publish out each page in the relationships tab.</p>
 
-{#                        <div id="dialog" class="reveal-modal" data-reveal>#}
-{#                            <p class='dialog-text'>. . . Loading . . .</p>#}
-{#                            <a class="close-reveal-modal">&#215;</a>#}
-{#                        </div>#}
-
                         <form action="." id="publish-search-form">
 
-                            <div class="col-sm-4">
-                                <div class="form-group">
-                                    Search by Name:
-                                    <input type="text" id="publish-search-by-name" class="form-control publish-search"/>
-                                </div>
+                            <div id="publish-first-col" class="col-sm-4">
+                                Search by Name:
+                                <input type="text" id="publish-search-by-name" class="form-control publish-search"/>
                             </div>
                             <div class="col-sm-4">
-                                <div class="form-group">
-                                    Search by Content:
-                                    <input type="text" id="publish-search-by-content"
-                                           class="form-control publish-search"/>
-                                </div>
+                                Search by Content:
+                                <input type="text" id="publish-search-by-content"
+                                       class="form-control publish-search"/>
+                            </div>
+                            <div class="col-sm-4">
+                                Search by Metadata:
+                                <input type="text" id="publish-search-by-metadata"
+                                       class="form-control publish-search"/>
                             </div>
 
-                            <div class="col-sm-4">
-                                <div class="form-group">
-                                    Search by Metadata:
-                                    <input type="text" id="publish-search-by-metadata"
-                                           class="form-control publish-search"/>
-                                </div>
-                            </div>
                             <div class="large-6 columns">
                                 <label>Publish to:
-                                <div class="radio">
-                                    <label>
-                                        <input type="radio" name="optionsRadios" checked="true">
-                                        Staging
-                                    </label>
-                                </div>
-                                <div class="radio">
-                                    <label>
-                                        <input type="radio" name="optionsRadios">
-                                        Production and Staging
-                                    </label>
-                                </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="optionsRadios" checked="true">
+                                            Staging
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="optionsRadios">
+                                            Production and Staging
+                                        </label>
+                                    </div>
                                 </label>
                             </div>
                             <div class="large-2 columns">
@@ -90,7 +79,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
+            <div class="col-md-12">
                 <div class="large-12 columns">
                     <table>
                         <thead>
@@ -109,6 +98,7 @@
             </div>
             </br>
         </div>
+
     </div>
 
     <script type="text/javascript">
@@ -129,6 +119,19 @@
             function updateTable(data) {
                 // Todo if no data exists, display message
                 $("#publish-table").html(data);
+                $('.more-info').click(function () {
+                    $('#dialog-text').html(". . . Loading . . .");
+                    var type = $(this).data('publish-type');
+                    var id = $(this).data('publish-id');
+                    moreInfo(type, id)
+                });
+                $('.publishButton').click(function () {
+                    $('#dialog-text').html(". . . Loading . . .");
+                    var type = $(this).data('publish-type');
+                    var id = $(this).data('publish-id');
+                    var counter = $(this).data('counter');
+                    publishAsset(type, id, counter)
+                });
             }
 
             function loadTableForSearch(name_value, content_value, metadata_value, pages_value, blocks_value, files_value, folders_value) {
@@ -169,13 +172,13 @@
             }
 
             $('.publish-search').keyup(function () {
-                search()
+                search();
+
             });
 
             function publishAsset(type, id, counter) {
                 var destination = $('input[name=publish-to]:checked', '#publish-search-form').val();
                 var url = "/admin/publish-manager/publish/" + destination + "/" + type + "/" + id;
-                console.log("TEST");
                 $.post(url, function (data) {
                     $("#publish_button_" + counter).text(data);
                 });
@@ -185,18 +188,30 @@
                 var input_data = {'type': type, 'id': id};
                 var url = "{{ url_for('publish-manager.PublishManagerView:more_info') }}";
                 $.post(url, input_data, function (data) {
-                    $('.dialog-text').html(data);
+                    $('#dialog-text').html(data);
                 });
             }
-
-            $(".close-reveal-modal").click(function () {
-                $('.dialog-text').html(". . . Loading . . .");
-            });
 
         })
         ;
     </script>
 
+{% endblock %}
+
+{% block modalhtml %}
+    <div id="dialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true" data-reveal>
+        <div id="publish-modal" class="modal-dialog">
+            <div class="modal-content">
+                <div id="more-info-title" class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">More Info</h4>
+                </div>
+                <div id="dialog-text" class="modal-body">
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}

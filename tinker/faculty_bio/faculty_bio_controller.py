@@ -234,7 +234,6 @@ class FacultyBioController(TinkerController):
 
         workflow_id = self.get_correct_workflow_id(add_data)
         workflow = self.create_workflow(workflow_id, subtitle=add_data['title'])
-        workflow = None
         self.add_workflow_to_asset(workflow, faculty_bio_data)
 
         if faculty_bio_id:

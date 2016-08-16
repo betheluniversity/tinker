@@ -30,7 +30,7 @@ class EAnnouncementsView(FlaskView):
         forms.sort(key=lambda item: item['first_date'], reverse=False)
         return render_template('ea-home.html', **locals())
 
-    @route('/delete/<e_announcement_id>')
+    @route("/delete/<e_announcement_id>", methods=['GET'])
     def delete(self, e_announcement_id):
         # must have access to delete
         if session['username'] not in app.config['E_ANN_ADMINS']:
@@ -63,11 +63,11 @@ class EAnnouncementsView(FlaskView):
         brm = self.base.brm
         return render_template('form.html', **locals())
 
+    @route("/confirm", methods=['GET'])
+    @route("/confirm/<status>", methods=['GET'])
     def confirm(self, status='new'):
         return render_template('confirm.html', **locals())
 
-    # @route('/edit/<e_announcement_id>')
-    # @route('/duplicate/<e_announcement_id>')
     def edit(self, e_announcement_id):
         from tinker.e_announcements.forms import EAnnouncementsForm
 
@@ -78,7 +78,7 @@ class EAnnouncementsView(FlaskView):
         # Get the e-ann data from cascade
         block = self.base.read_block(e_announcement_id)
         e_announcement_data, mdata, sdata = block.read_asset()
-        edit_data = self.base.get_edit_data(e_announcement_data)
+        edit_data = self.base.get_edit_data(sdata, mdata)  # (e_announcement_data)
 
         # readonly values are set if the date is in the past (shouldn't be edited)
         self.base.set_readonly_values(edit_data)
@@ -101,7 +101,7 @@ class EAnnouncementsView(FlaskView):
         # Get the e-ann data from cascade
         block = self.base.read_block(e_announcement_id)
         e_announcement_data, mdata, sdata = block.read_asset()
-        edit_data = self.base.get_edit_data(e_announcement_data)
+        edit_data = self.base.get_edit_data(sdata, mdata)  # (e_announcement_data)
 
         # readonly values are set if the date is in the past (shouldn't be edited)
         self.base.set_readonly_values(edit_data)
@@ -109,12 +109,14 @@ class EAnnouncementsView(FlaskView):
 
         # extra variable the form uses
         brm = self.base.brm
+        # TODO: is this if statement necessary in Flask-Classy convention now? It seems to be a given here.
         if '/duplicate/' in request.url:
             new_form = True
 
         return render_template('form.html', **locals())
 
-    def post(self):
+    @route("/submit", methods=['post'])
+    def submit(self):
         rform = request.form
         eaid = rform.get('e_announcement_id')
 
@@ -123,10 +125,12 @@ class EAnnouncementsView(FlaskView):
             return failed
 
         if not eaid:
+            status = "new"
             bid = app.config['E_ANN_BASE_ASSET']
             e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
             asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
             resp = self.base.create_block(asset)
+            new_eaid = resp.asset['xhtmlDataDefinitionBlock']['id']
             self.base.log_sentry('New e-announcement submission', resp)
         else:
             block = self.base.read_block(eaid)
@@ -137,14 +141,13 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('confirm.html', **locals())
 
-    @route("/create_and_send_campaign/", methods=['get', 'post'])
-    @route("/create_campaign/", methods=['get', 'post'])
+    @route("/create_and_send_campaign", methods=['get', 'post'])
+    @route("/create_campaign", methods=['get', 'post'])
     @route("/create_campaign/<date>", methods=['get', 'post'])
     @requires_auth
     def create_campaign(self, date=None):
+        resp = None
         try:
-            resp = None
-
             if not date:
                 date = datetime.datetime.strptime(datetime.datetime.now().strftime("%m-%d-%Y"), "%m-%d-%Y")
             else:

@@ -1,32 +1,30 @@
-{% if name %}
-<h2>{{ name }}</h2>
-{%  endif %}
-    <table>
-        <tr>
-            <td>Title</td>
-            <td>{{ title }}</td>
-        </tr>
-        <tr>
-            <td>Path</td>
-            <td>{{ path }}</td>
-        </tr>
-        <tr>
-            <td>Type</td>
-            <td>{{ info_type }}</td>
-        </tr>
-    </table>
+<div class="col-md-12">
 
-<div class="row">
+    {% if name %}
+        <h2>{{ name }}</h2>
+    {% endif %}
+    <div class="col-md-12">
 
-    <div class="large-6 columns">
-        <h4>WWW last published</h4>
-        <p><a href="https://www.bethel.edu/{{ path }}" target="_blank">{{ www_publish_date }}</a></p>
-        <iframe src="https://www.bethel.edu/{{ path }}" height="400" width="400"></iframe>
+        <div><h5>Title: {{ title }}</h5></div>
+
+        <div><h5>Path: {{ path }}</h5></div>
+
+        <div><h5>Type: {{ info_type }}</h5></div>
     </div>
 
-    <div class="large-6 columns">
-        <h4>Staging last published</h4>
-        <p><a href="https://staging.bethel.edu/{{ path }}" target="_blank">{{ staging_publish_date }}</a></p>
-        <iframe src="https://staging.bethel.edu/{{ path }}" height="400" width="400"></iframe>
+    <div class="row">
+
+        <div class="col-sm-6 last-published-header">
+            <h4 class="first-subtitle">WWW last published</h4>
+            <p><a href="https://www.bethel.edu/{{ path }}" target="_blank">{{ www_publish_date }}</a></p>
+            <iframe src="https://www.bethel.edu/{{ path }}" height="400" width="400"></iframe>
+        </div>
+
+        <div class="col-sm-6 last-published-header">
+            <h4 class="first-subtitle">Staging last published</h4>
+            <p><a href="https://staging.bethel.edu/{{ path }}" target="_blank">{{ staging_publish_date }}</a></p>
+            <iframe src="https://staging.bethel.edu/{{ path }}" height="400" width="400"></iframe>
+        </div>
     </div>
+
 </div>

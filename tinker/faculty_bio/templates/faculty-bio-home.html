@@ -112,8 +112,9 @@
 
         </div>
     </div>
+{% endblock %}
 
-    <!-- Modal Core -->
+{% block modalhtml %}
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true">
         <div class="modal-dialog">
@@ -127,7 +128,7 @@
                     Your faculty bio page will be removed.
                 </div>
                 <div class="modal-footer">
-                    <a id="modal-confirm" href="/event/delete/formid"
+                    <a id="modal-confirm" href="/faculty-bio/delete/formid"
                        class="btn btn-primary btn-alert modal-confirm">Delete</a>
                 </div>
             </div>
@@ -175,8 +176,6 @@
                     }
                 });
             });
-
-            $(document).foundation();
         </script>
     {% endif %}
 

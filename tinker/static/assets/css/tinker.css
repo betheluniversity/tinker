@@ -1,4 +1,4 @@
-.redirect-row{
+.redirect-row {
     cursor: pointer;
 }
 
@@ -21,6 +21,10 @@ h3 {
 
 .first-subtitle {
     margin-top: 0px;
+}
+
+.last-published-header {
+    padding-left: 0px;
 }
 
 .no-border {
@@ -73,6 +77,10 @@ ul.dropdown-menu {
 
 a.more-info {
     margin-bottom: 10px;
+}
+
+#more-info-title {
+    padding-left: 45px;
 }
 
 a.new-btn {
@@ -170,7 +178,7 @@ ul.btn-group-horizontal li {
     display: inline;
 }
 
-.job {
+.less-left-margin {
     margin-left: -15px;
 }
 
@@ -202,6 +210,11 @@ input {
     margin-bottom: 15px;
     height: 26px;
     width: 100%;
+}
+
+input.auto-width {
+    width: auto;
+    /*width: 49.1%;*/
 }
 
 select {
@@ -242,14 +255,14 @@ textarea {
     height: 150px;
 }
 
-.modal-backdrop {
-    z-index: -1;
+#publish-modal {
+    width: 90%;
 }
 
 /* todo: come up with a way to generalize these tags */
 
 /*select#heading {*/
-    /*margin-left: 15px;*/
+/*margin-left: 15px;*/
 /*}*/
 
 div#cke_biography {
@@ -437,17 +450,21 @@ label {
     font-family: Muli, Helvetica Neue, sans-serif;
 }
 
+#publish-first-col {
+    padding-left: 0px;
+}
+
 /* Checkbox inputs */
 
 input[type='checkbox'] {
     -webkit-appearance: none;
-	background-color: #FFFFFF;
-	border: 2px solid #9A9A9A;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px -15px 10px -12px rgba(0,0,0,0.05);
-	padding: 2px;
-	border-radius: 3px;
-	display: inline-block;
-	position: relative;
+    background-color: #FFFFFF;
+    border: 2px solid #9A9A9A;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05);
+    padding: 2px;
+    border-radius: 3px;
+    display: inline-block;
+    position: relative;
     width: 16px;
     height: 16px;
     cursor: pointer;
@@ -456,48 +473,48 @@ input[type='checkbox'] {
 }
 
 input[type='checkbox']:active, input[type='checkbox']:checked:active {
-	box-shadow: 0 1px 2px rgba(0,0,0,0.05), inset 0px 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px 1px 3px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     opacity: 1;
 }
 
 input[type='checkbox']:checked {
-	background-color: #FFFFFF;
-	border: 2px solid #66615b;
-	box-shadow: 0 1px 2px rgba(0,0,0,0.05),
-    inset 0px -15px 10px -12px rgba(0,0,0,0.05),
-    inset 15px 10px -12px rgba(255,255,255,0.1);
-	color: #66615b;
+    background-color: #FFFFFF;
+    border: 2px solid #66615b;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05),
+    inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05),
+    inset 15px 10px -12px rgba(255, 255, 255, 0.1);
+    color: #66615b;
     cursor: pointer;
     opacity: 1;
 }
 
 input[type='checkbox']:checked:after {
     content: '\2713';
-	font-size: 19px;
-	position: absolute;
-	top: -5px;
-	left: -1px;
-	color: #66615b;
+    font-size: 19px;
+    position: absolute;
+    top: -5px;
+    left: -1px;
+    color: #66615b;
 }
 
 input[type='checkbox']:hover:after {
     content: '\2713';
-	font-size: 19px;
-	position: absolute;
-	top: -5px;
-	left: -1px;
-	color: #66615b;
+    font-size: 19px;
+    position: absolute;
+    top: -5px;
+    left: -1px;
+    color: #66615b;
     border-color: #66615b
 }
 
 input[type='checkbox']:checked:hover:after {
     content: '\2713';
-	font-size: 19px;
-	position: absolute;
-	top: -5px;
-	left: -1px;
-	color: #66615b;
+    font-size: 19px;
+    position: absolute;
+    top: -5px;
+    left: -1px;
+    color: #66615b;
 }
 
 @media (min-width: 992px) {

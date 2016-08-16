@@ -14,7 +14,7 @@ class OfficeHoursController(TinkerController):
 
     def __init__(self):
         super(OfficeHoursController, self).__init__()
-        self.datetime_format = "%I:%M %p"
+        self.datetime_format = "%-I:%M %p"
 
     def _iterate_child_xml(self, child, author):
 
@@ -36,7 +36,28 @@ class OfficeHoursController(TinkerController):
         multiple = ['exceptions']
 
         block = self.read_block(block_id)
+
         data, mdata, sdata = block.read_asset()
+
+        #####################################################
+        # def pretty_print(object, level=0):
+        #     indent = "    "
+        #     if isinstance(object, list):
+        #         print level * indent + "["
+        #         for item in object:
+        #             pretty_print(item, level+1)
+        #         print level * indent + "]"
+        #     elif isinstance(object, dict):
+        #         print level * indent + "{"
+        #         for key in object:
+        #             print (level + 1) * indent + key + ":"
+        #             pretty_print(object[key], level + 2)
+        #         print level * indent + "}"
+        #     else:
+        #         print level * indent + str(object)
+        # print "mdata:"
+        # pretty_print(mdata)
+        #####################################################
 
         edit_data = self.get_edit_data(sdata, mdata,  multiple=multiple)
 
@@ -223,6 +244,8 @@ class OfficeHoursController(TinkerController):
                 update(sdata, 'summary', new_summary)
 
     def create_exceptions_text(self, sdata):
+        seconds_in_two_weeks = 1209600
+
         # add exceptions
         exceptions = find(sdata, 'exceptions')
         exceptions_text = ''
