@@ -22,11 +22,7 @@ class OfficeHoursView(FlaskView):
         self.base = OfficeHoursController()
 
     def before_request(self, name, **kwargs):
-        if 'groups' not in session:
-            # This if statement block has been added for unit testing purposes
-            from tinker.tinker_controller import TinkerController
-            tc = TinkerController()
-            tc.before_request()
+        pass
 
     def post(self):
         rform = request.form

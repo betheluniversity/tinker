@@ -9,11 +9,6 @@ class BlinkRolesView(FlaskView):
     route_base = '/admin/blink-roles'
 
     def before_request(self, args):
-        if 'groups' not in session:
-            # This if statement block has been added for unit testing purposes
-            from tinker.tinker_controller import TinkerController
-            tc = TinkerController()
-            tc.before_request()
         if 'Administrators' not in session['groups']:
             abort(403)
 

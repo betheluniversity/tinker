@@ -13,18 +13,11 @@ class CacheClear(FlaskView):
         self.base = CacheController()
 
     def before_request(self, name, **kwargs):
-        if 'groups' not in session:
-            # This if statement block has been added for unit testing purposes
-            from tinker.tinker_controller import TinkerController
-            tc = TinkerController()
-            tc.before_request()
         if 'Administrators' not in session['groups']:
             abort(403)
 
     def index(self):
-        # This form is defined solely for CSRF token validation
-        form = Form()
-        return render_template('cache-home.html', form=form)
+        return render_template('cache-home.html')
 
     # Todo: update the return of this to be creative-tim's notifications
     @route("/submit", methods=['post'])
