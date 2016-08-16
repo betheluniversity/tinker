@@ -12,37 +12,38 @@
 {% block main_content %}
     <div class="content">
         <div class="row">
-            <form id='program_search_form' method="post" class="card">
-                <div class="content">
-                    <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-                    <div class="large-6 columns">
+            <form id='program_search_form' method="post">
+                <div class="card">
+                    <div class="content">
+                        <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                         <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
-    {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
+                        {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
                         <select name="key" id="search-key" class="search-input">
                             <option value="">Any</option>
                             {% for school_label in school_labels %}
                                 <optgroup label="{{ school_label }}">
-                                {% for program_concentration in program_concentrations %}
-                                    {% if program_concentration.school == school_label %}
-                                        <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
-                                    {% endif %}
-                                {% endfor %}
+                                    {% for program_concentration in program_concentrations %}
+                                        {% if program_concentration.school == school_label %}
+                                            <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
                                 </optgroup>
                             {% endfor %}
                         </select>
                         <label for="tag" style="color: #252422">Search by Tag:</label>
                         <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
                     </div>
-                    <div class="large-6 columns">
+                    <div class="col-md-12">
                         <p>These are for creating new Program Tags.</p>
-                        <label>
+                    </div>
+                    <label>
                         <div class="col-sm-4">
                             Outcome:
                             <div class="radio">
                                 <label><input type="radio" name="outcome" value="True">Yes</label>
                             </div>
                             <div class="radio">
-                                <label><input type="radio" name="outcome" value="False">No</label>
+                                <label><input type="radio" name="outcome" value="False" checked>No</label>
                             </div>
                         </div>
 
@@ -52,7 +53,7 @@
                                 <label><input type="radio" name="topic" value="True">Yes</label>
                             </div>
                             <div class="radio">
-                                <label><input type="radio" name="topic" value="False">No</label>
+                                <label><input type="radio" name="topic" value="False" checked>No</label>
                             </div>
                         </div>
 
@@ -62,12 +63,13 @@
                                 <label><input type="radio" name="other" value="True">Yes</label>
                             </div>
                             <div class="radio">
-                                <label><input type="radio" name="other" value="False">No</label>
+                                <label><input type="radio" name="other" value="False" checked>No</label>
                             </div>
                         </div>
-                        </label>
-                    </div>
-                    <div class="large-2 columns"></div>
+                        <div class="content">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </label>
                 </div>
             </form>
         </div>
@@ -81,9 +83,11 @@
                         <th width="100">Outcome</th>
                         <th width="100">Topic</th>
                         <th width="100">Other</th>
-                        <th><li><a href="#" data-reveal-id="confirmModal" id="delete-all"
-                                               class="delete-press"
-                                               data-toggle="modal" data-target="#myModal" style="display:none">Delete</a></li></th>
+                        <th>
+                            <a data-reveal-id="confirmModal" id="delete-all"
+                               class="btn btn-primary btn-alert delete-press" data-toggle="modal"
+                               data-target="#myModal">Delete</a>
+                        </th>
                     </tr>
                     </thead>
                     <tbody id="table-body">
@@ -93,26 +97,26 @@
             </div>
         </div>
     </div>
-<!-- Modal Core -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"
-                        aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
-            </div>
-            <div class="modal-body">
-                The redirects will be gone forever and forever.
-            </div>
-            <div class="modal-footer">
-                <a id="modal-confirm" href="#"
-                   class="btn btn-primary btn-alert modal-confirm" id="modal-confirm">Delete</a>
+    <!-- Modal Core -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+                </div>
+                <div class="modal-body">
+                    Any programs you have checked will be deleted.
+                </div>
+                <div class="modal-footer">
+                    <a id="modal-confirm" href="#"
+                       class="btn btn-primary btn-alert modal-confirm" id="modal-confirm">Delete</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -163,10 +167,10 @@
             });
         }
 
-        $("#modal-confirm").click(function(){
+        $("#modal-confirm").click(function () {
             var checkboxes_to_delete = [];
             var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");
-            for( var i=0;i<checkbox_elements.length;i++){
+            for (var i = 0; i < checkbox_elements.length; i++) {
                 checkboxes_to_delete.push(checkbox_elements[i].id);
             }
 
@@ -181,26 +185,26 @@
             });
         });
 
-        $(".delete-checkbox").click(function(){
+        $(".delete-checkbox").click(function () {
             var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");
-            if(checkbox_elements[0]){
+            if (checkbox_elements[0]) {
                 $("#delete-all").style.display = "inline";
             }
-            else{
+            else {
                 $("#delete-all").style.display = "none";
             }
         });
 
         $('#program_search_form').submit(function () {
             var formData = {
-                'key':                      $('select[name=key]').val(),
-                'tag':                      $('input[name=tag]').val(),
-                'outcome':                  $('input[name=outcome]:checked').val(),
-                'topic':                    $('input[name=topic]:checked').val(),
-                'other':                    $('input[name=other]:checked').val()
+                'key': $('select[name=key]').val(),
+                'tag': $('input[name=tag]').val(),
+                'outcome': $('input[name=outcome]:checked').val(),
+                'topic': $('input[name=topic]:checked').val(),
+                'other': $('input[name=other]:checked').val()
             };
 
-             $.ajax({
+            $.ajax({
                 type: "POST",
                 url: "{{ url_for('program_search.ProgramSearchView:post') }}",
                 data: JSON.stringify(formData),
@@ -209,7 +213,7 @@
                     loadTableForSearch();
                 }
             });
-             return false;
+            return false;
         });
     </script>
 

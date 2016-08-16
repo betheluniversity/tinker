@@ -27,7 +27,7 @@ class ProgramSearchView(FlaskView):
         school_labels = self.base.get_school_labels()
         program_concentrations = self.base.get_programs_for_dropdown()
 
-        return render_template('index.html', **locals())
+        return render_template('program-search-home.html', **locals())
 
     def post(self):
         school_labels = self.base.get_school_labels()
@@ -38,7 +38,7 @@ class ProgramSearchView(FlaskView):
         tag = rform.get('tag')
 
         if key == 'Any' or tag == '' or tag is None:
-            return render_template('index.html', **locals())
+            return render_template('program-search-home.html', **locals())
 
         outcome = ast.literal_eval(rform.get('outcome'))
         topic = ast.literal_eval(rform.get('topic'))
@@ -55,7 +55,7 @@ class ProgramSearchView(FlaskView):
         except:
             db.session.rollback()
 
-        return render_template('index.html', **locals())
+        return render_template('program-search-home.html', **locals())
 
     @route('/multi-delete', methods=['POST'])
     def multi_delete(self):
