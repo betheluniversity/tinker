@@ -31,7 +31,6 @@ class RedirectsView(FlaskView):
     # Redirects homepage
     def index(self):
         redirects = BethelRedirect.query.all()
-        form = Form()
         return render_template('redirects.html', **locals())
 
     # Deletes the chosen redirect

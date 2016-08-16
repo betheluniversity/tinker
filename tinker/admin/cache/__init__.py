@@ -17,9 +17,7 @@ class CacheClear(FlaskView):
             abort(403)
 
     def index(self):
-        # This form is defined solely for CSRF token validation
-        form = Form()
-        return render_template('cache-home.html', form=form)
+        return render_template('cache-home.html')
 
     # Todo: update the return of this to be creative-tim's notifications
     @route("/submit", methods=['post'])
