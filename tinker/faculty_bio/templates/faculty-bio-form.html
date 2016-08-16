@@ -366,6 +366,7 @@ to be in it's own card div, something to think about in the future -->
                                 $("<input type='text'>").attr('id', 'new-job-title' + id).attr('name', 'new-job-title' + id).addClass('no-border')
                         )
                 ));
+            }
 
                 function newJobTitlesFieldset(id) {
                     var title = 'new-job-title' + id;
@@ -802,7 +803,9 @@ to be in it's own card div, something to think about in the future -->
                 $("#image").change(function () {
                     readURL(this);
                 });
-          });
+            }
+
+            );
     </script>
 
 {% endblock %}

@@ -11,6 +11,21 @@
 {% endblock %}
 
 {% block main_content %}
+    <script type="text/javascript">
+        function checkNeedTimezone(id) {
+            var out = 'needtimezone' + id;
+            var time = 'timezone' + id;
+            var timelabel = 'timezonelabel' + id;
+            if (document.getElementById(out).checked) {
+                document.getElementById(time).style.display = "inline-block";
+                document.getElementById(timelabel).style.display = "block";
+            }
+            else {
+                document.getElementById(time).style.display = "none";
+                document.getElementById(timelabel).style.display = "none";
+            }
+        }
+    </script>
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
@@ -121,12 +136,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
     <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
     <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
-    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
     <script type="text/javascript">
 
         $(document).ready(function () {
-            var csrftoken = "{{ csrf_token() }}";
-            activateCSRF(csrftoken);
 
             $('#registration_heading').change(function () {
                 var headingValue = $('#registration_heading').val();
@@ -162,22 +174,24 @@
                 var fieldset_node = $('<fieldset>').addClass('date-fieldset');
                 var inner_node = $("<div>").addClass('content');
                 inner_node.append($("<legend>").html("Date " + id));
-                inner_node.append($("<div>").addClass('checkbox')
-                        .append($('<span>').addClass('icons')
-                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-square').addClass('fa-base'))
-                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-check-square').addClass('fa-base')))
-                        .append("<input type='checkbox'>").attr('name', all).attr('id', all).addClass('alldaycheck')
-                        .append($("<label>").attr('for', all).html("All Day").addClass('checkbox-radio-label')));
+                {#                inner_node.append($("<div>").addClass('checkbox')#}
+                {#                        .append($('<span>').addClass('icons')#}
+                {#                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-square').addClass('fa-base'))#}
+                {#                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-check-square').addClass('fa-base')))#}
+                inner_node.append($("<input type='checkbox'>").attr('name', all).attr('id', all).addClass('alldaycheck'));
+                inner_node.append($("<div>").addClass('checkbox-label')
+                        .append($("<label>").attr('for', all).html("All Day").addClass('checkbox-label')));
                 inner_node.append($("<label>").attr('for', start).html("Start Date"));
                 inner_node.append($("<input type='text'>").attr('name', start).attr('id', start).addClass("datepicker"));
                 inner_node.append($("<label>").attr('for', end).html("End Date"));
                 inner_node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
-                inner_node.append($("<div>").addClass('checkbox')
-                        .append($('<span>').addClass('icons')
-                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-square').addClass('fa-base'))
-                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-check-square').addClass('fa-base')))
-                        .append($("<input type='checkbox'>").attr('name', out).attr('id', out).attr('class', 'needtimezonecheck').attr('onclick', check))
-                        .append($("<label>").attr('for', out).html("Outside of Minnesota?")));
+                {#                inner_node.append($("<div>").addClass('checkbox')#}
+                {#                        .append($('<span>').addClass('icons')#}
+                {#                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-square').addClass('fa-base'))#}
+                {#                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-check-square').addClass('fa-base')))#}
+                inner_node.append($("<input type='checkbox'>").attr('name', out).attr('id', out).attr('data-id', out).attr('class', 'needtimezonecheck').attr('onclick', check));
+                inner_node.append($("<div>").addClass('checkbox-label')
+                        .append($("<label>").attr('for', out).html("Outside of Minnesota?").addClass('checkbox-label')));
                 inner_node.append($("<label>").attr('for', time).attr('style', 'display: none').attr('id', timelabel).html("Timezone"));
                 inner_node.append($("<select>").attr('name', time).attr('id', time).attr('class', 'timezoneselect').attr('style', 'display: none').html($("<option value>-select-</option><option value='Pacific Time'>Pacific Time</option><option value='Mountain Time'>Mountain Time</option><option value='Central Time'>Central Time</option><option value='Eastern Time'>Eastern Time</option>")));
 
@@ -204,19 +218,13 @@
                 }
             }
 
-            function checkNeedTimezone(id) {
-                var out = 'needtimezone' + id;
-                var time = 'timezone' + id;
-                var timelabel = 'timezonelabel' + id;
-                if (document.getElementById(out).checked) {
-                    document.getElementById(time).style.display = "inline-block";
-                    document.getElementById(timelabel).style.display = "block";
-                }
-                else {
-                    document.getElementById(time).style.display = "none";
-                    document.getElementById(timelabel).style.display = "none";
-                }
-            }
+            {# Got the "replace(/\D/g, '')" from #}
+            {# http://stackoverflow.com/questions/1183903/regex-using-javascript-to-return-just-numbers #}
+            {# Grabs the number from the id, i.e. needtimezone1 #}
+            {#            $(".needtimezonecheck").click(function () {#}
+            {#                var id = ($(this).data('id')).replace(/\D/g, '');#}
+            {#                checkNeedTimezone(id);#}
+            {#            });#}
 
             function testOffCampusLocation() {
                 var location = $("#location")[0];
@@ -377,8 +385,8 @@
                 <label for="end1">End Date</label>
                 <input type="text" name="end1" id="end1" class="datepicker"/>
 
-                <input type="checkbox" id="needtimezone1" name="needtimezone1" class="needtimezonecheck"
-                       value="False" onclick="checkNeedTimezone(1)">
+                <input type="checkbox" id="needtimezone1" data-id="needtimezone1" name="needtimezone1"
+                       class="needtimezonecheck" value="False" onclick="checkNeedTimezone(1)">
                 <div class="checkbox-label">
                     <label for="needtimezone1" class="checkbox-label">Outside of Minnesota?</label>
                 </div>
