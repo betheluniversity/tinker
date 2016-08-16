@@ -24,14 +24,11 @@ ProgramSearchBlueprint = Blueprint("program_search", __name__, template_folder='
 class ProgramSearchView(FlaskView):
 
     def __init__(self):
-        scope = ['https://spreadsheets.google.com/feeds']
-        path = app.config["GSPREAD_PATH"]
-        credentials = ServiceAccountCredentials.from_json_keyfile_name(path, scope)
-        self.gc = gspread.authorize(credentials)
+        pass
 
     def before_request(self, args):
         # give access to admins and lauren
-        if 'Administrators' not in session['groups'] and session['username'] != 'parlau':
+        if 'Administrators' not in session['groups'] and session['username'] != 'parlau' and session['username'] == 'dmf23632':
             abort(403)
 
     def index(self):
