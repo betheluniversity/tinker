@@ -11,8 +11,10 @@ class IndexTestCase(RolesBaseTestCase):
     #######################
 
     def test_index(self):
+        class_name = self.__class__.__bases__[0].__name__ + '/' + self.__class__.__name__
+        failure_message = '"GET /admin/blink-roles" didn\'t return the HTML code expected by ' + class_name + '.'
         response = super(IndexTestCase, self).send_get("/admin/blink-roles")
-        assert """
+        self.assertIn("""
     <form id="blink-login" action="https://blink.bethel.edu/cp/home/login" method="post">
         <input id="blink-pass" type="hidden" name="pass" value="p0rt2l" />
         <input id="blink-user" type="hidden" name="user" value="" />
@@ -53,4 +55,4 @@ class IndexTestCase(RolesBaseTestCase):
                 Layout Owner Logins
             </td>
         </tr>
-        """ in response.data
+        """, response.data, msg=failure_message)
