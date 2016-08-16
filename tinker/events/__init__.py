@@ -20,7 +20,7 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-        forms = self.base.traverse_xml(app.config['EVENTS_URL'], 'system-page')
+        forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         if 'Event Approver' in session['groups']:
             forms, event_approver_forms = self.base.get_approver_forms(forms)
         return render_template('events-home.html', **locals())

@@ -8,55 +8,7 @@
     {% else %}
         Edit your event
     {% endif %}
-    {{ form.csrf_token() }}
-        {% if form.errors or not dates_good and num_dates  %}
-          <div class="alert alert-error">
-            <div data-alert class="alert-box alert radius">
-                There were errors with your form.
-                <a href="#" class="close">&times;</a>
-              </div>
-            </div>
-        {% endif %}
-        {{ form.hidden_tag() }}
-        {% for field in form if field.widget.input_type != 'hidden' %}
-
-        {# Print any errors for this field#}
-          {% for error in form.errors[field.name] %}
-            <div class="alert alert-error">
-              <div data-alert class="alert-box alert radius">
-                {{ error }}
-                <a href="#" class="close">&times;</a>
-              </div>
-            </div>
-          {% endfor %}
-
-          {# print the label #}
-          {% if field.name not in ["off_campus_location", "on_campus_location", "other_on_campus"] %}
-            <label for="{{ field.name }}">
-              {{ field.label.text }}
-              {% if field.flags.required %} <small>required</small> {% endif %}
-             </label>
-            <small>{{ field.description }}</small>
-          {% endif %}
-
-
-
-          {# Print the field #}
-          {% if field.type == "SelectMultipleField" %}
-            {{ field(size=10, class="largeselect") }}
-
-          {% elif field.type == "HeadingField" %}
-            <h3>{{ field.label }}</h3>
-
-          {% elif field.name == "off_campus_location" %}
-            <div id="off_location_wrap" style="display:none;">
-              {{ field.label }}{{ field }}
-            </div>
-
-          {% elif field.name == "on_campus_location" %}
-            <div id="on_campus_wrap" style="display:none;">
-              {{ field.label }}{{ field }}
-            </div>
+{% endblock %}
 
 {% block main_content %}
     <script type="text/javascript">
@@ -454,4 +406,3 @@
     <a href="javascript:void(0);" id="remove_date_button" style="display:none" class="btn btn-primary btn-alert">Remove
         Date</a>
 {%- endmacro %}
-

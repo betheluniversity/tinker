@@ -28,44 +28,11 @@
 
 {% block page_title %}
     {% if new_form %}
-      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
+        Submit a new E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
     {% else %}
-      <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
-      <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
+        Edit your E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
     {% endif %}
-        {{ form.csrf_token }}
-        {% if form.errors %}
-          <div class="alert alert-error">
-            <div data-alert class="alert-box alert radius">
-                There were errors with your form.
-                <a href="#" class="close">&times;</a>
-              </div>
-            </div>
-        {% endif %}
-
-        {{ form.hidden_tag() }}
-        {% for field in form if field.widget.input_type != 'hidden' %}
-
-        {# Print any errors for this field#}
-          {% for error in form.errors[field.name] %}
-            <div class="alert alert-error">
-              <div data-alert class="alert-box alert radius">
-                {{ error }}
-                <a href="#" class="close">&times;</a>
-              </div>
-            </div>
-          {% endfor %}
-
-          {# print the label #}
-            {% if field.label.text != '' %}
-                <label for="{{ field.name }}">
-                  {{ field.label.text }}
-                  {% if field.flags.required %} * {% endif %}
-                 </label>
-                {% if field.description != '' %}
-                    <p>{{ field.description }}</p>
-                {% endif %}
-            {% endif %}
+{% endblock %}
 
 {% block main_content %}
     <div class="content">

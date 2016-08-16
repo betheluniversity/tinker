@@ -76,56 +76,92 @@
 
 
 {% block main_content %}
-  <div class="row">
-  <div class="large-12 columns">
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <h3 class="subtitle">Edit Office Hours</h3>
+                <hr/>
+                {# todo: what should the copy be? #}
+                <p>Some Copy</p>
+                <h4 class="first-subtitle">BU Standard Hours</h4>
+                {% set standard = standard_edit_data['current'] %}
+                {{ current_hours(standard, False) }}
 
-    <p>Some Copy</p>
-    <h4>BU Standard Hours</h4>
-    {% set standard = standard_edit_data['current'] %}
-    {{ current_hours(standard, False) }}
+                <h4>{{ mdata['title'] }}</h4>
+                {#    <h4>Current Hours</h4>#}
+                {% set current = edit_data['current'] %}
+                {{ current_hours(current) }}
 
-    <h4>{{ mdata['title'] }}</h4>
-{#    <h4>Current Hours</h4>#}
-    {% set current = edit_data['current'] %}
-    {{ current_hours(current) }}
+                <form id="officehoursform" action="/office-hours/" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="block_id" id="block_id" value="{{ block_id }}"/>
 
-      <form id="officehoursform" action="{{ url_for('office-hours.OfficeHoursView:post') }}" method="post" enctype="multipart/form-data">
-      <input type="hidden" name="block_id" id="block_id" value="{{ block_id }}"/>
-      {{ form.csrf_token() }}
+                    {% if form.errors %}
+                        <div class="error-alert">
+                            <div data-alert class="red-alert">
+                                There were errors with your form.
+                                <a href="#" class="close">&times;</a>
+                            </div>
+                        </div>
+                    {% endif %}
 
-        {% if form.errors %}
-          <div class="alert alert-error">
-            <div data-alert class="alert-box alert radius">
-                There were errors with your form.
-                <a href="#" class="close">&times;</a>
-              </div>
-            </div>
-        {% endif %}
+                    {{ form.hidden_tag() }}
+                    {% for field in form if field.widget.input_type != 'hidden' %}
+                        {{ CheckFieldLabel(field) }}
 
-        {{ form.hidden_tag() }}
-        {% for field in form if field.widget.input_type != 'hidden' %}
-            {{ CheckFieldLabel(field) }}
+                        {% for error in form.errors[field.name] %}
+                            <div class="error-alert">
+                                <div data-alert class="red-alert">
+                                    {{ error }}
+                                    <a href="#" class="close">&times;</a>
+                                </div>
+                            </div>
+                        {% endfor %}
 
-            {% for error in form.errors[field.name] %}
-                <div class="alert alert-error">
-                  <div data-alert class="alert-box alert radius">
-                    {{ error }}
-                    <a href="#" class="close">&times;</a>
-                  </div>
-                </div>
-            {% endfor %}
+                        {% if field.type == 'FormField' %}
+                            <div class="large-6 columns">
+                                {{ ExceptionForm(field) }}
+                            </div>
 
-            {% if field.type == 'FormField' %}
-                <div class="large-6 columns">
-                    {{ ExceptionForm(field) }}
-                </div>
+                        {% elif field.type == 'StringField' %}
+                            {% if 'open' in field.name %}
+                                <div class="large-12 columns timeRange">
+                                    {{ field(class='time start auto-width') }}
+                                    {% elif 'close' in field.name %}
+                                    - {{ field(class='time end auto-width') }}
+                                </div>
+                            {% else %}
+                                {{ field(class='datepicker auto-width') }}
+                            {% endif %}
 
-            {% elif field.type == 'StringField' %}
-                {% if 'open' in field.name %}
-                    <div class="large-12 columns timeRange">
-                    {{ field(class='time start') }}
-                {% elif 'close' in field.name %}
-                    - {{ field(class='time end') }}
+                        {% elif field.type == 'NextOpenField' %}
+                            <hr/>
+                            <fieldset>
+                                <div class="card">
+                                    <div class="content">
+                                        <legend>Next</legend>
+
+                                        {% elif field.type == 'NextCloseField' %}
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                        {% elif field.type == 'ExceptionsField' %}
+                            {{ ExceptionsFieldset() }}
+
+                        {% elif field.type == 'RadioField' %}
+                            {% for subfield in field %}
+                                <label>
+                                    <div class="radio">{{ subfield() }}{{ subfield.label }}</div>
+                                </label>
+                            {% endfor %}
+                        {% else %}
+                            {{ field() }}
+                        {% endif %}
+                    {% endfor %}
+                    <br/>
+                    <br/>
+                    <div class="col-md-12 less-left-margin">
+                        <a type="submit" id="office-hours-submit-btn" class="btn btn-primary postfix">Submit</a>
                     </div>
                 </form>
             </div>
