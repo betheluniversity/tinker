@@ -550,3 +550,11 @@ input[type='checkbox']:checked:hover:after {
         max-width: 100%;
     }
 }
+
+.other, .topic, .delete-checkbox{
+    margin-left: 20% !important
+}
+
+.outcome {
+    margin-left: 30%
+}
