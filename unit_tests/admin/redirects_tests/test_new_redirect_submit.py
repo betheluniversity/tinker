@@ -7,9 +7,7 @@ class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
     #######################
 
     def create_new_form_submission(self, from_path, to_url):
-        csrf_token = super(NewRedirectSubmitTestCase, self).get_csrf_token('/admin/redirect')
         return {
-            'csrf_token': csrf_token,
             'new-redirect-from': from_path,
             'new-redirect-to': to_url,
             'short-url': "on",

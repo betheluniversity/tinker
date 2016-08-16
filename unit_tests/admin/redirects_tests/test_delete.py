@@ -7,9 +7,7 @@ class DeleteTestCase(RedirectsBaseTestCase):
     #######################
 
     def create_form(self, from_path):
-        csrf_token = super(DeleteTestCase, self).get_csrf_token('/admin/redirect')
         return {
-            'csrf_token': csrf_token,
             'from_path': from_path
         }
 

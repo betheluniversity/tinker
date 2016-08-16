@@ -7,9 +7,7 @@ class SearchTestCase(PublishBaseTestCase):
     #######################
 
     def create_form(self, name, content, metadata, pages, blocks, files, folders):
-        csrf_token = super(SearchTestCase, self).get_csrf_token("/admin/publish-manager")
         return {
-            'csrf_token': csrf_token,
             'name': name,
             'content': content,
             'metadata': metadata,

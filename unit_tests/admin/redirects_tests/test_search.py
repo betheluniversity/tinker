@@ -7,9 +7,7 @@ class SearchTestCase(RedirectsBaseTestCase):
     #######################
 
     def create_form(self, search_type, search):
-        csrf_token = super(SearchTestCase, self).get_csrf_token('/admin/redirect')
         return {
-            'csrf_token': csrf_token,
             'type': search_type,
             'search': search
         }

@@ -7,9 +7,7 @@ class DataDefinitionTestCase(SyncBaseTestCase):
     #######################
 
     def create_form(self, id):
-        csrf_token = super(DataDefinitionTestCase, self).get_csrf_token("/admin/sync")
         return {
-            'csrf_token': csrf_token,
             'id': id
         }
 

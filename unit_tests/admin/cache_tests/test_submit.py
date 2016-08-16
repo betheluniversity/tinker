@@ -7,10 +7,8 @@ class SubmitTestCase(ClearCacheBaseTestCase):
     #######################
 
     def create_form(self, url):
-        csrf_token = super(SubmitTestCase, self).get_csrf_token('/admin/cache-clear')
         return {
-            'url': url,
-            'csrf_token': csrf_token
+            'url': url
         }
 
     #######################

@@ -7,8 +7,8 @@ class EventsBaseTestCase(unittest.TestCase):
 
     def setUp(self):
         tinker.app.testing = True
+        tinker.app.config['WTF_CSRF_ENABLED'] = False
         self.app = tinker.app.test_client()
-        self.csrf_token = None
         self.eid = None
 
     def send_post(self, url, form_contents):
@@ -17,18 +17,11 @@ class EventsBaseTestCase(unittest.TestCase):
     def send_get(self, url):
         return self.app.get(url, follow_redirects=True)
 
-    def get_csrf_token(self, url):
-        response = self.send_get(url)
-        # Returns 3rd parentheses group
-        csrf_token = re.search('<input(.*)id="csrf_token"(.*)value="(.+)"(/?)>', response.data).group(3)
-        return csrf_token
-
     def get_eid(self, responseData):
         return re.search('<input type="hidden" id="new_eid" value="(.+)"(/?)>', responseData).group(1)
 
     def create_form(self, title):
         to_return = {
-            'csrf_token': self.csrf_token,
             'title': title,  # Event name
             'metaDescription': "This is an event created via unit testing",  # Teaser
             'featuring': "Testing things!",  # Featuring
@@ -73,7 +66,6 @@ class EventsBaseTestCase(unittest.TestCase):
 
         # Get new form
         response = self.send_get("event/add")
-        self.csrf_token = self.get_csrf_token("event/add")
         assert b'<p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>' in response.data
 
         # Submit new form

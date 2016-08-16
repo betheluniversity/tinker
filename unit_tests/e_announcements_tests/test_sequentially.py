@@ -8,6 +8,7 @@ class EAnnouncementsBaseTestCase(unittest.TestCase):
     # This method is designed to set up a temporary database, such that the tests won't affect the real database
     def setUp(self):
         tinker.app.testing = True
+        tinker.app.config['WTF_CSRF_ENABLED'] = False
         self.app = tinker.app.test_client()
 
     def send_post(self, url, form_contents):
@@ -16,18 +17,11 @@ class EAnnouncementsBaseTestCase(unittest.TestCase):
     def send_get(self, url):
         return self.app.get(url, follow_redirects=True)
 
-    def get_csrf_token(self, url):
-        response = self.send_get(url)
-        # Returns 3rd parentheses group
-        csrf_token = re.search('<input(.*)id="csrf_token"(.*)value="(.+)"(/?)>', response.data).group(3)
-        return csrf_token
-
     def get_eaid(self, text):
         return re.search('<input(.*)id="new_eaid"(.*)value="(.+)"(/?)>', text).group(3)
 
     def create_form(self, title, eaid=None):
         to_return = {
-            'csrf_token': self.csrf_token,
             'title': title,
             'message': "This E-Announcement should never be seen by the public, I hope",
             'name': "Philip Gibbens",
@@ -43,7 +37,6 @@ class EAnnouncementsBaseTestCase(unittest.TestCase):
     def test_sequence(self):
         # Get new form
         response = self.send_get("/e-announcement/new")
-        self.csrf_token = self.get_csrf_token("/e-announcement/new")
         assert b'<form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">' in response.data
 
         # Submit the new form to create a new object

@@ -10,9 +10,7 @@ class PostTestCase(OfficeHoursBaseTestCase):
         # This form is essentially a "blank" edit. The update methods should see that there's no changes being made, and
         # therefore make no changes.
         id_to_test = "4f78feca8c58651305d79299fb5aa2bb"
-        csrf_token = super(PostTestCase, self).get_csrf_token("/office-hours/edit/" + id_to_test)
         return {
-            "csrf_token": csrf_token,
             "block_id": id_to_test
         }
 

@@ -7,9 +7,7 @@ class AllTestCase(SyncBaseTestCase):
     #######################
 
     def create_form(self, id):
-        csrf_token = super(AllTestCase, self).get_csrf_token("/admin/sync")
         return {
-            'csrf_token': csrf_token,
             'id': id
         }
 

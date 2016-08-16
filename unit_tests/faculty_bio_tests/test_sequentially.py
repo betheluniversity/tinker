@@ -7,8 +7,9 @@ import unittest
 class SequentialTestCase(unittest.TestCase):
 
     def setUp(self):
+        tinker.app.testing = True
+        tinker.app.config['WTF_CSRF_ENABLED'] = False
         self.app = tinker.app.test_client()
-        self.csrf_token = None
         self.faculty_bio_id = None
 
     def send_post(self, url, form_contents):
@@ -17,18 +18,11 @@ class SequentialTestCase(unittest.TestCase):
     def send_get(self, url):
         return self.app.get(url, follow_redirects=True)
 
-    def get_csrf_token(self, url):
-        response = self.send_get(url)
-        # Returns 3rd parentheses group
-        csrf_token = re.search('<input(.*)id="csrf_token"(.*)value="(.+)"(/?)>', response.data).group(3)
-        return csrf_token
-
     def get_faculty_bio_id(self, responseData):
         return re.search('id="faculty_bio_id".*value="(.+)"', responseData).group(1)
 
     def create_form_submission(self, f_b_id, job_title):
         return {
-            'csrf_token': self.csrf_token,
             'faculty_bio_id': f_b_id,
             'image_url': '',
             'first': 'Philip',
@@ -67,7 +61,6 @@ class SequentialTestCase(unittest.TestCase):
     def test_sequence(self):
         # Get a new form to fill out
         response = self.send_get("/faculty-bio/new")
-        self.csrf_token = self.get_csrf_token("/faculty-bio/new")
         assert b'<form id="facultybioform" action="/faculty-bio/submit" method="post" enctype="multipart/form-data">' \
                in response.data
 

@@ -7,9 +7,7 @@ class MoreInfoTestCase(PublishBaseTestCase):
     #######################
 
     def create_form(self, type, id):
-        csrf_token = super(MoreInfoTestCase, self).get_csrf_token("/admin/publish-manager")
         return {
-            'csrf_token': csrf_token,
             'type': type,
             'id': id
         }
