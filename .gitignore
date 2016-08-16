@@ -24,8 +24,9 @@ db_repository/versions/003_migration.py
 
 redirects.txt.back
 
-
 config.py.dist
 config/*.py
+
+tinker/.DS_Store
 
 *.csv
