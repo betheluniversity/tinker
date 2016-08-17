@@ -517,6 +517,14 @@ input[type='checkbox']:checked:hover:after {
     color: #66615b;
 }
 
+/* Notifications */
+[data-notify="container"].alert {
+    padding: 15px!important;
+    width: 40%;
+    color: #FFFFFF;
+    background-color: #0069AA;
+}
+
 @media (min-width: 992px) {
     .navbar .navbar-header {
         margin: 0px !important;
