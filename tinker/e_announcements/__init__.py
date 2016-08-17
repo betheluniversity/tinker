@@ -130,12 +130,9 @@ class EAnnouncementsView(FlaskView):
             e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
             asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
             resp = self.base.create_block(asset)
-<<<<<<< HEAD
             self.base.log_sentry('New e-announcements submission', resp)
-=======
             new_eaid = resp.asset['xhtmlDataDefinitionBlock']['id']
             self.base.log_sentry('New e-announcement submission', resp)
->>>>>>> origin/create-base-view
         else:
             block = self.base.read_block(eaid)
             e_announcement_data, mdata, sdata = block.read_asset()
