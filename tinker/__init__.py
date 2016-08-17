@@ -15,12 +15,6 @@ db = SQLAlchemy(app)
 
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
 
-# The below is the flask-cache
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-cache.init_app(app)
-
-# The below is for Flask logging
-sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
 # create logging
@@ -41,7 +35,7 @@ from tinker.admin.publish import PublishManagerBlueprint
 from tinker.admin.program_search import ProgramSearchBlueprint
 from tinker.admin.redirects import RedirectsBlueprint
 from tinker.e_announcements import EAnnouncementsBlueprint
-from tinker.faculty_bios import FacultyBioBlueprint
+from tinker.faculty_bio import FacultyBioBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
 from tinker.events import EventsBlueprint
 
@@ -60,11 +54,6 @@ app.register_blueprint(OfficeHoursBlueprint)
 
 CsrfProtect(app)
 
-# Used to import error.py, which handles 403, 404, 500, and 503 server-errors
-# Import error handling
-import error
-
-#this is for a commit
 # Import global HTTP error code handling
 import error
 from tinker_controller import TinkerController

@@ -71,13 +71,8 @@ def validate_username(form, field):
         raise ValidationError("Enter the username you use to login to Blink and don't include '@bethel.edu'.")
 
 
-<<<<<<< HEAD
-class FacultyBiosForm(Form):
-    roles = get_roles()
-=======
 class FacultyBioForm(Form):
     roles = session['roles']
->>>>>>> origin/create-base-view
 
     # if a cas faculty member or seminary faculty member, hide the image field.
     if 'Tinker Faculty Bios' in session['groups']:

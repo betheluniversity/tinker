@@ -26,12 +26,7 @@ def get_md(metadata_path):
 
 
 def get_event_choices():
-<<<<<<< HEAD
-
-    data = get_md("/Events")
-=======
     data = get_md("/Event")
->>>>>>> origin/create-base-view
 
     md = {}
     for item in data:

@@ -176,21 +176,6 @@ class EventsController(TinkerController):
             return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
                                 datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
 
-<<<<<<< HEAD
-    # todo: replace with create_workflow
-    def get_events_publish_workflow(self, title="", username=""):
-        if title:
-            title = "-- %s" % title
-        workflow = {
-            "workflowName": "%s, %s at %s (%s)" %
-                            (title, time.strftime("%m-%d-%Y"), time.strftime("%I:%M %p"), username),
-            "workflowDefinitionId": "1ca9794e8c586513742d45fd39c5ffe3",
-            "workflowComments": "New events submission"
-        }
-        return workflow
-
-=======
->>>>>>> origin/create-base-view
     def get_dates(self, add_data):
         dates = []
 
@@ -263,7 +248,7 @@ class EventsController(TinkerController):
                 pass
 
         # put it all into the final asset with the rest of the SOAP structure
-        hide_site_nav, parent_folder_path = self.get_events_folder_path(new_data)
+        hide_site_nav, parent_folder_path = self.get_event_folder_path(new_data)
 
         new_data['parentFolderID'] = ''
         new_data['parentFolderPath'] = parent_folder_path
@@ -285,7 +270,7 @@ class EventsController(TinkerController):
         return event_data
 
     # Returns (content/config path, parent path)
-    def get_events_folder_path(self, data):
+    def get_event_folder_path(self, data):
         # Check to see if this event should go in a specific folder
 
         def common_elements(list1, list2):
@@ -340,7 +325,7 @@ class EventsController(TinkerController):
             hide_site_nav = "Hide"
             path = 'events/%s/admissions' % max_year
 
-        self.copy(app.config['BASE_ASSET_EVENTS_FOLDER'], path, 'folder')
+        self.copy(app.config['BASE_ASSET_EVENT_FOLDER'], path, 'folder')
 
         return hide_site_nav, path
 

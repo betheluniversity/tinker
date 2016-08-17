@@ -17,11 +17,10 @@ class ProgramSearchView(FlaskView):
 
     def __init__(self):
         self.base = ProgramSearchController()
-        pass
 
     def before_request(self, args):
         # give access to admins and lauren
-        if 'Administrators' not in session['groups'] and session['username'] != 'parlau' and session['username'] != 'dmf23632':
+        if 'Administrators' not in session['groups'] and session['username'] != 'parlau':
             abort(403)
 
     def index(self):
@@ -34,14 +33,6 @@ class ProgramSearchView(FlaskView):
     def submit(self):
         school_labels = self.base.get_school_labels()
         program_concentrations = self.base.get_programs_for_dropdown()
-        school_labels = get_school_labels()
-        program_concentrations = get_programs_for_dropdown()
-
-        return render_template('index.html', **locals())
-
-    def post(self):
-        school_labels = get_school_labels()
-        program_concentrations = get_programs_for_dropdown()
 
         rform = json.loads(request.data)
         key = rform.get('key')
@@ -49,7 +40,6 @@ class ProgramSearchView(FlaskView):
 
         if key == 'Any' or tag == '' or tag is None:
             return render_template('program-search-home.html', **locals())
-            return render_template('index.html', **locals())
 
         outcome = ast.literal_eval(rform.get('outcome'))
         topic = ast.literal_eval(rform.get('topic'))
@@ -66,16 +56,7 @@ class ProgramSearchView(FlaskView):
         except:
             db.session.rollback()
 
-        return render_template('index.hml', **locals())
-
-    @route('/multi-delete', methods=['POST'])
-    def multi_delete(self):
-        ids_to_delete = json.loads(request.data)
-        for id in ids_to_delete:
-            ProgramTag.query.filter_by(id=id).delete()
-        db.session.commit()
-        create_new_csv_file()
-        return 'TEST'
+        return render_template('program-search-home.html', **locals())
 
     @route('/multi-delete', methods=['POST'])
     def multi_delete(self):
@@ -111,9 +92,9 @@ class ProgramSearchView(FlaskView):
         elif search_key:
             search_results = results_from_search_key
 
-        # gather the 'Actual nme' for each program, instead of concentration code or name of program block.
+        # gather the 'Actual name' for each program, instead of concentration code or name of program block.
         # todo: this is a pretty slow process, will need to speed it up.
-        program_concentrations = get_programs_for_dropdown()
+        program_concentrations = self.base.get_programs_for_dropdown()
         actual_search_result = []
         for search_result in search_results:
             actual_name = filter(lambda person: person['value'] == search_result.key, program_concentrations)[0]

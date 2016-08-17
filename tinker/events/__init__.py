@@ -10,7 +10,7 @@ EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
 
 class EventsView(FlaskView):
-    route_base = '/events'
+    route_base = '/event'
 
     def __init__(self):
         self.base = EventsController()
@@ -20,25 +20,15 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-<<<<<<< HEAD
-        forms = self.base.traverse_xml(app.config['EVENTS_URL'], 'system-page')
-<<<<<<< HEAD
-        if 'Events Approver' in session['groups']:
-            # todo: call traverse_xml() in tinker_controller
-            events_approver_forms = self.base.traverse_xml()
-=======
-=======
         forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
->>>>>>> origin/create-base-view
         if 'Event Approver' in session['groups']:
             forms, event_approver_forms = self.base.get_approver_forms(forms)
->>>>>>> origin/create-base-view
         return render_template('events-home.html', **locals())
 
     def confirm(self):
         return render_template('submit-confirm.html', **locals())
 
-    def events_in_workflow(self):
+    def event_in_workflow(self):
         return render_template('event-in-workflow.html')
 
     def add(self):
@@ -47,23 +37,10 @@ class EventsView(FlaskView):
 
         form = EventForm()
         add_form = True
-        return render_template('events-form.html', **locals())
+        return render_template('event-form.html', **locals())
 
-<<<<<<< HEAD
-    @route('/delete/<page_id>')
-    def delete_page(self, page_id):
-        events_page = self.base.read_page(page_id)
-        response = events_page.delete_asset()
-        app.logger.debug(time.strftime("%c") + ": New folder creation by " + session['username'] + " " + str(response))
-        self.base.publish(app.config['EVENTS_XML_ID'])
-        return redirect(url_for('events.EventsView:delete_confirm'), code=302)
-
-    @route('/edit/<events_id>')
-    def edit_events_page(self, event_id):
-=======
     @route('/edit/<event_id>')
     def edit_event_page(self, event_id):
->>>>>>> origin/create-base-view
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         if self.base.asset_in_workflow(event_id, asset_type='page'):
             return redirect(url_for('events.EventsView:event_in_workflow'), code=302)
@@ -78,14 +55,14 @@ class EventsView(FlaskView):
 
         return render_template('event-form.html', **locals())
 
-    @route('/duplicate/<events_id>')
-    def duplicate_events_page(self, event_id):
+    @route('/duplicate/<event_id>')
+    def duplicate_event_page(self, event_id):
         edit_data, dates, author = self.base.build_edit_form(event_id)
         from tinker.events.forms import EventForm
         form = EventForm(**edit_data)
         add_form = True
 
-        return render_template('events-form.html', **locals())
+        return render_template('event-form.html', **locals())
 
     @route("/submit/<edit>", methods=['post'])
     @route("/submit", methods=['post'])
@@ -108,15 +85,6 @@ class EventsView(FlaskView):
             add_data['event-dates'] = self.base.get_dates(add_data)
             add_data['author'] = request.form['author']
             asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
-<<<<<<< HEAD
-<<<<<<< HEAD
-            response = self.base.create(asset)
-            self.base.log_sentry("New events submission", response)
-=======
->>>>>>> origin/create-base-view
-
-=======
->>>>>>> origin/create-base-view
             resp = self.base.create_page(asset)
             eid = resp.asset['page']['id']
             self.base.log_sentry("New event submission", resp)
@@ -143,7 +111,7 @@ class EventsView(FlaskView):
         # return redirect(url_for('events.EventsView:confirm'), code=302)
         return render_template("submit-confirm.html", eid=eid)
 
-    @route('/api/reset-tinker-edits/<events_id>', methods=['get', 'post'])
+    @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):
         my_page = self.base.read_page(event_id)
 

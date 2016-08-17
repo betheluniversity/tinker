@@ -10,7 +10,7 @@ from tinker.tinker_controller import *
 from tinker.admin.sync.sync_metadata import data_to_add
 
 
-class FacultyBioSController(TinkerController):
+class FacultyBioController(TinkerController):
     # todo: this is better, but it still needs a little work
     def inspect_child(self, child):
         try:
@@ -209,7 +209,7 @@ class FacultyBioSController(TinkerController):
         # convert event dates to JSON
         return new_jobs_good, num_new_jobs
 
-    def update_structure(self, faculty_bios_data, sdata, rform, faculty_bios_id=None):
+    def update_structure(self, faculty_bio_data, sdata, rform, faculty_bio_id=None):
 
         wysiwyg_keys = ['biography', 'courses', 'awards', 'publications', 'presentations', 'certificates', 'organizations', 'hobbies']
         add_data = self.get_add_data([], rform, wysiwyg_keys)
@@ -223,36 +223,31 @@ class FacultyBioSController(TinkerController):
         add_data['parentFolderPath'] = '/academics/faculty'
         add_data['path'] = None
         add_data['author'] = session['username']
-        faculty_bios_data['page']['metadata']['metaDescription'] = self.build_description(add_data)
+        faculty_bio_data['page']['metadata']['metaDescription'] = self.build_description(add_data)
 
         for wysiwyg_key in wysiwyg_keys:
             add_data[wysiwyg_key] = escape_wysiwyg_content(add_data[wysiwyg_key])
 
         # todo: eventually adjust the keys in cascade to work.
         add_data['started-at-bethel'] = add_data['started_at_bethel']
-        add_data['image'] = self.create_faculty_bios_image(add_data)
+        add_data['image'] = self.create_faculty_bio_image(add_data)
 
         workflow_id = self.get_correct_workflow_id(add_data)
         workflow = self.create_workflow(workflow_id, subtitle=add_data['title'])
-<<<<<<< HEAD
-        workflow = None
-        self.add_workflow_to_asset(workflow, faculty_bios_data)
-=======
         self.add_workflow_to_asset(workflow, faculty_bio_data)
->>>>>>> origin/create-base-view
 
-        if faculty_bios_id:
-            add_data['id'] = faculty_bios_id
+        if faculty_bio_id:
+            add_data['id'] = faculty_bio_id
         else:
             add_data['id'] = None
 
-        self.update_asset(faculty_bios_data, add_data)
+        self.update_asset(faculty_bio_data, add_data)
 
-        return faculty_bios_data
+        return faculty_bio_data
 
     def create_faculty_bio_image(self, add_data):
-        from forms import FacultyBiosForm
-        form = FacultyBiosForm()
+        from forms import FacultyBioForm
+        form = FacultyBioForm()
 
         # a quick check to quit out if necessary.
         try:
@@ -378,20 +373,20 @@ class FacultyBioSController(TinkerController):
             return True
 
     def validate_form(self, rform):
-        from forms import FacultyBiosForm
-        form = FacultyBiosForm()
+        from forms import FacultyBioForm
+        form = FacultyBioForm()
 
         degrees, degrees_good, num_degrees = self.check_degrees(rform)
         new_jobs_good, num_new_jobs = self.check_job_titles(rform)
         if not form.validate_on_submit() or (not new_jobs_good or not degrees_good):
-            if 'faculty_bios_id' in request.form.keys():
-                faculty_bio_id = request.form['faculty_bios_id']
+            if 'faculty_bio_id' in request.form.keys():
+                faculty_bio_id = request.form['faculty_bio_id']
             else:
                 # This error came from the add form because event_id wasn't set
                 add_form = True
 
             metadata = fjson.dumps(data_to_add)
-            return render_template('faculty-bios-form.html', **locals())
+            return render_template('faculty-bio-form.html', **locals())
 
     def get_degrees(self, add_data):
         degrees = []

@@ -15,7 +15,7 @@ EAnnouncementsBlueprint = Blueprint('e-announcements', __name__, template_folder
 
 
 class EAnnouncementsView(FlaskView):
-    route_base = '/e-announcements'
+    route_base = '/e-announcement'
 
     def __init__(self):
         self.base = EAnnouncementsController()
@@ -130,7 +130,6 @@ class EAnnouncementsView(FlaskView):
             e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
             asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
             resp = self.base.create_block(asset)
-            self.base.log_sentry('New e-announcements submission', resp)
             new_eaid = resp.asset['xhtmlDataDefinitionBlock']['id']
             self.base.log_sentry('New e-announcement submission', resp)
         else:
@@ -138,7 +137,7 @@ class EAnnouncementsView(FlaskView):
             e_announcement_data, mdata, sdata = block.read_asset()
             asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
             resp = str(block.edit_asset(asset))
-            self.base.log_sentry("E-Announcements edit submission", resp)
+            self.base.log_sentry("E-Announcement edit submission", resp)
 
         return render_template('confirm.html', **locals())
 
@@ -156,7 +155,7 @@ class EAnnouncementsView(FlaskView):
 
             # send a
             if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
-                self.base.log_sentry("E-Announcements create_and_send_campaign was called on production", date)
+                self.base.log_sentry("E-Announcement create_and_send_campaign was called on production", date)
 
             if not self.base_campaign.check_if_valid_date(date):
                 return 'E-Announcements are not set to run today. No campaign was created and no E-Announcements were sent out.'
@@ -240,7 +239,7 @@ class EAnnouncementsView(FlaskView):
                 # Send the announcements out to ALL users at 5:30 am.
                 confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
                 new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 05:30')
-                self.base.log_sentry("E-Announcements campaign was sent", resp)
+                self.base.log_sentry("E-Announcement campaign was sent", resp)
 
                 # if we ever want to send an e-announcement immediately, here it is.
                 # WARNING: be careful about accidentally sending emails to mass people.
