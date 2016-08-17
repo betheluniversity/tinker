@@ -472,3 +472,7 @@ class FacultyBioSController(TinkerController):
             options.append("::CONTENT-XML-CHECKBOX::Website")
 
         return ''.join(options)
+
+    # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
+    def edit_all_callback(self, asset_data):
+        pass

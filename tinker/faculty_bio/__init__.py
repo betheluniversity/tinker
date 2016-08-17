@@ -23,7 +23,7 @@ class FacultyBioView(FlaskView):
         forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
 
         # the faculty special admins should be able to see every bio, based on school.
-        if username in app.config['FACULTY_BIO_ADMINS']:
+        if username in app.config['FACULTY_BIOS_ADMINS']:
             show_special_admin_view = True
             show_create = True
 
@@ -145,5 +145,12 @@ class FacultyBioView(FlaskView):
 
         self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
         return render_template('faculty-bio-confirm.html', **locals())
+
+    def edit_all(self):
+        type_to_find = 'system-page'
+        xml_url = app.config['FACULTY_BIOS_XML_URL']
+        self.base.edit_all(type_to_find, xml_url)
+        return 'success'
+
 
 FacultyBioView.register(FacultyBioBlueprint)
