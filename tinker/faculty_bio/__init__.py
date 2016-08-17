@@ -15,6 +15,9 @@ class FacultyBioView(FlaskView):
     def __init__(self):
         self.base = FacultyBioController()
 
+    def before_request(self, name, **kwargs):
+        pass
+
     def index(self):
         username = session['username']
         roles = session['roles']
@@ -42,10 +45,12 @@ class FacultyBioView(FlaskView):
 
         return render_template('faculty-bio-home.html', **locals())
 
+    @route('delete/<page_id>', methods=['GET'])
     def delete(self, page_id):
+        # TODO: this method is riddled with errors now
         self.base.delete(page_id, "page")
         # todo: recreate this method....i like it.
-        self.base.publish_faculty_bio_xml()
+        self.base.publish(page_id)
 
         return redirect('/faculty-bio/delete-confirm', code=302)
 
@@ -139,12 +144,36 @@ class FacultyBioView(FlaskView):
             faculty_bio_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(base_asset_id, 'page')
             asset = self.base.update_structure(faculty_bio_data, sdata, rform, faculty_bio_id=faculty_bio_id)
             resp = self.base.create_page(asset)
+            faculty_bio_id = resp.asset['page']['id']
 
             log_sentry("Faculty bios new submission", resp)
             status = 'new'
 
         self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
         return render_template('faculty-bio-confirm.html', **locals())
+
+    @route('/activate', methods=['post'])
+    def activate(self):
+        data = json.loads(request.data)
+        faculty_bio_id = data['id']
+        activate_page = data['activate']
+
+        page = self.base.read_page(faculty_bio_id)
+        asset, md, sd = page.get_asset()
+
+        # activate bio
+        if activate_page == 'activate':
+            update(sd, 'deactivate', 'No')
+            page.edit_asset(asset)
+            page.publish_asset()
+        else:  # deactivate bio
+            update(sd, 'deactivate', 'Yes')
+            page.edit_asset(asset)
+            page.unpublish_asset()
+
+        publish(app.config['FACULTY_BIOS_XML_ID'])
+
+        return 'Success'
 
     def edit_all(self):
         type_to_find = 'system-page'

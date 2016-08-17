@@ -1,89 +1,110 @@
-{% extends "tinker-base.html" %}
+{% extends "tinker_base.html" %}
 
-{% block title %}Home{% endblock %}
+{% set title = 'E-Announcements' %}
 
 {% block styles %}
-  <style type="text/css">
-  </style>
+    <style type="text/css">
+    </style>
 {% endblock %}
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
-<div class="row">
-  <div class="large-12 columns">
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <p class="description">Below is the list of E-Announcements you have access to edit. These are sorted by
+                    the first date
+                    entered, newest dates first.
+                </p>
+                <hr/>
+                <a href="{{ url_for('e-announcements.EAnnouncementsView:new') }}" class="btn btn-primary new-btn">Submit
+                    New
+                    E-Announcement</a>
 
-    <p>Below is the list of E-Announcements you have access to edit. These are sorted by the first date entered, newest dates first.
-    </p>
-  </div>
- </div>
-      <a href="{{ url_for('e-announcements.EAnnouncementsView:new') }}" class="small button success">Submit New E-Announcement</a>
-<hr/>
+                {% for form in forms %}
+                    <div class="card">
+                        <div class="content">
+                            <p>
+                                {% if form.path != '' %}
+                                    <a href={{ form.path }}>{{ form.title }}</a>
+                                {% else %}
+                                    {{ form.title }}
+                                {% endif %}
+                                <br/>
+                                <small>{{ form.first_date | safe }}</small>
+                                <br/>
+                                <small>{{ form.second_date | safe }}</small>
+                            </p>
+                            <div class="large-6 columns small-3">
+                                <ul class="btn-group-horizontal">
+                                    {% if form.workflow_status %}
+                                        <li>This announcement is pending approval.</li>
+                                    {% else %}
+                                        {% if not form.first_date_past and not form.second_date_past %}
+                                            <li>
+                                                <a href="{{ url_for('e-announcements.EAnnouncementsView:edit', e_announcement_id=form.id) }}"
+                                                   class="btn btn-primary">Edit</a></li>
+                                        {% else %}
+                                            <li>
+                                                <a href="{{ url_for('e-announcements.EAnnouncementsView:view', e_announcement_id=form.id) }}"
+                                                   class="btn btn-primary">View</a></li>
+                                        {% endif %}
+                                        <li>
+                                            <a href="{{ url_for('e-announcements.EAnnouncementsView:duplicate', e_announcement_id=form.id) }}"
+                                               class="btn btn-primary">Duplicate</a></li>
+                                        {% if not form.first_date_past %}
+                                            <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}"
+                                                   data-e-announcement-id="{{ form.id }}"
+                                                   class="small btn btn-primary btn-alert delete-press"
+                                                   data-toggle="modal" data-target="#myModal">Delete</a></li>
+                                        {% endif %}
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <hr/>
+                {% endfor %}
 
-<div class="row">
-
-  <div class="large-12 columns">
-
-   {% for form in forms%}
-      <div class="row">
-        <div class="large-6 columns">
-          <p>
-            {% if form.path != '' %}
-              <a href={{ form.path }}>{{ form.title }}</a>
-            {% else %}
-              {{ form.title }}
-            {% endif %}
-            <br/>
-            <small>{{ form.first_date | safe}}</small>
-            <br/>
-            <small>{{ form.second_date | safe}}</small>
-          </p>
+            </div>
         </div>
-        <div class="large-6 columns small-3">
-          <ul class="button-group">
-            {% if form.workflow_status %}
-              <li>This announcement is pending approval.</li>
-            {% else %}
-              {% if not form.first_date_past and not form.second_date_past %}
-                    <li><a href="{{ url_for('e-announcements.EAnnouncementsView:edit', e_announcement_id=form.id) }}" class="small button">Edit</a></li>
-              {% else %}
-                    <li><a href="{{ url_for('e-announcements.EAnnouncementsView:view', e_announcement_id=form.id) }}" class="small button">View</a></li>
-              {% endif %}
-              <li><a href="{{ url_for('e-announcements.EAnnouncementsView:duplicate', e_announcement_id=form.id) }}" class="small button">Duplicate</a></li>
-              {% if not form.first_date_past %}
-                  <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}" data-e-announcement-id="{{ form.id }}" class="small button alert delete-press">Delete</a></li>
-              {% endif %}
-            {% endif %}
-           </ul>
+    </div>
+
+
+{% endblock %}
+
+{% block modalhtml %}
+<!-- Modal Core -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                        aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+            </div>
+            <div class="modal-body">
+                Your E-Announcement will be removed.
+            </div>
+            <div class="modal-footer">
+                <a id="modal-confirm" href="/e-announcement/delete/formid" type="button"
+                   class="btn btn-primary btn-alert modal-confirm">Delete</a>
+            </div>
         </div>
-        <hr/>
-      </div>
-    {% endfor %}
-
-
-  </div>
+    </div>
 </div>
-
-
-{#Delete confirm modal#}
-<div id="confirmModal" class="reveal-modal" data-reveal>
-  <h2>Are you sure you want to delete?</h2>
-  <p class="lead">Your E-Announcement will removed.</p>
-  <a class="modal-confirm" id="modal-confirm" href="/e-announcement/delete/formid">Delete</a>
-  <a class="close-reveal-modal">&#215;</a>
-</div>
-
 {% endblock %}
 
 {% block scripts %}
 
-{#  Script to update the modal submit to delete the correct form#}
-  <script type="text/javascript">
-    $(".delete-press").click(function(){
-      $("#modal-confirm").attr("href", "/e-announcement/delete/" + $(this).data('e-announcement-id'));
-    });
-  $(document).foundation();
-  </script>
+    {#  Script to update the modal submit to delete the correct form#}
+    <script type="text/javascript">
+        $(".delete-press").click(function () {
+            $("#modal-confirm").attr("href", "/e-announcement/delete/" + $(this).data('e-announcement-id'));
+        });
+    </script>
 
 {% endblock %}
 

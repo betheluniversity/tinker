@@ -3,6 +3,7 @@ import urllib
 
 from flask import Blueprint, render_template, request, abort, session
 from flask.ext.classy import FlaskView, route
+from flask.ext.wtf import Form
 
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
 from bu_cascade.asset_tools import *
@@ -26,6 +27,8 @@ class PublishManagerView(FlaskView):
     # Publish manager's homepage
     def index(self):
         username = session['username']
+        # This form is defined solely for CSRF token validation
+        form = Form()
         return render_template('publish-home.html', **locals())
 
     @route("/program-feeds", methods=['get', 'post'])
@@ -102,7 +105,6 @@ class PublishManagerView(FlaskView):
     def publish_publish(self, destination, type, id):
         if destination != "staging":
             destination = ""
-        print destination
         # todo create method for publishing blocks
         if type == "block":
             try:

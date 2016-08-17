@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, session, abort, request
 from flask.ext.classy import FlaskView, route
+from flask.ext.wtf import Form
 
 from tinker.admin.sync.sync_metadata import data_to_add
 from sync_controller import *
@@ -23,6 +24,7 @@ class SyncView(FlaskView):
 
         metadata_sets_mapping = self.base.get_metadata_sets_mapping()
         data_definition_mapping = self.base.get_data_definitions_mapping()
+        form = Form()
 
         return render_template('sync-home.html', **locals())
 

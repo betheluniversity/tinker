@@ -50,6 +50,7 @@ adult_undergrad_programs = [
     "Finance (B.S.)",
     "Human Resource Management Certificate",
     "Human Services (B.A.)",
+    "Management Information Systems (B.S.)",
     "Nursing (RN to B.S.)",
     "Organizational Leadership (B.A.)",
 ]

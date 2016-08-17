@@ -5,6 +5,7 @@ import unittest
 class FacultyBioBaseTestCase(unittest.TestCase):
 
     def setUp(self):
+        tinker.app.testing = True
         self.app = tinker.app.test_client()
 
     def send_post(self, url, form_contents):
