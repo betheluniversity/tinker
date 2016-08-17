@@ -3,7 +3,7 @@ import tinker
 import unittest
 
 
-class EventsBaseTestCase(unittest.TestCase):
+class EventsSequentialTestCase(unittest.TestCase):
 
     def setUp(self):
         tinker.app.testing = True
@@ -64,30 +64,44 @@ class EventsBaseTestCase(unittest.TestCase):
         # To be clear, these events do get made in Cascade, and they are publicly visible. If they're not deleted, they
         # will be located in /events/2016/athletics/
 
+        class_name = self.__class__.__name__
+
         # Get new form
-        response = self.send_get("event/add")
-        assert b'<p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>' in response.data
+        response = self.send_get("/event/add")
+        failure_message = '"GET /event/add" didn\'t return the HTML code expected by ' + class_name + '.'
+        self.assertIn(b'<p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>',
+                      response.data, msg=failure_message)
 
         # Submit new form
-        response = self.send_post("event/submit", self.create_form("Test event"))
+        response = self.send_post("/event/submit", self.create_form("Test event"))
+        failure_message = 'Sending a valid new submission to "POST /event/submit" didn\'t succeed as expected by ' + class_name + '.'
         self.eid = self.get_eid(response.data)
-        assert b"<p>You'll receive an email when your event has been approved by Conference and Event Services. Once your event has been approved, it will appear on your Tinker" in response.data
+        self.assertIn(b"<p>You'll receive an email when your event has been approved by Conference and Event Services. Once your event has been approved, it will appear on your Tinker",
+                      response.data, msg=failure_message)
 
         # Get edit form of new object
-        response = self.send_get("event/edit/" + self.eid)
-        assert b'<p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>' in response.data
+        response = self.send_get("/event/edit/" + self.eid)
+        failure_message = '"GET /event/edit/%s" didn\'t return the HTML code expected by ' % self.eid + class_name + '.'
+        self.assertIn(b'<p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>',
+                      response.data, msg=failure_message)
 
         # Submit edited form
-        response = self.send_post("event/submit", self.create_form("Edited title"))
-        assert b"<p>You'll receive an email when your event has been approved by Conference and Event Services. Once your event has been approved, it will appear on your Tinker" in response.data
+        response = self.send_post("/event/submit", self.create_form("Edited title"))
+        failure_message = 'Sending a valid edit submission to "POST /event/submit" didn\'t succeed as expected by ' + class_name + '.'
+        self.assertIn(b"<p>You'll receive an email when your event has been approved by Conference and Event Services. Once your event has been approved, it will appear on your Tinker",
+                      response.data, msg=failure_message)
 
         # Duplicate edited object
-        response = self.send_get("event/duplicate/" + self.eid)
-        assert b'<p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>' in response.data
+        response = self.send_get("/event/duplicate/" + self.eid)
+        failure_message = '"GET /event/duplicate/%s" didn\'t return the HTML code expected by ' % self.eid + class_name + '.'
+        self.assertIn(b'<p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>',
+                      response.data, msg=failure_message)
 
         # Delete the test event using the now semi-private delete endpoint
-        response = self.send_get("event/delete/" + self.eid)
-        assert b'Your event has been deleted. It will be removed from your' in response.data
+        response = self.send_get("/event/delete/" + self.eid)
+        failure_message = '"GET /event/delete/%s" didn\'t return the HTML code expected by ' % self.eid + class_name + '.'
+        self.assertIn(b'Your event has been deleted. It will be removed from your',
+                      response.data, msg=failure_message)
 
     def tearDown(self):
         pass
