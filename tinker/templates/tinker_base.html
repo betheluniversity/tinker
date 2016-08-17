@@ -1,0 +1,24 @@
+{% extends 'creativeTim_base.html' %}
+{% import 'creativeTim_sidebar.html' as sidebar %}
+{% import 'nav.html' as nav %}
+{% import 'creativeTim_footer.html' as footer %}
+
+{% block title %}{{ title }} | Tinker{% endblock %}
+
+{% block body_content %}
+    <div class="wrapper">
+        <div class="sidebar" data-active-color="green">
+            {{ sidebar.render() }}
+        </div>
+
+        <div class="main-panel">
+            {{ nav.render(title) }}
+
+            {% block main_content %}
+            {% endblock %}
+
+            {{ footer.render() }}
+        </div>
+
+    </div>
+{% endblock %}

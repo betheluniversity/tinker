@@ -25,16 +25,18 @@ class EAnnouncementsView(FlaskView):
         pass
 
     def index(self):
-        forms = self.base.traverse_xml(app.config['E_ANN_URL'], 'system-block')
+        forms = self.base.traverse_xml(app.config['E_ANN_XML_URL'], 'system-block')
 
         forms.sort(key=lambda item: item['first_date'], reverse=False)
         return render_template('ea-home.html', **locals())
 
+    @route("/delete/<e_announcement_id>", methods=['GET'])
     def delete(self, e_announcement_id):
         # must have access to delete
         if session['username'] not in app.config['E_ANN_ADMINS']:
             return redirect(url_for('e-announcements.EAnnouncementsView:index'), code=302)
 
+        print 'Delete E-Announcement' + e_announcement_id
         self.base.delete(e_announcement_id, 'block')
         self.base.publish(app.config['E_ANNOUNCEMENTS_XML_ID'])
 
@@ -61,11 +63,11 @@ class EAnnouncementsView(FlaskView):
         brm = self.base.brm
         return render_template('form.html', **locals())
 
+    @route("/confirm", methods=['GET'])
+    @route("/confirm/<status>", methods=['GET'])
     def confirm(self, status='new'):
         return render_template('confirm.html', **locals())
 
-    # @route('/edit/<e_announcement_id>')
-    # @route('/duplicate/<e_announcement_id>')
     def edit(self, e_announcement_id):
         from tinker.e_announcements.forms import EAnnouncementsForm
 
@@ -76,7 +78,7 @@ class EAnnouncementsView(FlaskView):
         # Get the e-ann data from cascade
         block = self.base.read_block(e_announcement_id)
         e_announcement_data, mdata, sdata = block.read_asset()
-        edit_data = self.base.get_edit_data(e_announcement_data)
+        edit_data = self.base.get_edit_data(sdata, mdata)  # (e_announcement_data)
 
         # readonly values are set if the date is in the past (shouldn't be edited)
         self.base.set_readonly_values(edit_data)
@@ -99,7 +101,7 @@ class EAnnouncementsView(FlaskView):
         # Get the e-ann data from cascade
         block = self.base.read_block(e_announcement_id)
         e_announcement_data, mdata, sdata = block.read_asset()
-        edit_data = self.base.get_edit_data(e_announcement_data)
+        edit_data = self.base.get_edit_data(sdata, mdata)  # (e_announcement_data)
 
         # readonly values are set if the date is in the past (shouldn't be edited)
         self.base.set_readonly_values(edit_data)
@@ -107,12 +109,14 @@ class EAnnouncementsView(FlaskView):
 
         # extra variable the form uses
         brm = self.base.brm
+        # TODO: is this if statement necessary in Flask-Classy convention now? It seems to be a given here.
         if '/duplicate/' in request.url:
             new_form = True
 
         return render_template('form.html', **locals())
 
-    def post(self):
+    @route("/submit", methods=['post'])
+    def submit(self):
         rform = request.form
         eaid = rform.get('e_announcement_id')
 
@@ -121,11 +125,14 @@ class EAnnouncementsView(FlaskView):
             return failed
 
         if not eaid:
+            status = "new"
             bid = app.config['E_ANN_BASE_ASSET']
             e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
             asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
             resp = self.base.create_block(asset)
             self.base.log_sentry('New e-announcements submission', resp)
+            new_eaid = resp.asset['xhtmlDataDefinitionBlock']['id']
+            self.base.log_sentry('New e-announcement submission', resp)
         else:
             block = self.base.read_block(eaid)
             e_announcement_data, mdata, sdata = block.read_asset()
@@ -135,14 +142,13 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('confirm.html', **locals())
 
-    @route("/create_and_send_campaign/", methods=['get', 'post'])
-    @route("/create_campaign/", methods=['get', 'post'])
+    @route("/create_and_send_campaign", methods=['get', 'post'])
+    @route("/create_campaign", methods=['get', 'post'])
     @route("/create_campaign/<date>", methods=['get', 'post'])
     @requires_auth
     def create_campaign(self, date=None):
+        resp = None
         try:
-            resp = None
-
             if not date:
                 date = datetime.datetime.strptime(datetime.datetime.now().strftime("%m-%d-%Y"), "%m-%d-%Y")
             else:
@@ -157,7 +163,7 @@ class EAnnouncementsView(FlaskView):
 
             submitted_announcements = []
             current_announcement_role_list = []
-            for announcement in self.base.traverse_xml(app.config['E_ANN_URL'], 'system-block'):
+            for announcement in self.base.traverse_xml(app.config['E_ANN_XML_URL'], 'system-block'):
                 date_matches = False
 
                 if announcement['first_date']:
@@ -245,5 +251,10 @@ class EAnnouncementsView(FlaskView):
         except:
             self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.", resp)
 
+    def edit_all(self):
+        type_to_find = 'system-block'
+        xml_url = app.config['E_ANN_URL']
+        self.base.edit_all(type_to_find, xml_url)
+        return 'success'
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)

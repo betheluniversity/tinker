@@ -93,7 +93,7 @@ class EAnnouncementsController(TinkerController):
 
     def validate_form(self, rform):
 
-        from forms import EAnnouncementsForm;
+        from forms import EAnnouncementsForm
 
         form = EAnnouncementsForm()
 
@@ -107,10 +107,11 @@ class EAnnouncementsController(TinkerController):
             return render_template('form.html', **locals())
 
     def update_structure(self, e_announcement_data, sdata, rform, e_announcement_id=None):
-        add_data = self.get_add_data(['banner_roles'], rform)
+        add_data = self.get_add_data(['banner_roles'], rform, ['message'])
 
         # create workflow
-        workflow = self.create_workflow(app.config['E_ANNOUNCEMENT_WORKFLOW_ID'], add_data['title'])
+        workflow = None
+        # workflow = self.create_workflow(app.config['E_ANNOUNCEMENT_WORKFLOW_ID'], add_data['title'])
         self.add_workflow_to_asset(workflow, e_announcement_data)
 
         # if parent folder ID exists it will use that over path
@@ -119,7 +120,6 @@ class EAnnouncementsController(TinkerController):
 
         # add missing data and make sure its in the right format.
         add_data['name'] = session['name']
-        add_data['message'] = self.escape_wysiwyg_content(add_data['message'])
 
         # todo, update these to have _ instead of - in Cascade so we don't have to translate
         add_data['email'] = session['user_email']
@@ -148,14 +148,14 @@ class EAnnouncementsController(TinkerController):
 
     # dates are set to readonly if they occur before today
     def set_readonly_values(self, edit_data):
-
+        # print edit_data
         today = datetime.datetime.now()
         first_readonly = False
         second_readonly = False
         if edit_data['first_date'] < today:
-            first_readonly = edit_data['first'].strftime('%A %B %d, %Y')
+            first_readonly = edit_data['first_date'].strftime('%A %B %d, %Y')
         if 'second_date' in edit_data and edit_data['second_date'] and edit_data['second_date'] < today:
-            second_readonly = edit_data['second'].strftime('%A %B %d, %Y')
+            second_readonly = edit_data['second_date'].strftime('%A %B %d, %Y')
 
         edit_data['first_readonly'] = first_readonly
         edit_data['second_readonly'] = second_readonly
@@ -170,3 +170,7 @@ class EAnnouncementsController(TinkerController):
         self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year + "/" + month, 'folder')
 
         return "/e-announcements/" + year + "/" + month
+
+    # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
+    def edit_all_callback(self, asset_data):
+        pass

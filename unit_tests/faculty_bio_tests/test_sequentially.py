@@ -3,7 +3,6 @@ import time
 import tinker
 import unittest
 
-# TODO: look for ways to have csrf token and faculty bio be stored globally across the test suite somehow
 
 class SequentialTestCase(unittest.TestCase):
 
@@ -18,57 +17,64 @@ class SequentialTestCase(unittest.TestCase):
     def send_get(self, url):
         return self.app.get(url, follow_redirects=True)
 
-    def create_form_submission(self, csrf, f_b_id, job_title):
+    def get_csrf_token(self, url):
+        response = self.send_get(url)
+        # Returns 3rd parentheses group
+        csrf_token = re.search('<input(.*)id="csrf_token"(.*)value="(.+)"(/?)>', response.data).group(3)
+        return csrf_token
+
+    def get_faculty_bio_id(self, responseData):
+        return re.search('id="faculty_bio_id".*value="(.+)"', responseData).group(1)
+
+    def create_form_submission(self, f_b_id, job_title):
         return {
-            'csrf_token': u'' + csrf,
-            'faculty_bio_id': u'' + f_b_id,
-            'image_url': u'',
-            'first': u'Philip',
-            'last': u'Gibbens',
-            'author': u'phg49389',
-            'num_jobs': u'0',
-            'num_new_jobs': u'1',
-            'schools1': u'Bethel University',
-            'graduate1': u'None',
-            'seminary1': u'None',
-            'undergrad1': u'None',
-            'adult-undergrad1': u'None',
-            'new-job-title1': u'' + job_title,
-            'email': u'phg49389@bethel.edu',
-            'started_at_bethel': u'2011',
-            'heading': u'Areas of expertise',
-            'teaching_specialty': u'',
-            'research_interests': u'',
-            'areas': u'asdf',
-            'num_degrees': u'1',
-            'school1': u'Bethel University',
-            'degree-earned1': u'B.S. of Computer Science',
-            'year1': u'2016',
-            'biography': u'<p>asdf</p>\r\n',
-            'courses': u'<p>asdf</p>\r\n',
-            'awards': u'<p>adsf</p>\r\n',
-            'publications': u'<p>asdf</p>\r\n',
-            'presentations': u'<p>asdf</p>\r\n',
-            'certificates': u'<p>asdf</p>\r\n',
-            'organizations': u'<p>asdf</p>\r\n',
-            'hobbies': u'<p>asdf</p>\r\n',
-            'quote': u'Arbitrarily compulsive, compulsively arbitrary.',
-            'website': u'None.',
+            'csrf_token': self.csrf_token,
+            'faculty_bio_id': f_b_id,
+            'image_url': '',
+            'first': 'Philip',
+            'last': 'Gibbens',
+            'author': 'phg49389',
+            'num_jobs': '0',
+            'num_new_jobs': '1',
+            'schools1': 'Bethel University',
+            'graduate1': 'None',
+            'seminary1': 'None',
+            'undergrad1': 'None',
+            'adult-undergrad1': 'None',
+            'new-job-title1': job_title,
+            'email': 'phg49389@bethel.edu',
+            'started_at_bethel': '2011',
+            'heading': 'Areas of expertise',
+            'teaching_specialty': '',
+            'research_interests': '',
+            'areas': 'asdf',
+            'num_degrees': '1',
+            'school1': 'Bethel University',
+            'degree-earned1': 'B.S. of Computer Science',
+            'year1': '2016',
+            'biography': '<p>asdf</p>\r\n',
+            'courses': '<p>asdf</p>\r\n',
+            'awards': '<p>adsf</p>\r\n',
+            'publications': '<p>asdf</p>\r\n',
+            'presentations': '<p>asdf</p>\r\n',
+            'certificates': '<p>asdf</p>\r\n',
+            'organizations': '<p>asdf</p>\r\n',
+            'hobbies': '<p>asdf</p>\r\n',
+            'quote': 'Arbitrarily compulsive, compulsively arbitrary.',
+            'website': 'None.',
         }
 
-    def test_all_of_them(self):
+    def test_sequence(self):
         # Get a new form to fill out
         response = self.send_get("/faculty-bio/new")
-        m = re.search('id="csrf_token".*value=".*"', response.data)
-        self.csrf_token = m.group(0).split('value="')[1][:-1]
+        self.csrf_token = self.get_csrf_token("/faculty-bio/new")
         assert b'<form id="facultybioform" action="/faculty-bio/submit" method="post" enctype="multipart/form-data">' \
                in response.data
 
         # Send the form submission to create it in Cascade
-        form_contents = self.create_form_submission(self.csrf_token, "", "Web Developer")
+        form_contents = self.create_form_submission("", "Web Developer")
         response = self.send_post("/faculty-bio/submit", form_contents)
-        m = re.search('id="faculty_bio_id".*value=".*"', response.data)
-        self.faculty_bio_id = m.group(0).split('value="')[1][:-1]
+        self.faculty_bio_id = self.get_faculty_bio_id(response.data)
         assert b"<p>You've successfully created a new bio. Your brand new bio has been sent for approval but will be " \
                b"ready to view in 2-3 business days.</p>" in response.data
 
@@ -78,7 +84,7 @@ class SequentialTestCase(unittest.TestCase):
                in response.data
 
         # Send the edited form to update the bio
-        form_contents = self.create_form_submission(self.csrf_token, self.faculty_bio_id, "Web Developers")
+        form_contents = self.create_form_submission(self.faculty_bio_id, "Web Developers")
         response = self.send_post("/faculty-bio/submit", form_contents)
         assert b"You've successfully edited your bio. Your edits have been sent for approval but will be ready to " \
                b"view in 2-3 business days. Thanks for keeping your bio up to date!" in response.data
@@ -86,11 +92,7 @@ class SequentialTestCase(unittest.TestCase):
         # Delete the new bio to make sure these tests don't bloat Cascade
         time.sleep(20)
         response = self.send_get("/faculty-bio/delete/" + self.faculty_bio_id)
-        assert b'Your faculty bio has been deleted. It will be removed from your <a href="https://tinker.bethel.edu">' \
-               b'Tinker homepage</a> in a few minutes.' in response.data
+        assert b'Your faculty bio has been deleted. It will be removed from your' in response.data
 
     def tearDown(self):
         pass
-
-if __name__ == "__main__":
-    unittest.main()
