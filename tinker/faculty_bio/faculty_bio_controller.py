@@ -3,7 +3,6 @@ import re
 import urllib2
 
 from operator import itemgetter
-from tinker.cascade_tools import *
 from xml.etree import ElementTree
 from tinker.tinker_controller import *
 from tinker.admin.sync.sync_metadata import data_to_add

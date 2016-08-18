@@ -4,7 +4,6 @@ import re
 from flask import session
 from flask import render_template
 from tinker import app
-from tinker.cascade_tools import *
 from bu_cascade.asset_tools import *
 
 from tinker.tinker_controller import TinkerController

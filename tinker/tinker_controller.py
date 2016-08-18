@@ -27,7 +27,7 @@ from bu_cascade.asset_tools import *
 
 from tinker import app
 from tinker import sentry
-
+from tinker import cascade_connector
 from BeautifulSoup import BeautifulStoneSoup
 
 
@@ -84,6 +84,7 @@ def requires_auth(f):
 class TinkerController(object):
     def __init__(self):
         self.datetime_format = "%B %d  %Y, %I:%M %p"
+        self.cascade_connector = cascade_connector
 
     def before_request(self):
 
@@ -101,6 +102,7 @@ class TinkerController(object):
                 get_user()
 
             if 'groups' not in session.keys():
+                print 'test'
                 get_groups_for_user()
 
             if 'roles' not in session.keys():
@@ -139,7 +141,6 @@ class TinkerController(object):
             session['name'] = "%s %s" % (fname, lname)
 
         def get_groups_for_user(username=None):
-
             if not username:
                 username = session['username']
             try:
@@ -147,8 +148,8 @@ class TinkerController(object):
                 allowed_groups = find(user, 'groups', False)
             except AttributeError:
                 allowed_groups = ""
-            session['groups'] = allowed_groups
 
+            session['groups'] = allowed_groups
             return allowed_groups.split(";")
 
         def get_roles(username=None):
