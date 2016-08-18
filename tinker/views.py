@@ -1,4 +1,3 @@
-
 from flask.ext.classy import FlaskView
 from flask import Flask, Blueprint
 from flask import render_template, send_file
@@ -11,7 +10,7 @@ class Base(FlaskView):
 
     def index(self):
         # index page for adding events and things
-        return render_template('home.html', **locals())
+        return render_template('index.html', **locals())
 
     def about(self):
         return render_template('about-page.html', **locals())

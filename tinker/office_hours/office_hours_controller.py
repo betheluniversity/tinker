@@ -4,7 +4,6 @@ import re
 from flask import session
 from flask import render_template
 from tinker import app
-from tinker.cascade_tools import *
 from bu_cascade.asset_tools import *
 
 from tinker.tinker_controller import TinkerController
@@ -14,7 +13,7 @@ class OfficeHoursController(TinkerController):
 
     def __init__(self):
         super(OfficeHoursController, self).__init__()
-        self.datetime_format = "%I:%M %p"
+        self.datetime_format = "%-I:%M %p"
 
     def _iterate_child_xml(self, child, author):
 
@@ -36,6 +35,7 @@ class OfficeHoursController(TinkerController):
         multiple = ['exceptions']
 
         block = self.read_block(block_id)
+
         data, mdata, sdata = block.read_asset()
 
         #####################################################
@@ -243,6 +243,8 @@ class OfficeHoursController(TinkerController):
                 update(sdata, 'summary', new_summary)
 
     def create_exceptions_text(self, sdata):
+        seconds_in_two_weeks = 1209600
+
         # add exceptions
         exceptions = find(sdata, 'exceptions')
         exceptions_text = ''

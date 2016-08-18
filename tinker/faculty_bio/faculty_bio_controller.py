@@ -3,12 +3,8 @@ import re
 import urllib2
 
 from operator import itemgetter
-from tinker.cascade_tools import *
-from tinker.tinker_controller import Cascade
-from tinker.tools import *
-from tinker.web_services import *
 from xml.etree import ElementTree
-from tinker.tinker_controller import TinkerController
+from tinker.tinker_controller import *
 from tinker.admin.sync.sync_metadata import data_to_add
 
 
@@ -280,7 +276,7 @@ class FacultyBioController(TinkerController):
 
             self.update_asset(image_asset, new_values)
             resp = self.cascade_connector.create(image_asset)
-            clear_resp = clear_image_cache(image_path)
+            clear_resp = self.clear_image_cache(image_path)
             self.log_sentry('Editted Faculty Bio Image', resp)
 
         # create new from base_asset

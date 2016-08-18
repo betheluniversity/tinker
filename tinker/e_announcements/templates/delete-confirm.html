@@ -1,19 +1,20 @@
-{% extends "tinker-base.html" %}
+{% extends "tinker_base.html" %}
 
-{% block title %}Success{% endblock %}
-
-{% block page_title %}Bethel University Tinker{% endblock %}
+{% set title = "E-Announcements" %}
 
 {% block main_content %}
 
-  <div class="row">
-    <div class="large-12 columns">
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
 
-        <p>
-          Your E-Announcements has been deleted. It will be removed from your <a href="{{ url_for('e-announcements.EAnnouncementsView:index') }}">Tinker homepage</a> in a few minutes.
-        </p>
-
+                <p>
+                    Your E-Announcements has been deleted. It will be removed from your <a
+                        href="{{ url_for('e-announcements.EAnnouncementsView:index') }}">Tinker homepage</a> in a few
+                    minutes.
+                </p>
+            </div>
+        </div>
     </div>
-  </div>
 
 {% endblock %}
