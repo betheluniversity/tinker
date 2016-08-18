@@ -19,7 +19,6 @@ from flask import render_template
 from flask import json as fjson
 from flask import Response
 
-from bu_cascade.cascade_connector import Cascade
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
 from bu_cascade.assets.metadata_set import MetadataSet
@@ -84,7 +83,6 @@ def requires_auth(f):
 
 class TinkerController(object):
     def __init__(self):
-        self.cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
         self.datetime_format = "%B %d  %Y, %I:%M %p"
 
     def before_request(self):
