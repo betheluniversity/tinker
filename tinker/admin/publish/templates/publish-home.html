@@ -11,10 +11,10 @@
 
 {% block main_content %}
     <div class="content">
-        <div class="row">
-            <h3 class="row subtitle">Automated publishers</h3>
-            <hr/>
-            <div class="row">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <h3 class="subtitle">Automated publishers</h3>
+                <hr/>
                 <a href='/admin/publish-manager/program-feeds' class="btn btn-primary">Program Feeds</a>
                 </br>
                 </br>
@@ -78,27 +78,29 @@
                         </form>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-12">
-                <div class="large-12 columns">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th width="200">Asset Type</th>
-                            <th width="600">Page URL</th>
-                            <th width="200">Publish</th>
-                            <th width="400">Messages</th>
-                            <th width="200">More info</th>
-                        </tr>
-                        </thead>
-                        <tbody id="publish-table">
-                        </tbody>
-                    </table>
+                <div class="col-md-12">
+                    <div class="large-12 columns">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th width="200">Asset Type</th>
+                                <th width="600">Page URL</th>
+                                <th width="200">Publish</th>
+                                <th width="400">Messages</th>
+                                <th width="200">More info</th>
+                            </tr>
+                            </thead>
+                            <tbody id="publish-table">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
+                </br>
             </div>
-            </br>
+            <div id="spinner" class="spinner" style="display:none;">
+                <img id="img-spinner" src="/get_image/waiting.gif" alt="Loading"/>
+            </div>
         </div>
-
     </div>
 
     <script type="text/javascript">
@@ -106,7 +108,6 @@
         $(document).ready(function () {
             var csrftoken = "{{ csrf_token() }}";
             activateCSRF(csrftoken);
-
 
             var delay = (function () {
                 var timer = 0;
@@ -168,12 +169,12 @@
                     folders = false;
                 delay(function () {
                     loadTableForSearch(name, content, metadata, pages, blocks, files, folders);
-                }, 300);
+                    $('#spinner').hide();} , 300);
             }
 
             $('.publish-search').keyup(function () {
+                $('#spinner').show();
                 search();
-
             });
 
             function publishAsset(type, id, counter) {
@@ -191,7 +192,6 @@
                     $('#dialog-text').html(data);
                 });
             }
-
         })
         ;
     </script>

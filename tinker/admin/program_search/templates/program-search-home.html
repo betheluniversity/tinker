@@ -72,31 +72,34 @@
                     </label>
                 </div>
             </form>
-        </div>
-        <div class="row">
-            <div class="large-12 columns">
-                <table>
-                    <thead>
-                    <tr>
-                        <th width="600">Program Concentration</th>
-                        <th width="500">Tag</th>
-                        <th width="100">Outcome</th>
-                        <th width="100">Topic</th>
-                        <th width="100">Other</th>
-                        <th>
-                            <a data-reveal-id="confirmModal" id="delete-all"
-                               class="btn btn-primary btn-alert delete-press" data-toggle="modal"
-                               data-target="#myModal">Delete</a>
-                        </th>
-                    </tr>
-                    </thead>
-                    <tbody id="table-body">
+            <div class="row">
+                <div class="large-12 columns">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th width="600">Program Concentration</th>
+                            <th width="500">Tag</th>
+                            <th width="100">Outcome</th>
+                            <th width="100">Topic</th>
+                            <th width="100">Other</th>
+                            <th>
+                                <a data-reveal-id="confirmModal" id="delete-all"
+                                   class="btn btn-primary btn-alert delete-press" data-toggle="modal"
+                                   data-target="#myModal">Delete</a>
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody id="table-body">
 
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {# spinner placeholder #}
+            <div id="spinner" class="spinner" style="display:none;">
+                <img id="img-spinner" src="/get_image/waiting.gif" alt="Loading"/>
             </div>
         </div>
-    </div>
     </div>
 {% endblock %}
 
@@ -128,17 +131,19 @@
         });
 
         $(".search-input").keyup(function () {
+            $('#spinner').show();
             delay(function () {
                 loadTableForSearch();
             }, 300);
         }).change(function () {
             delay(function () {
                 loadTableForSearch();
-            }, 300);
+            $('#spinner').hide();}, 300);
         });
 
         function loadTableForSearch() {
-            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');
+            $('#spinner').show();
+{#            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');#}
 
             var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";
             search_tag = $('#search-tag')[0].value;
@@ -158,6 +163,7 @@
                     $('#table-body').html(result);
                 }
             });
+            $('#spinner').hide();
         }
 
         $("#modal-confirm").click(function () {

@@ -1,11 +1,11 @@
 {% macro render() %}
+
     <div class="sidebar-wrapper">
         <div class="logo">
             <a href="https://tinker.bethel.edu/" class="simple-text">
                 Tinker
             </a>
         </div>
-
         <ul class="nav">
 
             <li class="{% if request.path == '/' %}active{% endif %}">
@@ -14,7 +14,6 @@
                     <p>Home</p>
                 </a>
             </li>
-
             <li class="{% if 'event/' in request.path %}active{% endif %}">
                 <a href="/event">
                     <i class="fa fa-calendar"></i>
@@ -38,7 +37,7 @@
                 </a>
             </li>
 
-           <li class="{% if 'e-announcement/' in request.path %}active{% endif %}">
+            <li class="{% if 'e-announcement/' in request.path %}active{% endif %}">
                 <a href="/e-announcement">
                     <i class="fa fa-envelope-o"></i>
                     <p>E-Announcements</p>
@@ -46,24 +45,30 @@
             </li>
 
             {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
-                <li class="dropdown {% if 'e-announcement/' in request.path %}active{% endif %}">
+                <li class="dropdown {% if 'admin/' in request.path %}active{% endif %}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                         <i class="fa fa-menu"></i>
                         <p>Admin Menu &raquo;</p>
                     </a>
                     <ul class="dropdown-menu">
                         {% if 'Administrators' in session['groups'] %}
-                            <li><a href="/admin/publish-manager"><i class="fa fa-file" aria-hidden="true"></i>Publisher</a></li>
-                            <li><a href="/admin/sync"><i class="fa fa-share-alt" aria-hidden="true"></i>Sync Metadata</a></li>
-                            <li><a href="/admin/blink-roles" class="button-nav"><i class="fa fa-users" aria-hidden="true"></i>Blink Layout Owners</a></li>
-                            <li><a href="/admin/program-search"><i class="fa fa-search" aria-hidden="true"></i>Program Search Tags</a></li>
+                            <li><a href="/admin/publish-manager"><i class="fa fa-file" aria-hidden="true"></i>Publisher</a>
+                            </li>
+                            <li><a href="/admin/sync"><i class="fa fa-share-alt" aria-hidden="true"></i>Sync
+                                Metadata</a></li>
+                            <li><a href="/admin/blink-roles" class="button-nav"><i class="fa fa-users"
+                                                                                   aria-hidden="true"></i>Blink Layout
+                                Owners</a></li>
+                            <li><a href="/admin/program-search"><i class="fa fa-search" aria-hidden="true"></i>Program
+                                Search Tags</a></li>
                         {% endif %}
-                        <li><a href="/admin/cache-clear"><i class="fa fa-recycle" aria-hidden="true"></i>Clear Cache</a></li>
-                        <li><a href="/admin/redirect"><i class="fa fa-arrows-alt" aria-hidden="true"></i>Redirects</a></li>
+                        <li><a href="/admin/cache-clear"><i class="fa fa-recycle" aria-hidden="true"></i>Clear Cache</a>
+                        </li>
+                        <li><a href="/admin/redirect"><i class="fa fa-arrows-alt" aria-hidden="true"></i>Redirects</a>
+                        </li>
                     </ul>
                 </li>
             {% endif %}
         </ul>
     </div>
-
 {% endmacro %}

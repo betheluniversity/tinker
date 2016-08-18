@@ -8,10 +8,10 @@
             <a href="https://cms.bethel.edu/entity/open.act?id={{ result.id }}&type={{ result.type }}">/{{ result.path.path }}</a>
         </td>
         <td>
-            <a class="btn btn-primary publishButton" data-publish-id="{{ result.id }}"
+            <a id="publish-button" class="btn btn-primary publishButton" data-publish-id="{{ result.id }}"
                data-publish-type="{{ result.type }}" data-counter="{{ counter }}">Publish</a>
         </td>
-        <td id="publish_button_{{ counter }}"></td>
+{#        <td id="publish_button_{{ counter }}"></td>#}
         {#        <td><button class='more-info' id='more-info-{{ result.id }}' onclick="moreInfo('{{ result.type }}', '{{ result.id }}')">More Info</button></td>#}
         <td><a data-reveal-id="confirmModal"
                data-toggle="modal" data-target="#dialog" id="more-info-{{ result.id }}"
@@ -20,3 +20,31 @@
     </tr>
     {% set counter = counter + 1 %}
 {% endfor %}
+
+<script>
+    {# todo: Change loading modal to this notification evetually #}
+    {#    $(".more-info").click(function () {#}
+    {#        $.notify({#}
+    {#            message: 'Bringing up more info...'#}
+    {#        }, {#}
+    {#            type: 'success',#}
+    {#            placement: {#}
+    {#                align: 'center'#}
+    {#            },#}
+    {##}
+    {#        });#}
+    {#    });#}
+
+    $("#publish-button").click(function () {
+        $.notify({
+            message: 'Program has been published'
+        }, {
+            type: 'success',
+            placement: {
+                align: 'center'
+            },
+
+        });
+    });
+</script>
+

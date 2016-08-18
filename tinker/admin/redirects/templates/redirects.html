@@ -9,55 +9,63 @@
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
-            <div class="row card">
-                <div class="content">
-                    <form action="" id="new-redirect-form">
-                        <div class="row job">
-                            <div class="col-sm-4">
-                                From Path:
-                                <input type="text" name="new-redirect-from" id="new-redirect-from"
-                                       class="form-control no-margin-bottom"/>
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="content">
+                        <form action="" id="new-redirect-form">
+                            <div class="row less-left-margin">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        From Path:
+                                        <input type="text" id="new-redirect-from"
+                                               class="form-control no-margin-bottom"/>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        To URL:
+                                        <input type="text" id="new-redirect-to" class="form-control no-margin-bottom"/>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        Expiration Date:
+                                        <input type="text" id="expiration-date" class="form-control no-margin-bottom"/>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-sm-4">
-                                To URL:
-                                <input type="text" name="new-redirect-to" id="new-redirect-to"
-                                       class="form-control no-margin-bottom"/>
+                            <div class="content less-left-margin">
+                                <input type="checkbox" name="optionsCheckboxes">
+                                <div class="checkbox-label">
+                                    <label class="checkbox-label">Short URL</label>
+                                </div>
                             </div>
-                            <div class="col-sm-4">
-                                Expiration Date:
-                                <input type="text" name="expiration-date" id="expiration-date"
-                                       class="form-control no-margin-bottom"/>
-                            </div>
-                        </div>
-                        <div class="content job">
-                            <input type="checkbox" name="optionsCheckboxes">
-                            <div class="checkbox-label">
-                                <label class="checkbox-label">Short URL</label>
-                            </div>
-                        </div>
-                        <div class="btn btn-primary btn-save">Save</div>
-                    </form>
+                            <div id="redirects-save" class="btn btn-primary">Save</div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th width="400">From Path</th>
+                                <th width="400">To URL</th>
+                                <th width="400">Expiration Date</th>
+                            </tr>
+                            </thead>
+                            <tbody id="redirects-table">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {# spinner placeholder #}
+                <div id="spinner" class="spinner" style="display:none;">
+                    <img id="img-spinner" src="/get_image/waiting.gif" alt="Loading"/>
                 </div>
             </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th width="400">From Path</th>
-                            <th width="400">To URL</th>
-                            <th width="400">Expiration Date</th>
-                        </tr>
-                        </thead>
-                        <tbody id="redirects-table">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
         </div>
-
     </div>
 
     <script type="text/javascript">
@@ -110,15 +118,18 @@
             }
 
             $('#new-redirect-to').keyup(function () {
+                $('#spinner').show();
                 var input = $(this);
                 input.val(input.val().replace(/ /g, ''));
                 var value = input.val();
                 delay(function () {
+                    $('#spinner').hide();
                     loadTableForSearch(value, 'to_url');
                 }, 300);
             });
 
             $('#new-redirect-from').keyup(function () {
+                $('#spinner').show();
                 var input = $(this);
                 input.val(input.val().replace(/ /g, ''));
                 var value = input.val();
@@ -128,7 +139,19 @@
                 }
                 delay(function () {
                     loadTableForSearch(value, 'from_path');
-                }, 300);
+                    $('#spinner').hide(); }, 300);
+            });
+
+            $("#redirects-save").click(function () {
+                $.notify({
+                    message: 'Your redirect is saved'
+                }, {
+                    type: 'success',
+                    placement: {
+                        align: 'center'
+                    },
+
+                });
             });
 
             $(document).ready(function () {
