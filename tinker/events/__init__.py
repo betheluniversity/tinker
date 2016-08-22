@@ -81,6 +81,7 @@ class EventsView(FlaskView):
         if not eid:
             bid = app.config['EVENTS_BASE_ASSET']
             event_data, metadata, structured_data = self.base.cascade_connector.load_base_asset_by_id(bid, 'page')
+            self.base.add_workflow_to_asset(workflow, event_data)
             add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
             add_data['event-dates'] = self.base.get_dates(add_data)
             add_data['author'] = request.form['author']
@@ -91,6 +92,7 @@ class EventsView(FlaskView):
         else:
             page = self.base.read_page(eid)
             event_data, metadata, structured_data = page.get_asset()
+            self.base.add_workflow_to_asset(workflow, event_data)
             add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
             add_data['event-dates'] = self.base.get_dates(add_data)
             add_data['author'] = request.form['author']
@@ -101,7 +103,7 @@ class EventsView(FlaskView):
             resp = proxy_page.edit_asset(asset)
             self.base.log_sentry("Event edit submission", resp)
 
-        # todo: ASK CALEB IF THIS IS OKAY.
+        # todo: Test this
         if 'link' in add_data and add_data['link']:
             from tinker.admin.redirects import RedirectsView
             view = RedirectsView()
