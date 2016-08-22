@@ -14,6 +14,7 @@ class EventsView(FlaskView):
 
     def __init__(self):
         self.base = EventsController()
+        self.base.datetime_format = "%B %d %Y, %I:%M %p"
 
     # Allows any user to access events
     def before_request(self, name, **kwargs):

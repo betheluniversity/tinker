@@ -7,6 +7,7 @@ class RolesBaseTestCase(unittest.TestCase):
     # This method is designed to set up a temporary database, such that the tests won't affect the real database
     def setUp(self):
         tinker.app.testing = True
+        tinker.app.config['WTF_CSRF_ENABLED'] = False
         self.app = tinker.app.test_client()
 
     def send_post(self, url, form_contents):

@@ -144,7 +144,7 @@ class EventsController(TinkerController):
         edit_data = self.get_edit_data(page.get_structured_data(), page.get_metadata(), multiple)
         # set dates and return for use in form
         # convert dates to json so we can use Javascript to create custom DateTime fields on the form
-        dates = self.format_dates_to_time_picker(edit_data['event-dates'])
+        dates = self.sanitize_dates(edit_data['event-dates'])
         dates = fjson.dumps(dates)
 
         author = edit_data['author']
@@ -360,21 +360,12 @@ class EventsController(TinkerController):
         return max_year
 
     # Converts date dict to the date picker format that front-end tinker can read
-    def format_dates_to_time_picker(self, dates):
-
+    def sanitize_dates(self, dates):
         for date in dates:
             if 'all_day' in date and (date['all_day'] == "::CONTENT-XML-CHECKBOX::No" or date['all_day'] == "::CONTENT-XML-CHECKBOX::"):
                 date['all_day'] = None
             if 'outside_of_minnesota' in date and (date['outside_of_minnesota'] == "::CONTENT-XML-CHECKBOX::No" or date['outside_of_minnesota'] == "::CONTENT-XML-CHECKBOX::"):
                 date['outside_of_minnesota'] = None
-            try:
-                date['start_date'] = self.timestamp_to_date_str(int(date['start_date']))
-            except TypeError:
-                pass
-            try:
-                date['end_date'] = self.timestamp_to_date_str(int(date['end_date']))
-            except TypeError:
-                pass
         return dates
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets

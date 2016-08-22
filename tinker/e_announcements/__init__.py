@@ -36,7 +36,7 @@ class EAnnouncementsView(FlaskView):
         if session['username'] not in app.config['E_ANN_ADMINS']:
             return redirect(url_for('e-announcements.EAnnouncementsView:index'), code=302)
 
-        print 'Delete E-Announcement' + e_announcement_id
+        # print 'Delete E-Announcement ' + e_announcement_id
         self.base.delete(e_announcement_id, 'block')
         self.base.publish(app.config['E_ANNOUNCEMENTS_XML_ID'])
 

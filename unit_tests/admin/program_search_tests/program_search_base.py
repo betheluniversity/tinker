@@ -15,7 +15,6 @@ class ProgramSearchBaseTestCase(unittest.TestCase):
         shutil.copy2(tinker.app.config['PROGRAM_SEARCH_CSV'], self.temp_path)
         tinker.app.config['PROGRAM_SEARCH_CSV'] = self.temp_path
         tinker.app.testing = True
-        # Sadly, need to disable CSRF for these tests. :(
         tinker.app.config['WTF_CSRF_ENABLED'] = False
         self.app = tinker.app.test_client()
 
@@ -27,13 +26,6 @@ class ProgramSearchBaseTestCase(unittest.TestCase):
 
     def send_data(self, url, form_contents):
         return self.app.post(url, data=form_contents, follow_redirects=True, content_type="application/json;charset=UTF-8")
-
-    def get_csrf_token(self, url):
-        import re
-        response = self.send_get(url)
-        # Returns 3rd parentheses group
-        csrf_token = re.search('<input(.*)id="csrf_token"(.*)value="(.+)"(/?)>', response.data).group(3)
-        return csrf_token
 
     # Corresponding to the setUp method, this method deletes the temporary database
     def tearDown(self):
