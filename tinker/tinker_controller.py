@@ -102,7 +102,6 @@ class TinkerController(object):
                 get_user()
 
             if 'groups' not in session.keys():
-                print 'test'
                 get_groups_for_user()
 
             if 'roles' not in session.keys():
@@ -422,8 +421,6 @@ class TinkerController(object):
 
     def update_asset(self, asset, data):
         for key, value in data.iteritems():
-            if key == 'exceptions':
-                print 'TEST'
             update(asset, key, value)
 
         return True
