@@ -62,13 +62,13 @@ class FacultyBioSequentialTestCase(unittest.TestCase):
     def test_sequence(self):
         # Get a new form to fill out
         failure_message = '"GET /faculty-bio/new" didn\'t return the HTML code expected by ' + self.class_name + '.'
-        expected_response = b'<form id="facultybioform" action="/faculty-bio/submit" method="post" enctype="multipart/form-data">'
+        expected_response = b'<form id="facultybioform" action="/faculty-bio/submit" method="post">'
         response = self.send_get("/faculty-bio/new")
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Send the form submission to create it in Cascade
         failure_message = 'Sending a valid new submission to "POST /faculty-bio/submit" didn\'t succeed as expected by ' + self.class_name + '.'
-        expected_response = b"<p>You've successfully created a new bio. Your brand new bio has been sent for approval but will be ready to view in 2-3 business days.</p>"
+        expected_response = b"You've successfully created a new bio. Your brand new bio has been sent for approval but will be"
         form_contents = self.create_form_submission("", "Web Developer")
         response = self.send_post("/faculty-bio/submit", form_contents)
         self.assertIn(expected_response, response.data, msg=failure_message)
@@ -76,13 +76,13 @@ class FacultyBioSequentialTestCase(unittest.TestCase):
 
         # Open up the new bio to edit it
         failure_message = '"GET /faculty-bio/edit/%s" didn\'t return the HTML code expected by ' % self.faculty_bio_id + self.class_name + '.'
-        expected_response = b'<form id="facultybioform" action="/faculty-bio/submit" method="post" enctype="multipart/form-data">'
+        expected_response = b'<form id="facultybioform" action="/faculty-bio/submit" method="post">'
         response = self.send_get("/faculty-bio/edit/" + self.faculty_bio_id)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Send the edited form to update the bio
         failure_message = 'Sending a valid edit submission to "POST /faculty-bio/submit" didn\'t succeed as expected by ' + self.class_name + '.'
-        expected_response = b"You've successfully edited your bio. Your edits have been sent for approval but will be ready to view in 2-3 business days. Thanks for keeping your bio up to date!"
+        expected_response = b"You've successfully edited your bio. Your edits have been sent for approval but will be ready to"
         form_contents = self.create_form_submission(self.faculty_bio_id, "Web Developers")
         response = self.send_post("/faculty-bio/submit", form_contents)
         self.assertIn(expected_response, response.data, msg=failure_message)

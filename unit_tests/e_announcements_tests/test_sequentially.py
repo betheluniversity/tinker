@@ -38,16 +38,16 @@ class EAnnouncementsSequentialTestCase(unittest.TestCase):
 
     def test_sequence(self):
         # Get new form
-        response = self.send_get("/e-announcement/new")
         failure_message = '"GET /e-announcement/new" didn\'t return the HTML code expected by ' + self.class_name + '.'
         expected_response = b'<form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">'
+        response = self.send_get("/e-announcement/new")
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Submit the new form to create a new object
-        response = self.send_post("/e-announcement/submit", self.create_form("First title"))
         failure_message = 'Sending a valid new submission to "POST /e-announcement/submit" didn\'t succeed as expected by '\
                           + self.class_name + '.'
-        expected_response = b"You've successfully created your E-Announcement. Once your E-Announcement has been approved, it will appear on your Tinker"
+        expected_response = b"You've successfully created your E-Announcement. Once your E-Announcement has been approved,"
+        response = self.send_post("/e-announcement/submit", self.create_form("First title"))
         self.assertIn(expected_response, response.data, msg=failure_message)
         self.eaid = self.get_eaid(response.data)
 
@@ -56,28 +56,28 @@ class EAnnouncementsSequentialTestCase(unittest.TestCase):
         ###################################################################################
 
         # Get edit form
-        response = self.send_get("/e-announcement/edit/" + self.eaid)
         failure_message = '"GET /e-announcement/edit/%s" didn\'t fail as expected by ' % self.eaid + self.class_name + '.'
-        expected_response = b'<input type="hidden" name="e_announcement_id" id="e_announcement_id" value="'
+        expected_response = b'<input type="hidden" name="e_announcement_id" id="e_announcement_id"'
+        response = self.send_get("/e-announcement/edit/" + self.eaid)
         self.assertNotIn(expected_response, response.data, msg=failure_message)
 
         # Edit that new object
-        response = self.send_post("/e-announcement/submit", self.create_form("Second title", eaid=self.eaid))
         failure_message = 'Sending a valid edit submission to "POST /e-announcement/submit" didn\'t succeed as expected by '\
                           + self.class_name + '.'
-        expected_response = b"You've successfully edited your E-Announcement. Once your E-Announcement has been approved, it will appear on your Tinker"
+        expected_response = b"You've successfully edited your E-Announcement. Once your E-Announcement has been approved,"
+        response = self.send_post("/e-announcement/submit", self.create_form("Second title", eaid=self.eaid))
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Call the duplicate form to make sure it works
-        response = self.send_get("/e-announcement/duplicate/" + self.eaid)
         failure_message = '"GET /e-announcement/duplicate/%s" didn\'t fail as expected by ' % self.eaid + self.class_name + '.'
-        expected_response = b'<form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">'
+        expected_response = b'<form id="eannouncementform" action="/e-announcement/" method="post" enctype="multipart/form-data">'
+        response = self.send_get("/e-announcement/duplicate/" + self.eaid)
         self.assertNotIn(expected_response, response.data, msg=failure_message)
 
         # Delete the new object
-        response = self.send_get("/e-announcement/delete/" + self.eaid)
         failure_message = '"GET /e-announcement/delete/%s" didn\'t fail as expected by ' % self.eaid + self.class_name + '.'
         expected_response = b'Your E-Announcements has been deleted. It will be removed from your'
+        response = self.send_get("/e-announcement/delete/" + self.eaid)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     # Corresponding to the setUp method, this method deletes the temporary database

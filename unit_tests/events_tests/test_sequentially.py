@@ -67,32 +67,32 @@ class EventsSequentialTestCase(unittest.TestCase):
 
         # Get new form
         failure_message = '"GET /event/add" didn\'t return the HTML code expected by ' + self.class_name + '.'
-        expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>'
+        expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
         response = self.send_get("/event/add")
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Submit new form
         failure_message = 'Sending a valid new submission to "POST /event/submit" didn\'t succeed as expected by ' + self.class_name + '.'
-        expected_response = b"<p>You'll receive an email when your event has been approved by Conference and Event Services. Once your event has been approved, it will appear on your Tinker"
+        expected_response = b'Take a short break in your day and enjoy this GIF!'
         response = self.send_post("/event/submit", self.create_form("Test event"))
         self.eid = self.get_eid(response.data)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Get edit form of new object
         failure_message = '"GET /event/edit/%s" didn\'t return the HTML code expected by ' % self.eid + self.class_name + '.'
-        expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>'
+        expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
         response = self.send_get("/event/edit/" + self.eid)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Submit edited form
         failure_message = 'Sending a valid edit submission to "POST /event/submit" didn\'t succeed as expected by ' + self.class_name + '.'
-        expected_response = b"<p>You'll receive an email when your event has been approved by Conference and Event Services. Once your event has been approved, it will appear on your Tinker"
+        expected_response = b'Take a short break in your day and enjoy this GIF!'
         response = self.send_post("/event/submit", self.create_form("Edited title"))
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Duplicate edited object
         failure_message = '"GET /event/duplicate/%s" didn\'t return the HTML code expected by ' % self.eid + self.class_name + '.'
-        expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services at 651.638.6090.</p>'
+        expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
         response = self.send_get("/event/duplicate/" + self.eid)
         self.assertIn(expected_response, response.data, msg=failure_message)
 

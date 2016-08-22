@@ -25,9 +25,9 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
     #######################
 
     def test_submit_valid(self):
-        failure_message = 'Sending a valid new form to "POST /admin/program-search/subit" in ' + self.class_name \
+        failure_message = 'Sending a valid new form to "POST /admin/program-search/submit" in ' + self.class_name \
                           + ' didn\'t work properly.'
-        expected_response = b'<p>Below is the list of Office Hours you have access to edit.'
+        expected_response = b'<label for="key" style="color: #252422">Concentration Code or Program Name:</label>'
         form_contents = self.create_form()
         response = super(SubmitTestCase, self).send_post('/admin/program-search/submit', form_contents)
         self.assertIn(expected_response, response.data, msg=failure_message)

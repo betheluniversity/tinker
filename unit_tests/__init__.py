@@ -14,3 +14,8 @@ if __name__ == "__main__":
     import unittest
     testsuite = unittest.TestLoader().discover('.')
     unittest.TextTestRunner(verbosity=1).run(testsuite)
+
+# Delete these E-Announcements:
+# 9ffa06128c5865133973dd3e290626cc
+# 9fc4ea4e8c5865133973dd3e401add56
+# 9fb731728c5865133973dd3ef6340726

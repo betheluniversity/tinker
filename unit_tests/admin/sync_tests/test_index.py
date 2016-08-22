@@ -16,6 +16,6 @@ class IndexTestCase(SyncBaseTestCase):
 
     def test_index(self):
         failure_message = '"GET /admin/sync" didn\'t return the HTML code expected by ' + self.class_name + '.'
-        expected_response = b'<p>The sync data is contained in this <a target="_blank" href="https://github.com/betheluniversity/tinker/blob/master/tinker/admin/sync/sync_metadata.py">file</a>. You can sync a specific metadata set, data definition, or sync all.</p>'
+        expected_response = b'You can sync a specific metadata set, data definition, or sync all.</p>'
         response = super(IndexTestCase, self).send_get("/admin/sync")
         self.assertIn(expected_response, response.data, msg=failure_message)

@@ -102,7 +102,6 @@ class TinkerController(object):
                 get_user()
 
             if 'groups' not in session.keys():
-                print 'test'
                 get_groups_for_user()
 
             if 'roles' not in session.keys():
@@ -392,8 +391,8 @@ class TinkerController(object):
     def move(self, page_id, destination_path, type='page'):
         return self.cascade_connector.move(page_id, destination_path, type)
 
-    def delete(self, path_or_id):
-        return self.cascade_connector.delete(path_or_id)
+    def delete(self, path_or_id, asset_type):
+        return self.cascade_connector.delete(path_or_id, asset_type)
 
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)

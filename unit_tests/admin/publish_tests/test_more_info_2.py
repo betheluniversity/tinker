@@ -23,17 +23,10 @@ class MoreInfoTestCase(PublishBaseTestCase):
     def test_more_info_valid(self):
         failure_message = 'Sending a valid form to "POST /admin/publish-manager/more_info" in ' + self.class_name \
                           + ' failed unexpectedly.'
-        expected_response = b'<h4>WWW last published</h4>'
+        expected_response = b'<div class="col-sm-6 last-published-header">'
         form_contents = self.create_form("page", "a7404faa8c58651375fc4ed23d7468d5")
         response = super(MoreInfoTestCase, self).send_post('/admin/publish-manager/more_info', form_contents)
         self.assertIn(expected_response, response.data, msg=failure_message)
-        # assert b'</tr>\
-        #     </table>\
-        #     \
-        #     <div class="row">\
-        #     \
-        #     <div class="large-6 columns">\
-        #     <h4>WWW last published</h4>' in response.data
 
     def test_more_info_invalid_type(self):
         failure_message = 'Sending an invalid \'type\' to "POST /admin/publish-manager/more_info" in ' + self.class_name \

@@ -16,6 +16,6 @@ class IndexTestCase(EAnnouncementsBaseTestCase):
 
     def test_index(self):
         failure_message = '"GET /e-announcement" didn\'t return the HTML code expected by ' + self.class_name + '.'
-        expected_response = b'<p>Below is the list of E-Announcements you have access to edit.'
+        expected_response = b'Below is the list of E-Announcements you have access to edit. These are sorted by'
         response = super(IndexTestCase, self).send_get("/e-announcement")
         self.assertIn(expected_response, response.data, msg=failure_message)
