@@ -83,7 +83,7 @@ def requires_auth(f):
 
 class TinkerController(object):
     def __init__(self):
-        self.datetime_format = "%B %d  %Y, %I:%M %p"
+        self.datetime_format = "%B %d %Y, %I:%M %p"
         self.cascade_connector = cascade_connector
 
     def before_request(self):
@@ -421,8 +421,6 @@ class TinkerController(object):
 
     def update_asset(self, asset, data):
         for key, value in data.iteritems():
-            if key == 'exceptions':
-                print 'TEST'
             update(asset, key, value)
 
         return True

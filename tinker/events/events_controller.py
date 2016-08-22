@@ -264,6 +264,8 @@ class EventsController(TinkerController):
 
         self.update_asset(event_data, new_data)
 
+        self.add_workflow_to_asset(workflow, event_data)
+
         if event_id:
             new_data['id'] = event_id
 

@@ -14,7 +14,7 @@ class EventsView(FlaskView):
 
     def __init__(self):
         self.base = EventsController()
-        self.base.datetime_format = "%B %d  %Y, %I:%M %p"
+        self.base.datetime_format = "%B %d %Y, %I:%M %p"
 
     # Allows any user to access events
     def before_request(self, name, **kwargs):
@@ -71,9 +71,9 @@ class EventsView(FlaskView):
         rform = request.form
         username = session['username']
         eid = rform.get('event_id')
-        workflow = self.base.create_workflow("1ca9794e8c586513742d45fd39c5ffe3")
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
         failed = self.base.validate_form(rform, dates_good, event_dates)
+        workflow = self.base.create_workflow("1ca9794e8c586513742d45fd39c5ffe3", '--' + rform['title'] + ', ' + rform['start1'])
 
         wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']
         if failed:
@@ -102,7 +102,7 @@ class EventsView(FlaskView):
             resp = proxy_page.edit_asset(asset)
             self.base.log_sentry("Event edit submission", resp)
 
-        # todo: ASK CALEB IF THIS IS OKAY.
+        # todo: Test this
         if 'link' in add_data and add_data['link']:
             from tinker.admin.redirects import RedirectsView
             view = RedirectsView()
