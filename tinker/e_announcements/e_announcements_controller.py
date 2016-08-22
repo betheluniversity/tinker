@@ -110,8 +110,7 @@ class EAnnouncementsController(TinkerController):
         add_data = self.get_add_data(['banner_roles'], rform, ['message'])
 
         # create workflow
-        workflow = None
-        # workflow = self.create_workflow(app.config['E_ANNOUNCEMENT_WORKFLOW_ID'], add_data['title'])
+        workflow = self.create_workflow(app.config['E_ANNOUNCEMENT_WORKFLOW_ID'], add_data['title'])
         self.add_workflow_to_asset(workflow, e_announcement_data)
 
         # if parent folder ID exists it will use that over path
