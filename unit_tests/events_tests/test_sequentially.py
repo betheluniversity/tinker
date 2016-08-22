@@ -63,7 +63,8 @@ class EventsSequentialTestCase(unittest.TestCase):
 
     def test_sequence(self):
         # To be clear, these events do get made in Cascade, and they are publicly visible. If they're not deleted, they
-        # will be located in /events/2016/athletics/
+        # will be located in /events/2016/athletics/. Also, when created, they will go to workflow, so the /edit
+        # endpoint doesn't work.
 
         # Get new form
         failure_message = '"GET /event/add" didn\'t return the HTML code expected by ' + self.class_name + '.'
@@ -82,7 +83,7 @@ class EventsSequentialTestCase(unittest.TestCase):
         failure_message = '"GET /event/edit/%s" didn\'t return the HTML code expected by ' % self.eid + self.class_name + '.'
         expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
         response = self.send_get("/event/edit/" + self.eid)
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertNotIn(expected_response, response.data, msg=failure_message)
 
         # Submit edited form
         failure_message = 'Sending a valid edit submission to "POST /event/submit" didn\'t succeed as expected by ' + self.class_name + '.'
