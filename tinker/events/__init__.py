@@ -70,9 +70,9 @@ class EventsView(FlaskView):
         rform = request.form
         username = session['username']
         eid = rform.get('event_id')
-        workflow = self.base.create_workflow("1ca9794e8c586513742d45fd39c5ffe3")
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
         failed = self.base.validate_form(rform, dates_good, event_dates)
+        workflow = self.base.create_workflow("1ca9794e8c586513742d45fd39c5ffe3", '--' + rform['title'] + ', ' + rform['start1'])
 
         wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']
         if failed:
