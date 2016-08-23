@@ -47,10 +47,8 @@ class FacultyBioView(FlaskView):
 
     @route('delete/<page_id>', methods=['GET'])
     def delete(self, page_id):
-        # TODO: this method is riddled with errors now
         self.base.delete(page_id, "page")
-        # todo: recreate this method....i like it.
-        self.base.publish(page_id)
+        self.base.unpublish(page_id, "page")
 
         return redirect('/faculty-bio/delete-confirm', code=302)
 

@@ -41,7 +41,10 @@ class FacultyBioController(TinkerController):
 
         if schools_to_check:
             # todo: make this get job-title schools
-            school_value = child.find('system-data-structure/job-titles/school')['text']
+            try:
+                school_value = child.find('system-data-structure/job-titles/school')['text']
+            except:
+                school_value = None
             if school_value in schools_to_check:
                 iterate_bio = True
 
