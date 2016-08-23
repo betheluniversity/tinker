@@ -10,7 +10,8 @@ from flask_wtf.csrf import CsrfProtect
 from bu_cascade.cascade_connector import Cascade
 
 app = Flask(__name__)
-app.config.from_object('config.config')
+# app.config.from_object('config.config')
+app.config.from_envvar('FACULTY_BIOS_XML_URL')
 db = SQLAlchemy(app)
 
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
