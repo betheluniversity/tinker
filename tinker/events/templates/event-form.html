@@ -173,7 +173,7 @@
                 var timelabel = 'timezonelabel' + id;
                 var fieldset_node = $('<fieldset>').addClass('date-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Date " + id));
+                inner_node.append($("<legend>").html("Date " + id).append($('<small>').addClass('required').html("required")));
                 {#                inner_node.append($("<div>").addClass('checkbox')#}
                 {#                        .append($('<span>').addClass('icons')#}
                 {#                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-square').addClass('fa-base'))#}
@@ -371,7 +371,7 @@
     <fieldset class="date-fieldset">
         <div class="card">
             <div class="content">
-                <legend>Date 1</legend>
+                <legend>Date 1<small class="required">required</small></legend>
 
                 <input class="alldaycheck" id="allday1" name="allday1" type="checkbox"
                        value="True">
