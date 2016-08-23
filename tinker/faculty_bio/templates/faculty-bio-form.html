@@ -243,34 +243,13 @@ to be in it's own card div, something to think about in the future -->
                     $('#teaching_specialty').attr('required', true);
             }
 
-
-            function newJobTitleFieldset(id) {
-                var title = 'job-title' + id;
-                var fieldset_node = $('<fieldset>').addClass('job-fieldset').addStylesSet('display', 'none');
-                var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Job Title " + id));
-                inner_node.append($("<input type='text'>").attr('name', title).attr('id', title));
-                fieldset_node.append($("<div>").addClass('card').append(inner_node));
-                return fieldset_node;
-            }
-
-            function newJobTitleFieldset(id) {
-                var title = 'job-title' + id;
-                var fieldset_node = $('<fieldset>').addClass('job-fieldset').addStylesSet('display', 'none');
-                var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Job Title " + id));
-                inner_node.append($("<input type='text'>").attr('name', title).attr('id', title));
-                fieldset_node.append($("<div>").addClass('card').append(inner_node));
-                return fieldset_node;
-            }
-
             function newDegreeTitleFieldset(id) {
                 var school = 'school' + id;
                 var degree = 'degree-earned' + id;
                 var year = 'year' + id;
                 var fieldset_node = $('<fieldset>').addClass('degree-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Degree " + id));
+                inner_node.append($("<legend>").html("Degree " + id).append($('<small>').class('required').html('required'));
                 inner_node.append($("<label>").attr('for', school).html("School"));
                 inner_node.append($("<input type='text'>").attr('name', school).attr('id', school).addClass("no-border"));
                 inner_node.append($("<label>").attr('for', degree).html("Degree Earned"));
@@ -285,7 +264,7 @@ to be in it's own card div, something to think about in the future -->
                 var title = 'new-job-title' + id;
                 var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Job Title " + id));
+                inner_node.append($("<legend>").html("Job Title " + id).append($('<small>').class('required').html('required'));
 
                 inner_node.append($('<div>').attr('class', 'schools-div' + id).append(
                         $("<label>").html('School')).append(
@@ -367,97 +346,6 @@ to be in it's own card div, something to think about in the future -->
                         )
                 ));
             }
-
-                function newJobTitlesFieldset(id) {
-                    var title = 'new-job-title' + id;
-                    var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');
-                    var inner_node = $("<div>").addClass('content');
-                    inner_node.append($("<legend>").html("Job Title " + id));
-
-                    inner_node.append($('<div>').attr('class', 'schools-div' + id).append(
-                            $("<label>").addClass('col-md-12').addClass('job').html('School')).append(
-                            $("<select>").attr('id', 'schools' + id).attr('name', 'schools' + id))
-                    );
-
-                    inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'undergrad-div' + id).append(
-                            $("<label>").addClass('col-md-12').addClass('job').html('Program')).append(
-                            $("<select>").attr('id', 'undergrad' + id).attr('name', 'undergrad' + id))
-                    );
-
-                    inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'adult-undergrad-div' + id).append(
-                            $("<label>").addClass('col-md-12').addClass('job').html('Program')).append(
-                            $("<select>").attr('id', 'adult-undergrad' + id).attr('name', 'adult-undergrad' + id))
-                    );
-
-                    inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'graduate-div' + id).append(
-                            $("<label>").addClass('col-md-12').addClass('job').html('Program')).append(
-                            $("<select>").attr('id', 'graduate' + id).attr('name', 'graduate' + id))
-                    );
-
-                    inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'seminary-div' + id).append(
-                            $("<label>").addClass('col-md-12').addClass('job').html('Program')).append(
-                            $("<select>").attr('id', 'seminary' + id).attr('name', 'seminary' + id))
-                    );
-
-
-                    inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'dept-chair-div' + id)
-                            .append($('<label>').html('Are you the Department Chair?')
-                                    .append($('<div>').addClass('radio')
-                                            .append($('<span>').addClass('icons')
-                                                    .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
-                                                    .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
-                                            .append($('<label>').html('Yes').append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'Yes'))))
-                                    .append($('<div>').addClass('radio')
-                                            .append($('<span>').addClass('icons')
-                                                    .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
-                                                    .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
-                                            .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'No'))))
-                            )
-                    );
-                    inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'program-director-div' + id)
-                            .append($('<label>').html('Are you the Program Director?')
-                                    .append($('<div>').addClass('radio')
-                                            .append($('<span>').addClass('icons')
-                                                    .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
-                                                    .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
-                                            .append($('<label>').html('Yes').append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'Yes'))))
-                                    .append($('<div>').addClass('radio')
-                                            .append($('<span>').addClass('icons')
-                                                    .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
-                                                    .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
-                                            .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'No'))))
-                            )
-                    );
-                    inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'lead-faculty-div' + id)
-                            .append($('<label>').html('For this program, I am the...')
-                                    .append($('<div>').addClass('radio')
-                                            .append($('<span>').addClass('icons')
-                                                    .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
-                                                    .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
-                                            .append($('<label>').html('Lead Faculty').append($('<input type="radio">').attr('name', 'lead-faculty' + id).attr('value', 'Lead Faculty'))))
-                                    .append($('<div>').addClass('radio')
-                                            .append($('<span>').addClass('icons')
-                                                    .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
-                                                    .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
-                                            .append($('<label>').html('Program Director').append($('<input type="radio">').attr('name', 'lead-faculty' + id).attr('value', 'Program Director'))))
-                                    .append($('<div>').addClass('radio')
-                                            .append($('<span>').addClass('icons')
-                                                    .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
-                                                    .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
-                                            .append($('<label>').html('Other').append($('<input type="radio">').attr('name', 'lead-faculty' + id).attr('value', 'Other'))))
-                            )
-                    );
-
-                    inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'new-job-title-div' + id).append(
-                            $("<label>").html('Title').append(
-                                    $("<input type='text'>").attr('id', 'new-job-title' + id).attr('name', 'new-job-title' + id).addClass('no-border')
-                            )
-                    ));
-
-                    fieldset_node.append($("<div>").addClass('card').append(inner_node));
-
-                    return fieldset_node;
-                }
 
                 function populateDegreeFieldset(id, school, degree, year) {
                     var schoolid = '#school' + id;
@@ -814,7 +702,7 @@ to be in it's own card div, something to think about in the future -->
     <fieldset class="degree-fieldset">
         <div class="card">
             <div class="content">
-                <legend>Degree 1</legend>
+                <legend>Degree 1<small class="required">required</small></legend>
                 <label for="school1">School</label>
                 <input class="no-border" type="text" name="school1" id="school1"/>
 
@@ -837,7 +725,7 @@ to be in it's own card div, something to think about in the future -->
     <fieldset class="new-job-fieldset">
         <div class="card">
             <div class="content">
-                <legend>Job Title 1</legend>
+                <legend>Job Title 1<small class="required">required</small></legend>
                 <div id="schools-div">
                     <label>School</label>
                     <select name='schools1' id='schools1'></select>
