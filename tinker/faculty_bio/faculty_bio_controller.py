@@ -364,6 +364,9 @@ class FacultyBioController(TinkerController):
             return '81dabbc78c5865130c130b3a2b567e75'
         elif "Bethel Seminary" in schools:
             return '68ad793e8c5865137c9c2c89440cbbbc'
+        else:
+            # currently default to the CAS workflow
+            return 'f1638f598c58651313b6fe6b5ed835c5'
 
     def should_be_able_to_edit_image(self, roles):
         if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
