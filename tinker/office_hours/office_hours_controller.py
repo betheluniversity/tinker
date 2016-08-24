@@ -13,7 +13,7 @@ class OfficeHoursController(TinkerController):
 
     def __init__(self):
         super(OfficeHoursController, self).__init__()
-        self.datetime_format = "%-I:%M %p"
+        self.datetime_format = "%I:%M %p"
 
     def _iterate_child_xml(self, child, author):
 
@@ -253,8 +253,7 @@ class OfficeHoursController(TinkerController):
             exception = find(find(sdata, 'exceptions')[0], 'date', False)
             date = find(exception, 'date', False)
 
-            if (datetime.datetime.strptime(date,
-                                           '%m-%d-%Y') - datetime.datetime.now()).total_seconds() <= seconds_in_two_weeks:
+            if (datetime.datetime.strptime(date, '%m-%d-%Y') - datetime.datetime.now()).total_seconds() <= seconds_in_two_weeks:
                 open = find(exception, 'open', False)
                 close = find(exception, 'close', False)
 

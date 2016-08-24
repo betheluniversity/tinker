@@ -362,14 +362,13 @@ class FacultyBioController(TinkerController):
             if key.startswith('schools'):
                 schools.append(add_data[key])
         if "College of Arts and Sciences" in schools:
-            return 'f1638f598c58651313b6fe6b5ed835c5'
+            return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
         elif "Graduate School" in schools or "College of Adult and Professional Studies" in schools:
-            return '81dabbc78c5865130c130b3a2b567e75'
+            return app.config['FACULTY_BIOS_WORKFLOW_CAPSGS_ID']
         elif "Bethel Seminary" in schools:
-            return '68ad793e8c5865137c9c2c89440cbbbc'
+            return app.config['FACULTY_BIOS_WORKFLOW_SEM_ID']
         else:
-            # currently default to the CAS workflow
-            return 'f1638f598c58651313b6fe6b5ed835c5'
+            return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
 
     def should_be_able_to_edit_image(self, roles):
         if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:

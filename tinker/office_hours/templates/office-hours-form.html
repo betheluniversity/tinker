@@ -161,7 +161,7 @@
                     <br/>
                     <br/>
                     <div class="col-md-12 less-left-margin">
-                        <a type="submit" id="office-hours-submit-btn" class="btn btn-primary postfix">Submit</a>
+                        <button type="submit" id="office-hours-submit-btn" class="btn btn-primary postfix">Submit</button>
                     </div>
                 </form>
             </div>
@@ -176,7 +176,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datepair.js/0.4.14/jquery.datepair.min.js"></script>
-    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
     <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
@@ -190,8 +189,6 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            var csrftoken = "{{ csrf_token() }}";
-            activateCSRF(csrftoken);
 
             function dateTimePickers(selection_string) {
                 $(selection_string + '.time').timepicker({
