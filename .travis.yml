@@ -3,10 +3,11 @@ language: python
 python:
   - "2.7"
 
-before_install: import os
+env:
+  - "import os"
 
 # command to install dependencies
 install: "pip install -r requirements.txt"
 
 # command to run tests
-script: python unit_tests/__init__.py
+script: "python unit_tests/__init__.py"
