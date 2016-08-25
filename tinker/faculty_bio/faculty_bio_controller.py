@@ -227,9 +227,6 @@ class FacultyBioController(TinkerController):
         add_data['author'] = session['username']
         faculty_bio_data['page']['metadata']['metaDescription'] = self.build_description(add_data)
 
-        for wysiwyg_key in wysiwyg_keys:
-            add_data[wysiwyg_key] = self.escape_wysiwyg_content(add_data[wysiwyg_key])
-
         # todo: eventually adjust the keys in cascade to work.
         add_data['started-at-bethel'] = add_data['started_at_bethel']
         add_data['image'] = self.create_faculty_bio_image(add_data)
