@@ -1,3 +1,4 @@
+# tinker
 from tinker import app, db
 from tinker.tinker_controller import TinkerController
 from tinker.admin.redirects.models import BethelRedirect

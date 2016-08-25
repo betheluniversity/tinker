@@ -1,9 +1,10 @@
-__author__ = 'ces55739'
-
 import datetime
 
+# flask
 from flask import session
 from flask import render_template
+
+# tinker
 from tinker import app
 from tinker.tinker_controller import TinkerController
 

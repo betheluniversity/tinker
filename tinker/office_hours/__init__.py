@@ -1,9 +1,10 @@
 import re
 
-from flask import Blueprint, render_template, session, url_for, redirect, request
+# flask
+from flask import Blueprint, render_template, session, url_for, request
 from flask.ext.classy import FlaskView, route
-from flask import json as fjson
 
+# tinker
 from tinker import app
 from tinker.office_hours.office_hours_controller import OfficeHoursController
 from tinker.office_hours.forms import OfficeHoursForm

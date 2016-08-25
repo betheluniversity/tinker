@@ -1,12 +1,12 @@
-from tinker.tinker_controller import TinkerController
-
 from datetime import datetime
-
-from tinker import app
-
 from suds.client import Client
 from suds.transport import TransportError
 
+# tinker
+from tinker.tinker_controller import TinkerController
+from tinker import app
+
+# flask
 from flask import abort
 
 

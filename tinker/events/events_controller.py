@@ -1,21 +1,20 @@
-from tinker.tinker_controller import TinkerController
 import json
 import datetime
 import time
 import re
-import urllib2
 import arrow
 
-from xml.etree import ElementTree as ET
-from operator import itemgetter
-
-from bu_cascade.asset_tools import update, find
-from flask import json as fjson
+# bu-cascade
+from bu_cascade.asset_tools import find
 
 # local
 from tinker import app
+from tinker.tinker_controller import TinkerController
 
+# flask
 from flask import render_template, session
+from flask import json as fjson
+
 
 class EventsController(TinkerController):
 
