@@ -124,10 +124,17 @@
 
                         {% elif field.type == 'StringField' %}
                             {% if 'open' in field.name %}
-                                <div class="large-12 columns timeRange">
-                                    {{ field(class='time start auto-width') }}
-                                    {% elif 'close' in field.name %}
-                                    - {{ field(class='time end auto-width') }}
+                                <div>
+                                    <div class="col-sm-5 div-to-hide">
+                                        <div class="timeRange">
+                                            {{ field(class='time start auto-width hide-when-none') }}
+                            {% elif 'close' in field.name %}
+                                            - {{ field(class='time end auto-width hide-when-none') }}
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <label>Closed?<input type="checkbox" class="hide-checkboxes"/></label>
+                                    </div>
                                 </div>
                             {% else %}
                                 {{ field(class='datepicker auto-width') }}
@@ -189,6 +196,20 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
+            // A subpar way to hide/show all of the elements.
+            // However, this does it all in few lines, so it should be easy to redo later.
+            $('.hide-checkboxes').click(function () {
+                var input_element = $(this).parent().parent().parent().children().first();
+                if( $(this).is(':checked') ) {
+                    input_element.hide();
+                    input_element.find('input').val('')
+                }
+                else {
+                    input_element.show();
+                }
+            });
+            $('.hide-when-none[value=""]').parent().parent().hide();
+            $('.hide-when-none[value=""]').parent().parent().parent().find('.hide-checkboxes').attr('checked', 'checked')
 
             function dateTimePickers(selection_string) {
                 $(selection_string + '.time').timepicker({
@@ -202,7 +223,7 @@
                 $(selection_string + '.datepicker').each(function (index) {
                     var picker = new Pikaday({
                         field: this,
-                        format: 'MM/DD/YYYY',
+                        format: 'MM/DD/YYYY'
                     });
                 });
             }

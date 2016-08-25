@@ -94,7 +94,6 @@ class OfficeHoursController(TinkerController):
 
         add_data = self.get_add_data(mdata, rform, wysiwyg_keys)
         add_data['exceptions'] = self.get_exceptions(rform)
-
         for key, value in add_data.iteritems():
             if not value:
                 continue
@@ -252,7 +251,7 @@ class OfficeHoursController(TinkerController):
         for exception in exceptions:
             date = find(exception, 'date', False)
 
-            if (datetime.datetime.strptime(date, '%m-%d-%Y') - datetime.datetime.now()).total_seconds() <= seconds_in_two_weeks:
+            if (datetime.datetime.strptime(date, '%m-%d-%Y') - datetime.datetime.now()).total_seconds() <= seconds_in_two_weeks and (datetime.datetime.strptime(date, '%m-%d-%Y') - datetime.datetime.now()).total_seconds() >= 0:
                 open = find(exception, 'open', False)
                 close = find(exception, 'close', False)
 
