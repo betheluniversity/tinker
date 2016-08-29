@@ -119,7 +119,6 @@ class PublishManagerView(FlaskView):
             except:
                 return "Failed"
         else:
-            # todo possibly make into a method
             resp = self.base.publish(id, type, destination)
             if 'success = "false"' in str(resp):
                 return resp['message']
