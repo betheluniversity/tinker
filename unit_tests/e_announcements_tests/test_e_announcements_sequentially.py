@@ -12,6 +12,7 @@ class EAnnouncementsSequentialTestCase(unittest.TestCase):
         self.app = tinker.app.test_client()
         self.eaid = None
         self.class_name = self.__class__.__name__
+        self.request = ""
 
     def send_post(self, url, form_contents):
         return self.app.post(url, data=form_contents, follow_redirects=True)
@@ -38,16 +39,19 @@ class EAnnouncementsSequentialTestCase(unittest.TestCase):
 
     def test_sequence(self):
         # Get new form
-        failure_message = '"GET /e-announcement/new" didn\'t return the HTML code expected by ' + self.class_name + '.'
+        self.request = "GET /e-announcement/new"
         expected_response = b'<form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">'
         response = self.send_get("/e-announcement/new")
+        failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
+                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Submit the new form to create a new object
-        failure_message = 'Sending a valid new submission to "POST /e-announcement/submit" didn\'t succeed as expected by '\
-                          + self.class_name + '.'
+        self.request = "POST /e-announcement/submit"
         expected_response = b"You've successfully created your E-Announcement. Once your E-Announcement has been approved,"
         response = self.send_post("/e-announcement/submit", self.create_form("First title"))
+        failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
+                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
         self.assertIn(expected_response, response.data, msg=failure_message)
         self.eaid = self.get_eaid(response.data)
 
@@ -56,28 +60,35 @@ class EAnnouncementsSequentialTestCase(unittest.TestCase):
         ###################################################################################
 
         # Get edit form
-        failure_message = '"GET /e-announcement/edit/%s" didn\'t fail as expected by ' % self.eaid + self.class_name + '.'
+        self.request = "GET /e-announcement/edit/" + self.eaid
         expected_response = b'<input type="hidden" name="e_announcement_id" id="e_announcement_id"'
         response = self.send_get("/e-announcement/edit/" + self.eaid)
+        failure_message = '"%(0)s" received "%(1)s" when it was not expecting "%(2)s" in %(3)s.' % \
+                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
         self.assertNotIn(expected_response, response.data, msg=failure_message)
 
         # Edit that new object
-        failure_message = 'Sending a valid edit submission to "POST /e-announcement/submit" didn\'t succeed as expected by '\
-                          + self.class_name + '.'
+        self.request = "POST /e-announcement/submit"
         expected_response = b"You've successfully edited your E-Announcement. Once your E-Announcement has been approved,"
         response = self.send_post("/e-announcement/submit", self.create_form("Second title", eaid=self.eaid))
+        failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
+                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Call the duplicate form to make sure it works
-        failure_message = '"GET /e-announcement/duplicate/%s" didn\'t fail as expected by ' % self.eaid + self.class_name + '.'
+        self.request = "GET /e-announcement/duplicate/" + self.eaid
         expected_response = b'<form id="eannouncementform" action="/e-announcement/" method="post" enctype="multipart/form-data">'
         response = self.send_get("/e-announcement/duplicate/" + self.eaid)
+        failure_message = '"%(0)s" received "%(1)s" when it was not expecting "%(2)s" in %(3)s.' % \
+                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
         self.assertNotIn(expected_response, response.data, msg=failure_message)
 
         # Delete the new object
-        failure_message = '"GET /e-announcement/delete/%s" didn\'t fail as expected by ' % self.eaid + self.class_name + '.'
+        self.request = "GET /e-announcement/delete/" + self.eaid
         expected_response = b'Your E-Announcements has been deleted. It will be removed from your'
         response = self.send_get("/e-announcement/delete/" + self.eaid)
+        failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
+                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     # Corresponding to the setUp method, this method deletes the temporary database
