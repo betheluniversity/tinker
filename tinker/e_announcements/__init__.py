@@ -1,7 +1,7 @@
 import datetime
 
 from flask import Blueprint, render_template, url_for, redirect, session
-from flask.ext.classy import FlaskView, route, request
+from flask_classy import FlaskView, route, request
 
 from e_announcements_controller import EAnnouncementsController
 from campaign_controller import CampaignController

@@ -1,6 +1,6 @@
 from faculty_bio_controller import *
 from flask import Blueprint, redirect, send_from_directory
-from flask.ext.classy import FlaskView, route
+from flask_classy import FlaskView, route
 from tinker.admin.sync.sync_metadata import data_to_add
 from werkzeug.utils import secure_filename
 from bu_cascade.asset_tools import *

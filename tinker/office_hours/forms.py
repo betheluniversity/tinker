@@ -1,5 +1,5 @@
 # modules
-from flask.ext.wtf import Form
+from flask_wtf import Form
 from wtforms.widgets import TextInput
 from wtforms.fields import FormField, RadioField, StringField
 from wtforms import Field

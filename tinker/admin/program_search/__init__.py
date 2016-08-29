@@ -1,10 +1,10 @@
 import ast
 import json
 
-from flask.ext.classy import FlaskView
+from flask_classy import FlaskView
 from flask import Blueprint
 from flask import abort
-from flask.ext.classy import route
+from flask_classy import route
 
 from tinker.admin.program_search.models import ProgramTag
 from tinker.admin.program_search.program_search_controller import *

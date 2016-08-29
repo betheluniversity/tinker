@@ -4,13 +4,13 @@ import logging
 from flask import Flask
 
 # flask extensions
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
 from flask_wtf.csrf import CsrfProtect
 from bu_cascade.cascade_connector import Cascade
 
 app = Flask(__name__)
-# app.config.from_object('config.config')
+app.config.from_object('config.config')
 db = SQLAlchemy(app)
 
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
@@ -51,6 +51,9 @@ app.register_blueprint(EAnnouncementsBlueprint)
 app.register_blueprint(EventsBlueprint)
 app.register_blueprint(FacultyBioBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
+
+from tinker.unit_test_interface import UnitTestBlueprint
+app.register_blueprint(UnitTestBlueprint)
 
 CsrfProtect(app)
 

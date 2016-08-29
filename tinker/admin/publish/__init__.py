@@ -2,8 +2,8 @@ import re
 import urllib
 
 from flask import Blueprint, render_template, request, abort, session
-from flask.ext.classy import FlaskView, route
-from flask.ext.wtf import Form
+from flask_classy import FlaskView, route
+from flask_wtf import Form
 
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
 from bu_cascade.asset_tools import *

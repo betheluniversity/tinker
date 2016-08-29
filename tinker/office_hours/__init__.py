@@ -1,7 +1,7 @@
 import re
 
 from flask import Blueprint, render_template, session, url_for, redirect, request
-from flask.ext.classy import FlaskView, route
+from flask_classy import FlaskView, route
 from flask import json as fjson
 
 from tinker import app
