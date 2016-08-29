@@ -1,14 +1,17 @@
 import re
 import urllib
+from BeautifulSoup import BeautifulSoup
 
-from flask import Blueprint, render_template, request, abort, session
-from flask.ext.classy import FlaskView, route
-from flask.ext.wtf import Form
-
-from tinker.admin.publish.publish_manager_controller import PublishManagerController
+# bu-cascade
 from bu_cascade.asset_tools import *
 
-from BeautifulSoup import BeautifulSoup
+# flask
+from flask import Blueprint, render_template, request, abort, session
+from flask.ext.classy import FlaskView, route
+
+# tinker
+from tinker.admin.publish.publish_manager_controller import PublishManagerController
+
 
 PublishManagerBlueprint = Blueprint('publish-manager', __name__, template_folder='templates')
 
@@ -27,8 +30,6 @@ class PublishManagerView(FlaskView):
     # Publish manager's homepage
     def index(self):
         username = session['username']
-        # This form is defined solely for CSRF token validation
-        form = Form()
         return render_template('publish-home.html', **locals())
 
     @route("/program-feeds", methods=['get', 'post'])
@@ -118,7 +119,6 @@ class PublishManagerView(FlaskView):
             except:
                 return "Failed"
         else:
-            # todo possibly make into a method
             resp = self.base.publish(id, type, destination)
             if 'success = "false"' in str(resp):
                 return resp['message']

@@ -1,14 +1,14 @@
-__author__ = 'ejc84332'
-
 import re
 import smtplib
 from datetime import datetime
-
 from BeautifulSoup import BeautifulSoup
+
+# flask
 from flask import Blueprint, render_template, request, abort, session
 from flask.ext.classy import FlaskView, route
 from flask.ext.wtf import Form
 
+# tinker
 from tinker import db, app
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker.admin.redirects.models import BethelRedirect
@@ -31,7 +31,6 @@ class RedirectsView(FlaskView):
     # Redirects homepage
     def index(self):
         redirects = BethelRedirect.query.all()
-        form = Form()
         return render_template('redirects.html', **locals())
 
     # Deletes the chosen redirect
@@ -65,7 +64,6 @@ class RedirectsView(FlaskView):
     # Saves the new redirect created
     @route("/new-redirect-submit", methods=['post'])
     def new_redirect_submit(self):
-        print "Test method"
         form = request.form
         from_path = form['new-redirect-from']
         to_url = form['new-redirect-to']

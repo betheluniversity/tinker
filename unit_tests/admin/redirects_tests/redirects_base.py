@@ -15,6 +15,7 @@ class RedirectsBaseTestCase(unittest.TestCase):
         shutil.copy2(tinker.app.config['SQLALCHEMY_DATABASE_URI'].split('sqlite://')[1], self.temp_path)
         tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + self.temp_path
         tinker.app.testing = True
+        tinker.app.config['WTF_CSRF_ENABLED'] = False
         self.app = tinker.app.test_client()
 
     def send_post(self, url, form_contents):
@@ -22,13 +23,6 @@ class RedirectsBaseTestCase(unittest.TestCase):
 
     def send_get(self, url):
         return self.app.get(url, follow_redirects=True)
-
-    def get_csrf_token(self, url):
-        import re
-        response = self.send_get(url)
-        # Returns 3rd parentheses group
-        csrf_token = re.search('<input(.*)id="csrf_token"(.*)value="(.+)"(/?)>', response.data).group(3)
-        return csrf_token
 
     # Corresponding to the setUp method, this method deletes the temporary database
     def tearDown(self):

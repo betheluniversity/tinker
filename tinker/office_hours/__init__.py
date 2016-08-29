@@ -1,9 +1,10 @@
 import re
 
-from flask import Blueprint, render_template, session, url_for, redirect, request
+# flask
+from flask import Blueprint, render_template, session, url_for, request
 from flask.ext.classy import FlaskView, route
-from flask import json as fjson
 
+# tinker
 from tinker import app
 from tinker.office_hours.office_hours_controller import OfficeHoursController
 from tinker.office_hours.forms import OfficeHoursForm
@@ -20,23 +21,6 @@ class OfficeHoursView(FlaskView):
 
     def before_request(self, name, **kwargs):
         pass
-
-    def post(self):
-        rform = request.form
-        block_id = rform.get('block_id')
-
-        block = self.base.read_block(block_id)
-
-        data, mdata, sdata = block.read_asset()
-        asset = self.base.update_structure(data, mdata, rform)
-        self.base.rotate_hours(asset)
-
-        resp = str(block.edit_asset(asset))
-        self.base.log_sentry("Office Hour Submission", resp)
-
-        # return "edit confirm"
-
-        return redirect(url_for('office-hours.OfficeHoursView:index', status='edit'), code=302)
 
     def index(self):
 
@@ -62,6 +46,21 @@ class OfficeHoursView(FlaskView):
         form = OfficeHoursForm(**edit_data)
 
         return render_template('office-hours-form.html', **locals())
+
+    def post(self):
+        rform = request.form
+        block_id = rform.get('block_id')
+
+        block = self.base.read_block(block_id)
+
+        data, mdata, sdata = block.read_asset()
+        asset = self.base.update_structure(data, mdata, rform)
+        self.base.rotate_hours(asset)
+
+        resp = str(block.edit_asset(asset))
+        self.base.log_sentry("Office Hour Submission", resp)
+
+        return render_template('office-hours-confirm.html', **locals())
 
     def rotate_hours(self, block_id):
         block = self.base.read_block(block_id)

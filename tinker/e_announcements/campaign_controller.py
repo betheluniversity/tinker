@@ -1,6 +1,10 @@
 import datetime
 from createsend import *
+
+# flask
 from flask import render_template
+
+# tinker
 from tinker.tinker_controller import TinkerController
 
 

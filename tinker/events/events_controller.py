@@ -1,21 +1,20 @@
-from tinker.tinker_controller import TinkerController
 import json
 import datetime
 import time
 import re
-import urllib2
 import arrow
 
-from xml.etree import ElementTree as ET
-from operator import itemgetter
-
-from bu_cascade.asset_tools import update, find
-from flask import json as fjson
+# bu-cascade
+from bu_cascade.asset_tools import find
 
 # local
 from tinker import app
+from tinker.tinker_controller import TinkerController
 
+# flask
 from flask import render_template, session
+from flask import json as fjson
+
 
 class EventsController(TinkerController):
 
@@ -144,7 +143,7 @@ class EventsController(TinkerController):
         edit_data = self.get_edit_data(page.get_structured_data(), page.get_metadata(), multiple)
         # set dates and return for use in form
         # convert dates to json so we can use Javascript to create custom DateTime fields on the form
-        dates = self.format_dates_to_time_picker(edit_data['event-dates'])
+        dates = self.sanitize_dates(edit_data['event-dates'])
         dates = fjson.dumps(dates)
 
         author = edit_data['author']
@@ -264,6 +263,8 @@ class EventsController(TinkerController):
 
         self.update_asset(event_data, new_data)
 
+        self.add_workflow_to_asset(workflow, event_data)
+
         if event_id:
             new_data['id'] = event_id
 
@@ -358,21 +359,12 @@ class EventsController(TinkerController):
         return max_year
 
     # Converts date dict to the date picker format that front-end tinker can read
-    def format_dates_to_time_picker(self, dates):
-
+    def sanitize_dates(self, dates):
         for date in dates:
             if 'all_day' in date and (date['all_day'] == "::CONTENT-XML-CHECKBOX::No" or date['all_day'] == "::CONTENT-XML-CHECKBOX::"):
                 date['all_day'] = None
             if 'outside_of_minnesota' in date and (date['outside_of_minnesota'] == "::CONTENT-XML-CHECKBOX::No" or date['outside_of_minnesota'] == "::CONTENT-XML-CHECKBOX::"):
                 date['outside_of_minnesota'] = None
-            try:
-                date['start_date'] = self.timestamp_to_date_str(int(date['start_date']))
-            except TypeError:
-                pass
-            try:
-                date['end_date'] = self.timestamp_to_date_str(int(date['end_date']))
-            except TypeError:
-                pass
         return dates
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets

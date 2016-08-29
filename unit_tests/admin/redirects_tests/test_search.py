@@ -6,10 +6,12 @@ class SearchTestCase(RedirectsBaseTestCase):
     ### Utility methods ###
     #######################
 
+    def __init__(self, methodName):
+        super(SearchTestCase, self).__init__(methodName)
+        self.class_name = self.__class__.__bases__[0].__name__ + '/' + self.__class__.__name__
+
     def create_form(self, search_type, search):
-        csrf_token = super(SearchTestCase, self).get_csrf_token('/admin/redirect')
         return {
-            'csrf_token': csrf_token,
             'type': search_type,
             'search': search
         }
@@ -19,16 +21,22 @@ class SearchTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_search_valid(self):
+        failure_message = 'Sending a valid search to "POST /admin/redirect/search" didn\'t succeed when it should have in ' + self.class_name + '.'
+        expected_response = b'<span class="from_path">'
         form_contents = self.create_form("from_path", "/")
         response = super(SearchTestCase, self).send_post('/admin/redirect/search', form_contents)
-        assert b'<span class="from_path">' in response.data
+        self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_search_invalid_type(self):
+        failure_message = 'Sending an invalid "type" to "POST /admin/redirect/search" didn\'t fail as expected in ' + self.class_name + '.'
+        expected_response = b'400 Bad Request'
         form_contents = self.create_form(None, "/")
         response = super(SearchTestCase, self).send_post('/admin/redirect/search', form_contents)
-        assert b'400 Bad Request' in response.data
+        self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_search_invalid_term(self):
+        failure_message = 'Sending an invalid "term" to "POST /admin/redirect/search" didn\'t fail as expected in ' + self.class_name + '.'
+        expected_response = b'400 Bad Request'
         form_contents = self.create_form("from_path", None)
         response = super(SearchTestCase, self).send_post('/admin/redirect/search', form_contents)
-        assert b'400 Bad Request' in response.data
+        self.assertIn(expected_response, response.data, msg=failure_message)

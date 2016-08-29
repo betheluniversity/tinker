@@ -83,7 +83,7 @@ def requires_auth(f):
 
 class TinkerController(object):
     def __init__(self):
-        self.datetime_format = "%B %d  %Y, %I:%M %p"
+        self.datetime_format = "%B %d %Y, %I:%M %p"
         self.cascade_connector = cascade_connector
 
     def before_request(self):
@@ -102,7 +102,6 @@ class TinkerController(object):
                 get_user()
 
             if 'groups' not in session.keys():
-                print 'test'
                 get_groups_for_user()
 
             if 'roles' not in session.keys():
@@ -392,8 +391,8 @@ class TinkerController(object):
     def move(self, page_id, destination_path, type='page'):
         return self.cascade_connector.move(page_id, destination_path, type)
 
-    def delete(self, path_or_id):
-        return self.cascade_connector.delete(path_or_id)
+    def delete(self, path_or_id, asset_type):
+        return self.cascade_connector.delete(path_or_id, asset_type)
 
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)
@@ -422,8 +421,6 @@ class TinkerController(object):
 
     def update_asset(self, asset, data):
         for key, value in data.iteritems():
-            if key == 'exceptions':
-                print 'TEST'
             update(asset, key, value)
 
         return True
@@ -527,3 +524,6 @@ class TinkerController(object):
                 return_string += child.tail
 
         return return_string
+
+    def search_cascade(self, search_information):
+       return self.cascade_connector.search(search_information)

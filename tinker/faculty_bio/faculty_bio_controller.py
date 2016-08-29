@@ -1,3 +1,4 @@
+import base64
 import json
 import re
 import urllib2
@@ -40,7 +41,10 @@ class FacultyBioController(TinkerController):
 
         if schools_to_check:
             # todo: make this get job-title schools
-            school_value = child.find('system-data-structure/job-titles/school')['text']
+            try:
+                school_value = child.find('system-data-structure/job-titles/school')['text']
+            except:
+                school_value = None
             if school_value in schools_to_check:
                 iterate_bio = True
 
@@ -223,9 +227,6 @@ class FacultyBioController(TinkerController):
         add_data['author'] = session['username']
         faculty_bio_data['page']['metadata']['metaDescription'] = self.build_description(add_data)
 
-        for wysiwyg_key in wysiwyg_keys:
-            add_data[wysiwyg_key] = escape_wysiwyg_content(add_data[wysiwyg_key])
-
         # todo: eventually adjust the keys in cascade to work.
         add_data['started-at-bethel'] = add_data['started_at_bethel']
         add_data['image'] = self.create_faculty_bio_image(add_data)
@@ -358,11 +359,13 @@ class FacultyBioController(TinkerController):
             if key.startswith('schools'):
                 schools.append(add_data[key])
         if "College of Arts and Sciences" in schools:
-            return 'f1638f598c58651313b6fe6b5ed835c5'
+            return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
         elif "Graduate School" in schools or "College of Adult and Professional Studies" in schools:
-            return '81dabbc78c5865130c130b3a2b567e75'
+            return app.config['FACULTY_BIOS_WORKFLOW_CAPSGS_ID']
         elif "Bethel Seminary" in schools:
-            return '68ad793e8c5865137c9c2c89440cbbbc'
+            return app.config['FACULTY_BIOS_WORKFLOW_SEM_ID']
+        else:
+            return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
 
     def should_be_able_to_edit_image(self, roles):
         if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:

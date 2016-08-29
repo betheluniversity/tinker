@@ -4,6 +4,7 @@
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 {% block main_content %}
+
     <form id="blink-login" action="https://blink.bethel.edu/cp/home/login" method="post">
         <input id="blink-pass" type="hidden" name="pass" value="p0rt2l" />
         <input id="blink-user" type="hidden" name="user" value="" />
@@ -29,28 +30,34 @@
         }
 
     </script>
-    <h2> Blink Layout Owners </h2>
-    <table>
-        <colgroup>
-            <col width="33%" class="align-left">
-            <col width="33%" class="align-left">
-            <col width="33%" class="align-left">
-            <col width="1%" class="align-left">
-        </colgroup>
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <h2> Blink Layout Owners </h2>
+                <table>
+                    <colgroup>
+                        <col width="33%" class="align-left">
+                        <col width="33%" class="align-left">
+                        <col width="33%" class="align-left">
+                        <col width="1%" class="align-left">
+                    </colgroup>
 
-        <tbody>
-        <tr class="rowheading">
-            <td colspan="4">
-                Layout Owner Logins
-            </td>
-        </tr>
-        {% for entry in uid_list %}
-            <tr>
-                <td> {{ entry }} </td>
-                {% for add in portal_list %}
-                    <td><a href="javascript:loadBlinkAccount('{{ add }}', '{{ entry }}')" target="_blank">{{ add }}</a></td>
-                {% endfor %}
-            </tr>
-        {% endfor %}
-    </table>
+                    <tbody>
+                    <tr class="rowheading">
+                        <td colspan="4">
+                            Layout Owner Logins
+                        </td>
+                    </tr>
+                    {% for entry in uid_list %}
+                        <tr>
+                            <td> {{ entry }} </td>
+                            {% for add in portal_list %}
+                                <td><a href="javascript:loadBlinkAccount('{{ add }}', '{{ entry }}')" target="_blank">{{ add }}</a></td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
 {% endblock %}
