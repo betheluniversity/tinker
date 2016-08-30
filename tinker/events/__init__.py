@@ -37,7 +37,7 @@ class EventsView(FlaskView):
         from tinker.events.forms import EventForm
 
         form = EventForm()
-        add_form = True
+        new_form = True
         return render_template('event-form.html', **locals())
 
     @route('/edit/<event_id>')
@@ -61,7 +61,7 @@ class EventsView(FlaskView):
         edit_data, dates, author = self.base.build_edit_form(event_id)
         from tinker.events.forms import EventForm
         form = EventForm(**edit_data)
-        add_form = True
+        new_form = True
 
         return render_template('event-form.html', **locals())
 
