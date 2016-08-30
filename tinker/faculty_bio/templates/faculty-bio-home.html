@@ -33,7 +33,7 @@
                     <li><a href="{{ bio.path }}" class="btn btn-primary">View</a></li>
                     <li><a href="/faculty-bio/edit/{{ bio.id }}#page-title" class="btn btn-primary">Edit</a></li>
                 {% else %}
-                    <li><a class="btn btn-primary">Not Approved</a></li>
+                    <li>This announcement is pending approval.</li>
                 {% endif %}
                 <li><a href="#" data-reveal-id="confirmModal" id="{{ bio.id }}"
                        data-faculty-bio-id="{{ bio.id }}"

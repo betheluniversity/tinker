@@ -69,6 +69,10 @@ h3 {
     overflow: auto;
 }
 
+#sidebar {
+    overflow-y: scroll;
+}
+
 p#faculty-p {
     margin: 0 0 10px;
     width: 90%;
@@ -208,6 +212,10 @@ label {
     width: 100%;
 }
 
+label.navbar-brand {
+    width: auto;
+}
+
 div.checkbox-label {
     width: 30%;
     position: relative;
@@ -262,7 +270,7 @@ select.pika-select {
 }
 
 small.required {
-    font-size: 65%;
+    font-size: 9.5px;
     color: #ff0000
 }
 
@@ -278,6 +286,12 @@ textarea {
 
 #publish-modal {
     width: 90%;
+}
+
+.admin-list-item {
+    font-size: 14px !important;
+    font-weight: normal !important;
+    text-transform: none !important;
 }
 
 /* todo: come up with a way to generalize these tags */

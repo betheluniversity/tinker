@@ -1,5 +1,8 @@
-from tinker.tinker_controller import TinkerController
+# bu-cascade
 from bu_cascade import asset_tools
+
+# tinker
+from tinker.tinker_controller import TinkerController
 from tinker.admin.sync.sync_metadata import data_to_add
 from tinker import app
 

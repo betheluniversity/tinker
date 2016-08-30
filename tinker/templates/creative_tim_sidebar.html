@@ -1,8 +1,8 @@
 {% macro render() %}
 
-    <div class="sidebar-wrapper">
+    <div id="sidebar" class="sidebar-wrapper">
         <div class="logo">
-            <a href="https://tinker.bethel.edu/" class="simple-text">
+            <a href="/" class="simple-text">
                 Tinker
             </a>
         </div>
@@ -15,7 +15,7 @@
                 </a>
             </li>
             <li class="{% if 'event/' in request.path %}active{% endif %}">
-                <a href="/event">
+                <a href="{{ url_for('events.EventsView:index') }}">
                     <i class="fa fa-calendar"></i>
                     <p>Events</p>
                 </a>
@@ -23,7 +23,7 @@
 
             {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
                 <li class="{% if 'faculty-bio/' in request.path %}active{% endif %}">
-                    <a href="/faculty-bio">
+                    <a href="{{ url_for('faculty-bio.FacultyBioView:index') }}">
                         <i class="fa fa-user"></i>
                         <p>Faculty Bios</p>
                     </a>
@@ -31,14 +31,14 @@
             {% endif %}
 
             <li class="{% if 'office-hours/' in request.path %}active{% endif %}">
-                <a href="/office-hours">
+                <a href="{{ url_for('office-hours.OfficeHoursView:index') }}">
                     <i class="fa fa-clock-o"></i>
                     <p>Office Hours</p>
                 </a>
             </li>
 
             <li class="{% if 'e-announcement/' in request.path %}active{% endif %}">
-                <a href="/e-announcement">
+                <a href="{{ url_for('e-announcements.EAnnouncementsView:index') }}">
                     <i class="fa fa-envelope-o"></i>
                     <p>E-Announcements</p>
                 </a>
@@ -47,24 +47,47 @@
             {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
                 <li class="dropdown {% if 'admin/' in request.path %}active{% endif %}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                        <i class="fa fa-menu"></i>
+                        <i class="fa fa-lightbulb-o"></i>
                         <p>Admin Menu &raquo;</p>
                     </a>
                     <ul class="dropdown-menu">
                         {% if 'Administrators' in session['groups'] %}
-                            <li><a href="/admin/publish-manager"><i class="fa fa-file" aria-hidden="true"></i>Publisher</a>
+                            <li>
+                                <a href="{{ url_for('publish-manager.PublishManagerView:index') }}">
+                                    <i class="fa fa-file" aria-hidden="true"></i>
+                                    <p class="admin-list-item">Publisher</p>
+                                </a>
                             </li>
-                            <li><a href="/admin/sync"><i class="fa fa-share-alt" aria-hidden="true"></i>Sync
-                                Metadata</a></li>
-                            <li><a href="/admin/blink-roles" class="button-nav"><i class="fa fa-users"
-                                                                                   aria-hidden="true"></i>Blink Layout
-                                Owners</a></li>
-                            <li><a href="/admin/program-search"><i class="fa fa-search" aria-hidden="true"></i>Program
-                                Search Tags</a></li>
+                            <li>
+                                <a href="{{ url_for('sync.SyncView:index') }}">
+                                    <i class="fa fa-share-alt" aria-hidden="true"></i>
+                                    <p class="admin-list-item">Sync Metadata</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('blink-roles.BlinkRolesView:index') }}" class="button-nav">
+                                    <i class="fa fa-users" aria-hidden="true"></i>
+                                    <p class="admin-list-item">Blink Layout Owners</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('program_search.ProgramSearchView:index') }}">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                    <p class="admin-list-item">Program Search Tags</p>
+                                </a>
+                            </li>
                         {% endif %}
-                        <li><a href="/admin/cache-clear"><i class="fa fa-recycle" aria-hidden="true"></i>Clear Cache</a>
+                        <li>
+                            <a href="{{ url_for('CacheBlueprint.CacheClear:index') }}">
+                                <i class="fa fa-recycle" aria-hidden="true"></i>
+                                <p class="admin-list-item">Clear Cache</p>
+                            </a>
                         </li>
-                        <li><a href="/admin/redirect"><i class="fa fa-arrows-alt" aria-hidden="true"></i>Redirects</a>
+                        <li>
+                            <a href="{{ url_for('redirects.RedirectsView:index') }}">
+                                <i class="fa fa-arrows-alt" aria-hidden="true"></i>
+                                <p class="admin-list-item">Redirects</p>
+                            </a>
                         </li>
                     </ul>
                 </li>

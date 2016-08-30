@@ -73,7 +73,7 @@ class EventsView(FlaskView):
         eid = rform.get('event_id')
         event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
         failed = self.base.validate_form(rform, dates_good, event_dates)
-        workflow = self.base.create_workflow("1ca9794e8c586513742d45fd39c5ffe3", '--' + rform['title'] + ', ' + rform['start1'])
+        workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], '--' + rform['title'] + ', ' + rform['start1'])
 
         wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']
         if failed:
@@ -134,6 +134,7 @@ class EventsView(FlaskView):
     def delete(self, page_id):
         event_page = self.base.read_page(page_id)
         response = event_page.delete_asset()
+        self.base.unpublish(page_id, 'page')
         app.logger.debug(time.strftime("%c") + ": Event deleted by " + session['username'] + " " + str(response))
         self.base.publish(app.config['EVENT_XML_ID'])
         return render_template('events-delete-confirm.html')

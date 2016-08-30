@@ -524,3 +524,6 @@ class TinkerController(object):
                 return_string += child.tail
 
         return return_string
+
+    def search_cascade(self, search_information):
+       return self.cascade_connector.search(search_information)

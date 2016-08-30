@@ -1,14 +1,14 @@
-__author__ = 'ejc84332'
-
 import re
 import smtplib
 from datetime import datetime
-
 from BeautifulSoup import BeautifulSoup
+
+# flask
 from flask import Blueprint, render_template, request, abort, session
 from flask_classy import FlaskView, route
 from flask_wtf import Form
 
+# tinker
 from tinker import db, app
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker.admin.redirects.models import BethelRedirect

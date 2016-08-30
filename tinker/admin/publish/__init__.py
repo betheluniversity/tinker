@@ -1,14 +1,17 @@
 import re
 import urllib
+from BeautifulSoup import BeautifulSoup
 
-from flask import Blueprint, render_template, request, abort, session
-from flask_classy import FlaskView, route
-from flask_wtf import Form
-
-from tinker.admin.publish.publish_manager_controller import PublishManagerController
+# bu-cascade
 from bu_cascade.asset_tools import *
 
-from BeautifulSoup import BeautifulSoup
+# flask
+from flask import Blueprint, render_template, request, abort, session
+from flask_classy import FlaskView, route
+
+# tinker
+from tinker.admin.publish.publish_manager_controller import PublishManagerController
+
 
 PublishManagerBlueprint = Blueprint('publish-manager', __name__, template_folder='templates')
 
@@ -116,7 +119,6 @@ class PublishManagerView(FlaskView):
             except:
                 return "Failed"
         else:
-            # todo possibly make into a method
             resp = self.base.publish(id, type, destination)
             if 'success = "false"' in str(resp):
                 return resp['message']

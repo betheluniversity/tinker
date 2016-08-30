@@ -1,11 +1,13 @@
 import ast
 import json
 
+# flask
 from flask_classy import FlaskView
 from flask import Blueprint
 from flask import abort
 from flask_classy import route
 
+# tinker
 from tinker.admin.program_search.models import ProgramTag
 from tinker.admin.program_search.program_search_controller import *
 
@@ -65,7 +67,7 @@ class ProgramSearchView(FlaskView):
             ProgramTag.query.filter_by(id=id).delete()
         db.session.commit()
         self.base.create_new_csv_file()
-        return 'TEST'
+        return 'Deleted ids: ' + ', '.join(ids_to_delete)
 
     @route('/search', methods=['post'])
     def search(self):

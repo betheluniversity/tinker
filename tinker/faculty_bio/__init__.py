@@ -1,9 +1,15 @@
-from faculty_bio_controller import *
+from werkzeug.utils import secure_filename
+
+# bu-cascade
+from bu_cascade.asset_tools import *
+
+# flask
 from flask import Blueprint, redirect, send_from_directory
 from flask_classy import FlaskView, route
+# tinker
 from tinker.admin.sync.sync_metadata import data_to_add
-from werkzeug.utils import secure_filename
-from bu_cascade.asset_tools import *
+from faculty_bio_controller import *
+
 
 FacultyBioBlueprint = Blueprint('faculty-bio', __name__, template_folder='templates')
 
@@ -47,10 +53,8 @@ class FacultyBioView(FlaskView):
 
     @route('delete/<page_id>', methods=['GET'])
     def delete(self, page_id):
-        # TODO: this method is riddled with errors now
         self.base.delete(page_id, "page")
-        # todo: recreate this method....i like it.
-        self.base.publish(page_id)
+        self.base.unpublish(page_id, "page")
 
         return redirect('/faculty-bio/delete-confirm', code=302)
 

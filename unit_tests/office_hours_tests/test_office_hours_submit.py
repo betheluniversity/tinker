@@ -7,7 +7,7 @@ class SubmitTestCase(OfficeHoursBaseTestCase):
     #######################
 
     def __init__(self, methodName):
-        super(PostTestCase, self).__init__(methodName)
+        super(SubmitTestCase, self).__init__(methodName)
         self.class_name = self.__class__.__bases__[0].__name__ + '/' + self.__class__.__name__
         self.request = "POST /office-hours"
 
@@ -26,7 +26,7 @@ class SubmitTestCase(OfficeHoursBaseTestCase):
     def test_submit(self):
         expected_response = b'<p>Below is the list of Office Hours you have access to edit.'
         form_contents = self.create_form()
-        response = super(PostTestCase, self).send_post("/office-hours/submit", form_contents)
+        response = super(SubmitTestCase, self).send_post("/office-hours/submit", form_contents)
         failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
                           {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
         # Because this redirects to index, it uses the same assertion
