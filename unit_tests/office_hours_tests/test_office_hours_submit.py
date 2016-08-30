@@ -1,7 +1,7 @@
 from office_hours_base import OfficeHoursBaseTestCase
 
 
-class PostTestCase(OfficeHoursBaseTestCase):
+class SubmitTestCase(OfficeHoursBaseTestCase):
     #######################
     ### Utility methods ###
     #######################
@@ -23,10 +23,10 @@ class PostTestCase(OfficeHoursBaseTestCase):
     ### Testing methods ###
     #######################
 
-    def test_post(self):
+    def test_submit(self):
         expected_response = b'<p>Below is the list of Office Hours you have access to edit.'
         form_contents = self.create_form()
-        response = super(PostTestCase, self).send_post("/office-hours", form_contents)
+        response = super(PostTestCase, self).send_post("/office-hours/submit", form_contents)
         failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
                           {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
         # Because this redirects to index, it uses the same assertion
