@@ -21,7 +21,7 @@ class SubmitTestCase(ClearCacheBaseTestCase):
     #######################
 
     def test_submit_valid(self):
-        expected_response = b'Cleared:'
+        expected_response = b'Cache cleared for path,'
         # Right now this test finishes just fine, but the method it tests is throwing an error. In tinker/tools.py, the
         # method clear_image_cache(image_path) is calling the commandline command "rm" on folders that aren't there.
         # As far as I can tell, this is because the method is written to work on the production server and references

@@ -24,7 +24,7 @@ class SubmitTestCase(OfficeHoursBaseTestCase):
     #######################
 
     def test_submit(self):
-        expected_response = b'<p>Below is the list of Office Hours you have access to edit.'
+        expected_response = b"You've successfully updated your office's hours. You should see these changes reflected"
         form_contents = self.create_form()
         response = super(SubmitTestCase, self).send_post("/office-hours/submit", form_contents)
         failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \

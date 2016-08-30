@@ -48,7 +48,8 @@ class OfficeHoursView(FlaskView):
 
         return render_template('office-hours-form.html', **locals())
 
-    def post(self):
+    @route('/submit', methods=['POST'])
+    def submit(self):
         rform = request.form
         block_id = rform.get('block_id')
 

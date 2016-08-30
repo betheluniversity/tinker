@@ -20,7 +20,7 @@ class MultiDeleteTestCase(ProgramSearchBaseTestCase):
     #######################
 
     def test_multi_delete(self):
-        expected_response = b'TEST'
+        expected_response = b'Deleted ids:'
         form_contents = self.create_form()
         response = super(MultiDeleteTestCase, self).send_post("/admin/program-search/multi-delete", form_contents)
         failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \

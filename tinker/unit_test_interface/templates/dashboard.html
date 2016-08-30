@@ -159,7 +159,7 @@
             <tbody id="to_update">
             {% for module in modules %}
                 <tr>
-                    <td>{{ module }}</td>
+                    <td><a href="/unit-test/{{ module }}">{{ module }}</a></td>
                     <td id="{{ module }}_succinct"></td>
                 </tr>
             {% endfor %}

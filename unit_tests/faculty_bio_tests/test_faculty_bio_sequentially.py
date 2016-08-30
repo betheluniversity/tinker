@@ -79,9 +79,9 @@ class FacultyBioSequentialTestCase(unittest.TestCase):
         self.assertIn(expected_response, response.data, msg=failure_message)
         self.faculty_bio_id = self.get_faculty_bio_id(response.data)
 
-        # Open up the new bio to edit it
+        # /edit should return that it's in workflow
         self.request = "GET /faculty-bio/edit/" + self.faculty_bio_id
-        expected_response = b'<form id="facultybioform" action="/faculty-bio/submit" method="post">'
+        expected_response = b'You recently made edits to your bio and are currently pending approval.'
         response = self.send_get("/faculty-bio/edit/" + self.faculty_bio_id)
         failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
                           {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
