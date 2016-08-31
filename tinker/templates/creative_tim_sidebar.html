@@ -14,6 +14,14 @@
                     <p>Home</p>
                 </a>
             </li>
+
+            <li class="{% if 'e-announcement/' in request.path %}active{% endif %}">
+                <a href="{{ url_for('e-announcements.EAnnouncementsView:index') }}">
+                    <i class="fa fa-envelope-o"></i>
+                    <p>E-Announcements</p>
+                </a>
+            </li>
+
             <li class="{% if 'event/' in request.path %}active{% endif %}">
                 <a href="{{ url_for('events.EventsView:index') }}">
                     <i class="fa fa-calendar"></i>
@@ -34,13 +42,6 @@
                 <a href="{{ url_for('office-hours.OfficeHoursView:index') }}">
                     <i class="fa fa-clock-o"></i>
                     <p>Office Hours</p>
-                </a>
-            </li>
-
-            <li class="{% if 'e-announcement/' in request.path %}active{% endif %}">
-                <a href="{{ url_for('e-announcements.EAnnouncementsView:index') }}">
-                    <i class="fa fa-envelope-o"></i>
-                    <p>E-Announcements</p>
                 </a>
             </li>
 
