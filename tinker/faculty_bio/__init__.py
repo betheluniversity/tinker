@@ -44,7 +44,7 @@ class FacultyBioView(FlaskView):
                 {'gs': 'Graduate School'},
                 {'sem': 'Bethel Seminary'},
                 {'bu': 'Administration with Faculty Status'},
-                {'other': 'Other'}
+                {'other-category': 'Other'}
             ]
         else:  # normal view
             show_special_admin_view = False
