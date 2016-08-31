@@ -206,7 +206,7 @@
                 document.getElementById(id_to_update + "_succinct").innerHTML = '<button id="' + id_to_update + '_button" onclick="modalOverlay(this.id)">' + value + '</button>';
                 document.getElementById(id_to_update + "_verbose").innerHTML = full_text;
             }
-cc
+
             function modalOverlay(id_to_display){
                 id_to_display = id_to_display.substring(0, id_to_display.length - "_button".length);
                 document.getElementById("textChange").innerHTML = document.getElementById(id_to_display + "_verbose").innerHTML;
