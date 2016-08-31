@@ -56,7 +56,7 @@ to be in it's own card div, something to think about in the future -->
                                 <label for="{{ field.name }}">
                                     {{ field.label.text }}
                                     {% if field.flags.required %}
-                                        <small class="required">Required</small>
+                                        <small class="required">required</small>
                                     {% endif %}
                                 </label>
 
@@ -702,7 +702,7 @@ to be in it's own card div, something to think about in the future -->
     <fieldset class="degree-fieldset">
         <div class="card">
             <div class="content">
-                <legend>Degree 1<small class="required">required</small></legend>
+                <legend>Degree 1 <small class="required">required</small></legend>
                 <label for="school1">School</label>
                 <input class="no-border" type="text" name="school1" id="school1"/>
 
@@ -725,7 +725,7 @@ to be in it's own card div, something to think about in the future -->
     <fieldset class="new-job-fieldset">
         <div class="card">
             <div class="content">
-                <legend>Job Title 1<small class="required">required</small></legend>
+                <legend>Job Title 1 <small class="required">required</small></legend>
                 <div id="schools-div">
                     <label>School</label>
                     <select name='schools1' id='schools1'></select>

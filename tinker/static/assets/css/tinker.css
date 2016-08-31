@@ -594,7 +594,7 @@ input[type='checkbox']:checked:hover:after {
     }
 }
 
-.other, .topic, .delete-checkbox {
+.program-other, .topic, .delete-checkbox {
     margin-left: 20% !important
 }
 
