@@ -1,10 +1,10 @@
 import re
 import time
 import tinker
-import unittest
+from unit_tests import BaseTestCase
 
 
-class FacultyBioSequentialTestCase(unittest.TestCase):
+class FacultyBioSequentialTestCase(BaseTestCase):
 
     def setUp(self):
         tinker.app.testing = True
@@ -14,12 +14,6 @@ class FacultyBioSequentialTestCase(unittest.TestCase):
         self.faculty_bio_id = None
         self.class_name = self.__class__.__name__
         self.request = ""
-
-    def send_post(self, url, form_contents):
-        return self.app.post(url, data=form_contents, follow_redirects=True)
-
-    def send_get(self, url):
-        return self.app.get(url, follow_redirects=True)
 
     def get_faculty_bio_id(self, responseData):
         return re.search('id="faculty_bio_id".*value="(.+)"', responseData).group(1)
@@ -66,8 +60,7 @@ class FacultyBioSequentialTestCase(unittest.TestCase):
         self.request = "GET /faculty-bio/new"
         expected_response = b'<form id="facultybioform" action="/faculty-bio/submit" method="post">'
         response = self.send_get("/faculty-bio/new")
-        failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
-                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Send the form submission to create it in Cascade
@@ -75,8 +68,7 @@ class FacultyBioSequentialTestCase(unittest.TestCase):
         expected_response = b"You've successfully created a new bio. Your brand new bio has been sent for approval but will be"
         form_contents = self.create_form_submission("", "Web Developer")
         response = self.send_post("/faculty-bio/submit", form_contents)
-        failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
-                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
         self.faculty_bio_id = self.get_faculty_bio_id(response.data)
 
@@ -84,8 +76,7 @@ class FacultyBioSequentialTestCase(unittest.TestCase):
         self.request = "GET /faculty-bio/edit/" + self.faculty_bio_id
         expected_response = b'You recently made edits to your bio and are currently pending approval.'
         response = self.send_get("/faculty-bio/edit/" + self.faculty_bio_id)
-        failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
-                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Send the edited form to update the bio
@@ -93,8 +84,7 @@ class FacultyBioSequentialTestCase(unittest.TestCase):
         expected_response = b"You've successfully edited your bio. Your edits have been sent for approval but will be ready to"
         form_contents = self.create_form_submission(self.faculty_bio_id, "Web Developers")
         response = self.send_post("/faculty-bio/submit", form_contents)
-        failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
-                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Delete the new bio to make sure these tests don't bloat Cascade
@@ -102,9 +92,5 @@ class FacultyBioSequentialTestCase(unittest.TestCase):
         self.request = "GET /faculty-bio/delete/" + self.faculty_bio_id
         expected_response = b'Your faculty bio has been deleted. It will be removed from your'
         response = self.send_get("/faculty-bio/delete/" + self.faculty_bio_id)
-        failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
-                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def tearDown(self):
-        pass

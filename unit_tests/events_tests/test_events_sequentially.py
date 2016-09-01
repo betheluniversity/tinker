@@ -1,9 +1,9 @@
 import re
 import tinker
-import unittest
+from unit_tests import BaseTestCase
 
 
-class EventsSequentialTestCase(unittest.TestCase):
+class EventsSequentialTestCase(BaseTestCase):
 
     def setUp(self):
         tinker.app.testing = True
@@ -12,12 +12,7 @@ class EventsSequentialTestCase(unittest.TestCase):
         self.app = tinker.app.test_client()
         self.eid = None
         self.class_name = self.__class__.__name__
-
-    def send_post(self, url, form_contents):
-        return self.app.post(url, data=form_contents, follow_redirects=True)
-
-    def send_get(self, url):
-        return self.app.get(url, follow_redirects=True)
+        self.request = ""
 
     def get_eid(self, responseData):
         return re.search('<input type="hidden" id="new_eid" value="(.+)"(/?)>', responseData).group(1)
@@ -68,41 +63,44 @@ class EventsSequentialTestCase(unittest.TestCase):
         # endpoint doesn't work.
 
         # Get new form
-        failure_message = '"GET /event/add" didn\'t return the HTML code expected by ' + self.class_name + '.'
+        self.request = "GET /event/add"
         expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
         response = self.send_get("/event/add")
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Submit new form
-        failure_message = 'Sending a valid new submission to "POST /event/submit" didn\'t succeed as expected by ' + self.class_name + '.'
+        self.request = "POST /event/submit"
         expected_response = b'Take a short break in your day and enjoy this GIF!'
         response = self.send_post("/event/submit", self.create_form("Test event"))
-        self.eid = self.get_eid(response.data)
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
+        self.eid = self.get_eid(response.data)
 
         # Get edit form of new object
-        failure_message = '"GET /event/edit/%s" didn\'t return the HTML code expected by ' % self.eid + self.class_name + '.'
+        self.request = "GET /event/edit"
         expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
         response = self.send_get("/event/edit/" + self.eid)
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertNotIn(expected_response, response.data, msg=failure_message)
 
         # Submit edited form
-        failure_message = 'Sending a valid edit submission to "POST /event/submit" didn\'t succeed as expected by ' + self.class_name + '.'
+        self.request = "POST /event/submit"
         expected_response = b'Take a short break in your day and enjoy this GIF!'
         response = self.send_post("/event/submit", self.create_form("Edited title"))
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Duplicate edited object
-        failure_message = '"GET /event/duplicate/%s" didn\'t return the HTML code expected by ' % self.eid + self.class_name + '.'
+        self.request = "GET /event/duplicate"
         expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
         response = self.send_get("/event/duplicate/" + self.eid)
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Delete the test event using the now semi-private delete endpoint
-        failure_message = '"GET /event/delete/%s" didn\'t return the HTML code expected by ' % self.eid + self.class_name + '.'
+        self.request = "GET /event/delete"
         expected_response = b'Your event has been deleted. It will be removed from your'
         response = self.send_get("/event/delete/" + self.eid)
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def tearDown(self):
-        pass

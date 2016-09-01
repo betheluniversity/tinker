@@ -19,6 +19,5 @@ class EditTestCase(BaseTestCase):
         block_id = "4f78feca8c58651305d79299fb5aa2bb"
         expected_response = b'<form id="officehoursform" action="/office-hours/submit" method="post" enctype="multipart/form-data">'
         response = super(EditTestCase, self).send_get("/office-hours/edit/" + block_id)
-        failure_message = '"%(0)s" received "%(1)s" when it was expecting "%(2)s" in %(3)s.' % \
-                          {'0': self.request, '1': response.data, '2': expected_response, '3': self.class_name}
+        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
