@@ -10,6 +10,7 @@
 #
 # Currently, the unit testing suite takes about 2 minutes to run.
 
+import sys
 import tinker
 import unittest
 
@@ -38,7 +39,9 @@ class BaseTestCase(unittest.TestCase):
 
 if __name__ == "__main__":
     testsuite = unittest.TestLoader().discover('.')
-    unittest.TextTestRunner(verbosity=1).run(testsuite)
+    runner = unittest.TextTestRunner(verbosity=1).run(testsuite)
+    sys.exit(len(runner.failures))
+
 
 # Missing unit test files:
 # admin/redirects/new_api_submit
