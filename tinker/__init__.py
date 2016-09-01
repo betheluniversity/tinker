@@ -41,6 +41,7 @@ else:
                 'FACULTY_BIO_XML_ID','PROGRAMS_XML']
     for kw in keywords:
         app.config[kw] = os.environ[kw]
+        print os.environ[kw]
 
 db = SQLAlchemy(app)
 
