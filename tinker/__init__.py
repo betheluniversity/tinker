@@ -16,6 +16,7 @@ app = Flask(__name__)
 if "testing" not in platform.node():
     app.config.from_object('config.config')
 else:
+    app.debug = True
     keywords = ['DATA_DEF_PORTAL_TAB_ID','TEST_USER','OFFICE_HOURS_STANDARD_BLOCK','EVENTS_BASE_ASSET',
                 'IMAGE_WITH_DEFAULT_IMAGE_BASE_ASSET','PROGRAM_SEARCH_CSV','ENVIRON','API_USERNAME',
                 'DATA_DEF_FACULTY_BIO_ID','SOAP_URL','REDIRECTS_FILE_PATH','E_ANNOUNCEMENT_WORKFLOW_ID','E_ANN_XML_URL',
