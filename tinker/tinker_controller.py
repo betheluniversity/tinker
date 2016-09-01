@@ -148,6 +148,9 @@ class TinkerController(object):
             except AttributeError:
                 allowed_groups = ""
 
+            if allowed_groups is None:
+                allowed_groups = ""
+
             session['groups'] = allowed_groups
             return allowed_groups.split(";")
 
