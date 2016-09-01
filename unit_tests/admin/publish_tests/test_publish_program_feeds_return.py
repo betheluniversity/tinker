@@ -1,7 +1,7 @@
-from publish_base import PublishBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class PublishProgramFeedsReturnTestCase(PublishBaseTestCase):
+class PublishProgramFeedsReturnTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

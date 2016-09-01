@@ -1,7 +1,7 @@
-from e_announcements_base import EAnnouncementsBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class CreateCampaignTestCase(EAnnouncementsBaseTestCase):
+class CreateCampaignTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

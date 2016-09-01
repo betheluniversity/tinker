@@ -1,7 +1,7 @@
-from publish_base import PublishBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class IndexTestCase(PublishBaseTestCase):
+class IndexTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

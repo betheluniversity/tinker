@@ -1,7 +1,7 @@
-from faculty_bio_base import FacultyBioBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class IndexTestCase(FacultyBioBaseTestCase):
+class IndexTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

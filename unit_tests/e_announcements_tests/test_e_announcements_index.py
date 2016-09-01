@@ -1,7 +1,7 @@
-from e_announcements_base import EAnnouncementsBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class IndexTestCase(EAnnouncementsBaseTestCase):
+class IndexTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

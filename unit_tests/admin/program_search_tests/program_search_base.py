@@ -33,6 +33,3 @@ class ProgramSearchBaseTestCase(unittest.TestCase):
         os.remove(self.temp_path)
         # pass
 
-if __name__ == "__main__":
-    testsuite = unittest.TestLoader().discover('.')
-    unittest.TextTestRunner(verbosity=1).run(testsuite)

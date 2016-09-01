@@ -1,7 +1,7 @@
-from office_hours_base import OfficeHoursBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class SubmitTestCase(OfficeHoursBaseTestCase):
+class SubmitTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

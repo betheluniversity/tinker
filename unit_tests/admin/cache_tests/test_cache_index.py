@@ -1,7 +1,7 @@
-from cache_base import ClearCacheBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class IndexTestCase(ClearCacheBaseTestCase):
+class IndexTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

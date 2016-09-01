@@ -1,7 +1,7 @@
-from blink_roles_base import RolesBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class IndexTestCase(RolesBaseTestCase):
+class IndexTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

@@ -1,7 +1,7 @@
-from e_announcements_base import EAnnouncementsBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class ConfirmTestCase(EAnnouncementsBaseTestCase):
+class ConfirmTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

@@ -1,6 +1,7 @@
-from events_base import EventsBaseTestCase
+from unit_tests import BaseTestCase
 
-class EventInWorkflowTestCase(EventsBaseTestCase):
+
+class EventInWorkflowTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

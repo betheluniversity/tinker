@@ -1,7 +1,7 @@
-from cache_base import ClearCacheBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class SubmitTestCase(ClearCacheBaseTestCase):
+class SubmitTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

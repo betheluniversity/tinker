@@ -28,7 +28,3 @@ class RedirectsBaseTestCase(unittest.TestCase):
     def tearDown(self):
         tinker.app.config['SQLALCHEMY_DATABASE_URI'] = self.permanent_path
         os.remove(self.temp_path)
-
-if __name__ == "__main__":
-    testsuite = unittest.TestLoader().discover('.')
-    unittest.TextTestRunner(verbosity=1).run(testsuite)

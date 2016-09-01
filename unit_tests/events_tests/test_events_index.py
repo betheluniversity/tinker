@@ -1,7 +1,7 @@
-from events_base import EventsBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class IndexTestCase(EventsBaseTestCase):
+class IndexTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

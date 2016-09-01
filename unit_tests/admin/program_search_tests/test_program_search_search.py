@@ -1,5 +1,5 @@
-import json
 from program_search_base import ProgramSearchBaseTestCase
+import json
 
 
 class SearchTestCase(ProgramSearchBaseTestCase):

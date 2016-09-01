@@ -1,7 +1,7 @@
-from sync_base import SyncBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class MetadataTestCase(SyncBaseTestCase):
+class MetadataTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

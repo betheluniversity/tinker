@@ -1,7 +1,7 @@
-from sync_base import SyncBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class DataDefinitionTestCase(SyncBaseTestCase):
+class DataDefinitionTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

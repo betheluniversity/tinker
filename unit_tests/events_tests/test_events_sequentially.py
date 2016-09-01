@@ -8,6 +8,7 @@ class EventsSequentialTestCase(unittest.TestCase):
     def setUp(self):
         tinker.app.testing = True
         tinker.app.config['WTF_CSRF_ENABLED'] = False
+        tinker.app.config['WTF_CSRF_METHODS'] = []
         self.app = tinker.app.test_client()
         self.eid = None
         self.class_name = self.__class__.__name__
