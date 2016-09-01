@@ -33,12 +33,28 @@
                     <li><a href="{{ bio.path }}" class="btn btn-primary">View</a></li>
                     <li><a href="/faculty-bio/edit/{{ bio.id }}#page-title" class="btn btn-primary">Edit</a></li>
                 {% else %}
-                    <li>This announcement is pending approval.</li>
+                    <li><a class="small button success">Not Approved</a></li>
                 {% endif %}
-                <li><a href="#" data-reveal-id="confirmModal" id="{{ bio.id }}"
-                       data-faculty-bio-id="{{ bio.id }}"
-                       class="small btn btn-primary btn-alert delete-press"
-                       data-toggle="modal" data-target="#myModal">Delete</a></li>
+
+                {% if bio.deactivated == 'Yes' %}
+                    <li>
+                        <a id="{{ bio.id }}" data-method='activate' data-faculty-bio-id="{{ bio.id }}"
+                           class="small btn btn-primary btn-alert activate-press">Activate
+                        </a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a id="{{ bio.id }}" data-method='deactivate' data-faculty-bio-id="{{ bio.id }}"
+                           class="small btn btn-primary btn-alert activate-press">Deactivate
+                        </a>
+                    </li>
+                {% endif %}
+                {% if show_special_admin_view %}
+                    <li><a href="#" data-reveal-id="confirmModal" id="{{ bio.id }}"
+                           data-faculty-bio-id="{{ bio.id }}"
+                           class="small btn btn-primary btn-alert delete-press"
+                           data-toggle="modal" data-target="#myModal">Delete</a></li>
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -110,7 +126,10 @@
                     {% endfor %}
                 {% endif %}
             </div>
-
+            {# spinner placeholder #}
+            <div id="spinner" class="spinner" style="display:none;">
+                <img id="img-spinner" src="/get_image/waiting.gif" alt="Loading"/>
+            </div>
         </div>
     </div>
 {% endblock %}
@@ -129,7 +148,7 @@
                     Your faculty bio page will be removed.
                 </div>
                 <div class="modal-footer">
-                    <a id="modal-confirm" href="/faculty-bio/delete/formid"
+                    <a id="modal-confirm" href="/faculty-bio/delete/formid" type="button"
                        class="btn btn-primary btn-alert modal-confirm">Delete</a>
                 </div>
             </div>
@@ -138,47 +157,73 @@
 {% endblock %}
 
 {% block scripts %}
+    {#  Script to update the modal submit to delete the correct form#}
+    <script src="/static/csrf-activator.js"></script>
+    <script type="text/javascript">
+        var csrftoken = "{{ csrf_token() }}";
+        activateCSRF(csrftoken);
 
-    {% if show_special_admin_view %}
-        {#  Script to update the modal submit to delete the correct form#}
-        <script src="/static/csrf-activator.js"></script>
-        <script type="text/javascript">
-            var csrftoken = "{{ csrf_token() }}";
-            activateCSRF(csrftoken);
-
+        {% if show_special_admin_view %}
             $(".delete-press").click(function () {
                 $("#modal-confirm").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
             });
+        {% endif %}
 
-            $(".activate-press").click(function () {
-                var current_element = $(this);
-                var inputs = {
-                    "id": current_element.data('faculty-bio-id'),
-                    "activate": current_element.attr('data-method')
-                };
-                var url = '/faculty-bio/activate';
+        $(".activate-press").click(function () {
+            $('#spinner').show();
+            var current_element = $(this);
+            var inputs = {
+                "id": current_element.data('faculty-bio-id'),
+                "activate": current_element.attr('data-method')
+            };
+            var url = '/faculty-bio/activate';
 
-                // temporarily create a placeholder.
-                // Todo: change this to a gif.
-                current_element.html('. . . Updating . . .');
-                $.ajax({
-                    type: "POST",
-                    url: url,
-                    data: JSON.stringify(inputs),
-                    contentType: 'application/json;charset=UTF-8',
-                    success: function (result) {
-                        if (current_element.attr('data-method') == 'activate') {
-                            current_element.attr('data-method', 'deactivate');
-                            current_element.html('Deactivate');
-                        } else {
-                            current_element.attr('data-method', 'activate');
-                            current_element.html('Activate');
-                        }
-                    }
+            // temporarily create a placeholder.
+            // Todo: change this to a gif.
+            current_element.html('. . . Updating . . .');
+
+            if (current_element.attr('data-method') == 'activate') {
+                $.notify({
+                    message: 'The bio is being activated'
+                }, {
+                    type: 'success',
+                    placement: {
+                        align: 'center'
+                    },
+
                 });
+            }
+
+            if (current_element.attr('data-method') == 'deactivate') {
+                $.notify({
+                    message: 'The bio is being deactivated'
+                }, {
+                    type: 'success',
+                    placement: {
+                        align: 'center'
+                    },
+
+                });
+            }
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify(inputs),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    if (current_element.attr('data-method') == 'activate') {
+                        current_element.attr('data-method', 'deactivate');
+                        current_element.html('Deactivate');
+                    } else {
+                        current_element.attr('data-method', 'activate');
+                        current_element.html('Activate');
+                    }
+                    $('#spinner').hide();
+                }
             });
-        </script>
-    {% endif %}
+        });
+    </script>
 
 {% endblock %}
 
