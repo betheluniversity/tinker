@@ -1,4 +1,5 @@
 import logging
+import platform
 
 # flask
 from flask import Flask
@@ -10,11 +11,8 @@ from flask_wtf.csrf import CsrfProtect
 from bu_cascade.cascade_connector import Cascade
 
 app = Flask(__name__)
-
-import platform
-print "##### Computer name:", platform.node(), "#####"
-
-# app.config.from_object('config.config')
+if "testing" not in platform.node():
+    app.config.from_object('config.config')
 db = SQLAlchemy(app)
 
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
