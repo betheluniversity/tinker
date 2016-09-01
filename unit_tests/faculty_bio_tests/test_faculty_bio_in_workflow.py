@@ -17,6 +17,6 @@ class InWorkflowTestCase(BaseTestCase):
 
     def test_in_workflow(self):
         expected_response = b'<p>You recently made edits to your bio and are currently pending approval. Please wait until the changes have been approved before you make additional edits. Go back to your'
-        response = super(InWorkflowTestCase, self).send_get("/faculty-bio/in-workflow")
+        response = self.send_get("/faculty-bio/in-workflow")
         failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

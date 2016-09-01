@@ -19,7 +19,7 @@ class PublishPublishTestCase(BaseTestCase):
         destination = "staging"  # or "production"
         publish_type = "page"
         publish_id = "a7404faa8c58651375fc4ed23d7468d5"
-        response = super(PublishPublishTestCase, self).send_get("/admin/publish-manager/publish/" + destination + "/" + publish_type + "/" + publish_id)
+        response = self.send_get("/admin/publish-manager/publish/" + destination + "/" + publish_type + "/" + publish_id)
         publishing = b'Publishing. . .' in response.data
         already_exists = b'This asset already exists in the publish queue' in response.data
         expected_response = "'Publishing. . .' or 'This asset already exists in the publish queue'"

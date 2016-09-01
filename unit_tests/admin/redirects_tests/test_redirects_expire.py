@@ -17,6 +17,6 @@ class ExpireTestCase(RedirectsBaseTestCase):
 
     def test_expire(self):
         expected_response = b'done'
-        response = super(ExpireTestCase, self).send_get('/admin/redirect/expire')
+        response = self.send_get('/admin/redirect/expire')
         failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

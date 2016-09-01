@@ -17,7 +17,7 @@ class CreateCampaignTestCase(BaseTestCase):
 
     def test_create_campaign(self):
         expected_response = b'401 UNAUTHORIZED'
-        response = super(CreateCampaignTestCase, self).send_get("/e-announcement/create_campaign")
+        response = self.send_get("/e-announcement/create_campaign")
         # Per Eric, for now we're leaving this endpoint untested. This is because this endpoint will create a Carlyle
         # campaign, but wouldn't be able to send it, so it would just pile up a bunch of unused campaigns.
         failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)

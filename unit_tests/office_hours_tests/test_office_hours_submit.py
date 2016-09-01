@@ -26,6 +26,6 @@ class SubmitTestCase(BaseTestCase):
     def test_submit(self):
         expected_response = b"You've successfully updated your office's hours. You should see these changes reflected"
         form_contents = self.create_form()
-        response = super(SubmitTestCase, self).send_post("/office-hours/submit", form_contents)
+        response = self.send_post("/office-hours/submit", form_contents)
         failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

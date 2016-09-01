@@ -8,7 +8,7 @@
 # 4. Write a unit test factory class that can auto-generate unit test files given a set of parameters about the endpoint
 #       it's going to be testing.
 #
-# Currently, the unit testing suite takes about 3 minutes to run.
+# Currently, the unit testing suite takes about 2 minutes to run.
 
 import tinker
 import unittest

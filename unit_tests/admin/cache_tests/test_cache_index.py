@@ -17,6 +17,6 @@ class IndexTestCase(BaseTestCase):
 
     def test_index(self):
         expected_response = b'<div class="large-6 columns">'
-        response = super(IndexTestCase, self).send_get("/admin/cache-clear")
+        response = self.send_get("/admin/cache-clear")
         failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

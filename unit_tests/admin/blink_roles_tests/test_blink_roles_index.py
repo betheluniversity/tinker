@@ -17,6 +17,6 @@ class IndexTestCase(BaseTestCase):
 
     def test_index(self):
         expected_response = b'<form id="blink-login" action="https://blink.bethel.edu/cp/home/login" method="post">'
-        response = super(IndexTestCase, self).send_get("/admin/blink-roles")
+        response = self.send_get("/admin/blink-roles")
         failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

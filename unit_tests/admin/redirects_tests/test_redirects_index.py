@@ -17,6 +17,6 @@ class IndexTestCase(RedirectsBaseTestCase):
 
     def test_index(self):
         expected_response = b'<form action="" id="new-redirect-form">'
-        response = super(IndexTestCase, self).send_get("/admin/redirect")
+        response = self.send_get("/admin/redirect")
         failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
