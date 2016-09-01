@@ -1,4 +1,5 @@
 import logging
+import os
 import platform
 
 # flask
@@ -38,7 +39,7 @@ else:
                 'WSAPI_SECRET','THUMBOR_STORAGE_LOCATION',
                 'FACULTY_BIO_XML_ID','PROGRAMS_XML']
     for kw in keywords:
-        app.config.from_envvar(kw)
+        app.config[kw] = os.environ[kw]
 
 db = SQLAlchemy(app)
 
