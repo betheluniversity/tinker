@@ -2,10 +2,10 @@ import os
 import shutil
 import tempfile
 import tinker
-import unittest
+from unit_tests import BaseTestCase
 
 
-class ProgramSearchBaseTestCase(unittest.TestCase):
+class ProgramSearchBaseTestCase(BaseTestCase):
 
     # This method is designed to set up a temporary database, such that the tests won't affect the real database
     def setUp(self):
@@ -16,16 +16,8 @@ class ProgramSearchBaseTestCase(unittest.TestCase):
         tinker.app.config['PROGRAM_SEARCH_CSV'] = self.temp_path
         tinker.app.testing = True
         tinker.app.config['WTF_CSRF_ENABLED'] = False
+        tinker.app.config['WTF_CSRF_METHODS'] = []
         self.app = tinker.app.test_client()
-
-    def send_post(self, url, form_contents):
-        return self.app.post(url, data=form_contents, follow_redirects=True)
-
-    def send_get(self, url):
-        return self.app.get(url, follow_redirects=True)
-
-    def send_data(self, url, form_contents):
-        return self.app.post(url, data=form_contents, follow_redirects=True, content_type="application/json;charset=UTF-8")
 
     # Corresponding to the setUp method, this method deletes the temporary database
     def tearDown(self):
