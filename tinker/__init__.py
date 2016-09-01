@@ -11,8 +11,8 @@ from bu_cascade.cascade_connector import Cascade
 
 app = Flask(__name__)
 
-import os
-print "##### Computer name:", os.environ['COMPUTERNAME'], "#####"
+import platform
+print "##### Computer name:", platform.node(), "#####"
 
 # app.config.from_object('config.config')
 db = SQLAlchemy(app)
