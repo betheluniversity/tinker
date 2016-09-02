@@ -70,7 +70,7 @@
                 {% if field.label.text != '' %}
                     <label for="{{ field.name }}">
                         {{ field.label.text }}
-                        <small class="required">{% if field.flags.required %}Required{% endif %}</small>
+                        <small class="required">{% if field.flags.required %}required{% endif %}</small>
                     </label>
                     {% if field.description != '' %}
                         <p>{{ field.description }}</p>
@@ -86,8 +86,8 @@
                 {% elif field.type == "MultiCheckboxField" %}
                     <h4 class='audience-header' for="{{ field.name }}">
                         Audiences
-                        <small class="required" style="font-size: 47%">{% if field.flags.required %}
-                            Required{% endif %}</small>
+                        <small class="required">{% if field.flags.required %}
+                            required{% endif %}</small>
                     </h4>
                     {% if field.description != '' %}
                         <p>{{ field.description }}</p>
