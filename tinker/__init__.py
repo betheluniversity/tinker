@@ -31,11 +31,10 @@ else:
                 if possible_keyword.isupper():
                     keywords.append(possible_keyword)
     for kw in keywords:
-        print kw
-        print os.environ[kw]
+        value = os.environ[kw]
         if "[" in os.environ[kw] or "{" in os.environ[kw]:
-            print type(ast.literal_eval(os.environ[kw]))
-        # app.config[kw] = ast.literal_eval(os.environ[kw])
+            value = ast.literal_eval(os.environ[kw])
+        app.config[kw] = value
     print "===================================================="
 
 db = SQLAlchemy(app)
