@@ -10,6 +10,10 @@
 #
 # Currently, the unit testing suite takes about 2 minutes to run.
 
+import inspect, os
+print inspect.getfile(inspect.currentframe())
+print os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+
 import sys
 import tinker
 import unittest
@@ -38,7 +42,6 @@ class BaseTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    print sys.modules.keys()
     testsuite = unittest.TestLoader().discover('.')
     runner = unittest.TextTestRunner(verbosity=1).run(testsuite)
     sys.exit(len(runner.failures))
