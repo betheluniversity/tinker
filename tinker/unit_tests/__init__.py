@@ -11,17 +11,17 @@
 # Currently, the unit testing suite takes about 2 minutes to run.
 
 import sys
-import tinker
+from tinker import app
 import unittest
 
 
 class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
-        tinker.app.testing = True
-        tinker.app.config['WTF_CSRF_ENABLED'] = False
-        tinker.app.config['WTF_CSRF_METHODS'] = []
-        self.app = tinker.app.test_client()
+        app.testing = True
+        app.config['WTF_CSRF_ENABLED'] = False
+        app.config['WTF_CSRF_METHODS'] = []
+        self.app = app.test_client()
 
     def send_get(self, url):
         return self.app.get(url, follow_redirects=True)
