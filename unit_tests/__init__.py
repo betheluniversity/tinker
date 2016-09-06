@@ -10,10 +10,6 @@
 #
 # Currently, the unit testing suite takes about 2 minutes to run.
 
-import inspect, os
-print inspect.getfile(inspect.currentframe())
-print os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
-
 import sys
 import tinker
 import unittest
