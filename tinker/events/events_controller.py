@@ -69,8 +69,11 @@ class EventsController(TinkerController):
         dates = child.find('system-data-structure').findall('event-dates')
         dates_str = []
         for date in dates:
-            start = int(date.find('start-date').text) / 1000
-            end = int(date.find('end-date').text) / 1000
+            try:
+                start = int(date.find('start-date').text) / 1000
+                end = int(date.find('end-date').text) / 1000
+            except TypeError:
+                continue
             dates_str.append(self.friendly_date_range(start, end))
 
         page_values = {
