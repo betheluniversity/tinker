@@ -38,6 +38,7 @@ class BaseTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
+    print sys.modules.keys()
     testsuite = unittest.TestLoader().discover('.')
     runner = unittest.TextTestRunner(verbosity=1).run(testsuite)
     sys.exit(len(runner.failures))
