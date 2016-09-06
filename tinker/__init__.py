@@ -83,7 +83,7 @@ app.register_blueprint(EventsBlueprint)
 app.register_blueprint(FacultyBioBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
 
-from tinker.unit_tests.unit_test_interface import UnitTestBlueprint
+from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
 
 CsrfProtect(app)
