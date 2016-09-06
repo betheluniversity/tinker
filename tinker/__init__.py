@@ -20,7 +20,8 @@ else:
     app.debug = True
     keywords = []
 
-    dist_path = os.path.dirname(__file__) + "/config/dist"
+    dist_path = os.path.dirname(__file__) + "/../config/dist"
+    print "dist_path:", dist_path
     os.chdir(dist_path)
     for file in glob.glob("*.dist"):
         with open(dist_path + "/" + file) as f:
