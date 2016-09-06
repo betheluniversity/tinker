@@ -30,10 +30,13 @@ else:
                 possible_keyword = line.split(" = ")[0]
                 if possible_keyword.isupper():
                     keywords.append(possible_keyword)
+    print keywords
     for kw in keywords:
         print kw
+        print os.environ[kw]
         print type(ast.literal_eval(os.environ[kw]))
         # app.config[kw] = ast.literal_eval(os.environ[kw])
+    print "===================================================="
 
 db = SQLAlchemy(app)
 
