@@ -16,6 +16,7 @@ app = Flask(__name__)
 if "testing" not in platform.node():
     app.config.from_object('config.config')
 else:
+    import ast
     app.debug = True
     # keywords = ['DATA_DEF_PORTAL_TAB_ID','TEST_USER','OFFICE_HOURS_STANDARD_BLOCK','EVENTS_BASE_ASSET',
     #             'IMAGE_WITH_DEFAULT_IMAGE_BASE_ASSET','PROGRAM_SEARCH_CSV','ENVIRON','API_USERNAME',
@@ -39,7 +40,7 @@ else:
     #             'API_KEYS','FACULTY_LISTING_GS_ID',
     #             'WSAPI_SECRET','THUMBOR_STORAGE_LOCATION',
     #             'FACULTY_BIO_XML_ID','PROGRAMS_XML']
-    for kw in os.environ['KEYWORDS']:  # keywords
+    for kw in ast.literal_eval(os.environ['KEYWORDS']):  # keywords
         app.config[kw] = os.environ[kw]
 
 db = SQLAlchemy(app)
