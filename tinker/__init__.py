@@ -30,12 +30,20 @@ else:
                 if possible_keyword.isupper():
                     keywords.append(possible_keyword)
     for kw in keywords:
+        if kw in ['_basedir', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_MIGRATE_REPO']:
+            continue
         value = os.environ[kw]
-        if kw in ['SQLALCHEMY_DATABASE_URI']:
-            print kw + ": " + value
         if "[" in os.environ[kw] or "{" in os.environ[kw]:
             value = ast.literal_eval(os.environ[kw])
         app.config[kw] = value
+
+    # Redirects config vars that require code operations, and aren't just values
+    _basedir = os.path.abspath(os.path.dirname(__file__))
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(_basedir, 'app.db')
+    SQLALCHEMY_MIGRATE_REPO = os.path.join(_basedir, 'db_repository')
+    app.config['_basedir'] = _basedir
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, 'app.db')
+    app.config['SQLALCHEMY_MIGRATE_REPO'] = os.path.join(_basedir, 'db_repository')
 
 db = SQLAlchemy(app)
 
