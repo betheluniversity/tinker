@@ -31,6 +31,8 @@ else:
                     keywords.append(possible_keyword)
     for kw in keywords:
         value = os.environ[kw]
+        if kw in ['SQLALCHEMY_DATABASE_URI']:
+            print kw + ": " + value
         if "[" in os.environ[kw] or "{" in os.environ[kw]:
             value = ast.literal_eval(os.environ[kw])
         app.config[kw] = value
