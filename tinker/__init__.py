@@ -21,7 +21,6 @@ else:
     keywords = []
 
     dist_path = os.path.dirname(__file__) + "/../config/dist"
-    print "dist_path:", dist_path
     os.chdir(dist_path)
     for file in glob.glob("*.dist"):
         with open(dist_path + "/" + file) as f:
@@ -32,12 +31,9 @@ else:
                     keywords.append(possible_keyword)
     for kw in keywords:
         value = os.environ[kw]
-        if "staging" in value:
-            print kw + ": " + value
         if "[" in os.environ[kw] or "{" in os.environ[kw]:
             value = ast.literal_eval(os.environ[kw])
         app.config[kw] = value
-    print "===================================================="
 
 db = SQLAlchemy(app)
 
