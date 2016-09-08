@@ -30,7 +30,7 @@ class UnitTestInterface(FlaskView):
         test_suite_location = app.config['INSTALL_LOCATION'] + "/unit_tests"
         acceptable_modules = ["admin/blink_roles_tests", "admin/cache_tests", "admin/program_search_tests",
                               "admin/publish_tests", "admin/redirects_tests", "admin/sync_tests",
-                              "e_announcements_tests", "events_tests", "faculty_bio_tests", "office_hours_tests"]
+                              "e_announcements_tests", "events_tests", "faculty_bios_tests", "office_hours_tests"]
 
         if module != "all":
             if module not in acceptable_modules:
@@ -54,7 +54,7 @@ class UnitTestInterface(FlaskView):
     def dashboard(self):
         modules = ["admin/blink_roles_tests", "admin/cache_tests", "admin/program_search_tests",
                    "admin/publish_tests", "admin/redirects_tests", "admin/sync_tests",
-                   "e_announcements_tests", "events_tests", "faculty_bio_tests", "office_hours_tests"]
+                   "e_announcements_tests", "events_tests", "faculty_bios_tests", "office_hours_tests"]
         return render_template("dashboard.html", modules=modules)
 
     @route('/simple-return/<path:module>', methods=['GET'])
@@ -62,7 +62,7 @@ class UnitTestInterface(FlaskView):
         test_suite_location = app.config['INSTALL_LOCATION'] + "/unit_tests"
         modules = ["admin/blink_roles_tests", "admin/cache_tests", "admin/program_search_tests",
                    "admin/publish_tests", "admin/redirects_tests", "admin/sync_tests",
-                   "e_announcements_tests", "events_tests", "faculty_bio_tests", "office_hours_tests"]
+                   "e_announcements_tests", "events_tests", "faculty_bios_tests", "office_hours_tests"]
         if module not in modules:
             return abort(404)
         output = StringIO()

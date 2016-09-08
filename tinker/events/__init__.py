@@ -40,8 +40,7 @@ class EventsView(FlaskView):
         new_form = True
         return render_template('event-form.html', **locals())
 
-    @route('/edit/<event_id>')
-    def edit_event_page(self, event_id):
+    def edit(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         if self.base.asset_in_workflow(event_id, asset_type='page'):
             return redirect(url_for('events.EventsView:event_in_workflow'), code=302)
@@ -56,8 +55,7 @@ class EventsView(FlaskView):
 
         return render_template('event-form.html', **locals())
 
-    @route('/duplicate/<event_id>')
-    def duplicate_event_page(self, event_id):
+    def duplicate(self, event_id):
         edit_data, dates, author = self.base.build_edit_form(event_id)
         from tinker.events.forms import EventForm
         form = EventForm(**edit_data)
