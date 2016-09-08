@@ -7,8 +7,8 @@ from tinker.admin.redirects.models import BethelRedirect
 class RedirectsController(TinkerController):
     # Creates a new redirect text file
     def create_redirect_text_file(self):
-        map_file = open(app.config['REDIRECTS_FILE_PATH'], 'w+')
-        map_file_back = open(app.config['REDIRECTS_FILE_PATH'] + ".back", 'w+')
+        map_file = open(app.config['REDIRECTS_FILE_PATH'], 'w')
+        map_file_back = open(app.config['REDIRECTS_FILE_PATH'] + ".back", 'w')
         redirects = BethelRedirect.query.all()
 
         for item in redirects:
