@@ -4,7 +4,7 @@
 
 # modules
 from flask import session
-from flask.ext.wtf import Form
+from flask_wtf import Form
 from wtforms import ValidationError
 from wtforms import TextField
 from wtforms import SelectMultipleField

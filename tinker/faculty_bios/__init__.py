@@ -5,8 +5,7 @@ from bu_cascade.asset_tools import *
 
 # flask
 from flask import Blueprint, redirect, send_from_directory
-from flask.ext.classy import FlaskView, route
-
+from flask_classy import FlaskView, route
 # tinker
 from tinker.admin.sync.sync_metadata import data_to_add
 from faculty_bio_controller import *
@@ -57,7 +56,7 @@ class FacultyBiosView(FlaskView):
         self.base.delete(page_id, "page")
         self.base.unpublish(page_id, "page")
 
-        return redirect('/faculty-bio/delete-confirm', code=302)
+        return redirect('/faculty-bios/delete-confirm', code=302)
 
     @route('/delete-confirm', methods=['GET'])
     def delete_confirm(self):
@@ -86,7 +85,7 @@ class FacultyBiosView(FlaskView):
     def edit(self, faculty_bio_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         if self.base.asset_in_workflow(faculty_bio_id):
-            return redirect('/faculty-bio/in-workflow', code=302)
+            return redirect('/faculty-bios/in-workflow', code=302)
 
         from forms import FacultyBioForm
         form = FacultyBioForm()

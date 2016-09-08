@@ -250,9 +250,8 @@ class OfficeHoursController(TinkerController):
 
         for exception in exceptions:
             date = find(exception, 'date', False)
-
             if date:
-                if (datetime.datetime.strptime(date, '%m-%d-%Y') - datetime.datetime.now()).total_seconds() <= seconds_in_two_weeks and (datetime.datetime.strptime(date, '%m-%d-%Y') - datetime.datetime.now()).total_seconds() >= 0:
+                if 0 <= (datetime.datetime.strptime(date, '%m-%d-%Y') - datetime.datetime.now()).total_seconds() <= seconds_in_two_weeks:
                     open = find(exception, 'open', False)
                     close = find(exception, 'close', False)
 
