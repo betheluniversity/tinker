@@ -36,6 +36,7 @@ class EAnnouncementsView(FlaskView):
     @route("/delete/<e_announcement_id>", methods=['GET'])
     def delete(self, e_announcement_id):
         # must have access to delete
+        print "Session username:", session['username']
         if session['username'] not in app.config['E_ANN_ADMINS']:
             return redirect(url_for('e-announcements.EAnnouncementsView:index'), code=302)
 
