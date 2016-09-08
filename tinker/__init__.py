@@ -37,7 +37,7 @@ else:
             value = ast.literal_eval(os.environ[kw])
         app.config[kw] = value
 
-    # Redirects config vars that require code operations, and aren't just values
+    # These config vars require code operations, and aren't just values
     _basedir = os.path.abspath(os.path.dirname(__file__))
     app.config['_basedir'] = _basedir
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db.back')
