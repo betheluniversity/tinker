@@ -1,19 +1,21 @@
 {% extends "tinker_base.html" %}
 
-{% block title %}Success{% endblock %}
+{% set title = 'Faculty Bios' %}
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
 
-  <div class="row">
-    <div class="large-12 columns">
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
 
-        <p>
-          Your faculty bio has been deleted. It will be removed from your <a href="https://tinker.bethel.edu">Tinker homepage</a> in a few minutes.
-        </p>
-
+                <p>
+                    Your faculty bio has been deleted. It will be removed from your <a href="https://tinker.bethel.edu">Tinker
+                    homepage</a> in a few minutes.
+                </p>
+            </div>
+        </div>
     </div>
-  </div>
 
 {% endblock %}

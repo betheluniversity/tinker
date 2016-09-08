@@ -18,6 +18,8 @@ TEST_USER = ''
 
 SITE_ID = ''
 
+STAGING_DESTINATION_ID = ''
+
 CASCADE_LOGIN = {'username': 'username', 'password': 'password'}
 
 API_USERNAME = ''

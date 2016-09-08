@@ -43,13 +43,13 @@
                                 <label>Publish to:
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="optionsRadios" checked="true">
+                                            <input type="radio" name="optionsRadios" value='staging' checked="true">
                                             Staging
                                         </label>
                                     </div>
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="optionsRadios">
+                                            <input type="radio" name="optionsRadios" value='production'>
                                             Production and Staging
                                         </label>
                                     </div>
@@ -97,7 +97,7 @@
                 </br>
             </div>
             <div id="spinner" class="spinner" style="display:none;">
-                <img id="img-spinner" src="/get_image/waiting.gif" alt="Loading"/>
+                <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
             </div>
         </div>
     </div>
@@ -130,7 +130,7 @@
                     var type = $(this).data('publish-type');
                     var id = $(this).data('publish-id');
                     var counter = $(this).data('counter');
-                    publishAsset(type, id, counter)
+                    publishAsset(type, id, counter);
                 });
             }
 
@@ -177,7 +177,7 @@
             });
 
             function publishAsset(type, id, counter) {
-                var destination = $('input[name=publish-to]:checked', '#publish-search-form').val();
+                var destination = $(':radio:checked').radio('check').val();
                 var url = "/admin/publish-manager/publish/" + destination + "/" + type + "/" + id;
                 $.post(url, function (data) {
                     $("#publish_button_" + counter).text(data);

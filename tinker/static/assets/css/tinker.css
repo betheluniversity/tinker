@@ -7,8 +7,8 @@
     text-align: center;
     z-index: 1234;
     overflow: auto;
-    width: 100px; /* width of the spinner gif */
-    height: 102px; /* height of the spinner gif +2px to fix IE8 issue */
+    width: 120px; /* width of the spinner gif */
+    height: 122px; /* height of the spinner gif +2px to fix IE8 issue */
 }
 
 .redirect-row {
@@ -594,7 +594,7 @@ input[type='checkbox']:checked:hover:after {
     }
 }
 
-.other, .topic, .delete-checkbox {
+.program-other, .topic, .delete-checkbox {
     margin-left: 20% !important
 }
 
