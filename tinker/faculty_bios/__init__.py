@@ -11,12 +11,12 @@ from tinker.admin.sync.sync_metadata import data_to_add
 from faculty_bio_controller import *
 
 
-FacultyBioBlueprint = Blueprint('faculty-bio', __name__, template_folder='templates')
+FacultyBiosBlueprint = Blueprint('faculty-bios', __name__, template_folder='templates')
 
 
 # todo: add a before_request method
-class FacultyBioView(FlaskView):
-    route_base = '/faculty-bio'
+class FacultyBiosView(FlaskView):
+    route_base = '/faculty-bios'
 
     def __init__(self):
         self.base = FacultyBioController()
@@ -185,4 +185,4 @@ class FacultyBioView(FlaskView):
         return 'success'
 
 
-FacultyBioView.register(FacultyBioBlueprint)
+FacultyBiosView.register(FacultyBiosBlueprint)

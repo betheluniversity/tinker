@@ -31,7 +31,7 @@
             <ul class="btn-group-horizontal">
                 {% if bio.path != '' %}
                     <li><a href="{{ bio.path }}" class="btn btn-primary">View</a></li>
-                    <li><a href="/faculty-bio/edit/{{ bio.id }}#page-title" class="btn btn-primary">Edit</a></li>
+                    <li><a href="{{ url_for('faculty-bios.FacultyBiosView:edit', faculty_bio_id=bio.id) }}" class="btn btn-primary">Edit</a></li>
                 {% else %}
                     <li><a class="small button success">Not Approved</a></li>
                 {% endif %}
@@ -74,11 +74,10 @@
 
             <div class="col-md-12">
                 {% if show_create %}
-                    <a href="/faculty-bio/new#page-title" class="btn btn-primary">Create New Bio</a>
+                    <a href="{{ url_for('faculty-bios.FacultyBiosView:new') }}" class="btn btn-primary">Create New Bio</a>
                     <hr/>
                 {% endif %}
                 {% if show_special_admin_view %}
-                    {# add extra sorting buttons #}
                     <div>
                         <label><h3 class="first-subtitle">View:</h3>
                             <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
@@ -148,7 +147,7 @@
                     Your faculty bio page will be removed.
                 </div>
                 <div class="modal-footer">
-                    <a id="modal-confirm" href="/faculty-bio/delete/formid" type="button"
+                    <a id="modal-confirm" href="/faculty-bios/delete/formid" type="button"
                        class="btn btn-primary btn-alert modal-confirm">Delete</a>
                 </div>
             </div>
@@ -165,7 +164,7 @@
 
         {% if show_special_admin_view %}
             $(".delete-press").click(function () {
-                $("#modal-confirm").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
+                $("#modal-confirm").attr("href", "/faculty-bios/delete/" + $(this).data('faculty-bio-id'));
             });
         {% endif %}
 
@@ -176,7 +175,7 @@
                 "id": current_element.data('faculty-bio-id'),
                 "activate": current_element.attr('data-method')
             };
-            var url = '/faculty-bio/activate';
+            var url = '/faculty-bios/activate';
 
             // temporarily create a placeholder.
             // Todo: change this to a gif.

@@ -38,9 +38,9 @@
     <div class="content">
         <div class="container-fluid row">
             {% if new_form %}
-                <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
+                <form id="eannouncementform" action="{{ url_for('e-announcements.EAnnouncementsView:submit') }}" method="post" enctype="multipart/form-data">
             {% else %}
-                <form id="eannouncementform" action="/e-announcement/submit" method="post" enctype="multipart/form-data">
+                <form id="eannouncementform" action="{{ url_for('e-announcements.EAnnouncementsView:submit') }}" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="e_announcement_id" id="e_announcement_id"
                        value="{{ e_announcement_id }}"/>
             {% endif %}
@@ -99,13 +99,7 @@
                             <hr/>
                             {% for item in field %}
                                 {% if column in item.object_data %}
-                                    {# zero-based indexing #}
                                     {{ item }}
-{#                                        <label class="checkbox" for="checkbox1">#}
-{#                                            <input id="checkbox1" type="checkbox" data-toggle="checkbox" value="{{ brm[loop.index - 1] }}">#}
-{#                                            {{ brm[loop.index - 1] }}#}
-{#                                        </label>#}
-{#                                    <input id="banner_roles-{{ loop.index - 1 }}" name="banner_roles" type="checkbox">#}
                                     <div class="checkbox-label">
                                         <label class="checkbox-label">{{ brm[loop.index - 1] }}</label>
                                     </div>

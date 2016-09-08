@@ -57,10 +57,10 @@
                                     <ul class="btn-group-horizontal">
                                         {% if form.is_published %}
                                             <li><a href="{{ form.path }}" class="small btn btn-primary">View</a></li>
-                                            <li><a href="/event/edit/{{ form.id }}#page-title"
+                                            <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}"
                                                    class="small btn btn-primary">Edit</a>
                                             </li>
-                                            <li><a href="/event/duplicate/{{ form.id }}#page-title"
+                                            <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
                                                    class="small btn btn-primary">Duplicate</a></li>
                                         {% else %}
                                             <li>This announcement is pending approval.</li>
@@ -102,9 +102,9 @@
                                     <ul class="button-group">
                                         {% if form.is_published %}
                                             <li><a href="{{ form.path }}" class="small button success">View</a></li>
-                                            <li><a href="/event/edit/{{ form.id }}#page-title" class="small button">Edit</a>
+                                            <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}" class="small button">Edit</a>
                                             </li>
-                                            <li><a href="/event/duplicate/{{ form.id }}#page-title"
+                                            <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
                                                    class="small button">Duplicate</a></li>
                                         {% else %}
                                             <li>This announcement is pending approval.</li>
@@ -138,7 +138,7 @@
                     Your event page will be unpublished and removed from the calendar.
                 </div>
                 <div class="modal-footer">
-                    <a id="modal-confirm" href="/event/delete/formid"
+                    <a id="modal-confirm" href="/events/delete/formid"
                        class="btn btn-primary btn-alert modal-confirm">Delete</a>
                 </div>
             </div>
@@ -151,7 +151,7 @@
     {#    Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
         $(".delete-press").click(function () {
-            $("#modal-confirm").attr("href", "/event/delete/" + $(this).data('event-id'));
+            $("#modal-confirm").attr("href", "/events/delete/" + $(this).data('event-id'));
         });
     </script>
 

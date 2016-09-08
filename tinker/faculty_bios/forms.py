@@ -2,7 +2,7 @@ from flask_wtf import Form
 from flask_wtf.file import FileField
 from tinker import app
 import requests
-from tinker.faculty_bio.faculty_bio_controller import *
+from tinker.faculty_bios.faculty_bio_controller import *
 from wtforms import Field
 from wtforms import HiddenField
 from wtforms import SelectField

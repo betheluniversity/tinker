@@ -15,14 +15,14 @@
                 </a>
             </li>
 
-            <li class="{% if 'e-announcement/' in request.path %}active{% endif %}">
+            <li class="{% if 'e-announcements/' in request.path %}active{% endif %}">
                 <a href="{{ url_for('e-announcements.EAnnouncementsView:index') }}">
                     <i class="fa fa-envelope-o"></i>
                     <p>E-Announcements</p>
                 </a>
             </li>
 
-            <li class="{% if 'event/' in request.path %}active{% endif %}">
+            <li class="{% if 'events/' in request.path %}active{% endif %}">
                 <a href="{{ url_for('events.EventsView:index') }}">
                     <i class="fa fa-calendar"></i>
                     <p>Events</p>
@@ -30,8 +30,8 @@
             </li>
 
             {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
-                <li class="{% if 'faculty-bio/' in request.path %}active{% endif %}">
-                    <a href="{{ url_for('faculty-bio.FacultyBioView:index') }}">
+                <li class="{% if 'faculty-bios/' in request.path %}active{% endif %}">
+                    <a href="{{ url_for('faculty-bios.FacultyBiosView:index') }}">
                         <i class="fa fa-user"></i>
                         <p>Faculty Bios</p>
                     </a>

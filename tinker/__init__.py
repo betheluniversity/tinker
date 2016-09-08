@@ -70,7 +70,7 @@ from tinker.admin.publish import PublishManagerBlueprint
 from tinker.admin.program_search import ProgramSearchBlueprint
 from tinker.admin.redirects import RedirectsBlueprint
 from tinker.e_announcements import EAnnouncementsBlueprint
-from tinker.faculty_bio import FacultyBioBlueprint
+from tinker.faculty_bios import FacultyBiosBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
 from tinker.events import EventsBlueprint
 
@@ -84,7 +84,7 @@ app.register_blueprint(ProgramSearchBlueprint)
 app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(EAnnouncementsBlueprint)
 app.register_blueprint(EventsBlueprint)
-app.register_blueprint(FacultyBioBlueprint)
+app.register_blueprint(FacultyBiosBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
 
 from tinker.unit_test_interface import UnitTestBlueprint
