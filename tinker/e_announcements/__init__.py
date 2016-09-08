@@ -18,7 +18,7 @@ EAnnouncementsBlueprint = Blueprint('e-announcements', __name__, template_folder
 
 
 class EAnnouncementsView(FlaskView):
-    route_base = '/e-announcement'
+    route_base = '/e-announcements'
 
     def __init__(self):
         self.base = EAnnouncementsController()
@@ -28,7 +28,7 @@ class EAnnouncementsView(FlaskView):
         pass
 
     def index(self):
-        forms = self.base.traverse_xml(app.config['E_ANN_XML_URL'], 'system-block')
+        forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
 
         forms.sort(key=lambda item: item['first_date'], reverse=False)
         return render_template('ea-home.html', **locals())
@@ -36,7 +36,7 @@ class EAnnouncementsView(FlaskView):
     @route("/delete/<e_announcement_id>", methods=['GET'])
     def delete(self, e_announcement_id):
         # must have access to delete
-        if session['username'] not in app.config['E_ANN_ADMINS']:
+        if session['username'] not in app.config['E_ANNOUNCEMENTS_ADMINS']:
             return redirect(url_for('e-announcements.EAnnouncementsView:index'), code=302)
 
         # print 'Delete E-Announcement ' + e_announcement_id
@@ -129,7 +129,7 @@ class EAnnouncementsView(FlaskView):
 
         if not eaid:
             status = "new"
-            bid = app.config['E_ANN_BASE_ASSET']
+            bid = app.config['E_ANNOUNCEMENTS_BASE_ASSET']
             e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
             asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
             resp = self.base.create_block(asset)
@@ -165,7 +165,7 @@ class EAnnouncementsView(FlaskView):
 
             submitted_announcements = []
             current_announcement_role_list = []
-            for announcement in self.base.traverse_xml(app.config['E_ANN_XML_URL'], 'system-block'):
+            for announcement in self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block'):
                 date_matches = False
 
                 if announcement['first_date']:
@@ -255,7 +255,7 @@ class EAnnouncementsView(FlaskView):
 
     def edit_all(self):
         type_to_find = 'system-block'
-        xml_url = app.config['E_ANN_URL']
+        xml_url = app.config['E_ANNOUNCEMENTS_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 

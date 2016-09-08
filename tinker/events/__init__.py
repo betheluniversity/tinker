@@ -10,7 +10,7 @@ EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
 
 class EventsView(FlaskView):
-    route_base = '/event'
+    route_base = '/events'
 
     def __init__(self):
         self.base = EventsController()
@@ -65,9 +65,8 @@ class EventsView(FlaskView):
 
         return render_template('event-form.html', **locals())
 
-    @route("/submit/<edit>", methods=['post'])
     @route("/submit", methods=['post'])
-    def submit_form(self, edit=False):
+    def submit(self, edit=False):
         rform = request.form
         username = session['username']
         eid = rform.get('event_id')

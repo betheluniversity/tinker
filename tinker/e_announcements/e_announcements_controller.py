@@ -42,7 +42,7 @@ class EAnnouncementsController(TinkerController):
             author = None
         username = session['username']
 
-        if (author is not None and username == author) or username in app.config['E_ANN_ADMINS']:
+        if (author is not None and username == author) or username in app.config['E_ANNOUNCEMENTS_ADMINS']:
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
@@ -111,7 +111,7 @@ class EAnnouncementsController(TinkerController):
         add_data = self.get_add_data(['banner_roles'], rform, ['message'])
 
         # create workflow
-        workflow = self.create_workflow(app.config['E_ANNOUNCEMENT_WORKFLOW_ID'], add_data['title'])
+        workflow = self.create_workflow(app.config['E_ANNOUNCEMENTS_WORKFLOW_ID'], add_data['title'])
         self.add_workflow_to_asset(workflow, e_announcement_data)
 
         # if parent folder ID exists it will use that over path
