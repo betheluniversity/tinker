@@ -30,8 +30,6 @@ else:
                 if possible_keyword.isupper():
                     keywords.append(possible_keyword)
     for kw in keywords:
-        if kw == "E_ANN_ADMINS":
-            print kw, ":", os.environ[kw]
         if kw in ['_basedir', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_MIGRATE_REPO', 'PROGRAM_SEARCH_CSV']:
             continue
         value = os.environ[kw]
