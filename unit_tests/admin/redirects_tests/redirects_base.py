@@ -1,15 +1,10 @@
 import os
-import platform
 import shutil
 import tempfile
-import unittest
-
 import tinker
 from unit_tests import BaseTestCase
 
 
-# @unittest.skipIf("testing" in platform.node(), "Travis CI can't do Redirects unit tests right now, so hopefully this "
-#                                                "should skip them all")
 class RedirectsBaseTestCase(BaseTestCase):
 
     # This method is designed to set up a temporary database, such that the tests won't affect the real database
