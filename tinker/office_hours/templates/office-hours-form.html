@@ -35,11 +35,11 @@
             <div class="content">
                 <legend>Exception 1</legend>
                 <label for="exception_date">
-                    Exception Date <small class="required">required</small>
+                    Exception Date
                 </label>
                 <input class="datepicker auto-width" id="date1" name="date1" type="text" value=""/>
                 <label for="exception_open1">
-                    Open <small class="required">required</small>
+                    Open
                 </label>
                 <div class="large-12 columns timeRange">
                     <input class="time start ui-timepicker-input auto-width" id="open1" name="open1" type="text"
@@ -81,14 +81,16 @@
             <div class="col-md-12">
                 <h3 class="subtitle">Edit Office Hours</h3>
                 <hr/>
-                {# todo: what should the copy be? #}
-                <p>Some Copy</p>
+                <p>
+                    Below shows the hours that Bethel University's campus is open along with your office's hours.
+                    <br/>
+                    Please select your next office's hours and any exceptions that need to be applied. Note, Bethel's holidays will automatically be added as exceptions.
+                </p>
                 <h4 class="first-subtitle">BU Standard Hours</h4>
                 {% set standard = standard_edit_data['current'] %}
                 {{ current_hours(standard, False) }}
 
-                <h4>{{ mdata['title'] }}</h4>
-                {#    <h4>Current Hours</h4>#}
+                <h4>Current {{ mdata['title'] }}</h4>
                 {% set current = edit_data['current'] %}
                 {{ current_hours(current) }}
 
@@ -266,13 +268,11 @@
                 var inner_node = $("<div>").addClass('content');
                 inner_node.append($("<legend>").html("Exception " + id));
 
-                inner_node.append($("<label>").attr('date', date).html("Exception Date ")
-                        .append($("<small>").addClass("required").html("required")));
+                inner_node.append($("<label>").attr('date', date).html("Exception Date "));
                 inner_node.append($("<input type='text'>").attr('name', date).attr('id', date).addClass("datepicker auto-width"));
 
                 var div = $("<div>").addClass('timeRange');
-                div.append($("<label>").attr('for', open).html("Open ")
-                        .append($("<small>").addClass("required").html("required")));
+                div.append($("<label>").attr('for', open).html("Open "));
 
                 div.append($("<input type='text'>").attr('name', open).attr('id', open).addClass("time start auto-width"));
                 div.append(" - ");

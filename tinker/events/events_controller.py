@@ -259,8 +259,6 @@ class EventsController(TinkerController):
         if 'author' not in new_data or new_data['author'] == "":
             new_data['author'] = username
 
-        new_data['name'] = new_data['title']
-
         self.update_asset(event_data, new_data)
 
         self.add_workflow_to_asset(workflow, event_data)

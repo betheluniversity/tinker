@@ -133,7 +133,6 @@ class FacultyBioView(FlaskView):
         if failed:
             return failed
 
-        # todo: finish putting the data in these functions
         if faculty_bio_id:
             # existing bio
             page = self.base.read_page(faculty_bio_id)

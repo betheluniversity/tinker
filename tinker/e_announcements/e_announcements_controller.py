@@ -134,7 +134,6 @@ class EAnnouncementsController(TinkerController):
         # todo, revert this after 'name' in the Cascade data-def is changed so it doesn't conflict (then we don't have to call update_asset twice)
         # update asset
         self.update_asset(sdata, add_data)
-        add_data['name'] = add_data['title']
         self.update_asset(e_announcement_data, add_data)
 
         # for some reason, title is not already set, so it must be set manually
