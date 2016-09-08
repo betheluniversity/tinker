@@ -33,7 +33,7 @@ else:
         if kw in ['_basedir', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_MIGRATE_REPO', 'PROGRAM_SEARCH_CSV']:
             continue
         value = os.environ[kw]
-        if "[" in os.environ[kw] or "{" in os.environ[kw]:
+        if "[" in value or "{" in value:
             value = ast.literal_eval(os.environ[kw])
         app.config[kw] = value
 
