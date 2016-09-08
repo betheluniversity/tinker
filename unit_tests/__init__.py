@@ -1,13 +1,11 @@
 # In an ideal world, here are some features that I would like to implement to unit testing:
-# 1. Integrate the unit tests into the Travis checker plugin for github, so that all changes will automatically get
-#       tested by the unit tests
-# 2. Get the url_for() function working in the unit tests so that when the endpoint location changes, the tests won't
+# 1. Get the url_for() function working in the unit tests so that when the endpoint location changes, the tests won't
 #       auto-fail for no good reason.
-# 3. Make the unit tests much more robust; instead of just testing endpoints of a module, it can also check that each
+# 2. Make the unit tests much more robust; instead of just testing endpoints of a module, it can also check that each
 #       respective DB or Cascade object gets updated appropriately so that there's no possibility of silent failures
-# 4. Find some way to pass test object ids back and forth between unit tests so that the test_sequentially files can be
+# 3. Find some way to pass test object ids back and forth between unit tests so that the test_sequentially files can be
 #       split into individual, granular unit tests.
-# 5. Write a unit test factory class that can auto-generate unit test files given a set of parameters about the endpoint
+# 4. Write a unit test factory class that can auto-generate unit test files given a set of parameters about the endpoint
 #       it's going to be testing.
 #
 # Currently, the unit testing suite takes about 2 minutes to run.
