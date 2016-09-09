@@ -1,12 +1,8 @@
 # In an ideal world, here are some features that I would like to implement to unit testing:
-# 1. Get the url_for() function working in the unit tests so that when the endpoint location changes, the tests won't
-#       auto-fail for no good reason.
-# 2. Make the unit tests much more robust; instead of just testing endpoints of a module, it can also check that each
+# 1. Make the unit tests much more robust; instead of just testing endpoints of a module, it can also check that each
 #       respective DB or Cascade object gets updated appropriately so that there's no possibility of silent failures
-# 3. Find some way to pass test object ids back and forth between unit tests so that the test_sequentially files can be
+# 2. Find some way to pass test object ids back and forth between unit tests so that the test_sequentially files can be
 #       split into individual, granular unit tests.
-# 4. Write a unit test factory class that can auto-generate unit test files given a set of parameters about the endpoint
-#       it's going to be testing.
 #
 # Currently, the unit testing suite takes about 2 minutes to run.
 
@@ -47,7 +43,7 @@ class BaseTestCase(unittest.TestCase):
 
     def generate_failure_message(self, type, request, response_data, expected_response, class_name):
         return '"%(0)s %(1)s" received "%(2)s" when it was expecting "%(3)s" in %(4)s.' % \
-               {'0': type, '1': request, '2': response_data, '3': expected_response, '4':class_name}
+               {'0': type, '1': request, '2': response_data, '3': expected_response, '4': class_name}
 
     def tearDown(self):
         pass
