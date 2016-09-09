@@ -9,7 +9,8 @@ class SubmitTestCase(BaseTestCase):
     def __init__(self, methodName):
         super(SubmitTestCase, self).__init__(methodName)
         self.class_name = self.__class__.__bases__[0].__name__ + '/' + self.__class__.__name__
-        self.request = "POST /admin/cache-clear/submit"
+        self.request_type = "POST"
+        self.request = self.generate_url("submit")
 
     def create_form(self, url):
         return {
@@ -27,13 +28,13 @@ class SubmitTestCase(BaseTestCase):
         # As far as I can tell, this is because the method is written to work on the production server and references
         # files and folders in there, not on my local machine.
         form_contents = self.create_form("/yes")
-        response = self.send_post('/admin/cache-clear/submit', form_contents)
-        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
+        response = self.send_post(self.request, form_contents)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_submit_invalid_url(self):
         expected_response = b'<p>The browser (or proxy) sent a request that this server could not understand.</p>'
         form_contents = self.create_form(None)
-        response = self.send_post('/admin/cache-clear/submit', form_contents)
-        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
+        response = self.send_post(self.request, form_contents)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

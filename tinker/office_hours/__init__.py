@@ -11,7 +11,7 @@ from tinker.office_hours.office_hours_controller import OfficeHoursController
 from tinker.office_hours.forms import OfficeHoursForm
 
 
-OfficeHoursBlueprint = Blueprint('office-hours', __name__, template_folder='templates')
+OfficeHoursBlueprint = Blueprint('office_hours', __name__, template_folder='templates')
 
 
 class OfficeHoursView(FlaskView):

@@ -11,7 +11,7 @@ from tinker.admin.sync.sync_metadata import data_to_add
 from faculty_bio_controller import *
 
 
-FacultyBiosBlueprint = Blueprint('faculty-bios', __name__, template_folder='templates')
+FacultyBiosBlueprint = Blueprint('faculty_bios', __name__, template_folder='templates')
 
 
 # todo: add a before_request method
@@ -51,10 +51,10 @@ class FacultyBiosView(FlaskView):
 
         return render_template('faculty-bio-home.html', **locals())
 
-    @route('delete/<page_id>', methods=['GET'])
-    def delete(self, page_id):
-        self.base.delete(page_id, "page")
-        self.base.unpublish(page_id, "page")
+    @route('delete/<faculty_bio_id>', methods=['GET'])
+    def delete(self, faculty_bio_id):
+        self.base.delete(faculty_bio_id, "page")
+        self.base.unpublish(faculty_bio_id, "page")
 
         return redirect('/faculty-bios/delete-confirm', code=302)
 

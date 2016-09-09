@@ -38,9 +38,9 @@
     <div class="content">
         <div class="container-fluid row">
             {% if new_form %}
-                <form id="eannouncementform" action="{{ url_for('e-announcements.EAnnouncementsView:submit') }}" method="post" enctype="multipart/form-data">
+                <form id="eannouncementform" action="{{ url_for('e_announcements.EAnnouncementsView:submit') }}" method="post" enctype="multipart/form-data">
             {% else %}
-                <form id="eannouncementform" action="{{ url_for('e-announcements.EAnnouncementsView:submit') }}" method="post" enctype="multipart/form-data">
+                <form id="eannouncementform" action="{{ url_for('e_announcements.EAnnouncementsView:submit') }}" method="post" enctype="multipart/form-data">
                 <input type="hidden" name="e_announcement_id" id="e_announcement_id"
                        value="{{ e_announcement_id }}"/>
             {% endif %}
