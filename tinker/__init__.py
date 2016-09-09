@@ -1,16 +1,50 @@
 import logging
+import platform
 
+import os
 # flask
 from flask import Flask
 
 # flask extensions
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
 from flask_wtf.csrf import CsrfProtect
 from bu_cascade.cascade_connector import Cascade
 
 app = Flask(__name__)
-app.config.from_object('config.config')
+
+if "testing" not in platform.node():
+    app.config.from_object('config.config')
+else:
+    import ast, glob, os
+    app.debug = True
+    keywords = []
+
+    dist_path = os.path.dirname(__file__) + "/../config/dist"
+    os.chdir(dist_path)
+    for file in glob.glob("*.dist"):
+        with open(dist_path + "/" + file) as f:
+            keyword_lines = f.readlines()
+            for line in keyword_lines:
+                possible_keyword = line.split(" = ")[0]
+                if possible_keyword.isupper():
+                    keywords.append(possible_keyword)
+    for kw in keywords:
+        if kw in ['_basedir', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_MIGRATE_REPO', 'PROGRAM_SEARCH_CSV', 'REDIRECTS_FILE_PATH']:
+            continue
+        value = os.environ[kw]
+        if "[" in value or "{" in value:
+            value = ast.literal_eval(os.environ[kw])
+        app.config[kw] = value
+
+    # These config vars require code operations, and aren't just values
+    _basedir = os.path.abspath(os.path.dirname(__file__))
+    app.config['_basedir'] = _basedir
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db.back')
+    app.config['SQLALCHEMY_MIGRATE_REPO'] = os.path.join(_basedir, 'db_repository')
+    app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../programs.csv')
+    app.config['REDIRECTS_FILE_PATH'] = os.path.join(_basedir, '../redirects.txt')
+
 db = SQLAlchemy(app)
 
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
@@ -51,6 +85,9 @@ app.register_blueprint(EAnnouncementsBlueprint)
 app.register_blueprint(EventsBlueprint)
 app.register_blueprint(FacultyBiosBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
+
+from tinker.unit_test_interface import UnitTestBlueprint
+app.register_blueprint(UnitTestBlueprint)
 
 CsrfProtect(app)
 

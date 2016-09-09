@@ -28,5 +28,3 @@ config.py.dist
 config/*.py
 
 tinker/.DS_Store
-
-*.csv

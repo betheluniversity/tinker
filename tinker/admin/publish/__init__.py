@@ -7,7 +7,7 @@ from bu_cascade.asset_tools import *
 
 # flask
 from flask import Blueprint, render_template, request, abort, session
-from flask.ext.classy import FlaskView, route
+from flask_classy import FlaskView, route
 
 # tinker
 from tinker.admin.publish.publish_manager_controller import PublishManagerController

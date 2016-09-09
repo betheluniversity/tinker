@@ -94,7 +94,7 @@
                 {% set current = edit_data['current'] %}
                 {{ current_hours(current) }}
 
-                <form id="officehoursform" action="/office-hours/" method="post" enctype="multipart/form-data">
+                <form id="officehoursform" action="/office-hours/submit" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="block_id" id="block_id" value="{{ block_id }}"/>
 
                     {% if form.errors %}

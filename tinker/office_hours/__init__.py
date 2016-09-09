@@ -1,8 +1,9 @@
 import re
 
 # flask
-from flask import Blueprint, render_template, session, url_for, request
-from flask.ext.classy import FlaskView, route
+from flask import Blueprint, render_template, session, url_for, redirect, request
+from flask_classy import FlaskView, route
+from flask import json as fjson
 
 # tinker
 from tinker import app
@@ -47,7 +48,8 @@ class OfficeHoursView(FlaskView):
 
         return render_template('office-hours-form.html', **locals())
 
-    def post(self):
+    @route('/submit', methods=['POST'])
+    def submit(self):
         rform = request.form
         block_id = rform.get('block_id')
 
