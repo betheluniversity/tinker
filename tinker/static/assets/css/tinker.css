@@ -36,8 +36,8 @@ h3 {
     margin-top: 0px;
 }
 
-.last-published-header {
-    padding-left: 0px;
+.zero-left-padding {
+    padding-left: 0px !important;
 }
 
 .no-border {
@@ -485,10 +485,6 @@ label {
     font-family: Muli, Helvetica Neue, sans-serif;
 }
 
-#publish-first-col {
-    padding-left: 0px;
-}
-
 /* Checkbox inputs */
 
 input[type='checkbox'] {
@@ -591,6 +587,12 @@ input[type='checkbox']:checked:hover:after {
 @media (max-width: 350px) {
     select#school-selector {
         max-width: 100%;
+    }
+}
+
+@media (max-width: 450px) {
+    .btn {
+        margin-bottom: 5px;
     }
 }
 

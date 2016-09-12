@@ -127,14 +127,14 @@
                         {% elif field.type == 'StringField' %}
                             {% if 'open' in field.name %}
                                 <div>
-                                    <div class="col-sm-5 div-to-hide">
+                                    <div class="col-sm-5 less-left-margin div-to-hide">
                                         <div class="timeRange">
                                             {{ field(class='time start auto-width hide-when-none') }}
                             {% elif 'close' in field.name %}
                                             - {{ field(class='time end auto-width hide-when-none') }}
                                         </div>
                                     </div>
-                                    <div class="col-sm-2">
+                                    <div class="col-sm-2 less-left-margin">
                                         <label><input type="checkbox" class="hide-checkboxes"/><span style="padding-left:1em;">Closed?</span></label>
                                     </div>
                                 </div>
