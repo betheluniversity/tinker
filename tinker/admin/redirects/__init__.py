@@ -17,7 +17,7 @@ RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates
 
 
 class RedirectsView(FlaskView):
-    route_base = '/admin/redirect'
+    route_base = '/admin/redirects
 
     def __init__(self):
         self.base = RedirectsController()
