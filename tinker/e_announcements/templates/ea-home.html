@@ -89,7 +89,7 @@
                 Your E-Announcement will be removed.
             </div>
             <div class="modal-footer">
-                <a id="modal-confirm" href="/e-announcement/delete/formid" type="button"
+                <a id="modal-confirm" href="/e-announcements/delete/formid" type="button"
                    class="btn btn-primary btn-alert modal-confirm">Delete</a>
             </div>
         </div>
@@ -102,7 +102,7 @@
     {#  Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
         $(".delete-press").click(function () {
-            $("#modal-confirm").attr("href", "/e-announcement/delete/" + $(this).data('e-announcement-id'));
+            $("#modal-confirm").attr("href", "/e-announcements/delete/" + $(this).data('e-announcement-id'));
         });
     </script>
 

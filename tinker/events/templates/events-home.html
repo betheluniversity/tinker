@@ -46,10 +46,10 @@
                                         {% endif %}
                                         <br/>
                                         {% if form.is_published %}
-                                            <small>
+{#                                            <small>#}
                                             <p>{{ form.dates | safe }}</p>
-                                            <a href={{ form.path }}>{{ form.path }}</a>
-                                            </small>
+                                            <a class="small-link" href={{ form.path }}>{{ form.path }}</a>
+{#                                            </small>#}
                                         {% endif %}
                                     </p>
                                 </div>

@@ -161,9 +161,9 @@
                 contentType: 'application/json;charset=UTF-8',
                 success: function (result) {
                     $('#table-body').html(result);
+                    $('#spinner').hide();
                 }
             });
-            $('#spinner').hide();
         }
 
         $("#modal-confirm").click(function () {

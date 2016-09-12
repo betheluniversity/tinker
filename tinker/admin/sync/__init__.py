@@ -22,7 +22,8 @@ class SyncView(FlaskView):
 
     def index(self):
         # get the most recent code
-        self.base.git_pull()
+        # todo: this will need to be added back in. but it currently breaks on xp (since its using a different branch)
+        # self.base.git_pull()
 
         metadata_sets_mapping = self.base.get_metadata_sets_mapping()
         data_definition_mapping = self.base.get_data_definitions_mapping()
