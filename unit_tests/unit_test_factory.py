@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 
 
 def convert_method_name_to_caps(method_name):
