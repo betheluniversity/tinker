@@ -12,8 +12,8 @@
 {% block main_content %}
 <h3>Publish Program Feeds</h3>
 
-<a href='{{ url_for('publish-manager.PublishManagerView:publish_program_feeds_return', destination = "staging") }}' class="button">Publish to Staging</a>
-<a href='{{ url_for('publish-manager.PublishManagerView:publish_program_feeds_return', destination = "production") }}' class="button">Publish to Production and Staging</a>
+<a href='{{ url_for('publish.PublishView:publish_program_feeds_return', destination = "staging") }}' class="button">Publish to Staging</a>
+<a href='{{ url_for('publish.PublishView:publish_program_feeds_return', destination = "production") }}' class="button">Publish to Production and Staging</a>
 
     <p>Published these pages to {{ destination }}</p>
     <table>

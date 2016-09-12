@@ -16,7 +16,7 @@
             </li>
 
             <li class="{% if 'e-announcements/' in request.path %}active{% endif %}">
-                <a href="{{ url_for('e-announcements.EAnnouncementsView:index') }}">
+                <a href="{{ url_for('e_announcements.EAnnouncementsView:index') }}">
                     <i class="fa fa-envelope-o"></i>
                     <p>E-Announcements</p>
                 </a>
@@ -31,7 +31,7 @@
 
             {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
                 <li class="{% if 'faculty-bios/' in request.path %}active{% endif %}">
-                    <a href="{{ url_for('faculty-bios.FacultyBiosView:index') }}">
+                    <a href="{{ url_for('faculty_bios.FacultyBiosView:index') }}">
                         <i class="fa fa-user"></i>
                         <p>Faculty Bios</p>
                     </a>
@@ -39,7 +39,7 @@
             {% endif %}
 
             <li class="{% if 'office-hours/' in request.path %}active{% endif %}">
-                <a href="{{ url_for('office-hours.OfficeHoursView:index') }}">
+                <a href="{{ url_for('office_hours.OfficeHoursView:index') }}">
                     <i class="fa fa-clock-o"></i>
                     <p>Office Hours</p>
                 </a>
@@ -54,7 +54,7 @@
                     <ul class="dropdown-menu">
                         {% if 'Administrators' in session['groups'] %}
                             <li>
-                                <a href="{{ url_for('publish-manager.PublishManagerView:index') }}">
+                                <a href="{{ url_for('publish.PublishView:index') }}">
                                     <i class="fa fa-file" aria-hidden="true"></i>
                                     <p class="admin-list-item">Publisher</p>
                                 </a>
@@ -66,7 +66,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ url_for('blink-roles.BlinkRolesView:index') }}" class="button-nav">
+                                <a href="{{ url_for('blink_roles.BlinkRolesView:index') }}" class="button-nav">
                                     <i class="fa fa-users" aria-hidden="true"></i>
                                     <p class="admin-list-item">Blink Layout Owners</p>
                                 </a>
@@ -79,7 +79,7 @@
                             </li>
                         {% endif %}
                         <li>
-                            <a href="{{ url_for('CacheBlueprint.CacheClear:index') }}">
+                            <a href="{{ url_for('cache.CacheView:index') }}">
                                 <i class="fa fa-recycle" aria-hidden="true"></i>
                                 <p class="admin-list-item">Clear Cache</p>
                             </a>

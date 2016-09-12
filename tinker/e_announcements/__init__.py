@@ -14,7 +14,7 @@ from campaign_controller import CampaignController
 from flask import Blueprint, render_template, url_for, redirect, session
 from flask.ext.classy import FlaskView, route, request
 
-EAnnouncementsBlueprint = Blueprint('e-announcements', __name__, template_folder='templates')
+EAnnouncementsBlueprint = Blueprint('e_announcements', __name__, template_folder='templates')
 
 
 class EAnnouncementsView(FlaskView):
@@ -37,7 +37,7 @@ class EAnnouncementsView(FlaskView):
     def delete(self, e_announcement_id):
         # must have access to delete
         if session['username'] not in app.config['E_ANNOUNCEMENTS_ADMINS']:
-            return redirect(url_for('e-announcements.EAnnouncementsView:index'), code=302)
+            return redirect(url_for('e_announcements.EAnnouncementsView:index'), code=302)
 
         # print 'Delete E-Announcement ' + e_announcement_id
         self.base.delete(e_announcement_id, 'block')
@@ -66,7 +66,7 @@ class EAnnouncementsView(FlaskView):
         brm = self.base.brm
         return render_template('form.html', **locals())
 
-    @route("/confirm", methods=['GET'])
+    # @route("/confirm", methods=['GET'])
     @route("/confirm/<status>", methods=['GET'])
     def confirm(self, status='new'):
         return render_template('confirm.html', **locals())
@@ -144,9 +144,9 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('confirm.html', **locals())
 
-    @route("/create_and_send_campaign", methods=['get', 'post'])
+    # @route("/create_and_send_campaign", methods=['get', 'post'])
     @route("/create_campaign", methods=['get', 'post'])
-    @route("/create_campaign/<date>", methods=['get', 'post'])
+    # @route("/create_campaign/<date>", methods=['get', 'post'])
     @requires_auth
     def create_campaign(self, date=None):
         resp = None

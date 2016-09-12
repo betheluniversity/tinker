@@ -3,7 +3,7 @@ import platform
 
 import os
 # flask
-from flask import Flask
+from flask import Flask, url_for
 
 # flask extensions
 from flask_sqlalchemy import SQLAlchemy
@@ -65,7 +65,7 @@ from tinker.admin.cache import CacheBlueprint
 from tinker.admin.blink_roles import BlinkRolesBlueprint
 from tinker.admin.program_search import ProgramSearchBlueprint
 from tinker.admin.sync import SyncBlueprint
-from tinker.admin.publish import PublishManagerBlueprint
+from tinker.admin.publish import PublishBlueprint
 from tinker.admin.program_search import ProgramSearchBlueprint
 from tinker.admin.redirects import RedirectsBlueprint
 from tinker.e_announcements import EAnnouncementsBlueprint
@@ -78,7 +78,7 @@ app.register_blueprint(CacheBlueprint)
 app.register_blueprint(BlinkRolesBlueprint)
 app.register_blueprint(ProgramSearchBlueprint)
 app.register_blueprint(SyncBlueprint)
-app.register_blueprint(PublishManagerBlueprint)
+app.register_blueprint(PublishBlueprint)
 app.register_blueprint(ProgramSearchBlueprint)
 app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(EAnnouncementsBlueprint)
@@ -100,5 +100,12 @@ from tinker_controller import TinkerController
 def before_request():
     base = TinkerController()
     base.before_request()
+
+def get_url_from_path(path, **kwargs):
+    app.config['SERVER_NAME'] = 'foo'
+    with app.app_context():
+        url_to_return = url_for(path, **kwargs)
+        url_to_return = url_to_return.split(app.config['SERVER_NAME'])[1]
+        return url_to_return
 
 #ignore

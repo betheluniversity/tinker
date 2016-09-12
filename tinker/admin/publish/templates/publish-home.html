@@ -139,7 +139,7 @@
                     'name': name_value, 'content': content_value, 'metadata': metadata_value, 'pages': pages_value,
                     'blocks': blocks_value, 'files': files_value, 'folders': folders_value
                 };
-                var url = "{{ url_for('publish-manager.PublishManagerView:search') }}";
+                var url = "{{ url_for('publish.PublishView:search') }}";
                 $.post(url, search, function (data) {
                     updateTable(data)
                 });
@@ -186,7 +186,7 @@
 
             function moreInfo(type, id) {
                 var input_data = {'type': type, 'id': id};
-                var url = "{{ url_for('publish-manager.PublishManagerView:more_info') }}";
+                var url = "{{ url_for('publish.PublishView:more_info') }}";
                 $.post(url, input_data, function (data) {
                     $('#dialog-text').html(data);
                 });

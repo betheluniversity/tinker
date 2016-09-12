@@ -13,6 +13,7 @@ class EventsSequentialTestCase(BaseTestCase):
         self.app = tinker.app.test_client()
         self.eid = None
         self.class_name = self.__class__.__name__
+        self.request_type = ""
         self.request = ""
 
     def get_eid(self, responseData):
@@ -64,44 +65,49 @@ class EventsSequentialTestCase(BaseTestCase):
         # endpoint doesn't work.
 
         # Get new form
-        self.request = "GET /events/add"
+        self.request_type = "GET"
+        self.request = self.generate_url("add")
         expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
-        response = self.send_get("/events/add")
-        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
+        response = self.send_get(self.request)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Submit new form
-        self.request = "POST /events/submit"
+        self.request_type = "POST"
+        self.request = self.generate_url("submit")
         expected_response = b'Take a short break in your day and enjoy this GIF!'
-        response = self.send_post("/events/submit", self.create_form("Test event"))
-        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
+        response = self.send_post(self.request, self.create_form("Test event"))
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
         self.eid = self.get_eid(response.data)
 
         # Get edit form of new object
-        self.request = "GET /events/edit"
+        self.request_type = "GET"
+        self.request = self.generate_url("edit", event_id=self.eid)
         expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
-        response = self.send_get("/events/edit/" + self.eid)
-        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
+        response = self.send_get(self.request)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertNotIn(expected_response, response.data, msg=failure_message)
 
         # Submit edited form
-        self.request = "POST /events/submit"
+        self.request_type = "POST"
+        self.request = self.generate_url("submit")
         expected_response = b'Take a short break in your day and enjoy this GIF!'
-        response = self.send_post("/events/submit", self.create_form("Edited title"))
-        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
+        response = self.send_post(self.request, self.create_form("Edited title"))
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Duplicate edited object
-        self.request = "GET /events/duplicate"
+        self.request_type = "GET"
+        self.request = self.generate_url("duplicate", event_id=self.eid)
         expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
-        response = self.send_get("/events/duplicate/" + self.eid)
-        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
+        response = self.send_get(self.request)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Delete the test event using the now semi-private delete endpoint
-        self.request = "GET /events/delete"
+        self.request = self.generate_url("delete", event_id=self.eid)
         expected_response = b'Your event has been deleted. It will be removed from your'
-        response = self.send_get("/events/delete/" + self.eid)
-        failure_message = self.generate_failure_message(self.request, response.data, expected_response, self.class_name)
+        response = self.send_get(self.request)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

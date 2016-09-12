@@ -5,10 +5,10 @@ from flask_classy import FlaskView, route
 # tinker
 from tinker.admin.cache.cache_controller import CacheController
 
-CacheBlueprint = Blueprint('CacheBlueprint', __name__, template_folder='templates')
+CacheBlueprint = Blueprint('cache', __name__, template_folder='templates')
 
 
-class CacheClear(FlaskView):
+class CacheView(FlaskView):
     route_base = '/admin/cache-clear'
 
     def __init__(self):
@@ -27,4 +27,4 @@ class CacheClear(FlaskView):
         path = request.form['url']
         return self.base.cache_clear(path)
 
-CacheClear.register(CacheBlueprint)
+CacheView.register(CacheBlueprint)

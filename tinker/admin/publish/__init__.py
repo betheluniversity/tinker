@@ -13,10 +13,10 @@ from flask_classy import FlaskView, route
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
 
 
-PublishManagerBlueprint = Blueprint('publish-manager', __name__, template_folder='templates')
+PublishBlueprint = Blueprint('publish', __name__, template_folder='templates')
 
 
-class PublishManagerView(FlaskView):
+class PublishView(FlaskView):
     route_base = '/admin/publish-manager'
 
     def __init__(self):
@@ -177,4 +177,4 @@ class PublishManagerView(FlaskView):
 
         return render_template("publish-more-info.html", **locals())
 
-PublishManagerView.register(PublishManagerBlueprint)
+PublishView.register(PublishBlueprint)
