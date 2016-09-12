@@ -14,7 +14,7 @@ class BlinkRolesView(FlaskView):
         if 'Administrators' not in session['groups']:
             abort(403)
 
-    def index(self):
+    def index(self)
         uid_list = uid
         portal_list = portal
         return render_template('blink-roles-home.html', **locals())

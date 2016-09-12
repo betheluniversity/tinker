@@ -127,7 +127,6 @@ class %(1)sTestCase(BaseTestCase):
 
     for i, key in enumerate(keywords):
         wrong_values = list(correct_values)
-        print wrong_values
         for j in range(0, len(wrong_values)):
             if j == i:
                 wrong_values[j] = "None"
