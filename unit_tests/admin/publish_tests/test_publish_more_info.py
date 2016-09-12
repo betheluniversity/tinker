@@ -23,7 +23,7 @@ class MoreInfoTestCase(BaseTestCase):
     #######################
 
     def test_more_info_valid(self):
-        expected_response = b'<div class="col-sm-6 last-published-header">'
+        expected_response = b'<div class="col-sm-6 zero-left-padding">'
         form_contents = self.create_form("page", "a7404faa8c58651375fc4ed23d7468d5")
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
