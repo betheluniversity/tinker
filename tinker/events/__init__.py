@@ -109,7 +109,7 @@ class EventsView(FlaskView):
         # return redirect(url_for('events.EventsView:confirm'), code=302)
         return render_template("submit-confirm.html", eid=eid)
 
-    @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
+    @route('/api/reset-tinker-edits/<event_id>', methods=['get'])
     def reset_tinker_edits(self, event_id):
         my_page = self.base.read_page(event_id)
 
