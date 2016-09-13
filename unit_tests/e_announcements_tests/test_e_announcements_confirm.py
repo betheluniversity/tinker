@@ -10,7 +10,7 @@ class ConfirmTestCase(BaseTestCase):
         super(ConfirmTestCase, self).__init__(methodName)
         self.class_name = self.__class__.__bases__[0].__name__ + '/' + self.__class__.__name__
         self.request_type = "GET"
-        self.request = self.generate_url("confirm")
+        self.request = self.generate_url("confirm", status="new")
 
     #######################
     ### Testing methods ###

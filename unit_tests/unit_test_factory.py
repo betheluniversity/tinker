@@ -155,7 +155,7 @@ class %(1)sTestCase(BaseTestCase):
     print "A new set of POST unit tests have been generated for", destination_path + "/" + method_name
 
 
-generate_tests = True
+generate_tests = False
 if generate_tests:
     create_get_test("admin/blink_roles", "index", '<h2 class="first-subtitle"> Blink Layout Owners </h2>')
     create_get_test("admin/cache", "index", '<input type="text" value="" id="cpath" class="form-control"/>')
@@ -173,8 +173,8 @@ if generate_tests:
     correct_dictionary = {}
     create_post_tests("admin/program_search", "multi_delete", correct_dictionary, "Deleted ids:", "400 Bad Request")
     create_get_test("admin/publish", "index", '<img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>')
-    create_get_test("admin/publish", "publish_program_feeds", '<h3 class="subtitle">Publish Program Feeds</h3>')
-    create_get_test("admin/publish", "publish_program_feeds_return", 'Published these pages to')
+    # create_get_test("admin/publish", "publish_program_feeds", '<h3 class="subtitle">Publish Program Feeds</h3>')
+    # create_get_test("admin/publish", "publish_program_feeds_return", 'Published these pages to')
 
     correct_dictionary = {'files': 'true', 'folders': 'true', 'blocks': 'true', 'name': '*projections-and-dreams*', 'content': '*This exhibition brings*', 'pages': 'true', 'metadata': '*summary*'}
     create_post_tests("admin/publish", "search", correct_dictionary, "<tr class=\"publish-table\">", "400 Bad Request")
