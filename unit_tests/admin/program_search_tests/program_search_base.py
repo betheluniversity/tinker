@@ -25,5 +25,4 @@ class ProgramSearchBaseTestCase(BaseTestCase):
     def tearDown(self):
         tinker.app.config['PROGRAM_SEARCH_CSV'] = self.permanent_path
         os.remove(self.temp_path)
-        # pass
 
