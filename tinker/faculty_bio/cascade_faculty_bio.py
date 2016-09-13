@@ -272,14 +272,8 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         image_name = add_data['image_url'].split('/')[-1]
         image = structured_file_data_node('image', "/academics/faculty/images/" + image_name)
 
-    if faculty_bio_id and faculty_bio_id == 'aab255628c5865131315e7c4685d543b':
-        head_faculty_node = structured_data_node("head-faculty", 'Yes')
-    else:
-        head_faculty_node = structured_data_node("head-faculty", 'No')
-
     # Create a list of all the data nodes
     structured_data = [
-        head_faculty_node,
         structured_data_node("deactivate", 'No'),
         structured_data_node("first", add_data['first']),
         structured_data_node("last", add_data['last']),
