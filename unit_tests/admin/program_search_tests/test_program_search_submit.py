@@ -1,8 +1,7 @@
-from program_search_base import ProgramSearchBaseTestCase
-import json
+from unit_tests import BaseTestCase
 
 
-class SubmitTestCase(ProgramSearchBaseTestCase):
+class SubmitTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################
@@ -13,22 +12,62 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("submit")
 
-    def create_form(self):
-        return json.dumps({
-            'key': "x",
-            'tag': "z",
-            'outcome': "False",
-            'topic': "False",
-            'other': "False"
-        })
+    def create_form(self, topic, outcome, tag, other, key):
+        return {
+            'topic': topic,
+            'outcome': outcome,
+            'tag': tag,
+            'other': other,
+            'key': key
+        }
 
     #######################
     ### Testing methods ###
     #######################
 
     def test_submit_valid(self):
-        expected_response = b'<label for="key" style="color: #252422">Concentration Code or Program Name:</label>'
-        form_contents = self.create_form()
+        expected_response = b'<form id='program_search_form' method="post">'
+        form_contents = self.create_form("False", "False", "z", "False", "x")
+        response = self.send_post(self.request, form_contents)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        self.assertIn(expected_response, response.data, msg=failure_message)
+
+
+    def test_submit_invalid_topic(self):
+        expected_response = b'400 Bad Request'
+        form_contents = self.create_form(None, "False", "z", "False", "x")
+        response = self.send_post(self.request, form_contents)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        self.assertIn(expected_response, response.data, msg=failure_message)
+
+
+    def test_submit_invalid_outcome(self):
+        expected_response = b'400 Bad Request'
+        form_contents = self.create_form("False", None, "z", "False", "x")
+        response = self.send_post(self.request, form_contents)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        self.assertIn(expected_response, response.data, msg=failure_message)
+
+
+    def test_submit_invalid_tag(self):
+        expected_response = b'400 Bad Request'
+        form_contents = self.create_form("False", "False", None, "False", "x")
+        response = self.send_post(self.request, form_contents)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        self.assertIn(expected_response, response.data, msg=failure_message)
+
+
+    def test_submit_invalid_other(self):
+        expected_response = b'400 Bad Request'
+        form_contents = self.create_form("False", "False", "z", None, "x")
+        response = self.send_post(self.request, form_contents)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        self.assertIn(expected_response, response.data, msg=failure_message)
+
+
+    def test_submit_invalid_key(self):
+        expected_response = b'400 Bad Request'
+        form_contents = self.create_form("False", "False", "z", "False", None)
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

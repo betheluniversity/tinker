@@ -1,7 +1,7 @@
-from redirects_base import RedirectsBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class CompileTestCase(RedirectsBaseTestCase):
+class CompileTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################
@@ -17,7 +17,7 @@ class CompileTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_compile(self):
-        expected_response = b'done'
+        expected_response = b'<form action="" id="new-redirect-form">'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

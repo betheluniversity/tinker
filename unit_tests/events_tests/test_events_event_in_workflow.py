@@ -17,7 +17,7 @@ class EventInWorkflowTestCase(BaseTestCase):
     #######################
 
     def test_event_in_workflow(self):
-        expected_response = b'Edits pending approval'
+        expected_response = b'Your edits are pending approval. Please wait until they have been approved before you make additional edits.'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

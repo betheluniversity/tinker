@@ -1,7 +1,7 @@
-from redirects_base import RedirectsBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class SearchTestCase(RedirectsBaseTestCase):
+class SearchTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################
@@ -12,10 +12,10 @@ class SearchTestCase(RedirectsBaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("search")
 
-    def create_form(self, search_type, search):
+    def create_form(self, search, type):
         return {
-            'type': search_type,
-            'search': search
+            'search': search,
+            'type': type
         }
 
     #######################
@@ -23,22 +23,24 @@ class SearchTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_search_valid(self):
-        expected_response = b'<span class="from_path">'
-        form_contents = self.create_form("from_path", "/")
+        expected_response = b'<tr class="redirect-row table-hover" data-reveal-id="confirmModal" data-toggle="modal" data-target="#myModal"'
+        form_contents = self.create_form("/", "from_path")
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
+
+
+    def test_search_invalid_search(self):
+        expected_response = b'400 Bad Request'
+        form_contents = self.create_form(None, "from_path")
+        response = self.send_post(self.request, form_contents)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        self.assertIn(expected_response, response.data, msg=failure_message)
+
 
     def test_search_invalid_type(self):
         expected_response = b'400 Bad Request'
-        form_contents = self.create_form(None, "/")
-        response = self.send_post(self.request, form_contents)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def test_search_invalid_term(self):
-        expected_response = b'400 Bad Request'
-        form_contents = self.create_form("from_path", None)
+        form_contents = self.create_form("/", None)
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

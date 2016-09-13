@@ -1,7 +1,7 @@
-from redirects_base import RedirectsBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class ExpireTestCase(RedirectsBaseTestCase):
+class ExpireTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

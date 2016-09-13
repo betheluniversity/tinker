@@ -7,6 +7,8 @@
 # Currently, the unit testing suite takes about 2 minutes to run.
 
 import os
+import tempfile
+import shutil
 from inspect import stack
 import tinker
 import unittest
@@ -16,6 +18,15 @@ from tinker import get_url_from_path
 class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
+        self.temp_dir = tempfile.gettempdir()
+        self.temp_path = os.path.join(self.temp_dir, 'tempCSV.csv')
+        self.permanent_csv_path = tinker.app.config['PROGRAM_SEARCH_CSV']
+        shutil.copy2(tinker.app.config['PROGRAM_SEARCH_CSV'], self.temp_path)
+        tinker.app.config['PROGRAM_SEARCH_CSV'] = self.temp_path
+        self.temp_path = os.path.join(self.temp_dir, 'tempDB.db')
+        self.permanent_db_path = tinker.app.config['SQLALCHEMY_DATABASE_URI']
+        shutil.copy2(tinker.app.config['SQLALCHEMY_DATABASE_URI'].split('sqlite://')[1], self.temp_path)
+        tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + self.temp_path
         tinker.app.testing = True
         tinker.app.config['WTF_CSRF_ENABLED'] = False
         tinker.app.config['WTF_CSRF_METHODS'] = []
@@ -46,7 +57,9 @@ class BaseTestCase(unittest.TestCase):
                {'0': type, '1': request, '2': response_data, '3': expected_response, '4': class_name}
 
     def tearDown(self):
-        pass
+        tinker.app.config['SQLALCHEMY_DATABASE_URI'] = self.permanent_db_path
+        tinker.app.config['PROGRAM_SEARCH_CSV'] = self.permanent_csv_path
+        os.remove(self.temp_path)
 
 
 if __name__ == "__main__":

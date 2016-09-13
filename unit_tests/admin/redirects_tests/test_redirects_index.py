@@ -1,7 +1,7 @@
-from redirects_base import RedirectsBaseTestCase
+from unit_tests import BaseTestCase
 
 
-class IndexTestCase(RedirectsBaseTestCase):
+class IndexTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################

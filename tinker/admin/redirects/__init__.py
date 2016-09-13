@@ -111,7 +111,7 @@ class RedirectsView(FlaskView):
         return 'done'
 
     # This creates redirects generically from a google script and the webmaster email box
-    @route('/public/api-submit', methods=['get', 'post'])
+    @route('/public/api-submit', methods=['post'])
     def new_api_submit(self):
         body = request.form['body']
 
@@ -136,7 +136,7 @@ class RedirectsView(FlaskView):
         return str(redirect)
 
     # This creates a redirect for job postings from a google script and the webmaster email box
-    @route('/public/api-submit-asset-expiration', methods=['get', 'post'])
+    @route('/public/api-submit-asset-expiration', methods=['post'])
     def new_api_submit_asset_expiration(self):
         from_path = ''
         to_url = ''
@@ -167,7 +167,7 @@ class RedirectsView(FlaskView):
 
         return str(redirect)
 
-    @route('/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
+    @route('/new-internal-submit/<from_path>/<to_url>', methods=['get'])
     def new_internal_redirect_submit(self, from_path, to_url):
         if not from_path.startswith("/"):
             from_path = "/%s" % from_path

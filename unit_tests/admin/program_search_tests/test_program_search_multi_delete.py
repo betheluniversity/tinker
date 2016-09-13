@@ -1,8 +1,7 @@
-from program_search_base import ProgramSearchBaseTestCase
-import json
+from unit_tests import BaseTestCase
 
 
-class MultiDeleteTestCase(ProgramSearchBaseTestCase):
+class MultiDeleteTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################
@@ -13,14 +12,16 @@ class MultiDeleteTestCase(ProgramSearchBaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("multi_delete")
 
-    def create_form(self):
-        return json.dumps(["2044"])
+    def create_form(self, ):
+        return {
+            
+        }
 
     #######################
     ### Testing methods ###
     #######################
 
-    def test_multi_delete(self):
+    def test_multi_delete_valid(self):
         expected_response = b'Deleted ids:'
         form_contents = self.create_form()
         response = self.send_post(self.request, form_contents)

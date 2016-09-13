@@ -17,7 +17,7 @@ class IndexTestCase(BaseTestCase):
     #######################
 
     def test_index(self):
-        expected_response = b'<form id="program_search_form" method="post">'
+        expected_response = b'Below is a list of faculty bios you have access to edit. If you don't see your faculty'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

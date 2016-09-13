@@ -21,9 +21,17 @@ class AllTestCase(BaseTestCase):
     ### Testing methods ###
     #######################
 
-    def test_all(self):
-        expected_response = b'<h3>Successfully Synced'
+    def test_all_valid(self):
+        expected_response = b'Successfully Synced'
         form_contents = self.create_form("yes")
+        response = self.send_post(self.request, form_contents)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        self.assertIn(expected_response, response.data, msg=failure_message)
+
+
+    def test_all_invalid_id(self):
+        expected_response = b'400 Bad Request'
+        form_contents = self.create_form(None)
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

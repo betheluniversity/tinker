@@ -10,14 +10,14 @@ class ConfirmTestCase(BaseTestCase):
         super(ConfirmTestCase, self).__init__(methodName)
         self.class_name = self.__class__.__bases__[0].__name__ + '/' + self.__class__.__name__
         self.request_type = "GET"
-        self.request = self.generate_url("confirm", status='new')
+        self.request = self.generate_url("confirm", status="new")
 
     #######################
     ### Testing methods ###
     #######################
 
     def test_confirm(self):
-        expected_response = b"You've successfully created your E-Announcement. Once your E-Announcement has been approved,"
+        expected_response = b'Once your E-Announcement has been approved, it'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
