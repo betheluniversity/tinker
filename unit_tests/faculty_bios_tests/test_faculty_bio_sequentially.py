@@ -1,8 +1,5 @@
-import time
-
 import re
-
-import tinker
+import time
 from unit_tests import BaseTestCase
 
 

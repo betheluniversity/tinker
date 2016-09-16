@@ -1,6 +1,5 @@
-from program_search_base import ProgramSearchBaseTestCase
 import json
-import xml.dom.minidom as XML
+from program_search_base import ProgramSearchBaseTestCase
 
 
 class SubmitTestCase(ProgramSearchBaseTestCase):

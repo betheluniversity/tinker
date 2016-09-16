@@ -1,8 +1,6 @@
+import os
 import shutil
 import tempfile
-
-import os
-
 import tinker
 from unit_tests import BaseTestCase
 

@@ -1,5 +1,4 @@
 import re
-import tinker
 from unit_tests import BaseTestCase
 
 
