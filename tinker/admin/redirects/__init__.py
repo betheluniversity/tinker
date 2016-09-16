@@ -154,7 +154,7 @@ class RedirectsView(FlaskView):
         except:
             message = "redirect from %s to %s already exists" % (from_path, to_url)
             sender = 'tinker@bethel.edu'
-            receivers = ['ces55739@bethel.edu']
+            receivers = app.config['ADMINS']
 
             smtp_obj = smtplib.SMTP('localhost')
             smtp_obj.sendmail(sender, receivers, message)

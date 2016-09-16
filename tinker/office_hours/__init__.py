@@ -53,14 +53,15 @@ class OfficeHoursView(FlaskView):
         rform = request.form
         block_id = rform.get('block_id')
 
-        block = self.base.read_block(block_id)
+        if block_id:
+            block = self.base.read_block(block_id)
 
-        data, mdata, sdata = block.read_asset()
-        asset = self.base.update_structure(data, mdata, rform)
-        self.base.rotate_hours(asset)
+            data, mdata, sdata = block.read_asset()
+            asset = self.base.update_structure(data, mdata, rform)
+            self.base.rotate_hours(asset)
 
-        resp = str(block.edit_asset(asset))
-        self.base.log_sentry("Office Hour Submission", resp)
+            resp = str(block.edit_asset(asset))
+            self.base.log_sentry("Office Hour Submission", resp)
 
         return render_template('office-hours-confirm.html', **locals())
 

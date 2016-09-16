@@ -255,7 +255,7 @@ class EAnnouncementsView(FlaskView):
 
     def edit_all(self):
         type_to_find = 'system-block'
-        xml_url = app.config['E_ANNOUNCEMENTS_URL']
+        xml_url = app.config['E_ANNOUNCEMENTS_XML_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 

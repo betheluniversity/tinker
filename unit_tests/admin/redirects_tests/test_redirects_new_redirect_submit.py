@@ -33,14 +33,14 @@ class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
         # add an assertion that it got added to the database
 
     def test_new_redirect_submit_invalid_from(self):
-        expected_response = b'400 Bad Request'
+        expected_response = self.ERROR_400
         form_contents = self.create_new_form_submission(None, "to!")
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_new_redirect_submit_invalid_to(self):
-        expected_response = b'400 Bad Request'
+        expected_response = self.ERROR_400
         form_contents = self.create_new_form_submission("from?", None)
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)

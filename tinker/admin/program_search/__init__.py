@@ -36,16 +36,19 @@ class ProgramSearchView(FlaskView):
         school_labels = self.base.get_school_labels()
         program_concentrations = self.base.get_programs_for_dropdown()
 
-        rform = json.loads(request.data)
-        key = rform.get('key')
-        tag = rform.get('tag')
+        try:
+            rform = json.loads(request.data)
+            key = rform.get('key')
+            tag = rform.get('tag')
 
-        if key == 'Any' or tag == '' or tag is None:
-            return render_template('program-search-home.html', **locals())
+            if key == 'Any' or tag == '' or tag is None:
+                return render_template('program-search-home.html', **locals())
 
-        outcome = ast.literal_eval(rform.get('outcome'))
-        topic = ast.literal_eval(rform.get('topic'))
-        other = ast.literal_eval(rform.get('other'))
+            outcome = ast.literal_eval(rform.get('outcome'))
+            topic = ast.literal_eval(rform.get('topic'))
+            other = ast.literal_eval(rform.get('other'))
+        except ValueError:
+            return abort(500)
 
         try:
             program_tag = ProgramTag(key=key, tag=tag, outcome=outcome, other=other, topic=topic)
@@ -71,9 +74,12 @@ class ProgramSearchView(FlaskView):
 
     @route('/search', methods=['post'])
     def search(self):
-        data = json.loads(request.data)
-        search_tag = data['search_tag']
-        search_key = data['search_key']
+        try:
+            data = json.loads(request.data)
+            search_tag = data['search_tag']
+            search_key = data['search_key']
+        except ValueError:
+            return abort(500)
         search_results = []
         results_from_search_tag = []
         results_from_search_key = []
