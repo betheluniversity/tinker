@@ -4,7 +4,7 @@
 # 2. Find some way to pass test object ids back and forth between unit tests so that the test_sequentially files can be
 #       split into individual, granular unit tests.
 #
-# Currently, the unit testing suite takes about 2 minutes to run.
+# Currently, the unit testing suite takes about 3 minutes to run.
 
 import os
 import re
@@ -21,6 +21,11 @@ class BaseTestCase(unittest.TestCase):
         self.ERROR_400 = b'<p>The browser (or proxy) sent a request that this server could not understand.</p>'
         self.ERROR_404 = b'<h1 class="oversized"> It\'s probably not a problem, probably.</h1>'
         self.ERROR_500 = b'fixing the loose wire right now. Check back soon!</h5>'
+        current_frame = stack()[1]
+        file_of_current_frame = current_frame[0].f_globals.get('__file__', None)
+        dir_path_to_current_frame = os.path.dirname(file_of_current_frame)
+        name_of_last_folder = dir_path_to_current_frame.split("/")[-1]
+        self.class_name = name_of_last_folder + "/" + self.__class__.__name__
 
     def setUp(self):
         tinker.app.testing = True

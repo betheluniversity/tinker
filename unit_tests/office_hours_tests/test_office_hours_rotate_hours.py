@@ -9,7 +9,6 @@ class RotateHoursTestCase(BaseTestCase):
 
     def __init__(self, methodName):
         super(RotateHoursTestCase, self).__init__(methodName)
-        self.class_name = self.__class__.__bases__[0].__name__ + '/' + self.__class__.__name__
         self.request_type = "GET"
         self.request = ""
 
