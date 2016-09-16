@@ -8,9 +8,9 @@
 
 import os
 import re
-from inspect import stack
 import tinker
 import unittest
+from inspect import stack
 from tinker import get_url_from_path
 
 
