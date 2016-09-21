@@ -1,7 +1,6 @@
 import logging
 import platform
 
-import os
 # flask
 from flask import Flask, url_for
 
@@ -59,6 +58,16 @@ if not app.debug:
     app.logger.setLevel(logging.DEBUG)
 
 
+# This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
+def get_url_from_path(path, **kwargs):
+    app.config['SERVER_NAME'] = '127.0.0.1:5000'  # This may need to be changed to tinker.bethel.edu on production?
+    with app.app_context():
+        url_to_return = url_for(path, **kwargs)
+        if app.config['SERVER_NAME'] in url_to_return:
+            url_to_return = url_to_return.split(app.config['SERVER_NAME'])[1]
+        return url_to_return
+
+
 # New importing of routes and blueprints
 from tinker.views import BaseBlueprint
 from tinker.admin.cache import CacheBlueprint
@@ -101,13 +110,5 @@ def before_request():
     base = TinkerController()
     base.before_request()
 
-
-def get_url_from_path(path, **kwargs):
-    app.config['SERVER_NAME'] = '127.0.0.1:5000'  # This may need to be changed to tinker.bethel.edu on production?
-    with app.app_context():
-        url_to_return = url_for(path, **kwargs)
-        if app.config['SERVER_NAME'] in url_to_return:
-            url_to_return = url_to_return.split(app.config['SERVER_NAME'])[1]
-        return url_to_return
 
 #ignore

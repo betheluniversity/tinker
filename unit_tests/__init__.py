@@ -12,6 +12,7 @@ import tinker
 import unittest
 from inspect import stack
 from tinker import get_url_from_path
+from unit_test_utilities import get_tests_in_this_dir
 
 
 class BaseTestCase(unittest.TestCase):
@@ -58,6 +59,12 @@ class BaseTestCase(unittest.TestCase):
                {'0': type, '1': request, '2': self.get_useful_string(response_data), '3': expected_response,
                 '4': class_name}
 
+    def assertIn(self, substring, string_to_check, msg=None):
+        self.failIf(substring not in string_to_check, msg=msg)
+
+    def assertNotIn(self, substring, string_to_check, msg=None):
+        self.failIf(substring in string_to_check, msg=msg)
+
     def strip_whitespace(self, string):
         lines = string.split("\n")
         to_return = ""
@@ -85,7 +92,7 @@ class BaseTestCase(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    testsuite = unittest.TestLoader().discover('.')
+    testsuite = get_tests_in_this_dir(".")
     unittest.TextTestRunner(verbosity=1).run(testsuite)
 
 
