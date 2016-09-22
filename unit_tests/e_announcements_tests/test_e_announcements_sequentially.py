@@ -1,18 +1,12 @@
 import re
-
-import tinker
 from unit_tests import BaseTestCase
 
 
 class EAnnouncementsSequentialTestCase(BaseTestCase):
 
-    def setUp(self):
-        tinker.app.testing = True
-        tinker.app.config['WTF_CSRF_ENABLED'] = False
-        tinker.app.config['WTF_CSRF_METHODS'] = []
-        self.app = tinker.app.test_client()
+    def __init__(self, methodName):
+        super(EAnnouncementsSequentialTestCase, self).__init__(methodName)
         self.eaid = None
-        self.class_name = self.__class__.__name__
         self.request_type = ""
         self.request = ""
 

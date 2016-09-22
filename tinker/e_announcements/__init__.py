@@ -12,7 +12,7 @@ from campaign_controller import CampaignController
 
 # flask
 from flask import Blueprint, render_template, url_for, redirect, session
-from flask.ext.classy import FlaskView, route, request
+from flask_classy import FlaskView, route, request
 
 EAnnouncementsBlueprint = Blueprint('e_announcements', __name__, template_folder='templates')
 
@@ -255,7 +255,7 @@ class EAnnouncementsView(FlaskView):
 
     def edit_all(self):
         type_to_find = 'system-block'
-        xml_url = app.config['E_ANNOUNCEMENTS_URL']
+        xml_url = app.config['E_ANNOUNCEMENTS_XML_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 

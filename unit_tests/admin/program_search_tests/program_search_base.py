@@ -1,8 +1,6 @@
+import os
 import shutil
 import tempfile
-
-import os
-
 import tinker
 from unit_tests import BaseTestCase
 
@@ -17,6 +15,7 @@ class ProgramSearchBaseTestCase(BaseTestCase):
         shutil.copy2(tinker.app.config['PROGRAM_SEARCH_CSV'], self.temp_path)
         tinker.app.config['PROGRAM_SEARCH_CSV'] = self.temp_path
         tinker.app.testing = True
+        tinker.app.config['ENVIRON'] = "test"
         tinker.app.config['WTF_CSRF_ENABLED'] = False
         tinker.app.config['WTF_CSRF_METHODS'] = []
         self.app = tinker.app.test_client()
@@ -25,5 +24,3 @@ class ProgramSearchBaseTestCase(BaseTestCase):
     def tearDown(self):
         tinker.app.config['PROGRAM_SEARCH_CSV'] = self.permanent_path
         os.remove(self.temp_path)
-        # pass
-

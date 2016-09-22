@@ -19,7 +19,6 @@ def create_path(path):
             print "Creating new __init__ in", path
             os.mkdir(path)
             init_contents = """import unittest
-
 if __name__ == "__main__":
     testsuite = unittest.TestLoader().discover('.')
     unittest.TextTestRunner(verbosity=1).run(testsuite)
@@ -31,23 +30,18 @@ if __name__ == "__main__":
 
 def create_get_test(destination_path, method_name, expected_response):
     file_contents = """from unit_tests import BaseTestCase
-
-
 class %(1)sTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################
-
     def __init__(self, methodName):
         super(%(1)sTestCase, self).__init__(methodName)
         self.class_name = self.__class__.__bases__[0].__name__ + '/' + self.__class__.__name__
         self.request_type = "GET"
         self.request = self.generate_url("%(0)s")
-
     #######################
     ### Testing methods ###
     #######################
-
     def test_%(0)s(self):
         expected_response = b'%(2)s'
         response = self.send_get(self.request)
@@ -94,28 +88,22 @@ def create_post_tests(destination_path, method_name, correct_dict, expected_succ
         return to_return
 
     file_contents = """from unit_tests import BaseTestCase
-
-
 class %(1)sTestCase(BaseTestCase):
     #######################
     ### Utility methods ###
     #######################
-
     def __init__(self, methodName):
         super(%(1)sTestCase, self).__init__(methodName)
         self.class_name = self.__class__.__bases__[0].__name__ + '/' + self.__class__.__name__
         self.request_type = "POST"
         self.request = self.generate_url("%(0)s")
-
     def create_form(self, %(3)s):
         return {
             %(4)s
         }
-
     #######################
     ### Testing methods ###
     #######################
-
     def test_%(0)s_valid(self):
         expected_response = b'%(2)s'
         form_contents = self.create_form(%(5)s)
@@ -135,7 +123,6 @@ class %(1)sTestCase(BaseTestCase):
                 wrong_values[j] = "\"" + wrong_values[j] + "\""
         incorrect_kwargs = create_kwargs(wrong_values, False)
         file_contents += """
-
     def test_%(0)s_invalid_%(1)s(self):
         expected_response = b'%(2)s'
         form_contents = self.create_form(%(3)s)
@@ -153,11 +140,3 @@ class %(1)sTestCase(BaseTestCase):
     new_test_file.write(file_contents)
     new_test_file.close()
     print "A new set of POST unit tests have been generated for", destination_path + "/" + method_name
-
-
-# create_get_test("factory", "index", "gobble-dee-gook")
-# correct_dictionary = {
-#     'first_key': "alpha",
-#     'second_key': "two"
-# }
-# create_post_tests("factory", "submit", correct_dictionary, "gobble-dee-gook", "failed")

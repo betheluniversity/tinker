@@ -4,6 +4,7 @@ import time
 import cgi
 from xml.etree import ElementTree as ET
 import requests
+from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlatformWarning
 import datetime
 import fnmatch
 import hashlib
@@ -83,6 +84,9 @@ def requires_auth(f):
 
 class TinkerController(object):
     def __init__(self):
+        # These two lines are to suppress warnings that only occur in 2.6.9; they are unnecessary in 2.7+
+        requests.packages.urllib3.disable_warnings(SNIMissingWarning)
+        requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
         self.datetime_format = "%B %d %Y, %I:%M %p"
         self.cascade_connector = cascade_connector
 
@@ -530,3 +534,25 @@ class TinkerController(object):
 
     def search_cascade(self, search_information):
        return self.cascade_connector.search(search_information)
+
+    def edit_all(self, type_to_find, xml_url):
+        # assets_to_edit = self.traverse_xml(xml_url, type_to_find)
+        # for page_values in assets_to_edit:
+        #     id = page_values['id']
+        #     if type_to_find == 'system-page':
+        #         asset = self.read_page(id)
+        #     elif type_to_find == 'system-block':
+        #         asset = self.read_block(id)
+        #     else:
+        #         continue
+        #
+        #     asset_data, mdata, sdata = asset.get_asset()
+        #     self.edit_all_callback(asset_data)
+        #     asset.edit_asset(asset_data)
+        #     asset.publish_asset()
+        pass
+
+    def edit_all_callback(self, asset_data):
+        pass
+
+
