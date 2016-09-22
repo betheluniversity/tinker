@@ -31,6 +31,7 @@ class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
         tinker.app.testing = True
+        tinker.app.config['ENVIRON'] = "test"
         tinker.app.config['WTF_CSRF_ENABLED'] = False
         tinker.app.config['WTF_CSRF_METHODS'] = []
         self.app = tinker.app.test_client()
