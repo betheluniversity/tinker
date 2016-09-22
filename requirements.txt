@@ -19,7 +19,6 @@ feedformatter
 feedparser
 createsend
 raven
-blinker
 Flask-Classy
 bu-cascade
 blinker
