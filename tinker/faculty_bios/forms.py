@@ -7,7 +7,7 @@ from wtforms import Field
 from wtforms import HiddenField
 from wtforms import SelectField
 from wtforms import TextAreaField
-from wtforms import TextField
+from wtforms import StringField
 from wtforms import ValidationError
 from wtforms import validators
 
@@ -85,15 +85,15 @@ class FacultyBioForm(Form):
         image = FileField("Image")
         image_url = HiddenField("Image URL")
 
-    first = TextField('Faculty first name', validators=[validators.DataRequired()])
-    last = TextField('Faculty last name', validators=[validators.DataRequired()])
-    author = TextField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
+    first = StringField('Faculty first name', validators=[validators.DataRequired()])
+    last = StringField('Faculty last name', validators=[validators.DataRequired()])
+    author = StringField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
                        description="Enter your Bethel username.")
 
-    new_job_titles = TextField('')
+    new_job_titles = StringField('')
 
-    email = TextField('Email', validators=[validators.DataRequired()])
-    started_at_bethel = TextField('Started at Bethel in', validators=[validators.DataRequired()],
+    email = StringField('Email', validators=[validators.DataRequired()])
+    started_at_bethel = StringField('Started at Bethel in', validators=[validators.DataRequired()],
                                   description="Enter a year")
 
     heading_choices = (
@@ -125,9 +125,9 @@ class FacultyBioForm(Form):
     organizations = CKEditorTextAreaField('Professional Organizations, Committees, and Boards')
     hobbies = CKEditorTextAreaField('Hobbies and interests')
 
-    quote = TextField('Quote')
+    quote = StringField('Quote')
 
-    website = TextField('Professional website or blog')
+    website = StringField('Professional website or blog')
 
     # Manually override validate, in order to check the 3 headers below
     def validate(self):

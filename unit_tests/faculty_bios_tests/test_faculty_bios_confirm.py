@@ -1,15 +1,21 @@
 from unit_tests import BaseTestCase
+
+
 class ConfirmTestCase(BaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################
+
     def __init__(self, methodName):
         super(ConfirmTestCase, self).__init__(methodName)
         self.request_type = "GET"
         self.request = self.generate_url("confirm")
+
     #######################
     ### Testing methods ###
     #######################
+
     def test_confirm(self):
         expected_response = b'<h1 class="first-subtitle">Congrats!</h1>'
         response = self.send_get(self.request)

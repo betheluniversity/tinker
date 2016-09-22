@@ -7,6 +7,7 @@
 # Currently, the unit testing suite takes about 3 minutes to run.
 
 import os
+os.environ['unit_testing'] = "True"
 import re
 import tinker
 import unittest

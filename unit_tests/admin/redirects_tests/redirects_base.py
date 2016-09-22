@@ -70,7 +70,6 @@ class RedirectsBaseTestCase(BaseTestCase):
         self.temp_path = os.path.join(self.temp_dir, 'tempDB.db')
         self.permanent_path = tinker.app.config['SQLALCHEMY_DATABASE_URI']
         shutil.copy2(tinker.app.config['SQLALCHEMY_DATABASE_URI'].split('sqlite://')[1], self.temp_path)
-        os.system("chown www-data %s" % self.temp_path)
         tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + self.temp_path
         tinker.app.testing = True
         tinker.app.config['WTF_CSRF_ENABLED'] = False

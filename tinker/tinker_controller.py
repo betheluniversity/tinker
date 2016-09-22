@@ -4,6 +4,7 @@ import time
 import cgi
 from xml.etree import ElementTree as ET
 import requests
+from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlatformWarning
 import datetime
 import fnmatch
 import hashlib
@@ -83,6 +84,9 @@ def requires_auth(f):
 
 class TinkerController(object):
     def __init__(self):
+        # These two lines are to suppress warnings that only occur in 2.6.9; they are unnecessary in 2.7+
+        requests.packages.urllib3.disable_warnings(SNIMissingWarning)
+        requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
         self.datetime_format = "%B %d %Y, %I:%M %p"
         self.cascade_connector = cascade_connector
 

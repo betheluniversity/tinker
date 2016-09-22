@@ -1,4 +1,12 @@
+# The ignore DeprecationWarning code here is because flask is still referencing request.json somewhere in its code,
+# when it should instead be getting request.get_json(). Werkzeug allows it, but throws the deprecation warning. As of
+# Sept. 22, 2016, that is the only warning being thrown. Periodically this ignore should be commented out to make sure
+# our code is not throwing the deprecated warnings
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 import logging
+import os
 import platform
 
 # flask
@@ -15,7 +23,7 @@ app = Flask(__name__)
 if "testing" not in platform.node():
     app.config.from_object('config.config')
 else:
-    import ast, glob, os
+    import ast, glob
     app.debug = True
     keywords = []
 
@@ -47,6 +55,9 @@ else:
 db = SQLAlchemy(app)
 
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
+
+if os.environ['unit_testing'] == "True":
+    app.config['SENTRY_URL'] = ''
 
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 

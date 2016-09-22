@@ -2,6 +2,7 @@ from unit_tests import BaseTestCase
 
 
 class InWorkflowTestCase(BaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################
