@@ -22,4 +22,5 @@ raven
 blinker
 Flask-Classy
 bu-cascade
+blinker
 discover
