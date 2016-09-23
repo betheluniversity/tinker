@@ -304,17 +304,18 @@ def create_single_announcement(announcement):
     return_value = ''
     count = 1
 
-    for role in announcement['roles']:
-        prepended_role = '20322-%s' % role
-        if count == 1:
-            return_value = '[if:%s=Y]' % prepended_role
-        else:
-            return_value += '[elseif:%s=Y]' % prepended_role
+    if len(announcement['roles']) > 0:
+        for role in announcement['roles']:
+            prepended_role = '20322-%s' % role
+            if count == 1:
+                return_value = '[if:%s=Y]' % prepended_role
+            else:
+                return_value += '[elseif:%s=Y]' % prepended_role
 
-        return_value += e_announcement_html(announcement)
-        count = count+1
+            return_value += e_announcement_html(announcement)
+            count = count+1
 
-    return_value += '[endif]'
+        return_value += '[endif]'
 
     return return_value
 
