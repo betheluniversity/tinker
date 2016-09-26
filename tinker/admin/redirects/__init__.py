@@ -84,6 +84,8 @@ class RedirectsView(FlaskView):
             self.base.database_add(redirect)
             # Update the file after every submit?
             self.base.create_redirect_text_file()
+            new_thing = BethelRedirect.query.filter(BethelRedirect.from_path.like(from_path)).first()
+            print new_thing
             return str(redirect)
         except:
             # Currently we are unable to track down why multiple redirects are being created. This causes this error:
