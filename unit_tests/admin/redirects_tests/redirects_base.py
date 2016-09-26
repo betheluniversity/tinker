@@ -62,7 +62,7 @@ class RedirectsBaseTestCase(BaseTestCase):
             else:
                 perm.append("-")
 
-        print "".join(perm)
+        print filepath + ":", "".join(perm)
 
     # This method is designed to set up a temporary database, such that the tests won't affect the real database
     def setUp(self):
