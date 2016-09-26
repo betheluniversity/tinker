@@ -58,6 +58,7 @@ cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'],
 
 try:
     unit_testing = os.environ['unit_testing']
+    print "os.environ:unit_testing =", unit_testing
     if unit_testing == "True":
         app.config['SENTRY_URL'] = ''
 except:
@@ -75,7 +76,7 @@ if not app.debug:
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
 def get_url_from_path(path, **kwargs):
-    app.config['SERVER_NAME'] = '127.0.0.1:5000'  # This may need to be changed to tinker.bethel.edu on production?
+    app.config['SERVER_NAME'] = '127.0.0.1:5000'  # This will need to be changed to tinker(.xp).bethel.edu on production
     with app.app_context():
         url_to_return = url_for(path, **kwargs)
         if app.config['SERVER_NAME'] in url_to_return:

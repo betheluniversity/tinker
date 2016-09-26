@@ -7,6 +7,8 @@
 # Currently, the unit testing suite takes about 3 minutes to run.
 
 import os
+# This line needs to be above 'import tinker' so that when tinker's init runs, it will properly access this environ var
+os.environ['unit_testing'] = "True"
 import re
 import tinker
 import unittest
@@ -29,7 +31,6 @@ class BaseTestCase(unittest.TestCase):
         self.class_name = name_of_last_folder + "/" + self.__class__.__name__
 
     def setUp(self):
-        os.environ['unit_testing'] = "True"
         tinker.app.testing = True
         tinker.app.config['ENVIRON'] = "test"
         tinker.app.config['WTF_CSRF_ENABLED'] = False
