@@ -9,6 +9,7 @@ class ProgramSearchBaseTestCase(BaseTestCase):
 
     # This method is designed to set up a temporary database, such that the tests won't affect the real database
     def setUp(self):
+        os.environ['unit_testing'] = "True"
         self.temp_dir = tempfile.gettempdir()
         self.temp_path = os.path.join(self.temp_dir, 'tempCSV.csv')
         self.permanent_path = tinker.app.config['PROGRAM_SEARCH_CSV']
