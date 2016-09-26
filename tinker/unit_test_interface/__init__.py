@@ -18,6 +18,10 @@ def convert_string_to_HTML(string_to_change):
             to_return += "<br/>"
         elif character == " ":
             to_return += "&nbsp;"
+        elif character == "<":
+            to_return += "&lt;"
+        elif character == ">":
+            to_return += "&gt;"
         else:
             to_return += character
     return to_return

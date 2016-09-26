@@ -25,9 +25,6 @@ class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_new_redirect_submit_valid(self):
-        # permissions = self.show_permissions(self.temp_path)
-        # self.assertEqual(permissions, "", msg=permissions)
-
         expected_response = b'<Redirect /from? to to!>'
         form_contents = self.create_new_form_submission("from?", "to!")
         response = self.send_post(self.request, form_contents)

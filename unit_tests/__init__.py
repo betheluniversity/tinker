@@ -69,17 +69,13 @@ class BaseTestCase(unittest.TestCase):
 
     def strip_whitespace(self, string):
         lines = string.split("\n")
-        if "Redirect" in string:
-            print "Received:", string
         to_return = ""
         for line in lines:
             if isinstance(line, str):
                 line = re.sub("[\t\r\n]+", "", line)  # Remove tabs and new-lines
                 line = re.sub("[ ]{2,}", " ", line)  # Remove multiple spaces and replace with single spaces
-                if len(line) > 1:
+                if len(line) > 1:  # Only add lines that are more than just a \n character
                     to_return += line + "\n"
-        if "Redirect" in string:
-            print "Returned:", to_return
         return to_return
 
     def get_useful_string(self, string_of_html):
