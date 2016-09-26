@@ -2,6 +2,7 @@ from redirects_base import RedirectsBaseTestCase
 
 
 class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################
