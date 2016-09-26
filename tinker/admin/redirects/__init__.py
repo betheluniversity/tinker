@@ -84,6 +84,7 @@ class RedirectsView(FlaskView):
             self.base.database_add(redirect)
             # Update the file after every submit?
             self.base.create_redirect_text_file()
+            return str(redirect)
         except:
             # Currently we are unable to track down why multiple redirects are being created. This causes this error:
             # (IntegrityError) column from_path is not unique u'INSERT INTO bethel_redirect (from_path, to_url,
@@ -92,8 +93,6 @@ class RedirectsView(FlaskView):
             # hopefully this will catch the error.
             db.session.rollback()
             return ""
-
-        return str(redirect)
 
     # Updates the redirect text file upon request
     def compile(self):
