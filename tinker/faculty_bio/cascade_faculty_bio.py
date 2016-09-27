@@ -164,6 +164,9 @@ def get_add_to_bio(add_data):
     certificates = ""
     organizations = ""
     hobbies = ""
+    areas_of_expertise = ""
+    research_interests = ""
+    teaching_specialty = ""
     quote = ""
     website = ""
 
@@ -183,6 +186,12 @@ def get_add_to_bio(add_data):
         organizations = add_data['organizations']
     if 'hobbies' in add_data.keys():
         hobbies = add_data['hobbies']
+    if 'areas' in add_data.keys():
+        areas_of_expertise = add_data['areas']
+    if 'research_interests' in add_data.keys():
+        research_interests = add_data['research_interests']
+    if 'teaching_specialty' in add_data.keys():
+        teaching_specialty = add_data['teaching_specialty']
     if 'quote' in add_data.keys():
         quote = add_data['quote']
     if 'website' in add_data.keys():
@@ -204,6 +213,12 @@ def get_add_to_bio(add_data):
         options.append("::CONTENT-XML-CHECKBOX::Professional Organizations, Committees, and Boards")
     if hobbies != "":
         options.append("::CONTENT-XML-CHECKBOX::Hobbies and Interests")
+    if areas_of_expertise != "":
+        options.append("::CONTENT-XML-CHECKBOX::Areas of expertise")
+    if research_interests != "":
+        options.append("::CONTENT-XML-CHECKBOX::Research interests")
+    if teaching_specialty != "":
+        options.append("::CONTENT-XML-CHECKBOX::Teaching specialty")
     if quote != "":
         options.append("::CONTENT-XML-CHECKBOX::Quote")
     if website != "":
@@ -221,9 +236,11 @@ def get_add_to_bio(add_data):
         structured_data_node("certificates", escape_wysiwyg_content(certificates)),
         structured_data_node("organizations", escape_wysiwyg_content(organizations)),
         structured_data_node("hobbies", escape_wysiwyg_content(hobbies)),
+        structured_data_node("areas_of_expertise", escape_wysiwyg_content(areas_of_expertise)),
+        structured_data_node("research_interests", escape_wysiwyg_content(research_interests)),
+        structured_data_node("teaching_specialty", escape_wysiwyg_content(teaching_specialty)),
         structured_data_node("quote", quote),
         structured_data_node("website", website),
-
     ]
 
     node = {
@@ -279,6 +296,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         structured_data_node("last", add_data['last']),
         structured_data_node("email", add_data['email']),
         structured_data_node("started-at-bethel", add_data['started_at_bethel']),
+        structured_data_node("highlight", add_data['highlight']),
         get_job_titles(add_data),
     ]
     
