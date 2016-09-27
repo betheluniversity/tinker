@@ -58,7 +58,6 @@ cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'],
 
 try:
     unit_testing = os.environ['unit_testing']
-    print "os.environ:unit_testing =", unit_testing
     if unit_testing == "True":
         app.config['SENTRY_URL'] = ''
 except:
