@@ -297,6 +297,7 @@ def get_faculty_bio_structure(add_data, username, faculty_bio_id=None, workflow=
         structured_data_node("email", add_data['email']),
         structured_data_node("started-at-bethel", add_data['started_at_bethel']),
         structured_data_node("highlight", add_data['highlight']),
+        structured_data_node("location", add_data['location']),
         get_job_titles(add_data),
     ]
     

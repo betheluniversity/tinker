@@ -130,6 +130,7 @@ class FacultyBioForm(Form):
     degree = DummyField('')
 
     highlight = HiddenField()
+    location = HiddenField()
 
     biography = CKEditorTextAreaField('Biography')
     courses = CKEditorTextAreaField('Courses Taught')
