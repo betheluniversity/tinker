@@ -99,14 +99,21 @@
                             {% for checkbox_input in field %}
                                 {% if column in checkbox_input.object_data %}
                                     <label class="checkbox">
-                                        <span class="icons"><span class="first-icon fa fa-square-o"></span>
-                                            <span class="second-icon fa fa-check-square-o"></span></span>
-                                        {{ checkbox_input }}
+                                        <span class="icons">
+                                            <span class="first-icon fa fa-square-o"></span>
+                                            <span class="second-icon fa fa-check-square-o"></span>
+                                        </span>
+
+                                        {# This is creating the input with checked or unchecked #}
+                                        {% if not new_form and checkbox_input.data in field.object_data|join(' ') %}
+                                            {{ checkbox_input(checked=checked) }}
+                                        {% else %}
+                                            {{ checkbox_input }}
+                                        {% endif %}
+
+                                        {# This is the label #}
                                         {{ brm[loop.index - 1] }}
                                     </label>
-                                    {#<div class="checkbox-label">#}
-                                    {#    <label class="checkbox-label">{{ brm[loop.index - 1] }}</label>#}
-                                    {#</div>#}
                                 {% endif %}
                             {% endfor %}
                         </div>
