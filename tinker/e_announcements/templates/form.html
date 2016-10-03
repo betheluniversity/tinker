@@ -37,10 +37,9 @@
 {% block main_content %}
     <div class="content">
         <div class="container-fluid row">
-            {% if new_form %}
-                <form id="eannouncementform" action="{{ url_for('e_announcements.EAnnouncementsView:submit') }}" method="post" enctype="multipart/form-data">
-            {% else %}
-                <form id="eannouncementform" action="{{ url_for('e_announcements.EAnnouncementsView:submit') }}" method="post" enctype="multipart/form-data">
+            <form id="eannouncementform" action="{{ url_for('e_announcements.EAnnouncementsView:submit') }}"
+                      method="post" enctype="multipart/form-data">
+            {% if not new_form %}
                 <input type="hidden" name="e_announcement_id" id="e_announcement_id"
                        value="{{ e_announcement_id }}"/>
             {% endif %}
@@ -97,12 +96,17 @@
                             </br>
                             <label class="audience-header">{{ column }}</label>
                             <hr/>
-                            {% for item in field %}
-                                {% if column in item.object_data %}
-                                    {{ item }}
-                                    <div class="checkbox-label">
-                                        <label class="checkbox-label">{{ brm[loop.index - 1] }}</label>
-                                    </div>
+                            {% for checkbox_input in field %}
+                                {% if column in checkbox_input.object_data %}
+                                    <label class="checkbox">
+                                        <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                                            <span class="second-icon fa fa-check-square-o"></span></span>
+                                        {{ checkbox_input }}
+                                        {{ brm[loop.index - 1] }}
+                                    </label>
+                                    {#<div class="checkbox-label">#}
+                                    {#    <label class="checkbox-label">{{ brm[loop.index - 1] }}</label>#}
+                                    {#</div>#}
                                 {% endif %}
                             {% endfor %}
                         </div>

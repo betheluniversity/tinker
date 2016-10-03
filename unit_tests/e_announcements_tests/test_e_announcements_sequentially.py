@@ -31,7 +31,7 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         # Get new form
         self.request_type = "GET"
         self.request = self.generate_url("new")
-        expected_response = b'<form id="eannouncementform" action="/e-announcements/submit" method="post" enctype="multipart/form-data">'
+        expected_response = b'<form id="eannouncementform" action="/e-announcements/submit"'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
@@ -68,7 +68,7 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         # Call the duplicate form to make sure it works
         self.request_type = "GET"
         self.request = self.generate_url("duplicate", e_announcement_id=self.eaid)
-        expected_response = b'<form id="eannouncementform" action="/e-announcements/submit" method="post" enctype="multipart/form-data">'
+        expected_response = b'<form id="eannouncementform" action="/e-announcements/submit"'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertNotIn(expected_response, response.data, msg=failure_message)

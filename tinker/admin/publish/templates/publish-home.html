@@ -58,22 +58,46 @@
                             <div class="large-2 columns">
                                 <label>Asset Types: </label>
                             </div>
-                            <input type="checkbox" id="publish-pages" name="optionsCheckboxes" checked>
-                            <div class="checkbox-label">
-                                <label class="checkbox-label">Pages</label>
-                            </div>
-                            <input type="checkbox" id="publish-blocks" name="optionsCheckboxes" checked>
-                            <div class="checkbox-label">
-                                <label class="checkbox-label">Blocks</label>
-                            </div>
-                            <input type="checkbox" id="publish-files" name="optionsCheckboxes" checked>
-                            <div class="checkbox-label">
-                                <label class="checkbox-label">Files</label>
-                            </div>
-                            <input type="checkbox" id="publish-folders" name="optionsCheckboxes" checked>
-                            <div class="checkbox-label">
-                                <label class="checkbox-label">Folders</label>
-                            </div>
+                            <label class="checkbox checked" for="publish-pages">
+                                <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span></span>
+                                <input type="checkbox" id="publish-pages" name="optionsCheckboxes" checked="">
+                                Pages
+                            </label>
+                            <label class="checkbox checked" for="publish-blocks">
+                                <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span></span>
+                                <input type="checkbox" id="publish-blocks" name="optionsCheckboxes" checked="">
+                                Blocks
+                            </label>
+                            <label class="checkbox checked" for="publish-files">
+                                <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span></span>
+                                <input type="checkbox" id="publish-files" name="optionsCheckboxes" checked="">
+                                Files
+                            </label>
+                            <label class="checkbox checked" for="publish-folders">
+                                <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span></span>
+                                <input type="checkbox" id="publish-folders" name="optionsCheckboxes" checked="">
+                                Folders
+                            </label>
+                            {#                            <input type="checkbox" id="publish-pages" name="optionsCheckboxes" checked>#}
+                            {#                            <div class="checkbox-label">#}
+                            {#                                <label class="checkbox-label">Pages</label>#}
+                            {#                            </div>#}
+                            {#                            <input type="checkbox" id="publish-blocks" name="optionsCheckboxes" checked>#}
+                            {#                            <div class="checkbox-label">#}
+                            {#                                <label class="checkbox-label">Blocks</label>#}
+                            {#                            </div>#}
+                            {#                            <input type="checkbox" id="publish-files" name="optionsCheckboxes" checked>#}
+                            {#                            <div class="checkbox-label">#}
+                            {#                                <label class="checkbox-label">Files</label>#}
+                            {#                            </div>#}
+                            {#                            <input type="checkbox" id="publish-folders" name="optionsCheckboxes" checked>#}
+                            {#                            <div class="checkbox-label">#}
+                            {#                                <label class="checkbox-label">Folders</label>#}
+                            {#                            </div>#}
                             <div class="large-2 columns"></div>
                         </form>
                     </div>
@@ -168,7 +192,8 @@
                     folders = false;
                 delay(function () {
                     loadTableForSearch(name, content, metadata, pages, blocks, files, folders);
-                    $('#spinner').hide();} , 300);
+                    $('#spinner').hide();
+                }, 300);
             }
 
             $('.publish-search').keyup(function () {
