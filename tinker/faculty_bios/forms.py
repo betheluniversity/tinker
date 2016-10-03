@@ -90,6 +90,7 @@ class FacultyBioForm(Form):
     author = StringField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
                        description="Enter your Bethel username.")
 
+    highlight = TextAreaField('Highlight text', validators=[validators.DataRequired()])
     new_job_titles = StringField('')
 
     email = StringField('Email', validators=[validators.DataRequired()])
