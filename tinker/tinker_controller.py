@@ -236,11 +236,11 @@ class TinkerController(object):
                 node_identifier = node['identifier'].replace('-', '_')
                 edit_data[node_identifier] = self.inspect_sdata_node(node)
 
-        dynamic_fields = find(mdata, 'fieldValues')
+        dynamic_fields = find(mdata, 'dynamicField', False)
         # now metadata dynamic fields
         for field in dynamic_fields:
-            if find(field, 'fieldValue'):
-                items = [find(item, 'value') for item in find(field, 'fieldValue')]
+            if find(field, 'fieldValue', False):
+                items = [find(item, 'value') for item in find(field, 'fieldValue', False)]
                 edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
