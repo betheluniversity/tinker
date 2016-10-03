@@ -249,7 +249,9 @@ to be in it's own card div, something to think about in the future -->
                 var year = 'year' + id;
                 var fieldset_node = $('<fieldset>').addClass('degree-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Degree " + id).append($('<small>').class('required').html('required')));
+                inner_node.append($("<legend>").html("Degree " + id).append(
+                        $('<small>').addClass('required').html('required'))
+                );
                 inner_node.append($("<label>").attr('for', school).html("School"));
                 inner_node.append($("<input type='text'>").attr('name', school).attr('id', school).addClass("no-border"));
                 inner_node.append($("<label>").attr('for', degree).html("Degree Earned"));
@@ -264,7 +266,9 @@ to be in it's own card div, something to think about in the future -->
                 var title = 'new-job-title' + id;
                 var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Job Title " + id).append($('<small>').class('required').html('required')));
+                inner_node.append($("<legend>").html("Job Title " + id).append(
+                        $('<small>').addClass('required').html('required'))
+                );
 
                 inner_node.append($('<div>').attr('class', 'schools-div' + id).append(
                         $("<label>").html('School')).append(
@@ -565,7 +569,7 @@ to be in it's own card div, something to think about in the future -->
                                 $("#remove_jdegree_button").show();
                             }
                             //Now populate the fieldset
-                            populateDegreeFieldset(id, degree['school'], degree['degree-earned'], degree['year'])
+                            populateDegreeFieldset(id, degree['school'], degree['degree_earned'], degree['year'])
                             //no infinite loops today
                             i++;
 
@@ -580,7 +584,7 @@ to be in it's own card div, something to think about in the future -->
                         for (var i = 1; i < {{ num_degrees + 1}}; i++) {
                             if (i == 1) {
                                 $('#school1').val(degrees['school1']);
-                                $('#degree-earned1').val(degrees['degree-earned1']);
+                                $('#degree-earned1').val(degrees['degree_earned1']);
                                 $('#year1').val(degrees['year1']);
                             } else {
                                 newDegreeTitleFieldset(i);
@@ -589,7 +593,7 @@ to be in it's own card div, something to think about in the future -->
                                 newDegreeTitleFieldset(i).insertAfter(last);
 
                                 $('#school' + i).val(degrees['school' + i]);
-                                $('#degree-earned' + i).val(degrees['degree-earned' + i]);
+                                $('#degree-earned' + i).val(degrees['degree_earned' + i]);
                                 $('#year' + i).val(degrees['year' + i]);
                             }
                         }

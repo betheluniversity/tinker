@@ -14,13 +14,13 @@ from faculty_bio_controller import *
 FacultyBiosBlueprint = Blueprint('faculty_bios', __name__, template_folder='templates')
 
 
-# todo: add a before_request method
 class FacultyBiosView(FlaskView):
     route_base = '/faculty-bios'
 
     def __init__(self):
         self.base = FacultyBioController()
 
+    # todo: add a before_request method
     def before_request(self, name, **kwargs):
         pass
 
