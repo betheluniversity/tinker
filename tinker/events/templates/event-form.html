@@ -81,42 +81,42 @@
 
                     {# Print the field #}
                     {% if field.type == "SelectMultipleField" %}
-{#                        {{ field(size=10, class="large-select") }}#}
+                        {{ field(size=10, class="large-select") }}
 
-{#                    {% elif field.type == "HeadingField" %}#}
-{#                        <h3 class="subtitle">{{ field.label }}</h3>#}
-{#                        <hr/>#}
-{##}
-{#                    {% elif field.name == "off_campus_location" %}#}
-{#                        <div id="off_location_wrap" style="display:none;">#}
-{#                            {{ field.label }}{{ field }}#}
-{#                        </div>#}
-{##}
-{#                    {% elif field.name == "on_campus_location" %}#}
-{#                        <div id="on_campus_wrap" style="display:none;">#}
-{#                            {{ field.label }}{{ field }}#}
-{#                        </div>#}
-{##}
-{#                    {% elif field.name == "other_on_campus" %}#}
-{#                        <div id="other_wrap" style="display:none;">#}
-{#                            {{ field.label }}{{ field }}#}
-{#                        </div>#}
-{##}
-{#                    {% elif field.type == "SelectField" %}#}
-{#                        {{ field }}#}
-{##}
-{#                    {% elif field.type == "CKEditorTextAreaField" %}#}
-{#                        {{ field(class="ckeditor") }}#}
+                    {% elif field.type == "HeadingField" %}
+                        <h3 class="subtitle">{{ field.label }}</h3>
+                        <hr/>
+
+                    {% elif field.name == "off_campus_location" %}
+                        <div id="off_location_wrap" style="display:none;">
+                            {{ field.label }}{{ field }}
+                        </div>
+
+                    {% elif field.name == "on_campus_location" %}
+                        <div id="on_campus_wrap" style="display:none;">
+                            {{ field.label }}{{ field }}
+                        </div>
+
+                    {% elif field.name == "other_on_campus" %}
+                        <div id="other_wrap" style="display:none;">
+                            {{ field.label }}{{ field }}
+                        </div>
+
+                    {% elif field.type == "SelectField" %}
+                        {{ field }}
+
+                    {% elif field.type == "CKEditorTextAreaField" %}
+                        {{ field(class="ckeditor") }}
 
                     {% elif field.type == "DateTimeField" %}
                         {# do the entire date field in here for now #}
                         {{ datetime_fieldset() }}
 
-{#                    {% elif field.name == "link" %}#}
-{#                        {{ field }}#}
-{##}
-{#                    {% else %}#}
-{#                        {{ field(size=20) }}#}
+                    {% elif field.name == "link" %}
+                        {{ field }}
+
+                    {% else %}
+                        {{ field(size=20) }}
                     {% endif %}
 
                 {% endfor %}
