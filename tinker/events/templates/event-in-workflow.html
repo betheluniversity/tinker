@@ -1,22 +1,24 @@
 {% extends "tinker_base.html" %}
 
-{% block title %}Success{% endblock %}
+{% set title = 'Success' %}
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
 
-  <div class="row">
-    <div class="large-12 columns">
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
 
-        <h3>
-          Edits pending approval
-        </h3>
+                <h3>
+                    Edits pending approval
+                </h3>
 
-        <p>Your edits are pending approval. Please wait until they have been approved before you make additional edits. Go back to your <a href="{{ url_for('events.EventsView:index') }}">events</a>.</p>
+                <p>Your edits are pending approval. Please wait until they have been approved before you make additional
+                    edits. Go back to your <a href="{{ url_for('events.EventsView:index') }}">events</a>.</p>
 
-
+            </div>
+        </div>
     </div>
-  </div>
 
 {% endblock %}

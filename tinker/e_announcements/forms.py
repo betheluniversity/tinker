@@ -28,9 +28,9 @@ def get_audience_choices():
     md = base.read('/Targeted', 'metadataset')
     audience_list = find(md, 'banner-roles')['possibleValues']['possibleValue']
 
-    for item in audience_list:
-        if item['value'] != "":
-            audience.append(item['value'])
+    for checkbox_input in audience_list:
+        if checkbox_input['value'] != "":
+            audience.append(checkbox_input['value'])
 
     # Todo: find a better way to handle this mapping
     banner_roles_sort_mapping = {
