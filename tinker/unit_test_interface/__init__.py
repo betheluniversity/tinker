@@ -7,7 +7,6 @@ from tinker import app
 import json
 import unittest
 import re
-import pprint
 
 from unit_tests.unit_test_utilities import get_tests_in_this_dir
 
@@ -40,7 +39,7 @@ def get_travis_api_token():
         "Content-Length": "37"
     }
     data = {
-        "github_token": "d529d0a573f1f0645e12b6c2d131e8cfd1414496"
+        "github_token": app.config['GITHUB_TOKEN']
     }
     r = Requests_API.post(url_to_send, json=data, headers=headers)
     r_dict = ast.literal_eval(r.content)

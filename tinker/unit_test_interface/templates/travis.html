@@ -16,7 +16,7 @@
             <option value="{{ branch }}">{{ branch }}</option>
             {% endfor %}
         </select>
-        <img id="indicator" src="https://travis-ci.org/betheluniversity/tinker.svg?branch=master"/>
+        <img id="indicator" src="https://travis-ci.org/betheluniversity/tinker.svg?branch={{ branches[0] }}"/>
         <hr/>
         <table id="builds">
             <thead>
