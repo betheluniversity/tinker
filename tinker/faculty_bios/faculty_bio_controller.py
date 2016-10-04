@@ -214,13 +214,16 @@ class FacultyBioController(TinkerController):
     def update_structure(self, faculty_bio_data, sdata, rform, faculty_bio_id=None):
 
         wysiwyg_keys = ['biography', 'courses', 'awards', 'publications', 'presentations', 'certificates', 'organizations', 'hobbies']
-        add_data = self.get_add_data([], rform, wysiwyg_keys)
+        add_data = self.get_add_data(['faculty_location'], rform, wysiwyg_keys)
 
         add_data['education'] = self.get_degrees(add_data)
         # todo: these wysiwyg checkboxes aren't returning correctly for the wysiwygs
         add_data['options'] = self.get_wysiwyg_checkboxes(add_data)
         add_data['job-titles'] = self.get_job_titles(add_data)
+        # this is joining a list of locations and prepending the '::CONTENT-XML-SELECTOR::' to each location
+        add_data['faculty_location'] = ''.join(['::CONTENT-XML-SELECTOR::' + location for location in add_data['faculty_location']])
 
+        # set/reset the standard data
         add_data['parentFolderID'] = None
         add_data['parentFolderPath'] = '/academics/faculty'
         add_data['path'] = None
@@ -229,11 +232,18 @@ class FacultyBioController(TinkerController):
 
         # todo: eventually adjust the keys in cascade to work.
         add_data['started-at-bethel'] = add_data['started_at_bethel']
+        add_data['teaching-specialty'] = add_data['teaching_specialty']
+        add_data['research-interests'] = add_data['research_interests']
         add_data['image'] = self.create_faculty_bio_image(add_data)
 
         workflow_id = self.get_correct_workflow_id(add_data)
         workflow = self.create_workflow(workflow_id, subtitle=add_data['title'])
         self.add_workflow_to_asset(workflow, faculty_bio_data)
+
+        # once tinker2 is launched, remove these 3 lines(as it is unnecessary)
+        update(find(faculty_bio_data, 'add-to-bio'), 'areas', add_data['areas'])
+        update(find(faculty_bio_data, 'add-to-bio'), 'teaching-specialty', add_data['teaching-specialty'])
+        update(find(faculty_bio_data, 'add-to-bio'), 'research-interests', add_data['research-interests'])
 
         if faculty_bio_id:
             add_data['id'] = faculty_bio_id
@@ -448,25 +458,31 @@ class FacultyBioController(TinkerController):
 
         options = []
 
-        if add_data.get('biography', '') != "":
+        if add_data.get('biography', None):
             options.append("::CONTENT-XML-CHECKBOX::Biography")
-        if add_data.get('awards', '') != "":
+        if add_data.get('awards', None):
             options.append("::CONTENT-XML-CHECKBOX::Awards")
-        if add_data.get('courses', '') != "":
+        if add_data.get('courses', None):
             options.append("::CONTENT-XML-CHECKBOX::Courses Taught")
-        if add_data.get('publications', '') != "":
+        if add_data.get('publications', None):
             options.append("::CONTENT-XML-CHECKBOX::Publications")
-        if add_data.get('presentations', '') != "":
+        if add_data.get('presentations', None):
             options.append("::CONTENT-XML-CHECKBOX::Presentations")
-        if add_data.get('certificates', '') != "":
+        if add_data.get('certificates', None):
             options.append("::CONTENT-XML-CHECKBOX::Certificates and Licenses")
-        if add_data.get('courses', '') != "":
+        if add_data.get('courses', None):
             options.append("::CONTENT-XML-CHECKBOX::Professional Organizations, Committees, and Boards")
-        if add_data.get('hobbies', '') != "":
+        if add_data.get('hobbies', None):
             options.append("::CONTENT-XML-CHECKBOX::Hobbies and Interests")
-        if add_data.get('quote', '') != "":
+        if add_data.get('areas', None):
+            options.append("::CONTENT-XML-CHECKBOX::Areas of expertise")
+        if add_data.get('research_interests', None):
+            options.append("::CONTENT-XML-CHECKBOX::Research interests")
+        if add_data.get('teaching_specialty', None):
+            options.append("::CONTENT-XML-CHECKBOX::Teaching specialty")
+        if add_data.get('quote', None):
             options.append("::CONTENT-XML-CHECKBOX::Quote")
-        if add_data.get('website', '') != "":
+        if add_data.get('website', None):
             options.append("::CONTENT-XML-CHECKBOX::Website")
 
         return ''.join(options)

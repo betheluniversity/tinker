@@ -315,6 +315,9 @@ class TinkerController(object):
 
             # A fix to remove the &#160; character from appearing (non-breaking whitespace)
             # Cascade includes this, for whatever reason.
+
+            if '::CONTENT-XML-SELECTOR::' in node['text']:
+                return node['text'].split('::CONTENT-XML-SELECTOR::')
             return node['text'].replace('&amp;#160;', ' ')
 
         elif node_type == 'asset':

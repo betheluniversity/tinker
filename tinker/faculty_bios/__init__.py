@@ -97,7 +97,7 @@ class FacultyBiosView(FlaskView):
         edit_data = self.base.get_edit_data(sdata, mdata, ['education', 'job-titles'])
 
         # pull the group data to the top level of the dict
-        group_identifiers = ['add_to_bio', 'expertise']
+        group_identifiers = ['expertise']
         for identifier in group_identifiers:
             for key, value in edit_data[identifier].iteritems():
                 edit_data[key] = value

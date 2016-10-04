@@ -51,44 +51,18 @@ to be in it's own card div, something to think about in the future -->
                             {% endfor %}
 
                             {# print the label #}
+                            <label for="{{ field.name }}">
+                                {{ field.label.text }}
+                                {% if field.flags.required %}
+                                    <small class="required">required</small>
+                                {% endif %}
+                            </label>
 
-                            {% if field.name not in ["areas", "research_interests", "teaching_specialty"] %}
-                                <label for="{{ field.name }}">
-                                    {{ field.label.text }}
-                                    {% if field.flags.required %}
-                                        <small class="required">required</small>
-                                    {% endif %}
-                                </label>
-
-                                <small class="extra-required">{{ field.description }}</small>
-                            {% endif %}
+                            <small class="extra-required">{{ field.description }}</small>
 
                             {# Print the field #}
                             {% if field.name == "degree" %}
                                 {{ degree_fieldset() }}
-
-
-                            {% elif field.name == "areas" %}
-                                <div id="areas_wrap" style="display:none;">
-                                    {{ field.label }}
-                                    <small class="extra-required">{{ field.description }}</small>
-                                    <small id="areas_current_count" class="extra-required">0</small>
-                                    {{ field(class="large-text-area") }}
-                                </div>
-                            {% elif field.name == "research_interests" %}
-                                <div id="research_interests_wrap" style="display:none;">
-                                    {{ field.label }}
-                                    <small class="extra-required">{{ field.description }}</small>
-                                    <small id="research_interests_current_count" class="extra-required">0</small>
-                                    {{ field(class="large-text-area") }}
-                                </div>
-                            {% elif field.name == "teaching_specialty" %}
-                                <div id="teaching_specialty_wrap" style="display:none;">
-                                    {{ field.label }}
-                                    <small class="extra-required">{{ field.description }}</small>
-                                    <small id="teaching_specialty_current_count" class="extra-required">0</small>
-                                    {{ field(class="large-text-area") }}
-                                </div>
 
                             {% elif field.type == "SelectMultipleField" %}
                                 {{ field(class="largeselect") }}
@@ -155,94 +129,6 @@ to be in it's own card div, something to think about in the future -->
             var csrftoken = "{{ csrf_token() }}";
             activateCSRF(csrftoken);
 
-            function testExpertise() {
-                var heading = $("#heading")[0];
-                var val = heading.options[heading.selectedIndex].innerHTML;
-                if (val == "Areas of expertise") {
-                    makeRequired();
-                    $("#areas_wrap").show();
-
-                    $('#areas').keyup(function () {
-                        var count = $(this).val().length;
-                        $('#areas_current_count').text(count);
-                        if (count > 3000)
-                            $('#areas_current_count').css("color", "#f04124");
-                        else
-                            $('#areas_current_count').css("color", "#000000");
-                        $("#research_interests_wrap").show();
-                        $('#research_interests').val('');
-                        $('#research_interests_current_count').text('0');
-                        $("#research_interests_wrap").hide();
-
-                        $("#teaching_specialty_wrap").show();
-                        $('#teaching_specialty').val('');
-                        $('#teaching_specialty_current_count').text('0');
-                        $("#teaching_specialty_wrap").hide();
-                    });
-                }
-                else if (val == "Research interests") {
-                    makeRequired();
-                    $("#research_interests_wrap").show();
-                    $('#research_interests').keyup(function () {
-                        var count = $(this).val().length;
-                        $('#research_interests_current_count').text(count);
-                        if (count > 3000)
-                            $('#research_interests_current_count').css("color", "#f04124");
-                        else
-                            $('#research_interests_current_count').css("color", "#000000");
-                        $("#areas_wrap").show();
-                        $('#areas').val('');
-                        $('#areas_current_count').text('0');
-                        $("#areas_wrap").hide();
-
-                        $("#teaching_specialty_wrap").show();
-                        $('#teaching_specialty').val('');
-                        $('#teaching_specialty_current_count').text('0');
-                        $("#teaching_specialty_wrap").hide();
-                    });
-                }
-                else if (val == "Teaching Specialty") {
-                    makeRequired();
-                    $("#teaching_specialty_wrap").show();
-                    $('#teaching_specialty').keyup(function () {
-                        var count = $(this).val().length;
-                        $('#teaching_specialty_current_count').text(count);
-                        if (count > 3000)
-                            $('#teaching_specialty_current_count').css("color", "#f04124");
-                        else
-                            $('#teaching_specialty_current_count').css("color", "#000000");
-                        $("#areas_wrap").show();
-                        $('#areas').val('');
-                        $('#areas_current_count').text('0');
-                        $("#areas_wrap").hide();
-
-                        $("#research_interests_wrap").show();
-                        $('#research_interests').val('');
-                        $('#research_interests_current_count').text('0');
-                        $("#research_interests_wrap").hide();
-                    });
-                }
-            }
-
-            function makeRequired() {
-                $("#areas_wrap").hide();
-                $("#teaching_specialty_wrap").hide();
-                $("#research_interests_wrap").hide();
-                $('#areas').attr('required', false);
-                $('#teaching_specialty').attr('required', false);
-                $('#research_interests').attr('required', false);
-
-                var heading = $('#heading')[0];
-                var text = heading.options[heading.selectedIndex].innerHTML;
-
-                if (text == "Areas of expertise")
-                    $('#areas').attr('required', true);
-                else if (text == "Research interests")
-                    $('#research_interests').attr('required', true);
-                else if (text == "Teaching specialty")
-                    $('#teaching_specialty').attr('required', true);
-            }
-
             function newDegreeTitleFieldset(id) {
                 var school = 'school' + id;
                 var degree = 'degree-earned' + id;
@@ -266,7 +152,7 @@ to be in it's own card div, something to think about in the future -->
                 var title = 'new-job-title' + id;
                 var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Job Title " + id).append(
+                inner_node.append($("<legend>").html("Job Title " + id + " ").append(
                         $('<small>').addClass('required').html('required'))
                 );
 
@@ -669,12 +555,6 @@ to be in it's own card div, something to think about in the future -->
                         return true;
 
                     });
-
-                    $("#heading").change(function () {
-                        testExpertise();
-                    });
-                    testExpertise();
-
                 });
 
                 // Dynamically render image

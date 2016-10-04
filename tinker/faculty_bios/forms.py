@@ -5,17 +5,13 @@ import requests
 from tinker.faculty_bios.faculty_bio_controller import *
 from wtforms import Field
 from wtforms import HiddenField
-from wtforms import SelectField
+from wtforms import SelectMultipleField
 from wtforms import TextAreaField
 from wtforms import StringField
 from wtforms import ValidationError
 from wtforms import validators
 
 tinker = TinkerController
-
-def get_md(metadata_path):
-    md = tinker.read(metadata_path, type='metadataset')
-    return md['asset']['metadataSetdynamic']['MetadataFieldDefinitionsdynamic']['MetadataFieldDefinition']
 
 
 # Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
@@ -90,30 +86,13 @@ class FacultyBioForm(Form):
     author = StringField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
                        description="Enter your Bethel username.")
 
+    faculty_location = SelectMultipleField('Location', choices=[('St. Paul', 'St. Paul'), ('San Diego', 'San Diego'), ('Online', 'Online')], validators=[validators.DataRequired()])
     highlight = TextAreaField('Highlight text', validators=[validators.DataRequired()])
     new_job_titles = StringField('')
 
     email = StringField('Email', validators=[validators.DataRequired()])
     started_at_bethel = StringField('Started at Bethel in', validators=[validators.DataRequired()],
                                   description="Enter a year")
-
-    heading_choices = (
-        ('', "-select-"), ('Areas of expertise', 'Areas of expertise'), ('Research interests', 'Research interests'),
-        ('Teaching Specialty', 'Teaching Specialty'))
-
-    heading = SelectField('Choose a heading that best fits your discipline', choices=heading_choices,
-                          validators=[validators.DataRequired()])
-    areas = TextAreaField('Areas of expertise', description="A max of 3000 characters is permitted. Current count: ",
-                          validators=[validators.length(max=3000,
-                                                        message="Character limit exceeded. A max of 3000 characters is allowed.")])
-    research_interests = TextAreaField('Research interests',
-                                       description="A max of 3000 characters is permitted. Current count: ",
-                                       validators=[validators.length(max=3000,
-                                                                     message="Character limit exceeded. A max of 3000 characters is allowed.")])
-    teaching_specialty = TextAreaField('Teaching specialty',
-                                       description="A max of 3000 characters is permitted. Current count: ",
-                                       validators=[validators.length(max=3000,
-                                                                     message="Character limit exceeded. A max of 3000 characters is allowed.")])
 
     degree = DummyField('')
 
@@ -125,6 +104,9 @@ class FacultyBioForm(Form):
     certificates = CKEditorTextAreaField('Certificates and licenses')
     organizations = CKEditorTextAreaField('Professional Organizations, Committees, and Boards')
     hobbies = CKEditorTextAreaField('Hobbies and interests')
+    areas = TextAreaField('Areas of expertise')
+    research_interests = TextAreaField('Research interests')
+    teaching_specialty = TextAreaField('Teaching specialty')
 
     quote = StringField('Quote')
 
@@ -137,18 +119,5 @@ class FacultyBioForm(Form):
                 print field, errors
             return False
         result = True
-
-        if self.heading.data == "Areas of expertise":
-            if self.areas.data == "":
-                self.areas.errors.append('Area of expertise is required.')
-                result = False
-        elif self.heading.data == "Research interests":
-            if self.research_interests.data == "":
-                self.research_interests.errors.append('Research interests is required.')
-                result = False
-        elif self.heading.data == "Teaching speciality":
-            if self.teaching_specialty.data == "":
-                self.teaching_specialty.errors.append('Teaching speciality is required.')
-                result = False
 
         return result
