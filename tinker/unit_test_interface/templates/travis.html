@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Travis</title>
+        <script>
+            function update_indicator(branchName){
+                var alias = document.getElementById("indicator");
+                alias.src = "https://travis-ci.org/betheluniversity/tinker.svg?branch=" + branchName;
+            }
+        </script>
+    </head>
+    <body>
+        <select onchange="update_indicator(this.value)">
+            {% for branch in branches %}
+            <option value="{{ branch }}">{{ branch }}</option>
+            {% endfor %}
+        </select>
+        <img id="indicator" src="https://travis-ci.org/betheluniversity/tinker.svg?branch=master"/>
+        <hr/>
+        <table id="builds">
+            <thead>
+                <tr>
+                    <th>build_id</th>
+                    <th>state</th>
+                    <th>duration</th>
+                    <th>branch</th>
+                    <th>commit</th>
+                    <th>author</th>
+                </tr>
+            </thead>
+            <tbody id="build_rows">
+            {% for packet in list_of_info %}
+                <tr>
+                    <td><a href="/unit-test/view_travis_build/{{ packet['build_id'] }}">{{ packet['build_id'] }}</a></td>
+                    <td>{{ packet['state'] }}</td>
+                    <td>{{ packet['duration'] }}</td>
+                    <td>{{ packet['branch'] }}</td>
+                    <td>{{ packet['commit'] }}</td>
+                    <td>{{ packet['author'] }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

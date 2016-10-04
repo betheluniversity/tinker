@@ -1,10 +1,13 @@
+import ast
 from flask import Blueprint, abort, render_template, stream_with_context, Response
 from flask_classy import FlaskView, route
-
+from requests import api as Requests_API
 from cStringIO import StringIO
 from tinker import app
 import json
 import unittest
+import re
+import pprint
 
 from unit_tests.unit_test_utilities import get_tests_in_this_dir
 
@@ -27,8 +30,43 @@ def convert_string_to_HTML(string_to_change):
     return to_return
 
 
+def get_travis_api_token():
+    url_to_send = "https://api.travis-ci.org/auth/github"
+    headers = {
+        "User-Agent": "Travis/BU-Tinker/2.0.1",
+        "Accept": "application/vnd.travis-ci.2+json",
+        "Host": "api.travis-ci.org",
+        "Content-Type": "application/json",
+        "Content-Length": "37"
+    }
+    data = {
+        "github_token": "d529d0a573f1f0645e12b6c2d131e8cfd1414496"
+    }
+    r = Requests_API.post(url_to_send, json=data, headers=headers)
+    r_dict = ast.literal_eval(r.content)
+    return r_dict['access_token']
+
+
+def construct_authorized_post_headers():
+    return {
+        "Content-Type": "application/json",
+        "User-Agent": "Travis/BU-Tinker/2.0.1",
+        "Accept": "application/vnd.travis-ci.2+json",
+        "Host": "api.travis-ci.org",
+        "Authorization": "token " + get_travis_api_token()
+    }
+
+
 class UnitTestInterface(FlaskView):
     route_base = '/unit-test'
+
+    def __init__(self):
+        self.travis_api_url = "https://api.travis-ci.org"
+        self.travis_get_headers = {
+            "User-Agent": "Travis/BU-Tinker/2.0.1",
+            "Accept": "application/vnd.travis-ci.2+json",
+            "Host": "api.travis-ci.org"
+        }
 
     @route('/', methods=['GET'])
     @route('/<path:module>', methods=['GET'])
@@ -62,6 +100,62 @@ class UnitTestInterface(FlaskView):
                    "admin/publish_tests", "admin/redirects_tests", "admin/sync_tests",
                    "e_announcements_tests", "events_tests", "faculty_bios_tests", "office_hours_tests"]
         return render_template("dashboard.html", modules=modules)
+
+    def travis(self):
+        url_to_send = self.travis_api_url + "/repos/betheluniversity/tinker/branches"
+        r = Requests_API.get(url_to_send, headers=self.travis_get_headers)
+        branches = re.findall("\"branch\":[ ]?\"(.+?)\"", r.content)
+        url_to_send = self.travis_api_url + "/repos/betheluniversity/tinker/builds"
+        r = Requests_API.get(url_to_send, headers=self.travis_get_headers)
+        list_of_builds = r.json()['builds']
+        list_of_commits = r.json()['commits']
+        info_packets = []
+        # Merge the commit information and build information into one packet for render_template simplicity
+        for i in range(0, len(list_of_builds)):
+            b = list_of_builds[i]
+            c = list_of_commits[i]
+            # Make sure that the build and commit info match; in theory this should be a redundant check
+            if b['commit_id'] == c['id']:
+                new_packet = dict()
+                new_packet['commit_id'] = b['commit_id']
+                new_packet['build_id'] = b['id']
+                new_packet['state'] = b['state']
+                new_packet['duration'] = b['duration']
+                new_packet['commit'] = c['sha']
+                new_packet['branch'] = c['branch']
+                new_packet['author'] = c['committer_name']
+                info_packets.append(new_packet)
+
+        return render_template("travis.html", list_of_info=info_packets, branches=branches)
+
+    def view_travis_build(self, build_id):
+        url_to_send = self.travis_api_url + "/builds/" + build_id
+        r = Requests_API.get(url_to_send, headers=self.travis_get_headers)
+        condensed_packet = dict()
+        alias = r.json()
+        condensed_packet['commit_id'] = alias['build']['commit_id']
+        language = alias['build']['config']['language']
+        condensed_packet['language'] = language + " " + alias['build']['config'].get(language, ["0.0.0"])[0]
+        condensed_packet['duration'] = alias['build']['duration']
+        condensed_packet['event_type'] = alias['build']['event_type']
+        condensed_packet['build_id'] = alias['build']['id']
+        condensed_packet['repository_id'] = alias['build']['repository_id']
+        condensed_packet['state'] = alias['build']['state']
+        condensed_packet['author'] = alias['commit']['committer_name']
+        condensed_packet['branch'] = alias['commit']['branch']
+        condensed_packet['compare_url'] = alias['commit']['compare_url']
+        condensed_packet['sha'] = alias['commit']['sha']
+
+        key_order = ['build_id', 'state', 'duration', 'language', 'repository_id', 'commit_id', 'event_type', 'branch',
+                     'sha', 'compare_url', 'author']
+
+        return render_template("travis_build_view.html", order=key_order, packet=condensed_packet)
+
+    def rerun_travis_build(self, build_id):
+        url_to_send = self.travis_api_url + "/builds/" + build_id + "/restart"
+        # url_to_send = self.travis_api_url + "/repo/betheluniversity%2ftinker/requests"
+        r = Requests_API.post(url_to_send, headers=construct_authorized_post_headers())
+        return r.content
 
     @route('/simple-return/<path:module>', methods=['GET'])
     def simpleReturn(self, module):
