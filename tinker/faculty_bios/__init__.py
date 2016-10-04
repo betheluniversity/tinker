@@ -3,6 +3,8 @@ from werkzeug.utils import secure_filename
 # bu-cascade
 from bu_cascade.asset_tools import *
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 # flask
 from flask import Blueprint, redirect, send_from_directory, abort
 from flask_classy import FlaskView, route
