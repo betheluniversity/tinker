@@ -14,13 +14,13 @@ from faculty_bio_controller import *
 FacultyBiosBlueprint = Blueprint('faculty_bios', __name__, template_folder='templates')
 
 
-# todo: add a before_request method
 class FacultyBiosView(FlaskView):
     route_base = '/faculty-bios'
 
     def __init__(self):
         self.base = FacultyBioController()
 
+    # todo: add a before_request method
     def before_request(self, name, **kwargs):
         pass
 
@@ -97,7 +97,7 @@ class FacultyBiosView(FlaskView):
         edit_data = self.base.get_edit_data(sdata, mdata, ['education', 'job-titles'])
 
         # pull the group data to the top level of the dict
-        group_identifiers = ['add_to_bio', 'expertise']
+        group_identifiers = ['expertise']
         for identifier in group_identifiers:
             for key, value in edit_data[identifier].iteritems():
                 edit_data[key] = value

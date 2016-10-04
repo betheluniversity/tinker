@@ -236,11 +236,11 @@ class TinkerController(object):
                 node_identifier = node['identifier'].replace('-', '_')
                 edit_data[node_identifier] = self.inspect_sdata_node(node)
 
-        dynamic_fields = find(mdata, 'fieldValues')
+        dynamic_fields = find(mdata, 'dynamicField', False)
         # now metadata dynamic fields
         for field in dynamic_fields:
-            if find(field, 'fieldValue'):
-                items = [find(item, 'value') for item in find(field, 'fieldValue')]
+            if find(field, 'fieldValue', False):
+                items = [find(item, 'value') for item in find(field, 'fieldValue', False)]
                 edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
@@ -315,6 +315,9 @@ class TinkerController(object):
 
             # A fix to remove the &#160; character from appearing (non-breaking whitespace)
             # Cascade includes this, for whatever reason.
+
+            if '::CONTENT-XML-SELECTOR::' in node['text']:
+                return node['text'].split('::CONTENT-XML-SELECTOR::')
             return node['text'].replace('&amp;#160;', ' ')
 
         elif node_type == 'asset':

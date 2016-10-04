@@ -21,6 +21,8 @@ class FacultyBioSequentialTestCase(BaseTestCase):
             'first': 'Philip',
             'last': 'Gibbens',
             'author': 'phg49389',
+            'faculty_location': 'St. Paul',
+            'highlight': "A great magazine for the dentist's office",
             'num_jobs': '0',
             'num_new_jobs': '1',
             'schools1': 'Bethel University',
