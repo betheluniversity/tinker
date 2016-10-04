@@ -120,14 +120,10 @@ to be in it's own card div, something to think about in the future -->
 
     <script src="{{ url_for('static', filename='moment.js') }}"></script>
     <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
-    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
-
 
     <script type="text/javascript">
 
         $(document).ready(function () {
-            var csrftoken = "{{ csrf_token() }}";
-            activateCSRF(csrftoken);
 
             function newDegreeTitleFieldset(id) {
                 var school = 'school' + id;
