@@ -1,12 +1,15 @@
 import ast
+import calendar
+import json
+import re
+import unittest
+
+from cStringIO import StringIO
+from datetime import datetime, timedelta
 from flask import Blueprint, abort, render_template, stream_with_context, Response
 from flask_classy import FlaskView, route
 from requests import api as Requests_API
-from cStringIO import StringIO
 from tinker import app
-import json
-import unittest
-import re
 
 from unit_tests.unit_test_utilities import get_tests_in_this_dir
 
@@ -54,6 +57,23 @@ def construct_authorized_post_headers():
         "Host": "api.travis-ci.org",
         "Authorization": "token " + get_travis_api_token()
     }
+
+
+def format_date(date_string):
+    # Original format: "2016-10-05T16:54:20Z" (ISO 8601 format; Z indicates on UTC +0 time,
+    # thus need to adjust to our timezone and then converted to am/pm)
+    date_object = datetime.strptime(date_string, "%Y-%m-%dT%H:%M:%SZ")
+    timestamp = calendar.timegm(date_object.timetuple())
+    local_dt = datetime.fromtimestamp(timestamp)
+    assert date_object.resolution >= timedelta(microseconds=1)
+    time_zone_adjusted_date_object = local_dt.replace(microsecond=date_object.microsecond)
+    if time_zone_adjusted_date_object.hour > 12:  # P.M.
+        time_zone_adjusted_date_object = time_zone_adjusted_date_object - timedelta(hours=12)
+        return str(time_zone_adjusted_date_object) + " P.M."
+    else:  # A.M.
+        if time_zone_adjusted_date_object.hour == 0:
+            time_zone_adjusted_date_object = time_zone_adjusted_date_object + timedelta(hours=12)
+        return str(time_zone_adjusted_date_object) + " A.M."
 
 
 class UnitTestInterface(FlaskView):
@@ -116,13 +136,12 @@ class UnitTestInterface(FlaskView):
             # Make sure that the build and commit info match; in theory this should be a redundant check
             if b['commit_id'] == c['id']:
                 new_packet = dict()
-                new_packet['commit_id'] = b['commit_id']
                 new_packet['build_id'] = b['id']
                 new_packet['state'] = b['state']
-                new_packet['duration'] = b['duration']
                 new_packet['commit'] = c['sha']
                 new_packet['branch'] = c['branch']
                 new_packet['author'] = c['committer_name']
+                new_packet['date'] = format_date(c['committed_at'])
                 info_packets.append(new_packet)
 
         return render_template("travis.html", list_of_info=info_packets, branches=branches)
@@ -143,16 +162,14 @@ class UnitTestInterface(FlaskView):
         condensed_packet['author'] = alias['commit']['committer_name']
         condensed_packet['branch'] = alias['commit']['branch']
         condensed_packet['compare_url'] = alias['commit']['compare_url']
-        condensed_packet['sha'] = alias['commit']['sha']
 
         key_order = ['build_id', 'state', 'duration', 'language', 'repository_id', 'commit_id', 'event_type', 'branch',
-                     'sha', 'compare_url', 'author']
+                     'compare_url', 'author']
 
         return render_template("travis_build_view.html", order=key_order, packet=condensed_packet)
 
     def rerun_travis_build(self, build_id):
         url_to_send = self.travis_api_url + "/builds/" + build_id + "/restart"
-        # url_to_send = self.travis_api_url + "/repo/betheluniversity%2ftinker/requests"
         r = Requests_API.post(url_to_send, headers=construct_authorized_post_headers())
         return r.content
 

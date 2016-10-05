@@ -4,7 +4,7 @@
 # 2. Find some way to pass test object ids back and forth between unit tests so that the test_sequentially files can be
 #       split into individual, granular unit tests.
 #
-# Currently, the unit testing suite takes about 3 minutes to run.
+# Currently, the unit testing suite takes about 4 minutes to run.
 
 import os
 # This line needs to be above 'import tinker' so that when tinker's init runs, it will properly access this environ var
