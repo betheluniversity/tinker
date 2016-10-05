@@ -11,6 +11,8 @@
                 <td>{{ key }}</td>
             {% if key == "duration" %}
                 <td>{{ packet[key] }} seconds</td>
+            {% elif key == "build_id" %}
+                <td><a href="https://travis-ci.org/betheluniversity/tinker/builds/{{ packet[key] }}">{{ packet[key] }}</a></td>
             {% elif key == "compare_url" %}
                 <td><a href="{{ packet[key] }}">{{ packet[key] }}</a></td>
             {% else %}
