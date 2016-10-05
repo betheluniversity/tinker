@@ -13,20 +13,20 @@
 {% block main_content %}
     <script type="text/javascript">
         function checkNeedTimezone(id) {
-            alert("made it1");
+            {#            alert("made it1");#}
             var out = 'needtimezone' + id;
             var time = 'timezone' + id;
-{#            var timelabel = 'needtimezonelabel' + id;#}
+            {#            var timelabel = 'needtimezonelabel' + id;#}
             if (document.getElementById(out).checked) {
-                alert("made it2");
+                {#                alert("made it2");#}
                 document.getElementById(time).style.display = "inline-block";
-{#                document.getElementById(timelabel).style.display = "none";#}
+                {#                document.getElementById(timelabel).style.display = "none";#}
             }
             else {
-                alert("made it3");
+                {#                alert("made it3");#}
                 document.getElementById(time).style.display = "none";
 
-{#                document.getElementById(timelabel).style.display = "block";#}
+                {#                document.getElementById(timelabel).style.display = "block";#}
 
             }
         }
@@ -357,6 +357,34 @@
                 $("#eventform").submit(function () {
                     //add a hidden field with the number of dates
                     var dates = $(".date-fieldset");
+
+                    // add a 'required' text to those that apply
+                    var return_value = true;
+                    // reset all 'required' fields
+                    $('.dates-required').remove();
+                    for (i = 0; i < dates.length; i++) {
+                        var start = $('#start' + i);
+                        var end = $('#end' + i);
+
+                        if (start.val() == '' || end.val() == '') {
+                            var new_element = $('<div>').html('Dates are required.').addClass('required dates-required red-alert').attr('style', 'margin-bottom: 8px');
+
+                            // if first element, add scroll-to class
+                            if (return_value == true)
+                                new_element.addClass('scroll-here-if-fail');
+
+                            start.parent().prepend(new_element);
+                            return_value = false;
+                        }
+                    }
+                    if (return_value == false) {
+
+                        {#                        $("html, body").animate({#}
+                        {#                            scrollTop: $('.scroll-here-if-fail').offset().top - 100#}
+                        {#                        }, 200);#}
+                        return return_value;
+                    }
+
                     var input = $("<input>").attr("type", "hidden").attr("name", "num_dates").val(dates.length);
                     $("#eventform").append(input);
                     return true;

@@ -175,7 +175,8 @@ a#remove_new_job_button {
     font-weight: normal;
     position: relative;
     padding: 10px 15px 10px 15px;
-    transition: opacity 300ms ease-out
+    transition: opacity 300ms ease-out;
+    font-family: 'Muli', Arial, sans-serif;
 
 }
 
