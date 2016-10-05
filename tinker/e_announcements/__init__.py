@@ -36,7 +36,7 @@ class EAnnouncementsView(FlaskView):
     @route("/delete/<e_announcement_id>", methods=['GET', 'POST'])
     def delete(self, e_announcement_id):
         # must have access to delete
-        if session['username'] not in app.config['E_ANNOUNCEMENTS_ADMINS']:
+        if session['groups'] not in 'E-Announcement Approver':
             return redirect(url_for('e_announcements.EAnnouncementsView:index'), code=302)
 
         # print 'Delete E-Announcement ' + e_announcement_id
