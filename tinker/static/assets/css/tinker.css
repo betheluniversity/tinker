@@ -553,6 +553,22 @@ label.checkbox {
     background-color: #0069AA;
 }
 
+@media (max-width: 991px){
+
+    ul.dropdown-menu{
+        min-width: 195px !important;
+    }
+
+    .admin-list-item{
+        font-size: 11px !important;
+    }
+
+    .dropdown-menu > li > a{
+        padding-left: 15px !important;
+    }
+
+}
+
 @media (min-width: 992px) {
     .navbar .navbar-header {
         margin: 0px !important;
