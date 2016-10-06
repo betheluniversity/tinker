@@ -13,22 +13,16 @@
 {% block main_content %}
     <script type="text/javascript">
         function checkNeedTimezone(id) {
-            {#            alert("made it1");#}
             var out = 'needtimezone' + id;
             var time = 'timezone' + id;
             {#            var timelabel = 'needtimezonelabel' + id;#}
             if (document.getElementById(out).checked) {
-                {#                alert("made it2");#}
                 document.getElementById(time).style.display = "none";
                 {#                document.getElementById(timelabel).style.display = "none";#}
             }
             else {
-                {#                alert("made it3");#}
-
                 document.getElementById(time).style.display = "inline-block";
-
                 {#                document.getElementById(timelabel).style.display = "block";#}
-
             }
         }
     </script>
@@ -207,9 +201,7 @@
                 var outid = '#needtimezone' + id;
                 var timezoneid = '#timezone' + id;
                 var timezonelabel = '#needtimezonelabel' + id;
-                alert($(startid).val());
                 $(startid).val(start);
-                alert($(startid).val());
                 $(endid).val(end);
                 $(timezoneid).val(timezone);
                 if (allday) {
@@ -373,6 +365,8 @@
                             return_value = false;
                         }
                     }
+
+                    // scroll screen to the top-most error
                     if (return_value == false) {
                         $('.main-panel').animate({
                             scrollTop: $('.main-panel').scrollTop() + $('.scroll-here-if-fail').offset().top - 100
