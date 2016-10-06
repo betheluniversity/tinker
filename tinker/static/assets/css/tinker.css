@@ -267,6 +267,11 @@ small.required {
     color: #ff0000
 }
 
+.fa-delete{
+    float: right;
+    color: #ff0000
+}
+
 small.extra-required {
     font-size: 70%;
 }

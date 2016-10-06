@@ -166,7 +166,9 @@
                 var timelabel = 'needtimezonelabel' + id;
                 var fieldset_node = $('<fieldset>').addClass('date-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Date " + id + ' ').append($('<small>').addClass('required').html("required")));
+                inner_node.append($("<legend>")
+                        .append($('<i>').addClass('fa fa-times fa-delete').attr('id', id)).append("Date " + id + ' ')
+                        .append($('<small>').addClass('required').html("required")));
 
                 inner_node.append($("<label>").addClass("checkbox").attr("id", alllabel).attr("for", all)
                         .append($("<span>").addClass("icons")
@@ -327,12 +329,13 @@
                     createPicker(new_date);
                 });
 
-                $("#remove_date_button").click(function () {
+                $('.fa-delete').click(function () {
                     var list = $(".date-fieldset");
                     var length = list.length;
-                    //Hide remove button if there will only be one date left
-                    if (length == 2) {
-                        $("#remove_date_button").hide();
+                    for(i = 0; i < length-1; i++) {
+                        document.getElementById('start'+(i+1)).value = document.getElementById('start'+(i+2)).value;
+                        document.getElementById('end'+(i+1)).value = document.getElementById('end'+(i+2)).value;
+                        list[i] = list[i + 1];
                     }
                     list.last().remove();
                 });
@@ -398,6 +401,7 @@
             <div class="content">
                 <legend>Date 1
                     <small class="required">required</small>
+                    <i class="fa fa-times fa-delete" aria-hidden="true"></i>
                 </legend>
 
                 <label class="checkbox" id="alldaylabel1" for="allday1">
@@ -442,6 +446,6 @@
         </div>
     </fieldset>
     <a href="javascript:void(0);" id="add_date_button" class="btn btn-primary">Add Another Date</a>
-    <a href="javascript:void(0);" id="remove_date_button" style="display:none" class="btn btn-primary btn-alert">Remove
-        Date</a>
+{#    <a href="javascript:void(0);" id="remove_date_button" style="display:none" class="btn btn-primary btn-alert">Remove#}
+{#        Date</a>#}
 {%- endmacro %}
