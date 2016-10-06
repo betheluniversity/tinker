@@ -19,6 +19,7 @@
 to be in it's own card div, something to think about in the future -->
 
 {% block main_content %}
+    {{ degrees }}
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
@@ -234,6 +235,7 @@ to be in it's own card div, something to think about in the future -->
             }
 
                 function populateDegreeFieldset(id, school, degree, year) {
+                    alert(id + " " +  school + " " + degree + " " + year);
                     var schoolid = '#school' + id;
                     var degreeid = '#degree-earned' + id;
                     var yearid = '#year' + id;
@@ -269,7 +271,7 @@ to be in it's own card div, something to think about in the future -->
                     $(seminaryid).val(job_title['seminary_program']);
                     $(seminaryid).change();
 
-                    $(deptchairid).attr('checked', true);
+                    $(deptchairid).parent().parent().addClass('checked');
                     $(deptchairid).change();
                     $(programdirectorid).attr('checked', true);
                     $(programdirectorid).change();
@@ -427,10 +429,9 @@ to be in it's own card div, something to think about in the future -->
                         initializeJobTitles(1);
                     {% endif %}
 
-
                     {% if degrees %}
-
                         var degrees = {{ degrees|safe }};
+                        alert("First");
                         var i = 0;
                         while (i < 200) {
 
@@ -445,14 +446,17 @@ to be in it's own card div, something to think about in the future -->
                             //If this is not the first node, create it before we can populate it and insert after the last one.
                             //show the remove buton
                             if (i != 0) {
+                                alert("Shouldn't see this");
                                 var last = $(".degree-fieldset").last();
                                 var new_degree = newDegreeTitleFieldset(id);
                                 new_degree.insertAfter(last);
                                 $("#remove_jdegree_button").show();
                             }
+                            alert("second");
                             //Now populate the fieldset
-                            populateDegreeFieldset(id, degree['school'], degree['degree_earned'], degree['year'])
+                            populateDegreeFieldset(id, degree['school'], degree['degree-earned'], degree['year'])
                             //no infinite loops today
+                            alert("here?");
                             i++;
 
                         }
