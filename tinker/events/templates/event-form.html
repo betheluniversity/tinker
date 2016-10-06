@@ -19,12 +19,13 @@
             {#            var timelabel = 'needtimezonelabel' + id;#}
             if (document.getElementById(out).checked) {
                 {#                alert("made it2");#}
-                document.getElementById(time).style.display = "inline-block";
+                document.getElementById(time).style.display = "none";
                 {#                document.getElementById(timelabel).style.display = "none";#}
             }
             else {
                 {#                alert("made it3");#}
-                document.getElementById(time).style.display = "none";
+
+                document.getElementById(time).style.display = "inline-block";
 
                 {#                document.getElementById(timelabel).style.display = "block";#}
 
@@ -48,8 +49,7 @@
                 {% if form.errors or not dates_good and num_dates %}
                     <div class="error-alert">
                         <div data-alert class="red-alert">
-                            There were errors with your form.
-                            <a href="#" class="close">&times;</a>
+                            There were errors with your form
                         </div>
                     </div>
                 {% endif %}
@@ -61,7 +61,6 @@
                         <div class="error-alert">
                             <div data-alert class="red-alert">
                                 {{ error }}
-                                <a href="#" class="close">&times;</a>
                             </div>
                         </div>
                     {% endfor %}
@@ -76,8 +75,6 @@
                         </label>
                         <small class="extra-required">{{ field.description }}</small>
                     {% endif %}
-
-
 
                     {# Print the field #}
                     {% if field.type == "SelectMultipleField" %}
@@ -305,9 +302,6 @@
                     }
 
                 {% endif %}
-                {% if dates_good == False %}
-                    $('<div class="error-alert"><div data-alert="" class="red-alert">Event Dates are Required<a href="#" class="close">×</a></div></div>').insertBefore(".date-fieldset");
-                {% endif %}
 
                 {% if form.errors or not dates_good and num_dates %}
                     var event_dates = {{ event_dates|safe }};
@@ -362,13 +356,15 @@
                     var return_value = true;
                     // reset all 'required' fields
                     $('.dates-required').remove();
-                    for (i = 0; i < dates.length; i++) {
+                    for (i = 1; i <= dates.length; i++) {
                         var start = $('#start' + i);
                         var end = $('#end' + i);
 
                         if (start.val() == '' || end.val() == '') {
                             var new_element = $('<div>').html('Dates are required.').addClass('required dates-required red-alert').attr('style', 'margin-bottom: 8px');
 
+                            var error_element = $('<div>').addClass('error-alert').append($('<div data-alert>').addClass('red-alert').append('There were errors with your form'))
+                            $('#eventform').parent().prepend(error_element);
                             // if first element, add scroll-to class
                             if (return_value == true)
                                 new_element.addClass('scroll-here-if-fail');
@@ -378,10 +374,9 @@
                         }
                     }
                     if (return_value == false) {
-
-                        {#                        $("html, body").animate({#}
-                        {#                            scrollTop: $('.scroll-here-if-fail').offset().top - 100#}
-                        {#                        }, 200);#}
+                        $('.main-panel').animate({
+                            scrollTop: $('.main-panel').scrollTop() + $('.scroll-here-if-fail').offset().top - 100
+                        }, 200);
                         return return_value;
                     }
 
@@ -442,8 +437,7 @@
                 {#                    <label for="needtimezone1" class="checkbox-label">Outside of Minnesota?</label>#}
                 {#                </div>#}
 
-                <label for="timezone1" style="display: none" id="timezonelabel1">Timezone</label>
-                <select id="timezone1" name="timezone1" class="timezoneselect">
+                <select id="timezone1" style="display: none" name="timezone1" class="timezoneselect">
                     <option value>-select-</option>
                     <option value="Pacific Time">Pacific Time</option>
                     <option value="Mountain Time">Mountain Time</option>
