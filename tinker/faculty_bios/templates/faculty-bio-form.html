@@ -19,7 +19,6 @@
 to be in it's own card div, something to think about in the future -->
 
 {% block main_content %}
-    {{ degrees }}
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
@@ -147,8 +146,8 @@ to be in it's own card div, something to think about in the future -->
 
             function newJobTitlesFieldset(id) {
                 var title = 'new-job-title' + id;
-                var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');
-                var inner_node = $("<div>").addClass('content');
+{#                var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');#}
+                var inner_node = $("<div>").addClass('content new-job-fieldset');
                 inner_node.append($("<legend>").html("Job Title " + id + " ").append(
                         $('<small>').addClass('required').html('required'))
                 );
@@ -180,19 +179,25 @@ to be in it's own card div, something to think about in the future -->
 
 
                 inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'dept-chair-div' + id)
-                        .append($('<label>').html('Are you the Department Chair?')
-                                .append($('<div>').addClass('radio')
-                                        .append($('<span>').addClass('icons')
-                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
-                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
-                                        .append($('<label>').html('Yes').append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'Yes'))))
-                                .append($('<div>').addClass('radio')
-                                        .append($('<span>').addClass('icons')
-                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
-                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
-                                        .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'No'))))
+                        .append('Are you the Department Chair?')
+                        .append($('<label>').addClass('radio')
+                                .append($('<span>').addClass('icons')
+                                        .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                        .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base'))
+                                )
+                                .append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'Yes'))
+                                .append('Yes')
                         )
+                )
+                .append($('<label>').addClass('radio')
+                        .append($('<span>').addClass('icons')
+                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base'))
+                        )
+                        .append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'No'))
+                        .append($('<label>').html('No'))
                 );
+
                 inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'program-director-div' + id)
                         .append($('<label>').html('Are you the Program Director?')
                                 .append($('<div>').addClass('radio')
@@ -232,10 +237,11 @@ to be in it's own card div, something to think about in the future -->
                                 $("<input type='text'>").attr('id', 'new-job-title' + id).attr('name', 'new-job-title' + id).addClass('no-border')
                         )
                 ));
+
+                return inner_node;
             }
 
                 function populateDegreeFieldset(id, school, degree, year) {
-                    alert(id + " " +  school + " " + degree + " " + year);
                     var schoolid = '#school' + id;
                     var degreeid = '#degree-earned' + id;
                     var yearid = '#year' + id;
@@ -244,16 +250,52 @@ to be in it's own card div, something to think about in the future -->
                     $(yearid).val(year);
                 }
 
+                // todo: this whole method is awful. it has to be redone asap.
                 function populateNewJobTitlesFieldset(id, job_title) {
+                    if( job_title['department_chair'])
+                        department_chair = job_title['department_chair'];
+                    else
+                        department_chair = job_title['department-chair'];
+
+                    if( job_title['program_director'])
+                        program_director = job_title['program_director'];
+                    else
+                        program_director = job_title['program-director'];
+
+                    if( job_title['lead_faculty'])
+                        lead_faculty = job_title['lead_faculty'];
+                    else
+                        lead_faculty = job_title['lead-faculty'];
+
+                    if( job_title['adult_undergrad_program'])
+                        adult_undergrad_program = job_title['adult_undergrad_program'];
+                    else
+                        adult_undergrad_program = job_title['adult-undergrad-program'];
+
+                    if( job_title['graduate_program'])
+                        graduate_program = job_title['graduate_program'];
+                    else
+                        graduate_program = job_title['graduate-program'];
+
+                    if( job_title['seminary_program'])
+                        seminary_program = job_title['seminary_program'];
+                    else
+                        seminary_program = job_title['seminary-program'];
+
+                    if( job_title['job_title'])
+                        title = job_title['job_title'];
+                    else
+                        title = job_title['job-title'];
+
                     var schoolid = '#schools' + id;
                     var undergradid = '#undergrad' + id;
                     var adultundergradid = '#adult-undergrad' + id;
                     var graduateid = '#graduate' + id;
                     var seminaryid = '#seminary' + id;
 
-                    var deptchairid = 'input[name="dept-chair' + id + '"][value=' + job_title['department_chair'] + ']';
-                    var programdirectorid = 'input[name="program-director' + id + '"][value=' + job_title['program_director'] + ']';
-                    var leadfacultyid = 'input[name="lead-faculty' + id + '"][value=' + job_title['lead_faculty'] + ']';
+                    var deptchairid = 'input[name="dept-chair' + id + '"][value=' + department_chair + ']';
+                    var programdirectorid = 'input[name="program-director' + id + '"][value=' + program_director + ']';
+                    var leadfacultyid = 'input[name="lead-faculty' + id + '"][value=' + lead_faculty + ']';
 
                     var jobtitleid = '#new-job-title' + id;
 
@@ -262,32 +304,27 @@ to be in it's own card div, something to think about in the future -->
                     $(undergradid).val(job_title['department']);
                     $(undergradid).change();
 
-                    $(adultundergradid).val(job_title['adult_undergrad_program']);
-                    if (job_title['adult_undergrad_program'])
+                    $(adultundergradid).val(adult_undergrad_program);
+                    if (adult_undergrad_program)
                         $(adultundergradid).change();
-                    $(graduateid).val(job_title['graduate_program']);
-                    if (job_title['graduate_program'])
+                    $(graduateid).val(graduate_program);
+                    if (graduate_program)
                         $(graduateid).change();
-                    $(seminaryid).val(job_title['seminary_program']);
-                    $(seminaryid).change();
+                    $(seminaryid).val(seminary_program);
+                    if ( seminary_program )
+                        $(seminaryid).change();
 
-                    $(deptchairid).parent().parent().addClass('checked');
-                    $(deptchairid).change();
+                    $(deptchairid).parent().addClass('checked');
+                    $(deptchairid).attr('checked', true);
+
+                    $(programdirectorid).parent().addClass('checked');
                     $(programdirectorid).attr('checked', true);
-                    $(programdirectorid).change();
+
+                    $(leadfacultyid).parent().addClass('checked');
                     $(leadfacultyid).attr('checked', true);
-                    $(leadfacultyid).change();
 
-                    $(jobtitleid).val(job_title['job_title']);
-                    $(jobtitleid).change();
+                    $(jobtitleid).val(title);
                 }
-
-
-                function populateJobTitleFieldset(id, value) {
-                    var titleid = '#job-title' + id;
-                    $(titleid).val(value);
-                }
-
 
                 $(document).ready(function () {
 
@@ -401,7 +438,8 @@ to be in it's own card div, something to think about in the future -->
 
                             job_title = new_job_titles[i];
                             if (!job_title) {
-                                if (i == 0) // make sure it is initialized.
+                                if (i == 0)
+                                    // create html
                                     initializeJobTitles(1);
                                 break;
                             }
@@ -417,9 +455,16 @@ to be in it's own card div, something to think about in the future -->
                                 $("#remove_new_job_button").show();
                             }
 
-                            //Now populate the fieldset
+                            // add js
                             initializeJobTitles(id);
+                            // populate values
                             populateNewJobTitlesFieldset(id, job_title);
+
+                            if( (job_title['job-title'] == null || job_title['job-title'] == '') && (job_title['job_title'] == null || job_title['job_title'] == '') ) {
+                                $('#new-job-title-div' + id).hide();
+                            } else {
+                                $('#new-job-title-div' + id).show();
+                            }
 
                             //no infinite loops today
                             i++;
@@ -431,7 +476,7 @@ to be in it's own card div, something to think about in the future -->
 
                     {% if degrees %}
                         var degrees = {{ degrees|safe }};
-                        alert("First");
+
                         var i = 0;
                         while (i < 200) {
 
@@ -446,42 +491,21 @@ to be in it's own card div, something to think about in the future -->
                             //If this is not the first node, create it before we can populate it and insert after the last one.
                             //show the remove buton
                             if (i != 0) {
-                                alert("Shouldn't see this");
                                 var last = $(".degree-fieldset").last();
                                 var new_degree = newDegreeTitleFieldset(id);
                                 new_degree.insertAfter(last);
-                                $("#remove_jdegree_button").show();
+                                $("#remove_degree_button").show();
                             }
-                            alert("second");
                             //Now populate the fieldset
-                            populateDegreeFieldset(id, degree['school'], degree['degree-earned'], degree['year'])
+                            var degree_earned = '';
+                            if( degree['degree-earned'] )
+                                degree_earned = degree['degree-earned'];
+                            else
+                                degree_earned = degree['degree_earned'];
+                            populateDegreeFieldset(id, degree['school'], degree_earned, degree['year']);
                             //no infinite loops today
-                            alert("here?");
                             i++;
 
-                        }
-
-                    {% endif %}
-
-
-                    {% if form.errors or not degrees_good and num_degrees %}
-                        var degrees = {{ degrees|safe }};
-                        var tt = {{ num_degrees }};
-                        for (var i = 1; i < {{ num_degrees + 1}}; i++) {
-                            if (i == 1) {
-                                $('#school1').val(degrees['school1']);
-                                $('#degree-earned1').val(degrees['degree_earned1']);
-                                $('#year1').val(degrees['year1']);
-                            } else {
-                                newDegreeTitleFieldset(i);
-                                var fieldsets = $(".degree-fieldset");
-                                var last = fieldsets.last();
-                                newDegreeTitleFieldset(i).insertAfter(last);
-
-                                $('#school' + i).val(degrees['school' + i]);
-                                $('#degree-earned' + i).val(degrees['degree_earned' + i]);
-                                $('#year' + i).val(degrees['year' + i]);
-                            }
                         }
 
                     {% endif %}
@@ -632,37 +656,37 @@ to be in it's own card div, something to think about in the future -->
                     <select name='seminary1' id='seminary1'></select>
                 </div>
 
-                <div id="dept-chair-div1" class="hide-when-school-changes1"><label>
+                <div id="dept-chair-div1" class="hide-when-school-changes1">
                     Are you the Department Chair?
-                    <div class="radio">
-                        <label><input type="radio" name="dept-chair1" value="Yes">Yes</label>
-                    </div>
-                    <div class="radio">
-                        <label><input type="radio" name="dept-chair1" value="No">No</label>
-                    </div>
-                </label></div>
-                <div id="program-director-div1" class="hide-when-school-changes1"><label>
+                    <label class="radio">
+                        <input type="radio" name="dept-chair1" value="Yes">Yes
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="dept-chair1" value="No">No
+                    </label>
+                </div>
+                <div id="program-director-div1" class="hide-when-school-changes1">
                     Are you the Program Director?
-                    <div class="radio">
-                        <label><input type="radio" name="program-director1" value="Yes">Yes</label>
-                    </div>
-                    <div class="radio">
-                        <label><input type="radio" name="program-director1" value="No">No</label>
-                    </div>
-                </label></div>
-                <div id="lead-faculty-div1" class="hide-when-school-changes1"><label>
+                    <label class="radio">
+                        <input type="radio" name="program-director1" value="Yes">Yes
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="program-director1" value="No">No
+                    </label>
+                </div>
+                <div id="lead-faculty-div1" class="hide-when-school-changes1">
                     For this program, I am the...
-                    <div class="radio">
-                        <label><input type="radio" name="lead-faculty1" value="Lead Faculty">Lead Faculty</label>
-                    </div>
-                    <div class="radio">
-                        <label><input type="radio" name="lead-faculty1" value="Program Director">Program
-                            Director</label>
-                    </div>
-                    <div class="radio">
-                        <label><input type="radio" name="lead-faculty1" value="Other">Other</label>
-                    </div>
-                </label></div>
+                    <label class="radio">
+                        <input type="radio" name="lead-faculty1" value="Lead Faculty">Lead Faculty
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="lead-faculty1" value="Program Director">Program
+                            Director
+                    </label>
+                    <label class="radio">
+                        <input type="radio" name="lead-faculty1" value="Other">Other
+                    </label>
+                </div>
 
                 <div id="new-job-title-div1" class="hide-when-school-changes1"><label>
                     Title
