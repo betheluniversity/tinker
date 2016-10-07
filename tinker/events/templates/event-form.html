@@ -12,17 +12,21 @@
 
 {% block main_content %}
     <script type="text/javascript">
-        function checkNeedTimezone(id) {
+        function checkNeedTimezone(id, reverse_logic) {
             var out = 'needtimezone' + id;
             var time = 'timezone' + id;
-            {#            var timelabel = 'needtimezonelabel' + id;#}
-            if (document.getElementById(out).checked) {
-                document.getElementById(time).style.display = "none";
-                {#                document.getElementById(timelabel).style.display = "none";#}
-            }
-            else {
-                document.getElementById(time).style.display = "inline-block";
-                {#                document.getElementById(timelabel).style.display = "block";#}
+            if( reverse_logic == true ) {
+                if (document.getElementById(out).checked) {
+                    document.getElementById(time).style.display = "none";
+                } else {
+                    document.getElementById(time).style.display = "inline-block";
+                }
+            } else {
+                if (document.getElementById(out).checked) {
+                    document.getElementById(time).style.display = "inline-block";
+                } else {
+                    document.getElementById(time).style.display = "none";
+                }
             }
         }
     </script>
@@ -162,7 +166,6 @@
                 var alllabel = 'alldaylabel' + id;
                 var time = 'timezone' + id;
                 var out = 'needtimezone' + id;
-                var check = 'checkNeedTimezone(' + id + ')';
                 var timelabel = 'needtimezonelabel' + id;
                 var fieldset_node = $('<fieldset>').addClass('date-fieldset');
                 var inner_node = $("<div>").addClass('content');
@@ -181,7 +184,7 @@
                 inner_node.append($("<label>").attr('for', end).html("End Date"));
                 inner_node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
 
-                inner_node.append($("<label>").addClass("checkbox").attr("id", timelabel).attr("for", out).attr('onclick', check)
+                inner_node.append($("<label>").addClass("checkbox").attr("id", timelabel).attr("for", out).attr('onclick', checkNeedTimezone(id, 'true'))
                         .append($("<span>").addClass("icons")
                                 .append($("<span>").addClass("first-icon fa fa-square-o"))
                                 .append($("<span>").addClass("second-icon fa fa-check-square-o")))
@@ -213,17 +216,9 @@
                 if (out) {
                     $(outid).attr('checked', true);
                     $(timezonelabel).addClass('checked');
-                    checkNeedTimezone(id)
+                    checkNeedTimezone(id, false)
                 }
             }
-
-            {# Got the "replace(/\D/g, '')" from #}
-            {# http://stackoverflow.com/questions/1183903/regex-using-javascript-to-return-just-numbers #}
-            {# Grabs the number from the id, i.e. needtimezone1 #}
-            {#            $(".needtimezonecheck").click(function () {#}
-            {#                var id = ($(this).data('id')).replace(/\D/g, '');#}
-            {#                checkNeedTimezone(id);#}
-            {#            });#}
 
             function testOffCampusLocation() {
                 var location = $("#location")[0];
@@ -410,11 +405,6 @@
                     <input class="alldaycheck" id="allday1" name="allday1" type="checkbox">
                     All Day
                 </label>
-                {#                <input class="alldaycheck" id="allday1" name="allday1" type="checkbox"#}
-                {#                       value="True">#}
-                {#                <div class="checkbox-label">#}
-                {#                    <label for="allday1" class="checkbox-label">All Day</label>#}
-                {#                </div>#}
 
                 <label for="start1">Start Date</label>
                 <input type="text" name="start1" id="start1" class="datepicker"/>
@@ -422,18 +412,13 @@
                 <label for="end1">End Date</label>
                 <input type="text" name="end1" id="end1" class="datepicker"/>
 
-                <label class="checkbox" id="needtimezonelabel1" for="needtimezone1" onclick="checkNeedTimezone(1)">
+                <label class="checkbox" id="needtimezonelabel1" for="needtimezone1" onclick="checkNeedTimezone(1, true)">
                     <span class="icons"><span class="first-icon fa fa-square-o"></span>
                         <span class="second-icon fa fa-check-square-o"></span></span>
                     <input type="checkbox" id="needtimezone1" data-id="needtimezone1" name="needtimezone1"
                            value="False">
                     Outside of Minnesota?
                 </label>
-                {#                <input type="checkbox" id="needtimezone1" data-id="needtimezone1" name="needtimezone1"#}
-                {#                       class="needtimezonecheck" value="False" onclick="checkNeedTimezone(1)">#}
-                {#                <div class="checkbox-label">#}
-                {#                    <label for="needtimezone1" class="checkbox-label">Outside of Minnesota?</label>#}
-                {#                </div>#}
 
                 <select id="timezone1" style="display: none" name="timezone1" class="timezoneselect">
                     <option value>-select-</option>
