@@ -15,6 +15,10 @@
         function checkNeedTimezone(id, reverse_logic) {
             var out = 'needtimezone' + id;
             var time = 'timezone' + id;
+            // escape if it doesn't exist yet.
+            if( document.getElementById(out) == undefined)
+                return;
+
             if( reverse_logic == true ) {
                 if (document.getElementById(out).checked) {
                     document.getElementById(time).style.display = "none";
@@ -184,7 +188,7 @@
                 inner_node.append($("<label>").attr('for', end).html("End Date"));
                 inner_node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
 
-                inner_node.append($("<label>").addClass("checkbox").attr("id", timelabel).attr("for", out).attr('onclick', checkNeedTimezone(id, 'true'))
+                inner_node.append($("<label>").addClass("checkbox").attr("id", timelabel).attr("for", out).attr('onclick', "checkNeedTimezone(" + id + ", true)")
                         .append($("<span>").addClass("icons")
                                 .append($("<span>").addClass("first-icon fa fa-square-o"))
                                 .append($("<span>").addClass("second-icon fa fa-check-square-o")))
@@ -216,7 +220,7 @@
                 if (out) {
                     $(outid).attr('checked', true);
                     $(timezonelabel).addClass('checked');
-                    checkNeedTimezone(id, false)
+                    checkNeedTimezone(id, false);
                 }
             }
 
@@ -320,7 +324,6 @@
                     var new_num = (parseInt(old_num) + 1);
                     var new_date = newFieldset(new_num);
                     new_date.insertAfter(last);
-                    $("#remove_date_button").show();
                     createPicker(new_date);
                 });
 
@@ -431,6 +434,4 @@
         </div>
     </fieldset>
     <a href="javascript:void(0);" id="add_date_button" class="btn btn-primary">Add Another Date</a>
-{#    <a href="javascript:void(0);" id="remove_date_button" style="display:none" class="btn btn-primary btn-alert">Remove#}
-{#        Date</a>#}
 {%- endmacro %}
