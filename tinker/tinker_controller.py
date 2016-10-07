@@ -240,7 +240,8 @@ class TinkerController(object):
         # now metadata dynamic fields
         for field in dynamic_fields:
             if find(field, 'fieldValue', False):
-                items = [find(item, 'value') for item in find(field, 'fieldValue', False)]
+                # find(item, 'value', False) was set in order for events md select fields to work
+                items = [find(item, 'value', False) for item in find(field, 'fieldValue', False)]
                 edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
