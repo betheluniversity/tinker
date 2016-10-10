@@ -41,7 +41,10 @@ else:
             continue
         value = os.environ[kw]
         if "[" in value or "{" in value:
-            value = ast.literal_eval(os.environ[kw])
+            try:
+                value = ast.literal_eval(os.environ[kw])
+            except SyntaxError:
+                print "Errored on " + kw + ": " + value
         app.config[kw] = value
 
     # These config vars require code operations, and aren't just values
