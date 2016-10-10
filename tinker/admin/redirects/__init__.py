@@ -41,7 +41,6 @@ class RedirectsView(FlaskView):
             redirect = BethelRedirect.query.get(path)
             self.base.database_delete(redirect)
             resp = self.base.create_redirect_text_file()
-
         except:
             return "fail"
         return "deleted %s" % resp
@@ -77,7 +76,6 @@ class RedirectsView(FlaskView):
 
         if not from_path.startswith("/"):
             from_path = "/%s" % from_path
-
         try:
             redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url,
                                       expiration_date=expiration_date)

@@ -75,7 +75,6 @@ if not app.debug:
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
 def get_url_from_path(path, **kwargs):
-    app.config['SERVER_NAME'] = '127.0.0.1:5000'  # This will need to be changed to tinker(.xp).bethel.edu on production
     with app.app_context():
         url_to_return = url_for(path, **kwargs)
         if app.config['SERVER_NAME'] in url_to_return:
