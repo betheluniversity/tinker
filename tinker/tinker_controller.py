@@ -492,7 +492,8 @@ class TinkerController(object):
         if content:
             uni = self.__html_entities_to_unicode__(content)
             htmlent = self.__unicode_to_html_entities__(uni)
-            return htmlent
+            clean_xml = self.__escape_xml_illegal_chars__(htmlent).lstrip()
+            return clean_xml
         else:
             return None
 
@@ -505,6 +506,10 @@ class TinkerController(object):
         """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
         text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
         return text
+
+    def __escape_xml_illegal_chars__(self, val, replacement='?'):
+        _illegal_xml_chars_RE = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+        return _illegal_xml_chars_RE.sub(replacement, val)
 
     def element_tree_to_html(self, node):
         return_string = ''
