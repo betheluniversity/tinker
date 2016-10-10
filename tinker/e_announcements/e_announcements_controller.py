@@ -42,7 +42,7 @@ class EAnnouncementsController(TinkerController):
             author = None
         username = session['username']
 
-        if (author is not None and username == author) or username in app.config['E_ANNOUNCEMENTS_ADMINS']:
+        if (author is not None and username == author) or session['groups'] in 'E-Announcement Approver':
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:

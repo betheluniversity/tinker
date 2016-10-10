@@ -175,7 +175,8 @@ a#remove_new_job_button {
     font-weight: normal;
     position: relative;
     padding: 10px 15px 10px 15px;
-    transition: opacity 300ms ease-out
+    transition: opacity 300ms ease-out;
+    font-family: 'Muli', Arial, sans-serif;
 
 }
 
@@ -263,6 +264,11 @@ select.pika-select {
 
 small.required {
     font-size: 9.5px;
+    color: #ff0000
+}
+
+.fa-delete{
+    float: right;
     color: #ff0000
 }
 
@@ -550,6 +556,22 @@ label.checkbox {
     width: 40%;
     color: #FFFFFF;
     background-color: #0069AA;
+}
+
+@media (max-width: 991px){
+
+    ul.dropdown-menu{
+        min-width: 195px !important;
+    }
+
+    .admin-list-item{
+        font-size: 11px !important;
+    }
+
+    .dropdown-menu > li > a{
+        padding-left: 15px !important;
+    }
+
 }
 
 @media (min-width: 992px) {

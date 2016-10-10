@@ -396,7 +396,12 @@ class FacultyBioController(TinkerController):
                 # This error came from the add form because event_id wasn't set
                 add_form = True
 
+            wysiwyg_keys = ['biography', 'courses', 'awards', 'publications', 'presentations', 'certificates',
+                            'organizations', 'hobbies']
+            add_data = self.get_add_data(['faculty_location'], rform, wysiwyg_keys)
             metadata = fjson.dumps(data_to_add)
+            new_job_titles = fjson.dumps(self.get_job_titles(add_data))
+            degrees = fjson.dumps(self.get_degrees(add_data))
             return render_template('faculty-bio-form.html', **locals())
 
     def get_degrees(self, add_data):

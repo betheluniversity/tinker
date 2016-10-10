@@ -12,22 +12,25 @@
 
 {% block main_content %}
     <script type="text/javascript">
-        function checkNeedTimezone(id) {
-            alert("made it1");
+        function checkNeedTimezone(id, reverse_logic) {
             var out = 'needtimezone' + id;
             var time = 'timezone' + id;
-{#            var timelabel = 'needtimezonelabel' + id;#}
-            if (document.getElementById(out).checked) {
-                alert("made it2");
-                document.getElementById(time).style.display = "inline-block";
-{#                document.getElementById(timelabel).style.display = "none";#}
-            }
-            else {
-                alert("made it3");
-                document.getElementById(time).style.display = "none";
+            // escape if it doesn't exist yet.
+            if( document.getElementById(out) == undefined)
+                return;
 
-{#                document.getElementById(timelabel).style.display = "block";#}
-
+            if( reverse_logic == true ) {
+                if (document.getElementById(out).checked) {
+                    document.getElementById(time).style.display = "none";
+                } else {
+                    document.getElementById(time).style.display = "inline-block";
+                }
+            } else {
+                if (document.getElementById(out).checked) {
+                    document.getElementById(time).style.display = "inline-block";
+                } else {
+                    document.getElementById(time).style.display = "none";
+                }
             }
         }
     </script>
@@ -48,8 +51,7 @@
                 {% if form.errors or not dates_good and num_dates %}
                     <div class="error-alert">
                         <div data-alert class="red-alert">
-                            There were errors with your form.
-                            <a href="#" class="close">&times;</a>
+                            There were errors with your form
                         </div>
                     </div>
                 {% endif %}
@@ -61,7 +63,6 @@
                         <div class="error-alert">
                             <div data-alert class="red-alert">
                                 {{ error }}
-                                <a href="#" class="close">&times;</a>
                             </div>
                         </div>
                     {% endfor %}
@@ -76,8 +77,6 @@
                         </label>
                         <small class="extra-required">{{ field.description }}</small>
                     {% endif %}
-
-
 
                     {# Print the field #}
                     {% if field.type == "SelectMultipleField" %}
@@ -171,11 +170,12 @@
                 var alllabel = 'alldaylabel' + id;
                 var time = 'timezone' + id;
                 var out = 'needtimezone' + id;
-                var check = 'checkNeedTimezone(' + id + ')';
                 var timelabel = 'needtimezonelabel' + id;
                 var fieldset_node = $('<fieldset>').addClass('date-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Date " + id + ' ').append($('<small>').addClass('required').html("required")));
+                inner_node.append($("<legend>")
+                        .append($('<i>').addClass('fa fa-times fa-delete').attr('id', id)).append("Date " + id + ' ')
+                        .append($('<small>').addClass('required').html("required")));
 
                 inner_node.append($("<label>").addClass("checkbox").attr("id", alllabel).attr("for", all)
                         .append($("<span>").addClass("icons")
@@ -188,7 +188,7 @@
                 inner_node.append($("<label>").attr('for', end).html("End Date"));
                 inner_node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
 
-                inner_node.append($("<label>").addClass("checkbox").attr("id", timelabel).attr("for", out).attr('onclick', check)
+                inner_node.append($("<label>").addClass("checkbox").attr("id", timelabel).attr("for", out).attr('onclick', "checkNeedTimezone(" + id + ", true)")
                         .append($("<span>").addClass("icons")
                                 .append($("<span>").addClass("first-icon fa fa-square-o"))
                                 .append($("<span>").addClass("second-icon fa fa-check-square-o")))
@@ -210,9 +210,7 @@
                 var outid = '#needtimezone' + id;
                 var timezoneid = '#timezone' + id;
                 var timezonelabel = '#needtimezonelabel' + id;
-                alert($(startid).val());
                 $(startid).val(start);
-                alert($(startid).val());
                 $(endid).val(end);
                 $(timezoneid).val(timezone);
                 if (allday) {
@@ -222,17 +220,9 @@
                 if (out) {
                     $(outid).attr('checked', true);
                     $(timezonelabel).addClass('checked');
-                    checkNeedTimezone(id)
+                    checkNeedTimezone(id, false);
                 }
             }
-
-            {# Got the "replace(/\D/g, '')" from #}
-            {# http://stackoverflow.com/questions/1183903/regex-using-javascript-to-return-just-numbers #}
-            {# Grabs the number from the id, i.e. needtimezone1 #}
-            {#            $(".needtimezonecheck").click(function () {#}
-            {#                var id = ($(this).data('id')).replace(/\D/g, '');#}
-            {#                checkNeedTimezone(id);#}
-            {#            });#}
 
             function testOffCampusLocation() {
                 var location = $("#location")[0];
@@ -305,9 +295,6 @@
                     }
 
                 {% endif %}
-                {% if dates_good == False %}
-                    $('<div class="error-alert"><div data-alert="" class="red-alert">Event Dates are Required<a href="#" class="close">×</a></div></div>').insertBefore(".date-fieldset");
-                {% endif %}
 
                 {% if form.errors or not dates_good and num_dates %}
                     var event_dates = {{ event_dates|safe }};
@@ -325,6 +312,8 @@
                             $('#allday' + i).prop('checked', event_dates['allday' + i]);
                             $('#start' + i).val(event_dates['start' + i]);
                             $('#end' + i).val(event_dates['end' + i]);
+                            $('#needtimezone' + i).val(event_dates['needtimezone' + i]);
+                            $('#timezone' + i).val(event_dates['timezone' + i]);
                         }
                     }
 
@@ -337,16 +326,16 @@
                     var new_num = (parseInt(old_num) + 1);
                     var new_date = newFieldset(new_num);
                     new_date.insertAfter(last);
-                    $("#remove_date_button").show();
                     createPicker(new_date);
                 });
 
-                $("#remove_date_button").click(function () {
+                $('.fa-delete').click(function () {
                     var list = $(".date-fieldset");
                     var length = list.length;
-                    //Hide remove button if there will only be one date left
-                    if (length == 2) {
-                        $("#remove_date_button").hide();
+                    for(i = 0; i < length-1; i++) {
+                        document.getElementById('start'+(i+1)).value = document.getElementById('start'+(i+2)).value;
+                        document.getElementById('end'+(i+1)).value = document.getElementById('end'+(i+2)).value;
+                        list[i] = list[i + 1];
                     }
                     list.last().remove();
                 });
@@ -357,6 +346,37 @@
                 $("#eventform").submit(function () {
                     //add a hidden field with the number of dates
                     var dates = $(".date-fieldset");
+
+                    // add a 'required' text to those that apply
+                    var return_value = true;
+                    // reset all 'required' fields
+                    $('.dates-required').remove();
+                    for (i = 1; i <= dates.length; i++) {
+                        var start = $('#start' + i);
+                        var end = $('#end' + i);
+
+                        if (start.val() == '' || end.val() == '') {
+                            var new_element = $('<div>').html('Dates are required.').addClass('required dates-required red-alert').attr('style', 'margin-bottom: 8px');
+
+                            var error_element = $('<div>').addClass('error-alert').append($('<div data-alert>').addClass('red-alert').append('There were errors with your form'))
+                            $('#eventform').parent().prepend(error_element);
+                            // if first element, add scroll-to class
+                            if (return_value == true)
+                                new_element.addClass('scroll-here-if-fail');
+
+                            start.parent().prepend(new_element);
+                            return_value = false;
+                        }
+                    }
+
+                    // scroll screen to the top-most error
+                    if (return_value == false) {
+                        $('.main-panel').animate({
+                            scrollTop: $('.main-panel').scrollTop() + $('.scroll-here-if-fail').offset().top - 100
+                        }, 200);
+                        return return_value;
+                    }
+
                     var input = $("<input>").attr("type", "hidden").attr("name", "num_dates").val(dates.length);
                     $("#eventform").append(input);
                     return true;
@@ -381,6 +401,7 @@
             <div class="content">
                 <legend>Date 1
                     <small class="required">required</small>
+                    <i class="fa fa-times fa-delete" aria-hidden="true"></i>
                 </legend>
 
                 <label class="checkbox" id="alldaylabel1" for="allday1">
@@ -389,11 +410,6 @@
                     <input class="alldaycheck" id="allday1" name="allday1" type="checkbox">
                     All Day
                 </label>
-                {#                <input class="alldaycheck" id="allday1" name="allday1" type="checkbox"#}
-                {#                       value="True">#}
-                {#                <div class="checkbox-label">#}
-                {#                    <label for="allday1" class="checkbox-label">All Day</label>#}
-                {#                </div>#}
 
                 <label for="start1">Start Date</label>
                 <input type="text" name="start1" id="start1" class="datepicker"/>
@@ -401,21 +417,15 @@
                 <label for="end1">End Date</label>
                 <input type="text" name="end1" id="end1" class="datepicker"/>
 
-                <label class="checkbox" id="needtimezonelabel1" for="needtimezone1" onclick="checkNeedTimezone(1)">
+                <label class="checkbox" id="needtimezonelabel1" for="needtimezone1" onclick="checkNeedTimezone(1, true)">
                     <span class="icons"><span class="first-icon fa fa-square-o"></span>
                         <span class="second-icon fa fa-check-square-o"></span></span>
                     <input type="checkbox" id="needtimezone1" data-id="needtimezone1" name="needtimezone1"
                            value="False">
                     Outside of Minnesota?
                 </label>
-                {#                <input type="checkbox" id="needtimezone1" data-id="needtimezone1" name="needtimezone1"#}
-                {#                       class="needtimezonecheck" value="False" onclick="checkNeedTimezone(1)">#}
-                {#                <div class="checkbox-label">#}
-                {#                    <label for="needtimezone1" class="checkbox-label">Outside of Minnesota?</label>#}
-                {#                </div>#}
 
-                <label for="timezone1" style="display: none" id="timezonelabel1">Timezone</label>
-                <select id="timezone1" name="timezone1" class="timezoneselect">
+                <select id="timezone1" style="display: none" name="timezone1" class="timezoneselect">
                     <option value>-select-</option>
                     <option value="Pacific Time">Pacific Time</option>
                     <option value="Mountain Time">Mountain Time</option>
@@ -426,6 +436,4 @@
         </div>
     </fieldset>
     <a href="javascript:void(0);" id="add_date_button" class="btn btn-primary">Add Another Date</a>
-    <a href="javascript:void(0);" id="remove_date_button" style="display:none" class="btn btn-primary btn-alert">Remove
-        Date</a>
 {%- endmacro %}

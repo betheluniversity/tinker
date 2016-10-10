@@ -3,8 +3,10 @@ from werkzeug.utils import secure_filename
 # bu-cascade
 from bu_cascade.asset_tools import *
 
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 # flask
-from flask import Blueprint, redirect, send_from_directory
+from flask import Blueprint, redirect, send_from_directory, abort
 from flask_classy import FlaskView, route
 # tinker
 from tinker.admin.sync.sync_metadata import data_to_add
@@ -22,7 +24,8 @@ class FacultyBiosView(FlaskView):
 
     # todo: add a before_request method
     def before_request(self, name, **kwargs):
-        pass
+        if 'FACULTY' not in session['roles'] and 'Tinker Faculty Bios' not in session['groups'] and 'Administrators' not in session['groups']:
+            abort(403)
 
     def index(self):
         username = session['username']
