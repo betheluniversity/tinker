@@ -43,7 +43,6 @@
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
-
                 {% if bio.deactivated == 'Yes' %}
                     <li><div id="{{ bio.id }}" data-method='activate' data-faculty-bio-id="{{ bio.id }}" class="small button alert activate-press">Activate</div></li>
                 {% else %}
@@ -137,16 +136,17 @@
 
 {% block scripts %}
 
-{% if show_special_admin_view %}
     {#  Script to update the modal submit to delete the correct form#}
   <script src="/static/csrf-activator.js"></script>
   <script type="text/javascript">
     var csrftoken = "{{ csrf_token() }}";
     activateCSRF(csrftoken);
 
-    $(".delete-press").click(function(){
-      $("#modal-confirm-delete").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
-    });
+    {% if show_special_admin_view %}
+        $(".delete-press").click(function(){
+          $("#modal-confirm-delete").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
+        });
+    {% endif %}
 
     $(".activate-press").click(function(){
         var current_element = $(this);
@@ -178,7 +178,6 @@
 
   $(document).foundation();
   </script>
-{% endif %}
 
 {% endblock %}
 
