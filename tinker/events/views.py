@@ -323,7 +323,7 @@ def confirm():
 def reset_tinker_edits(event_id):
     from config import SOAP_URL, CASCADE_LOGIN as AUTH, SITE_ID
 
-    ws_connector = Cascade(SOAP_URL, AUTH, SITE_ID)
+    ws_connector = Cascade(SOAP_URL, AUTH, SITE_ID, app.config['STAGING_DESTINATION_ID'])
     my_page = Page(ws_connector, event_id)
 
     asset, md, sd = my_page.get_asset()
