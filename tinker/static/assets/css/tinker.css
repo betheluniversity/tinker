@@ -269,7 +269,8 @@ small.required {
 
 .fa-delete{
     float: right;
-    color: #ff0000
+    color: #ff0000;
+    cursor: pointer;
 }
 
 small.extra-required {
