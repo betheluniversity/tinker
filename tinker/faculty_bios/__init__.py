@@ -170,12 +170,14 @@ class FacultyBiosView(FlaskView):
         # activate bio
         if activate_page == 'activate':
             update(sd, 'deactivate', 'No')
+            asset['page']['shouldBePublished'] = True
             page.edit_asset(asset)
             page.publish_asset()
         else:  # deactivate bio
             update(sd, 'deactivate', 'Yes')
-            page.edit_asset(asset)
             page.unpublish_asset()
+            asset['page']['shouldBePublished'] = False
+            page.edit_asset(asset)
 
         self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
 

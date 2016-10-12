@@ -26,6 +26,14 @@
                 <br/>
                 {% if bio.path != '' %}
                     <a href="{{ bio.path }}" class="small-link">{{ bio.path }}</a>{% endif %}
+                <br/>
+                <span id="activate-text-{{ bio.id }}">
+                    {% if bio.deactivated == 'Yes' %}
+                        Deactivated
+                    {% else %}
+                        Activated
+                    {% endif %}
+                </span>
             </p>
 
             <ul class="btn-group-horizontal">
@@ -171,14 +179,13 @@
         $(".activate-press").click(function () {
             $('#spinner').show();
             var current_element = $(this);
+            var id = current_element.data('faculty-bio-id');
             var inputs = {
-                "id": current_element.data('faculty-bio-id'),
+                "id": id,
                 "activate": current_element.attr('data-method')
             };
             var url = '/faculty-bios/activate';
 
-            // temporarily create a placeholder.
-            // Todo: change this to a gif.
             current_element.html('. . . Updating . . .');
 
             if (current_element.attr('data-method') == 'activate') {
@@ -211,13 +218,16 @@
                 data: JSON.stringify(inputs),
                 contentType: 'application/json;charset=UTF-8',
                 success: function (result) {
-                    if (current_element.attr('data-method') == 'activate') {
-                        current_element.attr('data-method', 'deactivate');
-                        current_element.html('Deactivate');
+                    current_element.html('Success');
+                    if( current_element.attr('data-method') == 'activate') {
+                        $('#activate-text-' + id).text('Activated');
                     } else {
-                        current_element.attr('data-method', 'activate');
-                        current_element.html('Activate');
+                        $('#activate-text-' + id).text('Deactivated');
                     }
+                    current_element.removeClass('btn-alert');
+                    current_element.css('background-color', 'gray');
+                    current_element.css('cursor', 'auto');
+                    current_element.prop('onclick',null).off('click');
                     $('#spinner').hide();
                 }
             });
