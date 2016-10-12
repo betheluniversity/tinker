@@ -27,7 +27,7 @@
                 {% if bio.path != '' %}
                     <a href="{{ bio.path }}" class="small-link">{{ bio.path }}</a>{% endif %}
                 <br/>
-                <span id="activate-text-{{ bio.id }}">
+                <span id="activate-text-{{ bio.id }}" class="bio-status">
                     {% if bio.deactivated == 'Yes' %}
                         Deactivated
                     {% else %}
@@ -225,8 +225,9 @@
                         $('#activate-text-' + id).text('Deactivated');
                     }
                     current_element.removeClass('btn-alert');
-                    current_element.css('background-color', 'gray');
-                    current_element.css('cursor', 'auto');
+                    current_element.css('background-color', '#5F7615');
+                    current_element.css('border-color', '#5F7615');
+                    current_element.css('cursor', 'default');
                     current_element.prop('onclick',null).off('click');
                     $('#spinner').hide();
                 }

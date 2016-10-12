@@ -66,7 +66,7 @@
                 {% endfor %}
 
                 {# print the label #}
-                {% if field.label.text != '' %}
+                {% if field.label.text != '' and field.type != "HeadingField" and field.type != "InfoField" %}
                     <label for="{{ field.name }}">
                         {{ field.label.text }}
                         <small class="required">{% if field.flags.required %}required{% endif %}</small>
@@ -77,13 +77,12 @@
                 {% endif %}
 
 
-
                 {# Print the field #}
                 {% if field.type == "SelectMultipleField" %}
                     {{ field(size=10, class="largeselect") }}
 
                 {% elif field.type == "MultiCheckboxField" %}
-                    <h4 class='audience-header' for="{{ field.name }}">
+                    <h4 class='first-subtitle' for="{{ field.name }}">
                         Audiences
                         <small class="required">{% if field.flags.required %}
                             required{% endif %}</small>
@@ -105,7 +104,7 @@
                                         </span>
 
                                         {# This is creating the input with checked or unchecked #}
-                                        {% if not new_form and checkbox_input.data in field.object_data|join(' ') %}
+                                        {% if not new_form and checkbox_input.data in field.data|join(' ') %}
                                             {{ checkbox_input(checked=checked) }}
                                         {% else %}
                                             {{ checkbox_input }}
