@@ -382,6 +382,7 @@ ul.dropdown-menu a:hover {
 
 .logo {
     border-bottom: 1px solid #BDBCB0 !important;
+    padding: 15px 0px!important;
 }
 
 .logo a {
@@ -457,7 +458,7 @@ li > .dropdown-menu:after {
 /* Fonts */
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-family: Muli, Helvetica Neue, sans-serif;
 }
 
 p {
