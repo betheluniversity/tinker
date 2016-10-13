@@ -9,6 +9,45 @@
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 
+
+{% macro form_card(form)-%}
+
+    <div class="card">
+        <div class="content">
+            <div class="large-6 columns">
+                <p>
+                    {% if form.is_published %}
+                        <a href={{ form.path }}>{{ form.title }}</a>
+                    {% else %}
+                        {{ form.title }}
+                    {% endif %}
+                    <br/>
+                    {% if form.is_published %}
+{#                                            <small>#}
+                        <p>{{ form.dates | safe }}</p>
+                        <a class="small-link" href={{ form.path }}>{{ form.path }}</a>
+{#                                            </small>#}
+                    {% endif %}
+                </p>
+            </div>
+            <div class="large-6 columns small-3">
+                <ul class="btn-group-horizontal">
+                    {% if form.is_published %}
+                        <li><a href="{{ form.path }}" class="small btn btn-primary">View</a></li>
+                        <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}"
+                               class="small btn btn-primary">Edit</a>
+                        </li>
+                        <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
+                               class="small btn btn-primary">Duplicate</a></li>
+                    {% else %}
+                        <li>This event is pending approval.</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
@@ -21,98 +60,37 @@
                 <p class="description">If you have any questions, please contact Conference and Event Services at
                     651.638.6090.</p>
 
-                <hr/>
                 <div>
-                    {% if forms %}
-                        <h3>Your Events</h3>
-                        <hr/>
-                    {% endif %}
-
                     {# create an event button #}
                     <a href="add#page-title" id="event-create" class="btn btn-primary new-btn">
                         Create New Event
                     </a>
 
-
-                    {% for form in forms %}
-                        <div class="card">
-                            <div class="content">
-                                <div class="large-6 columns">
-                                    <p>
-                                        {% if form.is_published %}
-                                            <a href={{ form.path }}>{{ form.title }}</a>
-                                        {% else %}
-                                            {{ form.title }}
-                                        {% endif %}
-                                        <br/>
-                                        {% if form.is_published %}
-{#                                            <small>#}
-                                            <p>{{ form.dates | safe }}</p>
-                                            <a class="small-link" href={{ form.path }}>{{ form.path }}</a>
-{#                                            </small>#}
-                                        {% endif %}
-                                    </p>
-                                </div>
-                                <div class="large-6 columns small-3">
-                                    <ul class="btn-group-horizontal">
-                                        {% if form.is_published %}
-                                            <li><a href="{{ form.path }}" class="small btn btn-primary">View</a></li>
-                                            <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}"
-                                                   class="small btn btn-primary">Edit</a>
-                                            </li>
-                                            <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
-                                                   class="small btn btn-primary">Duplicate</a></li>
-                                        {% else %}
-                                            <li>This event is pending approval.</li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                    {% if user_forms %}
+                        <hr />
+                        <h3>Your Events</h3>
                         <hr/>
+                    {% endif %}
 
+                    {% for form in user_forms %}
+                        {{ form_card(form) }}
                     {% endfor %}
 
 
-                    <!-- Event Approver forms -->
-                    {% if event_approver_forms %}
+                    <!-- other forms -->
+                    {% if other_forms %}
                         <br/>
                         <hr/>
-                        <h3>Event Approver</h3>
+                        {% if 'Event Approver' in session['groups'] %}
+                            <h3>Event Approver</h3>
+                        {% elif 'Tinker Events - CAS' in session['groups'] %}
+                            <h3>Undergrad Events</h3>
+                        {% else %}
+                            <h3>Other Events</h3>
+                        {% endif %}
                         <hr/>
-                        {% for form in event_approver_forms %}
-                            <div class="row">
-                                <div class="large-6 columns">
-                                    <p>
-                                        {% if form.is_published %}
-                                            <a href={{ form.path }}>{{ form.title }}</a>
-                                        {% else %}
-                                            {{ form.title }}
-                                        {% endif %}
-                                        <br/>
-                                        {% if form.is_published %}
-                                            <small>
-                                            <p>{{ form.dates | safe }}</p>
-                                            <a href={{ form.path }}>{{ form.path }}</a>
-                                            </small>
-                                        {% endif %}
-                                    </p>
-                                </div>
-                                <div class="large-6 columns small-3">
-                                    <ul class="button-group">
-                                        {% if form.is_published %}
-                                            <li><a href="{{ form.path }}" class="small button success">View</a></li>
-                                            <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}" class="small button">Edit</a>
-                                            </li>
-                                            <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
-                                                   class="small button">Duplicate</a></li>
-                                        {% else %}
-                                            <li>This announcement is pending approval.</li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
-                                <hr/>
-                            </div>
+                        {% for form in other_forms %}
+                           {{ form_card(form) }}
                         {% endfor %}
                     {% endif %}
                 </div>

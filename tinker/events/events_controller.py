@@ -25,7 +25,16 @@ class EventsController(TinkerController):
             author = None
         username = session['username']
 
-        if (author is not None and username == author) or 'Event Approver' in session['groups']:
+        sem_event = False
+        post_trad_event = False
+        undergrad_event = False
+        if 'Tinker Events - CAS' in session['groups']:
+            depts = self.search_for_key_in_dynamic_md(child, 'cas-departments')
+            undergrad_event = getattr(depts, 'text', None)
+
+        school_event = undergrad_event or post_trad_event or sem_event
+
+        if (author is not None and username == author) or 'Event Approver' in session['groups'] or school_event:
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
@@ -34,16 +43,16 @@ class EventsController(TinkerController):
         else:
             return None
 
-    def get_approver_forms(self, forms):
+    def split_user_events(self, forms):
         username = session['username']
         user_forms = []
-        approver_forms = []
+        other_forms = []
         for form in forms:
             if form['author'] == username:
                 user_forms.append(form)
             else:
-                approver_forms.append(form)
-        return user_forms, approver_forms
+                other_forms.append(form)
+        return user_forms, other_forms
 
     def check_new_year_folder(self, event_id, add_data, username):
         current_year = self.get_current_year_folder(event_id)
