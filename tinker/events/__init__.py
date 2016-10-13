@@ -2,7 +2,7 @@ import time
 from flask_classy import FlaskView, route
 from tinker.events.events_controller import EventsController
 from bu_cascade.asset_tools import update
-from flask import Blueprint, redirect, session, render_template, request, url_for
+from flask import Blueprint, redirect, session, render_template, request, url_for, json as fjson
 from tinker import app
 from events_metadata import metadata_list
 
@@ -68,8 +68,8 @@ class EventsView(FlaskView):
         rform = request.form
         username = session['username']
         eid = rform.get('event_id')
-        event_dates, dates_good, num_dates = self.base.check_event_dates(rform)
-        failed = self.base.validate_form(rform, dates_good, event_dates)
+        dates, dates_good, num_dates = self.base.check_event_dates(rform)
+        failed = self.base.validate_form(rform, dates_good, dates)
         workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], '--' + rform['title'] + ', ' + rform['start1'])
 
         wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']

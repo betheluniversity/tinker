@@ -34,6 +34,7 @@
             }
         }
     </script>
+    {{ dates|safe }}
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
@@ -252,7 +253,6 @@
                     showTime: true
                 });
             }
-
             $(document).ready(function () {
                 $('.datepicker').each(function (index) {
                     var picker = new Pikaday({
@@ -338,12 +338,25 @@
                         var length = list.length;
                         {#  this needs to start at the id you're deleting#}
                         for (i = id; i < length; i++) {
-                            document.getElementById('start' + (i)).value = document.getElementById('start' + (i + 1)).value;
-                            document.getElementById('end' + (i)).value = document.getElementById('end' + (i+1)).value;
-                            if($("#allday"+(id+1)).is(":checked"))
-                                $("#allday"+id).prop(":checked", true);
-                            if($("#needtimezone"+(id+1)).is(":checked"))
-                                    $("#needtimezone"+id).prop("checked");
+                            $('#start' + (i)).val($('#start' + (i + 1)).val());
+                            $('#end' + (i)).val($('#end' + (i + 1)).val());
+
+                            if( $("#allday"+(id+1)).parent().hasClass('checked') )
+                                $("#allday"+id).parent().addClass('checked');
+                            else
+                                $("#allday"+id).parent().removeClass('checked');
+
+                            if( $("#needtimezone"+(id+1)).parent().hasClass('checked') ) {
+                                $("#needtimezone" + id).parent().addClass('checked');
+                                $('#timezone' + id).val($('#timezone' + (id + 1)).val());
+                                checkNeedTimezone(id, true);
+                            } else {
+                                $("#needtimezone" + id).parent().removeClass('checked');
+                                $('#timezone' + id).val('');
+                                checkNeedTimezone(id, true);
+                            }
+
+
 
                         }
                         list.last().remove();
