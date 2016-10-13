@@ -22,7 +22,7 @@
                         $.ajax({
                             type: "POST",
                             url: url,
-                            data: JSON.stringify(value),
+                            data: JSON.stringify({'id':value}),
                             contentType: 'application/json;charset=UTF-8',
                             success: function (data) {
                                 $('#output').html(data);
