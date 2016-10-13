@@ -364,7 +364,7 @@ a:hover {
 }
 
 .icon-big a {
-    color: #328cb9
+    color: #1978b2
 }
 
 .icon-big a:hover {
@@ -372,7 +372,11 @@ a:hover {
 }
 
 .nav .active a {
-    color: #DE8626 !important;
+    color: #0F2C52 !important;
+}
+
+.nav .active a i {
+    color: #133868
 }
 
 .nav .active li a {
@@ -407,6 +411,10 @@ ul.dropdown-menu a:hover {
 
 hr {
     border-color: #BDBCB0
+}
+
+.sidebar .nav p, .off-canvas-sidebar .nav p {
+    line-height: 35px;
 }
 
 .sidebar .nav li.active > a:before, .off-canvas-sidebar .nav li.active > a:before {
