@@ -355,6 +355,22 @@ div#cke_registration_details {
     box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0);
 }
 
+a {
+    color: #0069AA
+}
+
+a:hover {
+    color: #005991
+}
+
+.icon-big a {
+    color: #328cb9
+}
+
+.icon-big a:hover {
+    color: #0069AA
+}
+
 .nav .active a {
     color: #DE8626 !important;
 }
