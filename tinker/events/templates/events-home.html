@@ -68,7 +68,7 @@
 
                     {% if user_forms %}
                         <hr />
-                        <h3>Your Events</h3>
+                        <h2>Your Events</h2>
                         <hr/>
                     {% endif %}
 
@@ -82,11 +82,11 @@
                         <br/>
                         <hr/>
                         {% if 'Event Approver' in session['groups'] %}
-                            <h3>Event Approver</h3>
+                            <h2>Event Approver</h2>
                         {% elif 'Tinker Events - CAS' in session['groups'] %}
-                            <h3>Undergrad Events</h3>
+                            <h2>Undergrad Events</h2>
                         {% else %}
-                            <h3>Other Events</h3>
+                            <h2>Other Events</h2>
                         {% endif %}
                         <hr/>
                         {% for form in other_forms %}
