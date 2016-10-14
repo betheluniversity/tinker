@@ -55,9 +55,9 @@ class RedirectsView(FlaskView):
         if self.search == "%" or search_type not in ['from_path', 'to_url']:
             return ""
         if search_type == 'from_path':
-            redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).limit(100).all()
+            redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).all()
         else:
-            redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).limit(100).all()
+            redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).all()
         redirects.sort()
         return render_template('redirect-ajax.html', **locals())
 

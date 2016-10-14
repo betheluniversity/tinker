@@ -61,7 +61,7 @@ class ProgramSearchController(TinkerController):
     def get_program_name(self, block, concentration):
         # get value
         concentration_name = concentration.find('.//concentration_name')
-        block_display_name = block.find('displayName')
+        block_display_name = block.find('display-name')
         block_title = block.find('title')
 
         if hasattr(concentration_name, 'text') and concentration_name.text:
