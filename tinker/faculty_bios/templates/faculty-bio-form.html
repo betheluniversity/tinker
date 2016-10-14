@@ -131,8 +131,8 @@ to be in it's own card div, something to think about in the future -->
                 var year = 'year' + id;
                 var fieldset_node = $('<fieldset>').addClass('degree-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Degree " + id).append(
-                        $('<small>').addClass('required').html('required'))
+                inner_node.append($("<legend>").html("Degree " + id + ' ').append(
+                        $('<small>').addClass('required').html(' required'))
                 );
                 inner_node.append($("<label>").attr('for', school).html("School"));
                 inner_node.append($("<input type='text'>").attr('name', school).attr('id', school).addClass("no-border"));
