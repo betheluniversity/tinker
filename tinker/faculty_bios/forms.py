@@ -87,7 +87,7 @@ class FacultyBioForm(Form):
                        description="Enter your Bethel username.")
 
     faculty_location = SelectMultipleField('Location', choices=[('St. Paul', 'St. Paul'), ('San Diego', 'San Diego'), ('Online', 'Online')], validators=[validators.DataRequired()])
-    highlight = TextAreaField('Highlight text', validators=[validators.DataRequired()])
+    highlight = TextAreaField('Highlight text', description="This text will appear on faculty listing pages as a short snippet about you!", validators=[validators.DataRequired()])
     new_job_titles = StringField('')
 
     email = StringField('Email', validators=[validators.DataRequired()])
