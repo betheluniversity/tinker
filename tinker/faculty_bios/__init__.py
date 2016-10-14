@@ -109,10 +109,22 @@ class FacultyBiosView(FlaskView):
         for identifier in group_identifiers:
             for key, value in edit_data[identifier].iteritems():
                 edit_data[key] = value
+                
+        # Todo: remove this code once all highlight text fields are populated. Until then, override an empty highlight text
+        # with the text entered in areas, research, and teaching
+        try:
+            if 'heading' in edit_data and edit_data['heading'] and ('highlight' not in edit_data or edit_data['highlight'] is None or edit_data['highlight'] == ''):
+                if edit_data['heading'] == 'Areas of expertise' and 'areas' in edit_data and edit_data['areas']:
+                    edit_data['highlight'] = edit_data['areas']
+                elif edit_data['heading'] == 'Research interests' and 'research_interests' in edit_data and edit_data['research_interests']:
+                    edit_data['highlight'] = edit_data['research_interests']
+                elif edit_data['heading'] == 'Teaching specialty' and 'teaching_specialty' in edit_data and edit_data['teaching_specialty']:
+                    edit_data['highlight'] = edit_data['teaching_specialty']
+        except:
+            pass
 
         # turn the image into the correct identifier
         edit_data['image_url'] = edit_data['image']
-
         edit_image = self.base.should_be_able_to_edit_image(roles)
 
         # Create an EventForm object with our data
