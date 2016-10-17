@@ -175,7 +175,7 @@
                 var fieldset_node = $('<fieldset>').addClass('date-fieldset');
                 var inner_node = $("<div>").addClass('content');
                 inner_node.append($("<legend>")
-                        .append($('<i>').addClass('fa fa-times fa-delete').attr('id', 'date-delete'+id).attr('data-id', id)).append("Date " + id + ' ')
+                        .append($('<i>').addClass('fa fa-times fa-delete').attr('id', 'date-delete' + id).attr('data-id', id)).append("Date " + id + ' ')
                         .append($('<small>').addClass('required').html("required")));
 
                 inner_node.append($("<label>").addClass("checkbox").attr("id", alllabel).attr("for", all)
@@ -253,6 +253,7 @@
                     showTime: true
                 });
             }
+
             $(document).ready(function () {
                 $('.datepicker').each(function (index) {
                     var picker = new Pikaday({
@@ -282,8 +283,9 @@
                             var new_date = newFieldset(id);
                             new_date.insertAfter(last);
                             addHandler(id);
-{#                            $("#remove_date_button").show();#}
-                        }
+                            {#                            $("#remove_date_button").show();#}
+                        }else
+                            addHandler(id);
                         //Now populate the fieldset
                         var allday = date['all_day'];
                         if (allday && allday.substr(-3) == "Yes") {
@@ -332,36 +334,35 @@
                 });
 
                 function addHandler(id) {
-                    $("#date-delete"+id).click(function () {
+                    $("#date-delete" + id).click(function () {
                         id = $(this).data("id");
                         var list = $(".date-fieldset");
                         var length = list.length;
-                        {#  this needs to start at the id you're deleting#}
                         for (i = id; i < length; i++) {
                             $('#start' + (i)).val($('#start' + (i + 1)).val());
                             $('#end' + (i)).val($('#end' + (i + 1)).val());
 
-                            if( $("#allday"+(id+1)).parent().hasClass('checked') )
-                                $("#allday"+id).parent().addClass('checked');
+                            if ($("#allday" + (id + 1)).parent().hasClass('checked'))
+                                $("#allday" + id).parent().addClass('checked');
                             else
-                                $("#allday"+id).parent().removeClass('checked');
+                                $("#allday" + id).parent().removeClass('checked');
 
-                            if( $("#needtimezone"+(id+1)).parent().hasClass('checked') ) {
+                            if ($("#needtimezone" + (id + 1)).parent().hasClass('checked')) {
                                 $("#needtimezone" + id).parent().addClass('checked');
                                 $('#timezone' + id).val($('#timezone' + (id + 1)).val());
                                 checkNeedTimezone(id, true);
                             } else {
                                 $("#needtimezone" + id).parent().removeClass('checked');
                                 $('#timezone' + id).val('');
-                                checkNeedTimezone(id, true);
+                                checkNeedTimezone(id, false);
                             }
-
-
-
                         }
+
                         list.last().remove();
-                    });
-                };
+                    })
+                }
+
+                ;
 
 
                 $("#location").change(function () {
@@ -413,7 +414,8 @@
 
 
             });
-        });
+        })
+        ;
 
     </script>
 
@@ -426,7 +428,7 @@
             <div class="content">
                 <legend>Date 1
                     <small class="required">required</small>
-                    <i class="fa fa-times fa-delete" data-id="1" aria-hidden="true"></i>
+                    <i class="fa fa-times fa-delete" id="date-delete1" data-id="1"></i>
                 </legend>
 
                 <label class="checkbox" id="alldaylabel1" for="allday1">
