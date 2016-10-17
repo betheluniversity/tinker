@@ -350,7 +350,7 @@ def get_templates_for_client(campaign_monitor_key, client_id):
         print template.TemplateID
 
 
-# Gets the template IDs
+# Gets the segment IDs
 def get_segments_for_client(campaign_monitor_key, client_id):
     for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
         print segment.SegmentID
