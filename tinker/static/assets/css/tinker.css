@@ -160,6 +160,21 @@ a#remove_new_job_button {
     border-color: #DE8626 !important;
 }
 
+.activate-press {
+    background-color: #489030 !important;
+    border-color: #489030 !important;
+}
+
+.deactivate {
+    background-color: #DE8626 !important;
+    border-color: #DE8626 !important;
+}
+
+.delete-press {
+    background-color: #f04124 !important;
+    border-color: #f04124 !important;
+}
+
 .error-alert {
     padding: 0px 0px 15px 0px;
     border: 1px solid transparent
@@ -372,11 +387,11 @@ a:hover {
 }
 
 .nav .active a {
-    color: #0F2C52 !important;
+    color: #0069AA !important;
 }
 
 .nav .active a i {
-    color: #133868
+    color: #0069AA
 }
 
 .nav .active li a {
@@ -502,6 +517,12 @@ a {
 }
 
 a p {
+    font-family: Muli, Helvetica Neue, sans-serif;
+}
+p > a {
+    font-family: Georgia, serif;
+}
+div.card > .content > p > a {
     font-family: Muli, Helvetica Neue, sans-serif;
 }
 
