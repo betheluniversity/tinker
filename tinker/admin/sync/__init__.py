@@ -1,8 +1,10 @@
+import ast
+import json
+
 # flask
 from flask import Blueprint, render_template, session, abort, request
 from flask_classy import FlaskView, route
 from flask_wtf import Form
-
 # tinker
 from tinker.admin.sync.sync_metadata import data_to_add
 from sync_controller import *
@@ -50,7 +52,8 @@ class SyncView(FlaskView):
 
     @route("/metadata", methods=['post'])
     def metadata(self):
-        id = request.form['id']
+        data = json.loads(request.data)
+        id = data['id']
         data = data_to_add
 
         # Get id's and names of md sets and data definitions
@@ -64,7 +67,8 @@ class SyncView(FlaskView):
 
     @route("/datadefinition", methods=['post'])
     def datadefinition(self):
-        id = request.form['id']
+        data = json.loads(request.data)
+        id = data['id']
         data = data_to_add
 
         # Get id's and names of md sets and data definitions

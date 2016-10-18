@@ -116,7 +116,6 @@ locations = [
     'Online',
     'San Diego',
     'St. Paul',
-    'test',
 ]
 
 delivery_label = [
