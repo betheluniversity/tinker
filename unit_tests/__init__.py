@@ -12,14 +12,21 @@ os.environ['unit_testing'] = "True"
 import re
 import tinker
 import unittest
+from flask_fixtures import FixturesMixin
 from inspect import stack
 from tinker import get_url_from_path
 from unit_test_utilities import get_tests_in_this_dir
 
 
-class BaseTestCase(unittest.TestCase):
+class BaseTestCase(unittest.TestCase, FixturesMixin):
+
+    # fixtures = ['test_database.json']
+    # app = tinker.app
+    # db = tinker.db
 
     def __init__(self, methodName):
+        # from tinker.admin.redirects.models import BethelRedirect
+        # print len(BethelRedirect.query.all())
         super(BaseTestCase, self).__init__(methodName)
         self.ERROR_400 = b'<p>The browser (or proxy) sent a request that this server could not understand.</p>'
         self.ERROR_404 = b'<h1 class="oversized"> It\'s probably not a problem, probably.</h1>'
@@ -32,6 +39,7 @@ class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
         tinker.app.testing = True
+        # tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         tinker.app.config['ENVIRON'] = "test"
         tinker.app.config['WTF_CSRF_ENABLED'] = False
         tinker.app.config['WTF_CSRF_METHODS'] = []

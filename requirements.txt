@@ -4,6 +4,7 @@ Flask-Cache
 Flask-Foundation
 Flask-Script
 Flask-WTF
+Flask-Fixtures
 WTForms-Components
 flask-hmacauth
 suds
@@ -23,3 +24,4 @@ Flask-Classy
 bu-cascade
 blinker
 discover
+importlib

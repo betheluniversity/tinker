@@ -1,0 +1,67 @@
+[
+    {
+        "model": "tinker.admin.redirects.models.BethelRedirect",
+        "records": [
+            {
+                "from_path": "/special-events/benson-great-hall",
+                "to_url": "http://www.bethel.edu/events/arts/venues/benson/",
+                "short_url": "0",
+                "expiration_date": "2017-10-14 12:00:00.000000"
+            },
+            {
+                "from_path": "/special-events/benson-great-hall/",
+                "to_url": "http://www.bethel.edu/events/arts/venues/benson/",
+                "short_url": "0",
+                "expiration_date": "2017-10-14 12:00:00.000000"
+            },
+            {
+                "from_path": "/welcome-week",
+                "to_url": "http://cas.bethel.edu/student-life/welcome-week/",
+                "short_url": "0",
+                "expiration_date": "2017-10-14 12:00:00.000000"
+            },
+            {
+                "from_path": "/special-events/registration/caps/dantes",
+                "to_url": "https://epay.bethel.edu/C20433_ustores/web/product_detail.jsp?PRODUCTID=0&SINGLESTORE=true",
+                "short_url": "0",
+                "expiration_date": "2017-10-14 12:00:00.000000"
+            },
+            {
+                "from_path": "/its/Policies/copyright.html",
+                "to_url": "http://knowledgebase.its.bethel.edu/articles/41/",
+                "short_url": "0",
+                "expiration_date": "2017-10-14 12:00:00.000000"
+            },
+            {
+                "from_path": "/its/Policies/net_use_pol.html",
+                "to_url": "http://knowledgebase.its.bethel.edu/articles/40/",
+                "short_url": "0",
+                "expiration_date": "2017-10-14 12:00:00.000000"
+            },
+            {
+                "from_path": "/special-events/FAQ.html",
+                "to_url": "http://www.bethel.edu/about/",
+                "short_url": "0",
+                "expiration_date": "2017-10-14 12:00:00.000000"
+            },
+            {
+                "from_path": "/special-events/FAQ.htm",
+                "to_url": "http://www.bethel.edu/about/",
+                "short_url": "0",
+                "expiration_date": "2017-10-14 12:00:00.000000"
+            },
+            {
+                "from_path": "/bgcarchives/index.html",
+                "to_url": "http://www.bethel.edu/bgc-archives/",
+                "short_url": "0",
+                "expiration_date": "2017-10-14 12:00:00.000000"
+            },
+            {
+                "from_path": "/bgcarchives/holdings/index.html",
+                "to_url": "http://www.bethel.edu/bgc-archives/holdings",
+                "short_url": "0",
+                "expiration_date": "2017-10-14 12:00:00.000000"
+            }
+        ]
+    }
+]
