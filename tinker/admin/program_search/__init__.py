@@ -155,9 +155,8 @@ class ProgramSearchView(FlaskView):
         data = json.loads(request.data)
         old_key = data['old_key']
 
-        if old_key:
-            search_results = ProgramTag.query.filter(ProgramTag.key == old_key).delete()
-            db.session.commit()
+        search_results = ProgramTag.query.filter(ProgramTag.key == old_key).delete()
+        db.session.commit()
 
         return 'DONE'
 
