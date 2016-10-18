@@ -325,7 +325,7 @@ def e_announcement_html(announcement):
         <table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;Margin-left: auto;Margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center">
             <tbody>
                 <tr>
-                    <td class="column" style="padding: 0;text-align: left;vertical-align: top;color: #555;font-size: 14px;line-height: 21px;font-family: Georgia,serif;width: 600px;">
+                    <td class="column" style="padding: 0;text-align: left;vertical-align: top;color: #555;font-size: 14px;line-height: 20px;font-family: Georgia,serif;width: 600px;">
                         <div style="Margin-left: 20px;Margin-right: 20px;">
                             <h2 style="Margin-top: 0;Margin-bottom: 16px;font-style: normal;font-weight: normal;color: #555;font-size: 20px;line-height: 28px;font-family: sans-serif;">
                                 <strong>%s</strong>
@@ -338,7 +338,7 @@ def e_announcement_html(announcement):
                 </tr>
             </tbody>
         </table>
-        <div style="font-size: 50px;line-height: 60px;mso-line-height-rule: exactly;">&nbsp;</div>
+        <div style="font-size: 50px;line-height: 45px;mso-line-height-rule: exactly;">&nbsp;</div>
     ''' % (announcement['title'], announcement['message'])
 
     return element
@@ -350,7 +350,7 @@ def get_templates_for_client(campaign_monitor_key, client_id):
         print template.TemplateID
 
 
-# Gets the template IDs
+# Gets the segment IDs
 def get_segments_for_client(campaign_monitor_key, client_id):
     for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
         print segment.SegmentID

@@ -63,7 +63,7 @@ def activate_page():
     page_id = data['id']
     activate_page = data['activate']
 
-    ws_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'])
+    ws_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
     page = Page(ws_connector, page_id)
     asset, md, sd = page.get_asset()
 
@@ -74,10 +74,10 @@ def activate_page():
         page.edit_asset(asset)
         page.publish_asset()
     else:  # deactivate bio
+        page.unpublish_asset()
         update(sd, 'deactivate', 'Yes')
         asset['page']['shouldBePublished'] = False
         page.edit_asset(asset)
-        page.unpublish_asset()
 
     publish_faculty_bio_xml()
 
@@ -272,7 +272,7 @@ def submit_faculty_bio_form():
     workflow = None
     workflow = get_bio_publish_workflow(title, username, faculty_bio_id, add_data)
     asset = get_faculty_bio_structure(add_data, username, faculty_bio_id, workflow=workflow)
-    
+
     if faculty_bio_id:
         # existing bio
         resp = edit(asset)

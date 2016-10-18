@@ -25,6 +25,14 @@
             {% endif %}
             <br/>
             {% if bio.path != '' %}<small><a href={{ bio.path }}>{{ bio.path }}</a></small>{% endif %}
+          <br/>
+            <span id="activate-text-{{ bio.id }}">
+                {% if bio.deactivated == 'Yes' %}
+                    Deactivated
+                {% else %}
+                    Activated
+                {% endif %}
+            </span>
           </p>
         </div>
         <div class="large-7 columns small-3">
@@ -35,7 +43,6 @@
             {% else %}
               <li><a class="small button success">Not Approved</a></li>
             {% endif %}
-
                 {% if bio.deactivated == 'Yes' %}
                     <li><div id="{{ bio.id }}" data-method='activate' data-faculty-bio-id="{{ bio.id }}" class="small button alert activate-press">Activate</div></li>
                 {% else %}
@@ -129,20 +136,22 @@
 
 {% block scripts %}
 
-{% if show_special_admin_view %}
     {#  Script to update the modal submit to delete the correct form#}
   <script src="/static/csrf-activator.js"></script>
   <script type="text/javascript">
     var csrftoken = "{{ csrf_token() }}";
     activateCSRF(csrftoken);
 
-    $(".delete-press").click(function(){
-      $("#modal-confirm-delete").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
-    });
+    {% if show_special_admin_view %}
+        $(".delete-press").click(function(){
+          $("#modal-confirm-delete").attr("href", "/faculty-bio/delete/" + $(this).data('faculty-bio-id'));
+        });
+    {% endif %}
 
     $(".activate-press").click(function(){
         var current_element = $(this);
-        var inputs = {"id": current_element.data('faculty-bio-id'), "activate": current_element.attr('data-method')};
+        var id = current_element.data('faculty-bio-id');
+        var inputs = {"id": id, "activate": current_element.attr('data-method')};
         var url = '/faculty-bio/activate';
 
         // temporarily create a placeholder.
@@ -154,20 +163,21 @@
             data: JSON.stringify(inputs),
             contentType: 'application/json;charset=UTF-8',
             success: function(result) {
-                  if( current_element.attr('data-method') == 'activate') {
-                      current_element.attr('data-method', 'deactivate');
-                      current_element.html('Deactivate');
-                  } else {
-                      current_element.attr('data-method', 'activate');
-                      current_element.html('Activate');
-                  }
+                current_element.html('Success');
+
+                if( current_element.attr('data-method') == 'activate') {
+                    $('#activate-text-' + id).text('Activated');
+                } else {
+                    $('#activate-text-' + id).text('Deactivated');
+                }
+                current_element.attr('style', 'background-color:gray;');
+                current_element.prop('onclick',null).off('click');
             }
         });
     });
 
   $(document).foundation();
   </script>
-{% endif %}
 
 {% endblock %}
 

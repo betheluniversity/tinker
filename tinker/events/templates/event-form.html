@@ -226,15 +226,6 @@
          }
 
           $( document ).ready(function() {
-            $('.datepicker').each(function (index) {
-              var picker = new Pikaday({
-                field: this,
-                format: 'MMMM Do YYYY, h:mm a',
-                showTime: true
-              });
-            });
-
-
             {% if dates %}
               var dates = {{ dates|safe }};
               var i = 0;
@@ -320,16 +311,52 @@
               $("#eventform").submit(function(){
                 //add a hidden field with the number of dates
                 var dates = $(".date-fieldset");
+
+
+                // add a 'required' text to those that apply
+                var return_value = true;
+                // reset all 'required' fields
+                $('.dates-required').remove();
+                for( i=1; i<=dates.length;i++){
+                    var start = $('#start' + i);
+                    var end = $('#end' + i);
+
+                    if( start.val() == '' || end.val() == '' ){
+                        var new_element = $('<p>').html('Dates are required.').addClass('required dates-required').attr('style', 'background-color:tomato;');
+
+                        // if first element, add scroll-to class
+                        if(return_value == true)
+                            new_element.addClass('scroll-here-if-fail');
+
+                        start.parent().prepend(new_element);
+                        return_value = false;
+                    }
+                }
+                if( return_value == false) {
+                    $("html, body").animate({
+                        scrollTop: $('.scroll-here-if-fail').offset().top - 100
+                    }, 200);
+                    return return_value;
+                }
+
                 var input = $("<input>").attr("type", "hidden").attr("name", "num_dates").val(dates.length);
                 $("#eventform").append(input);
-                return true;
 
+
+
+                return true;
               });
 
               //Test this right away if we are editing because the callback won't fire
               testOffCampusLocation();
 
-
+            $('.datepicker').each(function (index) {
+              var picker = new Pikaday({
+                field: this,
+                format: 'MMMM Do YYYY, h:mm a',
+                showTime: true
+              });
+            });
           });
 
         </script>
