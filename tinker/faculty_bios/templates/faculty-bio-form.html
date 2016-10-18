@@ -146,8 +146,8 @@ to be in it's own card div, something to think about in the future -->
 
             function newJobTitlesFieldset(id) {
                 var title = 'new-job-title' + id;
-{#                var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');#}
-                var inner_node = $("<div>").addClass('content new-job-fieldset');
+                var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');
+                var inner_node = $("<div>").addClass('content');
                 inner_node.append($("<legend>").html("Job Title " + id + " ").append(
                         $('<small>').addClass('required').html('required'))
                 );
@@ -231,7 +231,9 @@ to be in it's own card div, something to think about in the future -->
                         )
                 ));
 
-                return inner_node;
+                fieldset_node.append($("<div>").addClass('card').append(inner_node));
+
+                return fieldset_node;
             }
 
                 function populateDegreeFieldset(id, school, degree, year) {
