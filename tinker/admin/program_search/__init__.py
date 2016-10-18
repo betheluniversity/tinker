@@ -149,4 +149,17 @@ class ProgramSearchView(FlaskView):
             db.session.commit()
 
         return 'DONE'
+
+    @route('/database-audit-delete', methods=['post'])
+    def database_audit_delete(self):
+        data = json.loads(request.data)
+        old_key = data['old_key']
+
+        if old_key:
+            search_results = ProgramTag.query.filter(ProgramTag.key == old_key).delete()
+            db.session.commit()
+
+        return 'DONE'
+
+
 ProgramSearchView.register(ProgramSearchBlueprint)

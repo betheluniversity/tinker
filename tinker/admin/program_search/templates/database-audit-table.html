@@ -13,6 +13,7 @@
                     <td class="database">DB Value</td>
                     <td class="database">Concentration Code or Block Name</td>
                     <td class="database"></td>
+                    <td class="database"></td>
                 </tr>
                 </thead>
                 <tbody>
@@ -23,6 +24,7 @@
                         <td class="database"><p id="tinker-old-key{{ counter }}">{{ key }}</p></td>
                         <td class="database"><input type="text" id="tinker-new-key{{ counter }}"/></td>
                         <td class="database"><a class="btn btn-primary tinker-update" data-id="{{ counter }}">Update</a></td>
+                        <td class="database"><a class="btn btn-primary tinker-delete delete-press" data-id="{{ counter }}">Delete</a></td>
                     </tr>
                 {% endfor %}
                 </tbody>
