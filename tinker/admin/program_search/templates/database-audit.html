@@ -1,6 +1,7 @@
 {% extends "tinker_base.html" %}
 
 {% block title %}Program Search Tags{% endblock %}
+{% set title = 'Program Search' %}
 
 {% block styles %}
 {% endblock %}
@@ -8,9 +9,15 @@
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
-<div id="main">
-    <div id="tables"></div>
-</div>
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <div id="main">
+                    <div id="tables"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 {% endblock %}
 
@@ -38,12 +45,12 @@
         }
 
         function addUpdateHandlers() {
-            $('.tinker-update').click(function(){
+            $('.tinker-update').click(function () {
                 var url = "{{ url_for('program_search.ProgramSearchView:database_audit_update') }}";
                 var id = $(this).data('id');
                 var data = {
-                    'old_key':  $('#tinker-old-key' + id).html(),
-                    'new_key':  $('#tinker-new-key' + id).val()
+                    'old_key': $('#tinker-old-key' + id).html(),
+                    'new_key': $('#tinker-new-key' + id).val()
                 };
 
                 $.ajax({
