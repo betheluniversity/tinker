@@ -50,7 +50,8 @@ def get_programs_for_dropdown():
             program_concentrations.append({
                 'name': program_name,
                 'value': concentration_code,
-                'school': school
+                'school': school,
+                'id': block.attrib.get('id')
             })
 
     program_concentrations = sorted(program_concentrations, key=lambda k: k['name'])

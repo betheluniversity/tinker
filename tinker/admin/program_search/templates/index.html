@@ -9,13 +9,13 @@
 
 {% block main_content %}
 <div id="main">
+    <p>Go to the <a href="{{ url_for('program_search.ProgramSearchView:database_audit_0')}}">audit</a> to check if Tinker and Cascade are matched up correctly.</p>
     <div>
         <div class="row">
             <form id='program_search_form' method="post">
                 <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 <div class="large-6 columns">
                     <label for="key">Concentration Code or Program Name:</label>
-{#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
                     <select name="key" id="search-key" class="search-input">
                         <option value="">Any</option>
                         {% for school_label in school_labels %}
@@ -145,26 +145,6 @@
             });
         });
 
-        $('#program_search_form').submit(function () {
-            var formData = {
-                'key':                      $('select[name=key]').val(),
-                'tag':                      $('input[name=tag]').val(),
-                'outcome':                  $('input[name=outcome]:checked').val(),
-                'topic':                    $('input[name=topic]:checked').val(),
-                'other':                    $('input[name=other]:checked').val()
-            };
-
-             $.ajax({
-                type: "POST",
-                url: "{{ url_for('program_search.ProgramSearchView:post') }}",
-                data: JSON.stringify(formData),
-                contentType: 'application/json;charset=UTF-8',
-                success: function (result) {
-                    loadTableForSearch();
-                }
-            });
-             return false;
-        });
     </script>
 
 {% endblock %}

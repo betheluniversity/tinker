@@ -72,7 +72,7 @@ class ProgramSearchView(FlaskView):
             ProgramTag.query.filter_by(id=id).delete()
         db.session.commit()
         create_new_csv_file()
-        return 'TEST'
+        return 'done'
 
     def delete(self, tag_id=None):
         ProgramTag.query.filter_by(id=tag_id).delete()
@@ -110,65 +110,19 @@ class ProgramSearchView(FlaskView):
         program_concentrations = get_programs_for_dropdown()
         actual_search_result = []
         for search_result in search_results:
-            actual_name = filter(lambda person: person['value'] == search_result.key, program_concentrations)[0]
-            if actual_name:
-                search_result.actual_name = actual_name['name']
+            actual_name = filter(lambda person: person['value'] == search_result.key, program_concentrations)
+            if len(actual_name) > 0:
+                if actual_name[0]:
+                    search_result.actual_name = actual_name[0]['name']
+            else:
+                print 'error'
         return render_template('program-search-ajax.html', **locals())
 
     # This can be commented out once we stop using the csv files
-    def load(self):
-        """
-        load all into the DB from google drive.
-        :return: None
-        """
-
-        # delete all before adding everything back
-        db.session.query(ProgramTag).delete()
-        db.session.commit()
-
-        response = urllib2.urlopen(app.config['PROGRAMS_XML'])
-        xml = ET.fromstring(response.read())
-        program_blocks = xml.findall('.//system-block')
-
-        names = []
-
-        for block in program_blocks:
-            name = block.find('name').text
-            concentrations = block.findall('system-data-structure/concentration')
-            names.append(name)
-            for concentration in concentrations:
-                concentration_code = concentration.find('concentration_code').text
-                if concentration_code is None:
-                    concentration_code = name
-
-                page = concentration.find('concentration_page')
-                path = page.find('path').text
-                if not path or path == '/':
-                    continue
-                page_name = path.split('/')[-1]
-                if page_name in ['index'] and len(concentrations) > 1:
-                    continue
-                names.append("\t%s" % page_name)
-                self.process_sheet(name, page_name, concentration_code)
-        return "<pre>%s</pre>" % "\n".join(names)
-
-    # This can be commented out once we stop using the csv files
-    def process_sheet(self, program_name, concentration_name, concentration_code):
-        try:
-            drive_file = self.gc.open(program_name)
-            global_sheet = drive_file.sheet1
-            self.process_worksheet(global_sheet, concentration_code)
-            if concentration_name not in ['index']:
-                concentration_sheet = drive_file.worksheet(concentration_name)
-                self.process_worksheet(concentration_sheet, concentration_code)
-        except:
-            pass
-
-    # This can be commented out once we stop using the csv files
-    def process_worksheet(self, workseet, concentration_code):
+    def process_worksheet(self, worksheet, concentration_code):
         try:
             session = db.session
-            rows = workseet.get_all_values()
+            rows = worksheet.get_all_values()
             rows.pop(0)
             for row in rows:
                 tag, outcome, other, topic = row
@@ -186,5 +140,45 @@ class ProgramSearchView(FlaskView):
     def dump(self):
         create_new_csv_file()
 
+    @route('/audit', methods=['get'])
+    @route('/database-audit', methods=['get'])
+    def database_audit(self):
+        return render_template('database-audit.html', **locals())
+
+    @route('/database-audit-table', methods=['post'])
+    def database_audit_table(self):
+        # tinker local db
+        search_results = ProgramTag.query.distinct('key').group_by('key').all()
+        keys_in_tinker_db = []
+        for search_result in search_results:
+            keys_in_tinker_db.append(search_result.key)
+
+        # cascade block info
+            keys_in_cascade = []
+        program_concentrations = get_programs_for_dropdown()
+        for program_concentration in program_concentrations:
+            keys_in_cascade.append(program_concentration.get('value'))
+
+        # get the list of differences
+        list_of_issue_programs = list(set(keys_in_tinker_db) - set(keys_in_cascade))
+
+        # get individual differences
+        unmatched_keys_in_tinker_db = list(set(list_of_issue_programs) & set(keys_in_tinker_db))
+        unmatched_keys_in_cascade = list(set(list_of_issue_programs) & set(keys_in_cascade))
+
+        return render_template('database-audit-table.html', **locals())
+
+    # todo: need to create the 'update' logic.
+    @route('/database-audit-update', methods=['post'])
+    def database_audit_update(self):
+        data = json.loads(request.data)
+        old_key = data['old_key']
+        new_key = data['new_key']
+
+        if old_key and new_key:
+            search_results = ProgramTag.query.filter(ProgramTag.key == old_key).update({'key': new_key})
+            db.session.commit()
+
+        return 'DONE'
 
 ProgramSearchView.register(ProgramSearchBlueprint)
