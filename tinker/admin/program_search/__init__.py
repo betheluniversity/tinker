@@ -105,9 +105,12 @@ class ProgramSearchView(FlaskView):
         program_concentrations = self.base.get_programs_for_dropdown()
         actual_search_result = []
         for search_result in search_results:
-            actual_name = filter(lambda person: person['value'] == search_result.key, program_concentrations)[0]
-            if actual_name:
-                search_result.actual_name = actual_name['name']
+            actual_name = filter(lambda person: person['value'] == search_result.key, program_concentrations)
+            if len(actual_name) > 0:
+                if actual_name[0]:
+                    search_result.actual_name = actual_name[0]['name']
+            else:
+                print 'error'
         return render_template('program-search-ajax.html', **locals())
 
     @route('/audit', methods=['get'])
