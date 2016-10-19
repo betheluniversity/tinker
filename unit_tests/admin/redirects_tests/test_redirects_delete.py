@@ -23,7 +23,7 @@ class DeleteTestCase(RedirectsBaseTestCase):
 
     def test_delete_valid(self):
         expected_response = b'deleted done'
-        form_contents = self.create_form("/Academics/International/")
+        form_contents = self.create_form("/from?")
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)

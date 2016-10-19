@@ -33,7 +33,7 @@ class RedirectsBaseTestCase(BaseTestCase):
         # self.permanent_db_reference = tinker.db
         # tinker.db = self.create_temp_db()
         tinker.app.testing = True
-        tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+        # tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         tinker.app.config['ENVIRON'] = "test"
         tinker.app.config['WTF_CSRF_ENABLED'] = False
         tinker.app.config['WTF_CSRF_METHODS'] = []
