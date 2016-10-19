@@ -160,6 +160,26 @@ a#remove_new_job_button {
     border-color: #DE8626 !important;
 }
 
+.activate-press {
+    background-color: #489030 !important;
+    border-color: #489030 !important;
+}
+
+.deactivate {
+    background-color: #DE8626 !important;
+    border-color: #DE8626 !important;
+}
+
+.delete-press {
+    background-color: #f04124 !important;
+    border-color: #f04124 !important;
+}
+
+.modal-confirm {
+    background-color: #f04124 !important;
+    border-color: #f04124 !important;
+}
+
 .error-alert {
     padding: 0px 0px 15px 0px;
     border: 1px solid transparent
@@ -167,7 +187,7 @@ a#remove_new_job_button {
 
 .red-alert {
     background-color: #f04124;
-    border-color: #de2d0f;
+    border-color: #f04124;
     font-size: 12px;
     color: #FFFFFF;
     display: block;
@@ -264,12 +284,13 @@ select.pika-select {
 
 small.required {
     font-size: 9.5px;
-    color: #ff0000
+    color: #f04124
 }
 
 .fa-delete{
     float: right;
-    color: #ff0000
+    color: #f04124;
+    cursor: pointer;
 }
 
 small.extra-required {
@@ -293,7 +314,7 @@ textarea {
 }
 
 td {
-    padding: 3px 0px 3px 0px !important;
+    padding: 3px 5px 3px 0px !important;
 }
 
 /* todo: come up with a way to generalize these tags */
@@ -354,8 +375,28 @@ div#cke_registration_details {
     box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0);
 }
 
+a {
+    color: #0069AA
+}
+
+a:hover {
+    color: #005991
+}
+
+.icon-big a {
+    color: #0069AA
+}
+
+.icon-big a:hover {
+    color: #005489
+}
+
 .nav .active a {
-    color: #DE8626 !important;
+    color: #0069AA !important;
+}
+
+.nav .active a i {
+    color: #0069AA
 }
 
 .nav .active li a {
@@ -381,6 +422,7 @@ ul.dropdown-menu a:hover {
 
 .logo {
     border-bottom: 1px solid #BDBCB0 !important;
+    padding: 15px 0px!important;
 }
 
 .logo a {
@@ -389,6 +431,10 @@ ul.dropdown-menu a:hover {
 
 hr {
     border-color: #BDBCB0
+}
+
+.sidebar .nav p, .off-canvas-sidebar .nav p {
+    line-height: 35px;
 }
 
 .sidebar .nav li.active > a:before, .off-canvas-sidebar .nav li.active > a:before {
@@ -456,7 +502,7 @@ li > .dropdown-menu:after {
 /* Fonts */
 
 h1, h2, h3, h4, h5, h6 {
-    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-family: Muli, Helvetica Neue, sans-serif;
 }
 
 p {
@@ -478,6 +524,12 @@ a {
 a p {
     font-family: Muli, Helvetica Neue, sans-serif;
 }
+p > a {
+    font-family: Georgia, serif;
+}
+div.card > .content > p > a {
+    font-family: Muli, Helvetica Neue, sans-serif;
+}
 
 label {
     font-family: Muli, Helvetica Neue, sans-serif;
@@ -489,66 +541,10 @@ label.checkbox {
     margin-bottom: 8px!important;
 }
 
-/*input[type='checkbox'] {*/
-    /*-webkit-appearance: none;*/
-    /*background-color: #FFFFFF;*/
-    /*border: 2px solid #9A9A9A;*/
-    /*box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05);*/
-    /*padding: 2px;*/
-    /*border-radius: 3px;*/
-    /*display: inline-block;*/
-    /*position: relative;*/
-    /*width: 16px;*/
-    /*height: 16px;*/
-    /*cursor: pointer;*/
-    /*float: left;*/
-    /*opacity: .5;*/
-/*}*/
-
-/*input[type='checkbox']:active, input[type='checkbox']:checked:active {*/
-    /*box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0px 1px 3px rgba(0, 0, 0, 0.1);*/
-    /*cursor: pointer;*/
-    /*opacity: 1;*/
-/*}*/
-
-/*input[type='checkbox']:checked {*/
-    /*background-color: #FFFFFF;*/
-    /*border: 2px solid #66615b;*/
-    /*box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05),*/
-    /*inset 0px -15px 10px -12px rgba(0, 0, 0, 0.05),*/
-    /*inset 15px 10px -12px rgba(255, 255, 255, 0.1);*/
-    /*color: #66615b;*/
-    /*cursor: pointer;*/
-    /*opacity: 1;*/
-/*}*/
-
-/*input[type='checkbox']:checked:after {*/
-    /*content: '\2713';*/
-    /*font-size: 19px;*/
-    /*position: absolute;*/
-    /*top: -5px;*/
-    /*left: -1px;*/
-    /*color: #66615b;*/
-/*}*/
-
-/*input[type='checkbox']:hover:after {*/
-    /*content: '\2713';*/
-    /*font-size: 19px;*/
-    /*position: absolute;*/
-    /*top: -5px;*/
-    /*left: -1px;*/
-    /*color: #66615b;*/
-    /*border-color: #66615b*/
-/*}*/
-
-/*input[type='checkbox']:checked:hover:after {*/
-    /*content: '\2713';*/
-    /*font-size: 19px;*/
-    /*position: absolute;*/
-    /*top: -5px;*/
-    /*left: -1px;*/
-    /*color: #66615b;*/
-/*}*/
+.bio-status {
+    font-family: Muli, Helvetica Neue, sans-serif!important;
+    font-size: 85%;
+}
 
 /* Notifications */
 [data-notify="container"].alert {

@@ -105,9 +105,63 @@ class ProgramSearchView(FlaskView):
         program_concentrations = self.base.get_programs_for_dropdown()
         actual_search_result = []
         for search_result in search_results:
-            actual_name = filter(lambda person: person['value'] == search_result.key, program_concentrations)[0]
-            if actual_name:
-                search_result.actual_name = actual_name['name']
+            actual_name = filter(lambda person: person['value'] == search_result.key, program_concentrations)
+            if len(actual_name) > 0:
+                if actual_name[0]:
+                    search_result.actual_name = actual_name[0]['name']
+            else:
+                print 'error'
         return render_template('program-search-ajax.html', **locals())
+
+    @route('/audit', methods=['get'])
+    @route('/database-audit', methods=['get'])
+    def database_audit(self):
+        return render_template('database-audit.html', **locals())
+
+    @route('/database-audit-table', methods=['post'])
+    def database_audit_table(self):
+        # tinker local db
+        search_results = ProgramTag.query.distinct('key').group_by('key').all()
+        keys_in_tinker_db = []
+        for search_result in search_results:
+            keys_in_tinker_db.append(search_result.key)
+
+        # cascade block info
+        keys_in_cascade = []
+        program_concentrations = self.base.get_programs_for_dropdown()
+        for program_concentration in program_concentrations:
+            keys_in_cascade.append(program_concentration.get('value'))
+
+        # get the list of differences
+        list_of_issue_programs = list(set(keys_in_tinker_db) - set(keys_in_cascade))
+
+        # get individual differences
+        unmatched_keys_in_tinker_db = list(set(list_of_issue_programs) & set(keys_in_tinker_db))
+        unmatched_keys_in_cascade = list(set(list_of_issue_programs) & set(keys_in_cascade))
+
+        return render_template('database-audit-table.html', **locals())
+
+    @route('/database-audit-update', methods=['post'])
+    def database_audit_update(self):
+        data = json.loads(request.data)
+        old_key = data['old_key']
+        new_key = data['new_key']
+
+        if old_key and new_key:
+            search_results = ProgramTag.query.filter(ProgramTag.key == old_key).update({'key': new_key})
+            db.session.commit()
+
+        return 'DONE'
+
+    @route('/database-audit-delete', methods=['post'])
+    def database_audit_delete(self):
+        data = json.loads(request.data)
+        old_key = data['old_key']
+
+        search_results = ProgramTag.query.filter(ProgramTag.key == old_key).delete()
+        db.session.commit()
+
+        return 'DONE'
+
 
 ProgramSearchView.register(ProgramSearchBlueprint)

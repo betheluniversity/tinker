@@ -22,7 +22,7 @@ class FacultyBioController(TinkerController):
         iterate_bio = False
 
         # 1) admin
-        if username in app.config['FACULTY_BIOS_ADMINS']:
+        if 'Tinker Faculty Bios - Admin' in groups or 'Administrators' in groups:
             iterate_bio = True
 
         # 2) user's bio
@@ -30,28 +30,32 @@ class FacultyBioController(TinkerController):
             iterate_bio = True
 
         # 3) user is in special group -- check school
-        if 'parlau' in groups:
+        if 'Tinker Faculty Bios - CAS' in groups:
             schools_to_check = ['College of Arts and Sciences']
-        elif 'Faculty Approver - CAPS GS' in groups:
+        elif 'Tinker Faculty Bios - CAPS and GS' in groups:
             schools_to_check = ['College of Adult and Professional Studies', 'Graduate School']
-        elif 'Faculty Approver - Seminary' in groups:
+        elif 'Tinker Faculty Bios - SEM' in groups:
             schools_to_check = ['Bethel Seminary']
         else:
             schools_to_check = None
 
         if schools_to_check:
-            # todo: make this get job-title schools
             try:
-                school_value = child.find('system-data-structure/job-titles/school')['text']
+                school_values = []
+                for school in child.findall('system-data-structure/job-titles/school'):
+                    school_text = school.text
+                    school_values.append(school_text)
             except:
-                school_value = None
-            if school_value in schools_to_check:
-                iterate_bio = True
+                school_values = []
+
+            for school_value in school_values:
+                if school_value in schools_to_check:
+                    iterate_bio = True
 
         # 4) user is in web admin group
         program_elements = []
-        program_elements.append(child.find('system-data-structure/job-titles/department'))
-        program_elements.append(child.find('system-data-structure/job-titles/seminary-program'))
+        program_elements.append(child.findall('system-data-structure/job-titles/department'))
+        program_elements.append(child.findall('system-data-structure/job-titles/seminary-program'))
 
         if self.check_web_author_groups(groups, program_elements):
             iterate_bio = True
@@ -127,11 +131,12 @@ class FacultyBioController(TinkerController):
         }
 
         for program_element in program_elements:
-            try:
-                if mapping[program_element['text']] in groups:
-                    return True
-            except:
-                continue
+            for program in program_element:
+                try:
+                    if mapping[program.text] in groups:
+                        return True
+                except:
+                    continue
         return False
 
     # todo: do what check_job_titles does

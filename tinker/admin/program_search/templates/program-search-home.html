@@ -12,92 +12,97 @@
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
-            <form id='program_search_form' method="post">
-                <div class="card">
-                    <div class="content">
-                        <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-                        <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
-                        {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
-                        <select name="key" id="search-key" class="search-input">
-                            <option value="">Any</option>
-                            {% for school_label in school_labels %}
-                                <optgroup label="{{ school_label }}">
-                                    {% for program_concentration in program_concentrations %}
-                                        {% if program_concentration.school == school_label %}
-                                            <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </optgroup>
-                            {% endfor %}
-                        </select>
-                        <label for="tag" style="color: #252422">Search by Tag:</label>
-                        <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
-                    </div>
-                    <div class="col-md-12">
-                        <p>These are for creating new Program Tags.</p>
-                    </div>
-                    <label>
-                        <div class="col-sm-4">
-                            Outcome:
-                            <div class="radio">
-                                <label><input type="radio" name="outcome" value="True">Yes</label>
-                            </div>
-                            <div class="radio">
-                                <label><input type="radio" name="outcome" value="False" checked>No</label>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-4">
-                            Topic:
-                            <div class="radio">
-                                <label><input type="radio" name="topic" value="True">Yes</label>
-                            </div>
-                            <div class="radio">
-                                <label><input type="radio" name="topic" value="False" checked>No</label>
-                            </div>
-                        </div>
-
-                        <div class="col-sm-4">
-                            Other:
-                            <div class="radio">
-                                <label><input type="radio" name="other" value="True">Yes</label>
-                            </div>
-                            <div class="radio">
-                                <label><input type="radio" name="other" value="False" checked>No</label>
-                            </div>
-                        </div>
+            <div class="col-md-12">
+                <p>Go to the <a href="{{ url_for('program_search.ProgramSearchView:database_audit_0') }}">audit</a> to
+                    check if Tinker and Cascade are matched up correctly.</p>
+                <hr/>
+                <form id='program_search_form' method="post">
+                    <div class="card">
                         <div class="content">
-                            <button id="program-submit" type="submit" class="btn btn-primary">Submit</button>
+                            <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
+                            <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
+                            {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
+                            <select name="key" id="search-key" class="search-input">
+                                <option value="">Any</option>
+                                {% for school_label in school_labels %}
+                                    <optgroup label="{{ school_label }}">
+                                        {% for program_concentration in program_concentrations %}
+                                            {% if program_concentration.school == school_label %}
+                                                <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                            <label for="tag" style="color: #252422">Search by Tag:</label>
+                            <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
                         </div>
-                    </label>
-                </div>
-            </form>
-            <div class="row">
-                <div class="large-12 columns">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th width="600">Program Concentration</th>
-                            <th width="500">Tag</th>
-                            <th width="100">Outcome</th>
-                            <th width="100">Topic</th>
-                            <th width="100">Other</th>
-                            <th>
-                                <a data-reveal-id="confirmModal" id="delete-all"
-                                   class="btn btn-primary btn-alert delete-press" data-toggle="modal"
-                                   data-target="#myModal">Delete</a>
-                            </th>
-                        </tr>
-                        </thead>
-                        <tbody id="table-body">
+                        <div class="col-md-12">
+                            <p>These are for creating new Program Tags.</p>
+                        </div>
+                        <label>
+                            <div class="col-sm-4">
+                                Outcome:
+                                <div class="radio">
+                                    <label><input type="radio" name="outcome" value="True">Yes</label>
+                                </div>
+                                <div class="radio">
+                                    <label><input type="radio" name="outcome" value="False" checked>No</label>
+                                </div>
+                            </div>
 
-                        </tbody>
-                    </table>
+                            <div class="col-sm-4">
+                                Topic:
+                                <div class="radio">
+                                    <label><input type="radio" name="topic" value="True">Yes</label>
+                                </div>
+                                <div class="radio">
+                                    <label><input type="radio" name="topic" value="False" checked>No</label>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                Other:
+                                <div class="radio">
+                                    <label><input type="radio" name="other" value="True">Yes</label>
+                                </div>
+                                <div class="radio">
+                                    <label><input type="radio" name="other" value="False" checked>No</label>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <button id="program-submit" type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </label>
+                    </div>
+                </form>
+                <div class="row">
+                    <div class="large-12 columns">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th width="600">Program Concentration</th>
+                                <th width="500">Tag</th>
+                                <th width="100">Outcome</th>
+                                <th width="100">Topic</th>
+                                <th width="100">Other</th>
+                                <th>
+                                    <a data-reveal-id="confirmModal" id="delete-all"
+                                       class="btn btn-primary btn-alert delete-press" data-toggle="modal"
+                                       data-target="#myModal">Delete</a>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody id="table-body">
+
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
-            {# spinner placeholder #}
-            <div id="spinner" class="spinner" style="display:none;">
-                <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+                {# spinner placeholder #}
+                <div id="spinner" class="spinner" style="display:none;">
+                    <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+                </div>
             </div>
         </div>
     </div>
@@ -138,12 +143,13 @@
         }).change(function () {
             delay(function () {
                 loadTableForSearch();
-            $('#spinner').hide();}, 300);
+                $('#spinner').hide();
+            }, 300);
         });
 
         function loadTableForSearch() {
             $('#spinner').show();
-{#            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');#}
+            {#            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');#}
 
             var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";
             search_tag = $('#search-tag')[0].value;

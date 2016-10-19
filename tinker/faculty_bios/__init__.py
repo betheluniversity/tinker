@@ -24,7 +24,12 @@ class FacultyBiosView(FlaskView):
 
     # todo: add a before_request method
     def before_request(self, name, **kwargs):
-        if 'FACULTY' not in session['roles'] and 'Tinker Faculty Bios' not in session['groups'] and 'Administrators' not in session['groups']:
+        if 'FACULTY' not in session['roles'] \
+                and 'Tinker Faculty Bios - CAS' not in session['groups'] \
+                and 'Tinker Faculty Bios - CAPS and GS' not in session['groups'] \
+                and 'Tinker Faculty Bios - SEM' not in session['groups'] \
+                and 'Administrators' not in session['groups'] \
+                and 'Tinker Faculty Bios - Admin' not in session['groups']:
             abort(403)
 
     def index(self):
@@ -35,7 +40,7 @@ class FacultyBiosView(FlaskView):
         forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
 
         # the faculty special admins should be able to see every bio, based on school.
-        if username in app.config['FACULTY_BIOS_ADMINS']:
+        if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups']:
             show_special_admin_view = True
             show_create = True
 
@@ -50,7 +55,7 @@ class FacultyBiosView(FlaskView):
             ]
         else:  # normal view
             show_special_admin_view = False
-            show_create = len(forms) == 0 or 'Tinker Faculty Bios' in session['groups']
+            show_create = len(forms) == 0 or 'Tinker Faculty Bios - CAS' in session['groups'] or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] or 'Tinker Faculty Bios - SEM' in session['groups']
 
         return render_template('faculty-bio-home.html', **locals())
 
@@ -104,10 +109,22 @@ class FacultyBiosView(FlaskView):
         for identifier in group_identifiers:
             for key, value in edit_data[identifier].iteritems():
                 edit_data[key] = value
+                
+        # Todo: remove this code once all highlight text fields are populated. Until then, override an empty highlight text
+        # with the text entered in areas, research, and teaching
+        try:
+            if 'heading' in edit_data and edit_data['heading'] and ('highlight' not in edit_data or edit_data['highlight'] is None or edit_data['highlight'] == ''):
+                if edit_data['heading'] == 'Areas of expertise' and 'areas' in edit_data and edit_data['areas']:
+                    edit_data['highlight'] = edit_data['areas']
+                elif edit_data['heading'] == 'Research interests' and 'research_interests' in edit_data and edit_data['research_interests']:
+                    edit_data['highlight'] = edit_data['research_interests']
+                elif edit_data['heading'] == 'Teaching specialty' and 'teaching_specialty' in edit_data and edit_data['teaching_specialty']:
+                    edit_data['highlight'] = edit_data['teaching_specialty']
+        except:
+            pass
 
         # turn the image into the correct identifier
         edit_data['image_url'] = edit_data['image']
-
         edit_image = self.base.should_be_able_to_edit_image(roles)
 
         # Create an EventForm object with our data
@@ -170,12 +187,14 @@ class FacultyBiosView(FlaskView):
         # activate bio
         if activate_page == 'activate':
             update(sd, 'deactivate', 'No')
+            asset['page']['shouldBePublished'] = True
             page.edit_asset(asset)
             page.publish_asset()
         else:  # deactivate bio
             update(sd, 'deactivate', 'Yes')
-            page.edit_asset(asset)
             page.unpublish_asset()
+            asset['page']['shouldBePublished'] = False
+            page.edit_asset(asset)
 
         self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
 

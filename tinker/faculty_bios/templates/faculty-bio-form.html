@@ -131,8 +131,8 @@ to be in it's own card div, something to think about in the future -->
                 var year = 'year' + id;
                 var fieldset_node = $('<fieldset>').addClass('degree-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Degree " + id).append(
-                        $('<small>').addClass('required').html('required'))
+                inner_node.append($("<legend>").html("Degree " + id + ' ').append(
+                        $('<small>').addClass('required').html(' required'))
                 );
                 inner_node.append($("<label>").attr('for', school).html("School"));
                 inner_node.append($("<input type='text'>").attr('name', school).attr('id', school).addClass("no-border"));
@@ -146,8 +146,8 @@ to be in it's own card div, something to think about in the future -->
 
             function newJobTitlesFieldset(id) {
                 var title = 'new-job-title' + id;
-{#                var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');#}
-                var inner_node = $("<div>").addClass('content new-job-fieldset');
+                var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');
+                var inner_node = $("<div>").addClass('content');
                 inner_node.append($("<legend>").html("Job Title " + id + " ").append(
                         $('<small>').addClass('required').html('required'))
                 );
@@ -177,27 +177,20 @@ to be in it's own card div, something to think about in the future -->
                         $("<select>").attr('id', 'seminary' + id).attr('name', 'seminary' + id))
                 );
 
-
                 inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'dept-chair-div' + id)
-                        .append('Are you the Department Chair?')
-                        .append($('<label>').addClass('radio')
-                                .append($('<span>').addClass('icons')
-                                        .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
-                                        .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base'))
-                                )
-                                .append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'Yes'))
-                                .append('Yes')
+                        .append($('<label>').html('Are you the Department Chair?')
+                                .append($('<div>').addClass('radio')
+                                        .append($('<span>').addClass('icons')
+                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
+                                        .append($('<label>').html('Yes').append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'Yes'))))
+                                .append($('<div>').addClass('radio')
+                                        .append($('<span>').addClass('icons')
+                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
+                                        .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'No'))))
                         )
-                )
-                .append($('<label>').addClass('radio')
-                        .append($('<span>').addClass('icons')
-                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
-                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base'))
-                        )
-                        .append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'No'))
-                        .append($('<label>').html('No'))
                 );
-
                 inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'program-director-div' + id)
                         .append($('<label>').html('Are you the Program Director?')
                                 .append($('<div>').addClass('radio')
@@ -238,7 +231,9 @@ to be in it's own card div, something to think about in the future -->
                         )
                 ));
 
-                return inner_node;
+                fieldset_node.append($("<div>").addClass('card').append(inner_node));
+
+                return fieldset_node;
             }
 
                 function populateDegreeFieldset(id, school, degree, year) {
@@ -657,35 +652,35 @@ to be in it's own card div, something to think about in the future -->
                 </div>
 
                 <div id="dept-chair-div1" class="hide-when-school-changes1">
-                    Are you the Department Chair?
-                    <label class="radio">
-                        <input type="radio" name="dept-chair1" value="Yes">Yes
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="dept-chair1" value="No">No
-                    </label>
+                    <label>Are you the Department Chair?</label>
+                    <div class="radio">
+                        <input type="radio" name="dept-chair1" value="Yes"><label>Yes</label>
+                    </div>
+                    <div class="radio">
+                        <input type="radio" name="dept-chair1" value="No"><label>No</label>
+                    </div>
                 </div>
                 <div id="program-director-div1" class="hide-when-school-changes1">
-                    Are you the Program Director?
-                    <label class="radio">
-                        <input type="radio" name="program-director1" value="Yes">Yes
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="program-director1" value="No">No
-                    </label>
+                    <label>Are you the Program Director?</label>
+                    <div class="radio">
+                        <input type="radio" name="program-director1" value="Yes"><label>Yes</label>
+                    </div>
+                    <div class="radio">
+                        <input type="radio" name="program-director1" value="No"><label>No</label>
+                    </div>
                 </div>
                 <div id="lead-faculty-div1" class="hide-when-school-changes1">
-                    For this program, I am the...
-                    <label class="radio">
-                        <input type="radio" name="lead-faculty1" value="Lead Faculty">Lead Faculty
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="lead-faculty1" value="Program Director">Program
-                            Director
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="lead-faculty1" value="Other">Other
-                    </label>
+                    <label>For this program, I am the...</label>
+                    <div class="radio">
+                        <input type="radio" name="lead-faculty1" value="Lead Faculty"><label>Lead Faculty</label>
+                    </div>
+                    <div class="radio">
+                        <input type="radio" name="lead-faculty1" value="Program Director">
+                        <label>Program Director</label>
+                    </div>
+                    <div class="radio">
+                        <input type="radio" name="lead-faculty1" value="Other"><label>Other</label>
+                    </div>
                 </div>
 
                 <div id="new-job-title-div1" class="hide-when-school-changes1"><label>

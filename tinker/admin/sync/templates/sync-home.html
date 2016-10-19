@@ -8,13 +8,26 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
-                <script>
+                <script src="/static/csrf-activator.js"></script>
+                <script type="text/javascript">
+                    var csrftoken = "{{ csrf_token() }}";
+                    activateCSRF(csrftoken);
                     function postToURLWithSpinner(url, value) {
                         {# activate waiting gif #}
                         $('#spinner').show();
-                        $.post(url, {'id': value}, function (data) {
-                            $("#output").html(data);
-                            $('#spinner').hide();
+{#                        $.post(url, {'id': value}, function (data) {#}
+{#                            $("#output").html(data);#}
+{#                            $('#spinner').hide();#}
+{#                        });#}
+                        $.ajax({
+                            type: "POST",
+                            url: url,
+                            data: JSON.stringify({'id':value}),
+                            contentType: 'application/json;charset=UTF-8',
+                            success: function (data) {
+                                $('#output').html(data);
+                                $('#spinner').hide();
+                            }
                         });
                     }
                 </script>

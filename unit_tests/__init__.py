@@ -20,10 +20,6 @@ from unit_test_utilities import get_tests_in_this_dir
 
 class BaseTestCase(unittest.TestCase, FixturesMixin):
 
-    # fixtures = ['test_database.json']
-    # app = tinker.app
-    # db = tinker.db
-
     def __init__(self, methodName):
         # from tinker.admin.redirects.models import BethelRedirect
         # print len(BethelRedirect.query.all())

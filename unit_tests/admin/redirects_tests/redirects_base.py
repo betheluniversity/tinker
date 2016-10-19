@@ -6,7 +6,7 @@ from unit_tests import BaseTestCase
 
 class RedirectsBaseTestCase(BaseTestCase):
 
-    fixtures = ['test_database.json']
+    # fixtures = ['test_database.json']
     app = tinker.app
     db = tinker.db
 

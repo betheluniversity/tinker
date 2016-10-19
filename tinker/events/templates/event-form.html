@@ -16,10 +16,10 @@
             var out = 'needtimezone' + id;
             var time = 'timezone' + id;
             // escape if it doesn't exist yet.
-            if( document.getElementById(out) == undefined)
+            if (document.getElementById(out) == undefined)
                 return;
 
-            if( reverse_logic == true ) {
+            if (reverse_logic == true) {
                 if (document.getElementById(out).checked) {
                     document.getElementById(time).style.display = "none";
                 } else {
@@ -174,7 +174,7 @@
                 var fieldset_node = $('<fieldset>').addClass('date-fieldset');
                 var inner_node = $("<div>").addClass('content');
                 inner_node.append($("<legend>")
-                        .append($('<i>').addClass('fa fa-times fa-delete').attr('id', id)).append("Date " + id + ' ')
+                        .append($('<i>').addClass('fa fa-times fa-delete').attr('id', 'date-delete' + id).attr('data-id', id)).append("Date " + id + ' ')
                         .append($('<small>').addClass('required').html("required")));
 
                 inner_node.append($("<label>").addClass("checkbox").attr("id", alllabel).attr("for", all)
@@ -281,8 +281,10 @@
                             var last = $(".date-fieldset").last();
                             var new_date = newFieldset(id);
                             new_date.insertAfter(last);
-                            $("#remove_date_button").show();
-                        }
+                            addHandler(id);
+                            {#                            $("#remove_date_button").show();#}
+                        }else
+                            addHandler(id);
                         //Now populate the fieldset
                         var allday = date['all_day'];
                         if (allday && allday.substr(-3) == "Yes") {
@@ -326,19 +328,42 @@
                     var new_num = (parseInt(old_num) + 1);
                     var new_date = newFieldset(new_num);
                     new_date.insertAfter(last);
+                    addHandler(new_num);
                     createPicker(new_date);
                 });
 
-                $('.fa-delete').click(function () {
-                    var list = $(".date-fieldset");
-                    var length = list.length;
-                    for(i = 0; i < length-1; i++) {
-                        document.getElementById('start'+(i+1)).value = document.getElementById('start'+(i+2)).value;
-                        document.getElementById('end'+(i+1)).value = document.getElementById('end'+(i+2)).value;
-                        list[i] = list[i + 1];
-                    }
-                    list.last().remove();
-                });
+                function addHandler(id) {
+                    $("#date-delete" + id).click(function () {
+                        id = $(this).data("id");
+                        var list = $(".date-fieldset");
+                        var length = list.length;
+                        for (i = id; i < length; i++) {
+                            $('#start' + (i)).val($('#start' + (i + 1)).val());
+                            $('#end' + (i)).val($('#end' + (i + 1)).val());
+
+                            if ($("#allday" + (id + 1)).parent().hasClass('checked'))
+                                $("#allday" + id).parent().addClass('checked');
+                            else
+                                $("#allday" + id).parent().removeClass('checked');
+
+                            if ($("#needtimezone" + (id + 1)).parent().hasClass('checked')) {
+                                $("#needtimezone" + id).parent().addClass('checked');
+                                $('#timezone' + id).val($('#timezone' + (id + 1)).val());
+                                checkNeedTimezone(id, true);
+                            } else {
+                                $("#needtimezone" + id).parent().removeClass('checked');
+                                $('#timezone' + id).val('');
+                                checkNeedTimezone(id, false);
+                            }
+                        }
+
+                        list.last().remove();
+                    })
+                }
+
+                ;
+
+
                 $("#location").change(function () {
                     testOffCampusLocation();
                 });
@@ -388,7 +413,8 @@
 
 
             });
-        });
+        })
+        ;
 
     </script>
 
@@ -401,7 +427,7 @@
             <div class="content">
                 <legend>Date 1
                     <small class="required">required</small>
-                    <i class="fa fa-times fa-delete" aria-hidden="true"></i>
+                    <i class="fa fa-times fa-delete" id="date-delete1" data-id="1"></i>
                 </legend>
 
                 <label class="checkbox" id="alldaylabel1" for="allday1">
@@ -417,7 +443,8 @@
                 <label for="end1">End Date</label>
                 <input type="text" name="end1" id="end1" class="datepicker"/>
 
-                <label class="checkbox" id="needtimezonelabel1" for="needtimezone1" onclick="checkNeedTimezone(1, true)">
+                <label class="checkbox" id="needtimezonelabel1" for="needtimezone1"
+                       onclick="checkNeedTimezone(1, true)">
                     <span class="icons"><span class="first-icon fa fa-square-o"></span>
                         <span class="second-icon fa fa-check-square-o"></span></span>
                     <input type="checkbox" id="needtimezone1" data-id="needtimezone1" name="needtimezone1"

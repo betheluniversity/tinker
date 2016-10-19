@@ -217,6 +217,14 @@ class TinkerController(object):
 
         return matches
 
+    # this function is necessary because we don't have python2.7 on the server (we use python2.6)
+    def search_for_key_in_dynamic_md(self, block, key_to_find):
+        metadata = block.findall("dynamic-metadata")
+        for md in metadata:
+            if md.find('name').text == key_to_find:
+                return md.find('value')
+        return None
+
     def group_callback(self, node):
         pass
 
