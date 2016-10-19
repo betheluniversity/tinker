@@ -54,6 +54,8 @@ class SyncView(FlaskView):
     def metadata(self):
         data = json.loads(request.data)
         id = data['id']
+        if not (isinstance(id, str) or isinstance(id, unicode)):
+            return abort(400)
         data = data_to_add
 
         # Get id's and names of md sets and data definitions
@@ -69,6 +71,8 @@ class SyncView(FlaskView):
     def datadefinition(self):
         data = json.loads(request.data)
         id = data['id']
+        if not (isinstance(id, str) or isinstance(id, unicode)):
+            return abort(400)
         data = data_to_add
 
         # Get id's and names of md sets and data definitions

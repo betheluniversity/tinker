@@ -39,6 +39,8 @@ class RedirectsView(FlaskView):
         path = request.form['from_path']
         try:
             redirect = BethelRedirect.query.get(path)
+            if not isinstance(redirect, BethelRedirect):
+                return "fail"
             self.base.database_delete(redirect)
             resp = self.base.create_redirect_text_file()
 
