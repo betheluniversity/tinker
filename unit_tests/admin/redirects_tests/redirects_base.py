@@ -9,6 +9,7 @@ class RedirectsBaseTestCase(BaseTestCase, FixturesMixin):
     # fixtures = ['test_database.json']
     tinker_app = tinker.app
     tinker_app.testing = True
+    tinker_app.debug = False
     tinker_app.config['ENVIRON'] = "test"
     base_uri = tinker_app.config['SQLALCHEMY_DATABASE_URI'].split("app.db")[0]
     tinker_app.config['SQLALCHEMY_DATABASE_URI'] = base_uri + "testing_db.db"

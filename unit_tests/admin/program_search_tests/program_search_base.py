@@ -15,6 +15,7 @@ class ProgramSearchBaseTestCase(BaseTestCase):
         shutil.copy2(tinker.app.config['PROGRAM_SEARCH_CSV'], self.temp_path)
         tinker.app.config['PROGRAM_SEARCH_CSV'] = self.temp_path
         tinker.app.testing = True
+        tinker.app.debug = False
         tinker.app.config['ENVIRON'] = "test"
         tinker.app.config['WTF_CSRF_ENABLED'] = False
         tinker.app.config['WTF_CSRF_METHODS'] = []

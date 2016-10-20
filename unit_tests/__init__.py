@@ -34,6 +34,7 @@ class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
         tinker.app.testing = True
+        tinker.app.debug = False
         # tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         tinker.app.config['ENVIRON'] = "test"
         tinker.app.config['WTF_CSRF_ENABLED'] = False
