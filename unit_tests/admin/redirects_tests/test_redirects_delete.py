@@ -22,6 +22,13 @@ class DeleteTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_delete_valid(self):
+        # Create a row that can then be deleted immediately
+        self.send_post(self.generate_url("new_redirect_submit"), {
+            'new-redirect-from': "/from?",
+            'new-redirect-to': "to!",
+            'short-url': "on",
+            'expiration-date': "Fri Jul 01 2016"
+        })
         expected_response = b'deleted done'
         form_contents = self.create_form("/from?")
         response = self.send_post(self.request, form_contents)
