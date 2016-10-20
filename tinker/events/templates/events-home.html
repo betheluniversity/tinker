@@ -65,7 +65,53 @@
                     <a href="add#page-title" id="event-create" class="btn btn-primary new-btn">
                         Create New Event
                     </a>
+                {% if show_special_admin_view %}
+                    <div>
+                        <label><h3 class="first-subtitle">View:</h3>
+                            <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
+                                    multiple>
+                                {% for schools in all_schools %}
+                                    {% for class_name, school_name in schools.items() %}
+                                        <option value="{{ class_name }}"
+                                                selected="selected">{{ school_name }}</option>
+                                    {% endfor %}
+                                {% endfor %}
+                            </select>
+                        </label>
+                        <script type="text/javascript">
+                            $("#school-selector").change(function () {
+                                $('.school-bios').hide();
+                                var array_of_values = $("#school-selector").val();
+                                for (i = 0; i < array_of_values.length; i++) {
+                                    $('.' + array_of_values[i]).show();
+                                }
+                            });
+                        </script>
+                    </div>
+                    <hr/>
 
+                    {# show all bios #}
+                    {% for schools in all_schools %}
+                        {% for class_name, school_name in schools.items() %}
+                            <div class="{{ class_name }} school-bios">
+                                <h3>{{ school_name }}</h3>
+                                <div>
+                                    {% for bio in forms %}
+                                        {% if school_name in bio.schools %}
+                                            {{ display_bio(bio) }}
+                                        {% elif 'Bethel University' in bio.schools and class_name == 'bu' %}
+                                            {{ display_bio(bio) }}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endfor %}
+                {% else %} {# basic view #}
+                    {% for bio in forms %}
+                        {{ display_bio(bio) }}
+                    {% endfor %}
+                {% endif %}
                     {% if user_forms %}
                         <hr />
                         <h2>Your Events</h2>
