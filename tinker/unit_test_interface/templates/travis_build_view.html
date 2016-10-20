@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>View Travis CI Build</title>
+    </head>
+    <body>
+        <table>
+        {% for key in order %}
+            <tr>
+                <td>{{ key }}</td>
+            {% if key == "duration" %}
+                <td>{{ packet[key] }} seconds</td>
+            {% elif key == "build_id" %}
+                <td><a href="https://travis-ci.org/betheluniversity/tinker/builds/{{ packet[key] }}">{{ packet[key] }}</a></td>
+            {% elif key == "compare_url" %}
+                <td><a href="{{ packet[key] }}">{{ packet[key] }}</a></td>
+            {% else %}
+                <td>{{ packet[key] }}</td>
+            {% endif %}
+            </tr>
+        {% endfor %}
+            <tr>
+                <td><a href="/unit-test/rerun_travis_build/{{ packet['build_id'] }}">Rerun this build</a></td>
+            </tr>
+        </table>
+    </body>
+</html>

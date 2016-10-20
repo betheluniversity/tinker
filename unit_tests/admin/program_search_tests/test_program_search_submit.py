@@ -3,6 +3,7 @@ from program_search_base import ProgramSearchBaseTestCase
 
 
 class SubmitTestCase(ProgramSearchBaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################

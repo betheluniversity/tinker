@@ -30,23 +30,30 @@ if __name__ == "__main__":
 
 def create_get_test(destination_path, method_name, expected_response):
     file_contents = """from unit_tests import BaseTestCase
+
+
 class %(1)sTestCase(BaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################
+
     def __init__(self, methodName):
         super(%(1)sTestCase, self).__init__(methodName)
         self.class_name = self.__class__.__bases__[0].__name__ + '/' + self.__class__.__name__
         self.request_type = "GET"
         self.request = self.generate_url("%(0)s")
+
     #######################
     ### Testing methods ###
     #######################
+
     def test_%(0)s(self):
         expected_response = b'%(2)s'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
+
 """ % {'0': method_name, '1': convert_method_name_to_caps(method_name), '2': expected_response}
 
     parent_dir = os.path.dirname(os.path.realpath(__file__))
@@ -88,28 +95,36 @@ def create_post_tests(destination_path, method_name, correct_dict, expected_succ
         return to_return
 
     file_contents = """from unit_tests import BaseTestCase
+
+
 class %(1)sTestCase(BaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################
+
     def __init__(self, methodName):
         super(%(1)sTestCase, self).__init__(methodName)
         self.class_name = self.__class__.__bases__[0].__name__ + '/' + self.__class__.__name__
         self.request_type = "POST"
         self.request = self.generate_url("%(0)s")
+
     def create_form(self, %(3)s):
         return {
             %(4)s
         }
+
     #######################
     ### Testing methods ###
     #######################
+
     def test_%(0)s_valid(self):
         expected_response = b'%(2)s'
         form_contents = self.create_form(%(5)s)
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
+
 """ % {'0': method_name, '1': convert_method_name_to_caps(method_name), '2': expected_success_response,
        '3': create_kwargs(keywords, False), '4': create_dict_internals(keywords),
        '5': create_kwargs(correct_values, True)}
@@ -129,6 +144,7 @@ class %(1)sTestCase(BaseTestCase):
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
+
 """ % {'0': method_name, '1': key, '2': expected_failure_response, '3': incorrect_kwargs}
 
     parent_dir = os.path.dirname(os.path.realpath(__file__))

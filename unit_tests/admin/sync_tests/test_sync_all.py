@@ -3,6 +3,7 @@ from unit_tests import BaseTestCase
 
 
 class AllTestCase(BaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################

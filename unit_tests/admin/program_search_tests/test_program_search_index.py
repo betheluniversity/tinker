@@ -2,6 +2,7 @@ from program_search_base import ProgramSearchBaseTestCase
 
 
 class IndexTestCase(ProgramSearchBaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################

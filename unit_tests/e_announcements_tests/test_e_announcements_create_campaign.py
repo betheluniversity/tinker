@@ -2,6 +2,7 @@ from unit_tests import BaseTestCase
 
 
 class CreateCampaignTestCase(BaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################

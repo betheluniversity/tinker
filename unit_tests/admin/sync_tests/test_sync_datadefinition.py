@@ -3,6 +3,7 @@ from unit_tests import BaseTestCase
 
 
 class DataDefinitionTestCase(BaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################

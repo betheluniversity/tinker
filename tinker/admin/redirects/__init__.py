@@ -9,9 +9,8 @@ from flask_classy import FlaskView, route
 from flask_wtf import Form
 
 # tinker
-from tinker import db, app
+from tinker import app, db
 from tinker.admin.redirects.redirects_controller import RedirectsController
-from tinker.admin.redirects.models import BethelRedirect
 
 RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
 
@@ -20,7 +19,7 @@ class RedirectsView(FlaskView):
     route_base = '/admin/redirect'
 
     def __init__(self):
-        self.base = RedirectsController()
+        self.base = RedirectsController(db)
 
     # This method is called before a request is made
     def before_request(self, name, **kwargs):
@@ -30,7 +29,7 @@ class RedirectsView(FlaskView):
 
     # Redirects homepage
     def index(self):
-        redirects = BethelRedirect.query.all()
+        redirects = self.base.get_all_rows()
         return render_template('redirects.html', **locals())
 
     # Deletes the chosen redirect
@@ -38,12 +37,8 @@ class RedirectsView(FlaskView):
     def delete_redirect(self):
         path = request.form['from_path']
         try:
-            redirect = BethelRedirect.query.get(path)
-            if not isinstance(redirect, BethelRedirect):
-                return "fail"
-            self.base.database_delete(redirect)
+            self.base.delete_row_from_db(path)
             resp = self.base.create_redirect_text_file()
-
         except:
             return "fail"
         return "deleted %s" % resp
@@ -53,14 +48,10 @@ class RedirectsView(FlaskView):
     def search(self):
         # todo: limit results to...100?
         search_type = request.form['type']
-        search_query = request.form['search'] + "%"
+        search_query = request.form['search']
         if self.search == "%" or search_type not in ['from_path', 'to_url']:
             return ""
-        if search_type == 'from_path':
-            redirects = BethelRedirect.query.filter(BethelRedirect.from_path.like(search_query)).all()
-        else:
-            redirects = BethelRedirect.query.filter(BethelRedirect.to_url.like(search_query)).all()
-        redirects.sort()
+        redirects = self.base.search_db(search_type, search_query)
         return render_template('redirect-ajax.html', **locals())
 
     # Saves the new redirect created
@@ -79,23 +70,19 @@ class RedirectsView(FlaskView):
 
         if not from_path.startswith("/"):
             from_path = "/%s" % from_path
-
         try:
-            redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url,
-                                      expiration_date=expiration_date)
-            self.base.database_add(redirect)
+            new_redirect = self.base.add_row_to_db(from_path, to_url, short_url, expiration_date)
             # Update the file after every submit?
             self.base.create_redirect_text_file()
+            return str(new_redirect)
         except:
             # Currently we are unable to track down why multiple redirects are being created. This causes this error:
             # (IntegrityError) column from_path is not unique u'INSERT INTO bethel_redirect (from_path, to_url,
             # short_url, expiration_date)
             # Our work around is to just ignore the issue.
             # hopefully this will catch the error.
-            db.session.rollback()
+            self.base.rollback()
             return ""
-
-        return str(redirect)
 
     # Updates the redirect text file upon request
     def compile(self):
@@ -104,11 +91,7 @@ class RedirectsView(FlaskView):
 
     # Deletes expired redirects on the day of its expiration date
     def expire(self):
-        today = datetime.utcnow()
-        redirects = BethelRedirect.query.filter(BethelRedirect.expiration_date < today).all()
-        for redirect in redirects:
-            db.session.delete(redirect)
-        db.session.commit()
+        self.base.expire_old_redirects()
         self.base.create_redirect_text_file()
         return 'done'
 
@@ -128,10 +111,9 @@ class RedirectsView(FlaskView):
                     line = line.replace('redirect:', '').lstrip().rstrip()
                     from_url, to_url = line.split()
                     from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
-                    redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-                    self.base.database_add(redirect)
+                    redirect = self.base.api_add_row(from_path, to_url)
             except:
-                db.session.rollback()
+                self.base.rollback()
 
         if redirect:
             self.base.create_redirect_text_file()
@@ -150,8 +132,7 @@ class RedirectsView(FlaskView):
             lines = all_text.split("Asset expiration notice for Public:")
             from_path = "/" + lines[1].lstrip().rstrip()
             to_url = "https://www.bethel.edu/employment/openings/postings/job-closed"
-            redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-            self.base.database_add(redirect)
+            redirect = self.base.api_add_row(from_path, to_url)
 
         except:
             message = "redirect from %s to %s already exists" % (from_path, to_url)
@@ -161,7 +142,7 @@ class RedirectsView(FlaskView):
             smtp_obj = smtplib.SMTP('localhost')
             smtp_obj.sendmail(sender, receivers, message)
             print "Successfully sent email"
-            db.session.rollback()
+            self.base.rollback()
             return "sent email notice"
 
         if redirect:
@@ -174,11 +155,10 @@ class RedirectsView(FlaskView):
         if not from_path.startswith("/"):
             from_path = "/%s" % from_path
 
+        redirect = ""
         # if one from the current from exists, remove it.
         try:
-            redirect = BethelRedirect.query.get(from_path)
-            db.session.delete(redirect)
-            db.session.commit()
+            self.base.delete_row_from_db(from_path)
             # todo not sure if next line is needed
             resp = self.base.create_redirect_text_file()
             app.logger.debug(": Correctly deleted if necessary")
@@ -188,13 +168,11 @@ class RedirectsView(FlaskView):
 
         # create the redirect
         try:
-            redirect = BethelRedirect(from_path=from_path, to_url=to_url)
-            db.session.add(redirect)
-            db.session.commit()
+            redirect = self.base.api_add_row(from_path, to_url)
             print "Successfully created a internal redirect"
             app.logger.debug(": Correctly created a new one")
         except:
-            db.session.rollback()
+            self.base.rollback()
 
         # Update the file after every submit?
         self.base.create_redirect_text_file()
