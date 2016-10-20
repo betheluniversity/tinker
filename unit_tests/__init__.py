@@ -12,13 +12,12 @@ os.environ['unit_testing'] = "True"
 import re
 import tinker
 import unittest
-from flask_fixtures import FixturesMixin
 from inspect import stack
 from tinker import get_url_from_path
 from unit_test_utilities import get_tests_in_this_dir
 
 
-class BaseTestCase(unittest.TestCase, FixturesMixin):
+class BaseTestCase(unittest.TestCase):
 
     def __init__(self, methodName):
         # from tinker.admin.redirects.models import BethelRedirect
