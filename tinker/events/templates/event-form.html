@@ -139,6 +139,18 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
+            $("#date-delete1").hide();
+            addHandler(1);
+
+
+            function checkNumDates() {
+                var dates = $(".date-fieldset");
+                if (dates.length < 2)
+                    $("#date-delete1").hide();
+                else {
+                    $("#date-delete1").show();
+                }
+            };
 
             $('#registration_heading').change(function () {
                 var headingValue = $('#registration_heading').val();
@@ -224,6 +236,37 @@
                 }
             }
 
+            function addHandler(id) {
+                $("#date-delete" + id).click(function () {
+                    id = $(this).data("id");
+                    var list = $(".date-fieldset");
+                    var length = list.length;
+                    for (i = id; i < length; i++) {
+                        $('#start' + (i)).val($('#start' + (i + 1)).val());
+                        $('#end' + (i)).val($('#end' + (i + 1)).val());
+
+                        if ($("#allday" + (i + 1)).parent().hasClass('checked'))
+                            $("#allday" + i).parent().addClass('checked');
+                        else
+                            $("#allday" + i).parent().removeClass('checked');
+
+                        if ($("#needtimezone" + (i + 1)).parent().hasClass('checked')) {
+                            $("#needtimezone" + i).parent().addClass('checked');
+                            $('#timezone' + i).val($('#timezone' + (i + 1)).val());
+                            checkNeedTimezone(i, true);
+                        } else {
+                            $("#needtimezone" + i).parent().removeClass('checked');
+                            $('#timezone' + i).val('');
+                            checkNeedTimezone(i, false);
+                        }
+                    }
+
+                    list.last().remove();
+                    checkNumDates();
+                })
+            };
+
+
             function testOffCampusLocation() {
                 var location = $("#location")[0];
                 var val = location.options[location.selectedIndex].innerHTML;
@@ -254,6 +297,7 @@
             }
 
             $(document).ready(function () {
+
                 $('.datepicker').each(function (index) {
                     var picker = new Pikaday({
                         field: this,
@@ -267,7 +311,6 @@
                     var dates = {{ dates|safe }};
                     var i = 0;
                     while (i < 200) {
-
                         date = dates[i];
                         if (!date) {
                             break;
@@ -283,8 +326,7 @@
                             new_date.insertAfter(last);
                             addHandler(id);
                             {#                            $("#remove_date_button").show();#}
-                        }else
-                            addHandler(id);
+                        }
                         //Now populate the fieldset
                         var allday = date['all_day'];
                         if (allday && allday.substr(-3) == "Yes") {
@@ -328,41 +370,10 @@
                     var new_num = (parseInt(old_num) + 1);
                     var new_date = newFieldset(new_num);
                     new_date.insertAfter(last);
+                    checkNumDates();
                     addHandler(new_num);
                     createPicker(new_date);
                 });
-
-                function addHandler(id) {
-                    $("#date-delete" + id).click(function () {
-                        id = $(this).data("id");
-                        var list = $(".date-fieldset");
-                        var length = list.length;
-                        for (i = id; i < length; i++) {
-                            $('#start' + (i)).val($('#start' + (i + 1)).val());
-                            $('#end' + (i)).val($('#end' + (i + 1)).val());
-
-                            if ($("#allday" + (id + 1)).parent().hasClass('checked'))
-                                $("#allday" + id).parent().addClass('checked');
-                            else
-                                $("#allday" + id).parent().removeClass('checked');
-
-                            if ($("#needtimezone" + (id + 1)).parent().hasClass('checked')) {
-                                $("#needtimezone" + id).parent().addClass('checked');
-                                $('#timezone' + id).val($('#timezone' + (id + 1)).val());
-                                checkNeedTimezone(id, true);
-                            } else {
-                                $("#needtimezone" + id).parent().removeClass('checked');
-                                $('#timezone' + id).val('');
-                                checkNeedTimezone(id, false);
-                            }
-                        }
-
-                        list.last().remove();
-                    })
-                }
-
-                ;
-
 
                 $("#location").change(function () {
                     testOffCampusLocation();
