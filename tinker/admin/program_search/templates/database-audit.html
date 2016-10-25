@@ -13,6 +13,8 @@
         <div class="container-fluid">
             <div class="col-md-12">
                 <div id="main">
+                    <p>Note, for Undergrad programs, the key we store is the name of the block. For everything else, we store them using the Concentration Code provided in Cascade.</p>
+                    <hr/>
                     <div id="tables"></div>
                 </div>
             </div>
@@ -59,10 +61,28 @@
                     data: JSON.stringify(data),
                     contentType: 'application/json;charset=UTF-8',
                     success: function (result) {
-                        loadTableForSearch()
+                        loadTableForSearch();
                     }
                 });
-            })
+            });
+
+            $('.tinker-delete').click(function(){
+                var url = "{{ url_for('program_search.ProgramSearchView:database_audit_delete') }}";
+                var id = $(this).data('id');
+                var data = {
+                    'old_key':  $('#tinker-old-key' + id).html()
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: url,
+                    data: JSON.stringify(data),
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (result) {
+                        loadTableForSearch();
+                    }
+                });
+            });
         }
         loadTableForSearch();
     </script>

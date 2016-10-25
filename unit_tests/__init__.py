@@ -4,9 +4,10 @@
 # 2. Find some way to pass test object ids back and forth between unit tests so that the test_sequentially files can be
 #       split into individual, granular unit tests.
 #
-# Currently, the unit testing suite takes about 3 minutes to run.
+# Currently, the unit testing suite takes about 4 minutes to run.
 
 import os
+# This line needs to be above 'import tinker' so that when tinker's init runs, it will properly access this environ var
 os.environ['unit_testing'] = "True"
 import re
 import tinker
@@ -19,6 +20,8 @@ from unit_test_utilities import get_tests_in_this_dir
 class BaseTestCase(unittest.TestCase):
 
     def __init__(self, methodName):
+        # from tinker.admin.redirects.models import BethelRedirect
+        # print len(BethelRedirect.query.all())
         super(BaseTestCase, self).__init__(methodName)
         self.ERROR_400 = b'<p>The browser (or proxy) sent a request that this server could not understand.</p>'
         self.ERROR_404 = b'<h1 class="oversized"> It\'s probably not a problem, probably.</h1>'
@@ -31,6 +34,8 @@ class BaseTestCase(unittest.TestCase):
 
     def setUp(self):
         tinker.app.testing = True
+        tinker.app.debug = False
+        # tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         tinker.app.config['ENVIRON'] = "test"
         tinker.app.config['WTF_CSRF_ENABLED'] = False
         tinker.app.config['WTF_CSRF_METHODS'] = []
@@ -74,7 +79,7 @@ class BaseTestCase(unittest.TestCase):
             if isinstance(line, str):
                 line = re.sub("[\t\r\n]+", "", line)  # Remove tabs and new-lines
                 line = re.sub("[ ]{2,}", " ", line)  # Remove multiple spaces and replace with single spaces
-                if len(line) > 1:
+                if len(line) > 1:  # Only add lines that are more than just a \n character
                     to_return += line + "\n"
         return to_return
 

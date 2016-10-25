@@ -2,6 +2,7 @@ from unit_tests import BaseTestCase
 
 
 class SearchTestCase(BaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################

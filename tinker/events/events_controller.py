@@ -34,7 +34,7 @@ class EventsController(TinkerController):
 
         school_event = undergrad_event or post_trad_event or sem_event
 
-        if (author is not None and username == author) or 'Event Approver' in session['groups'] or school_event:
+        if (author is not None and username == author) or 'Event Approver' in session['groups'] or (school_event and school_event != 'None'):
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:

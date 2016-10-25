@@ -1,6 +1,3 @@
-<p>Note, for Undergrad programs, the key we store is the name of the block. For everything else, we store them
-    using the Concentration Code provided in Cascade.</p>
-<hr/>
 {% if unmatched_keys_in_tinker_db %}
     <h3>Tinker Database Status</h3>
     <p>These values exist in the Tinker Database, but they do not match up with any program block in Cascade.
@@ -13,6 +10,7 @@
                     <td class="database">DB Value</td>
                     <td class="database">Concentration Code or Block Name</td>
                     <td class="database"></td>
+                    <td class="database"></td>
                 </tr>
                 </thead>
                 <tbody>
@@ -23,6 +21,7 @@
                         <td class="database"><p id="tinker-old-key{{ counter }}">{{ key }}</p></td>
                         <td class="database"><input type="text" id="tinker-new-key{{ counter }}"/></td>
                         <td class="database"><a class="btn btn-primary tinker-update" data-id="{{ counter }}">Update</a></td>
+                        <td class="database"><a class="btn btn-primary tinker-delete delete-press" data-id="{{ counter }}">Delete</a></td>
                     </tr>
                 {% endfor %}
                 </tbody>

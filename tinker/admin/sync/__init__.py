@@ -35,7 +35,8 @@ class SyncView(FlaskView):
     @route("/all", methods=['post'])
     def all(self):
         # get the most recent code
-        self.base.git_pull()
+        # todo: this will need to be added back in. but it currently breaks on xp (since its using a different branch)
+        # self.base.git_pull()
 
         data = data_to_add
         returned_keys = []
@@ -54,6 +55,8 @@ class SyncView(FlaskView):
     def metadata(self):
         data = json.loads(request.data)
         id = data['id']
+        if not (isinstance(id, str) or isinstance(id, unicode)):
+            return abort(400)
         data = data_to_add
 
         # Get id's and names of md sets and data definitions
@@ -69,6 +72,8 @@ class SyncView(FlaskView):
     def datadefinition(self):
         data = json.loads(request.data)
         id = data['id']
+        if not (isinstance(id, str) or isinstance(id, unicode)):
+            return abort(400)
         data = data_to_add
 
         # Get id's and names of md sets and data definitions

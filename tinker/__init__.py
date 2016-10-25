@@ -41,7 +41,10 @@ else:
             continue
         value = os.environ[kw]
         if "[" in value or "{" in value:
-            value = ast.literal_eval(os.environ[kw])
+            try:
+                value = ast.literal_eval(os.environ[kw])
+            except SyntaxError:
+                print "Errored on " + kw + ": " + value
         app.config[kw] = value
 
     # These config vars require code operations, and aren't just values
@@ -75,7 +78,6 @@ if not app.debug:
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
 def get_url_from_path(path, **kwargs):
-    app.config['SERVER_NAME'] = '127.0.0.1:5000'  # This may need to be changed to tinker.bethel.edu on production?
     with app.app_context():
         url_to_return = url_for(path, **kwargs)
         if app.config['SERVER_NAME'] in url_to_return:

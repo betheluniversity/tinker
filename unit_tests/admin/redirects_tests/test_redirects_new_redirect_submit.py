@@ -2,6 +2,7 @@ from redirects_base import RedirectsBaseTestCase
 
 
 class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################
@@ -25,11 +26,13 @@ class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
 
     def test_new_redirect_submit_valid(self):
         expected_response = b'<Redirect /from? to to!>'
-        form_contents = self.create_new_form_submission("from?", "to!")
+        form_contents = self.create_new_form_submission("/from?", "to!")
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
-        # add an assertion that it got added to the database
+        # Add an assertion that it got added to the database
+        # Delete the row that was just added
+        self.send_post(self.generate_url("delete_redirect"), {'from_path': "/from?"})
 
     def test_new_redirect_submit_invalid_from(self):
         expected_response = self.ERROR_400

@@ -1,26 +1,34 @@
-# here is where you import the other config files
+import os
+_basedir = os.path.abspath(os.path.dirname(__file__))
+
 from e_announcements_config import *
-from faculty_bios_config import *
-from office_hours_config import *
-from program_search_config import *
 from redirects_config import *
 from sync_config import *
+from faculty_bio_config import *
+from events_config import *
+from office_hours_config import *
+from program_search_config import *
+
+# Foundation configs
+FOUNDATION_USE_MINIFIED = True
+FOUNDATION_USE_CDN = True
 
 # emails
 ADMINS = ['']
 
 SENTRY_URL = ''
 
-SECRET_KEY = ''
+# Cascade/Events
+secret_key = ""
+SECRET_KEY = ""
 
-ENVIRON = ''
+ENVIRON = ""
 TEST_USER = ''
 
-SITE_ID = ''
-
+SITE_ID = ""
 STAGING_DESTINATION_ID = ''
 
-CASCADE_LOGIN = {'username': 'username', 'password': 'password'}
+CASCADE_LOGIN = {'username': '', 'password': ''}
 
 API_USERNAME = ''
 API_PASSWORD = ''
@@ -31,15 +39,26 @@ WSDL_URL = ''
 API_URL = ''
 
 CACHE_DEFAULT_TIMEOUT = 300
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+PRESERVE_CONTEXT_ON_EXCEPTION = False
+SERVER_NAME = ''
 
 INSTALL_LOCATION = ''
 
 WSAPI_SECRET = ''
 
-UPLOAD_FOLDER = ""
+# Wufoo
+API_KEYS = ['', '']
+WUFOO_BASE_URL = ''
+
+UPLOAD_FOLDER = ''
+BASE_ASSET_BASIC_FOLDER = ''
 
 THUMBOR_STORAGE_LOCATION = ''
 THUMBOR_RESULT_STORAGE_LOCATION = ''
 THUMBOR_CALL_CMD = []
 
-BASE_ASSET_BASIC_FOLDER = ''
+FACULTY_LISTING_CAPS_ID = ''
+FACULTY_LISTING_GS_ID = ''
+FACULTY_LISTING_SEM_ID = ''
+FACULTY_LISTING_CAS_ID = ''

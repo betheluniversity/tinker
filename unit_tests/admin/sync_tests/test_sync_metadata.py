@@ -1,7 +1,9 @@
+import json
 from unit_tests import BaseTestCase
 
 
 class MetadataTestCase(BaseTestCase):
+
     #######################
     ### Utility methods ###
     #######################
@@ -12,9 +14,9 @@ class MetadataTestCase(BaseTestCase):
         self.request = self.generate_url("metadata")
 
     def create_form(self, id):
-        return {
+        return json.dumps({
             'id': id
-        }
+        })
 
     #######################
     ### Testing methods ###
@@ -29,7 +31,7 @@ class MetadataTestCase(BaseTestCase):
 
     def test_metadata_invalid_id(self):
         expected_response = self.ERROR_400
-        form_contents = self.create_form(None)
+        form_contents = self.create_form(1)
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
         self.assertIn(expected_response, response.data, msg=failure_message)
