@@ -23,10 +23,10 @@
                     {% endif %}
                     <br/>
                     {% if form.is_published %}
-{#                                            <small>#}
+                        {#                                            <small>#}
                         <p>{{ form.dates | safe }}</p>
                         <a class="small-link" href={{ form.path }}>{{ form.path }}</a>
-{#                                            </small>#}
+                        {#                                            </small>#}
                     {% endif %}
                 </p>
             </div>
@@ -65,7 +65,7 @@
                     <a href="add#page-title" id="event-create" class="btn btn-primary new-btn">
                         Create New Event
                     </a>
-                {% if show_special_admin_view %}
+                    #in action add the url calling the post method for search
                     <div>
                         <label><h3 class="first-subtitle">View:</h3>
                             <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
@@ -77,43 +77,56 @@
                                     {% endfor %}
                                 {% endfor %}
                             </select>
+                            <p class="description"> The below are optional but can help in your search.</p>
+                            <p class="description"> To use the search more effectively enter in a title, or both a start
+                                and end date, or all three</p>
+                            <div>
+                                <p>Event Title:<br/>
+                                    <input id="event_title" type="text" name="EventTitle"><br/>
+                                </p>
+                                <p>Start Date:<br/>
+                                    <input id="start_date" class='datepicker' size='11'/>
+
+                                </p>
+
+                                <p>End Date:<br/>
+                                    <input id="end_date" class='datepicker' size='11'/>
+                                </p>
+                                <button type="submit" id="event-submit-btn" class="btn btn-primary">Submit</button>
+                            </div>
                         </label>
-                        <script type="text/javascript">
-                            $("#school-selector").change(function () {
-                                $('.school-bios').hide();
-                                var array_of_values = $("#school-selector").val();
-                                for (i = 0; i < array_of_values.length; i++) {
-                                    $('.' + array_of_values[i]).show();
-                                }
-                            });
-                        </script>
+                        {#                        The section below does the non-submit changes#}
+{#                        <script type="text/javascript">#}
+{#                            $("#school-selector").change(function () {#}
+{#                                $('.school-bios').hide();#}
+{#                                var array_of_values = $("#school-selector").val();#}
+{#                                for (i = 0; i < array_of_values.length; i++) {#}
+{#                                    $('.' + array_of_values[i]).show();#}
+{#                                }#}
+{#                            });#}
+{#                        </script>#}
                     </div>
                     <hr/>
-
-                    {# show all bios #}
-                    {% for schools in all_schools %}
-                        {% for class_name, school_name in schools.items() %}
-                            <div class="{{ class_name }} school-bios">
-                                <h3>{{ school_name }}</h3>
-                                <div>
-                                    {% for bio in forms %}
-                                        {% if school_name in bio.schools %}
-                                            {{ display_bio(bio) }}
-                                        {% elif 'Bethel University' in bio.schools and class_name == 'bu' %}
-                                            {{ display_bio(bio) }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% endfor %}
-                {% else %} {# basic view #}
-                    {% for bio in forms %}
-                        {{ display_bio(bio) }}
-                    {% endfor %}
-                {% endif %}
+                    {#                     The lines below display the events that will be produced by the search when "search" is clicked #}
+                    {#                    show all bios #}
+                    {#                    {% for schools in all_schools %}#}
+                    {#                        {% for class_name, school_name in schools.items() %}#}
+                    {#                            <div class="{{ class_name }} events">#}
+                    {#                                <h3>{{ school_name }}</h3>#}
+                    {#                                <div>#}
+                    {#                                    {% for bio in forms %}#}
+                    {#                                        {% if school_name in event.schools %}#}
+                    {#                                            {{ display_event(event) }}#}
+                    {#                                        {% elif 'Bethel University' in event.schools and class_name == 'bu' %}#}
+                    {#                                            {{ display_event(event) }}#}
+                    {#                                        {% endif %}#}
+                    {#                                    {% endfor %}#}
+                    {#                                </div>#}
+                    {#                            </div>#}
+                    {#                        {% endfor %}#}
+                    {#                    {% endfor %}#}
                     {% if user_forms %}
-                        <hr />
+                        <hr/>
                         <h2>Your Events</h2>
                         <hr/>
                     {% endif %}
@@ -136,7 +149,7 @@
                         {% endif %}
                         <hr/>
                         {% for form in other_forms %}
-                           {{ form_card(form) }}
+                            {{ form_card(form) }}
                         {% endfor %}
                     {% endif %}
                 </div>
@@ -172,11 +185,37 @@
 
 {% block scripts %}
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+    <script src="/static/csrf-activator.js"></script>
+
     {#    Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
+        var csrftoken = "{{ csrf_token() }}";
+        activateCSRF(csrftoken);
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/events/delete/" + $(this).data('event-id'));
+        });
+        $('.datepicker').each(function (index) {
+            var picker = new Pikaday({
+                field: this,
+                format: 'MMMM Do YYYY, h:mm a',
+                showTime: false
+            });
+        });
+        $.ajax({
+            type: "POST",
+            url: search_url,
+            data: JSON.stringify(inputs),
+            contentType: 'application/json;charset=UTF-8',
+            success: function (result) {
+                $('#table-body').html(result);
+                $('#spinner').hide();
+            }
         });
     </script>
 
 {% endblock %}
+
+

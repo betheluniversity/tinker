@@ -21,13 +21,12 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-        forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
+        #forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
+        show_create = True
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
-            show_special_admin_view = True
-            show_create = True
-
-            # This nastiness is to maintain order and have the class value
+            # The special admin view
             all_schools = [
+                {'user-events': 'User Events'},
                 {'cas': 'College of Arts and Sciences'}
                 #The below can be uncommented as they are built out
                 # {'caps': 'College of Adult and Professional Studies'},
@@ -36,9 +35,11 @@ class EventsView(FlaskView):
                 # {'bu': 'Administration with Faculty Status'},
                 # {'other-category': 'Other'}
             ]
+
         else:  # normal view
-            show_special_admin_view = False
-            user_forms, other_forms = self.base.split_user_events(forms)
+            all_schools = [
+                {'user-events': 'User Events'}
+            ]
         return render_template('events-home.html', **locals())
 
     def confirm(self):
