@@ -118,9 +118,6 @@ class EAnnouncementsController(TinkerController):
         add_data['parentFolderId'] = ''
         add_data['parentFolderPath'] = self.get_e_announcement_parent_folder(add_data['first_date'])
 
-        # add missing data and make sure its in the right format.
-        add_data['name'] = session['name']
-
         # todo, update these to have _ instead of - in Cascade so we don't have to translate
         add_data['email'] = session['user_email']
         add_data['banner-roles'] = add_data['banner_roles']
