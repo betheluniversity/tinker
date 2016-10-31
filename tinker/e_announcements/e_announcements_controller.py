@@ -34,13 +34,15 @@ class EAnnouncementsController(TinkerController):
         super(EAnnouncementsController, self).__init__()
         self.brm = BRM
 
-    def inspect_child(self, child, all=False):
-        if all:
+    def inspect_child(self, child, see_all_announcements=False):
+        # if see_all_announcements is true, then skip the check to see if you are allowed to see it.
+        if see_all_announcements:
             try:
                 return self._iterate_child_xml(child, '')
             except AttributeError:
                 # not a valid e-ann block
                 return None
+
         try:
             author = child.find('author').text
         except AttributeError:
@@ -93,7 +95,7 @@ class EAnnouncementsController(TinkerController):
             'workflow_status': workflow_status,
             'first_date_past': first_date_past,
             'second_date_past': second_date_past,
-            'message': self.__html_entities_to_unicode__(self.element_tree_to_html(child.find('system-data-structure').find('message'))) or None
+            'message': self.element_tree_to_html(child.find('system-data-structure').find('message')) or None
         }
         return page_values
 

@@ -149,10 +149,10 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('confirm.html', **locals())
 
-    # @route("/create_and_send_campaign", methods=['get', 'post'])
+    @route("/create_and_send_campaign", methods=['get', 'post'])
     @route("/create_campaign", methods=['get', 'post'])
-    # @route("/create_campaign/<date>", methods=['get', 'post'])
-    # @requires_auth
+    @route("/create_campaign/<date>", methods=['get', 'post'])
+    @requires_auth
     def create_campaign(self, date=None):
         resp = None
         try:
