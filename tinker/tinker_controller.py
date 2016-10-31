@@ -196,18 +196,18 @@ class TinkerController(object):
         # more detailed message to debug text log
         app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
-    def inspect_child(self, child):
+    def inspect_child(self, child, find_all):
         # interface method
         pass
 
-    def traverse_xml(self, xml_url, type_to_find):
+    def traverse_xml(self, xml_url, type_to_find, find_all=False):
 
         response = urllib2.urlopen(xml_url)
         form_xml = ET.fromstring(response.read())
 
         matches = []
         for child in form_xml.findall('.//' + type_to_find):
-            match = self.inspect_child(child, True)
+            match = self.inspect_child(child, find_all)
             if match:
                 matches.append(match)
 

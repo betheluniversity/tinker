@@ -34,9 +34,9 @@ class EAnnouncementsController(TinkerController):
         super(EAnnouncementsController, self).__init__()
         self.brm = BRM
 
-    def inspect_child(self, child, see_all_announcements=False):
-        # if see_all_announcements is true, then skip the check to see if you are allowed to see it.
-        if see_all_announcements:
+    def inspect_child(self, child, find_all=False):
+        # if find_all is true, then skip the check to see if you are allowed to see it.
+        if find_all:
             try:
                 return self._iterate_child_xml(child, '')
             except AttributeError:

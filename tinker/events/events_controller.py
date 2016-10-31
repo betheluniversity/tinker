@@ -18,7 +18,8 @@ from flask import json as fjson
 
 class EventsController(TinkerController):
 
-    def inspect_child(self, child):
+    # find_all is currently unused for events (but used for the e-annz)
+    def inspect_child(self, child, find_all=False):
         try:
             author = child.find('author').text
         except AttributeError:

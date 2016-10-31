@@ -11,7 +11,7 @@ from tinker.admin.sync.sync_metadata import data_to_add
 
 class FacultyBioController(TinkerController):
     # todo: this is better, but it still needs a little work
-    def inspect_child(self, child):
+    def inspect_child(self, child, find_all=False):
         try:
             author = child.find('author').text
         except AttributeError:

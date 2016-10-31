@@ -26,7 +26,7 @@ class OfficeHoursController(TinkerController):
 
         return page_values
 
-    def inspect_child(self, child):
+    def inspect_child(self, child, find_all=False):
         # todo add permissions logic
         author = session['username']
         return self._iterate_child_xml(child, author)
