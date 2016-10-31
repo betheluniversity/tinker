@@ -207,7 +207,7 @@ class TinkerController(object):
 
         matches = []
         for child in form_xml.findall('.//' + type_to_find):
-            match = self.inspect_child(child)
+            match = self.inspect_child(child, True)
             if match:
                 matches.append(match)
 

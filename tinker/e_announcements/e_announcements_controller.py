@@ -34,8 +34,13 @@ class EAnnouncementsController(TinkerController):
         super(EAnnouncementsController, self).__init__()
         self.brm = BRM
 
-    def inspect_child(self, child):
-
+    def inspect_child(self, child, all=False):
+        if all:
+            try:
+                return self._iterate_child_xml(child, '')
+            except AttributeError:
+                # not a valid e-ann block
+                return None
         try:
             author = child.find('author').text
         except AttributeError:
@@ -51,7 +56,7 @@ class EAnnouncementsController(TinkerController):
         else:
             return None
 
-    def _iterate_child_xml(self, child, author):
+    def _iterate_child_xml(self, child, author=None):
 
         first = child.find('system-data-structure/first-date').text
         second = child.find('system-data-structure/second-date').text
@@ -88,7 +93,7 @@ class EAnnouncementsController(TinkerController):
             'workflow_status': workflow_status,
             'first_date_past': first_date_past,
             'second_date_past': second_date_past,
-            'message': self.element_tree_to_html(child.find('system-data-structure').find('message')) or None
+            'message': self.__html_entities_to_unicode__(self.element_tree_to_html(child.find('system-data-structure').find('message'))) or None
         }
         return page_values
 
