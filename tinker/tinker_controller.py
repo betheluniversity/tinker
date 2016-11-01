@@ -176,8 +176,9 @@ class TinkerController(object):
             html = render_template('nav.html', **locals())
             session['top_nav'] = html
 
-        init_user()
-        get_nav()
+        if '/public/' not in request.path:
+            init_user()
+            get_nav()
 
     def log_sentry(self, message, response):
 
