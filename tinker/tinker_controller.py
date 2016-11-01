@@ -179,6 +179,10 @@ class TinkerController(object):
         if '/public/' not in request.path:
             init_user()
             get_nav()
+        else:
+            session['username'] = ''
+            session['groups'] = ''
+            session['roles'] = []
 
     def log_sentry(self, message, response):
 
