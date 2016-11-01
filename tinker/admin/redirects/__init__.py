@@ -7,6 +7,8 @@ from BeautifulSoup import BeautifulSoup
 from flask import Blueprint, render_template, request, abort, session
 from flask_classy import FlaskView, route
 from flask_wtf import Form
+from tinker import *
+csrf = CsrfProtect(app)
 
 # tinker
 from tinker import app, db
@@ -93,6 +95,7 @@ class RedirectsView(FlaskView):
         return resp
 
     # Deletes expired redirects on the day of its expiration date
+    @csrf.exempt
     @route('/public/expire', methods=['get'])
     def expire(self):
         self.base.expire_old_redirects()
@@ -100,6 +103,7 @@ class RedirectsView(FlaskView):
         return 'done'
 
     # This creates redirects generically from a google script and the webmaster email box
+    @csrf.exempt
     @route('/public/api-submit', methods=['get', 'post'])
     def new_api_submit(self):
         body = request.form['body']
@@ -124,6 +128,7 @@ class RedirectsView(FlaskView):
         return str(redirect)
 
     # This creates a redirect for job postings from a google script and the webmaster email box
+    @csrf.exempt
     @route('/public/api-submit-asset-expiration', methods=['get', 'post'])
     def new_api_submit_asset_expiration(self):
         from_path = ''
@@ -154,6 +159,7 @@ class RedirectsView(FlaskView):
 
         return str(redirect)
 
+    @csrf.exempt
     @route('/public/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
     def new_internal_redirect_submit(self, from_path, to_url):
         if not from_path.startswith("/"):

@@ -115,7 +115,9 @@ app.register_blueprint(OfficeHoursBlueprint)
 from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
 
-CsrfProtect(app)
+csrf = CsrfProtect(app)
+csrf.exempt(RedirectsBlueprint)
+
 
 # Import global HTTP error code handling
 import error
