@@ -1,4 +1,5 @@
 import time
+import datetime
 from flask_classy import FlaskView, route
 from tinker.events.events_controller import EventsController
 from bu_cascade.asset_tools import update
@@ -70,7 +71,7 @@ class EventsView(FlaskView):
         eid = rform.get('event_id')
         dates, dates_good, num_dates = self.base.check_event_dates(rform)
         failed = self.base.validate_form(rform, dates_good, dates)
-        workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], '--' + rform['title'] + ', ' + rform['start1'])
+        workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], rform['author'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
         wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']
         if failed:
