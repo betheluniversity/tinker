@@ -23,6 +23,9 @@ class RedirectsView(FlaskView):
 
     # This method is called before a request is made
     def before_request(self, name, **kwargs):
+        if '/public/' in request.path:
+            pass
+
         # Checks to see what group the user is in
         if 'Tinker Redirects' not in session['groups'] and 'Administrators' not in session['groups']:
             abort(403)
@@ -90,6 +93,7 @@ class RedirectsView(FlaskView):
         return resp
 
     # Deletes expired redirects on the day of its expiration date
+    @route('/public/expire', methods=['get'])
     def expire(self):
         self.base.expire_old_redirects()
         self.base.create_redirect_text_file()
@@ -150,7 +154,7 @@ class RedirectsView(FlaskView):
 
         return str(redirect)
 
-    @route('/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
+    @route('/public/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
     def new_internal_redirect_submit(self, from_path, to_url):
         if not from_path.startswith("/"):
             from_path = "/%s" % from_path
