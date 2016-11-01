@@ -152,4 +152,10 @@ class EventsView(FlaskView):
         self.base.publish(app.config['EVENT_XML_ID'])
         return render_template('events-delete-confirm.html')
 
+    #This is the search for events to pare down what is being shown
+    @route("/search", methods=['POST'])
+    def search(self):
+        rform = request.form
+        username = session['username']
+
 EventsView.register(EventsBlueprint)

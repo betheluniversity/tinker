@@ -92,7 +92,7 @@
                                 <p>End Date:<br/>
                                     <input id="end_date" class='datepicker' size='11'/>
                                 </p>
-                                <button type="submit" id="event-submit-btn" class="btn btn-primary">Submit</button>
+                                <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
                             </div>
                         </label>
                         {#                        The section below does the non-submit changes#}
@@ -204,16 +204,25 @@
                 showTime: false
             });
         });
-        $.ajax({
-            type: "POST",
-            url: search_url,
-            data: JSON.stringify(inputs),
-            contentType: 'application/json;charset=UTF-8',
-            success: function (result) {
-                $('#table-body').html(result);
-                $('#spinner').hide();
-            }
+        $(".search-events").click(function () {
+            search_url = "{{ url_for('events.EventsView:search') }}";
+            inputs = {
+                    "title": event_title,
+                    "start": start_date,
+                    "end": end_date
+                };
+            $.ajax({
+                type: "POST",
+                url: search_url,
+                data: JSON.stringify(inputs),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    $('#table-body').html(result);
+                    $('#spinner').hide();
+                }
+            });
         });
+
     </script>
 
 {% endblock %}
