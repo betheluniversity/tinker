@@ -1,184 +1,227 @@
-{% extends "tinker-base.html" %}
+{% extends "tinker_base.html" %}
 
-{% block title %}Redirects{% endblock %}
+{% set title = 'Redirects' %}
 
 {% block page_title %}Redirects{% endblock %}
 
 {% block row_width %}12{% endblock %}
 
 {% block main_content %}
-<form action="" id="new-redirect-form">
-<input name=_csrf_token type=hidden value="{{ csrf_token() }}">
-  <div class="row">
-    <div class="large-6 columns">
-      <label>From Path
-        <input type="text" name="new-redirect-from" id="new-redirect-from"/>
-      </label>
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="content">
+                        <form action="" id="new-redirect-form">
+                            <div class="row less-left-margin">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        From Path:
+                                        <input type="text" id="new-redirect-from"
+                                               class="form-control no-margin-bottom"/>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        To URL:
+                                        <input type="text" id="new-redirect-to" class="form-control no-margin-bottom"/>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        Expiration Date:
+                                        <input type="text" id="expiration-date" class="form-control no-margin-bottom"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <label class="checkbox" for="optionsCheckboxes">
+                                <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span></span>
+                                <input type="checkbox" name="optionsCheckboxes" id="optionsCheckboxes">
+                                Short URL
+                            </label>
+                            <div id="redirects-save" class="btn
+                            btn-primary">Save
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th width="400">From Path</th>
+                                <th width="400">To URL</th>
+                                <th width="400">Expiration Date</th>
+                            </tr>
+                            </thead>
+                            <tbody id="redirects-table">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {# spinner placeholder #}
+                <div id="spinner" class="spinner" style="display:none;">
+                    <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="large-6 columns">
-      <label>To URL
-        <input type="text" name="new-redirect-to" id="new-redirect-to" />
-      </label>
-    </div>
-  </div>
-  <div class="row">
-    <div class="large-6 columns">
-      <label> Expiration Date.
-          <input type="text" name="expiration-date" id="expiration-date" class="datepicker">
-      </label>
-    </div>
-    <div class="large-6 columns">
-      <label> Short URL
-          <input type="checkbox" name="short-url" id="short-url" />
-      </label>
-    </div>
-  </div>
-  <div class="row">
-    <div class="large-12 columns" id="form-save-button"></div>
-  </div>
-</form>
 
-<div class="row">
-  <div class="large-12 columns">
-    <table >
-      <thead>
-        <tr>
-          <th width="400">From Path</th>
-          <th width="400">To URL</th>
-          <th width="400">Expiration Date</th>
-        </tr>
-      </thead>
-      <tbody id="redirects-table">
-      </tbody>
-    </table>
-  </div>
-</div>
+    <script type="text/javascript">
 
-  <script type="text/javascript">
+        $(document).ready(function () {
+            var csrftoken = "{{ csrf_token() }}";
+            activateCSRF(csrftoken);
 
-  function updateTable(data){
-      $("#redirects-table").html(data);
-      $('#new-redirect-to').attr("disabled", false)
-      //should the inputs be disabled?
-      var search_val = $("#new-redirect-from").val();
-      $(".from_path").each(function(){
-        var this_val = $(this).html();
-        if (search_val == this_val){
-          $("#new-redirect-to").val('');
-          $('#new-redirect-to').attr("disabled", true);
-          return false;
-        }
-      });
-      $( ".redirect-row" ).on('click', function(){
-        $("#modal-confirm").attr("data-delete-path", $(this).find('.from_path').html());
-        $(document).foundation();
-        $("#confirmModal").foundation('reveal', 'open');
-      });
-  }
+            function updateTable(data) {
+                $("#redirects-table").html(data);
+                $('#new-redirect-to').attr("disabled", false)
+                //should the inputs be disabled?
+                var search_val = $("#new-redirect-from").val();
+                $(".from_path").each(function () {
+                    var this_val = $(this).html();
+                    if (search_val == this_val) {
+                        $("#new-redirect-to").val('');
+                        $("#new-redirect-from").val('');
+                        $("#expiration-date").val('');
+                        return false;
+                    }
+                });
+                $(".redirect-row").on('click', function () {
+                    $("#modal-confirm").attr("data-delete-path", $(this).data('from-path'));
+                });
+            }
 
-var delay = (function(){
-  var timer = 0;
-  return function(callback, ms){
-    clearTimeout (timer);
-    timer = setTimeout(callback, ms);
-  };
-})();
+            var delay = (function () {
+                var timer = 0;
+                return function (callback, ms) {
+                    clearTimeout(timer);
+                    timer = setTimeout(callback, ms);
+                };
+            })();
 
-  function showAdd(){
-    $("#new-redirect-to").show();
-    $("#redirect-add").show();
-  }
+            function showAdd() {
+                $("#new-redirect-to").show();
+                $("#redirect-add").show();
+            }
 
-  function loadTableForSearch(search_value, type){
-    // type needs to be either 'from_path' or 'to_url'
-    var search = {'type': type, 'search': search_value};
-    var url = "/admin/redirect/search";
-     $.post(url, search, function(data) {
-        updateTable(data);
-      });
-  }
+            function loadTableForSearch(search_value, type) {
+                // type needs to be either 'from_path' or 'to_url'
+                var search = {'type': type, 'search': search_value};
+                var url = "{{ url_for('redirects.RedirectsView:search') }}";
+                $.post(url, search, function (data) {
+                    updateTable(data);
+                });
+            }
 
-  $('#new-redirect-to').keyup(function() {
-    var input = $(this);
-    input.val(input.val().replace(/ /g,''));
-    var value = input.val();
-{#    delay(function(){#}
-{#      loadTableForSearch(value, 'to_url');#}
-{#    }, 300 );#}
-  });
+            $('#new-redirect-to').keyup(function () {
+                $('#spinner').show();
+                var input = $(this);
+                input.val(input.val().replace(/ /g, ''));
+                var value = input.val();
+                delay(function () {
+                    $('#spinner').hide();
+                    loadTableForSearch(value, 'to_url');
+                }, 300);
+            });
 
-  $('#new-redirect-from').keyup(function() {
-    var input = $(this);
-    input.val(input.val().replace(/ /g,''));
-    var value = input.val();
-    if (value[0] != '/' && value.length > 0) {
-      input.val("/" + value);
-      value = input.val();
-    }
-    delay(function(){
-      loadTableForSearch(value, 'from_path');
-    }, 300 );
-  });
+            $('#new-redirect-from').keyup(function () {
+                $('#spinner').show();
+                var input = $(this);
+                input.val(input.val().replace(/ /g, ''));
+                var value = input.val();
+                if (value[0] != '/' && value.length > 0) {
+                    input.val("/" + value);
+                    value = input.val();
+                }
+                delay(function () {
+                    loadTableForSearch(value, 'from_path');
+                    $('#spinner').hide();
+                }, 300);
+            });
 
-  $(document).ready(function(){
+            $("#redirects-save").click(function () {
+                $.notify({
+                    message: 'Your redirect is saved'
+                }, {
+                    type: 'success',
+                    placement: {
+                        align: 'center'
+                    },
 
-    var d = document;
-    var input = $(d.createElement('input'));
-    input.attr('value', 'Save');
-    input.attr('type', 'button');
-    input.attr('id', 'redirect-add');
-    input.attr('class', 'button postfix');
-{#    input.attr('style', 'display:none');#}
-    input.click(function (event) {
-      document.getElementById('redirect-add').disabled = true;
-        // when 'save' is clicked, gather the field mappings and send those
-        // to the wufoo-silva app for storage
-      var fieldMappings = $(this.form).serializeArray(),
-              url = '/admin/redirect/new-submit';
+                });
+            });
 
-      $.post(url, fieldMappings, function(data) {
-          loadTableForSearch($("#new-redirect-from").val(), 'from_path');
-          document.getElementById('redirect-add').disabled = false;
-      });
+            $(document).ready(function () {
 
-    });
-    $("#form-save-button").append(input);
+                $('#redirects-save').click(function () {
+                    var data = {
+                        'new-redirect-from': $('#new-redirect-from').val(),
+                        'new-redirect-to': $('#new-redirect-to').val(),
+                        'short-url': $('#new-redirect-short-url').val(),
+                        'expiration-date': $('#expiration-date').val()
+                    };
 
-    $("#modal-confirm").click(function(){
-      var from_path = {"from_path": $(this).attr('data-delete-path')};
-      var url = '/admin/redirect/delete';
-      $.post(url, from_path, function(data) {
-        if (data){
-          loadTableForSearch($("#new-redirect-from").val(), 'from_path');
-          $("#confirmModal").foundation('reveal', 'close');
-        }
-      });
-    });
+                    var url = "{{ url_for('redirects.RedirectsView:new_redirect_submit') }}";
+                    $.post(url, data, function (data) {
+                        loadTableForSearch($('#new-redirect-from').val(), 'from_path');
+                    });
 
-  });
+                });
 
-</script>
+                $(".btn-alert").click(function () {
+                    var from_path = {"from_path": $(this).attr('data-delete-path')};
+                    var url = "{{ url_for('redirects.RedirectsView:delete_redirect') }}";
+                    $.post(url, from_path, function (data) {
+                        if (data) {
+                            loadTableForSearch($("#new-redirect-from").val(), 'from_path');
+                        }
+                    });
+                });
 
-{#Delete confirm modal#}
-<div id="confirmModal" class="reveal-modal" data-reveal>
-  <h2>Are you sure you want to delete?</h2>
-  <p class="lead">The redirect will be gone forever and forever.</p>
+            });
 
-  <button class="modal-confirm" id="modal-confirm" data-delete-path="/delete/path">Delete</button>
-  <a class="close-reveal-modal">&#215;</a>
-</div>
+        })
+        ;
+    </script>
 
 {% endblock %}
 
+{% block modalhtml %}
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+                </div>
+                <div class="modal-body">
+                    Your redirect will be gone forever and ever.
+                </div>
+                <div class="modal-footer">
+                    <a id="modal-confirm" data-delete-path="/delete/path" data-dismiss="modal"
+                       class="btn btn-primary btn-alert modal-confirm">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
 
 {% block scripts %}
-<link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
-<script src="{{ url_for('static', filename='pikaday.js') }}"></script>
-<script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
-<script>
-$( document ).ready(function() {
-  var picker = new Pikaday({
-          field: document.getElementById('expiration-date')});
-});
-</script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+    <script>
+        $(document).ready(function () {
+            var picker = new Pikaday({
+                field: document.getElementById('expiration-date')
+            });
+        });
+    </script>
+    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
 {% endblock %}

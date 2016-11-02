@@ -1,92 +1,133 @@
-import os
+# The ignore DeprecationWarning code here is because flask is still referencing request.json somewhere in its code,
+# when it should instead be getting request.get_json(). Werkzeug allows it, but throws the deprecation warning. As of
+# Sept. 22, 2016, that is the only warning being thrown. Periodically this ignore should be commented out to make sure
+# our code is not throwing the deprecated warnings
+import warnings
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 import logging
+import os
+import platform
 
 # flask
-from flask import Flask
-from flask import session
-from flask import Blueprint
+from flask import Flask, url_for
 
 # flask extensions
-from flask.ext.cache import Cache
-from flask.ext.sqlalchemy import SQLAlchemy
-from flask.ext.cors import CORS
+from flask_sqlalchemy import SQLAlchemy
+from raven.contrib.flask import Sentry
 from flask_wtf.csrf import CsrfProtect
-
+from bu_cascade.cascade_connector import Cascade
 
 app = Flask(__name__)
-app.config.from_object('config')
+
+if "testing" not in platform.node():
+    app.config.from_object('config.config')
+else:
+    import ast, glob
+    app.debug = True
+    keywords = []
+
+    dist_path = os.path.dirname(__file__) + "/../config/dist"
+    os.chdir(dist_path)
+    for file in glob.glob("*.dist"):
+        with open(dist_path + "/" + file) as f:
+            keyword_lines = f.readlines()
+            for line in keyword_lines:
+                possible_keyword = line.split(" = ")[0]
+                if possible_keyword.isupper():
+                    keywords.append(possible_keyword)
+    for kw in keywords:
+        if kw in ['_basedir', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_MIGRATE_REPO', 'PROGRAM_SEARCH_CSV', 'REDIRECTS_FILE_PATH']:
+            continue
+        value = os.environ[kw]
+        if "[" in value or "{" in value:
+            try:
+                value = ast.literal_eval(os.environ[kw])
+            except SyntaxError:
+                print "Errored on " + kw + ": " + value
+        app.config[kw] = value
+
+    # These config vars require code operations, and aren't just values
+    _basedir = os.path.abspath(os.path.dirname(__file__))
+    app.config['_basedir'] = _basedir
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db.back')
+    app.config['SQLALCHEMY_MIGRATE_REPO'] = os.path.join(_basedir, 'db_repository')
+    app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../programs.csv')
+    app.config['REDIRECTS_FILE_PATH'] = os.path.join(_basedir, '../redirects.txt')
+
 db = SQLAlchemy(app)
-cors = CORS(app)
 
-from raven.contrib.flask import Sentry
-sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO, logging_exclusions=("werkzeug",))
+cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
 
-from tinker.admin.redirects import models
-from tinker.admin.program_search import models
-from tinker import tools
+try:
+    unit_testing = os.environ['unit_testing']
+    if unit_testing == "True":
+        app.config['SENTRY_URL'] = ''
+except:
+    pass
 
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
-cache.init_app(app)
+sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
 # create logging
 if not app.debug:
-    import logging
     from logging import FileHandler
     file_handler = FileHandler(app.config['INSTALL_LOCATION'] + '/error.log')
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.DEBUG)
 
 
+# This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
+def get_url_from_path(path, **kwargs):
+    with app.app_context():
+        url_to_return = url_for(path, **kwargs)
+        if app.config['SERVER_NAME'] in url_to_return:
+            url_to_return = url_to_return.split(app.config['SERVER_NAME'])[1]
+        return url_to_return
 
-# Import routes
-import views
-from tinker.events.views import event_blueprint
-from tinker.faculty_bio.views import faculty_bio_blueprint
-from tinker.admin.redirects.views import redirect_blueprint
-from tinker.heading_upgrade.views import heading_upgrade
-from tinker.e_announcements.views import e_announcements_blueprint
-from tinker.admin.sync.views import sync_blueprint
-from tinker.admin.publish.views import publish_blueprint
-from tinker.admin.roles.views import blink_roles_blueprint
-from tinker.admin.cache.views import cache_blueprint
 
-app.register_blueprint(event_blueprint, url_prefix='/event')
-app.register_blueprint(faculty_bio_blueprint, url_prefix='/faculty-bio')
-app.register_blueprint(redirect_blueprint, url_prefix='/admin/redirect')
-app.register_blueprint(heading_upgrade, url_prefix='/heading-upgrade')
-app.register_blueprint(e_announcements_blueprint, url_prefix='/e-announcement')
-app.register_blueprint(sync_blueprint, url_prefix='/admin/sync')
-app.register_blueprint(publish_blueprint, url_prefix='/admin/publish-manager')
-app.register_blueprint(blink_roles_blueprint, url_prefix='/admin/blink-roles')
-app.register_blueprint(cache_blueprint, url_prefix='/admin/cache-clear')
-
+# New importing of routes and blueprints
+from tinker.views import BaseBlueprint
+from tinker.admin.cache import CacheBlueprint
+from tinker.admin.blink_roles import BlinkRolesBlueprint
 from tinker.admin.program_search import ProgramSearchBlueprint
-app.register_blueprint(ProgramSearchBlueprint, url_prefix='/admin')
+from tinker.admin.sync import SyncBlueprint
+from tinker.admin.publish import PublishBlueprint
+from tinker.admin.program_search import ProgramSearchBlueprint
+from tinker.admin.redirects import RedirectsBlueprint
+from tinker.e_announcements import EAnnouncementsBlueprint
+from tinker.faculty_bios import FacultyBiosBlueprint
+from tinker.office_hours import OfficeHoursBlueprint
+from tinker.events import EventsBlueprint
+
+app.register_blueprint(BaseBlueprint)
+app.register_blueprint(CacheBlueprint)
+app.register_blueprint(BlinkRolesBlueprint)
+app.register_blueprint(ProgramSearchBlueprint)
+app.register_blueprint(SyncBlueprint)
+app.register_blueprint(PublishBlueprint)
+app.register_blueprint(ProgramSearchBlueprint)
+app.register_blueprint(RedirectsBlueprint)
+app.register_blueprint(EAnnouncementsBlueprint)
+app.register_blueprint(EventsBlueprint)
+app.register_blueprint(FacultyBiosBlueprint)
+app.register_blueprint(OfficeHoursBlueprint)
+
+from tinker.unit_test_interface import UnitTestBlueprint
+app.register_blueprint(UnitTestBlueprint)
 
 csrf = CsrfProtect(app)
-csrf.exempt(cache_blueprint)
-csrf.exempt(redirect_blueprint)
+csrf.exempt(RedirectsBlueprint)
 
-# Import error handling
+
+# Import global HTTP error code handling
 import error
+from tinker_controller import TinkerController
 
-# ensure session before each request
+
 @app.before_request
 def before_request():
-    try:
-        tools.init_user()
-        app.logger.debug(session['username'])
-    except:
-        app.logger.debug("failed to init")
-
-@app.route('/sherie')
-def peanut():
-    from flask import render_template
-    return render_template('sherie.html')
+    base = TinkerController()
+    base.before_request()
 
 
-@app.route('/read/<read_id>')
-def read_route(read_id):
-    from web_services import read
-    return "<pre>%s</pre>" % str(read(read_id, type='block'))
-
+#ignore

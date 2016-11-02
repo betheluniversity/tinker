@@ -1,0 +1,217 @@
+<html>
+    <head>
+        <title>Dashboard prototype</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+        <style>
+            .modal-open {
+                overflow: hidden
+            }
+
+            .modal {
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 1050;
+                display: none;
+                overflow: hidden;
+                outline: 0
+            }
+
+            .modal.fade .modal-dialog {
+                -webkit-transition: -webkit-transform .3s ease-out;
+                -o-transition: -o-transform .3s ease-out;
+                transition: transform .3s ease-out;
+                -webkit-transform: translate(0, -25%);
+                -ms-transform: translate(0, -25%);
+                -o-transform: translate(0, -25%);
+                transform: translate(0, -25%)
+            }
+
+            .modal.in .modal-dialog {
+                -webkit-transform: translate(0, 0);
+                -ms-transform: translate(0, 0);
+                -o-transform: translate(0, 0);
+                transform: translate(0, 0)
+            }
+
+            .modal-open .modal {
+                overflow-x: hidden;
+                overflow-y: auto
+            }
+
+            .modal-dialog {
+                position: relative;
+                width: auto;
+                margin: 10px
+            }
+
+            .modal-content {
+                position: relative;
+                background-color: #FFFFFF;
+                -webkit-background-clip: padding-box;
+                background-clip: padding-box;
+                border: 1px solid #999;
+                border: 1px solid rgba(0, 0, 0, .2);
+                border-radius: 6px;
+                outline: 0;
+    {#            -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);#}
+    {#            box-shadow: 0 3px 9px rgba(0, 0, 0, .5)#}
+            }
+
+            .modal-backdrop {
+                position: fixed;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+                z-index: 1040;
+                background-color: #000
+            }
+
+            .modal-backdrop.fade {
+                filter: alpha(opacity=0);
+                opacity: 0
+            }
+
+            .modal-backdrop.in {
+                filter: alpha(opacity=50);
+                opacity: .5
+            }
+
+            .modal-header {
+                min-height: 16.43px;
+                padding: 15px;
+                border-bottom: 1px solid #e5e5e5
+            }
+
+            .modal-header .close {
+                margin-top: -2px
+            }
+
+            .modal-title {
+                margin: 0;
+                line-height: 1.42857143
+            }
+
+            .modal-body {
+                position: relative;
+                padding: 15px
+            }
+
+            .modal-footer {
+                padding: 15px;
+                text-align: right;
+                border-top: 1px solid #e5e5e5
+            }
+
+            .modal-footer .btn + .btn {
+                margin-bottom: 0;
+                margin-left: 5px
+            }
+
+            .modal-footer .btn-group .btn + .btn {
+                margin-left: -1px
+            }
+
+            .modal-footer .btn-block + .btn-block {
+                margin-left: 0
+            }
+
+            .modal-scrollbar-measure {
+                position: absolute;
+                top: -9999px;
+                width: 50px;
+                height: 50px;
+                overflow: scroll
+            }
+
+            @media (min-width: 768px) {
+                .modal-dialog {
+                    width: 600px;
+                    margin: 30px auto
+                }
+
+                .modal-content {
+                    -webkit-box-shadow: 0 5px 15px rgba(0, 0, 0, .5);
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, .5)
+                }
+
+                .modal-sm {
+                    width: 300px
+                }
+            }
+
+            @media (min-width: 992px) {
+                .modal-lg {
+                    width: 900px
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr><td><h3>Module</h3><td><h3>Status</h3></td></tr>
+            </thead>
+            <tbody id="to_update">
+            {% for module in modules %}
+                <tr>
+                    <td><a href="/unit-test/{{ module }}">{{ module }}</a></td>
+                    <td id="{{ module }}_succinct"></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% for module in modules %}
+        <p id="{{ module }}_verbose" style="visibility: hidden"></p>
+        {% endfor %}
+
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Unit Test expanded results</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p id="textChange">lalala</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <script>
+            var list_to_test = {{ modules | safe }};
+
+            window.onload = function run_tests(){
+                var URL = "/unit-test/simple-return/";
+                for(var i = 0; i < list_to_test.length; i++){
+                    var url_to_send = URL + list_to_test[i];
+                    $.get(url_to_send, function(data, status){
+                        data = JSON.parse(data);
+                        update_with_result(data[0], data[1], data[2]);
+                    });
+                }
+            };
+
+            function update_with_result(id_to_update, value, full_text){
+                document.getElementById(id_to_update + "_succinct").innerHTML = '<button id="' + id_to_update + '_button" onclick="modalOverlay(this.id)">' + value + '</button>';
+                document.getElementById(id_to_update + "_verbose").innerHTML = full_text;
+            }
+
+            function modalOverlay(id_to_display){
+                id_to_display = id_to_display.substring(0, id_to_display.length - "_button".length);
+                document.getElementById("textChange").innerHTML = document.getElementById(id_to_display + "_verbose").innerHTML;
+                $("#myModal").modal();
+            }
+        </script>
+    </body>
+</html>

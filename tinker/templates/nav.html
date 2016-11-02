@@ -1,54 +1,17 @@
+{% macro render(title) %}
 
-{% macro nav() %}
-  <ul class="button-group">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar bar1"></span>
+                    <span class="icon-bar bar2"></span>
+                    <span class="icon-bar bar3"></span>
+                </button>
+                <label class="navbar-brand">{{ title }}</label>
+            </div>
+        </div>
+    </nav>
 
-         {% if request.path == '/' %}
-           <li><a href="/" class="button button-nav active">Home</a></li>
-         {% else %}
-             <li><a href="/" class="button button-nav">Home</a></li>
-         {% endif %}
-
-         {% if '/event/' in request.path %}
-           <li><a href="/event" class="button button-nav active">Events</a></li>
-         {% else %}
-             <li><a href="/event" class="button button-nav">Events</a></li>
-         {% endif %}
-
-         {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
-             {% if '/faculty-bio' in request.path %}
-               <li><a href="/faculty-bio" class="button button-nav active">Faculty Bios</a></li>
-             {% else %}
-                 <li><a href="/faculty-bio" class="button button-nav">Faculty Bios</a></li>
-             {% endif %}
-         {% endif %}
-
-         {% if '/e-announcement/' in request.path %}
-           <li><a href="/e-announcement" class="button button-nav active">E-Announcements</a></li>
-         {% else %}
-             <li><a href="/e-announcement" class="button button-nav">E-Announcements</a></li>
-         {% endif %}
-
-
-          {#
-             {% if request.path == '/wufoo/' %}
-               <li><a href="/wufoo" class="button button-nav active">Wufoo</a></li>
-             {% else %}
-                 <li><a href="/wufoo" class="button button-nav">Wufoo</a></li>
-             {% endif %}
-          #}
-
-        {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups']%}
-            <li><a href="#" class="button button-nav" data-dropdown="drop">Admin Menu &raquo;</a>
-            <ul id="drop" class="large f-dropdown" data-dropdown-content>
-              {% if 'Administrators' in session['groups'] %}
-                  <li><a href="/admin/publish-manager" class="button-nav">Publisher</a></li>
-                  <li><a href="/admin/sync" class="button-nav">Sync Metadata</a></li>
-                  <li><a href="/admin/blink-roles" class="button-nav">Blink Layout Owners</a></li>
-                  <li><a href="/admin/programsearch" class="button-nav">Program Search Tags</a></li>
-              {% endif %}
-                <li><a href="/admin/cache-clear" class="button-nav">Clear Cache</a></li>
-                <li><a href="/admin/redirect" class="button-nav">Redirects</a></li>
-            </ul></li>
-        {% endif %}
-  </ul>
 {% endmacro %}

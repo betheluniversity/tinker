@@ -1,32 +1,21 @@
-# python
+from flask_classy import FlaskView
+from flask import Flask, Blueprint
+from flask import render_template, send_file
+
+BaseBlueprint = Blueprint('base', __name__, template_folder='templates')
 
 
-# flask
-from flask import render_template
-from flask import session
-from flask import send_file
+class Base(FlaskView):
+    route_base = '/'
 
-# tinker
-from tinker import app
+    def index(self):
+        # index page for adding events and things
+        return render_template('index.html', **locals())
 
+    def about(self):
+        return render_template('about-page.html', **locals())
 
-@app.route('/')
-def home():
-    # index page for adding events and things
-    return render_template('home.html', **locals())
+    def get_image(self, image_name):
+        return send_file('images/' + image_name, mimetype='image/png')
 
-
-@app.route('/about')
-def about():
-    return render_template('about-page.html', **locals())
-
-
-@app.route('/get-image/<image_name>')
-def get_image(image_name):
-    return send_file('images/' + image_name, mimetype='image/png')
-
-
-@app.route('/test')
-def test():
-    session.clear()
-    return "done"
+Base.register(BaseBlueprint)

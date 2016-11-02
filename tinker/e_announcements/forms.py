@@ -4,9 +4,9 @@
 
 # modules
 from flask import session
-from flask.ext.wtf import Form
+from flask_wtf import Form
 from wtforms import ValidationError
-from wtforms import TextField
+from wtforms import StringField
 from wtforms import SelectMultipleField
 from wtforms import TextAreaField
 from wtforms import DateField
@@ -17,23 +17,22 @@ from wtforms import widgets
 
 # local
 from tinker import app
-from tinker.web_services import get_client, read
-
-
-def get_md(metadata_path):
-    md = read(metadata_path, 'metadataset')
-    return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
+from bu_cascade.asset_tools import *
+from tinker.tinker_controller import TinkerController
 
 
 def get_audience_choices():
-
-    data = get_md("/Targeted")
-    audience_list = data[0].possibleValues.possibleValue
     audience = []
-    for item in audience_list:
-        if item.value != "":
-            audience.append(item.value)
 
+    base = TinkerController()
+    md = base.read('/Targeted', 'metadataset')
+    audience_list = find(md, 'banner-roles')['possibleValues']['possibleValue']
+
+    for checkbox_input in audience_list:
+        if checkbox_input['value'] != "":
+            audience.append(checkbox_input['value'])
+
+    # Todo: find a better way to handle this mapping
     banner_roles_sort_mapping = {
         'STUDENT-CAS': 1,
         'STUDENT-CAPS': 2,
@@ -137,23 +136,19 @@ class DummyField(TextAreaField):
 class EAnnouncementsForm(Form):
 
     announcement_information = HeadingField(label="Announcement Information")
-    title = TextField('Title', description="Title is limited to 60 characters.",
+    title = StringField('Title', description="Title is limited to 60 characters.",
                       validators=[validators.DataRequired()])
 
     message = CKEditorTextAreaField('Message', validators=[validators.DataRequired()])
-
     info = InfoField("Date Info")
-
-    first = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
-
-    second = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y",
+    name = HiddenField('Name')
+    email = HiddenField('Email')
+    first_date = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
+    second_date = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y",
                        validators=[validators.Optional()])
 
     banner_roles = MultiCheckboxField(label='', description='', choices=get_audience_choices(),
                                       validators=[validators.DataRequired()])
-
-    name = HiddenField('Name')
-    email = HiddenField('Email')
 
     # Manually override validate, in order to check the dates
     def validate(self):
@@ -165,9 +160,9 @@ class EAnnouncementsForm(Form):
             self.title.errors.append('Title must be less than 60 characters')
             result = False
 
-        if self.second.data:
-            if self.first.data >= self.second.data:
-                self.first.errors.append('The first date must come before the second date.')
+        if self.first_date.data and self.second_date.data:
+            if self.first_date.data >= self.second_date.data:
+                self.first_date.errors.append('The first date must come before the second date.')
                 result = False
 
         return result

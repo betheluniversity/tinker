@@ -1,11 +1,11 @@
-{% extends "tinker-base.html" %}
+{% extends "tinker_base.html" %}
 
 {% block title %}Sync{% endblock %}
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
-<a href="/admin/sync/all" class="small button success">Sync</a>
+<a href='{{ url_for('sync.SyncView:all') }}' class="small button success">Sync</a>
 <!-- Todo: make this more dynamic -->
 <h3>Current Values:</h3>
     {% for key in data %}

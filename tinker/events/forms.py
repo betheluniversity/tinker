@@ -3,7 +3,7 @@
 import datetime
 
 # modules
-from flask.ext.wtf import Form
+from flask_wtf import Form
 from wtforms import StringField
 from wtforms import TextAreaField
 from wtforms import SelectMultipleField
@@ -13,62 +13,52 @@ from wtforms import HiddenField
 from wtforms import DateTimeField
 from wtforms import Field
 from wtforms.validators import DataRequired
+from flask import session
+from tinker.events.events_controller import *
+from bu_cascade.asset_tools import find
 
-# local
-from tinker.web_services import read, read_identifier
-from tinker import tools
+tinker = TinkerController()
 
 
 def get_md(metadata_path):
-    # todo this should be in web_services.py. At least getting. The "return" traversal can be here.
-
-    identifier = {
-        'path': {
-            'path': metadata_path,
-            'siteName': 'Public'
-        },
-        'type': 'metadataset',
-    }
-
-    md = read_identifier(identifier)
-    return md.asset.metadataSet.dynamicMetadataFieldDefinitions.dynamicMetadataFieldDefinition
+    md = tinker.read(metadata_path, 'metadataset')
+    return md['asset']['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
 
 
 def get_event_choices():
-
     data = get_md("/Event")
 
     md = {}
     for item in data:
-        md[item.name] = item.possibleValues.possibleValue
+        md[item['name']] = item['possibleValues']['possibleValue']
 
     general = []
     for item in md['general']:
-        general.append((item.value, item.value))
+        general.append((item['value'], item['value']))
 
     offices = []
     for item in md['offices']:
-        offices.append((item.value, item.value))
+        offices.append((item['value'], item['value']))
 
     internal = []
     for item in md['internal']:
-        internal.append((item.value, item.value))
+        internal.append((item['value'], item['value']))
 
     cas_departments = []
     for item in md['cas-departments']:
-        cas_departments.append((item.value, item.value))
+        cas_departments.append((item['value'], item['value']))
 
     adult_undergrad_program = []
     for item in md['adult-undergrad-program']:
-        adult_undergrad_program.append((item.value, item.value))
+        adult_undergrad_program.append((item['value'], item['value']))
 
     graduate_program = []
     for item in md['graduate-program']:
-        graduate_program.append((item.value, item.value))
+        graduate_program.append((item['value'], item['value']))
 
     seminary_program = []
     for item in md['seminary-program']:
-        seminary_program.append((item.value, item.value))
+        seminary_program.append((item['value'], item['value']))
 
     # Get the building choices from the block
     building_choices = get_buildings()
@@ -85,11 +75,11 @@ def get_event_choices():
 
 
 def get_buildings():
-    page = read('ba1355ea8c586513100ee2a725b9ebea', type="block")
-    buildings = page.asset.xhtmlDataDefinitionBlock.structuredData.structuredDataNodes.structuredDataNode[0].structuredDataNodes.structuredDataNode
+    page = tinker.read('ba1355ea8c586513100ee2a725b9ebea', type="block")
+    buildings = find(page, 'main-campus')['structuredDataNodes']['structuredDataNode']
     labels = [("none", '-select-')]
     for building in buildings:
-        label = building.structuredDataNodes.structuredDataNode[0].text
+        label = building['structuredDataNodes']['structuredDataNode'][0]['text']
         labels.append((label, label))
 
     return labels
@@ -102,11 +92,9 @@ class CKEditorTextAreaField(TextAreaField):
 
 
 class HeadingField(Field):
-
     def __init__(self, label=None, validators=None, filters=tuple(),
                  description='', id=None, default=None, widget=None,
                  _form=None, _name=None, _prefix='', _translations=None):
-
         self.default = default
         self.description = description
         self.filters = filters
@@ -130,7 +118,6 @@ class HeadingField(Field):
 
 
 class EventForm(Form):
-
     image = HiddenField("Image path")
 
     choices = get_event_choices()
@@ -147,13 +134,15 @@ class EventForm(Form):
     heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
     what = HeadingField(label="What is your event?")
+    author = HiddenField("Author")
     title = StringField('Event name', validators=[DataRequired()], description="This will be the title of your webpage")
-    teaser = StringField('Teaser', description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.', validators=[DataRequired()])
+    metaDescription = StringField('Teaser',
+                                  description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.',
+                                  validators=[DataRequired()])
 
-
-
-    if 'Event Approver' in tools.get_groups_for_user():
-        link = StringField("External Link", description="This field only seen by 'Event Approvers'. An external link will redirect this event to the external link url.")
+    if 'Event Approver' in session['groups']:
+        link = StringField("External Link",
+                           description="This field only seen by 'Event Approvers'. An external link will redirect this event to the external link url.")
     else:
         link = HiddenField("External Link")
 
@@ -169,25 +158,34 @@ class EventForm(Form):
     on_campus_location = SelectField('On campus location', choices=building_choices)
     other_on_campus = StringField('Other on campus location')
     off_campus_location = StringField("Off campus location")
-    maps_directions = CKEditorTextAreaField('Instructions for Guests', description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")
+    maps_directions = CKEditorTextAreaField('Instructions for Guests',
+                                            description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")
 
     why = HeadingField(label="Does your event require registration or payment?")
     registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices)
-    registration_details = CKEditorTextAreaField('Registration/ticketing details', description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
+    registration_details = CKEditorTextAreaField('Registration/ticketing details',
+                                                 description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
     wufoo_code = StringField('Approved wufoo hash code')
     ticketing_url = StringField('Ticketing URL')
     cost = TextAreaField('Cost')
     cancellations = TextAreaField('Cancellations and refunds')
 
     other = HeadingField(label="Who should folks contact with questions?")
-    questions = CKEditorTextAreaField('Questions', description=u"Contact info for questions. (ex: Contact the Office of Church Relations at 651.638.6301 or church-relations@bethel.edu.)")
+    questions = CKEditorTextAreaField('Questions',
+                                      description=u"Contact info for questions. (ex: Contact the Office of Church Relations at 651.638.6301 or church-relations@bethel.edu.)")
 
     categories = HeadingField(label="Categories")
 
-    general = SelectMultipleField('General categories', choices=general_choices, default=['None'], validators=[DataRequired()])
+    general = SelectMultipleField('General categories', choices=general_choices, default=['None'],
+                                  validators=[DataRequired()])
     offices = SelectMultipleField('Offices', choices=offices_choices, default=['None'], validators=[DataRequired()])
-    cas_departments = SelectMultipleField('CAS academic department', default=['None'], choices=cas_departments_choices, validators=[DataRequired()])
-    adult_undergrad_program = SelectMultipleField('CAPS programs', default=['None'], choices=adult_undergrad_program_choices, validators=[DataRequired()])
-    seminary_program = SelectMultipleField('Seminary programs', default=['None'], choices=seminary_program_choices, validators=[DataRequired()])
-    graduate_program = SelectMultipleField('GS Programs', default=['None'], choices=graduate_program, validators=[DataRequired()])
-    internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices, validators=[DataRequired()])
+    cas_departments = SelectMultipleField('CAS academic department', default=['None'], choices=cas_departments_choices,
+                                          validators=[DataRequired()])
+    adult_undergrad_program = SelectMultipleField('CAPS programs', default=['None'],
+                                                  choices=adult_undergrad_program_choices, validators=[DataRequired()])
+    seminary_program = SelectMultipleField('Seminary programs', default=['None'], choices=seminary_program_choices,
+                                           validators=[DataRequired()])
+    graduate_program = SelectMultipleField('GS Programs', default=['None'], choices=graduate_program,
+                                           validators=[DataRequired()])
+    internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices,
+                                   validators=[DataRequired()])

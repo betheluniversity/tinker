@@ -1,0 +1,219 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'E-Announcements' %}
+{% block title %}E-Announcement Form{% endblock %}
+
+{% block styles %}
+    <style type="text/css">
+        .largeselect {
+            height: 100px;
+            font-size: 14px;
+        }
+
+        .audience-header {
+            text-align: center;
+        }
+
+        p, span {
+            font-family: georgia, serif;
+        }
+
+        label {
+            font-size: 18px;
+            font-family: georgia, serif;
+        }
+
+    </style>
+{% endblock %}
+
+{% block page_title %}
+    {% if new_form %}
+        Submit a new E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
+    {% else %}
+        Edit your E&#8209;Announcement {# &#8209; is a non-breaking hyphen  #}
+    {% endif %}
+{% endblock %}
+
+{% block main_content %}
+    <div class="content">
+        <div class="container-fluid row">
+            <form id="eannouncementform" action="{{ url_for('e_announcements.EAnnouncementsView:submit') }}"
+                      method="post" enctype="multipart/form-data">
+            {% if not new_form %}
+                <input type="hidden" name="e_announcement_id" id="e_announcement_id"
+                       value="{{ e_announcement_id }}"/>
+            {% endif %}
+            {% if form.errors %}
+                <div class="error-alert">
+                    <div data-alert class="red-alert">
+                        There were errors with your form.
+                        <a href="#" class="close">&times;</a>
+                    </div>
+                </div>
+            {% endif %}
+
+            {{ form.hidden_tag() }}
+            {% for field in form if field.widget.input_type != 'hidden' %}
+
+                {# Print any errors for this field#}
+                {% for error in form.errors[field.name] %}
+                    <div class="error-alert">
+                        <div data-alert class="red-alert">
+                            {{ error }}
+                            <a href="#" class="close">&times;</a>
+                        </div>
+                    </div>
+                {% endfor %}
+
+                {# print the label #}
+                {% if field.label.text != '' and field.type != "HeadingField" and field.type != "InfoField" %}
+                    <label for="{{ field.name }}">
+                        {{ field.label.text }}
+                        <small class="required">{% if field.flags.required %}required{% endif %}</small>
+                    </label>
+                    {% if field.description != '' %}
+                        <p>{{ field.description }}</p>
+                    {% endif %}
+                {% endif %}
+
+
+                {# Print the field #}
+                {% if field.type == "SelectMultipleField" %}
+                    {{ field(size=10, class="largeselect") }}
+
+                {% elif field.type == "MultiCheckboxField" %}
+                    <h4 class='first-subtitle' for="{{ field.name }}">
+                        Audiences
+                        <small class="required">{% if field.flags.required %}
+                            required{% endif %}</small>
+                    </h4>
+                    {% if field.description != '' %}
+                        <p>{{ field.description }}</p>
+                    {% endif %}
+                    {% for column in ['STUDENT', 'FACULTY', 'STAFF'] %}
+                        <div class="large-4 columns container-fluid card">
+                            </br>
+                            <label class="audience-header">{{ column }}</label>
+                            <hr/>
+                            {% for checkbox_input in field %}
+                                {% if column in checkbox_input.object_data %}
+                                    <label class="checkbox">
+                                        <span class="icons">
+                                            <span class="first-icon fa fa-square-o"></span>
+                                            <span class="second-icon fa fa-check-square-o"></span>
+                                        </span>
+
+                                        {# This is creating the input with checked or unchecked #}
+                                        {% if not new_form and checkbox_input.data in field.data|join(' ') %}
+                                            {{ checkbox_input(checked=checked) }}
+                                        {% else %}
+                                            {{ checkbox_input }}
+                                        {% endif %}
+
+                                        {# This is the label #}
+                                        {{ brm[loop.index - 1] }}
+                                    </label>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+
+                {% elif field.type == "HeadingField" %}
+                    <h3 class="subtitle">{{ field.label }}</h3>
+
+                {% elif field.type == "CKEditorTextAreaField" %}
+                    {{ field(class="ckeditor") }}
+
+                {% elif field.type == "InfoField" %}
+                    <p>
+                    <div>Your announcement can run twice/semester.</div></br>
+                    <div>Announcements must be submitted by 1 p.m. on the business day before they are sent.</div>
+                    </p>
+
+                {% elif field.type == "DateField" %}
+                    {% if field.name == 'first_date' and first_readonly %}
+                        <div>
+                            <p>{{ first_readonly }}</p>
+                        </div>
+                        {{ field(class="datepicker", readonly=True, style="display:none") }}
+                    {% elif field.name == 'second_date' and second_readonly %}
+                        <div>
+                            <p>{{ second_readonly }}</p>
+                        </div>
+                        {{ field(class="datepicker", readonly=True, style="display:none") }}
+                    {% else %}
+                        {{ field(class="datepicker", readonly=True) }}
+                    {% endif %}
+
+                {% else %}
+                    {{ field(size=20) }}
+                {% endif %}
+                </br>
+            {% endfor %}
+            <button type="submit" id="e-announcement-submit-btn" class="btn btn-primary">Submit</button>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block ckeditor_extra %}
+    CKEDITOR.config.wordcount = {
+    maxWordCount: 150,
+    showParagraphs: false
+    }
+{% endblock %}
+
+{% block scripts %}
+
+    <script src="{{ url_for('static', filename='moment.js') }}"></script>
+    <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var csrftoken = "{{ csrf_token() }}";
+            activateCSRF(csrftoken);
+
+            $(document).ready(function () {
+                var today = new Date();
+                $('.datepicker').each(function (index) {
+                    var picker = new Pikaday({
+                        field: this,
+                        disabledDaysOfWeek: [0, 2, 4, 6],
+                        disabledDates: ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '01/01'],
+                        format: 'MM-DD-YYYY',
+                        disableDayFn: function (date) {
+                            // remove all Sun/Tues/Thur/Sat days from the week
+                            if ($.inArray(date.getDay(), [0, 2, 4, 6]) > -1) {
+                                return date;
+                            }
+
+                            // the last time you can submit a announcement is 1pm the previous business day.
+                            var dateCutoff = date;
+                            dateCutoff.setDate(dateCutoff.getDate() - 1);
+                            while (dateCutoff.getDay() == 0 || dateCutoff.getDay() == 6) {
+                                dateCutoff.setDate(dateCutoff.getDate() - 1);
+                            }
+                            dateCutoff.setHours(13);
+
+                            if (dateCutoff <= new Date()) {
+                                return date;
+                            }
+
+                            // Todo: remove this once we launch.
+                            if (date < new Date('2016/04/01')) {
+                                return date;
+                            }
+                        }
+                    });
+                });
+            });
+        });
+
+    </script>
+{% endblock %}

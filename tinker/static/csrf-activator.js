@@ -1,3 +1,6 @@
+/**
+ * Created by ces55739 on 6/24/16.
+ */
 function activateCSRF(csrftoken) {
     $.ajaxSetup({
         beforeSend: function (xhr, settings) {
