@@ -7,6 +7,8 @@ from BeautifulSoup import BeautifulSoup
 from flask import Blueprint, render_template, request, abort, session
 from flask_classy import FlaskView, route
 from flask_wtf import Form
+from tinker import *
+csrf = CsrfProtect(app)
 
 # tinker
 from tinker import app, db
@@ -23,6 +25,9 @@ class RedirectsView(FlaskView):
 
     # This method is called before a request is made
     def before_request(self, name, **kwargs):
+        if '/public/' in request.path:
+            return
+
         # Checks to see what group the user is in
         if 'Tinker Redirects' not in session['groups'] and 'Administrators' not in session['groups']:
             abort(403)
@@ -90,20 +95,23 @@ class RedirectsView(FlaskView):
         return resp
 
     # Deletes expired redirects on the day of its expiration date
+    @csrf.exempt
+    @route('/public/expire', methods=['get'])
     def expire(self):
         self.base.expire_old_redirects()
         self.base.create_redirect_text_file()
         return 'done'
 
     # This creates redirects generically from a google script and the webmaster email box
-    @route('/public/api-submit', methods=['get', 'post'])
+    @csrf.exempt
+    @route('/public/api-submit', methods=['post'])  # ['get', 'post'])
     def new_api_submit(self):
         body = request.form['body']
 
         soup = BeautifulSoup(body)
         all_text = ''.join(soup.findAll(text=True))
         redirects = re.findall("(redirect: \S* \S*)", all_text)
-        redirect = ""
+        redirect = None
         for line in redirects:
             try:
                 line = line.lstrip().rstrip()
@@ -120,6 +128,7 @@ class RedirectsView(FlaskView):
         return str(redirect)
 
     # This creates a redirect for job postings from a google script and the webmaster email box
+    @csrf.exempt
     @route('/public/api-submit-asset-expiration', methods=['get', 'post'])
     def new_api_submit_asset_expiration(self):
         from_path = ''
@@ -150,7 +159,8 @@ class RedirectsView(FlaskView):
 
         return str(redirect)
 
-    @route('/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
+    @csrf.exempt
+    @route('/public/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
     def new_internal_redirect_submit(self, from_path, to_url):
         if not from_path.startswith("/"):
             from_path = "/%s" % from_path

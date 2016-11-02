@@ -11,7 +11,7 @@ from tinker.admin.sync.sync_metadata import data_to_add
 
 class FacultyBioController(TinkerController):
     # todo: this is better, but it still needs a little work
-    def inspect_child(self, child):
+    def inspect_child(self, child, find_all=False):
         try:
             author = child.find('author').text
         except AttributeError:
@@ -499,4 +499,50 @@ class FacultyBioController(TinkerController):
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
+
+        # Todo: remove this code when the faculty bios have been successfully been transfered.
+        # # move areas of interest
+        # expertise = find(asset_data, 'expertise', False)
+        # heading = find(expertise, 'heading', False)
+        # new_highlight_value = ''
+        # options_text = find(asset_data, 'options')
+        # if 'text' not in options_text:
+        #     update(asset_data, 'options', '')
+        # options_text = find(asset_data, 'options')['text']
+        # if heading == 'Areas of expertise':
+        #     new_highlight_value = find(expertise, 'areas', False)
+        #     options_text = options_text + '::CONTENT-XML-CHECKBOX::' + 'Areas of expertise'
+        #     if find(find(asset_data, 'add-to-bio', False), 'areas') is None:
+        #         find(asset_data, 'add-to-bio', False).append({'identifier': 'areas', 'type': 'text', 'text': new_highlight_value})
+        #     else:
+        #         update(find(asset_data, 'add-to-bio', False), 'areas', new_highlight_value)
+        # elif heading == 'Research interests':
+        #     new_highlight_value = find(expertise, 'research-interests', False)
+        #     options_text = options_text + '::CONTENT-XML-CHECKBOX::' + 'Research interests'
+        #     if find(find(asset_data, 'add-to-bio', False), 'research-interests') is None:
+        #         find(asset_data, 'add-to-bio', False).append({'identifier': 'research-interests', 'type': 'text', 'text': new_highlight_value})
+        #     else:
+        #         update(find(asset_data, 'add-to-bio', False), 'research-interests', new_highlight_value)
+        # elif heading == 'Teaching Specialty':
+        #     new_highlight_value = find(expertise, 'teaching-specialty', False)
+        #     options_text = options_text + '::CONTENT-XML-CHECKBOX::' + 'Teaching specialty'
+        #     if find(find(asset_data, 'add-to-bio', False), 'teaching-specialty') is None:
+        #         find(asset_data, 'add-to-bio', False).append({'identifier': 'teaching-specialty', 'type': 'text', 'text': new_highlight_value})
+        #     else:
+        #         update(find(asset_data, 'add-to-bio', False), 'teaching-specialty', new_highlight_value)
+        #
+        # update(asset_data, 'options', options_text)
+        #
+        # # set highlight text
+        # if find(asset_data, 'highlight') is None:
+        #     find(asset_data, 'structuredDataNode', False).append({'identifier': 'highlight', 'type': 'text', 'text': new_highlight_value})
+        # else:
+        #     update(asset_data, 'highlight', new_highlight_value)
+        #
+        # # set default location to be St. Paul
+        # current_location = find(asset_data, 'faculty_location', False)
+        # if current_location is None:
+        #     find(asset_data, 'structuredDataNode', False).append(
+        #         {'identifier': 'faculty_location', 'type': 'text', 'text': ['St. Paul']})
+
         pass

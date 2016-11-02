@@ -18,9 +18,11 @@ from flask import json as fjson
 
 class EventsController(TinkerController):
 
-    def inspect_child(self, child):
+    # find_all is currently unused for events (but used for the e-annz)
+    def inspect_child(self, child, find_all=False):
         try:
             author = child.find('author').text
+            author = author.replace(' ', '').split(',')
         except AttributeError:
             author = None
         username = session['username']
@@ -34,7 +36,7 @@ class EventsController(TinkerController):
 
         school_event = undergrad_event or post_trad_event or sem_event
 
-        if (author is not None and username == author) or 'Event Approver' in session['groups'] or (school_event and school_event != 'None'):
+        if (author is not None and username in author) or 'Event Approver' in session['groups'] or (school_event and school_event != 'None'):
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:

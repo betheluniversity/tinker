@@ -48,7 +48,7 @@ class ProgramSearchView(FlaskView):
             topic = ast.literal_eval(rform.get('topic'))
             other = ast.literal_eval(rform.get('other'))
         except ValueError:
-            return abort(500)
+            return abort(400)
 
         try:
             program_tag = ProgramTag(key=key, tag=tag, outcome=outcome, other=other, topic=topic)

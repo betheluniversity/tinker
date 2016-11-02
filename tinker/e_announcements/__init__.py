@@ -150,7 +150,7 @@ class EAnnouncementsView(FlaskView):
         return render_template('confirm.html', **locals())
 
     # @route("/create_and_send_campaign", methods=['get', 'post'])
-    @route("/create_campaign", methods=['get', 'post'])
+    @route("/create_campaign", methods=['get'])  # , 'post'])
     # @route("/create_campaign/<date>", methods=['get', 'post'])
     @requires_auth
     def create_campaign(self, date=None):
@@ -249,14 +249,11 @@ class EAnnouncementsView(FlaskView):
                 new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 05:30')
                 self.base.log_sentry("E-Announcement campaign was sent", resp)
 
-                # if we ever want to send an e-announcement immediately, here it is.
-                # WARNING: be careful about accidentally sending emails to mass people.
-                # new_campaign.send(confirmation_email_sent_to)
-
             return str(resp)
 
         except:
             self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.", resp)
+            return str(resp)
 
     def edit_all(self):
         type_to_find = 'system-block'

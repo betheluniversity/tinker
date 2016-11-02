@@ -34,7 +34,14 @@ class EAnnouncementsController(TinkerController):
         super(EAnnouncementsController, self).__init__()
         self.brm = BRM
 
-    def inspect_child(self, child):
+    def inspect_child(self, child, find_all=False):
+        # if find_all is true, then skip the check to see if you are allowed to see it.
+        if find_all:
+            try:
+                return self._iterate_child_xml(child, '')
+            except AttributeError:
+                # not a valid e-ann block
+                return None
 
         try:
             author = child.find('author').text
@@ -51,7 +58,7 @@ class EAnnouncementsController(TinkerController):
         else:
             return None
 
-    def _iterate_child_xml(self, child, author):
+    def _iterate_child_xml(self, child, author=None):
 
         first = child.find('system-data-structure/first-date').text
         second = child.find('system-data-structure/second-date').text
@@ -117,9 +124,6 @@ class EAnnouncementsController(TinkerController):
         # if parent folder ID exists it will use that over path
         add_data['parentFolderId'] = ''
         add_data['parentFolderPath'] = self.get_e_announcement_parent_folder(add_data['first_date'])
-
-        # add missing data and make sure its in the right format.
-        add_data['name'] = session['name']
 
         # todo, update these to have _ instead of - in Cascade so we don't have to translate
         add_data['email'] = session['user_email']

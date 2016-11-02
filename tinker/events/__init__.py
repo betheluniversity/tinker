@@ -1,4 +1,5 @@
 import time
+import datetime
 from flask_classy import FlaskView, route
 from tinker.events.events_controller import EventsController
 from bu_cascade.asset_tools import update
@@ -21,7 +22,7 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-        forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
+        user_forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
             user_forms, other_forms = self.base.split_user_events(forms)
         return render_template('events-home.html', **locals())
@@ -70,7 +71,7 @@ class EventsView(FlaskView):
         eid = rform.get('event_id')
         dates, dates_good, num_dates = self.base.check_event_dates(rform)
         failed = self.base.validate_form(rform, dates_good, dates)
-        workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], '--' + rform['title'] + ', ' + rform['start1'])
+        workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], rform['author'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
         wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']
         if failed:

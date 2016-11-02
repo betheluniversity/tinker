@@ -114,11 +114,11 @@ class TinkerController(object):
             if 'top_nav' not in session.keys():
                 get_nav()
 
-            if 'user_email' not in session.keys():
+            if 'user_email' not in session.keys() and session['username']:
                 # todo, get prefered email (alias) from wsapi once its added.
                 session['user_email'] = session['username'] + "@bethel.edu"
 
-            if 'name' not in session.keys():
+            if 'name' not in session.keys() and session['username']:
                 get_users_name()
 
         def get_user():
@@ -134,24 +134,31 @@ class TinkerController(object):
                 username = session['username']
             url = current_app.config['API_URL'] + "/username/%s/names" % username
             r = requests.get(url)
-            names = fjson.loads(r.content)['0']
-            if names['prefFirstName']:
-                fname = names['prefFirstName']
-            else:
-                fname = names['firstName']
-            lname = names['lastName']
-
-            session['name'] = "%s %s" % (fname, lname)
+            try:
+                # In some cases, '0' will not be a valid key, throwing a KeyError
+                # If that happens, session['name'] should be an empty string so that checks in other locations will fail
+                names = fjson.loads(r.content)['0']
+                if names['prefFirstName']:
+                    fname = names['prefFirstName']
+                else:
+                    fname = names['firstName']
+                lname = names['lastName']
+                session['name'] = "%s %s" % (fname, lname)
+            except KeyError:
+                session['name'] = ""
 
         def get_groups_for_user(username=None):
+            skip = request.environ.get('skip-groups') == 'skip'
             if not username:
                 username = session['username']
-            try:
-                user = self.read(username, "user")
-                allowed_groups = find(user, 'groups', False)
-            except AttributeError:
+            if not skip:
+                try:
+                    user = self.read(username, "user")
+                    allowed_groups = find(user, 'groups', False)
+                except AttributeError:
+                    allowed_groups = ""
+            else:
                 allowed_groups = ""
-
             if allowed_groups is None:
                 allowed_groups = ""
 
@@ -176,8 +183,13 @@ class TinkerController(object):
             html = render_template('nav.html', **locals())
             session['top_nav'] = html
 
+        # if '/public/' not in request.path and '/api/' not in request.path:
         init_user()
         get_nav()
+        # else:
+        #     session['username'] = ''
+        #     session['groups'] = []
+        #     session['roles'] = []
 
     def log_sentry(self, message, response):
 
@@ -196,18 +208,18 @@ class TinkerController(object):
         # more detailed message to debug text log
         app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
-    def inspect_child(self, child):
+    def inspect_child(self, child, find_all):
         # interface method
         pass
 
-    def traverse_xml(self, xml_url, type_to_find):
+    def traverse_xml(self, xml_url, type_to_find, find_all=False):
 
         response = urllib2.urlopen(xml_url)
         form_xml = ET.fromstring(response.read())
 
         matches = []
         for child in form_xml.findall('.//' + type_to_find):
-            match = self.inspect_child(child)
+            match = self.inspect_child(child, find_all)
             if match:
                 matches.append(match)
 
@@ -554,8 +566,11 @@ class TinkerController(object):
 
     def edit_all(self, type_to_find, xml_url):
         # assets_to_edit = self.traverse_xml(xml_url, type_to_find)
+        # print len(assets_to_edit)
+        # counter = 1
         # for page_values in assets_to_edit:
         #     id = page_values['id']
+        #     print str(counter) + ' ' + id
         #     if type_to_find == 'system-page':
         #         asset = self.read_page(id)
         #     elif type_to_find == 'system-block':
@@ -567,9 +582,9 @@ class TinkerController(object):
         #     self.edit_all_callback(asset_data)
         #     asset.edit_asset(asset_data)
         #     asset.publish_asset()
+        #
+        #     counter = counter + 1
         pass
 
     def edit_all_callback(self, asset_data):
         pass
-
-
