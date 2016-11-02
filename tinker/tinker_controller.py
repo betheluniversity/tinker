@@ -114,11 +114,11 @@ class TinkerController(object):
             if 'top_nav' not in session.keys():
                 get_nav()
 
-            if 'user_email' not in session.keys():
+            if 'user_email' not in session.keys() and session['username']:
                 # todo, get prefered email (alias) from wsapi once its added.
                 session['user_email'] = session['username'] + "@bethel.edu"
 
-            if 'name' not in session.keys():
+            if 'name' not in session.keys() and session['username']:
                 get_users_name()
 
         def get_user():
@@ -134,24 +134,31 @@ class TinkerController(object):
                 username = session['username']
             url = current_app.config['API_URL'] + "/username/%s/names" % username
             r = requests.get(url)
-            names = fjson.loads(r.content)['0']
-            if names['prefFirstName']:
-                fname = names['prefFirstName']
-            else:
-                fname = names['firstName']
-            lname = names['lastName']
-
-            session['name'] = "%s %s" % (fname, lname)
+            try:
+                # In some cases, '0' will not be a valid key, throwing a KeyError
+                # If that happens, session['name'] should be an empty string so that checks in other locations will fail
+                names = fjson.loads(r.content)['0']
+                if names['prefFirstName']:
+                    fname = names['prefFirstName']
+                else:
+                    fname = names['firstName']
+                lname = names['lastName']
+                session['name'] = "%s %s" % (fname, lname)
+            except KeyError:
+                session['name'] = ""
 
         def get_groups_for_user(username=None):
+            skip = request.environ.get('skip-groups') == 'skip'
             if not username:
                 username = session['username']
-            try:
-                user = self.read(username, "user")
-                allowed_groups = find(user, 'groups', False)
-            except AttributeError:
+            if not skip:
+                try:
+                    user = self.read(username, "user")
+                    allowed_groups = find(user, 'groups', False)
+                except AttributeError:
+                    allowed_groups = ""
+            else:
                 allowed_groups = ""
-
             if allowed_groups is None:
                 allowed_groups = ""
 
