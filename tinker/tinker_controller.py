@@ -114,7 +114,7 @@ class TinkerController(object):
             if 'top_nav' not in session.keys():
                 get_nav()
 
-            if 'user_email' not in session.keys():
+            if 'user_email' not in session.keys() and session['username']:
                 # todo, get prefered email (alias) from wsapi once its added.
                 session['user_email'] = session['username'] + "@bethel.edu"
 
