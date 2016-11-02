@@ -1,10 +1,3 @@
-# The ignore DeprecationWarning code here is because flask is still referencing request.json somewhere in its code,
-# when it should instead be getting request.get_json(). Werkzeug allows it, but throws the deprecation warning. As of
-# Sept. 22, 2016, that is the only warning being thrown. Periodically this ignore should be commented out to make sure
-# our code is not throwing the deprecated warnings
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 import logging
 import os
 import platform
