@@ -7,8 +7,6 @@
 # Currently, the unit testing suite takes about 4 minutes to run.
 
 import os
-# This line needs to be above 'import tinker' so that when tinker's init runs, it will properly access this environ var
-os.environ['unit_testing'] = "True"
 import re
 import tinker
 import unittest

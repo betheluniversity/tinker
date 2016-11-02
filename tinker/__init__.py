@@ -59,13 +59,6 @@ db = SQLAlchemy(app)
 
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
 
-try:
-    unit_testing = os.environ['unit_testing']
-    if unit_testing == "True":
-        app.config['SENTRY_URL'] = ''
-except:
-    pass
-
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
 # create logging
@@ -128,6 +121,3 @@ from tinker_controller import TinkerController
 def before_request():
     base = TinkerController()
     base.before_request()
-
-
-#ignore

@@ -1,51 +1,63 @@
 {% extends "tinker_base.html" %}
 
-{% block title  %} Whoops {% endblock %}
+{% block title %} Whoops {% endblock %}
 
 
 {% block main_content %}
 
-   <div class="row">
+    <div class="row">
 
-    <section id="oops">
-      <div class="row">
-      <div class="large-9 medium-9 small-12 columns small-centered">
-      <h1 class="oversized">Oh, fiddlesticks, what now?</h1>
+        <section id="oops">
+            <div class="row">
+                <div class="large-9 medium-9 small-12 columns small-centered">
+                    <h1 class="oversized">Oh, fiddlesticks, what now?</h1>
 
-      <h5>Looks like you don't have permission to view this page.</h5>
-      </div>
-      </div>
-     </section>
-
-            <!-- Main Blog Content -->
-            <div class="large-9 columns" role="content">
-
-
+                    <h5>Looks like you don't have permission to view this page.</h5>
+                </div>
             </div>
+            <!-- Sentry JS SDK 2.1.+ required -->
+            <script src="https://cdn.ravenjs.com/2.3.0/raven.min.js"></script>
 
-   </div>
+            {% if sentry_event_id %}
+                <script>
+                    Raven.showReportDialog({
+                        eventId: '{{ sentry_event_id }}',
+                        dsn: '{{ public_dsn }}'
+                    });
+                </script>
+            {% endif %}
+        </section>
+
+        <!-- Main Blog Content -->
+        <div class="large-9 columns" role="content">
+
+
+        </div>
+
+    </div>
 {% endblock %}
 
 {% block head_add %}
 
-  <style>
+    <style>
 
-   .button-group>li>.button-nav {
-     background-color: #0069AA;
-   }
-   .button-group>li>.button-nav:hover {
-     background-color: #0F2C52;
-   }
+        .button-group > li > .button-nav {
+            background-color: #0069AA;
+        }
 
-    .button.small, .button.small.success, .button.tiny, .button.postfix, .input.postfix{
-      background-color: #0069AA;
-    }
+        .button-group > li > .button-nav:hover {
+            background-color: #0F2C52;
+        }
 
-    .button.small:hover, .button.small.success:hover, .button.tiny:hover, .button.postfix:hover{
-      background-color: #0F2C52;
-    }
+        .button.small, .button.small.success, .button.tiny, .button.postfix, .input.postfix {
+            background-color: #0069AA;
+        }
 
-  </style>
+        .button.small:hover, .button.small.success:hover, .button.tiny:hover, .button.postfix:hover {
+            background-color: #0F2C52;
+        }
+
+    </style>
 
 
 {% endblock %}

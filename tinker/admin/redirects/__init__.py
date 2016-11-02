@@ -104,14 +104,14 @@ class RedirectsView(FlaskView):
 
     # This creates redirects generically from a google script and the webmaster email box
     @csrf.exempt
-    @route('/public/api-submit', methods=['get', 'post'])
+    @route('/public/api-submit', methods=['post'])  # ['get', 'post'])
     def new_api_submit(self):
         body = request.form['body']
 
         soup = BeautifulSoup(body)
         all_text = ''.join(soup.findAll(text=True))
         redirects = re.findall("(redirect: \S* \S*)", all_text)
-        redirect = ""
+        redirect = None
         for line in redirects:
             try:
                 line = line.lstrip().rstrip()
