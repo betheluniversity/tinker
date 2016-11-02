@@ -144,14 +144,17 @@ class TinkerController(object):
             session['name'] = "%s %s" % (fname, lname)
 
         def get_groups_for_user(username=None):
+            skip = request.environ.get('skip-groups') == 'skip'
             if not username:
                 username = session['username']
-            try:
-                user = self.read(username, "user")
-                allowed_groups = find(user, 'groups', False)
-            except AttributeError:
+            if not skip:
+                try:
+                    user = self.read(username, "user")
+                    allowed_groups = find(user, 'groups', False)
+                except AttributeError:
+                    allowed_groups = ""
+            else:
                 allowed_groups = ""
-
             if allowed_groups is None:
                 allowed_groups = ""
 
