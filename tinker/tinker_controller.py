@@ -118,7 +118,7 @@ class TinkerController(object):
                 # todo, get prefered email (alias) from wsapi once its added.
                 session['user_email'] = session['username'] + "@bethel.edu"
 
-            if 'name' not in session.keys():
+            if 'name' not in session.keys() and session['username']:
                 get_users_name()
 
         def get_user():
