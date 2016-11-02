@@ -134,14 +134,18 @@ class TinkerController(object):
                 username = session['username']
             url = current_app.config['API_URL'] + "/username/%s/names" % username
             r = requests.get(url)
-            names = fjson.loads(r.content)['0']
-            if names['prefFirstName']:
-                fname = names['prefFirstName']
-            else:
-                fname = names['firstName']
-            lname = names['lastName']
-
-            session['name'] = "%s %s" % (fname, lname)
+            try:
+                # In some cases, '0' will not be a valid key, throwing a KeyError
+                # If that happens, session['name'] should be an empty string so that checks in other locations will fail
+                names = fjson.loads(r.content)['0']
+                if names['prefFirstName']:
+                    fname = names['prefFirstName']
+                else:
+                    fname = names['firstName']
+                lname = names['lastName']
+                session['name'] = "%s %s" % (fname, lname)
+            except KeyError:
+                session['name'] = ""
 
         def get_groups_for_user(username=None):
             skip = request.environ.get('skip-groups') == 'skip'
