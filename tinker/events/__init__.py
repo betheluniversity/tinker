@@ -128,6 +128,7 @@ class EventsView(FlaskView):
 
     # This endpoint is being re-added so that unit tests will be self-deleting. This endpoint is publicly visible, but
     # it is not referenced anywhere on any page, so the public shouldn't know of its existence.
+    # Todo: this should require auth! otherwise, anyone could delete any event
     @route("/delete/<event_id>", methods=['GET'])
     def delete(self, event_id):
         event_page = self.base.read_page(event_id)
