@@ -170,7 +170,7 @@ class EAnnouncementsView(FlaskView):
 
             submitted_announcements = []
             current_announcement_role_list = []
-            for announcement in self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block'):
+            for announcement in self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block', True):
                 date_matches = False
 
                 if announcement['first_date']:
