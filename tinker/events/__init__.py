@@ -1,3 +1,4 @@
+import json
 import time
 from flask_classy import FlaskView, route
 from tinker.events.events_controller import EventsController
@@ -155,10 +156,10 @@ class EventsView(FlaskView):
     #This is the search for events to pare down what is being shown
     @route("/search", methods=['POST'])
     def search(self):
-        rform = request.form
-        title = rform["title"]
-        start = rform["start"]
-        end = rform["end"]
+        data = json.loads(request.data)
+        title = data['title']
+        start = data['start']
+        end = data['end']
         username = session['username']
         #TODO Delete the below comments as the ideas are implemented
         # if title !=null Search for events by title and return a disctionary of events

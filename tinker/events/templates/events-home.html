@@ -82,15 +82,15 @@
                                 and end date, or all three</p>
                             <div>
                                 <p>Event Title:<br/>
-                                    <input id="event_title" type="text" name="EventTitle"><br/>
+                                    <input id="eTitle" type="text" name="EventTitle"><br/>
                                 </p>
                                 <p>Start Date:<br/>
-                                    <input id="start_date" class='datepicker' size='11'/>
+                                    <input id="startDate" class='datepicker' size='11'/>
 
                                 </p>
 
                                 <p>End Date:<br/>
-                                    <input id="end_date" class='datepicker' size='11'/>
+                                    <input id="endDate" class='datepicker' size='11'/>
                                 </p>
                                 <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
                             </div>
@@ -207,10 +207,10 @@
         $(".search-events").click(function () {
             search_url = "{{ url_for('events.EventsView:search') }}";
             inputs = {
-                    "title": event_title,
-                    "start": start_date,
-                    "end": end_date
-                };
+                "title": $("#eTitle"),
+                "start": $("#startDate"),
+                "end": $("#endDate")
+            };
             $.ajax({
                 type: "POST",
                 url: search_url,
