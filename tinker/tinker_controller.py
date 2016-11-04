@@ -588,3 +588,6 @@ class TinkerController(object):
 
     def edit_all_callback(self, asset_data):
         pass
+
+    def list_relationships(self, path_or_id, asset_type):
+        return self.cascade_connector.list_relationships(path_or_id, asset_type)
