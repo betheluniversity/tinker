@@ -7,6 +7,7 @@ from flask import render_template
 # tinker
 from tinker import app
 from tinker.tinker_controller import TinkerController
+from bu_cascade.asset_tools import *
 
 BRM = [
         'CAS',
@@ -139,6 +140,7 @@ class EAnnouncementsController(TinkerController):
         # update asset
         self.update_asset(sdata, add_data)
         self.update_asset(e_announcement_data, add_data)
+        update(sdata, 'name', session['name'])
 
         # for some reason, title is not already set, so it must be set manually
         e_announcement_data['xhtmlDataDefinitionBlock']['metadata']['title'] = add_data['title']
