@@ -7,12 +7,13 @@ from BeautifulSoup import BeautifulSoup
 from flask import Blueprint, render_template, request, abort, session
 from flask_classy import FlaskView, route
 from flask_wtf import Form
-from tinker import *
-csrf = CsrfProtect(app)
 
 # tinker
 from tinker import app, db
 from tinker.admin.redirects.redirects_controller import RedirectsController
+from tinker import *
+from tinker.tinker_controller import requires_auth
+csrf = CsrfProtect(app)
 
 RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
 
@@ -96,6 +97,7 @@ class RedirectsView(FlaskView):
 
     # Deletes expired redirects on the day of its expiration date
     @csrf.exempt
+    @requires_auth
     @route('/public/expire', methods=['get'])
     def expire(self):
         self.base.expire_old_redirects()
@@ -104,6 +106,7 @@ class RedirectsView(FlaskView):
 
     # This creates redirects generically from a google script and the webmaster email box
     @csrf.exempt
+    @requires_auth
     @route('/public/api-submit', methods=['post'])  # ['get', 'post'])
     def new_api_submit(self):
         body = request.form['body']
@@ -129,6 +132,7 @@ class RedirectsView(FlaskView):
 
     # This creates a redirect for job postings from a google script and the webmaster email box
     @csrf.exempt
+    @requires_auth
     @route('/public/api-submit-asset-expiration', methods=['get', 'post'])
     def new_api_submit_asset_expiration(self):
         from_path = ''
@@ -160,6 +164,7 @@ class RedirectsView(FlaskView):
         return str(redirect)
 
     @csrf.exempt
+    @requires_auth
     @route('/public/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
     def new_internal_redirect_submit(self, from_path, to_url):
         if not from_path.startswith("/"):

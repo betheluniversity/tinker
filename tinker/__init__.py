@@ -114,3 +114,4 @@ from tinker_controller import TinkerController
 def before_request():
     base = TinkerController()
     base.before_request()
+
