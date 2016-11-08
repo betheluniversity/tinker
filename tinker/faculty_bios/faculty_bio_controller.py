@@ -102,6 +102,8 @@ class FacultyBioController(TinkerController):
 
     # if the department metadata is found return it, else return ''
     def check_web_author_groups(self, groups, program_elements):
+        # todo: this mapping should somehow be automatic with the program name changes! Currently, if a program
+        # name is changed in the metadata, the faculty bios won't be synced up with the cascade group
         mapping = {
             'Anthropology, Sociology, & Reconciliation':    'Anthropology Sociology',
             'Art & Design':                                 'Art',
