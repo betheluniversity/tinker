@@ -118,7 +118,7 @@ class FacultyBioController(TinkerController):
             'Honors':                                       'Honors',
             'Human Kinetics & Applied Health Science':      'Human Kinetics',
             'Math & Computer Science':                      'Math CS',
-            'Modern World Languages':                       'World Languages',
+            'World Languages and Cultures':                 'World Languages',
             'Music':                                        'Music',
             'Nursing':                                      'Nursing',
             'Philosophy':                                   'Philosophy',
