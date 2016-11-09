@@ -24,7 +24,7 @@ class EventsView(FlaskView):
     def index(self):
         user_forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
-            user_forms, other_forms = self.base.split_user_events(forms)
+            user_forms, other_forms = self.base.split_user_events(user_forms)
         return render_template('events-home.html', **locals())
 
     def confirm(self):
