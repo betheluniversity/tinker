@@ -124,7 +124,10 @@ class FacultyBiosView(FlaskView):
             pass
 
         # turn the image into the correct identifier
-        edit_data['image_url'] = edit_data['image']
+        try:
+            edit_data['image_url'] = edit_data['image']
+        except:
+            edit_data['image_url'] = ''
         edit_image = self.base.should_be_able_to_edit_image(roles)
 
         # Create an EventForm object with our data
