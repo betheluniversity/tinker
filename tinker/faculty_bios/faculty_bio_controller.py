@@ -10,8 +10,8 @@ from tinker.admin.sync.sync_metadata import data_to_add
 
 
 class FacultyBioController(TinkerController):
-    def __init__(self):
-        self.mapping = {
+    def get_mapping(self):
+        mapping = {
             'Anthropology, Sociology, & Reconciliation':    'Anthropology Sociology',
             'Art & Design':                                 'Art',
             'Biblical & Theological Studies':               'Biblical Theological',
@@ -38,6 +38,7 @@ class FacultyBioController(TinkerController):
             'Theatre Arts':                                 'Theatre',
             'Doctor of Ministry':                           'Doctor of Ministry'
         }
+        return mapping
 
     # todo: this is better, but it still needs a little work
     def inspect_child(self, child, find_all=False):
@@ -138,14 +139,14 @@ class FacultyBioController(TinkerController):
         for program_element in program_elements:
             for program in program_element:
                 try:
-                    if self.mapping[program.text] in groups:
+                    if self.get_mapping()[program.text] in groups:
                         return True
                 except:
                     continue
         return False
 
     def is_user_in_web_author_groups(self):
-        for key, value in self.mapping.iteritems():
+        for key, value in self.get_mapping().iteritems():
             try:
                 if value in session['groups']:
                     return True
