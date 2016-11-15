@@ -197,11 +197,13 @@
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/events/delete/" + $(this).data('event-id'));
         });
-        $('.datepicker').each(function (index) {
+        $('.datepicker').each(function () {
             var picker = new Pikaday({
                 field: this,
-                format: 'MMMM Do YYYY, h:mm a',
-                showTime: false
+                format: 'MM DD YYYY',
+                minDate: new Date('2000-01-01'),
+                maxDate: new Date('2040-12-31'),
+                yearRange: [2000, 2040]
             });
         });
         $(".search-events").click(function () {
