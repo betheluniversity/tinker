@@ -55,7 +55,7 @@ class FacultyBiosView(FlaskView):
             ]
         else:  # normal view
             show_special_admin_view = False
-            show_create = len(forms) == 0 or 'Tinker Faculty Bios - CAS' in session['groups'] or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] or 'Tinker Faculty Bios - SEM' in session['groups']
+            show_create = len(forms) == 0 or 'Tinker Faculty Bios - CAS' in session['groups'] or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] or 'Tinker Faculty Bios - SEM' in session['groups'] or self.base.is_user_in_web_author_groups()
 
         return render_template('faculty-bio-home.html', **locals())
 

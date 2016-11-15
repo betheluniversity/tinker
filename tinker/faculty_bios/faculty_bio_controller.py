@@ -10,6 +10,35 @@ from tinker.admin.sync.sync_metadata import data_to_add
 
 
 class FacultyBioController(TinkerController):
+    def __init__(self):
+        self.mapping = {
+            'Anthropology, Sociology, & Reconciliation':    'Anthropology Sociology',
+            'Art & Design':                                 'Art',
+            'Biblical & Theological Studies':               'Biblical Theological',
+            'Biological Sciences':                          'Biology',
+            'Business & Economics':                         'Business Economics',
+            'Chemistry':                                    'Chemistry',
+            'Communication Studies':                        'Communication',
+            'Education':                                    'Education',
+            'English':                                      'English',
+            'Environmental Studies':                        'Environmental Studies',
+            'General Education':                            'General Education',
+            'History':                                      'History',
+            'Honors':                                       'Honors',
+            'Human Kinetics & Applied Health Science':      'Human Kinetics',
+            'Math & Computer Science':                      'Math CS',
+            'World Languages and Cultures':                 'World Languages',
+            'Music':                                        'Music',
+            'Nursing':                                      'Nursing',
+            'Philosophy':                                   'Philosophy',
+            'Physics & Engineering':                        'Physics',
+            'Political Science':                            'Political Science',
+            'Psychology':                                   'Psychology',
+            'Social Work':                                  'Social Work',
+            'Theatre Arts':                                 'Theatre',
+            'Doctor of Ministry':                           'Doctor of Ministry'
+        }
+
     # todo: this is better, but it still needs a little work
     def inspect_child(self, child, find_all=False):
         try:
@@ -104,41 +133,25 @@ class FacultyBioController(TinkerController):
     def check_web_author_groups(self, groups, program_elements):
         # todo: this mapping should somehow be automatic with the program name changes! Currently, if a program
         # name is changed in the metadata, the faculty bios won't be synced up with the cascade group
-        mapping = {
-            'Anthropology, Sociology, & Reconciliation':    'Anthropology Sociology',
-            'Art & Design':                                 'Art',
-            'Biblical & Theological Studies':               'Biblical Theological',
-            'Biological Sciences':                          'Biology',
-            'Business & Economics':                         'Business Economics',
-            'Chemistry':                                    'Chemistry',
-            'Communication Studies':                        'Communication',
-            'Education':                                    'Education',
-            'English':                                      'English',
-            'Environmental Studies':                        'Environmental Studies',
-            'General Education':                            'General Education',
-            'History':                                      'History',
-            'Honors':                                       'Honors',
-            'Human Kinetics & Applied Health Science':      'Human Kinetics',
-            'Math & Computer Science':                      'Math CS',
-            'World Languages and Cultures':                 'World Languages',
-            'Music':                                        'Music',
-            'Nursing':                                      'Nursing',
-            'Philosophy':                                   'Philosophy',
-            'Physics & Engineering':                        'Physics',
-            'Political Science':                            'Political Science',
-            'Psychology':                                   'Psychology',
-            'Social Work':                                  'Social Work',
-            'Theatre Arts':                                 'Theatre',
-            'Doctor of Ministry':                           'Doctor of Ministry'
-        }
+
 
         for program_element in program_elements:
             for program in program_element:
                 try:
-                    if mapping[program.text] in groups:
+                    if self.mapping[program.text] in groups:
                         return True
                 except:
                     continue
+        return False
+
+    def is_user_in_web_author_groups(self):
+        for key, value in self.mapping.iteritems():
+            try:
+                if value in session['groups']:
+                    return True
+            except:
+                continue
+
         return False
 
     # todo: do what check_job_titles does
