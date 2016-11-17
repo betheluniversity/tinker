@@ -135,7 +135,6 @@ class FacultyBioController(TinkerController):
         # todo: this mapping should somehow be automatic with the program name changes! Currently, if a program
         # name is changed in the metadata, the faculty bios won't be synced up with the cascade group
 
-
         for program_element in program_elements:
             for program in program_element:
                 try:
