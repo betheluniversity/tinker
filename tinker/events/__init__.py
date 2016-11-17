@@ -161,8 +161,14 @@ class EventsView(FlaskView):
         start = data['start']
         end = data['end']
         username = session['username']
+        forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
+        matches = []
+        # for form in range(len(forms)):
+        #     if()
+
+
         #TODO Delete the below comments as the ideas are implemented
-        
+
 
         # if title !=null Search for events by title and return a dictionary of events
         # if start and end  !=null search for events by date and return dictionary of events
