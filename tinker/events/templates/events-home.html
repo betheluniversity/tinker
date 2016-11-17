@@ -209,9 +209,9 @@
         $(".search-events").click(function () {
             search_url = "{{ url_for('events.EventsView:search') }}";
             inputs = {
-                "title": $("#eTitle"),
-                "start": $("#startDate"),
-                "end": $("#endDate")
+                "title": $("#eTitle").val(),
+                "start": $("#startDate").val(),
+                "end": $("#endDate").val()
             };
             $.ajax({
                 type: "POST",

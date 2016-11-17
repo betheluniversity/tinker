@@ -162,6 +162,8 @@ class EventsView(FlaskView):
         end = data['end']
         username = session['username']
         #TODO Delete the below comments as the ideas are implemented
+        
+
         # if title !=null Search for events by title and return a dictionary of events
         # if start and end  !=null search for events by date and return dictionary of events
         # if title!=null and start and end !=null take both dictionaries and make a dictionary of the events
