@@ -95,6 +95,32 @@ class RedirectsView(FlaskView):
         resp = self.base.create_redirect_text_file()
         return resp
 
+    def marcel(self, key):
+        """ Load new redirects from a Marcel spreadhseet."""
+        import gspread
+        from oauth2client.service_account import ServiceAccountCredentials
+        from sqlite3 import IntegrityError
+        scope = ['https://spreadsheets.google.com/feeds']
+
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(app.config['GSPREAD_CONFIG'], scope)
+        gc = gspread.authorize(credentials)
+        worksheet = gc.open_by_key(key).worksheet("redirects")
+
+        for i, row in enumerate(worksheet.get_all_values()):
+            if i > 0:
+                from_url = row[0].split("bethel.edu")[1]
+                to_url = row[1]
+
+                try:
+                    self.base.add_row_to_db(from_url, to_url, None, None)
+                    done_cell = "C%s" % str(i + 1)
+                    worksheet.update_acell(done_cell, 'x')
+                except:
+                    # redirect already exists
+                    pass
+
+        return "done"
+
     # Deletes expired redirects on the day of its expiration date
     @csrf.exempt
     @requires_auth
