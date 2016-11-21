@@ -118,7 +118,7 @@ class RedirectsView(FlaskView):
                 except:
                     # redirect already exists
                     pass
-
+        self.compile()
         return "done"
 
     # Deletes expired redirects on the day of its expiration date
