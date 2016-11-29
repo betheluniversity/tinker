@@ -163,17 +163,19 @@ class EventsView(FlaskView):
         username = session['username']
         forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         matches = []
-        # for form in range(len(forms)):
-        #     if()
+        for form in range(len(forms)):
+            if(len(title) > 0 and len(end) > 0 and len(start) > 0):
+                if form['title'] == title and form['end'] == end and form['start'] == start:
+                    matches.append(form)
+            elif(len(title) > 0):
+                if form['title'] == title:
+                    matches.append(form)
+            elif(len(end) > 0 and len(start) > 0):
+                if form['end'] == end and form['start'] == start:
+                    matches.append(form)
+        return 'success'
+        #TODO Get this working with the html so it displays the results
 
-
-        #TODO Delete the below comments as the ideas are implemented
-
-
-        # if title !=null Search for events by title and return a dictionary of events
-        # if start and end  !=null search for events by date and return dictionary of events
-        # if title!=null and start and end !=null take both dictionaries and make a dictionary of the events
-        # that happen in both. return the dictionary created by finding the intersection of the two dictionaries
 
 
 
