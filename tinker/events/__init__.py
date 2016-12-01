@@ -163,7 +163,10 @@ class EventsView(FlaskView):
         username = session['username']
         forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         matches = []
-        for form in range(len(forms)):
+        UserMatches = []
+        for form in forms:
+            if(form['author'] == username):
+                UserMatches.append(form)
             if(len(title) > 0 and len(end) > 0 and len(start) > 0):
                 if form['title'] == title and form['end'] == end and form['start'] == start:
                     matches.append(form)
@@ -173,6 +176,7 @@ class EventsView(FlaskView):
             elif(len(end) > 0 and len(start) > 0):
                 if form['end'] == end and form['start'] == start:
                     matches.append(form)
+                    #Do booleans for title, end, and start. Make an altogether versus 3 case check
         return 'success'
         #TODO Get this working with the html so it displays the results
 

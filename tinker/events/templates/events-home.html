@@ -95,20 +95,9 @@
                                 <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
                             </div>
                         </label>
-                        {#                        The section below does the non-submit changes#}
-                        <script type="text/javascript">
-                            $("#school-selector").change(function () {
-                                $('.school-bios').hide();
-                                var array_of_values = $("#school-selector").val();
-                                for (i = 0; i < array_of_values.length; i++) {
-                                    $('.' + array_of_values[i]).show();
-                                }
-                            });
-                        </script>
                     </div>
                     <hr/>
-                    {#                                         The lines below display the events that will be produced by the search when "search" is clicked #}
-                    {#                                        show all bios #}
+                    {# The lines below display the events that will be produced by the search when "search" is clicked #}
                     {% for schools in all_schools %}
                         {% for class_name, school_name in schools.items() %}
                             <div class="{{ class_name }} events">
@@ -136,22 +125,22 @@
                     {% endfor %}
 
 
-                    <!-- other forms -->
-                    {% if other_forms %}
-                        <br/>
-                        <hr/>
-                        {% if 'Event Approver' in session['groups'] %}
-                            <h2>Event Approver</h2>
-                        {% elif 'Tinker Events - CAS' in session['groups'] %}
-                            <h2>Undergrad Events</h2>
-                        {% else %}
-                            <h2>Other Events</h2>
-                        {% endif %}
-                        <hr/>
-                        {% for form in other_forms %}
-                            {{ form_card(form) }}
-                        {% endfor %}
-                    {% endif %}
+{#                    <!-- other forms -->#}
+{#                    {% if other_forms %}#}
+{#                        <br/>#}
+{#                        <hr/>#}
+{#                        {% if 'Event Approver' in session['groups'] %}#}
+{#                            <h2>Event Approver</h2>#}
+{#                        {% elif 'Tinker Events - CAS' in session['groups'] %}#}
+{#                            <h2>Undergrad Events</h2>#}
+{#                        {% else %}#}
+{#                            <h2>Other Events</h2>#}
+{#                        {% endif %}#}
+{#                        <hr/>#}
+{#                        {% for form in other_forms %}#}
+{#                            {{ form_card(form) }}#}
+{#                        {% endfor %}#}
+{#                    {% endif %}#}
                 </div>
 
                 <br/>
@@ -196,6 +185,13 @@
         activateCSRF(csrftoken);
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/events/delete/" + $(this).data('event-id'));
+        });
+        $("#school-selector").change(function () {
+            $('.school-bios').hide();
+            var array_of_values = $("#school-selector").val();
+            for (i = 0; i < array_of_values.length; i++) {
+                $('.' + array_of_values[i]).show();
+            }
         });
         $('.datepicker').each(function () {
             var picker = new Pikaday({
