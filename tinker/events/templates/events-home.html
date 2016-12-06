@@ -98,22 +98,22 @@
                     </div>
                     <hr/>
                     {# The lines below display the events that will be produced by the search when "search" is clicked #}
-                    {% for schools in all_schools %}
-                        {% for class_name, school_name in schools.items() %}
-                            <div class="{{ class_name }} events">
-                                <h3>{{ school_name }}</h3>
-                                <div>
-                                    {% for bio in forms %}
-                                        {% if school_name in event.schools %}
-                                            {{ display_event(event) }}
-                                        {% elif 'Bethel University' in event.schools and class_name == 'bu' %}
-                                            {{ display_event(event) }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% endfor %}
+{#                    {% for schools in all_schools %}#}
+{#                        {% for class_name, school_name in schools.items() %}#}
+{#                            <div class="{{ class_name }} events">#}
+{#                                <h3>{{ school_name }}</h3>#}
+{#                                <div>#}
+{#                                    {% for bio in forms %}#}
+{#                                        {% if school_name in event.schools %}#}
+{#                                            {{ display_event(event) }}#}
+{#                                        {% elif 'Bethel University' in event.schools and class_name == 'bu' %}#}
+{#                                            {{ display_event(event) }}#}
+{#                                        {% endif %}#}
+{#                                    {% endfor %}#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        {% endfor %}#}
+{#                    {% endfor %}#}
                     {% if user_forms %}
                         <hr/>
                         <h2>Your Events</h2>

@@ -1,5 +1,6 @@
 import json
 import time
+import datetime
 from flask_classy import FlaskView, route
 from tinker.events.events_controller import EventsController
 from bu_cascade.asset_tools import update
@@ -158,25 +159,35 @@ class EventsView(FlaskView):
     def search(self):
         data = json.loads(request.data)
         title = data['title']
-        start = data['start']
-        end = data['end']
+        start = datetime.datetime.strptime(data['start'],"%Y-%m-%d") #start and end are datetime objects recieved from the input fields
+        end = datetime.datetime.strptime(data['end'],"%Y-%m-%d")
         username = session['username']
         forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
-        matches = []
-        UserMatches = []
+        matches = [] #The array that holds the matches from the search
+        UserMatches = [] #The array that holds the users events
+        if not title:
+            hasTitle = False #If no title false
+        else:
+            hasTitle = True #Otherwise assign title
+        if not start and not end:
+            hasDates = False #If the user did not use a start or end date
+        else:
+            hasDates = True #If the user used a date range
+
         for form in forms:
-            if(form['author'] == username):
+            fend = datetime.strptime(form['end'],"%Y-%m-%d") #Ending time from the form
+            fstart = datetime.strptime(form['start'],"%Y-%m-%d") #Starting time from the form
+            if(form['author'] == username): #See if the event is from the user
                 UserMatches.append(form)
-            if(len(title) > 0 and len(end) > 0 and len(start) > 0):
-                if form['title'] == title and form['end'] == end and form['start'] == start:
+            if(hasTitle and hasDates): #Full search
+                if form['title'] == title and fend <= end and fstart >= start:
                     matches.append(form)
-            elif(len(title) > 0):
+            elif(hasTitle): #Title search
                 if form['title'] == title:
                     matches.append(form)
-            elif(len(end) > 0 and len(start) > 0):
-                if form['end'] == end and form['start'] == start:
+            elif(hasDates): #Date range search
+                if fend <= end and fstart >= start:
                     matches.append(form)
-                    #Do booleans for title, end, and start. Make an altogether versus 3 case check
         return 'success'
         #TODO Get this working with the html so it displays the results
 
