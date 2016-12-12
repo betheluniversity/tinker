@@ -75,10 +75,11 @@ class EAnnouncementsController(TinkerController):
             second_date_past = second_date_object < datetime.datetime.now()
 
         roles = []
-        values = child.find('dynamic-metadata')
-        for value in values:
-            if value.tag == 'value':
-                roles.append(value.text)
+        elements = child.findall('.//dynamic-metadata')
+        for element in elements:
+            for value in element:
+                if value.tag == 'value':
+                    roles.append(value.text)
 
         try:
             workflow_status = child.find('workflow').find('status').text
