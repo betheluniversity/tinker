@@ -187,16 +187,17 @@ class EAnnouncementsView(FlaskView):
                     continue
 
                 # add announcement
-                submitted_announcements.append({
-                    "Layout":
-                        "announcements",
-                    "Multilines": [
-                        {
-                            "Content": self.base_campaign.create_single_announcement(announcement)
-                        }
-                    ]
-                }
-                )
+                announcement_text = self.base_campaign.create_single_announcement(announcement)
+                if announcement_text != '':
+                    submitted_announcements.append({
+                        "Layout":
+                            "announcements",
+                        "Multilines": [
+                            {
+                                "Content": announcement_text
+                            }
+                        ]
+                    })
 
                 # create a list of all roles that are currently receiving E-Announcements
                 for role in announcement['roles']:
