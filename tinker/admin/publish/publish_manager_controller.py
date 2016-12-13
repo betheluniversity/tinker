@@ -47,13 +47,3 @@ class PublishManagerController(TinkerController):
         response = self.search_cascade(search_information)
 
         return response
-
-    def list_relationships(self, id, type="page"):
-        identifier = {
-            'id': id,
-            'type': type,
-        }
-
-        response = self.list_relationships(identifier)
-
-        return response

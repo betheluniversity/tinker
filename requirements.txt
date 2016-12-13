@@ -25,3 +25,6 @@ bu-cascade
 blinker
 discover
 importlib
+gspread
+oauth2client
+PyOpenSSL

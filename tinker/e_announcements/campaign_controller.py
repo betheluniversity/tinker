@@ -25,7 +25,7 @@ class CampaignController(TinkerController):
                 return_value += self.e_announcement_html(announcement)
                 count = count + 1
 
-        return_value += '[endif]'
+            return_value += '[endif]'
 
         return return_value
 

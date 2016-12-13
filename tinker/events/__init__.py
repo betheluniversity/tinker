@@ -24,7 +24,7 @@ class EventsView(FlaskView):
     def index(self):
         user_forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
-            user_forms, other_forms = self.base.split_user_events(forms)
+            user_forms, other_forms = self.base.split_user_events(user_forms)
         return render_template('events-home.html', **locals())
 
     def confirm(self):
@@ -128,6 +128,7 @@ class EventsView(FlaskView):
 
     # This endpoint is being re-added so that unit tests will be self-deleting. This endpoint is publicly visible, but
     # it is not referenced anywhere on any page, so the public shouldn't know of its existence.
+    # Todo: this should require auth! otherwise, anyone could delete any event
     @route("/delete/<event_id>", methods=['GET'])
     def delete(self, event_id):
         event_page = self.base.read_page(event_id)

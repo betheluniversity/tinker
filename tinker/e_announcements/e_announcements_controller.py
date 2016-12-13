@@ -7,6 +7,7 @@ from flask import render_template
 # tinker
 from tinker import app
 from tinker.tinker_controller import TinkerController
+from bu_cascade.asset_tools import *
 
 BRM = [
         'CAS',
@@ -74,10 +75,11 @@ class EAnnouncementsController(TinkerController):
             second_date_past = second_date_object < datetime.datetime.now()
 
         roles = []
-        values = child.find('dynamic-metadata')
-        for value in values:
-            if value.tag == 'value':
-                roles.append(value.text)
+        elements = child.findall('.//dynamic-metadata')
+        for element in elements:
+            for value in element:
+                if value.tag == 'value':
+                    roles.append(value.text)
 
         try:
             workflow_status = child.find('workflow').find('status').text
@@ -139,11 +141,13 @@ class EAnnouncementsController(TinkerController):
         # update asset
         self.update_asset(sdata, add_data)
         self.update_asset(e_announcement_data, add_data)
+        update(sdata, 'name', session['name'])
 
         # for some reason, title is not already set, so it must be set manually
         e_announcement_data['xhtmlDataDefinitionBlock']['metadata']['title'] = add_data['title']
 
-        # once all editing is done, move it if it needs to be moved
+        # once all editing is done, move the asset is an edit. We do this in order to ensure the path and name are correct everytime.
+        # We decided to leave this as a move instead of adding checks to see if it does or does not move.
         if e_announcement_id:
             self.move(e_announcement_id, add_data['parentFolderPath'], type='block')
 

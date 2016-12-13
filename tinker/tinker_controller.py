@@ -183,13 +183,13 @@ class TinkerController(object):
             html = render_template('nav.html', **locals())
             session['top_nav'] = html
 
-        # if '/public/' not in request.path and '/api/' not in request.path:
-        init_user()
-        get_nav()
-        # else:
-        #     session['username'] = ''
-        #     session['groups'] = []
-        #     session['roles'] = []
+        if '/public/' not in request.path and '/api/' not in request.path:
+            init_user()
+            get_nav()
+        else:
+            session['username'] = 'tinker'
+            session['groups'] = []
+            session['roles'] = []
 
     def log_sentry(self, message, response):
 
@@ -588,3 +588,6 @@ class TinkerController(object):
 
     def edit_all_callback(self, asset_data):
         pass
+
+    def list_relationships(self, path_or_id, asset_type):
+        return self.cascade_connector.list_relationships(path_or_id, asset_type)

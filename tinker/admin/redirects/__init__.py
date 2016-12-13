@@ -7,12 +7,13 @@ from BeautifulSoup import BeautifulSoup
 from flask import Blueprint, render_template, request, abort, session
 from flask_classy import FlaskView, route
 from flask_wtf import Form
-from tinker import *
-csrf = CsrfProtect(app)
 
 # tinker
 from tinker import app, db
 from tinker.admin.redirects.redirects_controller import RedirectsController
+from tinker import *
+from tinker.tinker_controller import requires_auth
+csrf = CsrfProtect(app)
 
 RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
 
@@ -94,8 +95,35 @@ class RedirectsView(FlaskView):
         resp = self.base.create_redirect_text_file()
         return resp
 
+    def marcel(self, key):
+        """ Load new redirects from a Marcel spreadhseet."""
+        import gspread
+        from oauth2client.service_account import ServiceAccountCredentials
+        from sqlite3 import IntegrityError
+        scope = ['https://spreadsheets.google.com/feeds']
+
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(app.config['GSPREAD_CONFIG'], scope)
+        gc = gspread.authorize(credentials)
+        worksheet = gc.open_by_key(key).worksheet("redirects")
+
+        for i, row in enumerate(worksheet.get_all_values()):
+            if i > 0:
+                from_url = row[0].split("bethel.edu")[1]
+                to_url = row[1]
+
+                try:
+                    self.base.add_row_to_db(from_url, to_url, None, None)
+                    done_cell = "C%s" % str(i + 1)
+                    worksheet.update_acell(done_cell, 'x')
+                except:
+                    # redirect already exists
+                    pass
+        self.compile()
+        return "done"
+
     # Deletes expired redirects on the day of its expiration date
     @csrf.exempt
+    @requires_auth
     @route('/public/expire', methods=['get'])
     def expire(self):
         self.base.expire_old_redirects()
@@ -104,6 +132,7 @@ class RedirectsView(FlaskView):
 
     # This creates redirects generically from a google script and the webmaster email box
     @csrf.exempt
+    @requires_auth
     @route('/public/api-submit', methods=['post'])  # ['get', 'post'])
     def new_api_submit(self):
         body = request.form['body']
@@ -129,6 +158,7 @@ class RedirectsView(FlaskView):
 
     # This creates a redirect for job postings from a google script and the webmaster email box
     @csrf.exempt
+    @requires_auth
     @route('/public/api-submit-asset-expiration', methods=['get', 'post'])
     def new_api_submit_asset_expiration(self):
         from_path = ''
@@ -160,6 +190,7 @@ class RedirectsView(FlaskView):
         return str(redirect)
 
     @csrf.exempt
+    @requires_auth
     @route('/public/new-internal-submit/<from_path>/<to_url>', methods=['post', 'get'])
     def new_internal_redirect_submit(self, from_path, to_url):
         if not from_path.startswith("/"):
