@@ -56,15 +56,20 @@ class BaseTestCase(unittest.TestCase):
 
     def send_get(self, url, basic_auth=False):
         if basic_auth:
-            to_base64 = tinker.app.config['API_USERNAME'] + ":" + tinker.app.config['API_PASSWORD']
+            to_base64 = tinker.app.config['CASCADE_LOGIN']['username'] + ":" + tinker.app.config['CASCADE_LOGIN']['password']
             auth_string = "Basic " + base64.b64encode(to_base64)
-            print auth_string
             return self.app.get(url, follow_redirects=True, headers={"Authorization": auth_string})
         else:
             return self.app.get(url, follow_redirects=True)
 
-    def send_post(self, url, form_contents):
-        return self.app.post(url, data=form_contents, follow_redirects=True)
+    def send_post(self, url, form_contents, basic_auth=False):
+        if basic_auth:
+            to_base64 = tinker.app.config['CASCADE_LOGIN']['username'] + ":" + tinker.app.config['CASCADE_LOGIN'][
+                'password']
+            auth_string = "Basic " + base64.b64encode(to_base64)
+            return self.app.post(url, data=form_contents, follow_redirects=True, headers={"Authorization": auth_string})
+        else:
+            return self.app.post(url, data=form_contents, follow_redirects=True)
 
     def generate_failure_message(self, type, request, response_data, expected_response, class_name, line_number):
         return '"%(0)s %(1)s" received "%(2)s" when it was expecting "%(3)s" in %(4)s on line %(5)s.' % \
