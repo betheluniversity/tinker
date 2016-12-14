@@ -317,15 +317,13 @@
                         }
                         //Convert to correct value
                         id = i + 1;
-
                         //If this is not the first node, create it before we can populate it and insert after the last one.
-                        //show the remove buton
+                        //show the remove button
                         if (i != 0) {
                             var last = $(".date-fieldset").last();
                             var new_date = newFieldset(id);
                             new_date.insertAfter(last);
                             addHandler(id);
-                            {#                            $("#remove_date_button").show();#}
                         }
                         //Now populate the fieldset
                         var allday = date['all_day'];

@@ -150,10 +150,6 @@ class EventsController(TinkerController):
             author = rform["author"]
             num_dates = int(rform['num_dates'])
 
-            add_data = self.get_add_data([], rform, [])
-            add_data['event-dates'] = self.get_dates(add_data)
-            dates = self.sanitize_dates(self.get_dates(add_data['event-dates']))
-            dates = fjson.dumps(event_dates)
             return render_template('event-form.html', **locals())
 
     def build_edit_form(self, event_id):
