@@ -25,5 +25,6 @@ class PublishPublishTestCase(BaseTestCase):
         publishing = b'Publishing. . .' in response.data
         already_exists = b'This asset already exists in the publish queue' in response.data
         expected_response = "'Publishing. . .' or 'This asset already exists in the publish queue'"
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertTrue(publishing or already_exists, msg=failure_message)

@@ -33,7 +33,8 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         self.request = self.generate_url("new")
         expected_response = b'<form id="eannouncementform" action="/e-announcements/submit"'
         response = self.send_get(self.request)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Submit the new form to create a new object
@@ -41,7 +42,8 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         self.request = self.generate_url("submit")
         expected_response = b"You've successfully created your E-Announcement. Once your E-Announcement has been approved,"
         response = self.send_post(self.request, self.create_form("First title"))
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
         self.eaid = self.get_eaid(response.data)
 
@@ -54,7 +56,8 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         self.request = self.generate_url("edit", e_announcement_id=self.eaid)
         expected_response = b'<input type="hidden" name="e_announcement_id" id="e_announcement_id"'
         response = self.send_get(self.request)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertNotIn(expected_response, response.data, msg=failure_message)
 
         # Edit that new object
@@ -62,7 +65,8 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         self.request = self.generate_url("submit")
         expected_response = b"You've successfully edited your E-Announcement. Once your E-Announcement has been approved,"
         response = self.send_post(self.request, self.create_form("Second title", eaid=self.eaid))
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
 
         # Call the duplicate form to make sure it works
@@ -70,12 +74,14 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         self.request = self.generate_url("duplicate", e_announcement_id=self.eaid)
         expected_response = b'<form id="eannouncementform" action="/e-announcements/submit"'
         response = self.send_get(self.request)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertNotIn(expected_response, response.data, msg=failure_message)
 
         # Delete the new object
         self.request = self.generate_url("delete", e_announcement_id=self.eaid)
         expected_response = b'Your E-Announcements has been deleted. It will be removed from your'
         response = self.send_get(self.request)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)

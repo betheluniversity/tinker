@@ -15,7 +15,6 @@ class RedirectsBaseTestCase(BaseTestCase, FixturesMixin):
     tinker_app.config['SQLALCHEMY_DATABASE_URI'] = base_uri + "testing_db.db"
     tinker_app.config['WTF_CSRF_ENABLED'] = False
     tinker_app.config['WTF_CSRF_METHODS'] = []
-    app = tinker_app
     db = SQLAlchemy(tinker_app)
 
     # This method is designed to set up a temporary database, such that the tests won't affect the real database

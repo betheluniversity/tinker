@@ -30,7 +30,8 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
         expected_response = b'<label for="key" style="color: #252422">Concentration Code or Program Name:</label>'
         form_contents = self.create_form("x", "z", "False", "False", "False")
         response = self.send_post(self.request, form_contents)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_submit_invalid_key(self):
@@ -38,7 +39,8 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
         form_contents = self.create_form(None, "z", "False", "False", "False")
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name)
+                                                        expected_response, self.class_name, self.get_line_number())
+
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_submit_invalid_tag(self):
@@ -46,7 +48,7 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
         form_contents = self.create_form("x", None, "False", "False", "False")
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name)
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_submit_invalid_outcome(self):
@@ -54,7 +56,7 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
         form_contents = self.create_form("x", "z", None, "False", "False")
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name)
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_submit_invalid_topic(self):
@@ -62,7 +64,7 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
         form_contents = self.create_form("x", "z", "False", None, "False")
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name)
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_submit_invalid_other(self):
@@ -70,5 +72,5 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
         form_contents = self.create_form("x", "z", "False", "False", None)
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name)
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
