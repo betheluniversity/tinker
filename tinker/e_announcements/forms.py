@@ -141,8 +141,8 @@ class EAnnouncementsForm(Form):
 
     message = CKEditorTextAreaField('Message', validators=[validators.DataRequired()])
     info = InfoField("Date Info")
-    name = HiddenField('Name')
-    email = HiddenField('Email')
+    name = HiddenField('Name', validators=[validators.DataRequired()])
+    email = HiddenField('Email', validators=[validators.DataRequired()])
     first_date = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
     second_date = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y",
                        validators=[validators.Optional()])
