@@ -65,7 +65,7 @@ class EventsView(FlaskView):
         return render_template('event-form.html', **locals())
 
     @route("/submit", methods=['post'])
-    def submit(self, edit=False):
+    def submit(self):
         rform = request.form
         username = session['username']
         eid = rform.get('event_id')
