@@ -1,10 +1,7 @@
 import re
 import smtplib
 import time
-<<<<<<< HEAD
 import requests
-=======
->>>>>>> origin/master
 from datetime import datetime
 from BeautifulSoup import BeautifulSoup
 
