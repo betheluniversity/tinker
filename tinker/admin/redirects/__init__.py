@@ -1,7 +1,10 @@
 import re
 import smtplib
 import time
+<<<<<<< HEAD
 import requests
+=======
+>>>>>>> origin/master
 from datetime import datetime
 from BeautifulSoup import BeautifulSoup
 
@@ -124,7 +127,7 @@ class RedirectsView(FlaskView):
             worksheet.update_acell(done_cell, 'x')
             time.sleep(1)
             print(i)
-        self.compile()
+
         return "done"
 
     def marcel_check(self, key):
