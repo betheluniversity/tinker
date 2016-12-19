@@ -1,5 +1,6 @@
 import re
 import smtplib
+import time
 from datetime import datetime
 from BeautifulSoup import BeautifulSoup
 
@@ -118,6 +119,7 @@ class RedirectsView(FlaskView):
                 except:
                     # redirect already exists
                     pass
+            time.sleep(5)
         self.compile()
         return "done"
 
