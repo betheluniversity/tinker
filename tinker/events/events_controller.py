@@ -77,10 +77,15 @@ class EventsController(TinkerController):
 
         dates = child.find('system-data-structure').findall('event-dates')
         dates_str = []
+        unconverted_dates_list = {}
         for date in dates:
             try:
                 start = int(date.find('start-date').text) / 1000
                 end = int(date.find('end-date').text) / 1000
+                unconverted_dates_list.append({
+                    'start': start,
+                    'end': end
+                })
             except TypeError:
                 continue
             dates_str.append(self.friendly_date_range(start, end))
@@ -93,6 +98,7 @@ class EventsController(TinkerController):
             'path': 'https://www.bethel.edu' + child.find('path').text or None,
             'is_published': is_published,
             'event-dates': "<br/>".join(dates_str),
+            'unconverted-dates-dict': unconverted_dates_list
         }
         # This is a match, add it to array
 

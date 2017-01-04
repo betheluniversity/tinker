@@ -159,8 +159,12 @@ class EventsView(FlaskView):
     def search(self):
         data = json.loads(request.data)
         title = data['title']
-        start = datetime.datetime.strptime(data['start'],"%Y-%m-%d") #start and end are datetime objects recieved from the input fields
-        end = datetime.datetime.strptime(data['end'],"%Y-%m-%d")
+        try:
+            start = datetime.datetime.strptime(data['start'],"%a %b %d %Y") #start and end are datetime objects recieved from the input fields
+            end = datetime.datetime.strptime(data['end'],"%a %b %d %Y")
+        except:
+            start = 0
+            end = 0
         username = session['username']
         forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         matches = [] #The array that holds the matches from the search
@@ -169,27 +173,38 @@ class EventsView(FlaskView):
             hasTitle = False #If no title false
         else:
             hasTitle = True #Otherwise assign title
-        if not start and not end:
+        if not start or not end:
             hasDates = False #If the user did not use a start or end date
         else:
             hasDates = True #If the user used a date range
 
         for form in forms:
-            fend = datetime.strptime(form['end'],"%Y-%m-%d") #Ending time from the form
-            fstart = datetime.strptime(form['start'],"%Y-%m-%d") #Starting time from the form
-            if(form['author'] == username): #See if the event is from the user
+            if not form['event-dates']:
+                checkDates = False
+            else:
+                checkDates = True
+            if hasDates and checkDates:
+                try:
+                    estart, eend = form['event-dates'].split(" - ")
+                    fstart = datetime.datetime.strptime(estart, "%b %d, %Y %I:%M %p") #Starting time from the form
+                    fend = datetime.datetime.strptime(eend, "%b %d, %Y %I:%M %p")  # Ending time from the form
+                except:
+                    checkDates = False
+                    continue
+            if form['author'] == username: #See if the event is from the user
                 UserMatches.append(form)
-            if(hasTitle and hasDates): #Full search
+            if hasTitle and hasDates and checkDates: #Full search
                 if form['title'] == title and fend <= end and fstart >= start:
                     matches.append(form)
-            elif(hasTitle): #Title search
+            elif hasTitle: #Title search
                 if form['title'] == title:
                     matches.append(form)
-            elif(hasDates): #Date range search
+            elif hasDates and checkDates: #Date range search
                 if fend <= end and fstart >= start:
                     matches.append(form)
         return 'success'
         #TODO Get this working with the html so it displays the results
+        # Look at the faculty-bio-home.html along with the fac-bio init and controller
 
 
 

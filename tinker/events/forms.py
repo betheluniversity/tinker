@@ -24,13 +24,15 @@ def get_md(metadata_path):
     md = tinker.read(metadata_path, 'metadataset')
     return md['asset']['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
 
-
 def get_event_choices():
     data = get_md("/Event")
 
     md = {}
     for item in data:
-        md[item['name']] = item['possibleValues']['possibleValue']
+        try:
+            md[item['name']] = item['possibleValues']['possibleValue']
+        except:
+            continue
 
     general = []
     for item in md['general']:
