@@ -1,5 +1,7 @@
 import re
 import smtplib
+import time
+import requests
 from datetime import datetime
 from BeautifulSoup import BeautifulSoup
 
@@ -113,14 +115,38 @@ class RedirectsView(FlaskView):
 
                 try:
                     self.base.add_row_to_db(from_url, to_url, None, None)
-                    done_cell = "C%s" % str(i + 1)
-                    worksheet.update_acell(done_cell, 'x')
-                except:
+                except Exception as e:
                     # redirect already exists
-                    pass
-        self.compile()
+                    self.base.rollback()
+                    print e
+                    continue
+            done_cell = "C%s" % str(i + 1)
+            worksheet.update_acell(done_cell, 'x')
+            time.sleep(1)
+            print(i)
+
         return "done"
 
+    def marcel_check(self, key):
+        import gspread
+        from oauth2client.service_account import ServiceAccountCredentials
+        from sqlite3 import IntegrityError
+        scope = ['https://spreadsheets.google.com/feeds']
+
+        credentials = ServiceAccountCredentials.from_json_keyfile_name(app.config['GSPREAD_CONFIG'], scope)
+        gc = gspread.authorize(credentials)
+        worksheet = gc.open_by_key(key).worksheet("redirects")
+
+        bad = 0
+        for i, row in enumerate(worksheet.get_all_values()):
+            if i > 0:
+                from_url = row[0].split("bethel.edu")[1]
+                from_url = 'https://www.bethel.edu%s' % from_url
+                r = requests.get(from_url, allow_redirects=False)
+                if r.status_code != 301:
+                    print "found bad line (%s): %s" % (i, from_url)
+                    bad += 1
+        return "done. Found %s bad lines" % bad
     # Deletes expired redirects on the day of its expiration date
     @csrf.exempt
     @requires_auth

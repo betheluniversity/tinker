@@ -50,6 +50,14 @@ class CampaignController(TinkerController):
 
         # Check if date is between 12/24 and 1/1
         dates_to_ignore = ['12/24', '12/25', '12/26', '12/27', '12/28', '12/29', '12/30', '12/31', '1/1']
+
+        # Todo: Oops. idk where my code went for ignoring the dates. This will need to be rewritten to ignore all
+        # holidays. For now, this will keep it safe until I get back -- caleb
+        # Todo: also, e-annz with 0 announcements doesn't work due to no beginning 'if' statements.
+        dates_to_ignore.append('12/23')
+        dates_to_ignore.append('1/2')
+        dates_to_ignore.append('1/16')
+
         current_month_day = str(date.month) + '/' + str(date.day)
         if current_month_day in dates_to_ignore:
             return False
