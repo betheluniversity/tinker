@@ -270,13 +270,8 @@ class TinkerController(object):
         if 'metaDescription' in mdata:
             edit_data['metaDescription'] = mdata['metaDescription']
 
-        # get the (first) author
-        authors = find(mdata, 'author', False)
-        try:
-            authors = authors.split(", ")
-            edit_data['author'] = authors[0]
-        except AttributeError:
-            edit_data['author'] = ''
+        # get the authors
+        edit_data['author'] = find(mdata, 'author', False)
 
         return edit_data
 

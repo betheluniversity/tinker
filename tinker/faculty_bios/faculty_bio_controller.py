@@ -44,6 +44,7 @@ class FacultyBioController(TinkerController):
     def inspect_child(self, child, find_all=False):
         try:
             author = child.find('author').text
+            author = author.replace(' ', '').split(',')
         except AttributeError:
             author = None
 

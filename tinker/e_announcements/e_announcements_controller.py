@@ -46,11 +46,12 @@ class EAnnouncementsController(TinkerController):
 
         try:
             author = child.find('author').text
+            author = author.replace(' ', '').split(',')
         except AttributeError:
             author = None
         username = session['username']
 
-        if (author is not None and username == author) or 'E-Announcement Approver' in session['groups']:
+        if (author is not None and username in author) or 'E-Announcement Approver' in session['groups']:
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
