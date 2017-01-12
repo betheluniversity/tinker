@@ -1,6 +1,7 @@
 import json
 import time
 import datetime
+from flask import Response
 from flask_classy import FlaskView, route
 from tinker.events.events_controller import EventsController
 from bu_cascade.asset_tools import update
@@ -42,7 +43,9 @@ class EventsView(FlaskView):
             all_schools = [
                 {'user-events': 'User Events'}
             ]
-        return render_template('events-home.html', **locals())
+
+        return render_template('events-home.html', show_create=show_create, all_schools=all_schools, dumVar=None,
+                               UserMatches=None, matches=None)
 
     def confirm(self):
         return render_template('submit-confirm.html', **locals())
@@ -157,56 +160,32 @@ class EventsView(FlaskView):
     #This is the search for events to pare down what is being shown
     @route("/search", methods=['POST'])
     def search(self):
+        # Start by declaring the variables from the index so that they can be passed into render_template
+        show_create = True
+        all_schools = [
+            {'user-events': 'User Events'},
+            {'cas': 'College of Arts and Sciences'}
+            # The below can be uncommented as they are built out
+            # {'caps': 'College of Adult and Professional Studies'},
+            # {'gs': 'Graduate School'},
+            # {'sem': 'Bethel Seminary'},
+            # {'bu': 'Administration with Faculty Status'},
+            # {'other-category': 'Other'}
+        ]
+        # Load the data, get the event type selection and title of the event the user is searching for
         data = json.loads(request.data)
+        selection = data['selection']
         title = data['title']
         try:
+            # Try converting the start and end datTimes to seconds representation
             start = datetime.datetime.strptime(data['start'],"%a %b %d %Y") #start and end are datetime objects recieved from the input fields
             end = datetime.datetime.strptime(data['end'],"%a %b %d %Y")
         except:
+            # Set start and end to be falsey so that hasDates is set to false
             start = 0
             end = 0
-        username = session['username']
-        forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
-        matches = [] #The array that holds the matches from the search
-        UserMatches = [] #The array that holds the users events
-        if not title:
-            hasTitle = False #If no title false
-        else:
-            hasTitle = True #Otherwise assign title
-        if not start or not end:
-            hasDates = False #If the user did not use a start or end date
-        else:
-            hasDates = True #If the user used a date range
-
-        for form in forms:
-            if not form['event-dates']:
-                checkDates = False
-            else:
-                checkDates = True
-            if hasDates and checkDates:
-                try:
-                    estart, eend = form['event-dates'].split(" - ")
-                    fstart = datetime.datetime.strptime(estart, "%b %d, %Y %I:%M %p") #Starting time from the form
-                    fend = datetime.datetime.strptime(eend, "%b %d, %Y %I:%M %p")  # Ending time from the form
-                except:
-                    checkDates = False
-                    continue
-            if form['author'] == username: #See if the event is from the user
-                UserMatches.append(form)
-            if hasTitle and hasDates and checkDates: #Full search
-                if form['title'] == title and fend <= end and fstart >= start:
-                    matches.append(form)
-            elif hasTitle: #Title search
-                if form['title'] == title:
-                    matches.append(form)
-            elif hasDates and checkDates: #Date range search
-                if fend <= end and fstart >= start:
-                    matches.append(form)
-        return 'success'
-        #TODO Get this working with the html so it displays the results
-        # Look at the faculty-bio-home.html along with the fac-bio init and controller
-
-
+        searchResults, UserMatch = self.base.get_search_results(selection, title, start, end)
+        return render_template('search_results.html', dumVar=searchResults, UserMatches=UserMatch, matches=not UserMatch)
 
 
 EventsView.register(EventsBlueprint)

@@ -391,3 +391,57 @@ class EventsController(TinkerController):
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
         pass
+
+    #The search method that does the actual searching for the /search in init
+    def get_search_results(self, selection, title, start, end):
+        # Get the events and then split them into user events and other events for quicker searching
+        events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
+        user_events, other_events = self.split_user_events(events)
+
+        # Quick check with assignment
+        # Early return if no parameters to check in the search
+        if '-'.join(selection) == 'user-events':
+            eventsToIterate = user_events
+        else:
+            eventsToIterate = other_events
+        if not title and not start and not end:
+            return eventsToIterate, '-'.join(selection) == 'user-events'
+
+        toReturn = []
+
+        # check for search parameters and set booleans
+        if not title:
+            hasTitle = False #If no title false
+        else:
+            hasTitle = True #Otherwise assign title
+        if not start or not end:
+            hasDates = False #If the user did not use a start or end date
+        else:
+            hasDates = True #If the user used a date range
+
+        # Loop through the events based on selection
+        # Go through user events
+        for form in eventsToIterate:
+            if not form['event-dates']:
+                checkDates = False
+            else:
+                checkDates = True
+            if hasDates and checkDates:
+                try:
+                    # If the event has dates convert them to the seconds type to compare
+                    estart, eend = form['event-dates'].split(" - ")
+                    fstart = datetime.datetime.strptime(estart, "%b %d, %Y %I:%M %p")  # Starting time from the form
+                    fend = datetime.datetime.strptime(eend, "%b %d, %Y %I:%M %p")  # Ending time from the form
+                except:
+                    checkDates = False
+                    continue
+            if hasTitle and hasDates and checkDates:  # Full search
+                if form['title'] == title and fend <= end and fstart >= start:
+                    toReturn.append(form)
+            elif hasTitle:  # Title search
+                if form['title'] == title:
+                    toReturn.append(form)
+            elif hasDates and checkDates:  # Date range search
+                if fend <= end and fstart >= start:
+                    toReturn.append(form)
+        return toReturn, '-'.join(selection) == 'user-events'

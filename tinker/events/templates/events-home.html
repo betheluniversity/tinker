@@ -9,45 +9,6 @@
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 
-
-{% macro form_card(form)-%}
-
-    <div class="card">
-        <div class="content">
-            <div class="large-6 columns">
-                <p>
-                    {% if form.is_published %}
-                        <a href={{ form.path }}>{{ form.title }}</a>
-                    {% else %}
-                        {{ form.title }}
-                    {% endif %}
-                    <br/>
-                    {% if form.is_published %}
-                        {#                                            <small>#}
-                        <p>{{ form.dates | safe }}</p>
-                        <a class="small-link" href={{ form.path }}>{{ form.path }}</a>
-                        {#                                            </small>#}
-                    {% endif %}
-                </p>
-            </div>
-            <div class="large-6 columns small-3">
-                <ul class="btn-group-horizontal">
-                    {% if form.is_published %}
-                        <li><a href="{{ form.path }}" class="small btn btn-primary">View</a></li>
-                        <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}"
-                               class="small btn btn-primary">Edit</a>
-                        </li>
-                        <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
-                               class="small btn btn-primary">Duplicate</a></li>
-                    {% else %}
-                        <li>This event is pending approval.</li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </div>
-{% endmacro %}
-
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
@@ -97,57 +58,15 @@
                         </label>
                     </div>
                     <hr/>
-                    {# The lines below display the events that will be produced by the search when "search" is clicked #}
-                    {% for schools in all_schools %}
-                        {% for class_name, school_name in schools.items() %}
-                            <div class="{{ class_name }} events">
-                                <h3>{{ school_name }}</h3>
-                                <div>
-                                    {% for bio in forms %}
-                                        {% if school_name in event.schools %}
-                                            {{ display_event(event) }}
-                                        {% elif 'Bethel University' in event.schools and class_name == 'bu' %}
-                                            {{ display_event(event) }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        {% endfor %}
-                    {% endfor %}
-                    {% if user_forms %}
-                        <hr/>
-                        <h2>Your Events</h2>
-                        <hr/>
-                    {% endif %}
+                    <div id="results">
 
-                    {% for form in user_forms %}
-                        {{ form_card(form) }}
-                    {% endfor %}
-
-
-{#                    <!-- other forms -->#}
-                    {% if other_forms %}
-                        <br/>
-                        <hr/>
-                        {% if 'Event Approver' in session['groups'] %}
-                            <h2>Event Approver</h2>
-                        {% elif 'Tinker Events - CAS' in session['groups'] %}
-                            <h2>Undergrad Events</h2>
-                        {% else %}
-                            <h2>Other Events</h2>
-                        {% endif %}
-                        <hr/>
-                        {% for form in other_forms %}
-                            {{ form_card(form) }}
-                        {% endfor %}
-                    {% endif %}
+                    </div>
                 </div>
-
                 <br/>
-
             </div>
         </div>
     </div>
+
 {% endblock %}
 
 {% block modalhtml %}
@@ -207,7 +126,8 @@
             inputs = {
                 "title": $("#eTitle").val(),
                 "start": $("#startDate").val(),
-                "end": $("#endDate").val()
+                "end": $("#endDate").val(),
+                "selection": $("#school-selector").val()
             };
             $.ajax({
                 type: "POST",
@@ -215,8 +135,10 @@
                 data: JSON.stringify(inputs),
                 contentType: 'application/json;charset=UTF-8',
                 success: function (result) {
-                    $('#table-body').html(result);
-                    $('#spinner').hide();
+                    // window.location.replace(result);
+                    document.getElementById('results').innerHTML = result;
+{#                    $('#table-body').html(result);#}
+{#                    $('#spinner').hide();#}
                 }
             });
         });

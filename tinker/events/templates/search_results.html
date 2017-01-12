@@ -1,0 +1,63 @@
+{% macro form_card(form)-%}
+
+    <div class="card">
+        <div class="content">
+            <div class="large-6 columns">
+                <p>
+                    {% if form.is_published %}
+                        <a href={{ form.path }}>{{ form.title }}</a>
+                    {% else %}
+                        {{ form.title }}
+                    {% endif %}
+                    <br/>
+                    {% if form.is_published %}
+                        {#                                            <small>#}
+                        <p>{{ form.dates | safe }}</p>
+                        <a class="small-link" href={{ form.path }}>{{ form.path }}</a>
+                        {#                                            </small>#}
+                    {% endif %}
+                </p>
+            </div>
+            <div class="large-6 columns small-3">
+                <ul class="btn-group-horizontal">
+                    {% if form.is_published %}
+                        <li><a href="{{ form.path }}" class="small btn btn-primary">View</a></li>
+                        <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}"
+                               class="small btn btn-primary">Edit</a>
+                        </li>
+                        <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
+                               class="small btn btn-primary">Duplicate</a></li>
+                    {% else %}
+                        <li>This event is pending approval.</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{%- endmacro %}
+
+
+{% if UserMatches %}
+    <h2>Your Events</h2>
+    <hr/>
+    {% for form in dumVar %}
+        <br/>
+        {{ form_card(form) }}
+    {% endfor %}
+{% endif %}
+
+<!-- other forms -->
+{% if matches %}
+    {% if 'Event Approver' in session['groups'] %}
+        <h2>Event Approver</h2>
+    {% elif 'Tinker Events - CAS' in session['groups'] %}
+        <h2>Undergrad Events</h2>
+    {% else %}
+        <h2>Other Events</h2>
+    {% endif %}
+    <hr/>
+    {% for form in dumVar %}
+        <br/>
+        {{ form_card(form) }}
+    {% endfor %}
+{% endif %}
