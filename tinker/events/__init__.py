@@ -24,7 +24,6 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-        #forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         show_create = True
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
             # The special admin view

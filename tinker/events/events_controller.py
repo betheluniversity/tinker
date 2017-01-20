@@ -18,9 +18,10 @@ from flask import json as fjson
 
 class EventsController(TinkerController):
 
-    def inspect_child(self, child):
+    def inspect_child(self, child, find_all=False):
         try:
             author = child.find('author').text
+            author = author.replace(' ', '').split(',')
         except AttributeError:
             author = None
         username = session['username']
@@ -34,7 +35,7 @@ class EventsController(TinkerController):
 
         school_event = undergrad_event or post_trad_event or sem_event
 
-        if (author is not None and username == author) or 'Event Approver' in session['groups'] or (school_event and school_event != 'None'):
+        if (author is not None and username in author) or 'Event Approver' in session['groups'] or (school_event and school_event != 'None'):
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
@@ -48,7 +49,7 @@ class EventsController(TinkerController):
         user_forms = []
         other_forms = []
         for form in forms:
-            if form['author'] == username:
+            if form['author']!=None and username in form['author']:
                 user_forms.append(form)
             else:
                 other_forms.append(form)
@@ -77,15 +78,10 @@ class EventsController(TinkerController):
 
         dates = child.find('system-data-structure').findall('event-dates')
         dates_str = []
-        unconverted_dates_list = {}
         for date in dates:
             try:
                 start = int(date.find('start-date').text) / 1000
                 end = int(date.find('end-date').text) / 1000
-                unconverted_dates_list.append({
-                    'start': start,
-                    'end': end
-                })
             except TypeError:
                 continue
             dates_str.append(self.friendly_date_range(start, end))
@@ -97,8 +93,7 @@ class EventsController(TinkerController):
             'created-on': child.find('created-on').text or None,
             'path': 'https://www.bethel.edu' + child.find('path').text or None,
             'is_published': is_published,
-            'event-dates': "<br/>".join(dates_str),
-            'unconverted-dates-dict': unconverted_dates_list
+            'event-dates': "<br/>".join(dates_str)
         }
         # This is a match, add it to array
 
