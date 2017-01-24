@@ -175,12 +175,8 @@
             $(document).ready(function () {
                 var today = new Date();
                 function is_date_a_bethel_holiday(date) {
-                    function isNextSundayEaster(date) {
-                        // date will always be a friday, so look 2 days ahead to the sunday.
-                        newDate = new Date();
-                        newDate.setDate(date.getDate() + 2);
-
-                        Y = newDate.getFullYear();
+                    function isDateFridayBeforeEaster(date) {
+                        Y = date.getFullYear();
 
                         // crazy code to determine easter day
                         var C = Math.floor(Y/100);
@@ -197,7 +193,8 @@
                         // test
                         var M_zero_based = M - 1;
 
-                        return newDate.getMonth() == M_zero_based && newDate.getDate() == D;
+                        // The -2 is to check if it is the friday before easter
+                        return date.getMonth() == M_zero_based && date.getDate() == (D-2);
                     }
 
                     // Months are zero based indexing
@@ -211,7 +208,7 @@
                     else if( date.getMonth() == 0 && date.getDay() == 1 && Math.ceil(date.getDate()/7) == 3 )
                         return true;
 {#                    // Easter (is the date the friday before easter)#}
-                    else if( isNextSundayEaster(date) && date.getDay() == 5 )
+                    else if( isDateFridayBeforeEaster(date) )
                         return true;
                     // memorial day - last monday in may (may, date is after 24th and its a monday)
                     else if(date.getMonth() == 4 && date.getDate() > 24 && date.getDay() == 1 )
