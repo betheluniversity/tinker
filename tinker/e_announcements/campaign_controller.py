@@ -131,7 +131,6 @@ class CampaignController(TinkerController):
         for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
             print template.TemplateID
 
-
     # Not currently used. However, this is helpful to find segment IDs
     def get_segments_for_client(self, campaign_monitor_key, client_id):
         for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
