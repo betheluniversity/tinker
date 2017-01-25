@@ -118,7 +118,13 @@ class CampaignController(TinkerController):
 
             count += 1
 
-        return if_block + '[else]%s[endif]' % '<p>There are no E-Announcements for you today.</p>'
+        # If no e-annz exist for the day, make sure that a proper message is displayed.
+        if if_block == '':
+            if_block = '<p>There are no E-Announcements for you today.</p>'
+        else:
+            if_block += '[else]%s[endif]' % '<p>There are no E-Announcements for you today.</p>'
+
+        return if_block
 
     # Not currently used. However, this is helpful to find template IDs
     def get_templates_for_client(self, campaign_monitor_key, client_id):
