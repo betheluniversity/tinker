@@ -201,13 +201,13 @@
                     // New Years Day
                     if( date.getMonth() == 0 && date.getDate() == 1)
                         return true;
-                    // New Years -- If new years day is on a sunday, we get the monday off
-                    else if( date.getMonth() == 0 && date.getDay() == 1 && date.getDate() == 2 )
+                    // New Years(observed) -- If new years day is on the weekend, we get the monday off (2nd or 3rd)
+                    else if( date.getMonth() == 0 && date.getDay() == 1 && (date.getDate() == 2 || date.getDate() == 3) )
                         return true;
                     // MLK Day - 3rd monday in jan
                     else if( date.getMonth() == 0 && date.getDay() == 1 && Math.ceil(date.getDate()/7) == 3 )
                         return true;
-{#                    // Easter (is the date the friday before easter)#}
+{#                    // Easter (is the date the friday before easter)
                     else if( isDateFridayBeforeEaster(date) )
                         return true;
                     // memorial day - last monday in may (may, date is after 24th and its a monday)
@@ -216,14 +216,14 @@
                     // july 4
                     else if(date.getMonth() == 6 && date.getDate() == 4)
                         return true;
-                    // first monday in sept
+                    // Labor Day - first monday in sept
                     else if( date.getMonth() == 8 && date.getDay() == 1 && Math.ceil(date.getDate()/7) == 1 )
                         return true;
                     // Thanksgiving and Black Friday -- 4th thursday in nov, 4th friday in nov
                     else if( date.getMonth() == 10 && Math.ceil(date.getDate()/7) == 4 && (date.getDay() == 4 || date.getDay() == 5))
                         return true;
-                    // If Christmas Eve is on a Saturday, we get the Friday off
-                    else if( date.getMonth() == 11 && date.getDay() == 5 && date.getDate() == 23 )
+                    // Christmas Eve(observed) - christmas eve is on the weekend, we get the friday off (22nd or 23rd).
+                    else if( date.getMonth() == 11 && date.getDay() == 5 && (date.getDate() == 22 || date.getDate() == 23) )
                         return true;
                     // christmas days
                     else if( date.getMonth() == 11 && date.getDate() >= 24)

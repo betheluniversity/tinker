@@ -149,6 +149,7 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('confirm.html', **locals())
 
+    # Todo: e-annz with 0 announcements doesn't work due to no beginning 'if' statements.
     @route("/public/create_and_send_campaign", methods=['get', 'post'])
     @route("/public/create_campaign", methods=['get', 'post'])
     @route("/public/create_campaign/<date>", methods=['get', 'post'])
