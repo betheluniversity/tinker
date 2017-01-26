@@ -5,6 +5,7 @@ import urllib2
 
 from operator import itemgetter
 from xml.etree import ElementTree
+from wtforms import ValidationError
 from tinker.tinker_controller import *
 from tinker.admin.sync.sync_metadata import data_to_add
 
@@ -158,12 +159,12 @@ class FacultyBioController(TinkerController):
     # todo: do what check_job_titles does
     def check_degrees(self, form):
         degrees = {}
-        degrees_good = False
+        failed_check = False
+        error_list = []
 
         num_degrees = int(form['num_degrees'])
 
         for x in range(1, num_degrees + 1):  # the page doesn't use 0-based indexing
-
             i = str(x)
             school_l = 'school' + i
             degree_earned_l = 'degree-earned' + i
@@ -179,14 +180,15 @@ class FacultyBioController(TinkerController):
 
             check = school and degree_earned and year
 
-            if check:
-                degrees_good = True
-
+            if not check:
+                error_list.append(u'Degree #' + i + u' has an error')
+                failed_check = True
         # convert event dates to JSON
-        return json.dumps(degrees), degrees_good, num_degrees
+        return json.dumps(degrees), not failed_check, error_list, num_degrees
 
     def check_job_titles(self, form):
-        new_jobs_good = False
+        failed_check = False
+        error_list = []
 
         num_new_jobs = int(form['num_new_jobs'])
 
@@ -226,11 +228,12 @@ class FacultyBioController(TinkerController):
 
             check = (school == 'Bethel University' and job_title) or \
                     ((undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty))
-            if check:
-                new_jobs_good = True
+            if not check:
+                error_list.append(u'Job Title #' + i + u' has an error')
+                failed_check = True
 
         # convert event dates to JSON
-        return new_jobs_good, num_new_jobs
+        return not failed_check, error_list, num_new_jobs
 
     def update_structure(self, faculty_bio_data, sdata, rform, faculty_bio_id=None):
 
@@ -406,24 +409,20 @@ class FacultyBioController(TinkerController):
 
     def validate_form(self, rform):
         from forms import FacultyBioForm
-        form = FacultyBioForm()
+        form = FacultyBioForm(rform)
 
-        degrees, degrees_good, num_degrees = self.check_degrees(rform)
-        new_jobs_good, num_new_jobs = self.check_job_titles(rform)
-        if not form.validate_on_submit() or (not new_jobs_good or not degrees_good):
-            if 'faculty_bio_id' in request.form.keys():
-                faculty_bio_id = request.form['faculty_bio_id']
-            else:
-                # This error came from the add form because event_id wasn't set
-                add_form = True
-
-            wysiwyg_keys = ['biography', 'courses', 'awards', 'publications', 'presentations', 'certificates',
-                            'organizations', 'hobbies']
-            add_data = self.get_add_data(['faculty_location'], rform, wysiwyg_keys)
-            metadata = fjson.dumps(data_to_add)
-            new_job_titles = fjson.dumps(self.get_job_titles(add_data))
-            degrees = fjson.dumps(self.get_degrees(add_data))
-            return render_template('faculty-bio-form.html', **locals())
+        degrees, degrees_good, degree_error_list, num_degrees = self.check_degrees(rform)
+        new_jobs_good, new_jobs_error_list, num_new_jobs = self.check_job_titles(rform)
+        if not (form.validate() and new_jobs_good and degrees_good):
+            if not new_jobs_good:
+                for error in new_jobs_error_list:
+                    form.new_job_titles.errors.append(error)
+                form.errors['new_job_titles'] = new_jobs_error_list
+            if not degrees_good:
+                for error in degree_error_list:
+                    form.degree.errors.append(error)
+                form.errors['degree'] = degree_error_list
+        return form
 
     def get_degrees(self, add_data):
         degrees = []

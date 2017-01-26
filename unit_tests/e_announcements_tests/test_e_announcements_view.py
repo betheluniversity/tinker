@@ -22,5 +22,6 @@ class ViewTestCase(BaseTestCase):
         self.request = self.generate_url("view", e_announcement_id=id_to_test)
         expected_response = b'<h5>First Date</h5>'
         response = self.send_get(self.request)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)

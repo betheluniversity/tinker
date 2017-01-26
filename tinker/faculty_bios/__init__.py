@@ -55,8 +55,11 @@ class FacultyBiosView(FlaskView):
             ]
         else:  # normal view
             show_special_admin_view = False
-            show_create = len(forms) == 0 or 'Tinker Faculty Bios - CAS' in session['groups'] or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] or 'Tinker Faculty Bios - SEM' in session['groups'] or self.base.is_user_in_web_author_groups()
-
+            show_create = len(forms) == 0 \
+                          or 'Tinker Faculty Bios - CAS' in session['groups'] \
+                          or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
+                          or 'Tinker Faculty Bios - SEM' in session['groups'] \
+                          or self.base.is_user_in_web_author_groups()
         return render_template('faculty-bio-home.html', **locals())
 
     @route('delete/<faculty_bio_id>', methods=['GET'])
@@ -155,9 +158,23 @@ class FacultyBiosView(FlaskView):
 
         faculty_bio_id = rform.get('faculty_bio_id')
 
-        failed = self.base.validate_form(rform)
-        if failed:
-            return failed
+        validated_form = self.base.validate_form(rform)
+        # print validated_form.errors
+        if validated_form.errors is not None:
+            if 'faculty_bio_id' in request.form.keys():
+                faculty_bio_id = request.form['faculty_bio_id']
+            else:
+                # This error came from the add form because event_id wasn't set
+                add_form = True
+
+            form = validated_form
+            wysiwyg_keys = ['biography', 'courses', 'awards', 'publications', 'presentations', 'certificates',
+                            'organizations', 'hobbies']
+            add_data = self.base.get_add_data(['faculty_location'], rform, wysiwyg_keys)
+            metadata = fjson.dumps(data_to_add)
+            new_job_titles = fjson.dumps(self.base.get_job_titles(add_data))
+            degrees = fjson.dumps(self.base.get_degrees(add_data))
+            return render_template('faculty-bio-form.html', **locals())
 
         if faculty_bio_id:
             # existing bio

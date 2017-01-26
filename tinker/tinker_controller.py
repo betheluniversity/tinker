@@ -9,6 +9,7 @@ import datetime
 import fnmatch
 import hashlib
 import os
+from jinja2 import Environment, FileSystemLoader, meta
 from functools import wraps
 from subprocess import call
 
@@ -586,3 +587,17 @@ class TinkerController(object):
 
     def list_relationships(self, path_or_id, asset_type):
         return self.cascade_connector.list_relationships(path_or_id, asset_type)
+
+    def get_all_variables_from_jinja_template(self, relative_template_path):
+        # Example template path: "faculty_bios/templates/faculty-bio-form.html"
+        PATH = os.path.dirname(os.path.abspath(__file__))  # get the path of current file
+        TEMPLATE_ENVIRONMENT = Environment(
+            autoescape=False,
+            loader=FileSystemLoader(os.path.join(PATH)),
+            trim_blocks=False
+        )
+        template_source = TEMPLATE_ENVIRONMENT.loader.get_source(TEMPLATE_ENVIRONMENT, relative_template_path)[0]
+        parsed_content = TEMPLATE_ENVIRONMENT.parse(template_source)
+        variables = meta.find_undeclared_variables(parsed_content)
+        keywords_to_ignore = set(['csrf_token', 'url_for'])
+        return variables.difference(keywords_to_ignore)
