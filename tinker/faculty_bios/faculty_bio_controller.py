@@ -45,6 +45,7 @@ class FacultyBioController(TinkerController):
     def inspect_child(self, child, find_all=False):
         try:
             author = child.find('author').text
+            author = author.replace(' ', '').split(',')
         except AttributeError:
             author = None
 
@@ -283,12 +284,12 @@ class FacultyBioController(TinkerController):
 
         # a quick check to quit out if necessary.
         try:
-            uploaded_image = form.image.data.filename
+            form.image.data.filename
         except AttributeError:
             return None
 
-        image_name = add_data['system_name'] + '.jpg'
-        image_sub_path = 'academics/faculty/images'
+        image_name = add_data['last'].lower() + '-' + add_data['first'].lower() + '.jpg'
+        image_sub_path = '/academics/faculty/images'
         image_path = image_sub_path + '/' + image_name
         description = self.build_description(add_data)
 
@@ -301,7 +302,7 @@ class FacultyBioController(TinkerController):
         file_asset = self.read(image_path, 'file')
         # edit existing
         if file_asset['success'] == 'true':
-            image_asset = file_asset['asset']['file']
+            image_asset = file_asset['asset']
             # update data
             new_values = {
                 'data': encoded_stream,
@@ -309,9 +310,9 @@ class FacultyBioController(TinkerController):
             }
 
             self.update_asset(image_asset, new_values)
-            resp = self.cascade_connector.create(image_asset)
+            resp = self.cascade_connector.edit(image_asset)
             clear_resp = self.clear_image_cache(image_path)
-            self.log_sentry('Editted Faculty Bio Image', resp)
+            self.log_sentry('Edited Faculty Bio Image', resp)
 
         # create new from base_asset
         else:
