@@ -151,16 +151,14 @@ class FacultyBiosView(FlaskView):
 
     @route('/submit', methods=['POST'])
     def submit(self):
-
         rform = request.form
         username = session['username']
         groups = session['groups']
 
         faculty_bio_id = rform.get('faculty_bio_id')
 
-        validated_form = self.base.validate_form(rform)
-        # print validated_form.errors
-        if validated_form.errors is not None:
+        validated_form = self.base.validate_form(rform)  # Returns a dictionary
+        if bool(validated_form.errors): # Evaluates to False if there are no entries in the dictionary
             if 'faculty_bio_id' in request.form.keys():
                 faculty_bio_id = request.form['faculty_bio_id']
             else:
