@@ -159,7 +159,7 @@ class FacultyBiosView(FlaskView):
         faculty_bio_id = rform.get('faculty_bio_id')
 
         validated_form = self.base.validate_form(rform)
-        print validated_form.errors
+        # print validated_form.errors
         if validated_form.errors is not None:
             if 'faculty_bio_id' in request.form.keys():
                 faculty_bio_id = request.form['faculty_bio_id']
