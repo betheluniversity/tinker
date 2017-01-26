@@ -85,7 +85,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
     def get_new_form(self):
         self.request_type = "GET"
         self.request = self.generate_url("new")
-        expected_response = b'<form id="facultybioform" action="/faculty-bios/submit" method="post">'
+        expected_response = b'<form id="facultybioform" action="/faculty-bios/submit" method="post" enctype="multipart/form-data">'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
