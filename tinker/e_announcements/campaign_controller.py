@@ -49,7 +49,7 @@ class CampaignController(TinkerController):
         if date.weekday() in [1, 3, 5, 6]:
             return False
 
-        if self.is_bethel_holiday(date()):
+        if self.is_bethel_holiday(date):
             return False
 
         return True
