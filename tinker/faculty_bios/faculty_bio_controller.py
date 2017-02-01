@@ -264,11 +264,6 @@ class FacultyBioController(TinkerController):
         workflow = self.create_workflow(workflow_id, subtitle=add_data['title'])
         self.add_workflow_to_asset(workflow, faculty_bio_data)
 
-        # once tinker2 is launched, remove these 3 lines(as it is unnecessary)
-        update(find(faculty_bio_data, 'add-to-bio'), 'areas', add_data['areas'])
-        update(find(faculty_bio_data, 'add-to-bio'), 'teaching-specialty', add_data['teaching-specialty'])
-        update(find(faculty_bio_data, 'add-to-bio'), 'research-interests', add_data['research-interests'])
-
         if faculty_bio_id:
             add_data['id'] = faculty_bio_id
         else:
