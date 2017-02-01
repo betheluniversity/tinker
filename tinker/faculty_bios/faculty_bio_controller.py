@@ -93,7 +93,7 @@ class FacultyBioController(TinkerController):
             iterate_bio = True
 
         # get value of bio, if allowed
-        if iterate_bio:
+        if iterate_bio or find_all:
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
@@ -509,6 +509,20 @@ class FacultyBioController(TinkerController):
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
+        print 'research-interests ' + str(find(asset_data, 'research-interests', False))
+        print 'teaching-specialty ' + str(find(asset_data, 'teaching-specialty', False))
+        print 'highlight ' + str(find(asset_data, 'highlight', False))
+        print 'biography ' + str(find(asset_data, 'biography', False))
+        print 'awards ' + str(find(asset_data, 'awards', False))
+        print 'publications ' + str(find(asset_data, 'publications', False))
+        print 'presentations ' + str(find(asset_data, 'presentations', False))
+        print 'certificates ' + str(find(asset_data, 'certificates', False))
+        print 'organizations ' + str(find(asset_data, 'organizations', False))
+        print 'hobbies ' + str(find(asset_data, 'hobbies', False))
+        print 'quote ' + str(find(asset_data, 'quote', False))
+        print 'website ' + str(find(asset_data, 'website', False))
+        print ''
+
 
         # Todo: remove this code when the faculty bios have been successfully been transfered.
         # # move areas of interest
