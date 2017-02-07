@@ -441,11 +441,12 @@ class EventsController(TinkerController):
         return toReturn, '-'.join(selection) == 'user-events'
 
     def compare_timedeltas(self, a, b):
+        reference = datetime.timedelta(seconds=0)
         # If a and b are both datetime objects then if b comes after a it will return 1
-        if(b-a) >= datetime.timedelta(seconds=0):
+        if(b-a) >= reference:
             return 1
         #b before a returns 2
-        elif(b-a) <= datetime.timedelta(seconds=0):
+        elif(b-a) <= reference:
             return 2
         #neither returns 0
         else:
