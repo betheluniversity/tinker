@@ -18,10 +18,7 @@ from flask import json as fjson
 
 class EventsController(TinkerController):
 
-<<<<<<< HEAD
-=======
     # find_all is currently unused for events (but used for the e-annz)
->>>>>>> master
     def inspect_child(self, child, find_all=False):
         try:
             author = child.find('author').text
@@ -443,6 +440,6 @@ class EventsController(TinkerController):
                     toReturn.append(form)
         return toReturn, '-'.join(selection) == 'user-events'
 
-    def compare_dates(self, a, b):
+    def compare_timedeltas(self, a, b):
         # If a and b are both datetime objects then if b comes after a it will return true
-        return b-a >0
+        return (b-a) > datetime.timedelta(seconds=0)

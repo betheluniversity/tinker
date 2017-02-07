@@ -1,10 +1,7 @@
 import json
 import time
 import datetime
-<<<<<<< HEAD
 from flask import Response
-=======
->>>>>>> master
 from flask_classy import FlaskView, route
 from tinker.events.events_controller import EventsController
 from bu_cascade.asset_tools import update
@@ -27,7 +24,6 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-<<<<<<< HEAD
         show_create = True
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
             # The special admin view
@@ -49,12 +45,10 @@ class EventsView(FlaskView):
 
         return render_template('events-home.html', show_create=show_create, all_schools=all_schools, dumVar=None,
                                UserMatches=None, matches=None)
-=======
         user_forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
             user_forms, other_forms = self.base.split_user_events(user_forms)
         return render_template('events-home.html', **locals())
->>>>>>> master
 
     def confirm(self):
         return render_template('submit-confirm.html', **locals())
