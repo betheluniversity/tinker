@@ -1,10 +1,3 @@
-# The ignore DeprecationWarning code here is because flask is still referencing request.json somewhere in its code,
-# when it should instead be getting request.get_json(). Werkzeug allows it, but throws the deprecation warning. As of
-# Sept. 22, 2016, that is the only warning being thrown. Periodically this ignore should be commented out to make sure
-# our code is not throwing the deprecated warnings
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-
 import logging
 import os
 import platform
@@ -59,13 +52,6 @@ db = SQLAlchemy(app)
 
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
 
-try:
-    unit_testing = os.environ['unit_testing']
-    if unit_testing == "True":
-        app.config['SENTRY_URL'] = ''
-except:
-    pass
-
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
 # create logging
@@ -115,7 +101,9 @@ app.register_blueprint(OfficeHoursBlueprint)
 from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
 
-CsrfProtect(app)
+csrf = CsrfProtect(app)
+csrf.exempt(RedirectsBlueprint)
+
 
 # Import global HTTP error code handling
 import error
@@ -127,5 +115,3 @@ def before_request():
     base = TinkerController()
     base.before_request()
 
-
-#ignore

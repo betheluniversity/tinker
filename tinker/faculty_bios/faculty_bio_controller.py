@@ -5,15 +5,47 @@ import urllib2
 
 from operator import itemgetter
 from xml.etree import ElementTree
+from wtforms import ValidationError
 from tinker.tinker_controller import *
 from tinker.admin.sync.sync_metadata import data_to_add
 
 
 class FacultyBioController(TinkerController):
+    def get_mapping(self):
+        mapping = {
+            'Anthropology, Sociology, & Reconciliation':    'Anthropology Sociology',
+            'Art & Design':                                 'Art',
+            'Biblical & Theological Studies':               'Biblical Theological',
+            'Biological Sciences':                          'Biology',
+            'Business & Economics':                         'Business Economics',
+            'Chemistry':                                    'Chemistry',
+            'Communication Studies':                        'Communication',
+            'Education':                                    'Education',
+            'English':                                      'English',
+            'Environmental Studies':                        'Environmental Studies',
+            'General Education':                            'General Education',
+            'History':                                      'History',
+            'Honors':                                       'Honors',
+            'Human Kinetics & Applied Health Science':      'Human Kinetics',
+            'Math & Computer Science':                      'Math CS',
+            'World Languages and Cultures':                 'World Languages',
+            'Music':                                        'Music',
+            'Nursing':                                      'Nursing',
+            'Philosophy':                                   'Philosophy',
+            'Physics & Engineering':                        'Physics',
+            'Political Science':                            'Political Science',
+            'Psychology':                                   'Psychology',
+            'Social Work':                                  'Social Work',
+            'Theatre Arts':                                 'Theatre',
+            'Doctor of Ministry':                           'Doctor of Ministry'
+        }
+        return mapping
+
     # todo: this is better, but it still needs a little work
-    def inspect_child(self, child):
+    def inspect_child(self, child, find_all=False):
         try:
             author = child.find('author').text
+            author = author.replace(' ', '').split(',')
         except AttributeError:
             author = None
 
@@ -61,7 +93,7 @@ class FacultyBioController(TinkerController):
             iterate_bio = True
 
         # get value of bio, if allowed
-        if iterate_bio:
+        if iterate_bio or find_all:
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
@@ -102,52 +134,37 @@ class FacultyBioController(TinkerController):
 
     # if the department metadata is found return it, else return ''
     def check_web_author_groups(self, groups, program_elements):
-        mapping = {
-            'Anthropology, Sociology, & Reconciliation':    'Anthropology Sociology',
-            'Art & Design':                                 'Art',
-            'Biblical & Theological Studies':               'Biblical Theological',
-            'Biological Sciences':                          'Biology',
-            'Business & Economics':                         'Business Economics',
-            'Chemistry':                                    'Chemistry',
-            'Communication Studies':                        'Communication',
-            'Education':                                    'Education',
-            'English':                                      'English',
-            'Environmental Studies':                        'Environmental Studies',
-            'General Education':                            'General Education',
-            'History':                                      'History',
-            'Honors':                                       'Honors',
-            'Human Kinetics & Applied Health Science':      'Human Kinetics',
-            'Math & Computer Science':                      'Math CS',
-            'Modern World Languages':                       'World Languages',
-            'Music':                                        'Music',
-            'Nursing':                                      'Nursing',
-            'Philosophy':                                   'Philosophy',
-            'Physics & Engineering':                        'Physics',
-            'Political Science':                            'Political Science',
-            'Psychology':                                   'Psychology',
-            'Social Work':                                  'Social Work',
-            'Theatre Arts':                                 'Theatre',
-            'Doctor of Ministry':                           'Doctor of Ministry'
-        }
+        # todo: this mapping should somehow be automatic with the program name changes! Currently, if a program
+        # name is changed in the metadata, the faculty bios won't be synced up with the cascade group
 
         for program_element in program_elements:
             for program in program_element:
                 try:
-                    if mapping[program.text] in groups:
+                    if self.get_mapping()[program.text] in groups:
                         return True
                 except:
                     continue
         return False
 
+    def is_user_in_web_author_groups(self):
+        for key, value in self.get_mapping().iteritems():
+            try:
+                if value in session['groups']:
+                    return True
+            except:
+                continue
+
+        return False
+
     # todo: do what check_job_titles does
     def check_degrees(self, form):
         degrees = {}
-        degrees_good = False
+        failed_check = False
+        error_list = []
 
         num_degrees = int(form['num_degrees'])
 
         for x in range(1, num_degrees + 1):  # the page doesn't use 0-based indexing
-
             i = str(x)
             school_l = 'school' + i
             degree_earned_l = 'degree-earned' + i
@@ -163,14 +180,15 @@ class FacultyBioController(TinkerController):
 
             check = school and degree_earned and year
 
-            if check:
-                degrees_good = True
-
+            if not check:
+                error_list.append(u'Degree #' + i + u' has an error')
+                failed_check = True
         # convert event dates to JSON
-        return json.dumps(degrees), degrees_good, num_degrees
+        return json.dumps(degrees), not failed_check, error_list, num_degrees
 
     def check_job_titles(self, form):
-        new_jobs_good = False
+        failed_check = False
+        error_list = []
 
         num_new_jobs = int(form['num_new_jobs'])
 
@@ -210,11 +228,12 @@ class FacultyBioController(TinkerController):
 
             check = (school == 'Bethel University' and job_title) or \
                     ((undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty))
-            if check:
-                new_jobs_good = True
+            if not check:
+                error_list.append(u'Job Title #' + i + u' has an error')
+                failed_check = True
 
         # convert event dates to JSON
-        return new_jobs_good, num_new_jobs
+        return not failed_check, error_list, num_new_jobs
 
     def update_structure(self, faculty_bio_data, sdata, rform, faculty_bio_id=None):
 
@@ -245,11 +264,6 @@ class FacultyBioController(TinkerController):
         workflow = self.create_workflow(workflow_id, subtitle=add_data['title'])
         self.add_workflow_to_asset(workflow, faculty_bio_data)
 
-        # once tinker2 is launched, remove these 3 lines(as it is unnecessary)
-        update(find(faculty_bio_data, 'add-to-bio'), 'areas', add_data['areas'])
-        update(find(faculty_bio_data, 'add-to-bio'), 'teaching-specialty', add_data['teaching-specialty'])
-        update(find(faculty_bio_data, 'add-to-bio'), 'research-interests', add_data['research-interests'])
-
         if faculty_bio_id:
             add_data['id'] = faculty_bio_id
         else:
@@ -265,12 +279,12 @@ class FacultyBioController(TinkerController):
 
         # a quick check to quit out if necessary.
         try:
-            uploaded_image = form.image.data.filename
+            form.image.data.filename
         except AttributeError:
             return None
 
-        image_name = add_data['system_name'] + '.jpg'
-        image_sub_path = 'academics/faculty/images'
+        image_name = add_data['last'].lower() + '-' + add_data['first'].lower() + '.jpg'
+        image_sub_path = '/academics/faculty/images'
         image_path = image_sub_path + '/' + image_name
         description = self.build_description(add_data)
 
@@ -283,7 +297,7 @@ class FacultyBioController(TinkerController):
         file_asset = self.read(image_path, 'file')
         # edit existing
         if file_asset['success'] == 'true':
-            image_asset = file_asset['asset']['file']
+            image_asset = file_asset['asset']
             # update data
             new_values = {
                 'data': encoded_stream,
@@ -291,9 +305,9 @@ class FacultyBioController(TinkerController):
             }
 
             self.update_asset(image_asset, new_values)
-            resp = self.cascade_connector.create(image_asset)
+            resp = self.cascade_connector.edit(image_asset)
             clear_resp = self.clear_image_cache(image_path)
-            self.log_sentry('Editted Faculty Bio Image', resp)
+            self.log_sentry('Edited Faculty Bio Image', resp)
 
         # create new from base_asset
         else:
@@ -390,24 +404,20 @@ class FacultyBioController(TinkerController):
 
     def validate_form(self, rform):
         from forms import FacultyBioForm
-        form = FacultyBioForm()
+        form = FacultyBioForm(rform)
 
-        degrees, degrees_good, num_degrees = self.check_degrees(rform)
-        new_jobs_good, num_new_jobs = self.check_job_titles(rform)
-        if not form.validate_on_submit() or (not new_jobs_good or not degrees_good):
-            if 'faculty_bio_id' in request.form.keys():
-                faculty_bio_id = request.form['faculty_bio_id']
-            else:
-                # This error came from the add form because event_id wasn't set
-                add_form = True
-
-            wysiwyg_keys = ['biography', 'courses', 'awards', 'publications', 'presentations', 'certificates',
-                            'organizations', 'hobbies']
-            add_data = self.get_add_data(['faculty_location'], rform, wysiwyg_keys)
-            metadata = fjson.dumps(data_to_add)
-            new_job_titles = fjson.dumps(self.get_job_titles(add_data))
-            degrees = fjson.dumps(self.get_degrees(add_data))
-            return render_template('faculty-bio-form.html', **locals())
+        degrees, degrees_good, degree_error_list, num_degrees = self.check_degrees(rform)
+        new_jobs_good, new_jobs_error_list, num_new_jobs = self.check_job_titles(rform)
+        if not (form.validate() and new_jobs_good and degrees_good):
+            if not new_jobs_good:
+                for error in new_jobs_error_list:
+                    form.new_job_titles.errors.append(error)
+                form.errors['new_job_titles'] = new_jobs_error_list
+            if not degrees_good:
+                for error in degree_error_list:
+                    form.degree.errors.append(error)
+                form.errors['degree'] = degree_error_list
+        return form
 
     def get_degrees(self, add_data):
         degrees = []
@@ -499,6 +509,20 @@ class FacultyBioController(TinkerController):
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
+        print 'research-interests ' + str(find(asset_data, 'research-interests', False))
+        print 'teaching-specialty ' + str(find(asset_data, 'teaching-specialty', False))
+        print 'highlight ' + str(find(asset_data, 'highlight', False))
+        print 'biography ' + str(find(asset_data, 'biography', False))
+        print 'awards ' + str(find(asset_data, 'awards', False))
+        print 'publications ' + str(find(asset_data, 'publications', False))
+        print 'presentations ' + str(find(asset_data, 'presentations', False))
+        print 'certificates ' + str(find(asset_data, 'certificates', False))
+        print 'organizations ' + str(find(asset_data, 'organizations', False))
+        print 'hobbies ' + str(find(asset_data, 'hobbies', False))
+        print 'quote ' + str(find(asset_data, 'quote', False))
+        print 'website ' + str(find(asset_data, 'website', False))
+        print ''
+
 
         # Todo: remove this code when the faculty bios have been successfully been transfered.
         # # move areas of interest

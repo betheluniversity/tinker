@@ -149,9 +149,9 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('confirm.html', **locals())
 
-    # @route("/create_and_send_campaign", methods=['get', 'post'])
-    @route("/create_campaign", methods=['get', 'post'])
-    # @route("/create_campaign/<date>", methods=['get', 'post'])
+    @route("/public/create_and_send_campaign", methods=['get', 'post'])
+    @route("/public/create_campaign", methods=['get', 'post'])
+    @route("/public/create_campaign/<date>", methods=['get', 'post'])
     @requires_auth
     def create_campaign(self, date=None):
         resp = None
@@ -170,7 +170,7 @@ class EAnnouncementsView(FlaskView):
 
             submitted_announcements = []
             current_announcement_role_list = []
-            for announcement in self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block'):
+            for announcement in self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block', True):
                 date_matches = False
 
                 if announcement['first_date']:
@@ -187,16 +187,17 @@ class EAnnouncementsView(FlaskView):
                     continue
 
                 # add announcement
-                submitted_announcements.append({
-                    "Layout":
-                        "announcements",
-                    "Multilines": [
-                        {
-                            "Content": self.base_campaign.create_single_announcement(announcement)
-                        }
-                    ]
-                }
-                )
+                announcement_text = self.base_campaign.create_single_announcement(announcement)
+                if announcement_text != '':
+                    submitted_announcements.append({
+                        "Layout":
+                            "announcements",
+                        "Multilines": [
+                            {
+                                "Content": announcement_text
+                            }
+                        ]
+                    })
 
                 # create a list of all roles that are currently receiving E-Announcements
                 for role in announcement['roles']:
@@ -249,14 +250,11 @@ class EAnnouncementsView(FlaskView):
                 new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 05:30')
                 self.base.log_sentry("E-Announcement campaign was sent", resp)
 
-                # if we ever want to send an e-announcement immediately, here it is.
-                # WARNING: be careful about accidentally sending emails to mass people.
-                # new_campaign.send(confirmation_email_sent_to)
-
             return str(resp)
 
         except:
             self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.", resp)
+            return str(resp)
 
     def edit_all(self):
         type_to_find = 'system-block'

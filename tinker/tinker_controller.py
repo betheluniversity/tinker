@@ -9,6 +9,7 @@ import datetime
 import fnmatch
 import hashlib
 import os
+from jinja2 import Environment, FileSystemLoader, meta
 from functools import wraps
 from subprocess import call
 
@@ -114,11 +115,11 @@ class TinkerController(object):
             if 'top_nav' not in session.keys():
                 get_nav()
 
-            if 'user_email' not in session.keys():
+            if 'user_email' not in session.keys() and session['username']:
                 # todo, get prefered email (alias) from wsapi once its added.
                 session['user_email'] = session['username'] + "@bethel.edu"
 
-            if 'name' not in session.keys():
+            if 'name' not in session.keys() and session['username']:
                 get_users_name()
 
         def get_user():
@@ -134,24 +135,31 @@ class TinkerController(object):
                 username = session['username']
             url = current_app.config['API_URL'] + "/username/%s/names" % username
             r = requests.get(url)
-            names = fjson.loads(r.content)['0']
-            if names['prefFirstName']:
-                fname = names['prefFirstName']
-            else:
-                fname = names['firstName']
-            lname = names['lastName']
-
-            session['name'] = "%s %s" % (fname, lname)
+            try:
+                # In some cases, '0' will not be a valid key, throwing a KeyError
+                # If that happens, session['name'] should be an empty string so that checks in other locations will fail
+                names = fjson.loads(r.content)['0']
+                if names['prefFirstName']:
+                    fname = names['prefFirstName']
+                else:
+                    fname = names['firstName']
+                lname = names['lastName']
+                session['name'] = "%s %s" % (fname, lname)
+            except KeyError:
+                session['name'] = ""
 
         def get_groups_for_user(username=None):
+            skip = request.environ.get('skip-groups') == 'skip'
             if not username:
                 username = session['username']
-            try:
-                user = self.read(username, "user")
-                allowed_groups = find(user, 'groups', False)
-            except AttributeError:
+            if not skip:
+                try:
+                    user = self.read(username, "user")
+                    allowed_groups = find(user, 'groups', False)
+                except AttributeError:
+                    allowed_groups = ""
+            else:
                 allowed_groups = ""
-
             if allowed_groups is None:
                 allowed_groups = ""
 
@@ -176,8 +184,13 @@ class TinkerController(object):
             html = render_template('nav.html', **locals())
             session['top_nav'] = html
 
-        init_user()
-        get_nav()
+        if '/public/' not in request.path and '/api/' not in request.path:
+            init_user()
+            get_nav()
+        else:
+            session['username'] = 'tinker'
+            session['groups'] = []
+            session['roles'] = []
 
     def log_sentry(self, message, response):
 
@@ -196,7 +209,7 @@ class TinkerController(object):
         # more detailed message to debug text log
         app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
-    def inspect_child(self, child):
+    def inspect_child(self, child, find_all):
         # interface method
         pass
 
@@ -258,13 +271,8 @@ class TinkerController(object):
         if 'metaDescription' in mdata:
             edit_data['metaDescription'] = mdata['metaDescription']
 
-        # get the (first) author
-        authors = find(mdata, 'author', False)
-        try:
-            authors = authors.split(", ")
-            edit_data['author'] = authors[0]
-        except AttributeError:
-            edit_data['author'] = ''
+        # get the authors
+        edit_data['author'] = find(mdata, 'author', False)
 
         return edit_data
 
@@ -576,3 +584,20 @@ class TinkerController(object):
 
     def edit_all_callback(self, asset_data):
         pass
+
+    def list_relationships(self, path_or_id, asset_type):
+        return self.cascade_connector.list_relationships(path_or_id, asset_type)
+
+    def get_all_variables_from_jinja_template(self, relative_template_path):
+        # Example template path: "faculty_bios/templates/faculty-bio-form.html"
+        PATH = os.path.dirname(os.path.abspath(__file__))  # get the path of current file
+        TEMPLATE_ENVIRONMENT = Environment(
+            autoescape=False,
+            loader=FileSystemLoader(os.path.join(PATH)),
+            trim_blocks=False
+        )
+        template_source = TEMPLATE_ENVIRONMENT.loader.get_source(TEMPLATE_ENVIRONMENT, relative_template_path)[0]
+        parsed_content = TEMPLATE_ENVIRONMENT.parse(template_source)
+        variables = meta.find_undeclared_variables(parsed_content)
+        keywords_to_ignore = set(['csrf_token', 'url_for'])
+        return variables.difference(keywords_to_ignore)

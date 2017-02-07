@@ -25,7 +25,7 @@ to be in it's own card div, something to think about in the future -->
                 <h3 class="subtitle">Edit Your Bio</h3>
                 <hr/>
 
-                <form id="facultybioform" action="{{ url_for('faculty_bios.FacultyBiosView:submit') }}" method="post">
+                <form id="facultybioform" action="{{ url_for('faculty_bios.FacultyBiosView:submit') }}" method="post" enctype="multipart/form-data">
                     <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                     <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
 
@@ -81,7 +81,7 @@ to be in it's own card div, something to think about in the future -->
 
                             {% elif field.name == "image" %}
                                 {# The image_url field is hidden. So get the image from this. #}
-                                <p id="image">Is your image a perfect square? Don't forget to crop it at <a
+                                <p id="image-div">Is your image a perfect square? Don't forget to crop it at <a
                                         href="http://www.croppola.com">croppola.com</a>. Thanks!</p>
                                 {{ form['image'] }}
                                 {{ form['image_url'] }}
@@ -94,7 +94,7 @@ to be in it's own card div, something to think about in the future -->
                                         $("#display_image").show();
                                     }
 
-                                    if ("False" == "{{ edit_image}}") {
+                                    if ("False" == "{{ edit_image }}") {
                                         $("#image").hide();
                                     }
 
@@ -692,7 +692,5 @@ to be in it's own card div, something to think about in the future -->
     </fieldset>
     <a href="javascript:void(0);" id="add_new_job_button" class="btn btn-primary">Add Another Job Title</a>
     <a href="javascript:void(0);" id="remove_new_job_button" style="display:none"
-       class="btn btn-primary btn-alert">Remove
-        Job
-        Title</a>
+       class="btn btn-primary btn-alert">Remove Job Title</a>
 {%- endmacro %}

@@ -55,8 +55,11 @@ class FacultyBiosView(FlaskView):
             ]
         else:  # normal view
             show_special_admin_view = False
-            show_create = len(forms) == 0 or 'Tinker Faculty Bios - CAS' in session['groups'] or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] or 'Tinker Faculty Bios - SEM' in session['groups']
-
+            show_create = len(forms) == 0 \
+                          or 'Tinker Faculty Bios - CAS' in session['groups'] \
+                          or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
+                          or 'Tinker Faculty Bios - SEM' in session['groups'] \
+                          or self.base.is_user_in_web_author_groups()
         return render_template('faculty-bio-home.html', **locals())
 
     @route('delete/<faculty_bio_id>', methods=['GET'])
@@ -104,28 +107,16 @@ class FacultyBiosView(FlaskView):
         faculty_bio_data, mdata, sdata = page.read_asset()
         edit_data = self.base.get_edit_data(sdata, mdata, ['education', 'job-titles'])
 
-        # pull the group data to the top level of the dict
-        group_identifiers = ['expertise']
-        for identifier in group_identifiers:
-            for key, value in edit_data[identifier].iteritems():
-                edit_data[key] = value
-                
-        # Todo: remove this code once all highlight text fields are populated. Until then, override an empty highlight text
-        # with the text entered in areas, research, and teaching
-        try:
-            if 'heading' in edit_data and edit_data['heading'] and ('highlight' not in edit_data or edit_data['highlight'] is None or edit_data['highlight'] == ''):
-                if edit_data['heading'] == 'Areas of expertise' and 'areas' in edit_data and edit_data['areas']:
-                    edit_data['highlight'] = edit_data['areas']
-                elif edit_data['heading'] == 'Research interests' and 'research_interests' in edit_data and edit_data['research_interests']:
-                    edit_data['highlight'] = edit_data['research_interests']
-                elif edit_data['heading'] == 'Teaching specialty' and 'teaching_specialty' in edit_data and edit_data['teaching_specialty']:
-                    edit_data['highlight'] = edit_data['teaching_specialty']
-        except:
-            pass
-
         # turn the image into the correct identifier
-        edit_data['image_url'] = edit_data['image']
+        try:
+            edit_data['image_url'] = edit_data['image']
+        except:
+            edit_data['image_url'] = ''
         edit_image = self.base.should_be_able_to_edit_image(roles)
+
+        # pull the add_to_bio data up one level
+        for key, value in edit_data['add_to_bio'].iteritems():
+            edit_data[key] = value
 
         # Create an EventForm object with our data
         form = FacultyBioForm(**edit_data)
@@ -141,16 +132,28 @@ class FacultyBiosView(FlaskView):
 
     @route('/submit', methods=['POST'])
     def submit(self):
-
         rform = request.form
         username = session['username']
         groups = session['groups']
 
         faculty_bio_id = rform.get('faculty_bio_id')
 
-        failed = self.base.validate_form(rform)
-        if failed:
-            return failed
+        validated_form = self.base.validate_form(rform)  # Returns a dictionary
+        if bool(validated_form.errors): # Evaluates to False if there are no entries in the dictionary
+            if 'faculty_bio_id' in request.form.keys():
+                faculty_bio_id = request.form['faculty_bio_id']
+            else:
+                # This error came from the add form because event_id wasn't set
+                add_form = True
+
+            form = validated_form
+            wysiwyg_keys = ['biography', 'courses', 'awards', 'publications', 'presentations', 'certificates',
+                            'organizations', 'hobbies']
+            add_data = self.base.get_add_data(['faculty_location'], rform, wysiwyg_keys)
+            metadata = fjson.dumps(data_to_add)
+            new_job_titles = fjson.dumps(self.base.get_job_titles(add_data))
+            degrees = fjson.dumps(self.base.get_degrees(add_data))
+            return render_template('faculty-bio-form.html', **locals())
 
         if faculty_bio_id:
             # existing bio

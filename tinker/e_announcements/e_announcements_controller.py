@@ -7,6 +7,7 @@ from flask import render_template
 # tinker
 from tinker import app
 from tinker.tinker_controller import TinkerController
+from bu_cascade.asset_tools import *
 
 BRM = [
         'CAS',
@@ -34,15 +35,23 @@ class EAnnouncementsController(TinkerController):
         super(EAnnouncementsController, self).__init__()
         self.brm = BRM
 
-    def inspect_child(self, child):
+    def inspect_child(self, child, find_all=False):
+        # if find_all is true, then skip the check to see if you are allowed to see it.
+        if find_all:
+            try:
+                return self._iterate_child_xml(child, '')
+            except AttributeError:
+                # not a valid e-ann block
+                return None
 
         try:
             author = child.find('author').text
+            author = author.replace(' ', '').split(',')
         except AttributeError:
             author = None
         username = session['username']
 
-        if (author is not None and username == author) or 'E-Announcement Approver' in session['groups']:
+        if (author is not None and username in author) or 'E-Announcement Approver' in session['groups']:
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
@@ -51,7 +60,7 @@ class EAnnouncementsController(TinkerController):
         else:
             return None
 
-    def _iterate_child_xml(self, child, author):
+    def _iterate_child_xml(self, child, author=None):
 
         first = child.find('system-data-structure/first-date').text
         second = child.find('system-data-structure/second-date').text
@@ -67,10 +76,11 @@ class EAnnouncementsController(TinkerController):
             second_date_past = second_date_object < datetime.datetime.now()
 
         roles = []
-        values = child.find('dynamic-metadata')
-        for value in values:
-            if value.tag == 'value':
-                roles.append(value.text)
+        elements = child.findall('.//dynamic-metadata')
+        for element in elements:
+            for value in element:
+                if value.tag == 'value':
+                    roles.append(value.text)
 
         try:
             workflow_status = child.find('workflow').find('status').text
@@ -118,9 +128,6 @@ class EAnnouncementsController(TinkerController):
         add_data['parentFolderId'] = ''
         add_data['parentFolderPath'] = self.get_e_announcement_parent_folder(add_data['first_date'])
 
-        # add missing data and make sure its in the right format.
-        add_data['name'] = session['name']
-
         # todo, update these to have _ instead of - in Cascade so we don't have to translate
         add_data['email'] = session['user_email']
         add_data['banner-roles'] = add_data['banner_roles']
@@ -135,11 +142,13 @@ class EAnnouncementsController(TinkerController):
         # update asset
         self.update_asset(sdata, add_data)
         self.update_asset(e_announcement_data, add_data)
+        update(sdata, 'name', session['name'])
 
         # for some reason, title is not already set, so it must be set manually
         e_announcement_data['xhtmlDataDefinitionBlock']['metadata']['title'] = add_data['title']
 
-        # once all editing is done, move it if it needs to be moved
+        # once all editing is done, move the asset is an edit. We do this in order to ensure the path and name are correct everytime.
+        # We decided to leave this as a move instead of adding checks to see if it does or does not move.
         if e_announcement_id:
             self.move(e_announcement_id, add_data['parentFolderPath'], type='block')
 

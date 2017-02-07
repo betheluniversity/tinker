@@ -141,8 +141,6 @@ class EAnnouncementsForm(Form):
 
     message = CKEditorTextAreaField('Message', validators=[validators.DataRequired()])
     info = InfoField("Date Info")
-    name = HiddenField('Name')
-    email = HiddenField('Email')
     first_date = DateField("First Date", format="%m-%d-%Y", validators=[validators.DataRequired()])
     second_date = DateField("Optional Second Date. This date should be later than the first date.", format="%m-%d-%Y",
                        validators=[validators.Optional()])
@@ -160,7 +158,7 @@ class EAnnouncementsForm(Form):
             self.title.errors.append('Title must be less than 60 characters')
             result = False
 
-        if self.second_date.data:
+        if self.first_date.data and self.second_date.data:
             if self.first_date.data >= self.second_date.data:
                 self.first_date.errors.append('The first date must come before the second date.')
                 result = False

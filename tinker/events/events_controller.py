@@ -18,6 +18,10 @@ from flask import json as fjson
 
 class EventsController(TinkerController):
 
+<<<<<<< HEAD
+=======
+    # find_all is currently unused for events (but used for the e-annz)
+>>>>>>> master
     def inspect_child(self, child, find_all=False):
         try:
             author = child.find('author').text
@@ -149,10 +153,6 @@ class EventsController(TinkerController):
             author = rform["author"]
             num_dates = int(rform['num_dates'])
 
-            add_data = self.get_add_data([], rform, [])
-            add_data['event-dates'] = self.get_dates(add_data)
-            dates = self.sanitize_dates(self.get_dates(add_data['event-dates']))
-            dates = fjson.dumps(event_dates)
             return render_template('event-form.html', **locals())
 
     def build_edit_form(self, event_id):
@@ -424,19 +424,25 @@ class EventsController(TinkerController):
             if hasDates and checkDates:
                 try:
                     # If the event has dates convert them to the seconds type to compare
-                    estart, eend = form['event-dates'].split(" - ")
-                    fstart = datetime.datetime.strptime(estart, "%b %d, %Y %I:%M %p")  # Starting time from the form
-                    fend = datetime.datetime.strptime(eend, "%b %d, %Y %I:%M %p")  # Ending time from the form
+                    eventStart, eventEnd = form['event-dates'].split(" - ")
+                    eventStart = datetime.datetime.strptime(eventStart, "%B %d, %Y %I:%M %p")  # Starting time from the form
+                    # fstart = datetime.datetime(estart).strftime('%S')
+                    eventEnd = datetime.datetime.strptime(eventEnd, "%B %d, %Y %I:%M %p")  # Ending time from the form
+                    # fend = datetime.datetime(eend).strftime('%S')
                 except:
                     checkDates = False
                     continue
             if hasTitle and hasDates and checkDates:  # Full search
-                if form['title'] == title and fend <= end and fstart >= start:
+                if form['title'] == title and (end - eventEnd) >=0 and (start - eventStart) <=0:
                     toReturn.append(form)
             elif hasTitle:  # Title search
                 if form['title'] == title:
                     toReturn.append(form)
             elif hasDates and checkDates:  # Date range search
-                if fend <= end and fstart >= start:
+                if (end - eventEnd) >=datetime.timedelta(seconds=0) and (start - eventStart) <=datetime.timedelta(seconds=0):
                     toReturn.append(form)
         return toReturn, '-'.join(selection) == 'user-events'
+
+    def compare_dates(self, a, b):
+        # If a and b are both datetime objects then if b comes after a it will return true
+        return b-a >0

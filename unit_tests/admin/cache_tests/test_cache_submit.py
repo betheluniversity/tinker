@@ -29,12 +29,14 @@ class SubmitTestCase(BaseTestCase):
         # files and folders in there, not on my local machine.
         form_contents = self.create_form("/yes")
         response = self.send_post(self.request, form_contents)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_submit_invalid_url(self):
         expected_response = self.ERROR_400
         form_contents = self.create_form(None)
         response = self.send_post(self.request, form_contents)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)

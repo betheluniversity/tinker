@@ -1,7 +1,10 @@
 import json
 import time
 import datetime
+<<<<<<< HEAD
 from flask import Response
+=======
+>>>>>>> master
 from flask_classy import FlaskView, route
 from tinker.events.events_controller import EventsController
 from bu_cascade.asset_tools import update
@@ -24,6 +27,7 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
+<<<<<<< HEAD
         show_create = True
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
             # The special admin view
@@ -45,6 +49,12 @@ class EventsView(FlaskView):
 
         return render_template('events-home.html', show_create=show_create, all_schools=all_schools, dumVar=None,
                                UserMatches=None, matches=None)
+=======
+        user_forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
+        if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
+            user_forms, other_forms = self.base.split_user_events(user_forms)
+        return render_template('events-home.html', **locals())
+>>>>>>> master
 
     def confirm(self):
         return render_template('submit-confirm.html', **locals())
@@ -84,13 +94,13 @@ class EventsView(FlaskView):
         return render_template('event-form.html', **locals())
 
     @route("/submit", methods=['post'])
-    def submit(self, edit=False):
+    def submit(self):
         rform = request.form
         username = session['username']
         eid = rform.get('event_id')
         dates, dates_good, num_dates = self.base.check_event_dates(rform)
         failed = self.base.validate_form(rform, dates_good, dates)
-        workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], '--' + rform['title'] + ', ' + rform['start1'])
+        workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], rform['author'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
         wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']
         if failed:
@@ -147,6 +157,7 @@ class EventsView(FlaskView):
 
     # This endpoint is being re-added so that unit tests will be self-deleting. This endpoint is publicly visible, but
     # it is not referenced anywhere on any page, so the public shouldn't know of its existence.
+    # Todo: this should require auth! otherwise, anyone could delete any event
     @route("/delete/<event_id>", methods=['GET'])
     def delete(self, event_id):
         event_page = self.base.read_page(event_id)

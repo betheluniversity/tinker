@@ -21,5 +21,6 @@ class EditTestCase(BaseTestCase):
         self.request = self.generate_url("edit", block_id=block_id)
         expected_response = b'<form id="officehoursform" action="/office-hours/submit" method="post" enctype="multipart/form-data">'
         response = self.send_get(self.request)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data, expected_response, self.class_name)
+        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                        expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)

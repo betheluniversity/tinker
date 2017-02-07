@@ -22,7 +22,7 @@ class ProgramSearchView(FlaskView):
 
     def before_request(self, args):
         # give access to admins and lauren
-        if 'Administrators' not in session['groups'] and 'parlau' not in session['groups']:
+        if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
             abort(403)
 
     def index(self):
@@ -48,7 +48,7 @@ class ProgramSearchView(FlaskView):
             topic = ast.literal_eval(rform.get('topic'))
             other = ast.literal_eval(rform.get('other'))
         except ValueError:
-            return abort(500)
+            return abort(400)
 
         try:
             program_tag = ProgramTag(key=key, tag=tag, outcome=outcome, other=other, topic=topic)
