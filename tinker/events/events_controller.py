@@ -436,10 +436,17 @@ class EventsController(TinkerController):
                 if form['title'] == title:
                     toReturn.append(form)
             elif hasDates and checkDates:  # Date range search
-                if (end - eventEnd) >=datetime.timedelta(seconds=0) and (start - eventStart) <=datetime.timedelta(seconds=0):
+                if self.compare_timedeltas(eventEnd, end)== 1 and self.compare_timedeltas(eventStart, start)==2:
                     toReturn.append(form)
         return toReturn, '-'.join(selection) == 'user-events'
 
     def compare_timedeltas(self, a, b):
-        # If a and b are both datetime objects then if b comes after a it will return true
-        return (b-a) > datetime.timedelta(seconds=0)
+        # If a and b are both datetime objects then if b comes after a it will return 1
+        if(b-a) >= datetime.timedelta(seconds=0):
+            return 1
+        #b before a returns 2
+        elif(b-a) <= datetime.timedelta(seconds=0):
+            return 2
+        #neither returns 0
+        else:
+            return 0
