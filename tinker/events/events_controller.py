@@ -384,66 +384,61 @@ class EventsController(TinkerController):
     def edit_all_callback(self, asset_data):
         pass
 
-    #The search method that does the actual searching for the /search in events/init
+    #The search method that does the actual searching for the /search in init
     def get_search_results(self, selection, title, start, end):
         # Get the events and then split them into user events and other events for quicker searching
         events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
+        user_events, other_events = self.split_user_events(events)
+
         # Quick check with assignment
-        if '-'.join(selection) == 'all-events':
-            events_to_iterate = events
-            #default is for the automatic event population
-            forms_header = "All Events"
-        else:
-            user_events, other_events = self.split_user_events(events)
-            if '-'.join(selection) == 'user-events':
-                events_to_iterate = user_events
-                forms_header = "User Events"
-            else:
-                events_to_iterate = other_events
-                forms_header = "All Other Events"
-
         # Early return if no parameters to check in the search
+        if '-'.join(selection) == 'user-events':
+            eventsToIterate = user_events
+        else:
+            eventsToIterate = other_events
         if not title and not start and not end:
-            return events_to_iterate, forms_header
+            return eventsToIterate, '-'.join(selection) == 'user-events'
 
-        to_return = []
+        toReturn = []
 
         # check for search parameters and set booleans
         if not title:
-            has_title = False #If no title false
+            hasTitle = False #If no title false
         else:
-            has_title = True #Otherwise assign title
+            hasTitle = True #Otherwise assign title
         if not start or not end:
-            has_dates = False #If the user did not use a start or end date
+            hasDates = False #If the user did not use a start or end date
         else:
-            has_dates = True #If the user used a date range
+            hasDates = True #If the user used a date range
 
         # Loop through the events based on selection
         # Go through user events
-        for event in events_to_iterate:
-            if not event['event-dates']:
-                check_dates = False
+        for form in eventsToIterate:
+            if not form['event-dates']:
+                checkDates = False
             else:
-                check_dates = True
-            if has_dates and check_dates:
+                checkDates = True
+            if hasDates and checkDates:
                 try:
                     # If the event has dates convert them to the seconds type to compare
-                    event_start, event_end = event['event-dates'].split(" - ")
-                    event_start = datetime.datetime.strptime(event_start, "%B %d, %Y %I:%M %p")  # Starting time from the form
-                    event_end = datetime.datetime.strptime(event_end, "%B %d, %Y %I:%M %p")  # Ending time from the form
+                    eventStart, eventEnd = form['event-dates'].split(" - ")
+                    eventStart = datetime.datetime.strptime(eventStart, "%B %d, %Y %I:%M %p")  # Starting time from the form
+                    # fstart = datetime.datetime(estart).strftime('%S')
+                    eventEnd = datetime.datetime.strptime(eventEnd, "%B %d, %Y %I:%M %p")  # Ending time from the form
+                    # fend = datetime.datetime(eend).strftime('%S')
                 except:
-                    check_dates = False
+                    checkDates = False
                     continue
-            # Full search
-            if has_title and has_dates and check_dates and title in event['title'] and (end - event_end) >=0 and (start - event_start) <=0:
-                to_return.append(event)
-            # Title search
-            elif has_title and title in event['title']:
-                to_return.append(event)
-            # Date range search
-            elif has_dates and check_dates and self.compare_timedeltas(event_end, end) == 1 and self.compare_timedeltas(event_start, start) == 2:
-                to_return.append(event)
-        return to_return, forms_header
+            if hasTitle and hasDates and checkDates:  # Full search
+                if form['title'] == title and (end - eventEnd) >=0 and (start - eventStart) <=0:
+                    toReturn.append(form)
+            elif hasTitle:  # Title search
+                if form['title'] == title:
+                    toReturn.append(form)
+            elif hasDates and checkDates:  # Date range search
+                if self.compare_timedeltas(eventEnd, end)== 1 and self.compare_timedeltas(eventStart, start)==2:
+                    toReturn.append(form)
+        return toReturn, '-'.join(selection) == 'user-events'
 
     def compare_timedeltas(self, a, b):
         reference = datetime.timedelta(seconds=0)

@@ -28,11 +28,9 @@ class EventsView(FlaskView):
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
             # The special admin view
             all_schools = [
-                {'all-events': 'All Events'},
                 {'user-events': 'User Events'},
-                {'aoe': 'All Other Events'}
+                {'cas': 'College of Arts and Sciences'}
                 #The below can be uncommented as they are built out
-                # {'cas': 'College of Arts and Sciences'},
                 # {'caps': 'College of Adult and Professional Studies'},
                 # {'gs': 'Graduate School'},
                 # {'sem': 'Bethel Seminary'},
@@ -46,7 +44,7 @@ class EventsView(FlaskView):
             ]
 
         return render_template('events-home.html', show_create=show_create, all_schools=all_schools, dumVar=None,
-                               formsHeader="All Events")
+                               UserMatches=None, matches=None)
 
     def confirm(self):
         return render_template('submit-confirm.html', **locals())
@@ -165,11 +163,9 @@ class EventsView(FlaskView):
         # Start by declaring the variables from the index so that they can be passed into render_template
         show_create = True
         all_schools = [
-            {'all-events': 'All Events'},
             {'user-events': 'User Events'},
-            {'aoe': 'All Other Events'}
+            {'cas': 'College of Arts and Sciences'}
             # The below can be uncommented as they are built out
-            # {'cas': 'College of Arts and Sciences'},
             # {'caps': 'College of Adult and Professional Studies'},
             # {'gs': 'Graduate School'},
             # {'sem': 'Bethel Seminary'},
@@ -188,8 +184,8 @@ class EventsView(FlaskView):
             # Set start and end to be falsey so that hasDates is set to false
             start = 0
             end = 0
-        search_results, forms_header = self.base.get_search_results(selection, title, start, end)
-        return render_template('search_results.html', dumVar=search_results, formsHeader=forms_header)
+        searchResults, UserMatch = self.base.get_search_results(selection, title, start, end)
+        return render_template('search_results.html', dumVar=searchResults, UserMatches=UserMatch, matches=not UserMatch)
 
 
 EventsView.register(EventsBlueprint)
