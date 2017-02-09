@@ -38,29 +38,10 @@
 
 {% block main_content %}
     <div class="content">
-        {% if UserMatches %}
-            <h2>Your Events</h2>
-            <hr/>
-            {% for form in dumVar %}
-                <br/>
-                {{ form_card(form) }}
-            {% endfor %}
-        {% endif %}
-
-        <!-- other forms -->
-        {% if matches %}
-            {% if 'Event Approver' in session['groups'] %}
-                <h2>Event Approver</h2>
-            {% elif 'Tinker Events - CAS' in session['groups'] %}
-                <h2>Undergrad Events</h2>
-            {% else %}
-                <h2>Other Events</h2>
-            {% endif %}
-            <hr/>
-            {% for form in dumVar %}
-                <br/>
-                {{ form_card(form) }}
-            {% endfor %}
-        {% endif %}
+        <h2>{{ formsHeader }}</h2>
+        {% for form in dumVar %}
+            <br/>
+            {{ form_card(form) }}
+        {% endfor %}
     </div>
 {% endblock %}

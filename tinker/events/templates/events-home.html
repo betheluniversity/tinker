@@ -38,13 +38,16 @@
                                     {% endfor %}
                                 {% endfor %}
                             </select>
-                            <p class="description"> The below are optional but can help in your search.</p>
-                            <p class="description"> To use the search more effectively enter in a title, or both a start
-                                and end date, or all three</p>
+                            <p class="description"> The below are optional parameters to help in your search.</p>
                             <div>
                                 <p>Event Title:<br/>
+                                    <small>Used by entering in part of a name, for example "scho" will select events with
+                                        words "scholar", "school", "scholastic" etc.</small>
                                     <input id="eTitle" type="text" name="EventTitle"><br/>
                                 </p>
+                                <small>The Start and End fields are to specify the date range where an event might fall,
+                                    for example "New Years Eve" and "Christmas" would both show up if you started at December 25th
+                                and ended on December 31st</small>
                                 <p>Start Date:<br/>
                                     <input id="startDate" class='datepicker' size='11'/>
 
@@ -55,6 +58,10 @@
                                 </p>
                                 <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
                             </div>
+                        {# spinner placeholder #}
+                        <div id="spinner" class="spinner" style="display:none;">
+                            <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+                        </div>
                         </label>
                     </div>
                     <hr/>
@@ -121,13 +128,15 @@
                 yearRange: [2000, 2040]
             });
         });
-        $(".search-events").click(function () {
+        function search_events() {
             search_url = "{{ url_for('events.EventsView:search') }}";
+            $('#spinner').show();
             inputs = {
                 "title": $("#eTitle").val(),
                 "start": $("#startDate").val(),
                 "end": $("#endDate").val(),
                 "selection": $("#school-selector").val()
+
             };
             $.ajax({
                 type: "POST",
@@ -137,10 +146,14 @@
                 success: function (result) {
                     // window.location.replace(result);
                     document.getElementById('results').innerHTML = result;
+                    $('#spinner').hide();
                 }
             });
+        }
+        $(".search-events").click(function () {
+            search_events();
         });
-
+        search_events();
     </script>
 
 {% endblock %}
