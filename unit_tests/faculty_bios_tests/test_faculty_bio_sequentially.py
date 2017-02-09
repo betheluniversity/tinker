@@ -175,7 +175,6 @@ class FacultyBioSequentialTestCase(BaseTestCase):
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     def submit_edit_valid(self):
-        print "FBID =", self.fbid
         self.request_type = "POST"
         self.request = self.generate_url("submit")
         expected_response = b"You've successfully edited your bio. Your edits have been sent for approval but will be ready to"

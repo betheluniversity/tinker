@@ -241,17 +241,6 @@ class FacultyBioController(TinkerController):
                          (((l_f_value == 'Lead Faculty' or l_f_value == 'Program Director') and not job_title) or
                           (l_f_value == 'Other' and job_title)))
 
-            if staff_check:
-                print "Staff validated"
-            if cas_check:
-                print "CAS validated"
-            if caps_check:
-                print "CAPS validated"
-            if gs_check:
-                print "GS validated"
-            if sem_check:
-                print "Sem validated"
-
             check = staff_check or cas_check or caps_check or gs_check or sem_check
             # check = (school == 'Bethel University' and job_title) or \
             # ((undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty or job_title))
