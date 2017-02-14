@@ -221,18 +221,33 @@ class FacultyBioController(TinkerController):
             caps = safe_get(caps_l, preferred_return=True)
             gs = safe_get(gs_l, preferred_return=True)
             seminary = safe_get(seminary_l, preferred_return=True)
-            dept_chair = safe_get(dept_chair_l, preferred_return=True)
-            program_director = safe_get(program_director_l, preferred_return=True)
-            lead_faculty = safe_get(lead_faculty_l, preferred_return=True)
+            dept_chair, d_c_value = safe_get(dept_chair_l, preferred_return=True), safe_get(dept_chair_l)
+            program_director, p_d_value = safe_get(program_director_l, preferred_return=True), safe_get(program_director_l)
+            lead_faculty, l_f_value = safe_get(lead_faculty_l, preferred_return=True), safe_get(lead_faculty_l)
             job_title = safe_get(job_title_l, preferred_return=True)
 
-            check = (school == 'Bethel University' and job_title) or \
-                    ((undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty))
+            if school == "-select-":
+                error_list.append(u'You must select a school for Job Title #' + i)
+                failed_check = True
+
+            staff_check = (school == 'Bethel University' and job_title)
+            cas_check = (school == 'College of Arts and Sciences' and undergrad and dept_chair and
+                         ((d_c_value == 'Yes' and not job_title) or (d_c_value == 'No' and job_title)))
+            caps_check = (school == 'College of Adult and Professional Studies' and caps and program_director and
+                          ((p_d_value == 'Yes' and not job_title) or (p_d_value == 'No' and job_title)))
+            gs_check = (school == 'Graduate School' and gs and program_director and
+                        ((p_d_value == 'Yes' and not job_title) or (p_d_value == 'No' and job_title)))
+            sem_check = (school == 'Bethel Seminary' and seminary and lead_faculty and
+                         (((l_f_value == 'Lead Faculty' or l_f_value == 'Program Director') and not job_title) or
+                          (l_f_value == 'Other' and job_title)))
+
+            check = staff_check or cas_check or caps_check or gs_check or sem_check
+            # check = (school == 'Bethel University' and job_title) or \
+            # ((undergrad or caps or gs or seminary) and (dept_chair or program_director or lead_faculty or job_title))
             if not check:
                 error_list.append(u'Job Title #' + i + u' has an error')
                 failed_check = True
 
-        # convert event dates to JSON
         return not failed_check, error_list, num_new_jobs
 
     def update_structure(self, faculty_bio_data, sdata, rform, faculty_bio_id=None):
