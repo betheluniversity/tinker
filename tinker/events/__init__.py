@@ -29,23 +29,22 @@ class EventsView(FlaskView):
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
             # The special admin view
             all_schools = OrderedDict({
-                1 : 'All Events',
-                2 : 'User Events',
-                3 : 'All Other Events'},
-                key=lambda t: t[0])
-            # The below can be uncommented as they are built out
-            # {'cas': 'College of Arts and Sciences'},
-            # {'caps': 'College of Adult and Professional Studies'},
-            # {'gs': 'Graduate School'},
-            # {'sem': 'Bethel Seminary'},
-            # {'bu': 'Administration with Faculty Status'},
-            # {'other-category': 'Other'}
-
+                1: 'All Events',
+                2: 'User Events',
+                3: 'All Other Events'},
+                key=lambda t: t[0]
+            )
+            # The below can be added inside of the dictionary as they are built out
+            # {4: 'College of Arts and Sciences'},
+            # {5: 'College of Adult and Professional Studies'},
+            # {6: 'Graduate School'},
+            # {7: 'Bethel Seminary'},
+            # {8: 'Administration with Faculty Status'},
+            # {9: 'Other'}
         else:  # normal view
-            all_schools = [
-                {'user-events': 'User Events'}
-            ]
-
+            all_schools = OrderedDict({
+                2: 'User Events'}
+            )
         return render_template('events-home.html', show_create=show_create, all_schools=all_schools, dumVar=None,
                                formsHeader="All Events")
 
@@ -169,18 +168,18 @@ class EventsView(FlaskView):
             1: 'All Events',
             2: 'User Events',
             3: 'All Other Events'},
-            key=lambda t: t[0])
-            # The below can be uncommented as they are built out
-            # {'cas': 'College of Arts and Sciences'},
-            # {'caps': 'College of Adult and Professional Studies'},
-            # {'gs': 'Graduate School'},
-            # {'sem': 'Bethel Seminary'},
-            # {'bu': 'Administration with Faculty Status'},
-            # {'other-category': 'Other'}
+            key=lambda t: t[0]
+        )
+        # The below can be added inside of the dictionary as they are built out
+        # {4: 'College of Arts and Sciences'},
+        # {5: 'College of Adult and Professional Studies'},
+        # {6: 'Graduate School'},
+        # {7: 'Bethel Seminary'},
+        # {8: 'Administration with Faculty Status'},
+        # {9: 'Other'}
         # Load the data, get the event type selection and title of the event the user is searching for
         data = json.loads(request.data)
         selection = data['selection']
-        print selection
         title = data['title']
         try:
             # Try converting the start and end datTimes to seconds representation
