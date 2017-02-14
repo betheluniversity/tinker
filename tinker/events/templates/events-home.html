@@ -31,11 +31,11 @@
                         <label><h3 class="first-subtitle">View:</h3>
                             <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
                                     multiple>
-                                {% for schools in all_schools %}
-                                    {% for class_name, school_name in schools.items() %}
-                                        <option value="{{ class_name }}"
-                                                selected="selected">{{ school_name }}</option>
-                                    {% endfor %}
+                                {% for school_code, school in all_schools.items() %}
+                                    {% if not loop.last %}
+                                        <option value="{{ school_code}}"
+                                                selected="selected">{{ school }}</option>
+                                    {%  endif %}
                                 {% endfor %}
                             </select>
                             <p class="description"> The below are optional parameters to help in your search.</p>

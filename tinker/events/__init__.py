@@ -8,6 +8,7 @@ from bu_cascade.asset_tools import update
 from flask import Blueprint, redirect, session, render_template, request, url_for, json as fjson
 from tinker import app
 from events_metadata import metadata_list
+from collections import OrderedDict
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
@@ -27,18 +28,18 @@ class EventsView(FlaskView):
         show_create = True
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
             # The special admin view
-            all_schools = [
-                {'all-events': 'All Events'},
-                {'user-events': 'User Events'},
-                {'aoe': 'All Other Events'}
-                #The below can be uncommented as they are built out
-                # {'cas': 'College of Arts and Sciences'},
-                # {'caps': 'College of Adult and Professional Studies'},
-                # {'gs': 'Graduate School'},
-                # {'sem': 'Bethel Seminary'},
-                # {'bu': 'Administration with Faculty Status'},
-                # {'other-category': 'Other'}
-            ]
+            all_schools = OrderedDict({
+                1 : 'All Events',
+                2 : 'User Events',
+                3 : 'All Other Events'},
+                key=lambda t: t[0])
+            # The below can be uncommented as they are built out
+            # {'cas': 'College of Arts and Sciences'},
+            # {'caps': 'College of Adult and Professional Studies'},
+            # {'gs': 'Graduate School'},
+            # {'sem': 'Bethel Seminary'},
+            # {'bu': 'Administration with Faculty Status'},
+            # {'other-category': 'Other'}
 
         else:  # normal view
             all_schools = [
@@ -164,10 +165,11 @@ class EventsView(FlaskView):
     def search(self):
         # Start by declaring the variables from the index so that they can be passed into render_template
         show_create = True
-        all_schools = [
-            {'all-events': 'All Events'},
-            {'user-events': 'User Events'},
-            {'aoe': 'All Other Events'}
+        all_schools = OrderedDict({
+            1: 'All Events',
+            2: 'User Events',
+            3: 'All Other Events'},
+            key=lambda t: t[0])
             # The below can be uncommented as they are built out
             # {'cas': 'College of Arts and Sciences'},
             # {'caps': 'College of Adult and Professional Studies'},
@@ -175,15 +177,14 @@ class EventsView(FlaskView):
             # {'sem': 'Bethel Seminary'},
             # {'bu': 'Administration with Faculty Status'},
             # {'other-category': 'Other'}
-        ]
         # Load the data, get the event type selection and title of the event the user is searching for
         data = json.loads(request.data)
         selection = data['selection']
         title = data['title']
         try:
             # Try converting the start and end datTimes to seconds representation
-            start = datetime.datetime.strptime(data['start'],"%a %b %d %Y") #start and end are datetime objects recieved from the input fields
-            end = datetime.datetime.strptime(data['end'],"%a %b %d %Y")
+            start = datetime.datetime.strptime(data['start'], "%a %b %d %Y") #start and end are datetime objects recieved from the input fields
+            end = datetime.datetime.strptime(data['end'], "%a %b %d %Y")
         except:
             # Set start and end to be falsey so that hasDates is set to false
             start = 0
