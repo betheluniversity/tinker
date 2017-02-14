@@ -389,13 +389,13 @@ class EventsController(TinkerController):
         # Get the events and then split them into user events and other events for quicker searching
         events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         # Quick check with assignment
-        if '-'.join(selection) == 'all-events':
+        if '-'.join(selection) == '1':
             events_to_iterate = events
             #default is for the automatic event population
             forms_header = "All Events"
         else:
             user_events, other_events = self.split_user_events(events)
-            if '-'.join(selection) == 'user-events':
+            if '-'.join(selection) == '2':
                 events_to_iterate = user_events
                 forms_header = "User Events"
             else:

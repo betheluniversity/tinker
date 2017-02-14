@@ -180,6 +180,7 @@ class EventsView(FlaskView):
         # Load the data, get the event type selection and title of the event the user is searching for
         data = json.loads(request.data)
         selection = data['selection']
+        print selection
         title = data['title']
         try:
             # Try converting the start and end datTimes to seconds representation
