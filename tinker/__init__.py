@@ -6,6 +6,7 @@ import platform
 from flask import Flask, url_for
 
 # flask extensions
+import flask_profiler
 from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
 from flask_wtf.csrf import CsrfProtect
@@ -47,6 +48,18 @@ else:
     app.config['SQLALCHEMY_MIGRATE_REPO'] = os.path.join(_basedir, 'db_repository')
     app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../programs.csv')
     app.config['REDIRECTS_FILE_PATH'] = os.path.join(_basedir, '../redirects.txt')
+
+app.config["flask_profiler"] = {
+    "enabled": True,
+    "storage": {
+        "engine": "sqlite"
+    }
+    # "basicAuth":{
+    #     "enabled": True,
+    #     "username": "admin",
+    #     "password": "admin"
+    # }
+}
 
 db = SQLAlchemy(app)
 
@@ -115,3 +128,4 @@ def before_request():
     base = TinkerController()
     base.before_request()
 
+flask_profiler.init_app(app)
