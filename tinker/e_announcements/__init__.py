@@ -30,7 +30,7 @@ class EAnnouncementsView(FlaskView):
     def index(self):
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
 
-        forms.sort(key=lambda item: item['first_date'], reverse=False)
+        forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
         return render_template('ea-home.html', **locals())
 
     @route("/delete/<e_announcement_id>", methods=['GET', 'POST'])
