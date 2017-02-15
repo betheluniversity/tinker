@@ -392,7 +392,7 @@
                         if (start.val() == '' || end.val() == '') {
                             var new_element = $('<div>').html('Dates are required.').addClass('required dates-required red-alert').attr('style', 'margin-bottom: 8px');
 
-                            var error_element = $('<div>').addClass('error-alert').append($('<div data-alert>').addClass('red-alert').append('There were errors with your form'))
+                            var error_element = $('<div>').addClass('error-alert').append($('<div data-alert>').addClass('red-alert').append('There were errors with your form'));
                             $('#eventform').parent().prepend(error_element);
                             // if first element, add scroll-to class
                             if (return_value == true)
