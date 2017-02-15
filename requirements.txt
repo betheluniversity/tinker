@@ -28,5 +28,4 @@ importlib
 gspread
 oauth2client
 PyOpenSSL
-collections
 ordereddict

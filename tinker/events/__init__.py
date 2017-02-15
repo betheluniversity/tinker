@@ -8,11 +8,8 @@ from bu_cascade.asset_tools import update
 from flask import Blueprint, redirect, session, render_template, request, url_for, json as fjson
 from tinker import app
 from events_metadata import metadata_list
-try:
-    from collections import OrderedDict
-except ImportError:
-    # python 2.6 or earlier, use backport
-    from ordereddict import OrderedDict
+# python 2.6 or earlier -- Todo: when we upgrade, use from collections import OrderedDict
+from ordereddict import OrderedDict
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
