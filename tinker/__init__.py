@@ -54,12 +54,17 @@ app.config["flask_profiler"] = {
     "storage": {
         "engine": "sqlite"
     }
-    # "basicAuth":{
-    #     "enabled": True,
-    #     "username": "admin",
-    #     "password": "admin"
-    # }
 }
+
+prod = app.config['ENVIRON'] == 'prod'
+
+    # if not production, then clear our session variables on each call
+if prod:
+    app.config["flask_profiler"]["basicAuth"] = {
+        "enabled": True,
+        "username": app.config['CASCADE_LOGIN']['username'],
+        "password": app.config['CASCADE_LOGIN']['password']
+    }
 
 db = SQLAlchemy(app)
 
