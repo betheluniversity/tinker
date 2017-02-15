@@ -52,13 +52,12 @@ else:
 app.config["flask_profiler"] = {
     "enabled": True,
     "storage": {
-        "engine": "sqlite"
+        "engine": "sqlite",
+        "FILE": app.config['INSTALL_LOCATION'] + '/flask_profiler.sql'
     }
 }
 
 prod = app.config['ENVIRON'] == 'prod'
-
-    # if not production, then clear our session variables on each call
 if prod:
     app.config["flask_profiler"]["basicAuth"] = {
         "enabled": True,
