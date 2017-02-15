@@ -26,7 +26,6 @@ to be in it's own card div, something to think about in the future -->
                 <hr/>
 
                 <form id="facultybioform" action="{{ url_for('faculty_bios.FacultyBiosView:submit') }}" method="post" enctype="multipart/form-data">
-                    <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                     <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
 
                     {% if form.errors %}

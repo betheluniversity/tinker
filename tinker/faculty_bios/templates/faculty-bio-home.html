@@ -165,11 +165,7 @@
 
 {% block scripts %}
     {#  Script to update the modal submit to delete the correct form#}
-    <script src="/static/csrf-activator.js"></script>
     <script type="text/javascript">
-        var csrftoken = "{{ csrf_token() }}";
-        activateCSRF(csrftoken);
-
         {% if show_special_admin_view %}
             $(".delete-press").click(function () {
                 $("#modal-confirm").attr("href", "/faculty-bios/delete/" + $(this).data('faculty-bio-id'));

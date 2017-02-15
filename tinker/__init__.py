@@ -8,7 +8,6 @@ from flask import Flask, url_for
 # flask extensions
 from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
-from flask_wtf.csrf import CsrfProtect
 from bu_cascade.cascade_connector import Cascade
 
 app = Flask(__name__)
@@ -100,10 +99,6 @@ app.register_blueprint(OfficeHoursBlueprint)
 
 from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
-
-csrf = CsrfProtect(app)
-csrf.exempt(RedirectsBlueprint)
-
 
 # Import global HTTP error code handling
 import error
