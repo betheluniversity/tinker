@@ -127,12 +127,16 @@
         function search_events() {
             search_url = "{{ url_for('events.EventsView:search') }}";
             $('#spinner').show();
+            if($("#startDate").val() == ''){
+                $(".date-pick").datepicker();
+                var todaysDate = $(".date-pick").datepicker("setDate", new Date());
+                $("#startDate").val(todaysDate);
+            }
             inputs = {
                 "title": $("#eventTitle").val(),
                 "start": $("#startDate").val(),
                 "end": $("#endDate").val(),
                 "selection": $("#school-selector").val()
-
             };
             $.ajax({
                 type: "POST",
