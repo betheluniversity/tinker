@@ -28,7 +28,7 @@
                     </a>
                     {# in action add the url calling the post method for search#}
                     <div>
-                        <label><h3 class="first-subtitle">View:</h3>
+                        <h3 class="first-subtitle">View:</h3>
                             <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
                                     multiple>
                                 {% for school_code, school in all_schools.items() %}
@@ -39,30 +39,24 @@
                                 {% endfor %}
                             </select>
                             <p class="description"> The below are optional parameters to help in your search.</p>
-                            <div>
-                                <p>Event Title:<br/>
-                                    <small>Used by entering in part of a name, for example "scho" will select events with
-                                        words "scholar", "school", "scholastic" etc.</small>
-                                    <input id="eTitle" type="text" name="EventTitle"><br/>
-                                </p>
+                            <div></div>
+                                <small>Used by entering in part of a name, for example "scho" will select events with
+                                    words "scholar", "school", "scholastic" etc.</small>
+                                <label for="eventTitle">Event Title:</label>
+                                    <input id="eventTitle" type="text" name="EventTitle"><br/>
                                 <small>The Start and End fields are to specify the date range where an event might fall,
                                     for example "New Years Eve" and "Christmas" would both show up if you started at December 25th
-                                and ended on December 31st</small>
-                                <p>Start Date:<br/>
+                                    and ended on December 31st</small>
+                                <label for="startDate">Start Date:</label>
                                     <input id="startDate" class='datepicker' size='11'/>
-
-                                </p>
-
-                                <p>End Date:<br/>
+                                <label for="endDate">End Date:</label>
                                     <input id="endDate" class='datepicker' size='11'/>
-                                </p>
                                 <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
                             </div>
                         {# spinner placeholder #}
                         <div id="spinner" class="spinner" style="display:none;">
                             <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
                         </div>
-                        </label>
                     </div>
                     <hr/>
                     <div id="results">
@@ -132,7 +126,7 @@
             search_url = "{{ url_for('events.EventsView:search') }}";
             $('#spinner').show();
             inputs = {
-                "title": $("#eTitle").val(),
+                "title": $("#eventTitle").val(),
                 "start": $("#startDate").val(),
                 "end": $("#endDate").val(),
                 "selection": $("#school-selector").val()
