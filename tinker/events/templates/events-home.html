@@ -32,9 +32,11 @@
                             <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
                                     multiple>
                                 {% for school_code, school in all_schools.items() %}
-                                    {% if loop.first or not loop.last %}
+                                    {% if loop.first %}
                                         <option value="{{ school_code}}"
                                                 selected="selected">{{ school }}</option>
+                                    {%  elif not loop.last %}
+                                        <option value="{{ school_code}}">{{ school }}</option>
                                     {%  endif %}
                                 {% endfor %}
                             </select>
