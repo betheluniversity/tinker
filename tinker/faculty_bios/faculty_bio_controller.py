@@ -412,7 +412,9 @@ class FacultyBioController(TinkerController):
             return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
 
     def should_be_able_to_edit_image(self, roles):
-        if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
+        if 'Tinker Faculty Bios' in session['groups']:
+            return True
+        elif 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
             return False
         else:
             return True
