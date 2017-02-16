@@ -46,7 +46,7 @@ class EventsView(FlaskView):
             all_schools = OrderedDict({
                 2: 'User Events'}
             )
-        return render_template('events-home.html', show_create=show_create, all_schools=all_schools, dumVar=None,
+        return render_template('events-home.html', show_create=show_create, all_schools=all_schools, list_of_events=None,
                                formsHeader="All Events")
 
     def confirm(self):
@@ -191,7 +191,7 @@ class EventsView(FlaskView):
             start = 0
             end = 0
         search_results, forms_header = self.base.get_search_results(selection, title, start, end)
-        return render_template('search_results.html', dumVar=search_results, formsHeader=forms_header)
+        return render_template('search_results.html', list_of_events=search_results, formsHeader=forms_header)
 
 
 EventsView.register(EventsBlueprint)

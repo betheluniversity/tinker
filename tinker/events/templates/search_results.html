@@ -39,8 +39,8 @@
 {% block main_content %}
     <div class="content">
         <h2>{{ formsHeader }}</h2>
-        {% if dumvar is defined  %}
-            {% for form in dumVar %}
+        {% if list_of_events is defined %}
+            {% for form in list_of_events %}
                 <br/>
                 {{ form_card(form) }}
             {% endfor %}
