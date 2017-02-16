@@ -1,9 +1,3 @@
-# In an ideal world, here are some features that I would like to implement to unit testing:
-# 1. Make the unit tests much more robust; instead of just testing endpoints of a module, it can also check that each
-#       respective DB or Cascade object gets updated appropriately so that there's no possibility of silent failures
-# 2. Find some way to pass test object ids back and forth between unit tests so that the test_sequentially files can be
-#       split into individual, granular unit tests.
-#
 # Currently, the unit testing suite takes about 4 minutes to run.
 
 import base64

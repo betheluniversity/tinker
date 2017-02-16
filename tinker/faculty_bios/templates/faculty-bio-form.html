@@ -41,9 +41,10 @@ to be in it's own card div, something to think about in the future -->
                     {% for field in form %}
                         {% if field.widget.input_type != 'hidden' %}
                             {# Print any errors for this field#}
+                            {% set outer_loop = loop %}
                             {% for error in form.errors[field.name] %}
                                 <div class="error-alert">
-                                    <div data-alert class="red-alert">
+                                    <div id="red-alert{{ outer_loop.index }}" data-alert class="red-alert">
                                         {{ error }}
                                         <a href="#" class="close">&times;</a>
                                     </div>
@@ -236,367 +237,369 @@ to be in it's own card div, something to think about in the future -->
                 return fieldset_node;
             }
 
-                function populateDegreeFieldset(id, school, degree, year) {
-                    var schoolid = '#school' + id;
-                    var degreeid = '#degree-earned' + id;
-                    var yearid = '#year' + id;
-                    $(schoolid).val(school);
-                    $(degreeid).val(degree);
-                    $(yearid).val(year);
-                }
-
-                // todo: this whole method is awful. it has to be redone asap.
-                function populateNewJobTitlesFieldset(id, job_title) {
-                    if( job_title['department_chair'])
-                        department_chair = job_title['department_chair'];
-                    else
-                        department_chair = job_title['department-chair'];
-
-                    if( job_title['program_director'])
-                        program_director = job_title['program_director'];
-                    else
-                        program_director = job_title['program-director'];
-
-                    if( job_title['lead_faculty'])
-                        lead_faculty = job_title['lead_faculty'];
-                    else
-                        lead_faculty = job_title['lead-faculty'];
-
-                    if( job_title['adult_undergrad_program'])
-                        adult_undergrad_program = job_title['adult_undergrad_program'];
-                    else
-                        adult_undergrad_program = job_title['adult-undergrad-program'];
-
-                    if( job_title['graduate_program'])
-                        graduate_program = job_title['graduate_program'];
-                    else
-                        graduate_program = job_title['graduate-program'];
-
-                    if( job_title['seminary_program'])
-                        seminary_program = job_title['seminary_program'];
-                    else
-                        seminary_program = job_title['seminary-program'];
-
-                    if( job_title['job_title'])
-                        title = job_title['job_title'];
-                    else
-                        title = job_title['job-title'];
-
-                    var schoolid = '#schools' + id;
-                    var undergradid = '#undergrad' + id;
-                    var adultundergradid = '#adult-undergrad' + id;
-                    var graduateid = '#graduate' + id;
-                    var seminaryid = '#seminary' + id;
-
-                    var deptchairid = 'input[name="dept-chair' + id + '"][value=' + department_chair + ']';
-                    var programdirectorid = 'input[name="program-director' + id + '"][value=' + program_director + ']';
-                    var leadfacultyid = 'input[name="lead-faculty' + id + '"][value=' + lead_faculty + ']';
-
-                    var jobtitleid = '#new-job-title' + id;
-
-                    $(schoolid).val(job_title['school']);
-                    $(schoolid).change();
-                    $(undergradid).val(job_title['department']);
-                    $(undergradid).change();
-
-                    $(adultundergradid).val(adult_undergrad_program);
-                    if (adult_undergrad_program)
-                        $(adultundergradid).change();
-                    $(graduateid).val(graduate_program);
-                    if (graduate_program)
-                        $(graduateid).change();
-                    $(seminaryid).val(seminary_program);
-                    if ( seminary_program )
-                        $(seminaryid).change();
-
-                    $(deptchairid).parent().addClass('checked');
-                    $(deptchairid).attr('checked', true);
-
-                    $(programdirectorid).parent().addClass('checked');
-                    $(programdirectorid).attr('checked', true);
-
-                    $(leadfacultyid).parent().addClass('checked');
-                    $(leadfacultyid).attr('checked', true);
-
-                    $(jobtitleid).val(title);
-                }
-
-                $(document).ready(function () {
-
-                    //////////////////////////////
-                    // new job titles
-                    //////////////////////////////
-                    function initializeJobTitles(num) {
-                        var metadata = {{ metadata|safe }};
-                        $('.hide-when-school-changes' + num).hide();
-
-                        function giveSelectValues(identifier, metadata_values) {
-                            // add default -select- value
-                            var opt = document.createElement('option');
-                            opt.value = '-select-';
-                            opt.innerHTML = '-select-';
-                            $('#' + identifier + num).append(opt);
-
-                            for (var i = 0; i < metadata_values.length; i++) {
-                                var opt = document.createElement('option');
-                                var metadata_value = metadata_values[i];
-                                if (identifier == 'schools') {
-                                    metadata_value = metadata_value.replace('&', 'and');
-                                }
-                                opt.value = metadata_value;
-                                opt.innerHTML = metadata_value.replace('Bethel University', 'Administration with Faculty Status');
-                                $('#' + identifier + num).append(opt);
-                            }
-                        }
-
-                        giveSelectValues('schools', metadata['school']);
-                        giveSelectValues('undergrad', metadata['department']);
-                        giveSelectValues('adult-undergrad', metadata['adult-undergrad-program']);
-                        giveSelectValues('graduate', metadata['graduate-program']);
-                        giveSelectValues('seminary', metadata['seminary-program']);
-
-                        // School logic
-                        $('#schools' + num).change(function () {
-                            $('#new-job-title' + num).val('');
-                            $('#undergrad' + num).val('None');
-                            $('#adult-undergrad' + num).val('None');
-                            $('#graduate' + num).val('None');
-                            $('#seminary' + num).val('None');
-
-                            $('.hide-when-school-changes' + num).hide();
-                            if ($(this).val() == 'Bethel University') {
-                                $('#new-job-title-div' + num).show();
-                            } else if ($(this).val() == 'College of Arts and Sciences') {
-                                $('#undergrad-div' + num).show();
-                                $('#undergrad' + num).change();
-                            } else if ($(this).val() == 'College of Adult and Professional Studies') {
-                                $('#adult-undergrad-div' + num).show();
-                                $('#adult-undergrad' + num).change();
-                            } else if ($(this).val() == 'Graduate School') {
-                                $('#graduate-div' + num).show();
-                                $('#graduate' + num).change();
-                            } else if ($(this).val() == 'Bethel Seminary') {
-                                $('#seminary-div' + num).show();
-                                $('#seminary' + num).change();
-                            }
-
-
-                        });
-
-                        // Program logic
-                        function addProgramLogic(identifier, idToShowHide, nextIdToDisplay) {
-                            $('#' + identifier + num).change(function () {
-                                if ($('#schools' + num).val() && $('#schools' + num).val() != 'Bethel University') {
-                                    if (!$(this).val() || $(this).val() == 'None') {
-                                        $('#' + idToShowHide + num).hide();
-                                    } else {
-                                        $('#' + idToShowHide + num).show();
-                                        var nextId = 'input[name="' + nextIdToDisplay + num + '"]';
-                                        $(nextId).change();
-
-                                        nextId = 'input[name=' + nextIdToDisplay + num + ']:checked';
-                                        if ($(nextId).val() == 'No' || $(nextId).val() == 'Other')
-                                            $('#new-job-title-div' + num).show();
-                                        else
-                                            $('#new-job-title-div' + num).hide();
-                                    }
-                                }
-                            });
-                        }
-
-                        addProgramLogic('undergrad', 'dept-chair-div', 'dept-chair');
-                        addProgramLogic('adult-undergrad', 'program-director-div', 'program-director');
-                        addProgramLogic('graduate', 'program-director-div', 'program-director');
-                        addProgramLogic('seminary', 'lead-faculty-div', 'lead-faculty');
-
-                        function addLeadLogic(identifier) {
-                            $('input:radio[name="' + identifier + num + '"]').change(function () {
-                                if ($(this).val() == 'No' || $(this).val() == 'Other') {
-                                    $('#new-job-title-div' + num).show();
-                                } else {
-                                    $('#new-job-title-div' + num).hide();
-                                }
-                            });
-                        }
-
-                        addLeadLogic('dept-chair');
-                        addLeadLogic('program-director');
-                        addLeadLogic('lead-faculty');
-
-                    }
-
-
-                    {% if new_job_titles %}
-                        var new_job_titles = {{ new_job_titles|safe }};
-                        var i = 0;
-                        while (i < 200) {
-
-                            job_title = new_job_titles[i];
-                            if (!job_title) {
-                                if (i == 0)
-                                    // create html
-                                    initializeJobTitles(1);
-                                break;
-                            }
-                            //Convert to correct value
-                            id = i + 1;
-
-                            //If this is not the first node, create it before we can populate it and insert after the last one.
-                            //show the remove button
-                            if (i != 0) {
-                                var last = $(".new-job-fieldset").last();
-                                var new_job_title = newJobTitlesFieldset(id);
-                                new_job_title.insertAfter(last);
-                                $("#remove_new_job_button").show();
-                            }
-
-                            // add js
-                            initializeJobTitles(id);
-                            // populate values
-                            populateNewJobTitlesFieldset(id, job_title);
-
-                            if( (job_title['job-title'] == null || job_title['job-title'] == '') && (job_title['job_title'] == null || job_title['job_title'] == '') ) {
-                                $('#new-job-title-div' + id).hide();
-                            } else {
-                                $('#new-job-title-div' + id).show();
-                            }
-
-                            //no infinite loops today
-                            i++;
-
-                        }
-                    {% else %}
-                        initializeJobTitles(1);
-                    {% endif %}
-
-                    {% if degrees %}
-                        var degrees = {{ degrees|safe }};
-
-                        var i = 0;
-                        while (i < 200) {
-
-                            degree = degrees[i];
-                            if (!degree) {
-                                break;
-                            }
-                            //Convert to correct value
-                            id = i + 1;
-
-
-                            //If this is not the first node, create it before we can populate it and insert after the last one.
-                            //show the remove buton
-                            if (i != 0) {
-                                var last = $(".degree-fieldset").last();
-                                var new_degree = newDegreeTitleFieldset(id);
-                                new_degree.insertAfter(last);
-                                $("#remove_degree_button").show();
-                            }
-                            //Now populate the fieldset
-                            var degree_earned = '';
-                            if( degree['degree-earned'] )
-                                degree_earned = degree['degree-earned'];
-                            else
-                                degree_earned = degree['degree_earned'];
-                            populateDegreeFieldset(id, degree['school'], degree_earned, degree['year']);
-                            //no infinite loops today
-                            i++;
-
-                        }
-
-                    {% endif %}
-
-                    {% if degrees_good == False %}
-                        $('<div class="alert-error"><div data-alert="" class="red-alert">A Degree is required<a href="#" class="close">×</a></div></div><br/>').insertBefore(".degree-fieldset");
-                    {% endif %}
-
-                    {% if new_jobs_good == False %}
-                        $('<div class="alert-error"><div data-alert="" class="red-alert">A Job Title is Required<a href="#" class="close">×</a></div></div><br/>').insertBefore(".new-job-fieldset");
-                    {% endif %}
-
-
-                    $("#add_degree_button").click(function () {
-                        var fieldsets = $(".degree-fieldset");
-                        var last = fieldsets.last();
-                        var old_num = last.children()[0].textContent.replace("Degree ", ""); // "Degree X" is the variable name, where X is an integer.
-                        var new_num = (parseInt(old_num) + 1);
-                        var new_degree = newDegreeTitleFieldset(new_num);
-                        new_degree.insertAfter(last);
-                        $("#remove_degree_button").show();
-                    });
-
-                    $("#remove_degree_button").click(function () {
-                        var list = $(".degree-fieldset");
-                        var length = list.length;
-                        //Hide remove button if there will only be one degree left
-                        if (length == 2) {
-                            $("#remove_degree_button").hide();
-                        }
-                        list.last().remove();
-                    });
-
-                    $("#add_new_job_button").click(function () {
-                        var fieldsets = $(".new-job-fieldset");
-                        var last = fieldsets.last();
-                        var old_num = last.children()[0].textContent.replace("Job Title ", ""); // "Degree X" is the variable name, where X is an integer.
-                        var new_num = (parseInt(old_num) + 1);
-                        var new_job = newJobTitlesFieldset(new_num);
-                        new_job.insertAfter(last);
-                        initializeJobTitles(new_num);
-                        $("#remove_new_job_button").show();
-                    });
-
-                    $("#remove_new_job_button").click(function () {
-                        var list = $(".new-job-fieldset");
-                        var length = list.length;
-                        //Hide remove button if there will only be one degree left
-                        if (length == 2) {
-                            $("#remove_new_job_button").hide();
-                        }
-                        list.last().remove();
-                    });
-
-                    $("#facultybioform").submit(function () {
-                        //add a hidden field with the number of jobs
-                        var jobs = $(".job-fieldset");
-                        var input = $("<input>").attr("type", "hidden").attr("name", "num_jobs").val(jobs.length);
-                        $("#facultybioform").append(input);
-
-                        //add a hidden field with the number of degrees
-                        var degrees = $(".degree-fieldset");
-                        var input = $("<input>").attr("type", "hidden").attr("name", "num_degrees").val(degrees.length);
-                        $("#facultybioform").append(input);
-
-                        //add a hidden field with the number of degrees
-                        var new_jobs = $(".new-job-fieldset");
-                        var input = $("<input>").attr("type", "hidden").attr("name", "num_new_jobs").val(new_jobs.length);
-                        $("#facultybioform").append(input);
-
-                        return true;
-
-                    });
-                });
-
-                // Dynamically render image
-                function readURL(input) {
-                    if (input.files && input.files[0]) {
-                        var reader = new FileReader();
-
-                        reader.onload = function (e) {
-                            $('#display_image').attr('src', e.target.result);
-                            $('#display_image').show();
-                        }
-
-
-                        reader.readAsDataURL(input.files[0]);
-                    }
-                }
-
-                $("#image").change(function () {
-                    readURL(this);
-                });
+            function populateDegreeFieldset(id, school, degree, year) {
+                var schoolid = '#school' + id;
+                var degreeid = '#degree-earned' + id;
+                var yearid = '#year' + id;
+                $(schoolid).val(school);
+                $(degreeid).val(degree);
+                $(yearid).val(year);
             }
 
-            );
+            // todo: this whole method is awful. it has to be redone asap.
+            function populateNewJobTitlesFieldset(id, job_title) {
+                var department_chair, program_director, lead_faculty, adult_undergrad_program, graduate_program,
+                        seminary_program, title;
+                if( job_title['department_chair'])
+                    department_chair = job_title['department_chair'];
+                else
+                    department_chair = job_title['department-chair'];
+
+                if( job_title['program_director'])
+                    program_director = job_title['program_director'];
+                else
+                    program_director = job_title['program-director'];
+
+                if( job_title['lead_faculty'])
+                    lead_faculty = job_title['lead_faculty'];
+                else
+                    lead_faculty = job_title['lead-faculty'];
+
+                if( job_title['adult_undergrad_program'])
+                    adult_undergrad_program = job_title['adult_undergrad_program'];
+                else
+                    adult_undergrad_program = job_title['adult-undergrad-program'];
+
+                if( job_title['graduate_program'])
+                    graduate_program = job_title['graduate_program'];
+                else
+                    graduate_program = job_title['graduate-program'];
+
+                if( job_title['seminary_program'])
+                    seminary_program = job_title['seminary_program'];
+                else
+                    seminary_program = job_title['seminary-program'];
+
+                if( job_title['job_title'])
+                    title = job_title['job_title'];
+                else
+                    title = job_title['job-title'];
+
+                var schoolid = '#schools' + id;
+                var undergradid = '#undergrad' + id;
+                var adultundergradid = '#adult-undergrad' + id;
+                var graduateid = '#graduate' + id;
+                var seminaryid = '#seminary' + id;
+
+                var deptchairid = 'input[name="dept-chair' + id + '"][value=' + department_chair + ']';
+                var programdirectorid = 'input[name="program-director' + id + '"][value=' + program_director + ']';
+                var leadfacultyid = 'input[name="lead-faculty' + id + '"][value=' + lead_faculty + ']';
+
+                var jobtitleid = '#new-job-title' + id;
+
+                $(schoolid).val(job_title['school']);
+                $(schoolid).change();
+                $(undergradid).val(job_title['department']);
+                $(undergradid).change();
+
+                $(adultundergradid).val(adult_undergrad_program);
+                if (adult_undergrad_program)
+                    $(adultundergradid).change();
+                $(graduateid).val(graduate_program);
+                if (graduate_program)
+                    $(graduateid).change();
+                $(seminaryid).val(seminary_program);
+                if ( seminary_program )
+                    $(seminaryid).change();
+
+                $(deptchairid).parent().addClass('checked');
+                $(deptchairid).attr('checked', true);
+
+                $(programdirectorid).parent().addClass('checked');
+                $(programdirectorid).attr('checked', true);
+
+                $(leadfacultyid).parent().addClass('checked');
+                $(leadfacultyid).attr('checked', true);
+
+                $(jobtitleid).val(title);
+            }
+
+            //////////////////////////////
+            // new job titles
+            //////////////////////////////
+            function initializeJobTitles(num) {
+                var metadata = {{ metadata|safe }};
+                $('.hide-when-school-changes' + num).hide();
+
+                function giveSelectValues(identifier, metadata_values) {
+                    // add default -select- value
+                    var opt = document.createElement('option');
+                    opt.value = '-select-';
+                    opt.innerHTML = '-select-';
+                    $('#' + identifier + num).append(opt);
+
+                    for (var i = 0; i < metadata_values.length; i++) {
+                        opt = document.createElement('option');
+                        var metadata_value = metadata_values[i];
+                        if (identifier == 'schools') {
+                            metadata_value = metadata_value.replace('&', 'and');
+                        }
+                        opt.value = metadata_value;
+                        opt.innerHTML = metadata_value.replace('Bethel University', 'Administration with Faculty Status');
+                        $('#' + identifier + num).append(opt);
+                    }
+                }
+
+                giveSelectValues('schools', metadata['school']);
+                giveSelectValues('undergrad', metadata['department']);
+                giveSelectValues('adult-undergrad', metadata['adult-undergrad-program']);
+                giveSelectValues('graduate', metadata['graduate-program']);
+                giveSelectValues('seminary', metadata['seminary-program']);
+
+                // School logic
+                $('#schools' + num).change(function () {
+                    $('#new-job-title' + num).val('');
+                    $('#undergrad' + num).val('None');
+                    $('#adult-undergrad' + num).val('None');
+                    $('#graduate' + num).val('None');
+                    $('#seminary' + num).val('None');
+
+                    $('.hide-when-school-changes' + num).hide();
+                    if ($(this).val() == 'Bethel University') {
+                        $('#new-job-title-div' + num).show();
+                    } else if ($(this).val() == 'College of Arts and Sciences') {
+                        $('#undergrad-div' + num).show();
+                        $('#undergrad' + num).change();
+                    } else if ($(this).val() == 'College of Adult and Professional Studies') {
+                        $('#adult-undergrad-div' + num).show();
+                        $('#adult-undergrad' + num).change();
+                    } else if ($(this).val() == 'Graduate School') {
+                        $('#graduate-div' + num).show();
+                        $('#graduate' + num).change();
+                    } else if ($(this).val() == 'Bethel Seminary') {
+                        $('#seminary-div' + num).show();
+                        $('#seminary' + num).change();
+                    }
+                });
+
+                // Program logic
+                function addProgramLogic(identifier, idToShowHide, nextIdToDisplay) {
+                    $('#' + identifier + num).change(function () {
+                        if ($('#schools' + num).val() && $('#schools' + num).val() != 'Bethel University') {
+                            if (!$(this).val() || $(this).val() == 'None') {
+                                $('#' + idToShowHide + num).hide();
+                            } else {
+                                $('#' + idToShowHide + num).show();
+                                var nextId = 'input[name="' + nextIdToDisplay + num + '"]';
+                                $(nextId).change();
+
+                                nextId = 'input[name=' + nextIdToDisplay + num + ']:checked';
+                                if ($(nextId).val() == 'No' || $(nextId).val() == 'Other')
+                                    $('#new-job-title-div' + num).show();
+                                else
+                                    $('#new-job-title-div' + num).hide();
+                            }
+                        }
+                    });
+                }
+
+                addProgramLogic('undergrad', 'dept-chair-div', 'dept-chair');
+                addProgramLogic('adult-undergrad', 'program-director-div', 'program-director');
+                addProgramLogic('graduate', 'program-director-div', 'program-director');
+                addProgramLogic('seminary', 'lead-faculty-div', 'lead-faculty');
+
+                function addLeadLogic(identifier) {
+                    $('input:radio[name="' + identifier + num + '"]').change(function () {
+                        if ($(this).val() == 'No' || $(this).val() == 'Other') {
+                            $('#new-job-title-div' + num).show();
+                        } else {
+                            $('#new-job-title-div' + num).hide();
+                        }
+                    });
+                }
+
+                addLeadLogic('dept-chair');
+                addLeadLogic('program-director');
+                addLeadLogic('lead-faculty');
+
+            }
+
+
+            {% if new_job_titles %}
+                var new_job_titles = {{ new_job_titles|safe }};
+                var i = 0;
+                while (i < 200) {
+
+                    var job_title = new_job_titles[i];
+                    if (!job_title) {
+                        if (i == 0)
+                            // create html
+                            initializeJobTitles(1);
+                        break;
+                    }
+                    //Convert to correct value
+                    var id = i + 1;
+
+                    //If this is not the first node, create it before we can populate it and insert after the last one.
+                    //show the remove button
+                    if (i != 0) {
+                        var last = $(".new-job-fieldset").last();
+                        var new_job_title = newJobTitlesFieldset(id);
+                        new_job_title.insertAfter(last);
+                        $("#remove_new_job_button").show();
+                    }
+
+                    // add js
+                    initializeJobTitles(id);
+                    // populate values
+                    populateNewJobTitlesFieldset(id, job_title);
+
+                    if( (job_title['job-title'] == null || job_title['job-title'] == '') && (job_title['job_title'] == null || job_title['job_title'] == '') ) {
+                        $('#new-job-title-div' + id).hide();
+                    } else {
+                        $('#new-job-title-div' + id).show();
+                    }
+
+                    //no infinite loops today
+                    i++;
+
+                }
+            {% else %}
+                initializeJobTitles(1);
+            {% endif %}
+
+            {% if degrees %}
+                var degrees = {{ degrees|safe }};
+
+                var i = 0;
+                while (i < 200) {
+
+                    var degree = degrees[i];
+                    if (!degree) {
+                        break;
+                    }
+                    //Convert to correct value
+                    var id = i + 1;
+
+
+                    //If this is not the first node, create it before we can populate it and insert after the last one.
+                    //show the remove buton
+                    if (i != 0) {
+                        var last = $(".degree-fieldset").last();
+                        var new_degree = newDegreeTitleFieldset(id);
+                        new_degree.insertAfter(last);
+                        $("#remove_degree_button").show();
+                    }
+                    //Now populate the fieldset
+                    var degree_earned = '';
+                    if( degree['degree-earned'] )
+                        degree_earned = degree['degree-earned'];
+                    else
+                        degree_earned = degree['degree_earned'];
+                    populateDegreeFieldset(id, degree['school'], degree_earned, degree['year']);
+                    //no infinite loops today
+                    i++;
+
+                }
+
+            {% endif %}
+
+            {% if degrees_good == False %}
+                $('<div class="alert-error"><div data-alert="" class="red-alert">A Degree is required<a href="#" class="close">×</a></div></div><br/>').insertBefore(".degree-fieldset");
+            {% endif %}
+
+            {% if new_jobs_good == False %}
+                $('<div class="alert-error"><div data-alert="" class="red-alert">A Job Title is Required<a href="#" class="close">×</a></div></div><br/>').insertBefore(".new-job-fieldset");
+            {% endif %}
+
+
+            $("#add_degree_button").click(function () {
+                var fieldsets = $(".degree-fieldset");
+                var last = fieldsets.last();
+                var old_num = last.children()[0].textContent.replace("Degree ", ""); // "Degree X" is the variable name, where X is an integer.
+                var new_num = (parseInt(old_num) + 1);
+                var new_degree = newDegreeTitleFieldset(new_num);
+                new_degree.insertAfter(last);
+                $("#remove_degree_button").show();
+            });
+
+            $("#remove_degree_button").click(function () {
+                var list = $(".degree-fieldset");
+                var length = list.length;
+                //Hide remove button if there will only be one degree left
+                if (length == 2) {
+                    $("#remove_degree_button").hide();
+                }
+                list.last().remove();
+            });
+
+            $("#add_new_job_button").click(function () {
+                var fieldsets = $(".new-job-fieldset");
+                var last = fieldsets.last();
+                var old_num = last.children()[0].textContent.replace("Job Title ", ""); // "Degree X" is the variable name, where X is an integer.
+                var new_num = (parseInt(old_num) + 1);
+                var new_job = newJobTitlesFieldset(new_num);
+                new_job.insertAfter(last);
+                initializeJobTitles(new_num);
+                $("#remove_new_job_button").show();
+            });
+
+            $("#remove_new_job_button").click(function () {
+                var list = $(".new-job-fieldset");
+                var length = list.length;
+                //Hide remove button if there will only be one degree left
+                if (length == 2) {
+                    $("#remove_new_job_button").hide();
+                }
+                list.last().remove();
+            });
+
+            $("#facultybioform").submit(function () {
+                //add a hidden field with the number of jobs
+                var jobs = $(".job-fieldset");
+                var input = $("<input>").attr("type", "hidden").attr("name", "num_jobs").val(jobs.length);
+                $("#facultybioform").append(input);
+
+                //add a hidden field with the number of degrees
+                var degrees = $(".degree-fieldset");
+                var input = $("<input>").attr("type", "hidden").attr("name", "num_degrees").val(degrees.length);
+                $("#facultybioform").append(input);
+
+                //add a hidden field with the number of degrees
+                var new_jobs = $(".new-job-fieldset");
+                var input = $("<input>").attr("type", "hidden").attr("name", "num_new_jobs").val(new_jobs.length);
+                $("#facultybioform").append(input);
+
+                return true;
+
+            });
+
+            // Dynamically render image
+            function readURL(input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $('#display_image').attr('src', e.target.result);
+                        $('#display_image').show();
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+            $("#image").change(function () {
+                readURL(this);
+            });
+
+            var redAlertElements = document.getElementsByClassName("red-alert");
+            // There needs to be at least one element with that class to jump to the second one
+            if( redAlertElements.length > 1 ){
+                var padding = 50; // How many pixels above the first error field that gets jumped to
+                $('.main-panel').animate({
+                    scrollTop: $("#" + redAlertElements[1].id).offset().top - padding
+                }, 2000);
+            }
+        });
     </script>
 
 {% endblock %}
