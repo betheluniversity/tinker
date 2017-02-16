@@ -397,10 +397,10 @@ class EventsController(TinkerController):
             user_events, other_events = self.split_user_events(events)
             if selection and '-'.join(selection) == '2':
                 events_to_iterate = user_events
-                forms_header = "User Events"
+                forms_header = "My Events"
             else:
                 events_to_iterate = other_events
-                forms_header = "All Other Events"
+                forms_header = "Other Events"
 
         # Early return if no parameters to check in the search
         if not title and not start and not end:

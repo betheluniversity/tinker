@@ -31,8 +31,8 @@ class EventsView(FlaskView):
             # The special admin view
             all_schools = OrderedDict({
                 1: 'All Events',
-                2: 'User Events',
-                3: 'All Other Events'},
+                2: 'My Events',
+                3: 'Other Events'},
                 key=lambda t: t[0]
             )
             # The below can be added inside of the dictionary as they are built out
@@ -167,8 +167,8 @@ class EventsView(FlaskView):
         show_create = True
         all_schools = OrderedDict({
             1: 'All Events',
-            2: 'User Events',
-            3: 'All Other Events'},
+            2: 'My Events',
+            3: 'Other Events'},
             key=lambda t: t[0]
         )
         # The below can be added inside of the dictionary as they are built out
