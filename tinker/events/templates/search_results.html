@@ -39,9 +39,13 @@
 {% block main_content %}
     <div class="content">
         <h2>{{ formsHeader }}</h2>
-        {% for form in dumVar %}
-            <br/>
-            {{ form_card(form) }}
-        {% endfor %}
+        {% if dumvar.len() > 0 %}
+            {% for form in dumVar %}
+                <br/>
+                {{ form_card(form) }}
+            {% endfor %}
+        {% else %}
+            <p> It appears that there are no events in this category. </p>
+        {% endif %}
     </div>
 {% endblock %}
