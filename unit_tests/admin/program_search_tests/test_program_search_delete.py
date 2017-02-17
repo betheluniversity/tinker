@@ -29,7 +29,7 @@ class MultiDeleteTestCase(ProgramSearchBaseTestCase):
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_multi_delete_invalid(self):
-        expected_response = ""
+        expected_response = "One of the ids given to this method was not a string"
         arg_names = ['cache_id']
         for i in range(len(arg_names)):
             bad_arg = {arg_names[i]: None}
