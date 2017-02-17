@@ -53,7 +53,10 @@ app.config["flask_profiler"] = {
     "storage": {
         "engine": "sqlite",
         "FILE": app.config['INSTALL_LOCATION'] + '/flask_profiler.sql'
-    }
+    },
+    "ignore": [
+        "/static/*"
+    ]
 }
 
 prod = app.config['ENVIRON'] == 'prod'
