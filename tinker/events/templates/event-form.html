@@ -47,7 +47,6 @@
                     <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
                     <input type="hidden" name="author" id="author" value="{{ author }}"/>
                 {% endif %}
-                <input name=_csrf_token type=hidden value="{{ csrf_token() }}">
                 {% if form.errors or not dates_good and num_dates %}
                     <div class="error-alert">
                         <div data-alert class="red-alert">
@@ -392,7 +391,7 @@
                         if (start.val() == '' || end.val() == '') {
                             var new_element = $('<div>').html('Dates are required.').addClass('required dates-required red-alert').attr('style', 'margin-bottom: 8px');
 
-                            var error_element = $('<div>').addClass('error-alert').append($('<div data-alert>').addClass('red-alert').append('There were errors with your form'))
+                            var error_element = $('<div>').addClass('error-alert').append($('<div data-alert>').addClass('red-alert').append('There were errors with your form'));
                             $('#eventform').parent().prepend(error_element);
                             // if first element, add scroll-to class
                             if (return_value == true)

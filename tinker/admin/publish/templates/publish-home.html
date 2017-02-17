@@ -113,9 +113,6 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
-            var csrftoken = "{{ csrf_token() }}";
-            activateCSRF(csrftoken);
-
             var delay = (function () {
                 var timer = 0;
                 return function (callback, ms) {
@@ -220,8 +217,4 @@
             </div>
         </div>
     </div>
-{% endblock %}
-
-{% block scripts %}
-    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
 {% endblock %}

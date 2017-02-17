@@ -26,11 +26,7 @@
 
 {% block scripts %}
     {#  Script to update the modal submit to delete the correct form#}
-    <script src="/static/csrf-activator.js"></script>
     <script type="text/javascript">
-        var csrftoken = "{{ csrf_token() }}";
-        activateCSRF(csrftoken);
-
         function loadTableForSearch() {
             $('#tables').html('<td colspan="2" style="text-align:center">. . . searching . . .</td>');
             var search_url = "{{ url_for('program_search.ProgramSearchView:database_audit_table') }}";

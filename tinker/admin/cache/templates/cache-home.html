@@ -23,13 +23,8 @@
 {% endblock %}
 
 {% block scripts %}
-    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
     <script>
         $(document).ready(function () {
-            var csrftoken = "{{ csrf_token() }}";
-            activateCSRF(csrftoken);
-
-
             function submitpath() {
                 var urlpath = $("#cpath").val();
                 var input_data = {'url': urlpath};
