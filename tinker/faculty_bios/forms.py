@@ -68,18 +68,15 @@ def validate_username(form, field):
 
 
 class FacultyBioForm(Form):
-    roles = session['roles']
+    fac_bio_controller = FacultyBioController()
+    user_can_edit_image = fac_bio_controller.should_be_able_to_edit_image()
 
-    # if a cas faculty member or seminary faculty member, hide the image field.
-    if 'Tinker Faculty Bios' in session['groups']:
+    if user_can_edit_image:
         image = FileField("Image")
-        image_url = HiddenField("Image URL")
-    elif 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
-        image = HiddenField("Image")
-        image_url = HiddenField("Image URL")
     else:
-        image = FileField("Image")
-        image_url = HiddenField("Image URL")
+        image = HiddenField("Image")
+
+    image_url = HiddenField("Image URL")
 
     first = StringField('Faculty first name', validators=[validators.DataRequired()])
     last = StringField('Faculty last name', validators=[validators.DataRequired()])
