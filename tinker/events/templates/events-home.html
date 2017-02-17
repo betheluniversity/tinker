@@ -116,22 +116,26 @@
             }
         });
         $('.datepicker').each(function () {
-            var picker = new Pikaday({
+            var starting_values = {
                 field: this,
                 format: 'MM DD YYYY',
                 minDate: new Date('2000-01-01'),
                 maxDate: new Date('2040-12-31'),
                 yearRange: [2000, 2040]
-            });
+            };
+
+            // if its the startDate, set default date to today
+            if( $(this).attr('id') == 'startDate' ) {
+                starting_values['defaultDate'] = new Date();
+                starting_values['setDefaultDate'] = true;
+            }
+
+
+            var picker = new Pikaday(starting_values);
         });
         function search_events() {
             search_url = "{{ url_for('events.EventsView:search') }}";
             $('#spinner').show();
-            if($("#startDate").val() == ''){
-                $(".date-pick").datepicker();
-                var todaysDate = $(".date-pick").datepicker("setDate", new Date());
-                $("#startDate").val(todaysDate);
-            }
             inputs = {
                 "title": $("#eventTitle").val(),
                 "start": $("#startDate").val(),
