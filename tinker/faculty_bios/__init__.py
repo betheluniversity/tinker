@@ -80,7 +80,7 @@ class FacultyBiosView(FlaskView):
 
         form = FacultyBioForm()
         roles = session['roles']
-        edit_image = self.base.should_be_able_to_edit_image(roles)
+        edit_image = self.base.should_be_able_to_edit_image()
         metadata = fjson.dumps(data_to_add)
         add_form = True
 
@@ -112,7 +112,7 @@ class FacultyBiosView(FlaskView):
             edit_data['image_url'] = edit_data['image']
         except:
             edit_data['image_url'] = ''
-        edit_image = self.base.should_be_able_to_edit_image(roles)
+        edit_image = self.base.should_be_able_to_edit_image()
 
         # pull the add_to_bio data up one level
         for key, value in edit_data['add_to_bio'].iteritems():
