@@ -411,13 +411,16 @@ class FacultyBioController(TinkerController):
         else:
             return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
 
-    def should_be_able_to_edit_image(self, roles):
-        if 'Tinker Faculty Bios' in session['groups']:
-            return True
-        elif 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
-            return False
-        else:
-            return True
+    def should_be_able_to_edit_image(self):
+        roles = session['roles']
+        wanted_roles = ['FACULTY-CAPS', 'FACULTY-GS']
+        has_roles = len(set(wanted_roles).intersection(set(roles))) > 0
+
+        groups = session['groups'].split(';')
+        wanted_groups = ['Tinker Faculty Bios']
+        has_groups = len(set(wanted_groups).intersection(set(groups))) > 0
+
+        return has_roles or has_groups
 
     def validate_form(self, rform):
         from forms import FacultyBioForm
