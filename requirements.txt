@@ -28,3 +28,4 @@ importlib
 gspread
 oauth2client
 PyOpenSSL
+flask-profiler
