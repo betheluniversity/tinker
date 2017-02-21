@@ -65,7 +65,8 @@ class EventsController(TinkerController):
             app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(response))
 
     def _iterate_child_xml(self, child, author):
-
+        if child.find("system-data-structure").attrib["definition-path"] != "Event":
+            return None
         roles = []
         values = child.find('dynamic-metadata')
         for value in values:
@@ -384,14 +385,14 @@ class EventsController(TinkerController):
     def edit_all_callback(self, asset_data):
         pass
 
-    #The search method that does the actual searching for the /search in events/init
+    # The search method that does the actual searching for the /search in events/init
     def get_search_results(self, selection, title, start, end):
         # Get the events and then split them into user events and other events for quicker searching
         events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         # Quick check with assignment
         if selection and '-'.join(selection) == '1':
             events_to_iterate = events
-            #default is for the automatic event population
+            # default is for the automatic event population
             forms_header = "All Events"
         else:
             user_events, other_events = self.split_user_events(events)
@@ -410,17 +411,17 @@ class EventsController(TinkerController):
 
         # check for search parameters and set booleans
         if not title:
-            has_title = False #If no title false
+            has_title = False  # If no title false
         else:
-            has_title = True #Otherwise assign title
+            has_title = True  # Otherwise assign title
         if start == 0:
-            has_start = False #If the user did not use a start date
+            has_start = False  # If the user did not use a start date
         else:
-            has_start = True #If the user used a start date
+            has_start = True  # If the user used a start date
         if end == 0:
-            has_end = False #If the user did not use an end date
+            has_end = False  # If the user did not use an end date
         else:
-            has_end = True #If the user used an end date
+            has_end = True  # If the user used an end date
 
         # Loop through the events based on selection
         # Go through user events
@@ -429,40 +430,51 @@ class EventsController(TinkerController):
                 check_dates = False
             else:
                 check_dates = True
-            if has_start or has_end and check_dates:
-                try:
-                    # If the event has dates convert them to the seconds type to compare
-                    event_start, event_end = event['event-dates'].split(" - ")
-                    event_start = datetime.datetime.strptime(event_start, "%B %d, %Y %I:%M %p")  # Starting time from the form
-                    event_end = datetime.datetime.strptime(event_end, "%B %d, %Y %I:%M %p")  # Ending time from the form
-                except:
-                    check_dates = False
+            # split the event dates into a dictionary, then loop through it for each date to catch all possible events
+            event_dates = []
+            event_dates = event['event-dates'].split("<br/>")
+            for form in event_dates:
+                if has_start or has_end and check_dates:
+                    try:
+                        # If the event has dates convert them to the seconds type to compare
+                        event_start, event_end = form.split(" - ")
+                        event_start = datetime.datetime.strptime(event_start, "%B %d, %Y %I:%M %p")  # Starting time from the form
+                        event_end = datetime.datetime.strptime(event_end, "%B %d, %Y %I:%M %p")  # Ending time from the form
+                    except:
+                        check_dates = False
+                        continue
+                if has_title and title.lower() not in event['title'].lower():
                     continue
-            if has_title and title not in event['title']:
-                continue
-            elif not check_dates:
-                continue
-            else:
-                # The start to check is before the event start and the end to check is after the event ends
-                if has_end and has_start and self.compare_timedeltas(start, event_start) == 1 and \
-                        self.compare_timedeltas(end, event_end) == 2:
-                    to_return.append(event)
-                # The user did not add an end to check and the event start is before the start check
-                elif not has_end and has_start and self.compare_timedeltas(start, event_start) == 1:
-                    to_return.append(event)
-                # The user did not add a start to check and the event end is after the end check
-                elif not has_start and has_end and self.compare_timedeltas(end, event_end) == 2:
-                    to_return.append(event)
-                # The start to check occurs between the events start and end dates
-                elif has_start and self.compare_timedeltas(start, event_start) == 2 and \
-                        self.compare_timedeltas(start, event_end) == 1:
-                    to_return.append(event)
-                # The end to check occurs between the events start and end dates
-                elif has_end and self.compare_timedeltas(end, event_start) == 2 and \
-                        self.compare_timedeltas(end, event_end) == 1:
-                    to_return.append(event)
+                elif not check_dates:
+                    continue
                 else:
-                    continue
+                    # The start to check is before the event start and the end to check is after the event ends
+                    if has_end and has_start and self.compare_timedeltas(start, event_start) == 1 and \
+                            self.compare_timedeltas(end, event_end) == 2:
+                        to_return.append(event)
+                        break
+                    # The user did not add an end to check and the event start is before the start check
+                    elif not has_end and has_start and self.compare_timedeltas(start, event_start) == 1:
+                        to_return.append(event)
+                        break
+                    # The user did not add a start to check and the event end is after the end check
+                    elif not has_start and has_end and self.compare_timedeltas(end, event_end) == 2:
+                        to_return.append(event)
+                        break
+                    # The start to check occurs between the events start and end dates
+                    elif has_start and self.compare_timedeltas(start, event_start) == 2 and \
+                            self.compare_timedeltas(start, event_end) == 1:
+                        to_return.append(event)
+                        break
+                    # The end to check occurs between the events start and end dates
+                    elif has_end and self.compare_timedeltas(end, event_start) == 2 and \
+                            self.compare_timedeltas(end, event_end) == 1:
+                        to_return.append(event)
+                        break
+                    elif not has_end and not has_start:
+                        to_return.append(event)
+                        break
+
         return to_return, forms_header
 
     def compare_timedeltas(self, a, b):
@@ -470,9 +482,9 @@ class EventsController(TinkerController):
         # If a and b are both datetime objects then if b comes after a it will return 1
         if(b-a) >= reference:
             return 1
-        #b before a returns 2
+        # b before a returns 2
         elif(b-a) <= reference:
             return 2
-        #neither returns 0
+        # neither returns 0
         else:
             return 0
