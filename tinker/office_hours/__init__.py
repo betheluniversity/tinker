@@ -24,7 +24,6 @@ class OfficeHoursView(FlaskView):
         pass
 
     def index(self):
-
         username = session['username']
 
         forms = self.base.traverse_xml(app.config['OFFICE_HOURS_XML_URL'], 'system-block')
@@ -58,7 +57,8 @@ class OfficeHoursView(FlaskView):
 
             data, mdata, sdata = block.read_asset()
             asset = self.base.update_structure(data, mdata, rform)
-            self.base.rotate_hours(asset)
+            # # todo: move this portion into update structure
+            # asset = self.base.rotate_hours(asset)
 
             resp = str(block.edit_asset(asset))
             self.base.log_sentry("Office Hour Submission", resp)

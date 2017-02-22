@@ -38,17 +38,19 @@
                     Exception Date
                 </label>
                 <input class="datepicker auto-width" id="date1" name="date1" type="text" value=""/>
-                <label for="exception_open1">
-                    Open
-                </label>
+
                 <div class="large-12 columns timeRange">
-                    <input class="time start ui-timepicker-input auto-width" id="open1" name="open1" type="text"
-                           value=""
-                           autocomplete="off">
-                    - <input class="time end ui-timepicker-input auto-width" id="close1" name="close1" type="text"
-                             value=""
-                             autocomplete="off">
+                    <label>
+                        Open
+                        <input class="time start ui-timepicker-input auto-width" id="open1" name="open1" type="text"
+                               value=""
+                               autocomplete="off">
+                        - <input class="time end ui-timepicker-input auto-width" id="close1" name="close1" type="text"
+                                 value=""
+                                 autocomplete="off">
+                    </label>
                 </div>
+                <label>Closed? <input type="checkbox" class="hide-timerange"/></label>
             </div>
         </div>
     </fieldset>
@@ -210,8 +212,9 @@
                     input_element.show();
                 }
             });
+            {# default methods #}
             $('.hide-when-none[value=""]').parent().parent().hide();
-            $('.hide-when-none[value=""]').parent().parent().parent().find('.hide-checkboxes').attr('checked', 'checked')
+            $('.hide-when-none[value=""]').parent().parent().parent().find('.hide-checkboxes').attr('checked', 'checked');
 
             function dateTimePickers(selection_string) {
                 $(selection_string + '.time').timepicker({
@@ -234,7 +237,7 @@
                 var last = $(".exceptions-fieldset").last();
                 var old_num = last.children()[0].textContent.replace("Exception ", "");
                 var new_num = (parseInt(old_num) + 1);
-                var new_exception = newFieldset(new_num);
+                var new_exception = newExceptionFieldset(new_num);
                 new_exception.insertAfter(last);
                 $("#remove_exception_button").show();
                 dateTimePickers('#exception' + new_num + ' ')
@@ -259,7 +262,7 @@
                 $(closeid).val(exception['close']);
             }
 
-            function newFieldset(id) {
+            function newExceptionFieldset(id) {
                 var date = 'date' + id;
                 var open = 'open' + id;
                 var close = 'close' + id;
@@ -272,17 +275,33 @@
                 inner_node.append($("<input type='text'>").attr('name', date).attr('id', date).addClass("datepicker auto-width"));
 
                 var div = $("<div>").addClass('timeRange');
-                div.append($("<label>").attr('for', open).html("Open "));
+                var label = $("<label>").html("Open ");
 
-                div.append($("<input type='text'>").attr('name', open).attr('id', open).addClass("time start auto-width"));
-                div.append(" - ");
-                div.append($("<input type='text'>").attr('name', close).attr('id', close).addClass("time end auto-width"));
+                label.append($("<input type='text'>").attr('name', open).attr('id', open).addClass("time start auto-width"));
+                label.append(" - ");
+                label.append($("<input type='text'>").attr('name', close).attr('id', close).addClass("time end auto-width"));
 
+                div.append(label);
                 inner_node.append(div);
+
+                var checkbox_label = $("<label>").html('Closed?');
+                checkbox_label.append($("<input type='checkbox'>").addClass("hide-timerange"));
+
+                inner_node.append(checkbox_label);
                 fieldset_node.append($("<div>").addClass('card').attr('id', exception_id).append(inner_node));
 
                 return fieldset_node;
             }
+
+            $(document).on('click', '.hide-timerange', function() {
+                var timerange_element = $(this).parent().parent().children('.timeRange');
+                if ( $(this).is(':checked') ) {
+                    timerange_element.hide();
+                    timerange_element.children().children('input').val('');
+                } else {
+                    timerange_element.show();
+                }
+            });
 
 
             {% if edit_data['exceptions'] %}
@@ -301,7 +320,7 @@
                     //show the remove buton
                     if (i != 0) {
                         var last = $(".exceptions-fieldset").last();
-                        var new_exception = newFieldset(id);
+                        var new_exception = newExceptionFieldset(id);
                         new_exception.insertAfter(last);
                         $("#remove_exception_button").show();
                     }

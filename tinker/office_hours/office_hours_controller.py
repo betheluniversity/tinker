@@ -108,65 +108,34 @@ class OfficeHoursController(TinkerController):
                 add_data[key] = date.strftime('%m-%d-%Y')
 
         self.update_asset(data, add_data)
+        self.rotate_hours(data)
 
         return data
 
-    def create_summary(self, data, prefix='', show_chapel_text=True):
-        week_dict = []
-        week_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
-        for week_day in week_days:
-            week_day_lower = week_day.lower()
-            try:
-                open_key = prefix + week_day_lower + '_open'
-                close_key = prefix + week_day_lower + '_close'
-
-                open = find(data, open_key, False)
-                close = find(data, close_key, False)
-                chapel = find(data, prefix + 'closed_for_chapel', False)
-
-                if week_day in ['Monday', 'Wednesday', 'Friday'] and chapel == 'Yes':
-                    chapel = 'Yes'
-                else:
-                    chapel = 'No'
-
-                week_dict.append({
-                    'day': week_day,
-                    'time': self.convert_timestamps_to_bethel_string(open, close),
-                    'chapel': chapel,
-                })
-            except:  # if a open/close key doesn't exist, set 'Closed'
-                week_dict.append({
-                    'day': week_day,
-                    'time': 'Closed',
-                    'chapel': 'No',
-                })
-                continue
-
-        summary = self.convert_week_dict_to_string(week_dict, show_chapel_text)
-
-        return summary
-
-    def convert_week_dict_to_string(self, week_dict, show_chapel_text=True):
-        summary = []
+    def convert_week_dict_to_string(self, week_dict):
+        summary_html = ''
         has_chapel = False
 
+        summary_html += '<table>'
         for day in week_dict:
-            chapel = day.get('chapel')
-            if chapel == 'Yes':
-                add_chapel = '*'
+            add_chapel = ''
+            if day.get('chapel'):
                 has_chapel = True
-            else:
-                add_chapel = ''
-            summary.append(day.get('day') + add_chapel + ': ' + day.get('time'))
+                add_chapel = '*'
 
-        summary = '</br>'.join(summary)
-        if has_chapel and show_chapel_text:
-            summary += '<p>*Closed 10:10-11a.m. for chapel.</p>'
-        return summary
+            summary_html += '<tr>'
+            summary_html += '<td>%s%s</td><td>%s</td>' % (day.get('day'), add_chapel, day.get('time'))
+            summary_html += '</tr>'
+
+        summary_html += '</table>'
+
+        if has_chapel:
+            summary_html += '<p>*Closed 10:10-11a.m. for chapel.</p>'
+        return summary_html
 
     def convert_ampm(self, date):
-        return date.replace('AM', 'a.m.').replace('PM', 'p.m.')
+        # add in extra spaces, in addition to changing the text
+        return date.replace('AM', ' a.m.').replace('PM', ' p.m.')
 
     def convert_to_noon_or_midnight(self, datestring):
         if '12:00' in datestring:
@@ -197,14 +166,14 @@ class OfficeHoursController(TinkerController):
         open = self.convert_ampm(open)
         close = self.convert_ampm(close)
 
-        return open + '-' + close
+        return open + ' - ' + close
 
     def rotate_hours(self, sdata):
-        seconds_in_two_weeks = 1209600
-
         next_start_date = find(sdata, 'next_start_date', False)
+
+        # if there are next_hours, shift!
         if next_start_date is not None and next_start_date != '':
-            # set the current hours
+            # set the current hours if the next_start_date is before today
             if datetime.datetime.now() >= datetime.datetime.strptime(next_start_date, '%m-%d-%Y'):
                 week_days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 
@@ -228,36 +197,80 @@ class OfficeHoursController(TinkerController):
                         continue
 
                 update(sdata, 'closed_for_chapel', find(sdata, 'next_closed_for_chapel', False))
-                update(sdata, 'summary', self.create_summary(sdata, 'next_') + self.create_exceptions_text(sdata))
 
-            # if the 'next' hours are within 2 weeks, append them to the summary
-            elif (datetime.datetime.strptime(next_start_date, '%m-%d-%Y') - datetime.datetime.now()).total_seconds() <= seconds_in_two_weeks:
-                current_summary = self.create_summary(sdata, '', False)
-                next_summary = self.create_summary(sdata, 'next_')
+        # build summary/chapel and exceptions
+        initial_summary = '<h3>Office Hours</h3>' + self.create_summary(sdata, 'next_') + self.create_exceptions_text(sdata)
+        update(sdata, 'summary', initial_summary)
 
-                title = '<p><b>New hours starting ' + next_start_date + '</b></p>'
+        # build summary for next (if it applies)
+        if self.is_date_within_two_weeks(next_start_date):
+            next_summary = self.create_summary(sdata, 'next_')
+            next_title = '<h3>New hours starting %s </h3>' % (datetime.datetime.strptime(next_start_date, '%m-%d-%Y').strftime('%A, %B %d, %Y'))
 
-                new_summary = current_summary + title + next_summary + self.create_exceptions_text(sdata)
+            new_summary = initial_summary + next_title + next_summary
 
-                update(sdata, 'summary', new_summary)
+            update(sdata, 'summary', new_summary)
 
+        # finally, put divs around everything
+        final_summary = "<div>%s</div>" % find(sdata, "summary", False)
+        update(sdata, 'summary', final_summary)
+
+    def create_summary(self, data, dict_prefix=''):
+        week_dict = []
+        week_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+        for week_day in week_days:
+            week_day_lower = week_day.lower()
+            try:
+                open_key = dict_prefix + week_day_lower + '_open'
+                close_key = dict_prefix + week_day_lower + '_close'
+
+                open = find(data, open_key, False)
+                close = find(data, close_key, False)
+                chapel = find(data, dict_prefix + 'closed_for_chapel', False)
+
+                if week_day in ['Monday', 'Wednesday', 'Friday'] and chapel == 'Yes':
+                    chapel = True
+                else:
+                    chapel = False
+
+                week_dict.append({
+                    'day': week_day,
+                    'time': self.convert_timestamps_to_bethel_string(open, close),
+                    'chapel': chapel,
+                })
+            except:  # if a open/close key doesn't exist, set 'Closed'
+                week_dict.append({
+                    'day': week_day,
+                    'time': 'Closed',
+                    'chapel': False,
+                })
+
+        summary = self.convert_week_dict_to_string(week_dict)
+
+        return summary
+
+    # todo: pull in the vacation hours
     def create_exceptions_text(self, sdata):
-        seconds_in_two_weeks = 1209600
-
         # add exceptions
         exceptions = find(sdata, 'exceptions')
         exceptions_text = ''
 
+        # todo: sort the exceptions
+        # todo: merge the vacation hours
         for exception in exceptions:
             date = find(exception, 'date', False)
-            if date:
-                if 0 <= (datetime.datetime.strptime(date, '%m-%d-%Y') - datetime.datetime.now()).total_seconds() <= seconds_in_two_weeks:
-                    open = find(exception, 'open', False)
-                    close = find(exception, 'close', False)
+            if self.is_date_within_two_weeks(date):
+                open = find(exception, 'open', False)
+                close = find(exception, 'close', False)
 
-                    exceptions_text += '<br/>on ' + date + ', ' + self.convert_timestamps_to_bethel_string(open, close)
+                # todo: if open or close are empty, then it is closed this day
 
-        if exceptions_text:
-            return '<p>Exceptions:<br/>' + exceptions_text + '</p>'
-        else:
-            return ''
+                exceptions_text += '<p>%s: %s</p>' % (date, self.convert_timestamps_to_bethel_string(open, close))
+
+        return exceptions_text
+
+    def is_date_within_two_weeks(self, date):
+        if date and 0 <= (datetime.datetime.strptime(date, '%m-%d-%Y').date() - datetime.datetime.now().date()).days <= 14:
+            return True
+        return False
