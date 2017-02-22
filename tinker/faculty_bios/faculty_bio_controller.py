@@ -426,6 +426,10 @@ class FacultyBioController(TinkerController):
         from forms import FacultyBioForm
         form = FacultyBioForm(rform)
 
+        # todo: remove this code for jenny vang soon
+        if session['username'] == 'jev24849':
+            return form
+
         degrees, degrees_good, degree_error_list, num_degrees = self.check_degrees(rform)
         new_jobs_good, new_jobs_error_list, num_new_jobs = self.check_job_titles(rform)
         if not (form.validate() and new_jobs_good and degrees_good):
