@@ -12,10 +12,10 @@ class MoreInfoTestCase(BaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("more_info")
 
-    def create_form(self, type, id):
+    def create_form(self, asset_type="page", asset_id="a7404faa8c58651375fc4ed23d7468d5"):
         return {
-            'type': type,
-            'id': id
+            'type': asset_type,
+            'id': asset_id
         }
 
     #######################
@@ -24,24 +24,21 @@ class MoreInfoTestCase(BaseTestCase):
 
     def test_more_info_valid(self):
         expected_response = b'<div class="col-sm-6 zero-left-padding">'
-        form_contents = self.create_form("page", "a7404faa8c58651375fc4ed23d7468d5")
-        response = self.send_post(self.request, form_contents)
+        form = self.create_form("page", "a7404faa8c58651375fc4ed23d7468d5")
+        response = self.send_post(self.request, form)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
 
-    def test_more_info_invalid_type(self):
+    def test_more_info_invalid(self):
         expected_response = self.ERROR_400
-        form_contents = self.create_form(None, "a7404faa8c58651375fc4ed23d7468d5")
-        response = self.send_post(self.request, form_contents)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def test_more_info_invalid_id(self):
-        expected_response = self.ERROR_400
-        form_contents = self.create_form("page", None)
-        response = self.send_post(self.request, form_contents)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        arg_names = ['asset_type', 'asset_id']
+        for i in range(len(arg_names)):
+            bad_arg = {arg_names[i]: None}
+            form = self.create_form(**bad_arg)
+            response = self.send_post(self.request, form)
+            failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                            expected_response,
+                                                            self.class_name + "/more_info_invalid_" + arg_names[i],
+                                                            self.get_line_number())
+            self.assertIn(expected_response, response.data, msg=failure_message)
