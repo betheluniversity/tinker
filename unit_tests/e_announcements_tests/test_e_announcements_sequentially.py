@@ -1,4 +1,5 @@
 import re
+
 from unit_tests import BaseTestCase
 
 
@@ -13,7 +14,8 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
     def get_eaid(self, text):
         return re.search('<input(.*)id="new_eaid"(.*)value="(.+)"(/?)>', text).group(3)
 
-    def create_form(self, title, message, first_date, second_date, banner_roles, eaid=None):
+    def create_form(self, title="First title", message="This E-Announcement should never be seen by the public, I hope",
+                    first_date='08-01-2017', second_date='08-05-2017', banner_roles='STUDENT-CAS', eaid=None):
         to_return = {
             'title': title,
             'message': message,
@@ -38,68 +40,27 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("submit")
         expected_response = b"You've successfully created your E-Announcement. Once your E-Announcement has been approved,"
-        form = self.create_form("First title", "This E-Announcement should never be seen by the public, I hope",
-                                '08-01-2017', '08-05-2017', 'STUDENT-CAS')
+        form = self.create_form()
         response = self.send_post(self.request, form)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
         self.eaid = self.get_eaid(response.data)
 
-    def submit_new_form_invalid_title(self):
+    def submit_new_form_invalid(self):
         self.request_type = "POST"
         self.request = self.generate_url("submit")
         expected_response = b"There were errors with your form."
-        form = self.create_form(None, "This E-Announcement should never be seen by the public, I hope",
-                                '08-01-2017', '08-05-2017', 'STUDENT-CAS')
-        response = self.send_post(self.request, form)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def submit_new_form_invalid_message(self):
-        self.request_type = "POST"
-        self.request = self.generate_url("submit")
-        expected_response = b"There were errors with your form."
-        form = self.create_form("First title", None,
-                                '08-01-2017', '08-05-2017', 'STUDENT-CAS')
-        response = self.send_post(self.request, form)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def submit_new_form_invalid_first_date(self):
-        self.request_type = "POST"
-        self.request = self.generate_url("submit")
-        expected_response = b"There were errors with your form."
-        form = self.create_form("First title", "This E-Announcement should never be seen by the public, I hope",
-                                None, '08-05-2017', 'STUDENT-CAS')
-        response = self.send_post(self.request, form)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def submit_new_form_invalid_second_date(self):
-        self.request_type = "POST"
-        self.request = self.generate_url("submit")
-        expected_response = b"There were errors with your form."
-        form = self.create_form("First title", "This E-Announcement should never be seen by the public, I hope",
-                                '08-01-2017', '08-05-2016', 'STUDENT-CAS')
-        response = self.send_post(self.request, form)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def submit_new_form_invalid_banner_roles(self):
-        self.request_type = "POST"
-        self.request = self.generate_url("submit")
-        expected_response = b"There were errors with your form."
-        form = self.create_form("First title", "This E-Announcement should never be seen by the public, I hope",
-                                '08-01-2017', '08-05-2017', None)
-        response = self.send_post(self.request, form)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        arg_names = ['title', 'message', 'first_date', 'banner_roles']
+        for i in range(len(arg_names)):
+            bad_arg = {arg_names[i]: ""}
+            form = self.create_form(**bad_arg)
+            response = self.send_post(self.request, form)
+            failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                            expected_response,
+                                                            self.class_name + "/new_form_invalid_" + arg_names[i],
+                                                            self.get_line_number())
+            self.assertIn(expected_response, response.data, msg=failure_message)
 
     def get_edit_form(self):
         self.request_type = "GET"
@@ -114,69 +75,7 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("submit")
         expected_response = b"You've successfully edited your E-Announcement. Once your E-Announcement has been approved,"
-        form = self.create_form("Second title", "This E-Announcement should never be seen by the public, I hope",
-                                '08-01-2017', '08-05-2017', 'STUDENT-CAS',
-                                eaid=self.eaid)
-        response = self.send_post(self.request, form)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def submit_edit_invalid_title(self):
-        self.request_type = "POST"
-        self.request = self.generate_url("submit")
-        expected_response = b"There were errors with your form."
-        form = self.create_form(None, "This E-Announcement should never be seen by the public, I hope",
-                                '08-01-2017', '08-05-2017', 'STUDENT-CAS',
-                                eaid=self.eaid)
-        response = self.send_post(self.request, form)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def submit_edit_invalid_message(self):
-        self.request_type = "POST"
-        self.request = self.generate_url("submit")
-        expected_response = b"There were errors with your form."
-        form = self.create_form("Second title", None,
-                                '08-01-2017', '08-05-2017', 'STUDENT-CAS',
-                                eaid=self.eaid)
-        response = self.send_post(self.request, form)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def submit_edit_invalid_first_date(self):
-        self.request_type = "POST"
-        self.request = self.generate_url("submit")
-        expected_response = b"There were errors with your form."
-        form = self.create_form("Second title", "This E-Announcement should never be seen by the public, I hope",
-                                None, '08-05-2017', 'STUDENT-CAS',
-                                eaid=self.eaid)
-        response = self.send_post(self.request, form)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def submit_edit_invalid_second_date(self):
-        self.request_type = "POST"
-        self.request = self.generate_url("submit")
-        expected_response = b"There were errors with your form."
-        form = self.create_form("Second title", "This E-Announcement should never be seen by the public, I hope",
-                                '08-01-2017', '08-05-2016', 'STUDENT-CAS',
-                                eaid=self.eaid)
-        response = self.send_post(self.request, form)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def submit_edit_invalid_banner_roles(self):
-        self.request_type = "POST"
-        self.request = self.generate_url("submit")
-        expected_response = b"There were errors with your form."
-        form = self.create_form("Second title", "This E-Announcement should never be seen by the public, I hope",
-                                '08-01-2017', '08-05-2017', None,
-                                eaid=self.eaid)
+        form = self.create_form(title="Second title", eaid=self.eaid)
         response = self.send_post(self.request, form)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
@@ -203,20 +102,11 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         self.get_new_form()
 
         self.submit_new_form_valid()
-        self.submit_new_form_invalid_title()
-        self.submit_new_form_invalid_message()
-        self.submit_new_form_invalid_first_date()
-        self.submit_new_form_invalid_second_date()
-        self.submit_new_form_invalid_banner_roles()
+        self.submit_new_form_invalid()
 
         self.get_edit_form()
 
         self.submit_edit_valid()
-        self.submit_edit_invalid_title()
-        self.submit_edit_invalid_message()
-        self.submit_edit_invalid_first_date()
-        self.submit_edit_invalid_second_date()
-        self.submit_edit_invalid_banner_roles()
 
         self.get_duplicate_form()
 

@@ -1,6 +1,7 @@
-import tinker
 from flask_fixtures import FixturesMixin
 from flask_sqlalchemy import SQLAlchemy
+
+import tinker
 from unit_tests import BaseTestCase
 
 

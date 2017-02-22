@@ -1,5 +1,5 @@
 import re
-import time
+
 from unit_tests import BaseTestCase
 
 

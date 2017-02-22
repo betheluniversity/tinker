@@ -3,9 +3,10 @@
 import base64
 import os
 import re
-import tinker
 import unittest
 from inspect import stack, getframeinfo
+
+import tinker
 from tinker import get_url_from_path
 from unit_test_utilities import get_tests_in_this_dir
 

@@ -1,6 +1,7 @@
 import os
-from discover import DiscoveringTestLoader
 from inspect import stack
+
+from discover import DiscoveringTestLoader
 
 
 def get_tests_in_this_dir(path):
