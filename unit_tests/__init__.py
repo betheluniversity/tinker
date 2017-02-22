@@ -111,9 +111,3 @@ class BaseTestCase(unittest.TestCase):
 if __name__ == "__main__":
     testsuite = get_tests_in_this_dir(".")
     unittest.TextTestRunner(verbosity=1).run(testsuite)
-
-
-# Missing unit test files:
-# admin/redirects/new_api_submit
-# admin/redirects/new_api_submit_asset_expiration
-# admin/redirects/new_internal_redirect_submit
