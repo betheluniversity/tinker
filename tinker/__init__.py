@@ -14,9 +14,11 @@ from bu_cascade.cascade_connector import Cascade
 app = Flask(__name__)
 
 if "testing" not in platform.node():
+    TRAVIS_TESTING = False
     app.config.from_object('config.config')
 else:
     import ast, glob
+    TRAVIS_TESTING = True
     app.debug = True
     keywords = []
 
@@ -130,4 +132,5 @@ def before_request():
     base = TinkerController()
     base.before_request()
 
-flask_profiler.init_app(app)
+if not TRAVIS_TESTING:
+    flask_profiler.init_app(app)
