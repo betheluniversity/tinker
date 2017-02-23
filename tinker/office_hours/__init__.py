@@ -57,7 +57,6 @@ class OfficeHoursView(FlaskView):
 
             data, mdata, sdata = block.read_asset()
             asset = self.base.update_structure(data, mdata, rform)
-            # # todo: move this portion into update structure
             # asset = self.base.rotate_hours(asset)
 
             resp = str(block.edit_asset(asset))

@@ -146,27 +146,29 @@ class OfficeHoursController(TinkerController):
         return datestring
 
     def convert_timestamps_to_bethel_string(self, open, close):
+        try:
+            open = datetime.datetime.fromtimestamp(int(open) / 1000).strftime('%-I:%M%p')
+            close = datetime.datetime.fromtimestamp(int(close) / 1000).strftime('%-I:%M%p')
 
-        open = datetime.datetime.fromtimestamp(int(open) / 1000).strftime('%-I:%M%p')
-        close = datetime.datetime.fromtimestamp(int(close) / 1000).strftime('%-I:%M%p')
+            # if times are 12:00 -- adjust to noon or midnight
+            open = self.convert_to_noon_or_midnight(open)
+            close = self.convert_to_noon_or_midnight(close)
 
-        # if times are 12:00 -- adjust to noon or midnight
-        open = self.convert_to_noon_or_midnight(open)
-        close = self.convert_to_noon_or_midnight(close)
+            # if :00 -- remove it
+            open = open.replace(':00', '')
+            close = close.replace(':00', '')
 
-        # if :00 -- remove it
-        open = open.replace(':00', '')
-        close = close.replace(':00', '')
+            # if times are both am/pm -- remove am/pm on first
+            if ('AM' in open and 'AM' in close) or ('PM' in open and 'PM' in close):
+                open = open.replace('AM', '').replace('PM', '')
 
-        # if times are both am/pm -- remove am/pm on first
-        if ('AM' in open and 'AM' in close) or ('PM' in open and 'PM' in close):
-            open = open.replace('AM', '').replace('PM', '')
+            # convert AM to a.m. and PM to p.m
+            open = self.convert_ampm(open)
+            close = self.convert_ampm(close)
 
-        # convert AM to a.m. and PM to p.m
-        open = self.convert_ampm(open)
-        close = self.convert_ampm(close)
-
-        return open + ' - ' + close
+            return open + ' - ' + close
+        except:
+            return 'Closed'
 
     def rotate_hours(self, sdata):
         next_start_date = find(sdata, 'next_start_date', False)
@@ -250,26 +252,45 @@ class OfficeHoursController(TinkerController):
 
         return summary
 
-    # todo: pull in the vacation hours
     def create_exceptions_text(self, sdata):
-        # add exceptions
-        exceptions = find(sdata, 'exceptions')
-        exceptions_text = ''
+        dates_seen = []
 
-        # todo: sort the exceptions
-        # todo: merge the vacation hours
-        for exception in exceptions:
-            date = find(exception, 'date', False)
-            if self.is_date_within_two_weeks(date):
-                open = find(exception, 'open', False)
-                close = find(exception, 'close', False)
+        # defined as a method since vacation exception and normal office exceptions use the same process
+        def loop_over_exceptions(exceptions_list):
+            exceptions_text = []
+            for exception in exceptions_list:
+                date = find(exception, 'date', False)
+                # todo: remove exceptions that are past. Its okay to edit right here, because sdata is updated later
+                if self.is_date_within_two_weeks(date):
+                    # make sure that only one exception is added each day, with preference to vacation
+                    if date not in dates_seen:
+                        dates_seen.append(date)
 
-                # todo: if open or close are empty, then it is closed this day
+                        open = find(exception, 'open', False)
+                        close = find(exception, 'close', False)
 
-                exceptions_text += '<p>%s: %s</p>' % (date, self.convert_timestamps_to_bethel_string(open, close))
+                        exceptions_text.append({
+                            'html': '<p>%s: %s</p>' % (date, self.convert_timestamps_to_bethel_string(open, close)),
+                            'sort-date': datetime.datetime.strptime(date, '%m-%d-%Y')
+                        })
 
-        return exceptions_text
+            return exceptions_text
 
+        # pull in vacation hours from General BU Office Hours
+        bu_standard_hours = self.read(app.config['OFFICE_HOURS_STANDARD_BLOCK'], 'block')
+        vacation_exceptions = find(bu_standard_hours, 'exceptions')
+        vacation_exception_array = loop_over_exceptions(vacation_exceptions)
+
+        # create office exceptions
+        office_exceptions = find(sdata, 'exceptions')
+        office_exception_array = loop_over_exceptions(office_exceptions)
+
+        # merge and sort the vacation hours
+        all_exceptions = sorted(vacation_exception_array + office_exception_array, key=lambda x: x['sort-date'])
+
+        return ''.join(exception['html'] for exception in all_exceptions)
+
+    # todo: maybe make this return -1, 0, 1 - this allows to check for hours that are prior to today
     def is_date_within_two_weeks(self, date):
         if date and 0 <= (datetime.datetime.strptime(date, '%m-%d-%Y').date() - datetime.datetime.now().date()).days <= 14:
             return True
