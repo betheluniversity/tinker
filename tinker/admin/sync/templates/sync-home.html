@@ -8,10 +8,7 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
-                <script src="/static/csrf-activator.js"></script>
                 <script type="text/javascript">
-                    var csrftoken = "{{ csrf_token() }}";
-                    activateCSRF(csrftoken);
                     function postToURLWithSpinner(url, value) {
                         {# activate waiting gif #}
                         $('#spinner').show();

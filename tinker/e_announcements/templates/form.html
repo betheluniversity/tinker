@@ -161,7 +161,6 @@
 
     <script src="{{ url_for('static', filename='moment.js') }}"></script>
     <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
-    <script src="{{ url_for('static', filename='csrf-activator.js') }}"></script>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
     <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
@@ -169,9 +168,6 @@
 
     <script type="text/javascript">
         $(document).ready(function () {
-            var csrftoken = "{{ csrf_token() }}";
-            activateCSRF(csrftoken);
-
             $(document).ready(function () {
                 var today = new Date();
                 function is_date_a_bethel_holiday(date) {
