@@ -103,8 +103,6 @@
 
     {#    Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
-        var csrftoken = "{{ csrf_token() }}";
-        activateCSRF(csrftoken);
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/events/delete/" + $(this).data('event-id'));
         });
@@ -116,17 +114,29 @@
             }
         });
         $('.datepicker').each(function () {
+            var current_element = $(this);
             var starting_values = {
                 field: this,
                 format: 'MM DD YYYY',
                 minDate: new Date('2000-01-01'),
                 maxDate: new Date('2040-12-31'),
                 yearRange: [2000, 2040],
-{#                disableDayFn: function (date) {#}
-{#                    #}
-{#                }#}
+                disableDayFn: function (date) {
+                    var start_populated = $("#startDate").val();
+                    var end_populated = $("#endDate").val();
+                    if(start_populated == "" && end_populated == ""){
+                        return null;
+                    }else if(start_populated != "" && current_element.attr('id') == 'endDate'){
+                        if(new Date(start_populated) >= date){
+                            return date;
+                        }
+                    }else if(end_populated != "" && current_element.attr('id') == 'startDate'){
+                        if(new Date(end_populated) <= date){
+                            return date;
+                        }
+                    }
+                }
             };
-
             // if its the startDate, set default date to today
             if( $(this).attr('id') == 'startDate' ) {
                 starting_values['defaultDate'] = new Date();

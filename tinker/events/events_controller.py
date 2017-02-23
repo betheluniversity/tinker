@@ -431,15 +431,16 @@ class EventsController(TinkerController):
             else:
                 check_dates = True
             # split the event dates into a dictionary, then loop through it for each date to catch all possible events
-            event_dates = []
             event_dates = event['event-dates'].split("<br/>")
             for form in event_dates:
                 if has_start or has_end and check_dates:
                     try:
                         # If the event has dates convert them to the seconds type to compare
                         event_start, event_end = form.split(" - ")
-                        event_start = datetime.datetime.strptime(event_start, "%B %d, %Y %I:%M %p")  # Starting time from the form
-                        event_end = datetime.datetime.strptime(event_end, "%B %d, %Y %I:%M %p")  # Ending time from the form
+                        # Starting time from the form
+                        event_start = datetime.datetime.strptime(event_start, "%B %d, %Y %I:%M %p")
+                        # Ending time from the form
+                        event_end = datetime.datetime.strptime(event_end, "%B %d, %Y %I:%M %p")
                     except:
                         check_dates = False
                         continue
