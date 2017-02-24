@@ -67,6 +67,8 @@ class ProgramSearchView(FlaskView):
     def multi_delete(self):
         ids_to_delete = json.loads(request.data)
         for id in ids_to_delete:
+            if not (isinstance(id, str) or isinstance(id, unicode)):
+                return "One of the ids given to this method was not a string"
             ProgramTag.query.filter_by(id=id).delete()
         db.session.commit()
         self.base.create_new_csv_file()

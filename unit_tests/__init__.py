@@ -1,17 +1,12 @@
-# In an ideal world, here are some features that I would like to implement to unit testing:
-# 1. Make the unit tests much more robust; instead of just testing endpoints of a module, it can also check that each
-#       respective DB or Cascade object gets updated appropriately so that there's no possibility of silent failures
-# 2. Find some way to pass test object ids back and forth between unit tests so that the test_sequentially files can be
-#       split into individual, granular unit tests.
-#
 # Currently, the unit testing suite takes about 4 minutes to run.
 
 import base64
 import os
 import re
-import tinker
 import unittest
 from inspect import stack, getframeinfo
+
+import tinker
 from tinker import get_url_from_path
 from unit_test_utilities import get_tests_in_this_dir
 
@@ -116,9 +111,3 @@ class BaseTestCase(unittest.TestCase):
 if __name__ == "__main__":
     testsuite = get_tests_in_this_dir(".")
     unittest.TextTestRunner(verbosity=1).run(testsuite)
-
-
-# Missing unit test files:
-# admin/redirects/new_api_submit
-# admin/redirects/new_api_submit_asset_expiration
-# admin/redirects/new_internal_redirect_submit

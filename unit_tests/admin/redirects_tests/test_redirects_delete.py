@@ -12,7 +12,7 @@ class DeleteTestCase(RedirectsBaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("delete_redirect")
 
-    def create_form(self, from_path):
+    def create_form(self, from_path="/from?"):
         return {
             'from_path': from_path
         }
