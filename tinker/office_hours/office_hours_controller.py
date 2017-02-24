@@ -256,11 +256,17 @@ class OfficeHoursController(TinkerController):
         dates_seen = []
 
         # defined as a method since vacation exception and normal office exceptions use the same process
-        def loop_over_exceptions(exceptions_list):
+        def loop_over_exceptions(sdata):
             exceptions_text = []
+            exceptions_to_keep = []
+            exceptions_list = find(sdata, 'exceptions')
+
+            # a default check to make sure the exceptions_list is not a dict
+            if type(exceptions_list) is dict:
+                exceptions_list = [exceptions_list]
+
             for exception in exceptions_list:
                 date = find(exception, 'date', False)
-                # todo: remove exceptions that are past. Its okay to edit right here, because sdata is updated later
                 if self.is_date_within_two_weeks(date):
                     # make sure that only one exception is added each day, with preference to vacation
                     if date not in dates_seen:
@@ -273,25 +279,38 @@ class OfficeHoursController(TinkerController):
                             'html': '<p>%s: %s</p>' % (date, self.convert_timestamps_to_bethel_string(open, close)),
                             'sort-date': datetime.datetime.strptime(date, '%m-%d-%Y')
                         })
+                if self.is_date_after_today(date):
+                    exceptions_to_keep.append(exception)
+
+            # keep exceptions that are today or after
+            self.update_asset(sdata, {'exceptions': exceptions_to_keep})
 
             return exceptions_text
 
         # pull in vacation hours from General BU Office Hours
         bu_standard_hours = self.read(app.config['OFFICE_HOURS_STANDARD_BLOCK'], 'block')
-        vacation_exceptions = find(bu_standard_hours, 'exceptions')
-        vacation_exception_array = loop_over_exceptions(vacation_exceptions)
+        vacation_exception_array = loop_over_exceptions(bu_standard_hours)
 
         # create office exceptions
-        office_exceptions = find(sdata, 'exceptions')
-        office_exception_array = loop_over_exceptions(office_exceptions)
+        # if the current block is the OFFICE_HOURS_STANDARD_BLOCK, it will loop over itself twice, but do nothing.
+        # I think its better to simply ignore the check, in order to loop twice.
+        office_exception_array = loop_over_exceptions(sdata)
 
         # merge and sort the vacation hours
         all_exceptions = sorted(vacation_exception_array + office_exception_array, key=lambda x: x['sort-date'])
 
         return ''.join(exception['html'] for exception in all_exceptions)
 
-    # todo: maybe make this return -1, 0, 1 - this allows to check for hours that are prior to today
     def is_date_within_two_weeks(self, date):
-        if date and 0 <= (datetime.datetime.strptime(date, '%m-%d-%Y').date() - datetime.datetime.now().date()).days <= 14:
-            return True
+        if date:
+            timedelta_in_days = (datetime.datetime.strptime(date, '%m-%d-%Y').date() - datetime.datetime.now().date()).days
+            if 0 <= timedelta_in_days and timedelta_in_days <= 14:  # within 2 weeks
+                return True
+        return False
+
+    def is_date_after_today(self, date):
+        if date:
+            timedelta_in_days = (datetime.datetime.strptime(date, '%m-%d-%Y').date() - datetime.datetime.now().date()).days
+            if timedelta_in_days >= 0:
+                return True
         return False
