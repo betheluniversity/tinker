@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block page_title %}
-    Edit Office Hours
+    Edit {{ mdata['title'] }}'s Office Hours
 {% endblock %}
 
 {% macro CheckFieldLabel(field) -%}
@@ -72,24 +72,27 @@
 
 {% endmacro %}
 
-{% macro current_hours(current, show_chapel=True) -%}
+{% macro current_hours(title, current, show_chapel=True) -%}
     {% set days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] %}
-    <p>
-        {% for day in days %}
-            {% set open = day+ '_open' %}
-            {% set close = day + '_close' %}
-            {{ day.title() }}:
-            {% if current[open] != None and current[close] != None%}
-                {{ current[open] }} - {{ current[close] }}
-            {% else %}
-                Closed
+    <div class="col-sm-6">
+        <h5>{{ title }}</h5>
+        <p>
+            {% for day in days %}
+                {% set open = day+ '_open' %}
+                {% set close = day + '_close' %}
+                {{ day.title() }}:
+                {% if current[open] != None and current[close] != None%}
+                    {{ current[open] }} - {{ current[close] }}
+                {% else %}
+                    Closed
+                {% endif %}
+                <br/>
+            {% endfor %}
+            {% if show_chapel %}
+                Office closed for Chapel: {{ current['closed_for_chapel'] }}
             {% endif %}
-            <br/>
-        {% endfor %}
-        {% if show_chapel %}
-            Office closed for Chapel: {{ current['closed_for_chapel'] }}
-        {% endif %}
-    </p>
+        </p>
+    </div>
 {% endmacro %}
 
 
@@ -97,20 +100,18 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
-                <h3 class="subtitle">Edit Office Hours</h3>
+                <h3 class="subtitle">Edit {{ mdata['title'] }}'s Office Hours</h3>
                 <hr/>
                 <p>
                     Below shows the hours that Bethel University's campus is open along with your office's hours.
                     <br/>
                     Please select your next office's hours and any exceptions that need to be applied. Note, Bethel's holidays will automatically be added as exceptions.
                 </p>
-                <h4 class="first-subtitle">BU Standard Hours</h4>
-                {% set standard = standard_edit_data['current'] %}
-                {{ current_hours(standard, False) }}
+                <div class="container-fluid">
+                    {{ current_hours('BU Standard Hours', standard_edit_data['current'], False) }}
 
-                <h4>Current {{ mdata['title'] }}</h4>
-                {% set current = edit_data['current'] %}
-                {{ current_hours(current) }}
+                    {{ current_hours('Current ' + mdata['title'], edit_data['current']) }}
+                </div>
 
                 <form id="officehoursform" action="/office-hours/submit" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="block_id" id="block_id" value="{{ block_id }}"/>
