@@ -98,6 +98,7 @@ class OfficeHoursController(TinkerController):
             if not value:
                 continue
 
+            # any open/close times
             if 'open' in key or 'close' in key and key not in ['next_closed_for_chapel']:
                 add_data[key] = self.date_to_java_unix(value)
 
@@ -112,6 +113,7 @@ class OfficeHoursController(TinkerController):
 
         return data
 
+    # todo: convert this method to use a render_template method
     def convert_week_dict_to_string(self, week_dict):
         summary_html = ''
         has_chapel = False
@@ -275,9 +277,11 @@ class OfficeHoursController(TinkerController):
                         open = find(exception, 'open', False)
                         close = find(exception, 'close', False)
 
+                        date_timestamp = datetime.datetime.strptime(date, '%m-%d-%Y')
+
                         exceptions_text.append({
-                            'html': '<p>%s: %s</p>' % (date, self.convert_timestamps_to_bethel_string(open, close)),
-                            'sort-date': datetime.datetime.strptime(date, '%m-%d-%Y')
+                            'html': '<p>%s: %s</p>' % (date_timestamp.strftime('%A, %B %d, %Y'), self.convert_timestamps_to_bethel_string(open, close)),
+                            'sort-date': date_timestamp
                         })
                 if self.is_date_after_today(date):
                     exceptions_to_keep.append(exception)

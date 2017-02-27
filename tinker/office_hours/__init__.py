@@ -42,6 +42,10 @@ class OfficeHoursView(FlaskView):
         for e in edit_data['exceptions']:
             if e['date']:
                 e['date'] = e['date'].strftime('%m/%d/%Y')
+            if not e['open']:
+                e['open'] = ''
+            if not e['close']:
+                e['close'] = ''
 
         form = OfficeHoursForm(**edit_data)
 

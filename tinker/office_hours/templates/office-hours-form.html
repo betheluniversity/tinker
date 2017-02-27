@@ -39,18 +39,28 @@
                 </label>
                 <input class="datepicker auto-width" id="date1" name="date1" type="text" value=""/>
 
-                <div class="large-12 columns timeRange">
-                    <label>
-                        Open
-                        <input class="time start ui-timepicker-input auto-width" id="open1" name="open1" type="text"
+                <table><tr>
+                    <td class="div-to-hide">
+                        <div class="timeRange">
+                            <input class="time start ui-timepicker-input auto-width hide-when-none" id="open1" name="open1" type="text"
                                value=""
                                autocomplete="off">
-                        - <input class="time end ui-timepicker-input auto-width" id="close1" name="close1" type="text"
+                            - <input class="time end ui-timepicker-input auto-width hide-when-none" id="close1" name="close1" type="text"
                                  value=""
                                  autocomplete="off">
-                    </label>
-                </div>
-                <label>Closed? <input type="checkbox" class="hide-timerange"/></label>
+                        </div>
+                    </td>
+                    <td class="checkbox-div">
+                        <label class="checkbox hide-checkboxes">
+                          <span class="icons">
+                                <span class="first-icon fa fa-square-o"></span>
+                                <span class="second-icon fa fa-check-square-o"></span>
+                          </span>
+                          <input type="checkbox">
+                          Closed
+                        </label>
+                    </td>
+                </tr></table>
             </div>
         </div>
     </fieldset>
@@ -68,7 +78,13 @@
         {% for day in days %}
             {% set open = day+ '_open' %}
             {% set close = day + '_close' %}
-            {{ day.title() }}: {{ current[open] }} - {{ current[close] }}<br/>
+            {{ day.title() }}:
+            {% if current[open] != None and current[close] != None%}
+                {{ current[open] }} - {{ current[close] }}
+            {% else %}
+                Closed
+            {% endif %}
+            <br/>
         {% endfor %}
         {% if show_chapel %}
             Office closed for Chapel: {{ current['closed_for_chapel'] }}
@@ -128,18 +144,25 @@
 
                         {% elif field.type == 'StringField' %}
                             {% if 'open' in field.name %}
-                                <div>
-                                    <div class="col-sm-5 less-left-margin div-to-hide">
+                                <table><tr>
+                                    <td class="div-to-hide">
                                         <div class="timeRange">
                                             {{ field(class='time start auto-width hide-when-none') }}
                             {% elif 'close' in field.name %}
                                             - {{ field(class='time end auto-width hide-when-none') }}
                                         </div>
-                                    </div>
-                                    <div class="col-sm-2 less-left-margin">
-                                        <label><input type="checkbox" class="hide-checkboxes"/><span style="padding-left:1em;">Closed?</span></label>
-                                    </div>
-                                </div>
+                                    </td>
+                                    <td class="checkbox-div">
+                                        <label class="checkbox hide-checkboxes">
+                                          <span class="icons">
+                                                <span class="first-icon fa fa-square-o"></span>
+                                                <span class="second-icon fa fa-check-square-o"></span>
+                                          </span>
+                                          <input type="checkbox">
+                                          Closed
+                                        </label>
+                                    </td>
+                                </tr></table>
                             {% else %}
                                 {{ field(class='datepicker auto-width') }}
                             {% endif %}
@@ -149,7 +172,7 @@
                             <fieldset>
                                 <div class="card">
                                     <div class="content">
-                                        <legend>Next</legend>
+                                        <legend>Next Hours</legend>
 
                                         {% elif field.type == 'NextCloseField' %}
                                     </div>
@@ -202,19 +225,29 @@
         $(document).ready(function () {
             // A subpar way to hide/show all of the elements.
             // However, this does it all in few lines, so it should be easy to redo later.
-            $('.hide-checkboxes').click(function () {
-                var input_element = $(this).parent().parent().parent().children().first();
-                if( $(this).is(':checked') ) {
+            $(document).on('click', '.hide-checkboxes', function() {
+                var input_element = $(this).closest('tr').children('.div-to-hide');
+                if( $(this).attr('class').indexOf('checked') != -1 ) {
                     input_element.hide();
                     input_element.find('input').val('')
                 }
                 else {
                     input_element.show();
+                    {# set default hours values #}
+                    input_element.find('div').find('.start').val('8:00 AM');
+                    input_element.find('div').find('.end').val('4:30 PM');
                 }
             });
-            {# default methods #}
-            $('.hide-when-none[value=""]').parent().parent().hide();
-            $('.hide-when-none[value=""]').parent().parent().parent().find('.hide-checkboxes').attr('checked', 'checked');
+
+            function init_closed_checkboxes(){
+                $('.hide-when-none').each(function() {
+                    if( $(this).val() == ''){
+                        $(this).closest('tr').children('.div-to-hide').hide();
+                        $(this).closest('tr').children('.checkbox-div').children('label').addClass('checked');
+                        $(this).closest('tr').children('.checkbox-div').children('label').children('input').attr('checked', 'checked');
+                    }
+                });
+            }
 
             function dateTimePickers(selection_string) {
                 $(selection_string + '.time').timepicker({
@@ -233,18 +266,17 @@
                 });
             }
 
-            $("#add_exception_button").on('click', function () {
+            $(document).on('click', '#add_exception_button', function() {
                 var last = $(".exceptions-fieldset").last();
                 var old_num = last.children()[0].textContent.replace("Exception ", "");
                 var new_num = (parseInt(old_num) + 1);
                 var new_exception = newExceptionFieldset(new_num);
                 new_exception.insertAfter(last);
                 $("#remove_exception_button").show();
-                dateTimePickers('#exception' + new_num + ' ')
-
+                dateTimePickers('#exception' + new_num + ' ');
             });
 
-            $("#remove_exception_button").click(function () {
+            $(document).on('click', '#remove_exception_button', function() {
                 var list = $(".exceptions-fieldset");
                 if (list.length == 2) {
                     $("#remove_exception_button").hide();
@@ -262,6 +294,7 @@
                 $(closeid).val(exception['close']);
             }
 
+            {# todo: should move this into  #}
             function newExceptionFieldset(id) {
                 var date = 'date' + id;
                 var open = 'open' + id;
@@ -274,20 +307,28 @@
                 inner_node.append($("<label>").attr('date', date).html("Exception Date "));
                 inner_node.append($("<input type='text'>").attr('name', date).attr('id', date).addClass("datepicker auto-width"));
 
-                var div = $("<div>").addClass('timeRange');
-                var label = $("<label>").html("Open ");
+                var table = $("<table>").html(`
+                    <tr>
+                        <td class="div-to-hide">
+                           <div class="timeRange">
+                                <input class="time start ui-timepicker-input auto-width hide-when-none" id="open` + id + `" name="open` + id + `" type="text" value="" autocomplete="off">
+                                - <input class="time end ui-timepicker-input auto-width hide-when-none" id="close` + id + `" name="close` + id + `" type="text" value="" autocomplete="off">
+                        </div>
+                        </td>
+                        <td class="checkbox-div">
+                            <label class="checkbox hide-checkboxes">
+                              <span class="icons">
+                                    <span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span>
+                              </span>
+                              <input type="checkbox">
+                              Closed
+                            </label>
+                        </td>
+                    </tr>
+                `);
 
-                label.append($("<input type='text'>").attr('name', open).attr('id', open).addClass("time start auto-width"));
-                label.append(" - ");
-                label.append($("<input type='text'>").attr('name', close).attr('id', close).addClass("time end auto-width"));
-
-                div.append(label);
-                inner_node.append(div);
-
-                var checkbox_label = $("<label>").html('Closed?');
-                checkbox_label.append($("<input type='checkbox'>").addClass("hide-timerange"));
-
-                inner_node.append(checkbox_label);
+                inner_node.append(table);
                 fieldset_node.append($("<div>").addClass('card').attr('id', exception_id).append(inner_node));
 
                 return fieldset_node;
@@ -295,11 +336,12 @@
 
             $(document).on('click', '.hide-timerange', function() {
                 var timerange_element = $(this).parent().parent().children('.timeRange');
+                alert($(this).is(':checked'));
                 if ( $(this).is(':checked') ) {
+                    timerange_element.show();
+                } else {
                     timerange_element.hide();
                     timerange_element.children().children('input').val('');
-                } else {
-                    timerange_element.show();
                 }
             });
 
@@ -308,7 +350,6 @@
                 var exceptions = {{ edit_data['exceptions']|safe }};
                 var i = 0;
                 while (i < 200) {
-
                     exception = exceptions[i];
                     if (!exception) {
                         break;
@@ -326,14 +367,14 @@
                     }
 
                     populateFieldset(id, exception);
-
                     i++;
-
                 }
+                init_closed_checkboxes();
 
             {% endif %}
 
             dateTimePickers("");
+            init_closed_checkboxes();
         });
     </script>
 
