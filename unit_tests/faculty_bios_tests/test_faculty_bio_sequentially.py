@@ -1,5 +1,6 @@
 import re
 
+from tinker import cascade_connector
 from unit_tests import BaseTestCase
 
 
@@ -99,6 +100,8 @@ class FacultyBioSequentialTestCase(BaseTestCase):
                                                         expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
         self.fbid = self.get_faculty_bio_id(response.data)
+        print "Faculty Bios ID =", self.fbid
+        print "Workflow ID:", cascade_connector.get_workflow_id(self.fbid, 'page')
 
     def submit_new_form_all_invalid_types(self):
         self.request_type = "POST"
@@ -111,6 +114,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
             bad_args = {required_vals[index]: ""}
             form = self.create_form(**bad_args)
             response = self.send_post(self.request, form)
+            possible_id = self.get_faculty_bio_id(response.data)
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                             expected_response,
                                                             self.class_name + "/new_invalid_" + required_vals[index],
