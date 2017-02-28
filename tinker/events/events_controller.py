@@ -80,13 +80,18 @@ class EventsController(TinkerController):
 
         dates = child.find('system-data-structure').findall('event-dates')
         dates_str = []
+        dates_html_array = []
         for date in dates:
             try:
                 start = int(date.find('start-date').text) / 1000
                 end = int(date.find('end-date').text) / 1000
             except TypeError:
                 continue
-            dates_str.append(self.friendly_date_range(start, end))
+            dates_str.append({
+                'start': start,
+                'end': end,
+            })
+            dates_html_array.append(self.friendly_date_range(start, end))
 
         page_values = {
             'author': author,
@@ -95,7 +100,8 @@ class EventsController(TinkerController):
             'created-on': child.find('created-on').text or None,
             'path': 'https://www.bethel.edu' + child.find('path').text or None,
             'is_published': is_published,
-            'event-dates': "<br/>".join(dates_str)
+            'event-dates': dates_str,
+            'html': '<br/>'.join(dates_html_array)
         }
         # This is a match, add it to array
 
@@ -431,16 +437,15 @@ class EventsController(TinkerController):
             else:
                 check_dates = True
             # split the event dates into a dictionary, then loop through it for each date to catch all possible events
-            event_dates = event['event-dates'].split("<br/>")
-            for form in event_dates:
+            for form in event['event-dates']:
                 if has_start or has_end and check_dates:
                     try:
-                        # If the event has dates convert them to the seconds type to compare
-                        event_start, event_end = form.split(" - ")
-                        # Starting time from the form
-                        event_start = datetime.datetime.strptime(event_start, "%B %d, %Y %I:%M %p")
-                        # Ending time from the form
-                        event_end = datetime.datetime.strptime(event_end, "%B %d, %Y %I:%M %p")
+                        # Starting time from the form; convert from time stamp to datetime then strftime to right format
+                        event_start = datetime.datetime.fromtimestamp(form['start']).strftime('%a %b %d %Y')
+                        event_start = datetime.datetime.strptime(event_start, "%a %b %d %Y")
+                        # Ending time from the form; convert from time stamp to datetime then strftime to right format
+                        event_end = datetime.datetime.fromtimestamp(form['end']).strftime('%a %b %d %Y')
+                        event_end = datetime.datetime.strptime(event_end, "%a %b %d %Y")
                     except:
                         check_dates = False
                         continue
