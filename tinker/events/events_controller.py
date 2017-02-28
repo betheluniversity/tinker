@@ -430,7 +430,6 @@ class EventsController(TinkerController):
             has_end = True  # If the user used an end date
 
         # Loop through the events based on selection
-        # Go through user events
         for event in events_to_iterate:
             if not event['event-dates']:
                 check_dates = False
@@ -440,10 +439,9 @@ class EventsController(TinkerController):
             for form in event['event-dates']:
                 if has_start or has_end and check_dates:
                     try:
-                        # Starting time from the form; convert from time stamp to datetime then strftime to right format
+                        # Form Start/End timestamps converted to datetime and then formatted to match start and end
                         event_start = datetime.datetime.fromtimestamp(form['start']).strftime('%a %b %d %Y')
                         event_start = datetime.datetime.strptime(event_start, "%a %b %d %Y")
-                        # Ending time from the form; convert from time stamp to datetime then strftime to right format
                         event_end = datetime.datetime.fromtimestamp(form['end']).strftime('%a %b %d %Y')
                         event_end = datetime.datetime.strptime(event_end, "%a %b %d %Y")
                     except:

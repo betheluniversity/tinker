@@ -163,21 +163,6 @@ class EventsView(FlaskView):
     #This is the search for events to pare down what is being shown
     @route("/search", methods=['POST'])
     def search(self):
-        # Start by declaring the variables from the index so that they can be passed into render_template
-        show_create = True
-        all_schools = OrderedDict({
-            1: 'All Events',
-            2: 'My Events',
-            3: 'Other Events'},
-            key=lambda t: t[0]
-        )
-        # The below can be added inside of the dictionary as they are built out
-        # {4: 'College of Arts and Sciences'},
-        # {5: 'College of Adult and Professional Studies'},
-        # {6: 'Graduate School'},
-        # {7: 'Bethel Seminary'},
-        # {8: 'Administration with Faculty Status'},
-        # {9: 'Other'}
         # Load the data, get the event type selection and title of the event the user is searching for
         data = json.loads(request.data)
         selection = data['selection']
