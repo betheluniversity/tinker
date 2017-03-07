@@ -33,6 +33,90 @@
                 }
             }
         }
+
+{#        function checkAllDay(id, reverse_logic) {#}
+{#            var allday = 'allday' + id;#}
+{##}
+{#            if (document.getElementById(allday) == undefined)#}
+{#                return;#}
+{##}
+{#            if (reverse_logic == true) {#}
+{#                if (document.getElementById(allday).checked) {#}
+{#                    $('.datepicker').each(function (index) {#}
+{#                        var picker = new Pikaday({#}
+{#                            field: this,#}
+{#                            format: 'MMMM Do YYYY, h:mm a',#}
+{#                            showTime: true#}
+{#                        });#}
+{#                    });#}
+{#                }#}
+{#                else {#}
+{#                    $('.datepicker').each(function (index) {#}
+{#                        var picker = new Pikaday({#}
+{#                            field: this,#}
+{#                            format: 'MMMM Do YYYY',#}
+{#                            showTime: false#}
+{#                        });#}
+{#                    });#}
+{#                }#}
+{#            }#}
+{#            else {#}
+{#                if (document.getElementById(allday).checked) {#}
+{#                    $('.datepicker').each(function (index) {#}
+{#                        var picker = new Pikaday({#}
+{#                            field: this,#}
+{#                            format: 'MMMM Do YYYY',#}
+{#                            showTime: false#}
+{#                        });#}
+{#                    });#}
+{#                }#}
+{#                else {#}
+{#                    $('.datepicker').each(function (index) {#}
+{#                        var picker = new Pikaday({#}
+{#                            field: this,#}
+{#                            format: 'MMMM Do YYYY, h:mm a',#}
+{#                            showTime: true#}
+{#                        });#}
+{#                    });#}
+{#                }#}
+{#            }#}
+{#        }#}
+
+        function checkNoEndDate(id, reverse_logic) {
+            var end = 'end' + id;
+            var start = 'start' + id;
+            var noend = 'noenddate' + id;
+            var endlabel = 'endlabel' + id;
+
+            if (document.getElementById(end) == undefined)
+                return;
+
+            if (reverse_logic == true) {
+                if (document.getElementById(noend).checked) {
+                    document.getElementById(endlabel).style.display = 'block'
+                    document.getElementById(end).style.display = 'block'
+                }
+                else {
+                    document.getElementById(endlabel).style.display = 'none'
+                    document.getElementById(end).style.display = 'none'
+                }
+            }
+            else {
+                if (document.getElementById(noend).checked) {
+                    document.getElementById(endlabel).style.display = 'none'
+                    document.getElementById(end).style.display = 'none'
+                }
+                else {
+                    document.getElementById(endlabel).style.display = 'block'
+                    document.getElementById(end).style.display = 'block'
+                }
+            }
+{#            document.getElementById('end').value = document.getElementById('start').value;#}
+        }
+
+        function fillEndDate(id) {
+            document.getElementById('end' + id).value = document.getElementById('start' + id).value;
+        }
     </script>
     <div class="content">
         <div class="container-fluid">
@@ -135,6 +219,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
     <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
     <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+    <script>
+                    var picker = new Pikaday({
+                        field: document.getElementById('start1'),
+                        format: 'MMMM Do YYYY, h:mm a',
+                        showTime: true
+                    });
+                    var picker1 = new Pikaday({
+                        field: document.getElementById('end1'),
+                        format: 'MMMM Do YYYY, h:mm a',
+                        showTime: true
+                    });
+    </script>
     <script type="text/javascript">
 
         $(document).ready(function () {
@@ -182,6 +278,8 @@
                 var time = 'timezone' + id;
                 var out = 'needtimezone' + id;
                 var timelabel = 'needtimezonelabel' + id;
+                var noendlabel = 'noendlabel' + id;
+                var noend = 'noenddate' + id;
                 var fieldset_node = $('<fieldset>').addClass('date-fieldset');
                 var inner_node = $("<div>").addClass('content');
                 inner_node.append($("<legend>")
@@ -195,9 +293,16 @@
                         .append($("<input type='checkbox'>").addClass("alldaycheck").attr('id', all).attr('name', all))
                         .append("All Day"));
                 inner_node.append($("<label>").attr('for', start).html("Start Date"));
-                inner_node.append($("<input type='text'>").attr('name', start).attr('id', start).addClass("datepicker"));
+                inner_node.append($("<input type='text'>").attr('name', start).attr('id', start).addClass("datepicker").attr('onchange', "fillEndDate(" + id + ")"));
                 inner_node.append($("<label>").attr('for', end).html("End Date"));
                 inner_node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
+
+                inner_node.append($("<label>").addClass("checkbox").attr("id", noendlabel).attr("for", noend).attr('onclick', "checkNoEndDate(" + id + ", true)")
+                        .append($("<span>").addClass("icons")
+                                .append($("<span>").addClass("first-icon fa fa-square-o"))
+                                .append($("<span>").addClass("second-icon fa fa-check-square-o")))
+                        .append($("<input type='checkbox'>").attr('name', noend).attr('id', noend).attr('data-id', noend))
+                        .append("No End Date"));
 
                 inner_node.append($("<label>").addClass("checkbox").attr("id", timelabel).attr("for", out).attr('onclick', "checkNeedTimezone(" + id + ", true)")
                         .append($("<span>").addClass("icons")
@@ -205,6 +310,7 @@
                                 .append($("<span>").addClass("second-icon fa fa-check-square-o")))
                         .append($("<input type='checkbox'>").attr('name', out).attr('id', out).attr('data-id', out).attr('class', 'needtimezonecheck'))
                         .append("Outside of Minnesota?"));
+
                 inner_node.append($("<label>").attr('for', time).attr('style', 'display: none').attr('id', timelabel).html("Timezone"));
                 inner_node.append($("<select>").attr('name', time).attr('id', time).attr('class', 'timezoneselect').attr('style', 'display: none').html($("<option value>-select-</option><option value='Pacific Time'>Pacific Time</option><option value='Mountain Time'>Mountain Time</option><option value='Central Time'>Central Time</option><option value='Eastern Time'>Eastern Time</option>")));
 
@@ -227,7 +333,7 @@
                 if (allday) {
                     $(alldayid).attr('checked', true);
                     $(alldaylabel).addClass('checked');
-                }
+              }
                 if (out) {
                     $(outid).attr('checked', true);
                     $(timezonelabel).addClass('checked');
@@ -297,13 +403,13 @@
 
             $(document).ready(function () {
 
-                $('.datepicker').each(function (index) {
-                    var picker = new Pikaday({
-                        field: this,
-                        format: 'MMMM Do YYYY, h:mm a',
-                        showTime: true
-                    });
-                });
+{#                $('.datepicker').each(function (index) {#}
+{#                    var picker = new Pikaday({#}
+{#                        field: this,#}
+{#                        format: 'MMMM Do YYYY, h:mm a',#}
+{#                        showTime: true#}
+{#                    });#}
+{#                });#}
 
 
                 {% if dates %}
@@ -445,11 +551,20 @@
                     All Day
                 </label>
 
-                <label for="start1">Start Date</label>
-                <input type="text" name="start1" id="start1" class="datepicker"/>
+                <label for="start1" id="startlabel1">Start Date</label>
+                <input type="text" name="start1" id="start1" class="datepicker" onchange="fillEndDate(1)"/>
 
-                <label for="end1">End Date</label>
+                <label for="end1" id="endlabel1">End Date</label>
                 <input type="text" name="end1" id="end1" class="datepicker"/>
+
+                <label class="checkbox" id="noendlabel1" for="noenddate1"
+                        onclick="checkNoEndDate(1, true)">
+                    <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                        <span class="second-icon fa fa-check-square-o"></span></span>
+                    <input type="checkbox" id="noenddate1" data-id="noenddate1" name="noenddate1"
+                           value="False">
+                    No End Date
+                </label>
 
                 <label class="checkbox" id="needtimezonelabel1" for="needtimezone1"
                        onclick="checkNeedTimezone(1, true)">
