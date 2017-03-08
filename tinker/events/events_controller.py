@@ -1,3 +1,5 @@
+import urllib2
+from xml.etree import ElementTree as ET
 import json
 import datetime
 import time
@@ -16,7 +18,22 @@ from flask import render_template, session
 from flask import json as fjson
 
 
-class EventsController(TinkerController):
+class EventsController(TinkerController):\
+
+    def traverse_short_xml(self, xml_url, find_all=False):
+        response = urllib2.urlopen(xml_url)
+        form_xml = ET.fromstring(response.read())
+
+        matches = []
+        for child in form_xml.findall('event'):
+            match = self.inspect_child(child, find_all)
+            if match:
+                matches.append(match)
+
+        # Todo: maybe add some parameter as a search?
+        # sort by created-on date.
+        matches = sorted(matches, key=lambda k: k['created-on'])
+        return matches
 
     # find_all is currently unused for events (but used for the e-annz)
     def inspect_child(self, child, find_all=False):
@@ -31,8 +48,12 @@ class EventsController(TinkerController):
         post_trad_event = False
         undergrad_event = False
         if 'Tinker Events - CAS' in session['groups']:
-            depts = self.search_for_key_in_dynamic_md(child, 'cas-departments')
-            undergrad_event = getattr(depts, 'text', None)
+            for value in child.find('cas-departments').getchildren():
+                try:
+                    if value.text != 'None':
+                        undergrad_event = True
+                except:
+                    continue
 
         school_event = undergrad_event or post_trad_event or sem_event
 
@@ -66,30 +87,29 @@ class EventsController(TinkerController):
 
     def _iterate_child_xml(self, child, author):
 
-        roles = []
-        values = child.find('dynamic-metadata')
-        for value in values:
-            if value.tag == 'value':
-                roles.append(value.text)
-
         try:
             is_published = child.find('last-published-on').text
         except AttributeError:
             is_published = False
 
-        dates = child.find('system-data-structure').findall('event-dates')
+        dates = child.findall('event-dates')
         dates_str = []
         for date in dates:
             try:
-                start = int(date.find('start-date').text) / 1000
-                end = int(date.find('end-date').text) / 1000
+                start = date.find('start-date').text
+                end = date.find('end-date').text
+
+                if start != 'None':
+                    start = int() / 1000
+                if end != 'None':
+                    end = int() / 1000
             except TypeError:
                 continue
             dates_str.append(self.friendly_date_range(start, end))
 
         page_values = {
             'author': author,
-            'id': child.attrib['id'] or None,
+            'id': child.find('id').text or None,
             'title': child.find('title').text or None,
             'created-on': child.find('created-on').text or None,
             'path': 'https://www.bethel.edu' + child.find('path').text or None,

@@ -35,8 +35,7 @@
                     {% if form.is_published %}
                         <li><a href="{{ form.path }}" class="small btn btn-primary">View</a></li>
                         <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}"
-                               class="small btn btn-primary">Edit</a>
-                        </li>
+                               class="small btn btn-primary">Edit</a></li>
                         <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
                                class="small btn btn-primary">Duplicate</a></li>
                     {% else %}
