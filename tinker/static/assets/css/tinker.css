@@ -535,6 +535,12 @@ label {
     font-family: Muli, Helvetica Neue, sans-serif;
 }
 
+.short_url {
+    background-color: #0069AA;
+    padding: 2px 10px;
+    border-radius: 10px;
+}
+
 /* Checkbox inputs */
 
 label.checkbox {
