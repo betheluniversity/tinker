@@ -85,13 +85,23 @@ class EventsController(TinkerController):
             try:
                 start = int(date.find('start-date').text) / 1000
                 end = int(date.find('end-date').text) / 1000
+
             except TypeError:
+                all_day = None
                 continue
+            try:
+                all_day = date.find('all-day').getchildren()[0].text
+            except:
+                all_day = None
             dates_str.append({
                 'start': start,
                 'end': end,
             })
-            dates_html_array.append(self.friendly_date_range(start, end))
+            if child.find('title').text == 'Bethel Soccer Day Camp':
+                i = 0
+            friendly_date = self.friendly_date_range(start, end, all_day)
+            if friendly_date:
+                dates_html_array.append(friendly_date)
 
         page_values = {
             'author': author,
@@ -101,7 +111,8 @@ class EventsController(TinkerController):
             'path': 'https://www.bethel.edu' + child.find('path').text or None,
             'is_published': is_published,
             'event-dates': dates_str,
-            'html': '<br/>'.join(dates_html_array)
+            'html': '<br/>'.join(dates_html_array),
+            'is_all_day': all_day
         }
         # This is a match, add it to array
 
@@ -184,18 +195,18 @@ class EventsController(TinkerController):
         except TypeError:
             return None
 
-    def friendly_date_range(self, start, end):
-        date_format = "%B %d, %Y %I:%M %p"
+    def friendly_date_range(self, start, end, all_day):
 
         start_check = arrow.get(start)
         end_check = arrow.get(end)
 
+        start, end = self.convert_timestamps_to_bethel_string(start, end, all_day)
+        if start is None and end is None:
+            return None
         if start_check.year == end_check.year and start_check.month == end_check.month and start_check.day == end_check.day:
-            return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
-                                datetime.datetime.fromtimestamp(int(end)).strftime("%I:%M %p"))
+            return "%s - %s" % (start, end.strftime("%-I:%M%p"))
         else:
-            return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
-                                datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
+            return "%s - %s" % (start, end)
 
     def get_dates(self, add_data):
         dates = []
@@ -408,27 +419,26 @@ class EventsController(TinkerController):
             else:
                 events_to_iterate = other_events
                 forms_header = "Other Events"
-
         # Early return if no parameters to check in the search
         if not title and not start and not end:
             return events_to_iterate, forms_header
 
+        # to_return will hold all of the events that match the search criteria
         to_return = []
 
-        # check for search parameters and set booleans
+        # check for each search parameter and set boolean flags
         if not title:
-            has_title = False  # If no title false
+            has_title = False
         else:
-            has_title = True  # Otherwise assign title
+            has_title = True
         if start == 0:
-            has_start = False  # If the user did not use a start date
+            has_start = False
         else:
-            has_start = True  # If the user used a start date
+            has_start = True
         if end == 0:
-            has_end = False  # If the user did not use an end date
+            has_end = False
         else:
-            has_end = True  # If the user used an end date
-
+            has_end = True
         # Loop through the events based on selection
         for event in events_to_iterate:
             if not event['event-dates']:
@@ -478,7 +488,6 @@ class EventsController(TinkerController):
                     elif not has_end and not has_start:
                         to_return.append(event)
                         break
-
         return to_return, forms_header
 
     def compare_timedeltas(self, a, b):

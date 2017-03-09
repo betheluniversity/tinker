@@ -160,7 +160,7 @@ class EventsView(FlaskView):
         self.base.publish(app.config['EVENT_XML_ID'])
         return render_template('events-delete-confirm.html')
 
-    #This is the search for events to pare down what is being shown
+    # This is the search for events to pare down what is being shown
     @route("/search", methods=['POST'])
     def search(self):
         # Load the data, get the event type selection and title of the event the user is searching for
@@ -181,6 +181,7 @@ class EventsView(FlaskView):
             # Set start and end to be falsey so that hasDates is set to false
             end = 0
         search_results, forms_header = self.base.get_search_results(selection, title, start, end)
+        search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
         return render_template('search_results.html', list_of_events=search_results, formsHeader=forms_header)
 
 
