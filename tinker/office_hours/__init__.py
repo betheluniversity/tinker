@@ -28,6 +28,7 @@ class OfficeHoursView(FlaskView):
 
         forms = self.base.traverse_xml(app.config['OFFICE_HOURS_XML_URL'], 'system-block')
 
+        # todo: update the homepage template
         return render_template('office-hours-home.html', **locals())
 
     def edit(self, block_id):
