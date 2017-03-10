@@ -603,25 +603,12 @@ class TinkerController(object):
         keywords_to_ignore = set(['csrf_token', 'url_for'])
         return variables.difference(keywords_to_ignore)
 
-    def convert_ampm(self, date):
-        # add in extra spaces, in addition to changing the text
-        return date.replace('AM', ' a.m.').replace('PM', ' p.m.')
-
-    def convert_to_noon_or_midnight(self, datestring):
-        if '12:00' in datestring:
-            if 'AM' in datestring:
-                return 'Midnight'
-            else:
-                return 'Noon'
-        return None
-
     def convert_timestamps_to_bethel_string(self, open, close, all_day):
         try:
             is_all_day = False
             # If the event is all_day set it to true
             if all_day and all_day == 'Yes':
                 is_all_day = True
-            same_stamp = open == close
 
             # Format open and close
             proxy_open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y %-I:%M%p')
@@ -629,46 +616,37 @@ class TinkerController(object):
 
             same_day = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y') in proxy_close
 
-
-            # if times are 12:00 -- adjust to noon or midnight
-            for_open = self.convert_to_noon_or_midnight(proxy_open)
-            for_close = self.convert_to_noon_or_midnight(proxy_close)
-
             # If the event is all day, then the open string is formatted and close is set to an empty string
             if is_all_day:
-                if for_open == 'Midnight' and same_stamp:
+                if same_day:
                     open = datetime.datetime.fromtimestamp(open).strftime('%B, %d, %Y')
-                    close = ""
-                elif same_stamp:
-                    open = proxy_open
-                    open = self.convert_ampm(open)
                     close = ""
                 else:
                     open = datetime.datetime.fromtimestamp(open).strftime('%B, %d')
                     close = datetime.datetime.fromtimestamp(close).strftime('%B, %d, %Y')
 
             elif same_day:
-                open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y %-I:%M')
-                if for_close:
-                    close = for_close
-                else:
-                    close = datetime.datetime.fromtimestamp(close).strftime('%-I:%M%p')
+                open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y | %-I:%M%p')
+                close = datetime.datetime.fromtimestamp(close).strftime('%-I:%M%p')
             else:
-                # if :00 -- remove it
-                proxy_open = proxy_open.replace(':00', '')
-                proxy_close = proxy_close.replace(':00', '')
+                open = proxy_open
+                close = proxy_close
 
-                # convert AM to a.m. and PM to p.m
-                proxy_open = self.convert_ampm(proxy_open)
-                proxy_close = self.convert_ampm(proxy_close)
-
-                if for_open == 'Midnight' or for_open == 'Noon':
-                    open = "%s %s" % (for_open, datetime.datetime.fromtimestamp(open).strftime('%B, %d'))
-                if for_close == 'Midnight' or for_close == 'Noon':
-                    close = "%s %s" % (for_open, datetime.datetime.fromtimestamp(close).strftime('%B, %d, %Y'))
-                else:
-                    open = proxy_open
-                    close = proxy_close
-            return open, close
+            bethel_date_string = self.final_format(open, close)
+            return bethel_date_string
         except:
-            return None, None
+            return None
+
+    def final_format(self, open, close):
+        if close == "":
+            combined_string = open
+        else:
+            combined_string = "%s - %s" % (open, close)
+        combined_string.replace(':00', '')
+        combined_string.replace('AM', ' a.m.').replace('PM', ' p.m.')
+        if '12 a.m.' in combined_string:
+            combined_string.replace('12 a.m.', 'at Midnight')
+        elif '12 p.m.' in combined_string:
+            combined_string.replace('12 p.m.', 'at Noon')
+
+        return combined_string

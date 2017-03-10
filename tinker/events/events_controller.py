@@ -97,9 +97,7 @@ class EventsController(TinkerController):
                 'start': start,
                 'end': end,
             })
-            if child.find('title').text == 'Bethel Soccer Day Camp':
-                i = 0
-            friendly_date = self.friendly_date_range(start, end, all_day)
+            friendly_date = self.convert_timestamps_to_bethel_string(start, end, all_day)
             if friendly_date:
                 dates_html_array.append(friendly_date)
 
@@ -194,19 +192,6 @@ class EventsController(TinkerController):
             return datetime.datetime.fromtimestamp(int(timestamp_date) / 1000).strftime('%B %d  %Y, %I:%M %p')
         except TypeError:
             return None
-
-    def friendly_date_range(self, start, end, all_day):
-
-        start_check = arrow.get(start)
-        end_check = arrow.get(end)
-
-        start, end = self.convert_timestamps_to_bethel_string(start, end, all_day)
-        if start is None and end is None:
-            return None
-        if start_check.year == end_check.year and start_check.month == end_check.month and start_check.day == end_check.day:
-            return "%s - %s" % (start, end.strftime("%-I:%M%p"))
-        else:
-            return "%s - %s" % (start, end)
 
     def get_dates(self, add_data):
         dates = []
