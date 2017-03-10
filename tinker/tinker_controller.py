@@ -12,6 +12,7 @@ import os
 from jinja2 import Environment, FileSystemLoader, meta
 from functools import wraps
 from subprocess import call
+from createsend import *
 
 # flask
 from flask import request
@@ -601,3 +602,13 @@ class TinkerController(object):
         variables = meta.find_undeclared_variables(parsed_content)
         keywords_to_ignore = set(['csrf_token', 'url_for'])
         return variables.difference(keywords_to_ignore)
+
+    # Not currently used in the code. However, this is helpful to find template IDs
+    def get_templates_for_client(self, campaign_monitor_key, client_id):
+        for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
+            print template.TemplateID
+
+    # Not currently used in the code. However, this is helpful to find segment IDs
+    def get_segments_for_client(self, campaign_monitor_key, client_id):
+        for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
+            print segment.SegmentID
