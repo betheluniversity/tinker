@@ -25,6 +25,7 @@ class FacultyBiosView(FlaskView):
     # todo: add a before_request method
     def before_request(self, name, **kwargs):
         if 'FACULTY' not in session['roles'] \
+                and 'SPONSORED-FACULTY' not in session['roles'] \
                 and 'Tinker Faculty Bios - CAS' not in session['groups'] \
                 and 'Tinker Faculty Bios - CAPS and GS' not in session['groups'] \
                 and 'Tinker Faculty Bios - SEM' not in session['groups'] \
