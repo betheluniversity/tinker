@@ -92,13 +92,19 @@ class TinkerController(object):
         self.cascade_connector = cascade_connector
 
     def before_request(self):
-
         def init_user():
 
             dev = current_app.config['ENVIRON'] != 'prod'
 
+            # reset session if it has been more than 24 hours
+            if 'session_time' in session.keys():
+                seconds_in_day = 60 * 60 * 24
+                day_is_passed = time.time() - session['session_time'] >= seconds_in_day
+            else:
+                day_is_passed = True
+
             # if not production, then clear our session variables on each call
-            if dev:
+            if dev or day_is_passed:
                 for key in ['username', 'groups', 'roles', 'top_nav', 'user_email', 'name']:
                     if key in session.keys():
                         session.pop(key, None)
@@ -121,6 +127,8 @@ class TinkerController(object):
 
             if 'name' not in session.keys() and session['username']:
                 get_users_name()
+
+            session['session_time'] = time.time()
 
         def get_user():
             if current_app.config['ENVIRON'] == 'prod':
