@@ -197,12 +197,12 @@ to be in it's own card div, something to think about in the future -->
                                         .append($('<span>').addClass('icons')
                                                 .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
                                                 .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
-                                        .append($('<label>').html('Yes').append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'Yes'))))
+                                        .append($('<label>').html('Yes').append($('<input type="radio">').attr('name', 'program-director' + id).attr('value', 'Yes'))))
                                 .append($('<div>').addClass('radio')
                                         .append($('<span>').addClass('icons')
                                                 .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
                                                 .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
-                                        .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'No'))))
+                                        .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'program-director' + id).attr('value', 'No'))))
                         )
                 );
                 inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'lead-faculty-div' + id)
@@ -290,8 +290,14 @@ to be in it's own card div, something to think about in the future -->
                 var graduateid = '#graduate' + id;
                 var seminaryid = '#seminary' + id;
 
+                if( !department_chair)
+                    department_chair = 'No';
                 var deptchairid = 'input[name="dept-chair' + id + '"][value=' + department_chair + ']';
+                if( !program_director)
+                    program_director = 'No';
                 var programdirectorid = 'input[name="program-director' + id + '"][value=' + program_director + ']';
+                if( !lead_faculty)
+                    lead_faculty = 'Other';
                 var leadfacultyid = 'input[name="lead-faculty' + id + '"][value=' + lead_faculty + ']';
 
                 var jobtitleid = '#new-job-title' + id;
@@ -299,25 +305,25 @@ to be in it's own card div, something to think about in the future -->
                 $(schoolid).val(job_title['school']);
                 $(schoolid).change();
                 $(undergradid).val(job_title['department']);
-                $(undergradid).change();
-
+                if( job_title['department'] != 'None' && job_title['department'] != undefined)
+                    $(undergradid).change();
                 $(adultundergradid).val(adult_undergrad_program);
-                if (adult_undergrad_program)
+                if (adult_undergrad_program != 'None' && adult_undergrad_program != undefined)
                     $(adultundergradid).change();
                 $(graduateid).val(graduate_program);
-                if (graduate_program)
+                if (graduate_program != 'None' && graduate_program != undefined)
                     $(graduateid).change();
                 $(seminaryid).val(seminary_program);
-                if ( seminary_program )
+                if ( seminary_program != 'None' && seminary_program != undefined)
                     $(seminaryid).change();
 
-                $(deptchairid).parent().addClass('checked');
+                $(deptchairid).parent().parent().addClass('checked');
                 $(deptchairid).attr('checked', true);
 
-                $(programdirectorid).parent().addClass('checked');
+                $(programdirectorid).parent().parent().addClass('checked');
                 $(programdirectorid).attr('checked', true);
 
-                $(leadfacultyid).parent().addClass('checked');
+                $(leadfacultyid).parent().parent().addClass('checked');
                 $(leadfacultyid).attr('checked', true);
 
                 $(jobtitleid).val(title);
@@ -358,10 +364,10 @@ to be in it's own card div, something to think about in the future -->
                 // School logic
                 $('#schools' + num).change(function () {
                     $('#new-job-title' + num).val('');
-                    $('#undergrad' + num).val('None');
-                    $('#adult-undergrad' + num).val('None');
-                    $('#graduate' + num).val('None');
-                    $('#seminary' + num).val('None');
+                    $('#undergrad' + num).val('-select-');
+                    $('#adult-undergrad' + num).val('-select-');
+                    $('#graduate' + num).val('-select-');
+                    $('#seminary' + num).val('-select-');
 
                     $('.hide-when-school-changes' + num).hide();
                     if ($(this).val() == 'Bethel University') {
@@ -654,35 +660,37 @@ to be in it's own card div, something to think about in the future -->
                 </div>
 
                 <div id="dept-chair-div1" class="hide-when-school-changes1">
-                    <label>Are you the Department Chair?</label>
-                    <div class="radio">
-                        <input type="radio" name="dept-chair1" value="Yes"><label>Yes</label>
-                    </div>
-                    <div class="radio">
-                        <input type="radio" name="dept-chair1" value="No"><label>No</label>
-                    </div>
+                    <label>Are you the Department Chair?
+                        <div class="radio">
+                            <label><input type="radio" name="dept-chair1" value="Yes">Yes</label>
+                        </div>
+                        <div class="radio">
+                            <label><input type="radio" name="dept-chair1" value="No">No</label>
+                        </div>
+                    </label>
                 </div>
                 <div id="program-director-div1" class="hide-when-school-changes1">
-                    <label>Are you the Program Director?</label>
-                    <div class="radio">
-                        <input type="radio" name="program-director1" value="Yes"><label>Yes</label>
-                    </div>
-                    <div class="radio">
-                        <input type="radio" name="program-director1" value="No"><label>No</label>
-                    </div>
+                    <label>Are you the Program Director?
+                        <div class="radio">
+                            <label><input type="radio" name="program-director1" value="Yes">Yes</label>
+                        </div>
+                        <div class="radio">
+                            <label><input type="radio" name="program-director1" value="No">No</label>
+                        </div>
+                    </label>
                 </div>
                 <div id="lead-faculty-div1" class="hide-when-school-changes1">
-                    <label>For this program, I am the...</label>
-                    <div class="radio">
-                        <input type="radio" name="lead-faculty1" value="Lead Faculty"><label>Lead Faculty</label>
-                    </div>
-                    <div class="radio">
-                        <input type="radio" name="lead-faculty1" value="Program Director">
-                        <label>Program Director</label>
-                    </div>
-                    <div class="radio">
-                        <input type="radio" name="lead-faculty1" value="Other"><label>Other</label>
-                    </div>
+                    <label>For this program, I am the...
+                        <div class="radio">
+                            <label><input type="radio" name="lead-faculty1" value="Lead Faculty">Lead Faculty</label>
+                        </div>
+                        <div class="radio">
+                            <label><input type="radio" name="lead-faculty1" value="Program Director">Program Director</label>
+                        </div>
+                        <div class="radio">
+                            <label><input type="radio" name="lead-faculty1" value="Other">Other</label>
+                        </div>
+                    </label>
                 </div>
 
                 <div id="new-job-title-div1" class="hide-when-school-changes1"><label>
