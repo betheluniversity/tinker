@@ -461,7 +461,8 @@ class TinkerController(object):
         return True
 
     def add_workflow_to_asset(self, workflow, data):
-        data['workflowConfiguration'] = workflow
+        if not app.config.get('UNIT_TESTING'):
+            data['workflowConfiguration'] = workflow
 
     def clear_image_cache(self, image_path):
         # /academics/faculty/images/lundberg-kelsey.jpg"
