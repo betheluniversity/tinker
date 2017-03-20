@@ -55,11 +55,11 @@ class NewsView(FlaskView):
                     new_campaign = Campaign({'api_key': campaign_monitor_key})
 
                     client_id = app.config['NEWS_CLIENT_ID']
-                    subject = 'Bethel News | ' + news_article['title']
+                    subject = news_article['title'] + ' | Bethel News'
                     name = '%s | %s' % (news_article['title'], str(date.strftime('%m/%-d/%Y')))
                     from_name = 'Bethel News'
-                    from_email = 'news@lists.bethel.edu'
-                    reply_to = 'news@lists.bethel.edu'
+                    from_email = 'news@bethel.edu'
+                    reply_to = 'news@bethel.edu'
                     list_ids = [app.config['NEWS_LIST_KEY']]
                     segment_ids = [app.config['NEWS_SEGMENT_ID']]
                     template_id = app.config['NEWS_TEMPLATE_ID']

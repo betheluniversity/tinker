@@ -1,4 +1,5 @@
 import datetime
+import re
 from createsend import *
 
 # flask
@@ -27,14 +28,16 @@ class NewsController(TinkerController):
         except AttributeError:
             workflow_status = None
 
-        if not workflow_status:
+        internal_values = self.search_for_key_in_dynamic_md(child, 'unique-news')
+
+        if not workflow_status and 'Homepage' in internal_values:
             try:
                 page_values = {
                     'id': child.attrib['id'] or "",
                     'title': child.find('title').text or None,
                     'path': child.find('path').text or None,
                     'image-path': child.find('system-data-structure/media/image/path').text or None,
-                    'content': self.element_tree_to_html(child.find('system-data-structure/main-content')) or None,
+                    'content': self.get_first_paragraph(self.element_tree_to_html(child.find('system-data-structure/main-content'))) or None,
                     'date': datetime.datetime.fromtimestamp(int(child.find('system-data-structure/publish-date').text)/1000) or None,
                     'created-on': int(child.find('system-data-structure/publish-date').text)/1000 or None
                 }
@@ -48,3 +51,18 @@ class NewsController(TinkerController):
     def create_single_news_article(self, article):
         date = article['date'].strftime('%A, %B %-d, %Y')
         return render_template('news-article.html', **locals())
+
+    def get_first_paragraph(self, content):
+        character_count = 0
+        return_content = ''
+        for paragraph in re.findall(r'<p>.*?</p>', content):
+            temp_character_count = len(paragraph)
+
+            if character_count == 0:
+                # use the first paragraph for sure.
+                return_content += paragraph
+            elif character_count + temp_character_count <= 750:
+                # keep adding paragraphs until the limit of 750 characters is reached.
+                return_content += paragraph
+
+        return return_content
