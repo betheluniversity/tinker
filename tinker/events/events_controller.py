@@ -31,8 +31,7 @@ class EventsController(TinkerController):
         post_trad_event = False
         undergrad_event = False
         if 'Tinker Events - CAS' in session['groups']:
-            depts = self.search_for_key_in_dynamic_md(child, 'cas-departments')
-            undergrad_event = getattr(depts, 'text', None)
+            undergrad_event = self.search_for_key_in_dynamic_md(child, 'cas-departments')
 
         school_event = undergrad_event or post_trad_event or sem_event
 
