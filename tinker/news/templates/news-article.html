@@ -3,15 +3,12 @@
         <tr>
             <td class="column" style="padding: 40px;text-align: left;vertical-align: top;color: #555;font-size: 14px;line-height: 20px;font-family: Georgia,serif;width: 600px;">
                 <div style="margin-left: 20px;margin-right: 20px; margin-bottom:40px">
-                    <a href="https://www.bethel.edu/{{ article['path'] }}"><h1 style="margin-bottom: 5px;font-style: normal;font-weight: normal;color: #0069aa;font-size: 20px;line-height: 28px;font-family: sans-serif;">{{ article['title'] }}</h1></a>
-                    <p class="article-meta">{{ date }}</p>
+                    <a href="https://www.bethel.edu/{{ article['path'] }}"><h1 style="margin-bottom: 5px;font-style: normal;font-weight: normal;color: #0069aa;font-size: 30px;line-height: 28px;font-family: sans-serif;">{{ article['title'] }}</h1></a>
+                    <p class="article-meta" style="margin-top:10px">{{ date }}</p>
                 </div>
                 <div style="Margin-left: 20px;Margin-right: 20px;">
                     <img src="https://www.bethel.edu/{{ article['image-path'] }}" width="100%">
-{#                    {{ article['content']|safe }}#}
-                    <p>
-                        When Bruce Leafblad ’61, S’66 shared some memories at his 50-year Bethel Seminary reunion at Homecoming this fall, he told friends that writing the “Bethel Fight Song” was among the fondest. One of a very small group of alumni who have sung in more than four or five Festivals of Christmas—and the only one who sang in the first nine of them—Leafblad’s time in college and seminary had a decidedly musical focus. And as a freshman in 1957, he learned the fight song “Stand Up and Cheer” with the rest of the student body.
-                    </p>
+                    {{ article['content']|safe }}
                     <div style="text-align: center" class="btn"><a href="https://www.bethel.edu/{{ article['path'] }}" style="color:#0069aa !important">Read More</a></div>
                 </div>
             </td>
