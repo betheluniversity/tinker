@@ -53,16 +53,15 @@ class NewsController(TinkerController):
         return render_template('news-article.html', **locals())
 
     def get_first_paragraph(self, content):
-        character_count = 0
         return_content = ''
         for paragraph in re.findall(r'<p>.*?</p>', content):
             temp_character_count = len(paragraph)
 
-            if character_count == 0:
+            if len(return_content) == 0:
                 # use the first paragraph for sure.
                 return_content += paragraph
-            elif character_count + temp_character_count <= 750:
-                # keep adding paragraphs until the limit of 750 characters is reached.
+            elif len(return_content) + temp_character_count <= 500:
+                # keep adding paragraphs until the limit of 500 characters is reached.
                 return_content += paragraph
 
         return return_content
