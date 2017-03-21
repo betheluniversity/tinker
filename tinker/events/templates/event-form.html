@@ -97,12 +97,14 @@
                     document.getElementById(end).style.display = 'block'
                 }
                 else {
+                    document.getElementById(end).value = '';
                     document.getElementById(endlabel).style.display = 'none'
                     document.getElementById(end).style.display = 'none'
                 }
             }
             else {
                 if (document.getElementById(noend).checked) {
+                    document.getElementById(end).value = '';
                     document.getElementById(endlabel).style.display = 'none'
                     document.getElementById(end).style.display = 'none'
                 }
@@ -115,7 +117,10 @@
         }
 
         function fillEndDate(id) {
-            document.getElementById('end' + id).value = document.getElementById('start' + id).value;
+            if (document.getElementById('end' + id).value)
+                return;
+            else
+                document.getElementById('end' + id).value = document.getElementById('start' + id).value;
         }
     </script>
     <div class="content">
@@ -219,18 +224,18 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
     <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
     <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
-    <script>
-                    var picker = new Pikaday({
-                        field: document.getElementById('start1'),
-                        format: 'MMMM Do YYYY, h:mm a',
-                        showTime: true
-                    });
-                    var picker1 = new Pikaday({
-                        field: document.getElementById('end1'),
-                        format: 'MMMM Do YYYY, h:mm a',
-                        showTime: true
-                    });
-    </script>
+{#    <script>#}
+{#                    var picker = new Pikaday({#}
+{#                        field: document.getElementById('start1'),#}
+{#                        format: 'MMMM Do YYYY, h:mm a',#}
+{#                        showTime: true#}
+{#                    });#}
+{#                    var picker1 = new Pikaday({#}
+{#                        field: document.getElementById('end1'),#}
+{#                        format: 'MMMM Do YYYY, h:mm a',#}
+{#                        showTime: true#}
+{#                    });#}
+{#    </script>#}
     <script type="text/javascript">
 
         $(document).ready(function () {
@@ -403,13 +408,13 @@
 
             $(document).ready(function () {
 
-{#                $('.datepicker').each(function (index) {#}
-{#                    var picker = new Pikaday({#}
-{#                        field: this,#}
-{#                        format: 'MMMM Do YYYY, h:mm a',#}
-{#                        showTime: true#}
-{#                    });#}
-{#                });#}
+                $('.datepicker').each(function (index) {
+                    var picker = new Pikaday({
+                        field: this,
+                        format: 'MMMM Do YYYY, h:mm a',
+                        showTime: true
+                    });
+                });
 
 
                 {% if dates %}
@@ -493,6 +498,10 @@
                     for (i = 1; i <= dates.length; i++) {
                         var start = $('#start' + i);
                         var end = $('#end' + i);
+
+                        if (start.val() != '' && end.val() == '') {
+                            break;
+                        }
 
                         if (start.val() == '' || end.val() == '') {
                             var new_element = $('<div>').html('Dates are required.').addClass('required dates-required red-alert').attr('style', 'margin-bottom: 8px');

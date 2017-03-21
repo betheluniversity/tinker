@@ -112,18 +112,25 @@ class EventsController(TinkerController):
             all_day_l = 'allday' + i
             need_time_zone_l = 'needtimezone' + i
             time_zone_l = 'timezone' + i
+            no_end_date_l = 'noenddate' + i
 
+            no_end_date = no_end_date_l in form.keys()
             start = form[start_l]
             end = form[end_l]
+            if no_end_date:
+                end = form[start_l]
             all_day = all_day_l in form.keys()
             need_time_zone = need_time_zone_l in form.keys()
             time_zone = form[time_zone_l]
 
             event_dates[start_l] = start
             event_dates[end_l] = end
+            if no_end_date:
+                event_dates[end_l] = start
             event_dates[all_day_l] = all_day
             event_dates[need_time_zone] = need_time_zone
             event_dates[time_zone] = time_zone
+            event_dates[no_end_date_l] = no_end_date
 
             start_and_end = start and end
 
