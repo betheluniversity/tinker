@@ -609,6 +609,7 @@ class TinkerController(object):
             # If the event is all_day set it to true
             if all_day and all_day == 'Yes':
                 is_all_day = True
+            same_stamp = open == close
 
             # Format open and close
             proxy_open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y %-I:%M%p')
@@ -618,16 +619,22 @@ class TinkerController(object):
 
             # If the event is all day, then the open string is formatted and close is set to an empty string
             if is_all_day:
-                if same_day:
+                if same_stamp:
+                    open = proxy_open
+                    close = ""
+                elif same_day or same_stamp:
                     open = datetime.datetime.fromtimestamp(open).strftime('%B, %d, %Y')
                     close = ""
                 else:
                     open = datetime.datetime.fromtimestamp(open).strftime('%B, %d')
                     close = datetime.datetime.fromtimestamp(close).strftime('%B, %d, %Y')
 
-            elif same_day:
+            elif same_day and not same_stamp:
                 open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y | %-I:%M%p')
                 close = datetime.datetime.fromtimestamp(close).strftime('%-I:%M%p')
+            elif same_stamp:
+                open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y | %-I:%M%p')
+                close = ""
             else:
                 open = proxy_open
                 close = proxy_close
@@ -641,12 +648,16 @@ class TinkerController(object):
         if close == "":
             combined_string = open
         else:
+            if 'AM' in open and 'AM' in close:
+                open = open.replace("AM", "")
+            elif 'PM' in open and 'PM' in close:
+                open = open.replace("PM", "")
             combined_string = "%s - %s" % (open, close)
-        combined_string.replace(':00', '')
-        combined_string.replace('AM', ' a.m.').replace('PM', ' p.m.')
+        combined_string = combined_string.replace(':00', '')
+        combined_string = combined_string.replace('AM', ' a.m.').replace('PM', ' p.m.')
         if '12 a.m.' in combined_string:
-            combined_string.replace('12 a.m.', 'at Midnight')
+            combined_string = combined_string.replace('12 a.m.', 'at midnight')
         elif '12 p.m.' in combined_string:
-            combined_string.replace('12 p.m.', 'at Noon')
+            combined_string = combined_string.replace('12 p.m.', 'at noon')
 
         return combined_string
