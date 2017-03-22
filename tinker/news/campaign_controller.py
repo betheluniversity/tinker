@@ -1,6 +1,8 @@
 import datetime
 import re
 from createsend import *
+from bu_cascade.asset_tools import update, find
+from BeautifulSoup import BeautifulStoneSoup
 
 # flask
 from flask import render_template, session
@@ -48,20 +50,43 @@ class NewsController(TinkerController):
 
         return page_values
 
-    def create_single_news_article(self, article):
-        date = article['date'].strftime('%A, %B %-d, %Y')
+    def create_single_news_article(self, article_asset, news_article_datetime):
+        try:
+            date = news_article_datetime.strftime('%A, %B %-d, %Y')
+            path = find(article_asset, 'path', False)
+            title = find(article_asset, 'title', False)
+
+            content = find(article_asset, 'main-content', False)
+            tree_content = BeautifulStoneSoup(content)
+            self.fix_hrefs(tree_content)
+            content = self.get_first_paragraph(tree_content)
+
+            image_path = find(article_asset, 'image', False)['filePath']
+        except:
+            return ''
         return render_template('news-article.html', **locals())
 
-    def get_first_paragraph(self, content):
+    def get_first_paragraph(self, tree_content):
         return_content = ''
-        for paragraph in re.findall(r'<p>.*?</p>', content):
-            temp_character_count = len(paragraph)
+        for paragraph in tree_content.findAll('p'):
+
+            temp_character_count = len(str(paragraph))
 
             if len(return_content) == 0:
                 # use the first paragraph for sure.
-                return_content += paragraph
+                return_content += str(paragraph)
             elif len(return_content) + temp_character_count <= 500:
                 # keep adding paragraphs until the limit of 500 characters is reached.
-                return_content += paragraph
+                return_content += str(paragraph)
 
         return return_content
+
+    def fix_hrefs(self, tree_content):
+        for anchor_tag in tree_content.findAll('a'):
+            if anchor_tag['href'][0] == '/':
+                anchor_tag['href'] = 'https://www.bethel.edu' + anchor_tag['href']
+
+    def reset_send_email_value(self, page):
+        asset, md, sd = page.get_asset()
+        update(sd, 'send-email', 'No')
+        page.edit_asset(asset)

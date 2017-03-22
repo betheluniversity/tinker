@@ -3,13 +3,13 @@
         <tr>
             <td class="column" style="padding: 40px;text-align: left;vertical-align: top;color: #555;font-size: 14px;line-height: 20px;font-family: Georgia,serif;width: 600px;">
                 <div style="margin-left: 20px;margin-right: 20px; margin-bottom:40px">
-                    <a href="https://www.bethel.edu/{{ article['path'] }}"><h1 style="margin-bottom: 5px;font-style: normal;font-weight: normal;color: #0069aa;font-size: 30px;line-height: 28px;font-family: sans-serif;">{{ article['title'] }}</h1></a>
+                    <a href="https://www.bethel.edu/{{ path }}"><h1 style="margin-bottom: 5px;font-style: normal;font-weight: normal;color: #0069aa;font-size: 30px;line-height: 28px;font-family: sans-serif;">{{ title }}</h1></a>
                     <p class="article-meta" style="margin-top:10px">{{ date }}</p>
                 </div>
                 <div style="Margin-left: 20px;Margin-right: 20px;">
-                    <img src="https://www.bethel.edu/{{ article['image-path'] }}" width="100%">
-                    {{ article['content']|safe }}
-                    <div style="text-align: center" class="btn"><a href="https://www.bethel.edu/{{ article['path'] }}" style="color:#0069aa !important">Read More</a></div>
+                    <img src="https://www.bethel.edu/{{ image_path }}" width="100%">
+                    {{ content|safe }}
+                    <div style="text-align: center" class="btn"><a href="https://www.bethel.edu/{{ path }}" style="color:#0069aa !important">Read More</a></div>
                 </div>
             </td>
         </tr>
