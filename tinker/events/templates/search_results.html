@@ -12,7 +12,6 @@
                     <br/>
                     {% if form.is_published %}
                         <p>{{ form['html'] | safe }}</p>
-                        <a class="small-link" href={{ form.path }}>{{ form.path }}</a>
                     {% endif %}
                 </p>
             </div>
