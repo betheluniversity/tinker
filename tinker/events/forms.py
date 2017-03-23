@@ -24,7 +24,6 @@ def get_md(metadata_path):
     md = tinker.read(metadata_path, 'metadataset')
     return md['asset']['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
 
-
 def get_event_choices():
     data = get_md("/Event")
 
