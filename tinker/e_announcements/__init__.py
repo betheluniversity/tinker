@@ -28,9 +28,6 @@ class EAnnouncementsView(FlaskView):
         pass
 
     def index(self):
-        forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
-
-        forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
         return render_template('ea-home.html', **locals())
 
     @route("/delete/<e_announcement_id>", methods=['GET', 'POST'])
@@ -261,5 +258,27 @@ class EAnnouncementsView(FlaskView):
         xml_url = app.config['E_ANNOUNCEMENTS_XML_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
+
+    @route("/search", methods=['POST'])
+    def search(self):
+        # Load the data, get the event type selection and title of the event the user is searching for
+        data = json.loads(request.data)
+        title = data['title']
+        try:
+            # Try converting the start date times to seconds representation
+            start = datetime.datetime.strptime(data['start'], "%a %b %d %Y")
+
+        except:
+            # Set start and end to be falsey so that hasDates is set to false
+            start = 0
+        try:
+            # Try converting the end date times to seconds representation
+            end = datetime.datetime.strptime(data['end'], "%a %b %d %Y")
+        except:
+            # Set start and end to be falsey so that hasDates is set to false
+            end = 0
+        search_results = self.base.get_search_results(title, start, end)
+        search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
+        return render_template('search_results.html', list_of_events=search_results, formsHeader=forms_header)
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)

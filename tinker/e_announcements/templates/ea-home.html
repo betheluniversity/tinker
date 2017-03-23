@@ -13,10 +13,27 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
-                <p class="description">Below is the list of E-Announcements you have access to edit. These are sorted by
-                    the first date
-                    entered, newest dates first.
+                <p class="description">Below is the list of E-Announcements you have access to edit.
                 </p>
+                <p class="description"> The below are optional parameters to help in your search.</p>
+                <div>
+                    <small>Used by entering in part of a name, for example "scho" will select E-Announcements with
+                        words "scholar", "school", "scholastic" etc.</small>
+                    <label for="annzTitle">E-Announcement Title:</label>
+                        <input id="annzTitle" type="text" name="annzTitle"><br/>
+                    <small>The Start and End fields are to specify the date range where an announcment might fall,
+                        for example "New Years Eve" and "Christmas" would both show up if you started at December 25th
+                        and ended on December 31st</small>
+                    <label for="annzStart">Start Date:</label>
+                        <input id="annzStart" class='datepicker' size='11'/>
+                    <label for="annzEnd">End Date:</label>
+                        <input id="annzEnd" class='datepicker' size='11'/>
+                    <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
+                </div>
+                {# spinner placeholder #}
+                <div id="spinner" class="spinner" style="display:none;">
+                    <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+                </div>
                 <hr/>
                 <a href="{{ url_for('e_announcements.EAnnouncementsView:new') }}" class="btn btn-primary new-btn">Submit
                     New
@@ -104,6 +121,32 @@
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/e-announcements/delete/" + $(this).data('e-announcement-id'));
         });
+        function search_events() {
+            search_url = "{{ url_for('events.EventsView:search') }}";
+            $('#spinner').show();
+            inputs = {
+                "title": $("#annzTitle").val(),
+                "start": $("#annzStart").val(),
+                "end": $("#annzEnd").val(),
+{#                Add in the school selector with the drop down later on when everything is working#}
+{#                "selection": $("#school-selector").val()#}
+            };
+            $.ajax({
+                type: "POST",
+                url: search_url,
+                data: JSON.stringify(inputs),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    // window.location.replace(result);
+                    document.getElementById('results').innerHTML = result;
+                    $('#spinner').hide();
+                }
+            });
+        }
+        $(".search-events").click(function () {
+            search_events();
+        });
+        search_events();
     </script>
 
 {% endblock %}

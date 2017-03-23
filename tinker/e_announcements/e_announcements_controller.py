@@ -182,3 +182,37 @@ class EAnnouncementsController(TinkerController):
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
         pass
+
+    # The search method that does the actual searching for the /search in events/init
+    def get_search_results(self, title, start, end):
+        # Go throught the E_Announcements and traverse them
+        announcements = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
+        # Flag check to make sure there are values to check against
+        if not title:
+            has_title = False
+        else:
+            has_title = True
+        if start == 0:
+            has_start = False
+        else:
+            has_start = True
+        if end == 0:
+            has_end = False
+        else:
+            has_end = True
+
+        to_return = []
+        # Go through the announcements and search using the paramaters
+        for annz in announcements:
+            if has_start or has_end:
+                try:
+                    # Form Start/End timestamps converted to datetime and then formatted to match start and end
+                    annz_start = datetime.datetime.fromtimestamp(annz['first_date']).strftime('%a %b %d %Y')
+                    annz_start = datetime.datetime.strptime(annz_start, "%a %b %d %Y")
+                except:
+                    continue
+
+            if has_title and title.lower() not in annz['title'].lower():
+                continue
+            elif not has_start and not has_end:
+                continue
