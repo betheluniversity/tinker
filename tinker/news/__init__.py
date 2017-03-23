@@ -25,10 +25,9 @@ class NewsView(FlaskView):
     def before_request(self, name, **kwargs):
         pass
 
-    def index(self):
-        return 'test'
-
     # todo: make sure apache configs are good to go
+    # todo: activate auth for prod
+    # @requires_auth
     @route('/api/send-email/<article_id>', methods=['get', 'post'])
     def reset_send_email(self, article_id):
         try:
