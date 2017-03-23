@@ -15,6 +15,11 @@ class OfficeHoursController(TinkerController):
         super(OfficeHoursController, self).__init__()
         self.datetime_format = "%I:%M %p"
 
+    def inspect_child(self, child, find_all=False):
+        # todo add permissions logic
+        author = session['username']
+        return self._iterate_child_xml(child, author)
+
     def _iterate_child_xml(self, child, author):
 
         page_values = {
@@ -26,10 +31,16 @@ class OfficeHoursController(TinkerController):
 
         return page_values
 
-    def inspect_child(self, child, find_all=False):
-        # todo add permissions logic
-        author = session['username']
-        return self._iterate_child_xml(child, author)
+    def separate_office_hours(self, forms):
+        standard_hours = None
+        office_hours = []
+        for form in forms:
+            if form['id'] == app.config['OFFICE_HOURS_STANDARD_BLOCK']:
+                standard_hours = form
+            else:
+                office_hours.append(form)
+
+        return standard_hours, office_hours
 
     def load_office_hours_block(self, block_id=app.config['OFFICE_HOURS_STANDARD_BLOCK']):
         multiple = ['exceptions']

@@ -27,8 +27,10 @@ class OfficeHoursView(FlaskView):
         username = session['username']
 
         forms = self.base.traverse_xml(app.config['OFFICE_HOURS_XML_URL'], 'system-block')
+        standard_hours, office_hours = self.base.separate_office_hours(forms)
 
-        # todo: update the homepage template
+        office_hours.sort(key=lambda item: item['title'])
+
         return render_template('office-hours-home.html', **locals())
 
     def edit(self, block_id):

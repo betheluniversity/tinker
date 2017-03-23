@@ -11,39 +11,44 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
-                <p>Below is the list of Office Hours you have access to edit.
-                </p>
+                <p>Below is the list of Office Hours you have access to edit.</p>
+                <hr/>
+
+                {% if standard_hours %}
+                    {{ render_office_hours(standard_hours) }}
+                {% endif %}
 
                 <hr/>
 
-                <div class="card">
-
-                    <div class="content">
-
-                        {% for form in forms %}
-                            <div class="row">
-                                <div class="large-6 columns">
-                                    <p>{{ form.title }}</p>
-                                </div>
-                                <div class="large-6 columns small-3">
-                                    <a href="{{ url_for('office_hours.OfficeHoursView:edit', block_id=form.id) }}"
-                                       class="btn btn-primary">Edit</a></li>
-                                </div>
-                                <hr/>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
+                {% for form in office_hours %}
+                    {{ render_office_hours(form) }}
+                {% endfor %}
             </div>
         </div>
     </div>
 
     {#  Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
-
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "" + $(this).data(''));
         });
     </script>
 
 {% endblock %}
+
+{% macro render_office_hours(form) %}
+    <div class="card">
+        <div class="content">
+            <div class="row">
+                <div class="large-6 columns">
+                    <p>{{ form.title }}</p>
+                </div>
+                <div class="large-6 columns small-3">
+                    <a href="{{ url_for('office_hours.OfficeHoursView:edit', block_id=form.id) }}"
+                       class="btn btn-primary">Edit</a></li>
+                </div>
+                <hr/>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
