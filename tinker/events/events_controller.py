@@ -106,7 +106,6 @@ class EventsController(TinkerController):
             except TypeError:
                 all_day = None
                 continue
-
             try:
                 all_day = date.find('all-day').getchildren()[0].text
             except:
@@ -444,7 +443,6 @@ class EventsController(TinkerController):
             has_end = True
         # Loop through the events based on selection
         for event in events_to_iterate:
-
             if not event['event-dates']:
                 check_dates = False
             else:
