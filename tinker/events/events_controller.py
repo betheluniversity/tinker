@@ -18,7 +18,7 @@ from flask import render_template, session
 from flask import json as fjson
 
 
-class EventsController(TinkerController):\
+class EventsController(TinkerController):
 
     def traverse_short_xml(self, xml_url, find_all=False):
         response = urllib2.urlopen(xml_url)
@@ -96,13 +96,9 @@ class EventsController(TinkerController):\
         dates_html_array = []
         for date in dates:
             try:
-                start = date.find('start-date').text
-                end = date.find('end-date').text
 
                 if start != 'None':
-                    start = int() / 1000
                 if end != 'None':
-                    end = int() / 1000
             except TypeError:
                 all_day = None
                 continue
@@ -407,7 +403,6 @@ class EventsController(TinkerController):\
     # The search method that does the actual searching for the /search in events/init
     def get_search_results(self, selection, title, start, end):
         # Get the events and then split them into user events and other events for quicker searching
-        events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
         # Quick check with assignment
         if selection and '-'.join(selection) == '1':
             events_to_iterate = events
