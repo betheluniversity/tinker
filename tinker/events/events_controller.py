@@ -96,12 +96,17 @@ class EventsController(TinkerController):
         dates_html_array = []
         for date in dates:
             try:
+                start = date.find('start-date').text.strip()
+                end = date.find('end-date').text.strip()
 
                 if start != 'None':
+                    start = int(start) / 1000
                 if end != 'None':
+                    end = int(end) / 1000
             except TypeError:
                 all_day = None
                 continue
+
             try:
                 all_day = date.find('all-day').getchildren()[0].text
             except:
@@ -403,6 +408,7 @@ class EventsController(TinkerController):
     # The search method that does the actual searching for the /search in events/init
     def get_search_results(self, selection, title, start, end):
         # Get the events and then split them into user events and other events for quicker searching
+        events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'event')
         # Quick check with assignment
         if selection and '-'.join(selection) == '1':
             events_to_iterate = events
@@ -438,6 +444,7 @@ class EventsController(TinkerController):
             has_end = True
         # Loop through the events based on selection
         for event in events_to_iterate:
+
             if not event['event-dates']:
                 check_dates = False
             else:
