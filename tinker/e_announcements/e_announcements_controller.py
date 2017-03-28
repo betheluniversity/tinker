@@ -185,8 +185,8 @@ class EAnnouncementsController(TinkerController):
 
     # The search method that does the actual searching for the /search in events/init
     def get_search_results(self, title, start, end):
-        # Go throught the E_Announcements and traverse them
-        announcements = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
+        # Go through the E_Announcements and traverse them
+        announcements = self.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
         # Flag check to make sure there are values to check against
         if not title:
             has_title = False
@@ -204,15 +204,43 @@ class EAnnouncementsController(TinkerController):
         to_return = []
         # Go through the announcements and search using the paramaters
         for annz in announcements:
-            if has_start or has_end:
+            try:
+                # Convert First date to timestamp
+                first_date = datetime.datetime.fromtimestamp(annz['first_date']).strftime('%a %b %d %Y')
+                first_date = datetime.datetime.strptime(first_date, "%a %b %d %Y")
+            except:
+                first_date = None
+                continue
+            if annz['second_date']:
+                has_second_date = True
                 try:
-                    # Form Start/End timestamps converted to datetime and then formatted to match start and end
-                    annz_start = datetime.datetime.fromtimestamp(annz['first_date']).strftime('%a %b %d %Y')
-                    annz_start = datetime.datetime.strptime(annz_start, "%a %b %d %Y")
+                    # Convert First date to timestamp
+                    second_date = datetime.datetime.fromtimestamp(annz['first_date']).strftime('%a %b %d %Y')
+                    second_date = datetime.datetime.strptime(second_date, "%a %b %d %Y")
                 except:
+                    second_date = None
                     continue
+            else:
+                second_date = None
+                has_second_date = False
+
+            dates = [first_date, second_date]
 
             if has_title and title.lower() not in annz['title'].lower():
                 continue
-            elif not has_start and not has_end:
-                continue
+            else:
+                for date in dates:
+                    if has_start and has_end and self.compare_timedeltas(start, date) == 1 and \
+                            self.compare_timedeltas(end, first_date) == 2:
+                        to_return.append(annz)
+                        break
+                    elif not has_start and has_end and self.compare_timedeltas(end, date) == 2:
+                        to_return.append(annz)
+                        break
+                    elif not has_end and has_start and self.compare_timedeltas(start, date) == 1:
+                        to_return.append(annz)
+                        break
+                    elif not has_start and not has_end:
+                        to_return.append(annz)
+                        break
+        return to_return

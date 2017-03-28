@@ -474,15 +474,3 @@ class EventsController(TinkerController):
                         to_return.append(event)
                         break
         return to_return, forms_header
-
-    def compare_timedeltas(self, a, b):
-        reference = datetime.timedelta(seconds=0)
-        # If a and b are both datetime objects then if b comes after a it will return 1
-        if(b-a) >= reference:
-            return 1
-        # b before a returns 2
-        elif(b-a) <= reference:
-            return 2
-        # neither returns 0
-        else:
-            return 0

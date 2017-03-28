@@ -121,8 +121,8 @@
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/e-announcements/delete/" + $(this).data('e-announcement-id'));
         });
-        function search_events() {
-            search_url = "{{ url_for('events.EventsView:search') }}";
+        function search_announcements() {
+            search_url = "{{ url_for('e_announcements.EAnnouncementsView:search') }}";
             $('#spinner').show();
             inputs = {
                 "title": $("#annzTitle").val(),
@@ -143,10 +143,10 @@
                 }
             });
         }
-        $(".search-events").click(function () {
-            search_events();
+        $(".search-announcements").click(function () {
+            search_announcements();
         });
-        search_events();
+        search_announcements();
     </script>
 
 {% endblock %}

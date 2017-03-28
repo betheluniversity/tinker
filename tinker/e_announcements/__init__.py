@@ -279,6 +279,6 @@ class EAnnouncementsView(FlaskView):
             end = 0
         search_results = self.base.get_search_results(title, start, end)
         search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
-        return render_template('search_results.html', list_of_events=search_results, formsHeader=forms_header)
+        return render_template('search_results.html', list_of_annz=search_results)
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)
