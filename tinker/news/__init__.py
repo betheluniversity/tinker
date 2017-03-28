@@ -38,6 +38,7 @@ class NewsView(FlaskView):
             news_article_datetime = datetime.datetime.fromtimestamp(int(find(sd, 'publish-date', False))/1000)
             current_datetime = datetime.datetime.now()
             send_email_value = find(sd, 'send-email', False)
+
             # todo: update for prod
             # if news_article_datetime.strftime("%m-%d-%Y") != current_datetime.strftime("%m-%d-%Y") and send_email_value == 'Yes':
             #     return None
@@ -74,16 +75,16 @@ class NewsView(FlaskView):
                         "News was sent out for id:" + article_id + " was called on production", current_datetime.strftime("%m-%d-%Y"))
                     self.base_campaign.reset_send_email_value(page)
 
-                    # # Todo: someday ---- if a campaign already exists, delete the old one and create a new one
                     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to,
                                                              list_ids,
                                                              segment_ids, template_id, template_content)
-                    #
+
+                    # todo: update for prod
                     # if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
                     #     # Send the news out to ALL users at 5:30 am.
                     #     confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
-                    #     new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 05:30')
-                    #     self.base_campaign.log_sentry("News campaign was sent", resp)
+                    #     new_campaign.send(confirmation_email_sent_to, 'Immediately')
+                    #     self.base_campaign.log_sentry("News campaign for " + str(current_datetime.strftime('%m/%-d/%Y')), resp)
 
         except:
             return None
