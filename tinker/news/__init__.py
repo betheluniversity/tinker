@@ -37,9 +37,9 @@ class NewsView(FlaskView):
 
             news_article_datetime = datetime.datetime.fromtimestamp(int(find(sd, 'publish-date', False))/1000)
             current_datetime = datetime.datetime.now()
-
+            send_email_value = find(sd, 'send-email', False)
             # todo: update for prod
-            # if news_article_datetime.strftime("%m-%d-%Y") != current_datetime.strftime("%m-%d-%Y"):
+            # if news_article_datetime.strftime("%m-%d-%Y") != current_datetime.strftime("%m-%d-%Y") and send_email_value == 'Yes':
             #     return None
 
             # add news_article
