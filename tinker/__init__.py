@@ -99,6 +99,7 @@ from tinker.admin.sync import SyncBlueprint
 from tinker.admin.publish import PublishBlueprint
 from tinker.admin.program_search import ProgramSearchBlueprint
 from tinker.admin.redirects import RedirectsBlueprint
+from tinker.admin.proof_points import ProofPointsBlueprint
 from tinker.e_announcements import EAnnouncementsBlueprint
 from tinker.faculty_bios import FacultyBiosBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
@@ -112,6 +113,7 @@ app.register_blueprint(SyncBlueprint)
 app.register_blueprint(PublishBlueprint)
 app.register_blueprint(ProgramSearchBlueprint)
 app.register_blueprint(RedirectsBlueprint)
+app.register_blueprint(ProofPointsBlueprint)
 app.register_blueprint(EAnnouncementsBlueprint)
 app.register_blueprint(EventsBlueprint)
 app.register_blueprint(FacultyBiosBlueprint)
