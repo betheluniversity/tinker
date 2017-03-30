@@ -93,13 +93,19 @@ class TinkerController(object):
         self.cascade_connector = cascade_connector
 
     def before_request(self):
-
         def init_user():
 
             dev = current_app.config['ENVIRON'] != 'prod'
 
+            # reset session if it has been more than 24 hours
+            if 'session_time' in session.keys():
+                seconds_in_day = 60 * 60 * 24
+                day_is_passed = time.time() - session['session_time'] >= seconds_in_day
+            else:
+                day_is_passed = True
+
             # if not production, then clear our session variables on each call
-            if dev:
+            if dev or day_is_passed:
                 for key in ['username', 'groups', 'roles', 'top_nav', 'user_email', 'name']:
                     if key in session.keys():
                         session.pop(key, None)
@@ -122,6 +128,8 @@ class TinkerController(object):
 
             if 'name' not in session.keys() and session['username']:
                 get_users_name()
+
+            session['session_time'] = time.time()
 
         def get_user():
             if current_app.config['ENVIRON'] == 'prod':
@@ -220,6 +228,7 @@ class TinkerController(object):
         form_xml = ET.fromstring(response.read())
 
         matches = []
+
         for child in form_xml.findall('.//' + type_to_find):
             match = self.inspect_child(child, find_all)
             if match:
@@ -456,7 +465,8 @@ class TinkerController(object):
         return True
 
     def add_workflow_to_asset(self, workflow, data):
-        data['workflowConfiguration'] = workflow
+        if not app.config.get('UNIT_TESTING'):
+            data['workflowConfiguration'] = workflow
 
     def clear_image_cache(self, image_path):
         # /academics/faculty/images/lundberg-kelsey.jpg"
@@ -614,3 +624,62 @@ class TinkerController(object):
     def get_segments_for_client(self, campaign_monitor_key, client_id):
         for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
             print segment.SegmentID
+
+    def convert_timestamps_to_bethel_string(self, open, close, all_day):
+        try:
+            is_all_day = False
+            # If the event is all_day set it to true
+            if all_day and all_day == 'Yes':
+                is_all_day = True
+            same_stamp = open == close
+
+            # Format open and close
+            proxy_open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y %-I:%M%p')
+            proxy_close = datetime.datetime.fromtimestamp(close).strftime('%B %d, %Y %-I:%M%p')
+
+            same_day = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y') in proxy_close
+
+            # If the event is all day, then the open string is formatted and close is set to an empty string
+            if is_all_day:
+                if same_stamp:
+                    open = proxy_open
+                    close = ""
+                elif same_day or same_stamp:
+                    open = datetime.datetime.fromtimestamp(open).strftime('%B, %d, %Y')
+                    close = ""
+                else:
+                    open = datetime.datetime.fromtimestamp(open).strftime('%B, %d')
+                    close = datetime.datetime.fromtimestamp(close).strftime('%B, %d, %Y')
+
+            elif same_day and not same_stamp:
+                open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y | %-I:%M%p')
+                close = datetime.datetime.fromtimestamp(close).strftime('%-I:%M%p')
+            elif same_stamp:
+                open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y | %-I:%M%p')
+                close = ""
+            else:
+                open = proxy_open
+                close = proxy_close
+
+            bethel_date_string = self.final_format(open, close)
+            return bethel_date_string
+        except:
+            return None
+
+    def final_format(self, open, close):
+        if close == "":
+            combined_string = open
+        else:
+            if 'AM' in open and 'AM' in close:
+                open = open.replace("AM", "")
+            elif 'PM' in open and 'PM' in close:
+                open = open.replace("PM", "")
+            combined_string = "%s - %s" % (open, close)
+        combined_string = combined_string.replace(':00', '')
+        combined_string = combined_string.replace('AM', ' a.m.').replace('PM', ' p.m.')
+        if '12 a.m.' in combined_string:
+            combined_string = combined_string.replace('12 a.m.', 'at midnight')
+        elif '12 p.m.' in combined_string:
+            combined_string = combined_string.replace('12 p.m.', 'at noon')
+
+        return combined_string
