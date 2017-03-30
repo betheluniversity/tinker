@@ -259,6 +259,7 @@ class EAnnouncementsView(FlaskView):
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 
+    # This is the search for e_annz to pare down the announcements being shown
     @route("/search", methods=['POST'])
     def search(self):
         # Load the data, get the event type selection and title of the event the user is searching for
