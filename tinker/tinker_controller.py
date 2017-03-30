@@ -12,6 +12,7 @@ import os
 from jinja2 import Environment, FileSystemLoader, meta
 from functools import wraps
 from subprocess import call
+from createsend import *
 
 # flask
 from flask import request
@@ -241,11 +242,13 @@ class TinkerController(object):
 
     # this function is necessary because we don't have python2.7 on the server (we use python2.6)
     def search_for_key_in_dynamic_md(self, block, key_to_find):
+        return_values = []
         metadata = block.findall("dynamic-metadata")
         for md in metadata:
             if md.find('name').text == key_to_find:
-                return md.find('value')
-        return None
+                if hasattr(md.find('value'), 'text'):
+                    return_values.append(md.find('value').text)
+        return return_values
 
     def group_callback(self, node):
         pass
@@ -611,6 +614,16 @@ class TinkerController(object):
         variables = meta.find_undeclared_variables(parsed_content)
         keywords_to_ignore = set(['csrf_token', 'url_for'])
         return variables.difference(keywords_to_ignore)
+
+    # Not currently used in the code. However, this is helpful to find template IDs
+    def get_templates_for_client(self, campaign_monitor_key, client_id):
+        for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
+            print template.TemplateID
+
+    # Not currently used in the code. However, this is helpful to find segment IDs
+    def get_segments_for_client(self, campaign_monitor_key, client_id):
+        for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
+            print segment.SegmentID
 
     def convert_timestamps_to_bethel_string(self, open, close, all_day):
         try:

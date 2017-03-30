@@ -1,0 +1,39 @@
+<table class="layout layout--no-gutter" style="border-collapse: collapse;table-layout: fixed;margin-left: auto;margin-right: auto;overflow-wrap: break-word;word-wrap: break-word;word-break: break-word;background-color: #ffffff;" align="center">
+    <tbody>
+        <tr>
+            <td class="column" style="padding: 40px;text-align: left;vertical-align: top;color: #555;font-size: 14px;line-height: 20px;font-family: Georgia,serif;width: 600px;">
+                <div style="margin-left: 20px;margin-right: 20px; margin-bottom:40px">
+                    <a href="https://www.bethel.edu/{{ path }}"><h1 style="margin-bottom: 5px;font-style: normal;font-weight: normal;color: #0069aa;font-size: 30px;line-height: 28px;font-family: sans-serif;">{{ title }}</h1></a>
+                    <p class="article-meta" style="margin-top:10px">{{ date }}</p>
+                </div>
+                <div style="Margin-left: 20px;Margin-right: 20px;">
+                    <img src="https://www.bethel.edu/{{ image_path }}" width="100%">
+                    {{ content|safe }}
+                    <div style="text-align:center;padding-top:30px"><!--[if mso]>
+                      <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://www.bethel.edu/{{ path }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="8%" strokecolor="#1e3650" fillcolor="#0069aa">
+                        <w:anchorlock/>
+                        <center style="color:#ffffff;font-family:sans-serif;font-size:13px;font-weight:bold;">Read More</center>
+                      </v:roundrect>
+                        <![endif]--><a href="https://www.bethel.edu/{{ path }}"
+                        style="background-color:#0069aa;border:1px solid #1e3650;border-radius:3px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:13px;font-weight:bold;line-height:40px;text-decoration:none;width:200px;-webkit-text-size-adjust:none;mso-hide:all;">Read More</a>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding-left:40px;padding-right:40px">
+                <hr />
+            </td>
+        </tr>
+        <tr>
+            <td class="column" style="padding: 20px 40px 40px 40px;text-align: left;vertical-align: top;color: #555;font-size: 14px;line-height: 20px;font-family: Georgia,serif;width: 600px;">
+                <div style="margin-left: 20px;margin-right: 20px; margin-bottom:20px">
+                    <h2 style="text-align:center;font-style: normal;font-weight: normal;font-size: 22px;line-height: 28px;font-family: sans-serif;">About Bethel</h2>
+                    <p style="margin-top:10px">
+                        Bethel University is a leader in Christ-centered higher education with more than 5,500 students from 48 states and 42 countries enrolled in undergraduate, graduate, seminary, and adult education programs. Based in St. Paul, Minnesota, with an additional seminary location in San Diego, California, Bethel offers bachelor’s and advanced degrees in nearly 100 fields. Educationally excellent classroom-based and online programs equip graduates to make exceptional contributions in life-long service to God and the world.
+                    </p>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>

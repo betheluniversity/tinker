@@ -48,6 +48,9 @@ class EventsController(TinkerController):
         post_trad_event = False
         undergrad_event = False
         if 'Tinker Events - CAS' in session['groups']:
+            # Todo: when we move to short-urls
+            # undergrad_event = self.search_for_key_in_dynamic_md(child, 'cas-departments')
+
             for value in child.find('cas-departments').getchildren():
                 try:
                     if value.text != 'None':
@@ -71,7 +74,7 @@ class EventsController(TinkerController):
         user_forms = []
         other_forms = []
         for form in forms:
-            if form['author']!=None and username in form['author']:
+            if form['author'] != None and username in form['author']:
                 user_forms.append(form)
             else:
                 other_forms.append(form)
