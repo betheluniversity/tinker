@@ -1,0 +1,14 @@
+{% extends 'tinker_base.html' %}
+
+{% set title = 'About' %}
+
+{% block page_title %}Bethel University About{% endblock %}
+
+{% block main_content %}
+    <h3>Departments</h3>
+    <ul>
+        {% for job in session['depts'] %}
+            <li>{{ job }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

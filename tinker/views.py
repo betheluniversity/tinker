@@ -13,7 +13,7 @@ class Base(FlaskView):
         return render_template('index.html', **locals())
 
     def about(self):
-        return render_template('about-page.html', **locals())
+        return render_template('about.html', **locals())
 
     def get_image(self, image_name):
         return send_file('images/' + image_name, mimetype='image/png')
