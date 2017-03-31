@@ -16,9 +16,15 @@ class OfficeHoursController(TinkerController):
         self.datetime_format = "%I:%M %p"
 
     def inspect_child(self, child, find_all=False):
-        # todo add permissions logic
-        author = session['username']
-        return self._iterate_child_xml(child, author)
+        username = session['username']
+
+        try:
+            if child.find('title').text in session['depts'] or 'Administrator' in session['groups'] or username in app.config['OFFICE_HOURS_ADMINS']:
+                return self._iterate_child_xml(child, username)
+            else:
+                return None
+        except:
+            return None
 
     def _iterate_child_xml(self, child, author):
 

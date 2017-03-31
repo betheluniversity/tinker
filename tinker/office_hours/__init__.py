@@ -20,6 +20,7 @@ class OfficeHoursView(FlaskView):
     def __init__(self):
         self.base = OfficeHoursController()
 
+    # todo: add iam group logic here
     def before_request(self, name, **kwargs):
         pass
 

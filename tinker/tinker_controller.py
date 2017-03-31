@@ -99,7 +99,7 @@ class TinkerController(object):
 
             # if not production, then clear our session variables on each call
             if dev:
-                for key in ['username', 'groups', 'roles', 'top_nav', 'user_email', 'name']:
+                for key in ['username', 'groups', 'roles', 'top_nav', 'user_email', 'name', 'depts']:
                     if key in session.keys():
                         session.pop(key, None)
 
@@ -111,6 +111,9 @@ class TinkerController(object):
 
             if 'roles' not in session.keys():
                 get_roles()
+
+            if 'depts' not in session.keys():
+                get_depts()
 
             if 'top_nav' not in session.keys():
                 get_nav()
@@ -177,6 +180,20 @@ class TinkerController(object):
                 ret.append(roles[key]['userRole'])
 
             session['roles'] = ret
+
+            return ret
+
+        def get_depts(username=None):
+            if not username:
+                username = session['username']
+            url = current_app.config['API_URL'] + "/username/%s/jobs" % username
+            r = requests.get(url, auth=(current_app.config['API_USERNAME'], current_app.config['API_PASSWORD']))
+            jobs = fjson.loads(r.content)
+            ret = []
+            for index in jobs:
+                ret.append(jobs[index]['Dept'])
+
+            session['depts'] = ret
 
             return ret
 
