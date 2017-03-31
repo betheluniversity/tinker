@@ -116,7 +116,7 @@ class FacultyBioController(TinkerController):
             for school in child.findall('.//job-titles/school'):
                 school_array.append(school.text or 'Other')
 
-            school_array = list(set(school_array))
+            # school_array = list(set(school_array))
 
             page_values = {
                 'author': child.find('author') or None,
