@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+</html>
+{#This will eventually contain the macros and general formatting for the E-Annz that are produced from the search#} 
+{% block main_content %}
+    {% for form in forms %}
+        <div class="card">
+            <div class="content">
+                <p>
+                    {% if form.path != '' %}
+                        <a href={{ form.path }}>{{ form.title }}</a>
+                    {% else %}
+                        {{ form.title }}
+                    {% endif %}
+                    <br/>
+                    <small>{{ form.first_date | safe }}</small>
+                    <br/>
+                    <small>{{ form.second_date | safe }}</small>
+                </p>
+                <div class="large-6 columns small-3">
+                    <ul class="btn-group-horizontal">
+                        {% if form.workflow_status %}
+                            <li>This announcement is pending approval.</li>
+                        {% else %}
+                            {% if not form.first_date_past and not form.second_date_past %}
+                                <li>
+                                    <a href="{{ url_for('e_announcements.EAnnouncementsView:edit', e_announcement_id=form.id) }}"
+                                       class="btn btn-primary">Edit</a></li>
+                            {% else %}
+                                <li>
+                                    <a href="{{ url_for('e_announcements.EAnnouncementsView:view', e_announcement_id=form.id) }}"
+                                       class="btn btn-primary">View</a></li>
+                            {% endif %}
+                            <li>
+                                <a href="{{ url_for('e_announcements.EAnnouncementsView:duplicate', e_announcement_id=form.id) }}"
+                                   class="btn btn-primary">Duplicate</a></li>
+                            {% if not form.first_date_past %}
+                                <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}"
+                                       data-e-announcement-id="{{ form.id }}"
+                                       class="small btn btn-primary btn-alert delete-press"
+                                       data-toggle="modal" data-target="#myModal">Delete</a></li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
