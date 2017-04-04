@@ -100,51 +100,84 @@ class EventsController(TinkerController):
 
         return page_values
 
-    def check_event_dates(self, form):
-        event_dates = {}
-        dates_good = False
+    def get_event_dates(self, form):
+        event_dates = []
+
         num_dates = int(form['num_dates'])
         for x in range(1, num_dates+1):  # the page doesn't use 0-based indexing
 
             i = str(x)
-            start_l = 'start' + i
-            end_l = 'end' + i
-            all_day_l = 'allday' + i
-            need_time_zone_l = 'needtimezone' + i
-            time_zone_l = 'timezone' + i
-            no_end_date_l = 'noenddate' + i
 
-            no_end_date = no_end_date_l in form.keys()
-            start = form[start_l]
-            end = form[end_l]
-            if no_end_date:
-                end = form[start_l]
-            all_day = all_day_l in form.keys()
-            need_time_zone = need_time_zone_l in form.keys()
-            time_zone = form[time_zone_l]
+            new_date = {
+                'start-date': form.get('start' + i, ''),
+                'end-date': form.get('end' + i, ''),
+                'all-day': form.get('allday' + i, ''),
+                'need-time-zone': form.get('needtimezone' + i, ''),
+                'time-zone': form.get('timezone' + i, ''),
+                'no-end-date': form.get('start' + i, '')
+            }
 
-            event_dates[start_l] = start
-            event_dates[end_l] = end
-            if no_end_date:
-                event_dates[end_l] = start
-            event_dates[all_day_l] = all_day
-            event_dates[need_time_zone] = need_time_zone
-            event_dates[time_zone] = time_zone
-            event_dates[no_end_date_l] = no_end_date
+            event_dates.append(new_date)
 
-            start_and_end = start and end
+            # start_l = 'start' + i
+            # end_l = 'end' + i
+            # all_day_l = 'allday' + i
+            # need_time_zone_l = 'needtimezone' + i
+            # time_zone_l = 'timezone' + i
+            # no_end_date_l = 'noenddate' + i
+            #
+            # no_end_date = no_end_date_l in form.keys()
+            # start = form[start_l]
+            # end = form[end_l]
+            # # If no end date checkbox is checked, sets end date to start date
+            # # to prevent errors with no end date manually put in
+            # if no_end_date:
+            #     end = form[start_l]
+            # all_day = all_day_l in form.keys()
+            # need_time_zone = need_time_zone_l in form.keys()
+            # time_zone = form[time_zone_l]
+            #
+            # event_dates[start_l] = start
+            # event_dates[end_l] = end
+            # # If no end date checkbox is checked, sets end date to start date
+            # # to prevent errors with no end date manually put in
+            # if no_end_date:
+            #     event_dates[end_l] = start
+            # event_dates[all_day_l] = all_day
+            # event_dates[need_time_zone] = need_time_zone
+            # event_dates[time_zone] = time_zone
+            # event_dates[no_end_date_l] = no_end_date
+
+            self.check_event_dates(form, event_dates)
+
+            # start_and_end = start and end
+            #
+            # condition = True
+            # if need_time_zone and str(time_zone) == '':
+            #     condition = False
+            #
+            # if start_and_end and condition:
+            #     dates_good = True
+
+        # convert event dates to JSON
+        return json.dumps(event_dates), num_dates
+
+    def check_event_dates(self, num_dates, event_dates):
+        dates_good = False
+        for x in range(1, num_dates + 1):
+            i = str(x)
+            start_and_end = event_dates[i]['start-date'] and event_dates[i]['end-date']
 
             condition = True
-            if need_time_zone and str(time_zone) == '':
+            if event_dates[i]['need-time-zine'] and str(event_dates[i]['time-zone']) == '':
                 condition = False
 
             if start_and_end and condition:
                 dates_good = True
 
-        # convert event dates to JSON
-        return json.dumps(event_dates), dates_good, num_dates
+        return dates_good
 
-    def validate_form(self, rform, dates_good, event_dates):
+    def validate_form(self, rform, dates_good, dates):
 
         from forms import EventForm
         form = EventForm()
