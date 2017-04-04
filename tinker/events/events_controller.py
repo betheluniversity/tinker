@@ -110,7 +110,7 @@ class EventsController(TinkerController):
                 all_day = None
                 continue
             try:
-                all_day = date.find('all-day').getchildren()[0].text
+                all_day = date.find('all-day').text
             except:
                 all_day = None
             dates_str.append({
@@ -126,7 +126,7 @@ class EventsController(TinkerController):
             'id': child.find('id').text or None,
             'title': child.find('title').text or None,
             'created-on': child.find('created-on').text or None,
-            'path': 'https://www.bethel.edu' + child.find('path').text or None,
+            'path': 'https://www.bethel.edu/' + child.find('path').text or None,
             'is_published': is_published,
             'event-dates': dates_str,
             'html': '<br/>'.join(dates_html_array),
