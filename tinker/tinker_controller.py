@@ -665,13 +665,13 @@ class TinkerController(object):
         except:
             return None
 
-    def final_format(self, open, close, adf):
+    def final_format(self, open, close, all_day_format):
         if close == "":
             combined_string = open
         else:
-            if 'AM' in open and 'AM' in close and adf == 1:
+            if 'AM' in open and 'AM' in close and all_day_format == 1:
                 open = open.replace("AM", "")
-            elif 'PM' in open and 'PM' in close and adf == 1:
+            elif 'PM' in open and 'PM' in close and all_day_format == 1:
                 open = open.replace("PM", "")
             combined_string = "%s - %s" % (open, close)
         combined_string = combined_string.replace(':00', '')
