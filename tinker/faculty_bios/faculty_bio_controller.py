@@ -97,8 +97,6 @@ class FacultyBioController(TinkerController):
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
-                # Todo: remove this print line, once this is tested
-                print 'bad'
                 return None
         else:
             return None
