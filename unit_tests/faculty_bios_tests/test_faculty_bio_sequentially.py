@@ -1,6 +1,5 @@
 import re
 
-from tinker import cascade_connector
 from unit_tests import BaseTestCase
 
 
@@ -100,8 +99,6 @@ class FacultyBioSequentialTestCase(BaseTestCase):
                                                         expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
         self.fbid = self.get_faculty_bio_id(response.data)
-        print "Faculty Bios ID =", self.fbid
-        print "Workflow ID:", cascade_connector.get_workflow_id(self.fbid, 'page')
 
     def submit_new_form_all_invalid_types(self):
         self.request_type = "POST"
@@ -175,7 +172,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
     def get_edit_form(self):
         self.request_type = "GET"
         self.request = self.generate_url("edit", faculty_bio_id=self.fbid)
-        expected_response = b'You recently made edits to your bio and are currently pending approval.'
+        expected_response = b'<input type="hidden" name="faculty_bio_id" id="faculty_bio_id"'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())

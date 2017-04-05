@@ -6,7 +6,6 @@ import re
 import unittest
 from inspect import stack, getframeinfo
 from selenium import webdriver
-from selenium.webdriver.remote.webelement import WebElement
 
 import tinker
 from tinker import get_url_from_path
