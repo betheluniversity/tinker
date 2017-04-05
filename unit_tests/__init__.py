@@ -5,6 +5,7 @@ import os
 import re
 import unittest
 from inspect import stack, getframeinfo
+from selenium import webdriver
 
 import tinker
 from tinker import get_url_from_path
@@ -104,6 +105,50 @@ class BaseTestCase(unittest.TestCase):
         current_frame = stack()[1][0]
         frameinfo = getframeinfo(current_frame)
         return frameinfo.lineno
+
+    def get_form_data_from_html(self, incompletely_rendered_html):
+        placeholder_html_path = os.path.abspath("placeholder.html")
+        placeholder = open(placeholder_html_path, "w")
+        placeholder.write(incompletely_rendered_html)
+        placeholder.close()
+        #                                   This .. chain will take the path back to ~
+        chromedriver_path = os.path.abspath("../../../../envs/tinker26/chromedriver-Darwin")
+        driver = webdriver.Chrome(chromedriver_path)
+        driver.get("file://" + placeholder_html_path)
+
+        # If you want to only return the fully rendered HTML, this is how to do it:
+        # html = driver.find_element_by_tag_name("html")
+        # return html.get_attribute("outerHTML")
+
+        scraped_data = {}
+
+        inputs = driver.find_elements_by_tag_name("input")
+        for input in inputs:
+            name = input.get_attribute("name")
+            if input.get_attribute("type") == "radio":
+                value = driver.execute_script("return $('[name=" + name + "]:checked').val();")
+                scraped_data[name] = value
+            else:
+                value = driver.execute_script("return $('[name=" + name + "]').val();")
+                scraped_data[name] = value
+
+        textareas = driver.find_elements_by_tag_name("textarea")
+        for textarea in textareas:
+            name = textarea.get_attribute("name")
+            value = driver.execute_script("return $('[name=" + name + "]').val();")
+            scraped_data[name] = value
+
+        selects = driver.find_elements_by_tag_name("select")
+        for select in selects:
+            name = select.get_attribute("name")
+            value = driver.execute_script("return $('[name=" + name + "]').val();")
+            if isinstance(value, list):
+                value = value[0]
+            scraped_data[name] = value
+
+        # Clear the placeholder file for the next usage
+        # open(placeholder_html_path, "w").close()
+        return scraped_data
 
     def tearDown(self):
         pass

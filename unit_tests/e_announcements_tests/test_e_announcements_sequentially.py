@@ -69,7 +69,7 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertNotIn(expected_response, response.data, msg=failure_message)
+        self.assertIn(expected_response, response.data, msg=failure_message)
 
     def submit_edit_valid(self):
         self.request_type = "POST"
@@ -88,7 +88,7 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertNotIn(expected_response, response.data, msg=failure_message)
+        self.assertIn(expected_response, response.data, msg=failure_message)
 
     def delete_testing_object(self):
         self.request = self.generate_url("delete", e_announcement_id=self.eaid)
