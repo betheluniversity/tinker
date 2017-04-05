@@ -114,7 +114,10 @@ class FacultyBioSequentialTestCase(BaseTestCase):
             bad_args = {required_vals[index]: ""}
             form = self.create_form(**bad_args)
             response = self.send_post(self.request, form)
-            possible_id = self.get_faculty_bio_id(response.data)
+            try:
+                possible_id = self.get_faculty_bio_id(response.data)
+            except AttributeError:
+                possible_id = ""
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                             expected_response,
                                                             self.class_name + "/new_invalid_" + required_vals[index],
