@@ -204,19 +204,19 @@ class EAnnouncementsView(FlaskView):
                     if role not in current_announcement_role_list:
                         current_announcement_role_list.append(role)
 
-            campaign_monitor_key = app.config['CAMPAIGN_MONITOR_KEY']
+            campaign_monitor_key = app.config['E_ANNOUNCEMENTS_CAMPAIGN_MONITOR_KEY']
             CreateSend({'api_key': campaign_monitor_key})
             new_campaign = Campaign({'api_key': campaign_monitor_key})
 
-            client_id = app.config['CLIENT_ID']
+            client_id = app.config['E_ANNOUNCEMENTS_CLIENT_ID']
             subject = 'Bethel E-Announcements | ' + str(date.strftime('%A, %B %-d, %Y'))
             name = 'Bethel E-Announcements | %s | %s' % (str(date.strftime('%A')), str(date.strftime('%m/%-d/%Y')))
             from_name = 'Bethel E-Announcements'
             from_email = 'e-announcements@lists.bethel.edu'
             reply_to = 'e-announcements@lists.bethel.edu'
-            list_ids = [app.config['LIST_KEY']]
-            segment_ids = [app.config['SEGMENT_ID']]
-            template_id = app.config['TEMPLATE_ID']
+            list_ids = [app.config['E_ANNOUNCEMENTS_LIST_KEY']]
+            segment_ids = [app.config['E_ANNOUNCEMENTS_SEGMENT_ID']]
+            template_id = app.config['E_ANNOUNCEMENTS_TEMPLATE_ID']
             template_content = {
                 "Singlelines": [
                     {

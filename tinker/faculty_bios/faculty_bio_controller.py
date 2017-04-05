@@ -97,8 +97,6 @@ class FacultyBioController(TinkerController):
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
-                # Todo: remove this print line, once this is tested
-                print 'bad'
                 return None
         else:
             return None
@@ -115,8 +113,6 @@ class FacultyBioController(TinkerController):
             school_array = []
             for school in child.findall('.//job-titles/school'):
                 school_array.append(school.text or 'Other')
-
-            school_array = list(set(school_array))
 
             page_values = {
                 'author': child.find('author') or None,

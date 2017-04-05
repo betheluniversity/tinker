@@ -535,6 +535,16 @@ label {
     font-family: Muli, Helvetica Neue, sans-serif;
 }
 
+.short_url {
+    background-color: #0069AA;
+    padding: 2px 10px;
+    border-radius: 10px;
+}
+
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    vertical-align: unset !important;
+}
+
 /* Checkbox inputs */
 
 label.checkbox {
@@ -554,6 +564,14 @@ label.checkbox {
     background-color: #0069AA;
 }
 
+.program-other, .topic, .delete-checkbox {
+    margin-left: 20% !important
+}
+
+.outcome {
+    margin-left: 30%
+}
+
 @media (max-width: 991px){
 
     ul.dropdown-menu{
@@ -567,7 +585,9 @@ label.checkbox {
     .dropdown-menu > li > a{
         padding-left: 15px !important;
     }
-
+    img.gif-resize {
+        width: 100%;
+    }
 }
 
 @media (min-width: 992px) {
@@ -596,24 +616,21 @@ label.checkbox {
         border: .5px solid #CCCCCC;
         width: 100%;
     }
+    .btn {
+        margin-bottom: 5px;
+    }
+
+    img.gif-resize {
+        width: 100%;
+    }
 }
 
 @media (max-width: 350px) {
     select#school-selector {
         max-width: 100%;
     }
-}
-
-@media (max-width: 450px) {
-    .btn {
-        margin-bottom: 5px;
+    img.gif-resize {
+        width: 100%;
     }
 }
 
-.program-other, .topic, .delete-checkbox {
-    margin-left: 20% !important
-}
-
-.outcome {
-    margin-left: 30%
-}

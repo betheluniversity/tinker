@@ -105,6 +105,7 @@ from tinker.e_announcements import EAnnouncementsBlueprint
 from tinker.faculty_bios import FacultyBiosBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
 from tinker.events import EventsBlueprint
+from tinker.news import NewsBlueprint
 
 app.register_blueprint(BaseBlueprint)
 app.register_blueprint(CacheBlueprint)
@@ -115,9 +116,10 @@ app.register_blueprint(PublishBlueprint)
 app.register_blueprint(ProgramSearchBlueprint)
 app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(EAnnouncementsBlueprint)
-app.register_blueprint(EventsBlueprint)
 app.register_blueprint(FacultyBiosBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
+app.register_blueprint(EventsBlueprint)
+app.register_blueprint(NewsBlueprint)
 
 from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
