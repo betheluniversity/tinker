@@ -111,6 +111,10 @@ class FacultyBioSequentialTestCase(BaseTestCase):
             bad_args = {required_vals[index]: ""}
             form = self.create_form(**bad_args)
             response = self.send_post(self.request, form)
+            try:
+                possible_id = self.get_faculty_bio_id(response.data)
+            except AttributeError:
+                possible_id = ""
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                             expected_response,
                                                             self.class_name + "/new_invalid_" + required_vals[index],
@@ -168,7 +172,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
     def get_edit_form(self):
         self.request_type = "GET"
         self.request = self.generate_url("edit", faculty_bio_id=self.fbid)
-        expected_response = b'You recently made edits to your bio and are currently pending approval.'
+        expected_response = b'<input type="hidden" name="faculty_bio_id" id="faculty_bio_id"'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
