@@ -161,10 +161,10 @@
                     var data = {
                         'new-redirect-from': $('#new-redirect-from').val(),
                         'new-redirect-to': $('#new-redirect-to').val(),
-                        'short-url': $('#new-redirect-short-url').val(),
+                        'new-redirect-short-url': $('#new-redirect-short-url').parent().hasClass('checked'),
                         'expiration-date': $('#expiration-date').val()
                     };
-
+debugger;
                     var url = "{{ url_for('redirects.RedirectsView:new_redirect_submit') }}";
                     $.post(url, data, function (data) {
                         loadTableForSearch($('#new-redirect-from').val(), 'from_path');
