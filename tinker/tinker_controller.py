@@ -522,7 +522,8 @@ class TinkerController(object):
             uni = self.__html_entities_to_unicode__(content)
             htmlent = self.__unicode_to_html_entities__(uni)
             clean_xml = self.__escape_xml_illegal_chars__(htmlent).lstrip()
-            return clean_xml
+            divs_removed = clean_xml.replace('&lt;div&gt;', '&lt;p&gt;').replace('&lt;/div&gt;', '&lt;/p&gt;')
+            return divs_removed
         else:
             return None
 
