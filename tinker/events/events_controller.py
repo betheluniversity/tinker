@@ -104,18 +104,19 @@ class EventsController(TinkerController):
         event_dates = []
 
         num_dates = int(form['num_dates'])
-        for x in range(1, num_dates+1):  # the page doesn't use 0-based indexing
+        for i in range(1, num_dates+1):  # the page doesn't use 0-based indexing
 
-            i = str(x)
-
+            i = str(i)
             new_date = {
                 'start-date': form.get('start' + i, ''),
                 'end-date': form.get('end' + i, ''),
                 'all-day': form.get('allday' + i, ''),
                 'need-time-zone': form.get('needtimezone' + i, ''),
-                'time-zone': form.get('timezone' + i, ''),
-                'no-end-date': form.get('start' + i, '')
+                'time-zone': form.get('timezone' + i, '')
             }
+
+            if not new_date['end-date']:
+                new_date['end-date'] = form.get('start' + i, '')
 
             event_dates.append(new_date)
 
@@ -148,7 +149,7 @@ class EventsController(TinkerController):
             # event_dates[time_zone] = time_zone
             # event_dates[no_end_date_l] = no_end_date
 
-            self.check_event_dates(form, event_dates)
+            # self.check_event_dates(event_dates, i)
 
             # start_and_end = start and end
             #
@@ -160,22 +161,53 @@ class EventsController(TinkerController):
             #     dates_good = True
 
         # convert event dates to JSON
-        return json.dumps(event_dates), num_dates
+        return event_dates, num_dates
 
     def check_event_dates(self, num_dates, event_dates):
         dates_good = False
-        for x in range(1, num_dates + 1):
-            i = str(x)
+        for i in range(0, num_dates):
             start_and_end = event_dates[i]['start-date'] and event_dates[i]['end-date']
 
             condition = True
-            if event_dates[i]['need-time-zine'] and str(event_dates[i]['time-zone']) == '':
+            if event_dates[i]['need-time-zone'] and str(event_dates[i]['time-zone']) == '':
                 condition = False
 
             if start_and_end and condition:
                 dates_good = True
 
-        return dates_good
+        for i in range(0, num_dates):
+            try:
+                # Get rid of the fancy formatting so we just have normal numbers
+                event_dates[i]['start-date'] = event_dates[i]['start-date'].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+                event_dates[i]['end-date'] = event_dates[i]['end-date'].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+
+                # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
+                # which use milliseconds instead of seconds
+                try:
+                    event_dates[i]['start-date'] = self.date_str_to_timestamp(event_dates[i]['start-date'])
+                except ValueError as e:
+                    app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
+                    event_dates[i]['start-date'] = None
+                try:
+                    event_dates[i]['end-date'] = self.date_str_to_timestamp(event_dates[i]['end-date'])
+                except ValueError as e:
+                    app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
+                    event_dates[i]['end-date'] = None
+
+                if event_dates[i]['all-day']:
+                    event_dates[i]['all-day'] = 'Yes'
+                else:
+                    event_dates[i]['all-day'] = 'No'
+                if event_dates[i]['need-time-zone']:
+                    event_dates[i]['need-time-zone'] = 'Yes'
+                else:
+                    event_dates[i]['need-time-zone'] = 'No'
+
+            except KeyError:
+                # This will break once we run out of dates
+                break
+
+        return json.dumps(event_dates), dates_good
 
     def validate_form(self, rform, dates_good, dates):
 
@@ -230,65 +262,65 @@ class EventsController(TinkerController):
             return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
                                 datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
 
-    def get_dates(self, add_data):
-        dates = []
-
-        # format the dates
-        for i in range(1, 200):
-            i = str(i)
-            try:
-                start = 'start' + i
-                end = 'end' + i
-                all_day = 'allday' + i
-                time_zone = 'timezone' + i
-                need_time_zone = 'needtimezone' + i
-
-                start = add_data[start]
-                end = add_data[end]
-                all_day = all_day in add_data.keys()
-                need_time_zone = need_time_zone in add_data.keys()
-                time_zone = add_data[time_zone]
-
-            except KeyError:
-                # This will break once we run out of dates
-                break
-
-            # Get rid of the facy formatting so we just have normal numbers
-            start = start.split(' ')
-            end = end.split(' ')
-            start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
-            end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
-
-            start = " ".join(start)
-            end = " ".join(end)
-
-            # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
-            # which use milliseconds instead of seconds
-            try:
-                start = self.date_str_to_timestamp(start)
-            except ValueError as e:
-                app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
-                start = None
-            try:
-                end = self.date_str_to_timestamp(end)
-            except ValueError as e:
-                app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
-                end = None
-
-            new_date = {'start-date': start, 'end-date': end, 'time-zone': time_zone}
-
-            if all_day:
-                new_date['all-day'] = 'Yes'
-            else:
-                new_date['all-day'] = 'No'
-            if need_time_zone:
-                new_date['outside-of-minnesota'] = 'Yes'
-            else:
-                new_date['outside-of-minnesota'] = 'No'
-
-            dates.append(new_date)
-
-        return dates
+    # def get_dates(self, add_data):
+    #     dates = []
+    #
+    #     # format the dates
+    #     for i in range(1, 200):
+    #         i = str(i)
+    #         try:
+    #             start = 'start' + i
+    #             end = 'end' + i
+    #             all_day = 'allday' + i
+    #             time_zone = 'timezone' + i
+    #             need_time_zone = 'needtimezone' + i
+    #
+    #             start = add_data[start]
+    #             end = add_data[end]
+    #             all_day = all_day in add_data.keys()
+    #             need_time_zone = need_time_zone in add_data.keys()
+    #             time_zone = add_data[time_zone]
+    #
+    #         except KeyError:
+    #             # This will break once we run out of dates
+    #             break
+    #
+    #         # Get rid of the fancy formatting so we just have normal numbers
+    #         start = start.split(' ')
+    #         end = end.split(' ')
+    #         start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+    #         end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+    #
+    #         start = " ".join(start)
+    #         end = " ".join(end)
+    #
+    #         # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
+    #         # which use milliseconds instead of seconds
+    #         try:
+    #             start = self.date_str_to_timestamp(start)
+    #         except ValueError as e:
+    #             app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
+    #             start = None
+    #         try:
+    #             end = self.date_str_to_timestamp(end)
+    #         except ValueError as e:
+    #             app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
+    #             end = None
+    #
+    #         new_date = {'start-date': start, 'end-date': end, 'time-zone': time_zone}
+    #
+    #         if all_day:
+    #             new_date['all-day'] = 'Yes'
+    #         else:
+    #             new_date['all-day'] = 'No'
+    #         if need_time_zone:
+    #             new_date['outside-of-minnesota'] = 'Yes'
+    #         else:
+    #             new_date['outside-of-minnesota'] = 'No'
+    #
+    #         dates.append(new_date)
+    #
+    #     return dates
 
     def get_event_structure(self, event_data, metadata, structured_data, add_data, username, workflow=None, event_id=None):
         """

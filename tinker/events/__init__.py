@@ -70,7 +70,7 @@ class EventsView(FlaskView):
         username = session['username']
         eid = rform.get('event_id')
         dates, num_dates = self.base.get_event_dates(rform)
-        dates_good = self.check_event_dates(num_dates, dates)
+        dates, dates_good = self.base.check_event_dates(num_dates, dates)
         failed = self.base.validate_form(rform, dates_good, dates)
         workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], rform['author'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
@@ -82,7 +82,7 @@ class EventsView(FlaskView):
             bid = app.config['EVENTS_BASE_ASSET']
             event_data, metadata, structured_data = self.base.cascade_connector.load_base_asset_by_id(bid, 'page')
             add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
-            add_data['event-dates'] = self.base.get_dates(add_data)
+            add_data['event-dates'] = dates
             add_data['author'] = request.form['author']
             asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
             resp = self.base.create_page(asset)
