@@ -334,16 +334,11 @@
                 var outid = '#needtimezone' + id;
                 var timezoneid = '#timezone' + id;
                 var timezonelabel = '#needtimezonelabel' + id;
-{#                var noendid = '#noenddate' + id;#}
-{#                var noendlabel = '#noendlabel' + id;#}
+
                 $(startid).val(start);
                 $(endid).val(end);
                 $(timezoneid).val(timezone);
-{#                if (noenddate) {#}
-{#                    $(noendid).attr('checked', true);#}
-{#                    $(noendlabel).addClass('checked');#}
-{#                }#}
-                debugger;
+
                 if (allday) {
                     $(alldayid).attr('checked', true);
                     $(alldaylabel).addClass('checked');
@@ -424,8 +419,6 @@
                         showTime: true
                     });
                 });
-
-                debugger;
                 {% if dates %}
                     var dates = {{ dates|safe }};
                     var i = 0;
@@ -454,7 +447,6 @@
 {#                        if (noenddate && noenddate.substr(-3) == "Yes") {#}
 {#                            noenddate = true;#}
 {#                        }#}
-                        debugger;
                         populateFieldset(id, allday, date['start_date'], date['end_date'], date['outside_of_minnesota'], date['time_zone']{#, noenddate #});
                         //no infinite loops today
                         i++;
