@@ -75,7 +75,6 @@ class NewsView(FlaskView):
                                                              list_ids,
                                                              segment_ids, template_id, template_content)
 
-                    # Send the news out to ALL users at 5:30 am.
                     confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
                     new_campaign.send(confirmation_email_sent_to, 'Immediately')
                     self.base_campaign.log_sentry("News campaign for " + str(current_datetime.strftime('%m/%-d/%Y')), resp)
