@@ -268,7 +268,6 @@ class EAnnouncementsView(FlaskView):
         try:
             # Try converting the start date times to seconds representation
             start = datetime.datetime.strptime(data['start'], "%a %b %d %Y")
-
         except:
             # Set start and end to be falsey so that hasDates is set to false
             start = 0
@@ -279,7 +278,7 @@ class EAnnouncementsView(FlaskView):
             # Set start and end to be falsey so that hasDates is set to false
             end = 0
         search_results = self.base.get_search_results(title, start, end)
-        search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
+        search_results.sort(key=lambda e_announcement: e_announcement['first_date'], reverse=False)
         return render_template('E_annz_search_results.html', list_of_annz=search_results)
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)

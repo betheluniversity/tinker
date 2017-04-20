@@ -1,4 +1,5 @@
 import datetime
+import time
 
 # flask
 from flask import session
@@ -62,18 +63,36 @@ class EAnnouncementsController(TinkerController):
 
     def _iterate_child_xml(self, child, author=None):
 
+        dates_html_array = []
         first = child.find('system-data-structure/first-date').text
-        second = child.find('system-data-structure/second-date').text
-        first_date_object = datetime.datetime.strptime(first, '%m-%d-%Y')
-        first_date = first_date_object.strftime('%A %B %d, %Y')
-        first_date_past = first_date_object < datetime.datetime.now()
+        try:
+            first = int(time.mktime(datetime.datetime.strptime(first, "%m-%d-%Y").timetuple()))
+            first_date_object = datetime.datetime.strptime(child.find('system-data-structure/first-date').text,
+                                                           '%m-%d-%Y')
+            first_date = first_date_object.strftime('%A %B %d, %Y')
+            first_date_past = first_date_object < datetime.datetime.now()
+        except:
+            first = ''
+            first_date = ''
+            first_date_past = ''
 
-        second_date = ''
-        second_date_past = ''
-        if second:
-            second_date_object = datetime.datetime.strptime(second, '%m-%d-%Y')
+        second = child.find('system-data-structure/second-date').text
+        try:
+            second = int(time.mktime(datetime.datetime.strptime(second, "%m-%d-%Y").timetuple()))
+        except:
+            second = ''
+
+        try:
+            second_date_object = datetime.datetime.strptime(child.find('system-data-structure/second-date').text,
+                                                            '%m-%d-%Y')
             second_date = second_date_object.strftime('%A %B %d, %Y')
             second_date_past = second_date_object < datetime.datetime.now()
+        except:
+            second_date = ''
+            second_date_past = ''
+
+        dates_html_array.append(first_date)
+        dates_html_array.append(second_date)
 
         roles = []
         elements = child.findall('.//dynamic-metadata')
@@ -92,12 +111,14 @@ class EAnnouncementsController(TinkerController):
             'id': child.attrib['id'] or "",
             'title': child.find('title').text or None,
             'created-on': child.find('created-on').text or None,
-            'first_date': first_date,
-            'second_date': second_date,
+            'first_date': first,
+            'second_date': second,
             'roles': roles,
             'workflow_status': workflow_status,
             'first_date_past': first_date_past,
             'second_date_past': second_date_past,
+            'html_first': first_date,
+            'html_second': second_date,
             'message': self.element_tree_to_html(child.find('system-data-structure').find('message')) or None
         }
         return page_values
@@ -192,46 +213,47 @@ class EAnnouncementsController(TinkerController):
             has_title = False
         else:
             has_title = True
-        if start == 0:
-            has_start = False
-        else:
+        if start:
             has_start = True
-        if end == 0:
-            has_end = False
         else:
+            has_start = False
+        if end:
             has_end = True
+        else:
+            has_end = False
 
         to_return = []
         # Go through the announcements and search using the paramaters
         for annz in announcements:
-            try:
-                # Convert First date to timestamp
-                first_date = datetime.datetime.fromtimestamp(annz['first_date']).strftime('%a %b %d %Y')
-                first_date = datetime.datetime.strptime(first_date, "%a %b %d %Y")
-            except:
-                first_date = None
-                continue
-            if annz['second_date']:
-                has_second_date = True
-                try:
-                    # Convert First date to timestamp
-                    second_date = datetime.datetime.fromtimestamp(annz['first_date']).strftime('%a %b %d %Y')
-                    second_date = datetime.datetime.strptime(second_date, "%a %b %d %Y")
-                except:
-                    second_date = None
-                    continue
+            if not annz['second_date'] == '':
+                dates = [annz['first_date'], annz['second_date']]
             else:
-                second_date = None
-                has_second_date = False
-
-            dates = [first_date, second_date]
-
+                dates = [annz['first_date']]
+            if has_start:
+                try:
+                    start = int(time.mktime(start.timetuple()))
+                    start = datetime.datetime.fromtimestamp(start).strftime('%a %b %d %Y')
+                    start = datetime.datetime.strptime(start, '%a %b %d %Y')
+                except:
+                    has_start = False
+            if has_end:
+                try:
+                    end = int(time.mktime(end.timetuple()))
+                    end = datetime.datetime.fromtimestamp(end).strftime('%a %b %d %Y')
+                    end = datetime.datetime.strptime(end, '%a %b %d %Y')
+                except:
+                    has_end = False
             if has_title and title.lower() not in annz['title'].lower():
                 continue
             else:
                 for date in dates:
+                    try:
+                        date = datetime.datetime.fromtimestamp(date).strftime('%a %b %d %Y')
+                        date = datetime.datetime.strptime(date, '%a %b %d %Y')
+                    except:
+                        continue
                     if has_start and has_end and self.compare_timedeltas(start, date) == 1 and \
-                            self.compare_timedeltas(end, first_date) == 2:
+                            self.compare_timedeltas(end, date) == 2:
                         to_return.append(annz)
                         break
                     elif not has_start and has_end and self.compare_timedeltas(end, date) == 2:

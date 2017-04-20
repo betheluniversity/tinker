@@ -13,9 +13,11 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
-                <p class="description">Below is the list of E-Announcements you have access to edit.
-                </p>
-                <p class="description"> The below are optional parameters to help in your search.</p>
+                <p class="description">Click the button below to create a new E-Announcement</p>
+                <a href="{{ url_for('e_announcements.EAnnouncementsView:new') }}" class="btn btn-primary new-btn">Submit
+                    New E-Announcement</a>
+                <p class="description">Below is the list of E-Announcements you have access to edit.</p>
+                <p class="description">The below are optional parameters to help in your search.</p>
                 <div>
                     <small>Used by entering in part of a name, for example "scho" will select E-Announcements with
                         words "scholar", "school", "scholastic" etc.</small>
@@ -28,50 +30,61 @@
                         <input id="annzStart" class='datepicker' size='11'/>
                     <label for="annzEnd">End Date:</label>
                         <input id="annzEnd" class='datepicker' size='11'/>
-                    <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
+                    <a type="submit" id="e-announcement-submit-btn" class="btn btn-primary search-announcements">Search</a>
                 </div>
+                <hr/>
                 {# spinner placeholder #}
                 <div id="spinner" class="spinner" style="display:none;">
                     <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
                 </div>
-                <hr/>
-                <a href="{{ url_for('e_announcements.EAnnouncementsView:new') }}" class="btn btn-primary new-btn">Submit
-                    New E-Announcement</a>
+                <div id="results">
+                </div>
             </div>
         </div>
     </div>
-
-
-{% endblock %}
-
-{% block modalhtml %}
-<!-- Modal Core -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"
-                        aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
-            </div>
-            <div class="modal-body">
-                Your E-Announcement will be removed.
-            </div>
-            <div class="modal-footer">
-                <a id="modal-confirm" href="/e-announcements/delete/formid" type="button"
-                   class="btn btn-primary btn-alert modal-confirm">Delete</a>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
     {#  Script to do Bethel E-Announcements fancyness for blacking out dates to pick  #}
-    <script type="text/javascript" src="E-Announcements-pikaday.js"></script>
+{#    <script type="text/javascript" src="E-Announcements-pikaday.js"></script>#}
     {#  Script to update the modal submit to delete the correct form#}
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
     <script type="text/javascript">
+
+        $('.datepicker').each(function () {
+            var current_element = $(this);
+            var starting_values = {
+                field: this,
+                format: 'MM DD YYYY',
+                minDate: new Date('2000-01-01'),
+                maxDate: new Date('2040-12-31'),
+                yearRange: [2000, 2040],
+                disableDayFn: function (date) {
+                    var start_populated = $("#annzStart").val();
+                    var end_populated = $("#annzEnd").val();
+                    if(start_populated == "" && end_populated == ""){
+                        return null;
+                    }else if(start_populated != "" && current_element.attr('id') == 'annzEnd'){
+                        if(new Date(start_populated) >= date){
+                            return date;
+                        }
+                    }else if(end_populated != "" && current_element.attr('id') == 'annzStart'){
+                        if(new Date(end_populated) <= date){
+                            return date;
+                        }
+                    }
+                }
+            };
+            // if its the startDate, set default date to today
+            if( $(this).attr('id') == 'annzStart' ) {
+                starting_values['defaultDate'] = new Date();
+                starting_values['setDefaultDate'] = true;
+            }
+
+            var picker = new Pikaday(starting_values);
+        });
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/e-announcements/delete/" + $(this).data('e-announcement-id'));
         });
@@ -93,6 +106,7 @@
                 success: function (result) {
                     // window.location.replace(result);
                     document.getElementById('results').innerHTML = result;
+{#                    $('#results').val(result);#}
                     $('#spinner').hide();
                 }
             });
