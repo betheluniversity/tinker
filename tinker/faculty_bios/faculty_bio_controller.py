@@ -260,7 +260,10 @@ class FacultyBioController(TinkerController):
 
         # set/reset the standard data
         add_data['parentFolderID'] = None
-        add_data['parentFolderPath'] = '/academics/faculty'
+        if not app.config['UNIT_TESTING']:
+            add_data['parentFolderPath'] = '/academics/faculty'
+        else:
+            add_data['parentFolderPath'] = '/_testing/philip-gibbens/fac-bios-tests'
         add_data['path'] = None
         add_data['author'] = session['username']
         faculty_bio_data['page']['metadata']['metaDescription'] = self.build_description(add_data)

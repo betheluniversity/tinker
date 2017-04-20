@@ -15,8 +15,6 @@ from unit_test_utilities import get_tests_in_this_dir
 class BaseTestCase(unittest.TestCase):
 
     def __init__(self, methodName):
-        # from tinker.admin.redirects.models import BethelRedirect
-        # print len(BethelRedirect.query.all())
         super(BaseTestCase, self).__init__(methodName)
         self.ERROR_400 = b'<p>The browser (or proxy) sent a request that this server could not understand.</p>'
         self.ERROR_404 = b'<h1 class="oversized"> It\'s probably not a problem, probably.</h1>'
@@ -30,7 +28,6 @@ class BaseTestCase(unittest.TestCase):
     def setUp(self):
         tinker.app.testing = True
         tinker.app.debug = False
-        # tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         tinker.app.config['ENVIRON'] = "test"
         tinker.app.config['UNIT_TESTING'] = True
         tinker.app.config['WTF_CSRF_ENABLED'] = False

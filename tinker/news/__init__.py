@@ -29,7 +29,7 @@ class NewsView(FlaskView):
     @route('/api/send-email/<article_id>', methods=['get', 'post'])
     def reset_send_email(self, article_id):
         try:
-            resp = None
+            resp = 'failed'
             page = self.base_campaign.read_page(article_id)
             article_asset, md, sd = page.get_asset()
 
@@ -38,7 +38,7 @@ class NewsView(FlaskView):
             send_email_value = find(sd, 'send-email', False)
 
             if news_article_datetime.strftime("%m-%d-%Y") != current_datetime.strftime("%m-%d-%Y") and send_email_value == 'Yes':
-                return None
+                return "Don't need to send"
 
             # add news_article
             news_article_text = self.base_campaign.create_single_news_article(article_asset, news_article_datetime)
@@ -81,7 +81,7 @@ class NewsView(FlaskView):
                     self.base_campaign.log_sentry("News campaign for " + str(current_datetime.strftime('%m/%-d/%Y')), resp)
 
         except:
-            return None
+            return 'failed'
 
         return resp
 
