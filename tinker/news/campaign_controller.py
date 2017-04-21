@@ -56,10 +56,11 @@ class NewsController(TinkerController):
             path = find(article_asset, 'path', False)
             title = find(article_asset, 'title', False)
 
-            content = find(article_asset, 'main-content', False)
-            tree_content = BeautifulStoneSoup(content)
+            content = find(article_asset, 'main-content', False)  # get content
+            tree_content = BeautifulStoneSoup(content, convertEntities=BeautifulStoneSoup.ALL_ENTITIES)
             self.fix_hrefs(tree_content)
             content = self.get_first_paragraph(tree_content)
+            content = content.decode('utf-8')
 
             image_path = find(article_asset, 'image', False)['filePath']
         except:
