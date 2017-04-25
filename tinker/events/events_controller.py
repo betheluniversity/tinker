@@ -111,12 +111,15 @@ class EventsController(TinkerController):
                 'start-date': form.get('start' + i, ''),
                 'end-date': form.get('end' + i, ''),
                 'all-day': form.get('allday' + i, ''),
-                'need-time-zone': form.get('needtimezone' + i, ''),
+                'outside-of-minnesota': form.get('outsideofminnesota' + i, ''),
                 'time-zone': form.get('timezone' + i, '')
             }
 
             if not new_date['end-date']:
                 new_date['end-date'] = form.get('start' + i, '')
+
+            # if new_date['time-zone'] and not new_date['need-time-zone'] == 'on':
+            #     new_date['need-time-zone'] = 'on'
 
             event_dates.append(new_date)
 
@@ -126,17 +129,16 @@ class EventsController(TinkerController):
     def check_event_dates(self, num_dates, event_dates):
         dates_good = False
         for i in range(0, num_dates):
-            start_and_end = event_dates[i]['start-date'] and event_dates[i]['end-date']
-
-            condition = True
-            if event_dates[i]['need-time-zone'] and str(event_dates[i]['time-zone']) == '':
-                condition = False
-
-            if start_and_end and condition:
-                dates_good = True
-
-        for i in range(0, num_dates):
             try:
+                start_and_end = event_dates[i]['start-date'] and event_dates[i]['end-date']
+
+                condition = True
+                if event_dates[i]['outside-of-minnesota'] and str(event_dates[i]['time-zone']) == '':
+                    condition = False
+
+                if start_and_end and condition:
+                    dates_good = True
+
                 # Get rid of the fancy formatting so we just have normal numbers
                 event_dates[i]['start-date'] = event_dates[i]['start-date'].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
                 event_dates[i]['end-date'] = event_dates[i]['end-date'].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
@@ -154,14 +156,16 @@ class EventsController(TinkerController):
                     app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
                     event_dates[i]['end-date'] = None
 
+                # As long as the value for these checkboxes are NOT '' or 'False'
+                # the value in event_dates will be set to 'Yes'
                 if event_dates[i]['all-day']:
                     event_dates[i]['all-day'] = 'Yes'
                 else:
                     event_dates[i]['all-day'] = 'No'
-                if event_dates[i]['need-time-zone']:
-                    event_dates[i]['need-time-zone'] = 'Yes'
+                if event_dates[i]['outside-of-minnesota']:
+                    event_dates[i]['outside-of-minnesota'] = 'Yes'
                 else:
-                    event_dates[i]['need-time-zone'] = 'No'
+                    event_dates[i]['outside-of-minnesota'] = 'No'
 
             except KeyError:
                 # This will break once we run out of dates
