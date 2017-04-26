@@ -54,7 +54,7 @@ class NewsController(TinkerController):
         try:
             date = news_article_datetime.strftime('%A, %B %-d, %Y')
             path = find(article_asset, 'path', False)
-            title = find(article_asset, 'title', False)
+            title = find(article_asset, 'title', False).decode('utf-8')
 
             content = find(article_asset, 'main-content', False)  # get content
             tree_content = BeautifulStoneSoup(content, convertEntities=BeautifulStoneSoup.ALL_ENTITIES)
