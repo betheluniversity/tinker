@@ -67,7 +67,7 @@ class RedirectsView(FlaskView):
         form = request.form
         from_path = form['new-redirect-from']
         to_url = form['new-redirect-to']
-        short_url = form.get('short-url') == 'on'
+        short_url = form.get('new-redirect-short-url') == 'true'
         expiration_date = form.get('expiration-date')
 
         if expiration_date:

@@ -40,8 +40,7 @@
             <form id="eannouncementform" action="{{ url_for('e_announcements.EAnnouncementsView:submit') }}"
                       method="post" enctype="multipart/form-data">
             {% if not new_form %}
-                <input type="hidden" name="e_announcement_id" id="e_announcement_id"
-                       value="{{ e_announcement_id }}"/>
+                <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>
             {% endif %}
             {% if form.errors %}
                 <div class="error-alert">

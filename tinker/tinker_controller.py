@@ -522,7 +522,8 @@ class TinkerController(object):
             uni = self.__html_entities_to_unicode__(content)
             htmlent = self.__unicode_to_html_entities__(uni)
             clean_xml = self.__escape_xml_illegal_chars__(htmlent).lstrip()
-            return clean_xml
+            divs_removed = clean_xml.replace('&lt;div&gt;', '&lt;p&gt;').replace('&lt;/div&gt;', '&lt;/p&gt;')
+            return divs_removed
         else:
             return None
 
@@ -634,17 +635,16 @@ class TinkerController(object):
             same_stamp = open == close
 
             # Format open and close
-            proxy_open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y %-I:%M%p')
-            proxy_close = datetime.datetime.fromtimestamp(close).strftime('%B %d, %Y %-I:%M%p')
+            proxy_open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y, %-I:%M%p')
+            proxy_close = datetime.datetime.fromtimestamp(close).strftime('%B %d, %Y, %-I:%M%p')
 
             same_day = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y') in proxy_close
 
             # If the event is all day, then the open string is formatted and close is set to an empty string
+            all_day_format = 0
             if is_all_day:
-                if same_stamp:
-                    open = proxy_open
-                    close = ""
-                elif same_day or same_stamp:
+                all_day_format = 1
+                if same_day or same_stamp:
                     open = datetime.datetime.fromtimestamp(open).strftime('%B, %d, %Y')
                     close = ""
                 else:
@@ -661,18 +661,18 @@ class TinkerController(object):
                 open = proxy_open
                 close = proxy_close
 
-            bethel_date_string = self.final_format(open, close)
+            bethel_date_string = self.final_format(open, close, all_day_format)
             return bethel_date_string
         except:
             return None
 
-    def final_format(self, open, close):
+    def final_format(self, open, close, all_day_format):
         if close == "":
             combined_string = open
         else:
-            if 'AM' in open and 'AM' in close:
+            if 'AM' in open and 'AM' in close and all_day_format == 1:
                 open = open.replace("AM", "")
-            elif 'PM' in open and 'PM' in close:
+            elif 'PM' in open and 'PM' in close and all_day_format == 1:
                 open = open.replace("PM", "")
             combined_string = "%s - %s" % (open, close)
         combined_string = combined_string.replace(':00', '')

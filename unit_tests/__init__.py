@@ -5,6 +5,7 @@ import os
 import re
 import unittest
 from inspect import stack, getframeinfo
+from selenium import webdriver
 
 import tinker
 from tinker import get_url_from_path
@@ -14,8 +15,6 @@ from unit_test_utilities import get_tests_in_this_dir
 class BaseTestCase(unittest.TestCase):
 
     def __init__(self, methodName):
-        # from tinker.admin.redirects.models import BethelRedirect
-        # print len(BethelRedirect.query.all())
         super(BaseTestCase, self).__init__(methodName)
         self.ERROR_400 = b'<p>The browser (or proxy) sent a request that this server could not understand.</p>'
         self.ERROR_404 = b'<h1 class="oversized"> It\'s probably not a problem, probably.</h1>'
@@ -29,7 +28,6 @@ class BaseTestCase(unittest.TestCase):
     def setUp(self):
         tinker.app.testing = True
         tinker.app.debug = False
-        # tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         tinker.app.config['ENVIRON'] = "test"
         tinker.app.config['UNIT_TESTING'] = True
         tinker.app.config['WTF_CSRF_ENABLED'] = False
@@ -104,6 +102,50 @@ class BaseTestCase(unittest.TestCase):
         current_frame = stack()[1][0]
         frameinfo = getframeinfo(current_frame)
         return frameinfo.lineno
+
+    def get_form_data_from_html(self, incompletely_rendered_html):
+        placeholder_html_path = os.path.abspath("placeholder.html")
+        placeholder = open(placeholder_html_path, "w")
+        placeholder.write(incompletely_rendered_html)
+        placeholder.close()
+        #                                   This .. chain will take the path back to ~
+        chromedriver_path = os.path.abspath("../../../../envs/tinker26/chromedriver-Darwin")
+        driver = webdriver.Chrome(chromedriver_path)
+        driver.get("file://" + placeholder_html_path)
+
+        # If you want to only return the fully rendered HTML, this is how to do it:
+        # html = driver.find_element_by_tag_name("html")
+        # return html.get_attribute("outerHTML")
+
+        scraped_data = {}
+
+        inputs = driver.find_elements_by_tag_name("input")
+        for input in inputs:
+            name = input.get_attribute("name")
+            if input.get_attribute("type") == "radio":
+                value = driver.execute_script("return $('[name=" + name + "]:checked').val();")
+                scraped_data[name] = value
+            else:
+                value = driver.execute_script("return $('[name=" + name + "]').val();")
+                scraped_data[name] = value
+
+        textareas = driver.find_elements_by_tag_name("textarea")
+        for textarea in textareas:
+            name = textarea.get_attribute("name")
+            value = driver.execute_script("return $('[name=" + name + "]').val();")
+            scraped_data[name] = value
+
+        selects = driver.find_elements_by_tag_name("select")
+        for select in selects:
+            name = select.get_attribute("name")
+            value = driver.execute_script("return $('[name=" + name + "]').val();")
+            if isinstance(value, list):
+                value = value[0]
+            scraped_data[name] = value
+
+        # Clear the placeholder file for the next usage
+        # open(placeholder_html_path, "w").close()
+        return scraped_data
 
     def tearDown(self):
         pass
