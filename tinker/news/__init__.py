@@ -1,4 +1,5 @@
 import datetime
+import HTMLParser
 from createsend import *
 from bu_cascade.asset_tools import find
 
@@ -25,10 +26,11 @@ class NewsView(FlaskView):
     def before_request(self, name, **kwargs):
         pass
 
-    @requires_auth
+    # @requires_auth
     @route('/api/send-email/<article_id>', methods=['get', 'post'])
     def reset_send_email(self, article_id):
         try:
+            parser = HTMLParser.HTMLParser()
             resp = 'failed'
             page = self.base_campaign.read_page(article_id)
             article_asset, md, sd = page.get_asset()
@@ -42,7 +44,7 @@ class NewsView(FlaskView):
 
             # add news_article
             news_article_text = self.base_campaign.create_single_news_article(article_asset, news_article_datetime)
-            news_article_title = find(md, 'title', False)
+            news_article_title = parser.unescape(find(md, 'title', False))
 
             if news_article_text != '':
                 campaign_monitor_key = app.config['NEWS_CAMPAIGN_MONITOR_KEY']
@@ -51,7 +53,7 @@ class NewsView(FlaskView):
 
                 client_id = app.config['NEWS_CLIENT_ID']
                 subject = news_article_title + ' | Bethel News'
-                name = '%s | %s' % (news_article_title, str(current_datetime.strftime('%m/%-d/%Y')))
+                name = '%s | %s 2' % (news_article_title, str(current_datetime.strftime('%m/%-d/%Y')))
                 from_name = 'Bethel News'
                 from_email = 'news@bethel.edu'
                 reply_to = 'news@bethel.edu'
@@ -66,18 +68,18 @@ class NewsView(FlaskView):
                     ]
                 }
 
-                if app.config['ENVIRON'] == 'prod':
-                    self.base_campaign.log_sentry(
-                        "News was sent out for id:" + article_id + " was called on production", current_datetime.strftime("%m-%d-%Y"))
-                    self.base_campaign.reset_send_email_value(page)
+                # if app.config['ENVIRON'] == 'prod':
+                self.base_campaign.log_sentry(
+                    "News was sent out for id:" + article_id + " was called on production", current_datetime.strftime("%m-%d-%Y"))
+                self.base_campaign.reset_send_email_value(page)
 
-                    resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to,
+                resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to,
                                                              list_ids,
                                                              segment_ids, template_id, template_content)
 
-                    confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
-                    new_campaign.send(confirmation_email_sent_to, 'Immediately')
-                    self.base_campaign.log_sentry("News campaign for " + str(current_datetime.strftime('%m/%-d/%Y')), resp)
+                    # confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
+                    # new_campaign.send(confirmation_email_sent_to, 'Immediately')
+                    # self.base_campaign.log_sentry("News campaign for " + str(current_datetime.strftime('%m/%-d/%Y')), resp)
 
         except:
             return 'failed'

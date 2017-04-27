@@ -32,3 +32,4 @@ flask-profiler
 ordereddict
 chromedriver
 selenium
+HTMLParser
