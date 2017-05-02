@@ -1,4 +1,5 @@
 import datetime
+import HTMLParser
 import re
 from createsend import *
 from bu_cascade.asset_tools import update, find
@@ -51,16 +52,17 @@ class NewsController(TinkerController):
         return page_values
 
     def create_single_news_article(self, article_asset, news_article_datetime):
+        parser = HTMLParser.HTMLParser()
         try:
             date = news_article_datetime.strftime('%A, %B %-d, %Y')
             path = find(article_asset, 'path', False)
-            title = find(article_asset, 'title', False)
+            title = parser.unescape(find(article_asset, 'title', False).decode('utf-8'))
 
             content = find(article_asset, 'main-content', False)  # get content
             tree_content = BeautifulStoneSoup(content, convertEntities=BeautifulStoneSoup.ALL_ENTITIES)
             self.fix_hrefs(tree_content)
             content = self.get_first_paragraph(tree_content)
-            content = content.decode('utf-8')
+            content = parser.unescape(content.decode('utf-8'))
 
             image_path = find(article_asset, 'image', False)['filePath']
         except:
