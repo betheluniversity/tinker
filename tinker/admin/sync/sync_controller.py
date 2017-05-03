@@ -37,6 +37,7 @@ class SyncController(TinkerController):
             returned_keys.append(asset_tools.update_metadata_set(metadata_asset, 'graduate-program', data_to_add['graduate-program'], 'None'))
             returned_keys.append(asset_tools.update_metadata_set(metadata_asset, 'seminary-program', data_to_add['seminary-program'], 'None'))
             returned_keys.append(asset_tools.update_metadata_set(metadata_asset, 'degree', data_to_add['degree'], 'Select'))
+            returned_keys.append(asset_tools.update_metadata_set(metadata_asset, 'offices', data_to_add['offices'], 'Select'))
 
             asset.edit_asset(metadata_asset)
         except:
@@ -53,7 +54,8 @@ class SyncController(TinkerController):
             app.config['METADATA_EVENT_ID'],
             app.config['METADATA_ROBUST_ID'],
             app.config['METADATA_JOB_POSTING_ID'],
-            app.config['METADATA_PORTAL_ROLES_ID']
+            app.config['METADATA_PORTAL_ROLES_ID'],
+            app.config['METADATA_OFFICES_ID']
         ]
         for metadata_set_id in metadata_sets:
             asset = self.read_metadata_set(metadata_set_id)

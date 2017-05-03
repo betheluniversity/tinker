@@ -163,6 +163,12 @@ e_announcement_roles = [
     "STAFF-STP",
 ]
 
+offices = [
+    'Bethel Default Hours',
+    'Information Technology Services',
+    'Marketing'
+]
+
 data_to_add = {}
 data_to_add['school'] = school
 data_to_add['department'] = undergrad_programs
@@ -174,3 +180,4 @@ data_to_add['location'] = locations
 data_to_add['delivery_label'] = delivery_label
 data_to_add['delivery_subheading'] = delivery_subheading
 data_to_add['degree'] = degree
+data_to_add['offices'] = offices
