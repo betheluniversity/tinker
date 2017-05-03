@@ -1,4 +1,5 @@
 import datetime
+import HTMLParser
 from createsend import *
 from bu_cascade.asset_tools import find
 
@@ -29,6 +30,7 @@ class NewsView(FlaskView):
     @route('/api/send-email/<article_id>', methods=['get', 'post'])
     def reset_send_email(self, article_id):
         try:
+            parser = HTMLParser.HTMLParser()
             resp = 'failed'
             page = self.base_campaign.read_page(article_id)
             article_asset, md, sd = page.get_asset()
@@ -42,7 +44,7 @@ class NewsView(FlaskView):
 
             # add news_article
             news_article_text = self.base_campaign.create_single_news_article(article_asset, news_article_datetime)
-            news_article_title = find(md, 'title', False)
+            news_article_title = parser.unescape(find(md, 'title', False))
 
             if news_article_text != '':
                 campaign_monitor_key = app.config['NEWS_CAMPAIGN_MONITOR_KEY']
@@ -76,7 +78,7 @@ class NewsView(FlaskView):
                                                              segment_ids, template_id, template_content)
 
                     confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
-                    new_campaign.send(confirmation_email_sent_to, 'Immediately')
+                    # new_campaign.send(confirmation_email_sent_to, 'Immediately')
                     self.base_campaign.log_sentry("News campaign for " + str(current_datetime.strftime('%m/%-d/%Y')), resp)
 
         except:
