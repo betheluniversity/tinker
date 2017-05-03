@@ -1,9 +1,10 @@
 import re
+import ldap
 
 # flask
 from flask import Blueprint, render_template, session, url_for, redirect, request
 from flask_classy import FlaskView, route
-from flask import json as fjson
+from flask import json as fjson, abort
 
 # tinker
 from tinker import app
@@ -22,7 +23,10 @@ class OfficeHoursView(FlaskView):
 
     # todo: add iam group logic here
     def before_request(self, name, **kwargs):
-        pass
+        # todo: make sure that session['username'] exists
+        if not self.base.is_current_user_in_iam_group('CommMktg - Tinker Office Hours Editor'):
+            # failure
+            abort(403)
 
     def index(self):
         username = session['username']

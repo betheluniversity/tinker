@@ -1,5 +1,6 @@
 import datetime
 import re
+import ldap
 
 from flask import session
 from flask import render_template
@@ -335,3 +336,21 @@ class OfficeHoursController(TinkerController):
             if timedelta_in_days >= 0:
                 return True
         return False
+
+    def is_current_user_in_iam_group(self, group):
+        user_in_group = False
+        try:
+            con = ldap.initialize('ldap://bsp-ldap.bu.ac.bethel.edu:389')
+            con.simple_bind_s('BU\svc-tinker', app.config['LDAP_SVC_TINKER_PASSWORD'])
+            results = con.search_s('ou=Bethel Users,dc=bu,dc=ac,dc=bethel,dc=edu', ldap.SCOPE_SUBTREE,
+                                   "(cn=" + session['username'] + ")")
+            # code to get all users in a group
+            # con.search_s('ou=Bethel Users,dc=bu,dc=ac,dc=bethel,dc=edu', ldap.SCOPE_SUBTREE, "(|(&(objectClass=Person)(memberof=cn=webadmin,OU=Groups,DC=bu,DC=ac,DC=bethel,DC=edu)))")
+
+            for result in results[0][1].get('memberOf'):
+                if group in result:
+                    user_in_group = True
+        except:
+            pass
+
+        return user_in_group
