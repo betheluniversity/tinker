@@ -126,7 +126,10 @@ class EAnnouncementsController(TinkerController):
 
         # if parent folder ID exists it will use that over path
         add_data['parentFolderId'] = ''
-        add_data['parentFolderPath'] = self.get_e_announcement_parent_folder(add_data['first_date'])
+        if not app.config['UNIT_TESTING']:
+            add_data['parentFolderPath'] = self.get_e_announcement_parent_folder(add_data['first_date'])
+        else:
+            add_data['parentFolderPath'] = "/_testing/philip-gibbens/e-annz-tests"
 
         # todo, update these to have _ instead of - in Cascade so we don't have to translate
         add_data['email'] = session['user_email']
