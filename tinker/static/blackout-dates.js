@@ -1,4 +1,5 @@
-exports.is_date_a_bethel_holiday = function is_date_a_bethel_holiday(date) {
+
+is_date_a_bethel_holiday = function is_date_a_bethel_holiday(date) {
     function isDateFridayBeforeEaster(date) {
         var Y = date.getFullYear();
 

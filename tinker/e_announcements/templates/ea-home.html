@@ -51,6 +51,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
     <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
     <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+    <script language="javascript" type="text/javascript" src="/static/blackout-dates.js"></script>
     <script type="text/javascript">
 
         $('.datepicker').each(function () {
@@ -64,6 +65,7 @@
                 disableDayFn: function (date) {
                     var start_populated = $("#annzStart").val();
                     var end_populated = $("#annzEnd").val();
+                    var today = new Date();
                     if(start_populated == "" && end_populated == ""){
                         return null;
                     }else if(start_populated != "" && current_element.attr('id') == 'annzEnd'){
@@ -75,6 +77,19 @@
                             return date;
                         }
                     }
+                    // remove all Sun/Tues/Thur/Sat days from the week
+                    if ($.inArray(date.getDay(), [0, 2, 4, 6]) > -1 || is_date_a_bethel_holiday(date) ) {
+                        return date;
+                    }
+
+                    // Find the previous business day at 1pm, continually searching back until you hit a MWF that is not a holiday
+                    var dateCutoff = date;
+                    dateCutoff.setDate(dateCutoff.getDate() - 1);
+
+                    while (dateCutoff.getDay() == 0 || dateCutoff.getDay() == 6 || is_date_a_bethel_holiday(dateCutoff)) {
+                        dateCutoff.setDate(dateCutoff.getDate() - 1);
+                    }
+                    dateCutoff.setHours(13);
                 }
             };
             // if its the startDate, set default date to today
