@@ -12,6 +12,7 @@ undergrad_programs = [
     "Art & Design",
     "Athletic Training",
     "Biblical & Theological Studies",
+    "Biochemistry",
     "Biokinetics",
     "Biological Sciences",
     "Business & Economics",
