@@ -78,7 +78,7 @@ class NewsView(FlaskView):
                                                              segment_ids, template_id, template_content)
 
                     confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
-                    # new_campaign.send(confirmation_email_sent_to, 'Immediately')
+                    new_campaign.send(confirmation_email_sent_to, 'Immediately')
                     self.base_campaign.log_sentry("News campaign for " + str(current_datetime.strftime('%m/%-d/%Y')), resp)
 
         except:
