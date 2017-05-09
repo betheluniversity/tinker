@@ -25,7 +25,7 @@ class OfficeHoursController(TinkerController):
             else:
                 hours = None
 
-            if (hours and hours in session['depts']) or 'Administrator' in session['groups'] or username in app.config['OFFICE_HOURS_EXTRA_ADMINS']:
+            if (hours and hours in session['depts']) or 'Administrators' in session['groups'] or username in app.config['OFFICE_HOURS_EXTRA_ADMINS']:
                 return self._iterate_child_xml(child, username)
             else:
                 return None
