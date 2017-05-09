@@ -143,7 +143,7 @@
                                 {{ ExceptionForm(field) }}
                             </div>
 
-                        {% elif field.type == 'StringField' %}
+                        {% elif field.type == 'TimeField' %}
                             {% if 'open' in field.name %}
                                 <table><tr>
                                     <td class="div-to-hide">
@@ -164,8 +164,11 @@
                                         </label>
                                     </td>
                                 </tr></table>
-                            {% else %}
+
+                            {% elif field.type == 'DatePickerField' %}
                                 {{ field(class='datepicker auto-width') }}
+                            {% else %}
+                                {{ field(class='') }}
                             {% endif %}
 
                         {% elif field.type == 'NextOpenField' %}
