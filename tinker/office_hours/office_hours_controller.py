@@ -19,7 +19,13 @@ class OfficeHoursController(TinkerController):
     def inspect_child(self, child, find_all=False):
         username = session['username']
         try:
-            if child.find('title').text in session['depts'] or 'Administrator' in session['groups'] or username in app.config['OFFICE_HOURS_EXTRA_ADMINS']:
+            hours = self.search_for_key_in_dynamic_md(child, 'offices')
+            if hasattr(hours, 'text'):
+                hours = hours.text
+            else:
+                hours = None
+
+            if (hours and hours in session['depts']) or 'Administrator' in session['groups'] or username in app.config['OFFICE_HOURS_EXTRA_ADMINS']:
                 return self._iterate_child_xml(child, username)
             else:
                 return None
