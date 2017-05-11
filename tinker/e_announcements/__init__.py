@@ -240,6 +240,7 @@ class EAnnouncementsView(FlaskView):
             resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to,
                                                      list_ids,
                                                      segment_ids, template_id, template_content)
+            self.base.log_sentry("E-Announcement campaign was created", resp)
 
             if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
                 # Send the announcements out to ALL users at 5:30 am.
