@@ -23,6 +23,8 @@ class MoreInfoTestCase(BaseTestCase):
     #######################
 
     def test_more_info_valid(self):
+        # This test keeps changing its response, so it will fail with an assertEqual on shortstrings
+        # As such, I'm leaving it the old style of assertIn
         expected_response = b'<div class="col-sm-6 zero-left-padding">'
         form = self.create_form("page", "a7404faa8c58651375fc4ed23d7468d5")
         response = self.send_post(self.request, form)
@@ -37,8 +39,9 @@ class MoreInfoTestCase(BaseTestCase):
             bad_arg = {arg_names[i]: None}
             form = self.create_form(**bad_arg)
             response = self.send_post(self.request, form)
+            short_string = self.get_unique_short_string(response.data)
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                             expected_response,
                                                             self.class_name + "/more_info_invalid_" + arg_names[i],
                                                             self.get_line_number())
-            self.assertIn(expected_response, response.data, msg=failure_message)
+            self.assertEqual(expected_response, short_string, msg=failure_message)

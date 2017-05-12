@@ -79,28 +79,25 @@ class ProgramSearchView(FlaskView):
         try:
             data = json.loads(request.data)
             search_tag = data['search_tag']
+            if search_tag is None:
+                return abort(500)
             search_key = data['search_key']
+            if search_key is None:
+                return abort(500)
         except ValueError:
             return abort(500)
-        search_results = []
-        results_from_search_tag = []
-        results_from_search_key = []
 
-        # search
-        if search_tag:
-            results_from_search_tag = ProgramTag.query.filter(ProgramTag.tag.like("%" + search_tag + "%")).all()
-        if search_key:
-            results_from_search_key = ProgramTag.query.filter(ProgramTag.key.like(search_key + "%")).all()
+        if len(search_tag) == 0:  # If empty string, make generic wildcard
+            search_tag = "%"
+        else:
+            search_tag = "%" + search_tag + "%"
 
-        # return results
-        if search_tag and search_key:
-            for result in results_from_search_key:
-                if result in results_from_search_tag:
-                    search_results.append(result)
-        elif search_tag:
-            search_results = results_from_search_tag
-        elif search_key:
-            search_results = results_from_search_key
+        if len(search_key) == 0:  # If empty string, make generic wildcard
+            search_key = "%"
+        else:
+            search_key = "%" + search_key + "%"
+
+        search_results = ProgramTag.query.filter(ProgramTag.tag.like(search_tag), ProgramTag.key.like(search_key)).all()
 
         # gather the 'Actual name' for each program, instead of concentration code or name of program block.
         # todo: this is a pretty slow process, will need to speed it up.

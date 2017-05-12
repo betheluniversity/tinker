@@ -17,8 +17,10 @@ class DeleteConfirmTestCase(BaseTestCase):
     #######################
 
     def test_delete_confirm(self):
-        expected_response = b'Your faculty bio has been deleted. It will be removed from your'
+        expected_response = repr('x\xe8{\x90V\\\x90\xc7p\xa6\xc04\xcb\x17\x9e`')
+        # b'Your faculty bio has been deleted. It will be removed from your'
         response = self.send_get(self.request)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)

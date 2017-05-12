@@ -30,13 +30,16 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
     def get_new_form(self):
         self.request_type = "GET"
         self.request = self.generate_url("new")
-        expected_response = b'<form id="eannouncementform" action="/e-announcements/submit"'
+        expected_response = repr('\x85!\\\x1c\xb6i\xd3>\x9fNM\xa4V\xa4<\xff')
+        # b'<form id="eannouncementform" action="/e-announcements/submit"'
         response = self.send_get(self.request)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)
 
     def submit_new_form_valid(self):
+        # Because the ID returned will always be different, we can't assertEqual; have to use the old assertIn
         self.request_type = "POST"
         self.request = self.generate_url("submit")
         expected_response = b"You've successfully created your E-Announcement. Once your E-Announcement has been approved,"
@@ -48,6 +51,7 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
         self.eaid = self.get_eaid(response.data)
 
     def submit_new_form_invalid(self):
+        # Because a the form will have a different error every time, can't assertEqual on the same string.
         self.request_type = "POST"
         self.request = self.generate_url("submit")
         expected_response = b"There were errors with your form."
@@ -92,11 +96,13 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
 
     def delete_testing_object(self):
         self.request = self.generate_url("delete", e_announcement_id=self.eaid)
-        expected_response = b'Your E-Announcements has been deleted. It will be removed from your'
+        expected_response = repr('\xe5j\xa5[\xd8I&\x86\xc6\xf4\x95*v\xac\xd7\xd2')
+        # b'Your E-Announcements has been deleted. It will be removed from your'
         response = self.send_get(self.request)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)
 
     def test_sequence(self):
         self.get_new_form()

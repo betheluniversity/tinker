@@ -25,12 +25,14 @@ class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_new_redirect_submit_valid(self):
-        expected_response = b'<Redirect /from? to to!>'
+        expected_response = repr('\x0e\xbf\xe54;K\xedW\x8dM\xc7\xe2\xf4\xaat\xaa')
+        # b'<Redirect /from? to to!>'
         form = self.create_form()
         response = self.send_post(self.request, form)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)
         # Add an assertion that it got added to the database
         # Delete the row that was just added
         self.send_post(self.generate_url("delete_redirect"), {'from_path': "/from?"})
@@ -42,8 +44,9 @@ class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
             bad_arg = {arg_names[i]: None}
             form = self.create_form(**bad_arg)
             response = self.send_post(self.request, form)
+            short_string = self.get_unique_short_string(response.data)
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                             expected_response,
                                                             self.class_name + "/submit_invalid_" + arg_names[i],
                                                             self.get_line_number())
-            self.assertIn(expected_response, response.data, msg=failure_message)
+            self.assertEqual(expected_response, short_string, msg=failure_message)

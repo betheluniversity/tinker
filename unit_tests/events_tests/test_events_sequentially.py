@@ -66,11 +66,13 @@ class EventsSequentialTestCase(BaseTestCase):
     def get_new_form(self):
         self.request_type = "GET"
         self.request = self.generate_url("add")
-        expected_response = b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
+        expected_response = repr('\xea\x9c\x01\x80\xf5\xb7\xaa\xcf\x0cD\xb7\xdd\x87^\xc9\x17')
+        # b'<p>If you have any questions as you submit your event, please contact Conference and Event Services'
         response = self.send_get(self.request)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)
 
     def submit_new_form_valid(self):
         self.request_type = "POST"
@@ -129,11 +131,13 @@ class EventsSequentialTestCase(BaseTestCase):
 
     def delete_testing_object(self):
         self.request = self.generate_url("delete", event_id=self.eid)
-        expected_response = b'Your event has been deleted. It will be removed from your'
+        expected_response = repr('N\xc4\xaa\xb2n\xb9<e\x03\xda.K\xc9K\x99\x07')
+        # b'Your event has been deleted. It will be removed from your'
         response = self.send_get(self.request)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)
 
     def test_sequence(self):
         # To be clear, these events do get made in Cascade, and they are publicly visible. If they're not deleted, they
