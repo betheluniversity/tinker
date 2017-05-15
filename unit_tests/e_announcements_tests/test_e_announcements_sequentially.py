@@ -30,13 +30,11 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
     def get_new_form(self):
         self.request_type = "GET"
         self.request = self.generate_url("new")
-        expected_response = repr('\x85!\\\x1c\xb6i\xd3>\x9fNM\xa4V\xa4<\xff')
-        # b'<form id="eannouncementform" action="/e-announcements/submit"'
+        expected_response = b'<form id="eannouncementform" action="/e-announcements/submit"'
         response = self.send_get(self.request)
-        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertEqual(expected_response, short_string, msg=failure_message)
+        self.assertIn(expected_response, response.data, msg=failure_message)
 
     def submit_new_form_valid(self):
         # Because the ID returned will always be different, we can't assertEqual; have to use the old assertIn
