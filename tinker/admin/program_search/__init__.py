@@ -7,6 +7,8 @@ from flask import Blueprint
 from flask import abort
 from flask_classy import route
 
+from sqlalchemy import or_
+
 # tinker
 from tinker.admin.program_search.models import ProgramTag
 from tinker.admin.program_search.program_search_controller import *
@@ -97,7 +99,9 @@ class ProgramSearchView(FlaskView):
         else:
             search_key = "%" + search_key + "%"
 
-        search_results = ProgramTag.query.filter(ProgramTag.tag.like(search_tag), ProgramTag.key.like(search_key)).all()
+        search_results = ProgramTag.query.filter(
+            or_(ProgramTag.tag.like(search_tag), ProgramTag.key.like(search_key))
+        ).all()
 
         # gather the 'Actual name' for each program, instead of concentration code or name of program block.
         # todo: this is a pretty slow process, will need to speed it up.
