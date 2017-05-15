@@ -14,7 +14,7 @@ class SearchTestCase(ProgramSearchBaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("search")
 
-    def create_form(self, search_key="theatre", search_tag=""):
+    def create_form(self, search_key="theatre-arts-major-program", search_tag="Art"):
         return json.dumps({
             "search_key": search_key,
             "search_tag": search_tag
@@ -33,14 +33,15 @@ class SearchTestCase(ProgramSearchBaseTestCase):
         self.assertIn(expected_response, response.data, msg=failure_message)
 
     def test_search_invalid(self):
-        expected_response = ""
+        expected_response = self.ERROR_500
         arg_names = ['search_key', 'search_tag']
         for i in range(len(arg_names)):
             bad_arg = {arg_names[i]: None}
             form = self.create_form(**bad_arg)
             response = self.send_post(self.request, form)
+            short_string = self.get_unique_short_string(response.data)
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                             expected_response,
                                                             self.class_name + "/search_invalid_" + arg_names[i],
                                                             self.get_line_number())
-            self.assertIn(expected_response, response.data, msg=failure_message)
+            self.assertEqual(expected_response, short_string, msg=failure_message)
