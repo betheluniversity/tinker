@@ -37,15 +37,15 @@
                 <label for="exception_date">
                     Exception Date
                 </label>
-                <input class="datepicker auto-width" id="date1" name="date1" type="text" value=""/>
+                <input class="datepicker office-hours-input" id="date1" name="date1" type="text" value=""/>
 
                 <table><tr>
                     <td class="div-to-hide">
                         <div class="timeRange">
-                            <input class="time start ui-timepicker-input auto-width hide-when-none" id="open1" name="open1" type="text"
+                            <input class="time start ui-timepicker-input office-hours-input hide-when-none" id="open1" name="open1" type="text"
                                value=""
                                autocomplete="off">
-                            - <input class="time end ui-timepicker-input auto-width hide-when-none" id="close1" name="close1" type="text"
+                            - <input class="time end ui-timepicker-input office-hours-input hide-when-none" id="close1" name="close1" type="text"
                                  value=""
                                  autocomplete="off">
                         </div>
@@ -64,11 +64,11 @@
             </div>
         </div>
     </fieldset>
-    <a href="javascript:void(0);" id="add_exception_button" class="btn btn-primary tiny">Add Another Exception</a>
-    <a href="javascript:void(0);" id="remove_exception_button" style="display:none"
-       class="btn btn-primary tiny btn-alert">Remove
-        Exception</a>
-
+    <div id="exception-btn-group" class="col-md-12 less-left-margin">
+        <a href="javascript:void(0);" id="add_exception_button" class="btn btn-primary tiny">Add Another Exception</a>
+        <a href="javascript:void(0);" id="remove_exception_button" style="display:none"
+           class="btn btn-primary tiny btn-alert">Remove Exception</a>
+    </div>
 
 {% endmacro %}
 
@@ -148,9 +148,9 @@
                                 <table><tr>
                                     <td class="div-to-hide">
                                         <div class="timeRange">
-                                            {{ field(class='time start auto-width hide-when-none') }}
+                                            {{ field(class='time start office-hours-input hide-when-none') }}
                             {% elif 'close' in field.name %}
-                                            - {{ field(class='time end auto-width hide-when-none') }}
+                                            - {{ field(class='time end office-hours-input hide-when-none') }}
                                         </div>
                                     </td>
                                     <td class="checkbox-div">
@@ -164,12 +164,10 @@
                                         </label>
                                     </td>
                                 </tr></table>
-
-                            {% elif field.type == 'DatePickerField' %}
-                                {{ field(class='datepicker auto-width') }}
-                            {% else %}
-                                {{ field(class='') }}
                             {% endif %}
+
+                        {% elif field.type == 'DatePickerField' %}
+                            {{ field(class='datepicker office-hours-input') }}
 
                         {% elif field.type == 'NextOpenField' %}
                             <hr/>
@@ -179,6 +177,7 @@
                                         <legend>Next Hours</legend>
 
                                         {% elif field.type == 'NextCloseField' %}
+
                                     </div>
                                 </div>
                             </fieldset>
@@ -192,15 +191,14 @@
                                     <div class="radio">{{ subfield() }}{{ subfield.label }}</div>
                                 </label>
                             {% endfor %}
+                            <hr class="hr-margin">
                         {% else %}
                             {{ field() }}
                         {% endif %}
                     {% endfor %}
                     <br/>
                     <br/>
-                    <div class="col-md-12 less-left-margin">
-                        <button type="submit" id="office-hours-submit-btn" class="btn btn-primary postfix">Submit</button>
-                    </div>
+                    <button type="submit" id="office-hours-submit-btn" class="btn btn-primary postfix">Submit</button>
                 </form>
             </div>
         </div>
@@ -308,14 +306,14 @@
                 inner_node.append($("<legend>").html("Exception " + id));
 
                 inner_node.append($("<label>").attr('date', date).html("Exception Date "));
-                inner_node.append($("<input type='text'>").attr('name', date).attr('id', date).addClass("datepicker auto-width"));
+                inner_node.append($("<input type='text'>").attr('name', date).attr('id', date).addClass("datepicker office-hours-input"));
 
                 var table = $("<table>").html(`
                     <tr>
                         <td class="div-to-hide">
                            <div class="timeRange">
-                                <input class="time start ui-timepicker-input auto-width hide-when-none" id="open` + id + `" name="open` + id + `" type="text" value="" autocomplete="off">
-                                - <input class="time end ui-timepicker-input auto-width hide-when-none" id="close` + id + `" name="close` + id + `" type="text" value="" autocomplete="off">
+                                <input class="time start ui-timepicker-input office-hours-input hide-when-none" id="open` + id + `" name="open` + id + `" type="text" value="" autocomplete="off">
+                                - <input class="time end ui-timepicker-input office-hours-input hide-when-none" id="close` + id + `" name="close` + id + `" type="text" value="" autocomplete="off">
                         </div>
                         </td>
                         <td class="checkbox-div">
@@ -350,7 +348,7 @@
 
 
             {% if edit_data['exceptions'] %}
-                var exceptions = {{ edit_data['exceptions']|safe }};
+                var exceptions = {{ edit_data['exceptions'] | replace(" None,", " '',") | safe }};
                 var i = 0;
                 while (i < 200) {
                     exception = exceptions[i];

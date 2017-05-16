@@ -18,8 +18,6 @@
                     {{ render_office_hours(standard_hours) }}
                 {% endif %}
 
-                <hr/>
-
                 {% for form in office_hours %}
                     {{ render_office_hours(form) }}
                 {% endfor %}
@@ -37,7 +35,7 @@
 {% endblock %}
 
 {% macro render_office_hours(form) %}
-    <div class="card">
+    <div class="card" style="background-color: #ffffff">
         <div class="content">
             <div class="row">
                 <div class="large-6 columns">
@@ -47,8 +45,8 @@
                     <a href="{{ url_for('office_hours.OfficeHoursView:edit', block_id=form.id) }}"
                        class="btn btn-primary">Edit</a></li>
                 </div>
-                <hr/>
             </div>
         </div>
     </div>
+    <hr>
 {% endmacro %}

@@ -252,11 +252,25 @@ input {
     margin-bottom: 15px;
     height: 26px;
     width: 100%;
+    border: 1px solid #BDBCB0;
+    border-radius: 4px;
+    padding: 3px 6px;
+}
+
+input#image {
+    border: none;
 }
 
 input.auto-width {
     width: auto;
-    /*width: 49.1%;*/
+}
+
+input.office-hours-input {
+    width: 105px;
+    border-color: #ffffff;
+    /*padding: 3px;*/
+    /*border: 1px solid #ffffff;*/
+    /*border-radius: 4px;*/
 }
 
 select {
@@ -375,6 +389,35 @@ div#cke_registration_details {
     box-shadow: inset 0 0px 0px rgba(0, 0, 0, 0);
 }
 
+/*#next_start_date {*/
+    /*width: 105px;*/
+    /*border-color: #ffffff;*/
+/*}*/
+
+.exceptions-fieldset {
+    width: 49%;
+    float: right;
+    height: 210px;
+}
+
+#exception-btn-group {
+    float: left !important;
+    width: 100%;
+}
+
+.exceptions-fieldset:nth-child(2n+1) {
+    float: left;
+}
+
+#office-hours-submit-btn {
+    margin-top: 15px;
+    float: left;
+}
+
+.card .content {
+    padding: 15px !important;
+}
+
 a {
     color: #0069AA
 }
@@ -431,6 +474,10 @@ ul.dropdown-menu a:hover {
 
 hr {
     border-color: #BDBCB0
+}
+
+hr.hr-margin {
+    margin-top: 5px;
 }
 
 .sidebar .nav p, .off-canvas-sidebar .nav p {
@@ -538,7 +585,8 @@ label {
 /* Checkbox inputs */
 
 label.checkbox {
-    margin-bottom: 8px!important;
+    margin-bottom: 19px!important;
+    margin-top: 0px;
 }
 
 .bio-status {
@@ -552,6 +600,16 @@ label.checkbox {
     width: 40%;
     color: #FFFFFF;
     background-color: #0069AA;
+}
+
+@media (max-width: 1200px) {
+    .exceptions-fieldset {
+        width: 100%;
+    }
+
+    .exceptions-fieldset {
+        margin-left: 0!important;
+    }
 }
 
 @media (max-width: 991px){

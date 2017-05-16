@@ -36,6 +36,8 @@ class OfficeHoursForm(Form):
 
     next_start_date = DatePickerField('Start Date', validators=[validators.DataRequired()])
 
+    next_closed_for_chapel = RadioField("Office closed for chapel", choices=[('Yes', 'Yes'), ('No', 'No')])
+
     next_monday_open = TimeField('Monday', validators=[validators.DataRequired()])
     next_monday_close = TimeField(validators=[validators.DataRequired()])
 
@@ -56,8 +58,6 @@ class OfficeHoursForm(Form):
 
     next_sunday_open = TimeField('Sunday', validators=[validators.DataRequired()])
     next_sunday_close = TimeField(validators=[validators.DataRequired()])
-
-    next_closed_for_chapel = RadioField("Office closed for chapel", choices=[('Yes', 'Yes'), ('No', 'No')])
 
     next_close = NextCloseField()
 

@@ -25,7 +25,7 @@ class OfficeHoursView(FlaskView):
     def before_request(self, name, **kwargs):
         # todo: make sure that session['username'] exists
         # todo: maybe set this value in the session?
-        if not self.base.is_current_user_in_iam_group('CommMktg - Tinker Office Hours Editor'):
+        if not self.base.is_current_user_in_iam_group('CommMktg - Tinker Office Hours Editor') and "Administrators" not in session['groups']:
             # failure
             abort(403)
 
