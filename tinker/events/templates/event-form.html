@@ -75,7 +75,6 @@
         }
     </script>
     <div class="content">
-{#        {{ dates|safe }}#}
         <div class="container-fluid">
             <div class="col-md-12">
                 <p>If you have any questions as you submit your event, please contact Conference and Event Services
@@ -275,15 +274,28 @@
                 var outid = '#outsideofminnesota' + id;
                 var timezoneid = '#timezone' + id;
                 var timezonelabel = '#outsideofminnesotalabel' + id;
+                var noendlabel = '#noendlabel' + id;
+                var noenddateid = '#noenddate' + id;
 
                 $(startid).val(start);
                 $(endid).val(end);
                 $(timezoneid).val(timezone);
 
+                //Checks if the no end date checkbox was previously checked
+                //Value is 'on' if checked and '' if not
+                if (noenddate) {
+                    $(noenddateid).attr('checked', true);
+                    $(noendlabel).addClass('checked');
+                    checkNoEndDate(id, false);
+                }
+                //Checks if the all day checkbox was previously checked
+                //Value is 'Yes' if checked and 'No' if not
                 if (allday) {
                     $(alldayid).attr('checked', true);
                     $(alldaylabel).addClass('checked');
                 }
+                //Checks if the out of minnesota checkbox was previously checked
+                //Value is 'Yes' if checked and 'No' if not
                 if (out) {
                     $(outid).attr('checked', true);
                     $(timezonelabel).addClass('checked');
@@ -379,11 +391,23 @@
                             addHandler(id);
                         }
                         //Now populate the fieldset
-                        var allday = date['all_day'];
-                        if (allday && allday.substr(-3) == "Yes") {
+                        var allday = date['all-day'];
+                        if (allday == "Yes") {
                             allday = true;
+                        }
 
-                        populateFieldset(id, allday, date['start_date'], date['end_date'], date['outside_of_minnesota'], date['time_zone']{#, noenddate #});
+                        var outsideofminnesota = date['outside-of-minnesota'];
+                        if (outsideofminnesota == 'Yes') {
+                            outsideofminnesota = true;
+                        }
+
+                        var noenddate = date['no-end-date'];
+                        if (noenddate == 'on') {
+                            noenddate = true;
+                            checkNoEndDate(id, false);
+                        }
+
+                        populateFieldset(id, allday, date['start-date'], date['end-date'], outsideofminnesota, date['time-zone'], noenddate);
                         //no infinite loops today
                         i++;
 
@@ -391,30 +415,38 @@
 
                 {% endif %}
 
-                {% if form.errors or not dates_good and num_dates %}
-                    var event_dates = {{ dates|safe }};
-                    var tt = {{ num_dates }};
-                    for (var i = 1; i < {{ num_dates + 1}}; i++) {
-                        if (i == 1) {
-                            $('#allday1').prop('checked', event_dates['allday1']);
-                            $('#start1').val(event_dates['start1']);
-                            $('#end1').val(event_dates['end1']);
-{#                            $('#noenddate1').prop('checked', event_dates['noenddate1']);#}
-                        } else {
-                            newFieldset(i);
-                            var fieldsets = $(".date-fieldset");
-                            var last = fieldsets.last();
-                            newFieldset(i).insertAfter(last);
-                            $('#allday' + i).prop('checked', event_dates['allday' + i]);
-                            $('#start' + i).val(event_dates['start' + i]);
-                            $('#end' + i).val(event_dates['end' + i]);
-                            $('#outsideofminnesota' + i).val(event_dates['outsideofminnesota' + i]);
-                            $('#timezone' + i).val(event_dates['timezone' + i]);
-{#                            $('#noenddate' + i).prop('checked', event_dates['noenddate' + i]);#}
-                        }
-                    }
-
-                {% endif %}
+{#                {% if form.errors or not dates_good and num_dates %}#}
+{#                    var event_dates = {{ dates|safe }};#}
+{#                    var tt = {{ num_dates }};#}
+{#                    for (var i = 1; i < {{ num_dates + 1}}; i++) {#}
+{#                        if (i == 1) {#}
+{#                            $('#allday1').prop('checked', event_dates[i-1]['all-day']);#}
+{#                            $('#start1').val(event_dates[i-1]['start-date']);#}
+{#                            if ($('#noenddate1').prop('checked')) {#}
+{#                                $('#end' + i).val('');#}
+{#                            }#}
+{#                            else#}
+{#                                $('#end' + i).val(event_dates[i-1]['end-date']);#}
+{##}
+{#                        } else {#}
+{#                            newFieldset(i);#}
+{#                            var fieldsets = $(".date-fieldset");#}
+{#                            var last = fieldsets.last();#}
+{#                            newFieldset(i).insertAfter(last);#}
+{#                            $('#allday' + i).prop('checked', event_dates[i-1]['all-day']);#}
+{#                            $('#start' + i).val(event_dates[i-1]['start-date']);#}
+{#                            if ($('#noenddate' + i).prop('checked')) {#}
+{#                                $('#end' + i).val('');#}
+{#                            }#}
+{#                            else#}
+{#                                $('#end' + i).val(event_dates[i-1]['end-date']);#}
+{#                            $('#outsideofminnesota' + i).val(event_dates[i-1]['outside-of-minnesota']);#}
+{#                            $('#timezone' + i).val(event_dates[i-1]['time-zone']);#}
+{#                            $('#noenddate' + i).val(event_dates[i-1]['no-end-date']);#}
+{#                        }#}
+{#                    }#}
+{##}
+{#                {% endif %}#}
 
                 $("#add_date_button").click(function () {
                     var fieldsets = $(".date-fieldset");

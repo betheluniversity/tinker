@@ -82,7 +82,8 @@ class EventsView(FlaskView):
             bid = app.config['EVENTS_BASE_ASSET']
             event_data, metadata, structured_data = self.base.cascade_connector.load_base_asset_by_id(bid, 'page')
             add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
-            add_data['event-dates'] = dates
+            # Changes the dates to a timestamp, needs to occur after a failure is detected or not
+            add_data['event-dates'] = self.base.change_dates(dates, num_dates)
             add_data['author'] = request.form['author']
             asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
             resp = self.base.create_page(asset)
@@ -92,7 +93,8 @@ class EventsView(FlaskView):
             page = self.base.read_page(eid)
             event_data, metadata, structured_data = page.get_asset()
             add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
-            add_data['event-dates'] = dates
+            # Changes the dates to a timestamp
+            add_data['event-dates'] = self.base.change_dates(dates, num_dates)
             add_data['author'] = request.form['author']
             asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow, event_id=eid)
 

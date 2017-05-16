@@ -112,7 +112,8 @@ class EventsController(TinkerController):
                 'end-date': form.get('end' + i, ''),
                 'all-day': form.get('allday' + i, ''),
                 'outside-of-minnesota': form.get('outsideofminnesota' + i, ''),
-                'time-zone': form.get('timezone' + i, '')
+                'time-zone': form.get('timezone' + i, ''),
+                'no-end-date': form.get('noenddate' + i, '')
             }
 
             if not new_date['end-date']:
@@ -129,7 +130,7 @@ class EventsController(TinkerController):
     def check_event_dates(self, num_dates, event_dates):
         dates_good = False
         for i in range(0, num_dates):
-            try:
+            # try:
                 start_and_end = event_dates[i]['start-date'] and event_dates[i]['end-date']
 
                 condition = True
@@ -139,6 +140,43 @@ class EventsController(TinkerController):
                 if start_and_end and condition:
                     dates_good = True
 
+            #     # Get rid of the fancy formatting so we just have normal numbers
+            #     event_dates[i]['start-date'] = event_dates[i]['start-date'].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+            #     event_dates[i]['end-date'] = event_dates[i]['end-date'].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+            #
+            #     # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
+            #     # which use milliseconds instead of seconds
+            #     try:
+            #         event_dates[i]['start-date'] = self.date_str_to_timestamp(event_dates[i]['start-date'])
+            #     except ValueError as e:
+            #         app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
+            #         event_dates[i]['start-date'] = None
+            #     try:
+            #         event_dates[i]['end-date'] = self.date_str_to_timestamp(event_dates[i]['end-date'])
+            #     except ValueError as e:
+            #         app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
+            #         event_dates[i]['end-date'] = None
+            #
+            #     # As long as the value for these checkboxes are NOT '' or 'False'
+            #     # the value in event_dates will be set to 'Yes'
+            #     if event_dates[i]['all-day']:
+            #         event_dates[i]['all-day'] = 'Yes'
+            #     else:
+            #         event_dates[i]['all-day'] = 'No'
+            #     if event_dates[i]['outside-of-minnesota']:
+            #         event_dates[i]['outside-of-minnesota'] = 'Yes'
+            #     else:
+            #         event_dates[i]['outside-of-minnesota'] = 'No'
+            #
+            # except KeyError:
+            #     # This will break once we run out of dates
+            #     break
+
+        return json.dumps(event_dates), dates_good
+
+    def change_dates(self, event_dates, num_dates):
+        for i in range(0, num_dates):
+            try:
                 # Get rid of the fancy formatting so we just have normal numbers
                 event_dates[i]['start-date'] = event_dates[i]['start-date'].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
                 event_dates[i]['end-date'] = event_dates[i]['end-date'].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
@@ -171,7 +209,7 @@ class EventsController(TinkerController):
                 # This will break once we run out of dates
                 break
 
-        return json.dumps(event_dates), dates_good
+        return event_dates
 
     def validate_form(self, rform, dates_good, dates):
 
