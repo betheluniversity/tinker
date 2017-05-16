@@ -278,7 +278,11 @@ class EAnnouncementsView(FlaskView):
         except:
             # Set start and end to be falsey so that hasDates is set to false
             end = 0
-        search_results = self.base.get_search_results(title, start, end)
+            roles = []
+            if data['roles']:
+                for role in data['roles']:
+                    roles.append(role.encode("utf-8"))
+        search_results = self.base.get_search_results(title, start, end, roles)
         search_results.sort(key=lambda e_announcement: e_announcement['first_date'], reverse=False)
         return render_template('E_annz_search_results.html', list_of_annz=search_results)
 

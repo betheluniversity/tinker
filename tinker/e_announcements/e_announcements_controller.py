@@ -205,7 +205,7 @@ class EAnnouncementsController(TinkerController):
         pass
 
     # The search method that does the actual searching for the /search in events/init
-    def get_search_results(self, title, start, end):
+    def get_search_results(self, title, start, end, roles):
         # Go through the E_Announcements and traverse them
         announcements = self.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
         # Flag check to make sure there are values to check against
@@ -221,7 +221,10 @@ class EAnnouncementsController(TinkerController):
             has_end = True
         else:
             has_end = False
-
+        if not roles:
+            has_roles = False
+        else:
+            has_roles = True
         to_return = []
         # Go through the announcements and search using the paramaters
         for annz in announcements:
@@ -229,6 +232,9 @@ class EAnnouncementsController(TinkerController):
                 dates = [annz['first_date'], annz['second_date']]
             else:
                 dates = [annz['first_date']]
+            annz_roles = []
+            for role in annz['roles']:
+                annz_roles.append(role)
             if has_start:
                 try:
                     start = int(time.mktime(start.timetuple()))
@@ -243,6 +249,13 @@ class EAnnouncementsController(TinkerController):
                     end = datetime.datetime.strptime(end, '%a %b %d %Y')
                 except:
                     has_end = False
+            if has_roles:
+                flag = 0
+                for role in roles:
+                    if role in annz_roles:
+                        flag = 1
+                if flag == 0:
+                    continue
             if has_title and title.lower() not in annz['title'].lower():
                 continue
             else:

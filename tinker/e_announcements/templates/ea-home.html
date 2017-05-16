@@ -4,6 +4,7 @@
 
 {% block styles %}
     <style type="text/css">
+
     </style>
 {% endblock %}
 
@@ -17,19 +18,46 @@
                 <a href="{{ url_for('e_announcements.EAnnouncementsView:new') }}" class="btn btn-primary new-btn">Submit
                     New E-Announcement</a>
                 <p class="description">Below is the list of E-Announcements you have access to edit.</p>
-                <p class="description">The below are optional parameters to help in your search.</p>
                 <div>
                     <small>Used by entering in part of a name, for example "scho" will select E-Announcements with
                         words "scholar", "school", "scholastic" etc.</small>
                     <label for="annzTitle">E-Announcement Title:</label>
                         <input id="annzTitle" type="text" name="annzTitle"><br/>
-                    <small>The Start and End fields are to specify the date range where an announcment might fall,
-                        for example "New Years Eve" and "Christmas" would both show up if you started at December 25th
-                        and ended on December 31st</small>
-                    <label for="annzStart">Start Date:</label>
-                        <input id="annzStart" class='datepicker' size='11'/>
-                    <label for="annzEnd">End Date:</label>
-                        <input id="annzEnd" class='datepicker' size='11'/>
+                    <p class="description">Click "Slide Down" button for additional search parameters.
+                        Press "Slide Up" to hide selection</p>
+                    <div id="additional-search-params" style="display: none;">
+                        <small>The Start and End fields are to specify the date range where an announcment might fall,
+                            for example "New Years Eve" and "Christmas" would both show up if you started at December 25th
+                            and ended on December 31st</small>
+                        <label for="annzStart">Start Date:</label>
+                            <input id="annzStart" class='datepicker' size='11'/>
+                        <label for="annzEnd">End Date:</label>
+                            <input id="annzEnd" class='datepicker' size='11'/>
+                        <label for="roles">Select Role(s):</label>
+{#                        TODO automatically pull these from cascasde (reference events forms.py#}
+                            <select  multiple="multiple" id="roles" name="role-select[]">
+                                <option value='STUDENT-CAS'>Student: CAS</option>
+                                <option value='STUDENT-CAPS'>Student: CAPS</option>
+                                <option value='STUDENT-GS'>Student: GS</option>
+                                <option value='STUDENT-BSSP'>Student: BSSP</option>
+                                <option value='STUDENT-BSSP-TRADITIONAL'>Student: BSSP Traditional</option>
+                                <option value='STUDENT-BSSP-DISTANCE'>Student: BSSP Distance</option>
+                                <option value='STUDENT-BSSD'>Student: BSSD</option>
+                                <option value='STUDENT-BSSD-TRADITIONAL'>Student: BSSD Traditional</option>
+                                <option value='STUDENT-BSSD-DISTANCE'>Student: BSSD Distance</option>
+                                <option value='STUDENT-BSOE'>Student: BSOE</option>
+                                <option value='STUDENT-BSOE-TRADITIONAL'>Student: BSOE Traditional</option>
+                                <option value='FACULTY-CAS'>Faculty: CAS</option>
+                                <option value='FACULTY-CAPS'>Faculty: CAPS</option>
+                                <option value='FACULTY-GS'>Faculty: GS</option>
+                                <option value='FACULTY-BSSP'>Faculty: BSSP</option>
+                                <option value='FACULTY-BSSD'>Faculty: BSSD</option>
+                                <option value="STAFF-STP">Staff: St. Paul</option>
+                                <option value="STAFF-SD">Staff: San Diego</option>
+                            </select>
+                    </div>
+                    <button class="s-up">Slide Up</button>
+                    <button class="s-down">Slide Down</button>
                     <a type="submit" id="e-announcement-submit-btn" class="btn btn-primary search-announcements">Search</a>
                 </div>
                 <hr/>
@@ -110,9 +138,18 @@
                 "title": $("#annzTitle").val(),
                 "start": $("#annzStart").val(),
                 "end": $("#annzEnd").val(),
+                "roles": $("#roles").val()
 {#                Add in the school selector with the drop down later on when everything is working#}
 {#                "selection": $("#school-selector").val()#}
             };
+            $(document).ready(function(){
+                $(".s-up").click(function(){
+                    $("#additional-search-params").slideUp();
+                });
+                $(".s-down").click(function(){
+                    $("#additional-search-params").slideDown();
+                });
+            });
             $.ajax({
                 type: "POST",
                 url: search_url,
