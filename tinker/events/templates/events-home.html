@@ -160,6 +160,8 @@
                 disableDayFn: function (date) {
                     var start_populated = $("#startDate").val();
                     var end_populated = $("#endDate").val();
+                    //Check to see if the start and/or end have been populated. If startDate is populated, blacks out the previous dates
+                    //If endDate is populated, all future dates past that point are blacked out.
                     if(start_populated == "" && end_populated == ""){
                         return null;
                     }else if(start_populated != "" && current_element.attr('id') == 'endDate'){

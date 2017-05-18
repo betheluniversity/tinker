@@ -279,6 +279,7 @@ class EAnnouncementsView(FlaskView):
             # Set start and end to be falsey so that hasDates is set to false
             end = 0
             roles = []
+            # Get the roles from the data and encode them in utf-8 for comparison
             if data['roles']:
                 for role in data['roles']:
                     roles.append(role.encode("utf-8"))

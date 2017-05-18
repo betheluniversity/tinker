@@ -626,6 +626,7 @@ class TinkerController(object):
         for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
             print segment.SegmentID
 
+    # This method converts timestamps tp the unique Bethel Strings
     def convert_timestamps_to_bethel_string(self, open, close, all_day):
         try:
             is_all_day = False
@@ -666,6 +667,7 @@ class TinkerController(object):
         except:
             return None
 
+    # This method does final formatting for the bethel_date_string from the convert_timestamps_to_bethel_string method
     def final_format(self, open, close, all_day_format):
         if close == "":
             combined_string = open
@@ -684,6 +686,7 @@ class TinkerController(object):
 
         return combined_string
 
+    # This method takes in two time deltas and then compares them. (Used for both the Event search and E-annz search
     def compare_timedeltas(self, a, b):
         reference = datetime.timedelta(seconds=0)
         # If a and b are both datetime objects then if b comes after a it will return 1

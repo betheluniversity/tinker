@@ -1,4 +1,6 @@
-
+//This JS script is a special script for determinning the blackout dates for e-announcements.
+//This script is used in e-annz forms.html as well as ea-home.html
+//TODO This script should be reformatted at some point, there is a lot of nonsense to work through though and it works
 is_date_a_bethel_holiday = function is_date_a_bethel_holiday(date) {
     function isDateFridayBeforeEaster(date) {
         var Y = date.getFullYear();

@@ -211,6 +211,7 @@ class EAnnouncementsController(TinkerController):
     def get_search_results(self, title, start, end, roles):
         # Go through the E_Announcements and traverse them
         announcements = self.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
+
         # Flag check to make sure there are values to check against
         if not title:
             has_title = False

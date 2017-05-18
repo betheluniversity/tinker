@@ -19,6 +19,8 @@
                     New E-Announcement</a>
                 <p class="description">Below is the list of E-Announcements you have access to edit.</p>
                 <div>
+{#                    TODO The selections for the search need to be reformatted to look nicer. Refer to Bethel Program
+                      Search; this is the ideal for what the search parameter fields should end up looking like     #}
                     <small>Used by entering in part of a name, for example "scho" will select E-Announcements with
                         words "scholar", "school", "scholastic" etc.</small>
                     <label for="annzTitle">E-Announcement Title:</label>
@@ -94,6 +96,7 @@
                     var start_populated = $("#annzStart").val();
                     var end_populated = $("#annzEnd").val();
                     var today = new Date();
+                    // remove all past dates if annzStart is populated, or all future dates if annzEnd is populated
                     if(start_populated == "" && end_populated == ""){
                         return null;
                     }else if(start_populated != "" && current_element.attr('id') == 'annzEnd'){
