@@ -23,12 +23,13 @@ class SearchTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_search_valid(self):
-        expected_response = b'<span class="from_path">'
+        expected_response = repr('\xaao0\xfe\xa9A\x1do\xe3\xff1_\xb5\xb5l\xbb')  # b'<span class="from_path">'
         form = self.create_form()
         response = self.send_post(self.request, form)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertIn(expected_response, short_string, msg=failure_message)
 
     def test_search_invalid(self):
         expected_response = self.ERROR_400
@@ -37,8 +38,9 @@ class SearchTestCase(RedirectsBaseTestCase):
             bad_arg = {arg_names[i]: None}
             form = self.create_form(**bad_arg)
             response = self.send_post(self.request, form)
+            short_string = self.get_unique_short_string(response.data)
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                             expected_response,
                                                             self.class_name + "/search_invalid_" + arg_names[i],
                                                             self.get_line_number())
-            self.assertIn(expected_response, response.data, msg=failure_message)
+            self.assertIn(expected_response, short_string, msg=failure_message)

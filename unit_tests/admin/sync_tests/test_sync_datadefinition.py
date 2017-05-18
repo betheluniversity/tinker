@@ -24,12 +24,13 @@ class DataDefinitionTestCase(BaseTestCase):
     #######################
 
     def test_datadefinition_valid(self):
-        expected_response = b'<h3>Successfully Synced'
+        expected_response = repr('\x14#\x0c\xfc\x81\xbd\xf2=\n\xd78D\xd7n\xc7\x92')  # b'<h3>Successfully Synced'
         form = self.create_form()
         response = self.send_post(self.request, form)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)
 
     def test_datadefinition_invalid_id(self):
         expected_response = self.ERROR_400
@@ -38,8 +39,9 @@ class DataDefinitionTestCase(BaseTestCase):
             bad_arg = {arg_names[i]: None}
             form = self.create_form(**bad_arg)
             response = self.send_post(self.request, form)
+            short_string = self.get_unique_short_string(response.data)
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                             expected_response,
                                                             self.class_name + "/datadefinition_invalid_" + arg_names[i],
                                                             self.get_line_number())
-            self.assertIn(expected_response, response.data, msg=failure_message)
+            self.assertEqual(expected_response, short_string, msg=failure_message)

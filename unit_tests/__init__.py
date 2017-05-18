@@ -1,6 +1,7 @@
 # Currently, the unit testing suite takes about 4 minutes to run.
 
 import base64
+import hashlib
 import os
 import re
 import unittest
@@ -16,9 +17,8 @@ class BaseTestCase(unittest.TestCase):
 
     def __init__(self, methodName):
         super(BaseTestCase, self).__init__(methodName)
-        self.ERROR_400 = b'<p>The browser (or proxy) sent a request that this server could not understand.</p>'
-        self.ERROR_404 = b'<h1 class="oversized"> It\'s probably not a problem, probably.</h1>'
-        self.ERROR_500 = b'fixing the loose wire right now. Check back soon!</h5>'
+        self.ERROR_400 = repr('\xad\xa0\xa0\xff;\x0e\x0bVx\xda\x99\x8c\xb8U\xc3\xb8')
+        self.ERROR_500 = repr('\xcd\xfe\xf6\xb4\x16  \xc19\x8a\xc7\xf6\xc4\xc4\xd5\xb2')
         current_frame = stack()[1]
         file_of_current_frame = current_frame[0].f_globals.get('__file__', None)
         dir_path_to_current_frame = os.path.dirname(file_of_current_frame)
@@ -75,6 +75,11 @@ class BaseTestCase(unittest.TestCase):
 
     def assertNotIn(self, substring, string_to_check, msg=None):
         self.failIf(substring in string_to_check, msg=msg)
+
+    def get_unique_short_string(self, super_long_string):
+        m = hashlib.md5()
+        m.update(self.strip_whitespace(super_long_string))
+        return repr(m.digest())
 
     def strip_whitespace(self, string):
         lines = string.split("\n")
