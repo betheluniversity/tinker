@@ -27,6 +27,8 @@
                         <input id="annzTitle" type="text" name="annzTitle"><br/>
                     <p class="description">Click "Slide Down" button for additional search parameters.
                         Press "Slide Up" to hide selection</p>
+                    <button class="s-up">Slide Up</button>
+                    <button class="s-down">Slide Down</button>
                     <div id="additional-search-params" style="display: none;">
                         <small>The Start and End fields are to specify the date range where an announcment might fall,
                             for example "New Years Eve" and "Christmas" would both show up if you started at December 25th
@@ -58,10 +60,8 @@
                                 <option value="STAFF-SD">Staff: San Diego</option>
                             </select>
                     </div>
-                    <button class="s-up">Slide Up</button>
-                    <button class="s-down">Slide Down</button>
-                    <a type="submit" id="e-announcement-submit-btn" class="btn btn-primary search-announcements">Search</a>
                 </div>
+                <a type="submit" id="e-announcement-submit-btn" class="btn btn-primary search-announcements">Search</a>
                 <hr/>
                 {# spinner placeholder #}
                 <div id="spinner" class="spinner" style="display:none;">
