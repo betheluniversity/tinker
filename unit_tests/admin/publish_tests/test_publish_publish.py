@@ -22,9 +22,10 @@ class PublishPublishTestCase(BaseTestCase):
         publish_id = "a7404faa8c58651375fc4ed23d7468d5"
         self.request = self.generate_url("publish_publish", destination=destination, type=publish_type, id=publish_id)
         response = self.send_get(self.request)
-        publishing = b'Publishing. . .' in response.data
-        already_exists = b'This asset already exists in the publish queue' in response.data
-        expected_response = "'Publishing. . .' or 'This asset already exists in the publish queue'"
+        short_string = self.get_unique_short_string(response.data)
+        publishing = self.get_unique_short_string(b'Publishing. . .')
+        already_exists = self.get_unique_short_string(b'This asset already exists in the publish queue')
+        expected_response = publishing + " or " + already_exists
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertTrue(publishing or already_exists, msg=failure_message)
+        self.assertTrue(publishing == short_string or already_exists == short_string, msg=failure_message)

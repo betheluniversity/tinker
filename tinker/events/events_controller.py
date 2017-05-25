@@ -1,3 +1,5 @@
+import urllib2
+from xml.etree import ElementTree as ET
 import json
 import datetime
 import time
@@ -18,6 +20,21 @@ from flask import json as fjson
 
 class EventsController(TinkerController):
 
+    def traverse_short_xml(self, xml_url, find_all=False):
+        response = urllib2.urlopen(xml_url)
+        form_xml = ET.fromstring(response.read())
+
+        matches = []
+        for child in form_xml.findall('event'):
+            match = self.inspect_child(child, find_all)
+            if match:
+                matches.append(match)
+
+        # Todo: maybe add some parameter as a search?
+        # sort by created-on date.
+        matches = sorted(matches, key=lambda k: k['created-on'])
+        return matches
+
     # find_all is currently unused for events (but used for the e-annz)
     def inspect_child(self, child, find_all=False):
         try:
@@ -31,8 +48,15 @@ class EventsController(TinkerController):
         post_trad_event = False
         undergrad_event = False
         if 'Tinker Events - CAS' in session['groups']:
-            depts = self.search_for_key_in_dynamic_md(child, 'cas-departments')
-            undergrad_event = getattr(depts, 'text', None)
+            # Todo: when we move to short-urls
+            # undergrad_event = self.search_for_key_in_dynamic_md(child, 'cas-departments')
+
+            for value in child.find('cas-departments').getchildren():
+                try:
+                    if value.text != 'None':
+                        undergrad_event = True
+                except:
+                    continue
 
         school_event = undergrad_event or post_trad_event or sem_event
 
@@ -50,7 +74,7 @@ class EventsController(TinkerController):
         user_forms = []
         other_forms = []
         for form in forms:
-            if form['author'] == username:
+            if form['author'] != None and username in form['author']:
                 user_forms.append(form)
             else:
                 other_forms.append(form)
@@ -65,36 +89,48 @@ class EventsController(TinkerController):
             app.logger.debug(time.strftime("%c") + ": Event move submission by " + username + " " + str(response))
 
     def _iterate_child_xml(self, child, author):
-
-        roles = []
-        values = child.find('dynamic-metadata')
-        for value in values:
-            if value.tag == 'value':
-                roles.append(value.text)
-
         try:
             is_published = child.find('last-published-on').text
         except AttributeError:
             is_published = False
 
-        dates = child.find('system-data-structure').findall('event-dates')
+        dates = child.findall('event-dates')
         dates_str = []
+        dates_html_array = []
         for date in dates:
             try:
-                start = int(date.find('start-date').text) / 1000
-                end = int(date.find('end-date').text) / 1000
+                start = date.find('start-date').text.strip()
+                end = date.find('end-date').text.strip()
+
+                if start != 'None':
+                    start = int(start) / 1000
+                if end != 'None':
+                    end = int(end) / 1000
             except TypeError:
+                all_day = None
                 continue
-            dates_str.append(self.friendly_date_range(start, end))
+            try:
+                all_day = date.find('all-day').text
+            except:
+                all_day = None
+            dates_str.append({
+                'start': start,
+                'end': end,
+            })
+            friendly_date = self.convert_timestamps_to_bethel_string(start, end, all_day)
+            if friendly_date:
+                dates_html_array.append(friendly_date)
 
         page_values = {
             'author': author,
-            'id': child.attrib['id'] or None,
+            'id': child.find('id').text or None,
             'title': child.find('title').text or None,
             'created-on': child.find('created-on').text or None,
-            'path': 'https://www.bethel.edu' + child.find('path').text or None,
+            'path': 'https://www.bethel.edu/' + child.find('path').text or None,
             'is_published': is_published,
-            'event-dates': "<br/>".join(dates_str),
+            'event-dates': dates_str,
+            'html': '<br/>'.join(dates_html_array),
+            'is_all_day': all_day
         }
         # This is a match, add it to array
 
@@ -251,18 +287,80 @@ class EventsController(TinkerController):
         except TypeError:
             return None
 
-    def friendly_date_range(self, start, end):
-        date_format = "%B %d, %Y %I:%M %p"
-
-        start_check = arrow.get(start)
-        end_check = arrow.get(end)
-
-        if start_check.year == end_check.year and start_check.month == end_check.month and start_check.day == end_check.day:
-            return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
-                                datetime.datetime.fromtimestamp(int(end)).strftime("%I:%M %p"))
-        else:
-            return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
-                                datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
+# <<<<<<< HEAD
+#     def friendly_date_range(self, start, end):
+#         date_format = "%B %d, %Y %I:%M %p"
+#
+#         start_check = arrow.get(start)
+#         end_check = arrow.get(end)
+#
+#         if start_check.year == end_check.year and start_check.month == end_check.month and start_check.day == end_check.day:
+#             return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
+#                                 datetime.datetime.fromtimestamp(int(end)).strftime("%I:%M %p"))
+#         else:
+#             return "%s - %s" % (datetime.datetime.fromtimestamp(int(start)).strftime(date_format),
+#                                 datetime.datetime.fromtimestamp(int(end)).strftime(date_format))
+# =======
+#     def get_dates(self, add_data):
+#         dates = []
+#
+#         # format the dates
+#         for i in range(1, 200):
+#             i = str(i)
+#             try:
+#                 start = 'start' + i
+#                 end = 'end' + i
+#                 all_day = 'allday' + i
+#                 time_zone = 'timezone' + i
+#                 need_time_zone = 'needtimezone' + i
+#
+#                 start = add_data[start]
+#                 end = add_data[end]
+#                 all_day = all_day in add_data.keys()
+#                 need_time_zone = need_time_zone in add_data.keys()
+#                 time_zone = add_data[time_zone]
+#
+#             except KeyError:
+#                 # This will break once we run out of dates
+#                 break
+#
+#             # Get rid of the facy formatting so we just have normal numbers
+#             start = start.split(' ')
+#             end = end.split(' ')
+#             start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+#             end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+#
+#             start = " ".join(start)
+#             end = " ".join(end)
+#
+#             # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
+#             # which use milliseconds instead of seconds
+#             try:
+#                 start = self.date_str_to_timestamp(start)
+#             except ValueError as e:
+#                 app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
+#                 start = None
+#             try:
+#                 end = self.date_str_to_timestamp(end)
+#             except ValueError as e:
+#                 app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
+#                 end = None
+#
+#             new_date = {'start-date': start, 'end-date': end, 'time-zone': time_zone}
+#
+#             if all_day:
+#                 new_date['all-day'] = 'Yes'
+#             else:
+#                 new_date['all-day'] = 'No'
+#             if need_time_zone:
+#                 new_date['outside-of-minnesota'] = 'Yes'
+#             else:
+#                 new_date['outside-of-minnesota'] = 'No'
+#
+#             dates.append(new_date)
+#
+#         return dates
+# >>>>>>> master
 
     def get_event_structure(self, event_data, metadata, structured_data, add_data, username, workflow=None, event_id=None):
         """
@@ -353,6 +451,9 @@ class EventsController(TinkerController):
             hide_site_nav = "Hide"
             path = 'events/%s/admissions' % max_year
 
+        if app.config['UNIT_TESTING']:
+            path = "/_testing/philip-gibbens/events-tests"
+
         self.copy(app.config['BASE_ASSET_EVENT_FOLDER'], path, 'folder')
 
         return hide_site_nav, path
@@ -397,3 +498,103 @@ class EventsController(TinkerController):
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
         pass
+
+    # The search method that does the actual searching for the /search in events/init
+    def get_search_results(self, selection, title, start, end):
+        # Get the events and then split them into user events and other events for quicker searching
+        events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'event')
+        # Quick check with assignment
+        if selection and '-'.join(selection) == '1':
+            events_to_iterate = events
+            # default is for the automatic event population
+            forms_header = "All Events"
+        else:
+            user_events, other_events = self.split_user_events(events)
+            if selection and '-'.join(selection) == '2':
+                events_to_iterate = user_events
+                forms_header = "My Events"
+            else:
+                events_to_iterate = other_events
+                forms_header = "Other Events"
+        # Early return if no parameters to check in the search
+        if not title and not start and not end:
+            return events_to_iterate, forms_header
+
+        # to_return will hold all of the events that match the search criteria
+        to_return = []
+
+        # check for each search parameter and set boolean flags
+        if not title:
+            has_title = False
+        else:
+            has_title = True
+        if start == 0:
+            has_start = False
+        else:
+            has_start = True
+        if end == 0:
+            has_end = False
+        else:
+            has_end = True
+        # Loop through the events based on selection
+        for event in events_to_iterate:
+            if not event['event-dates']:
+                check_dates = False
+            else:
+                check_dates = True
+            # split the event dates into a dictionary, then loop through it for each date to catch all possible events
+            for form in event['event-dates']:
+                if has_start or has_end and check_dates:
+                    try:
+                        # Form Start/End timestamps converted to datetime and then formatted to match start and end
+                        event_start = datetime.datetime.fromtimestamp(form['start']).strftime('%a %b %d %Y')
+                        event_start = datetime.datetime.strptime(event_start, "%a %b %d %Y")
+                        event_end = datetime.datetime.fromtimestamp(form['end']).strftime('%a %b %d %Y')
+                        event_end = datetime.datetime.strptime(event_end, "%a %b %d %Y")
+                    except:
+                        check_dates = False
+                        continue
+                if has_title and title.lower() not in event['title'].lower():
+                    continue
+                elif not check_dates:
+                    continue
+                else:
+                    # The start to check is before the event start and the end to check is after the event ends
+                    if has_end and has_start and self.compare_timedeltas(start, event_start) == 1 and \
+                            self.compare_timedeltas(end, event_end) == 2:
+                        to_return.append(event)
+                        break
+                    # The user did not add an end to check and the event start is before the start check
+                    elif not has_end and has_start and self.compare_timedeltas(start, event_start) == 1:
+                        to_return.append(event)
+                        break
+                    # The user did not add a start to check and the event end is after the end check
+                    elif not has_start and has_end and self.compare_timedeltas(end, event_end) == 2:
+                        to_return.append(event)
+                        break
+                    # The start to check occurs between the events start and end dates
+                    elif has_start and self.compare_timedeltas(start, event_start) == 2 and \
+                            self.compare_timedeltas(start, event_end) == 1:
+                        to_return.append(event)
+                        break
+                    # The end to check occurs between the events start and end dates
+                    elif has_end and self.compare_timedeltas(end, event_start) == 2 and \
+                            self.compare_timedeltas(end, event_end) == 1:
+                        to_return.append(event)
+                        break
+                    elif not has_end and not has_start:
+                        to_return.append(event)
+                        break
+        return to_return, forms_header
+
+    def compare_timedeltas(self, a, b):
+        reference = datetime.timedelta(seconds=0)
+        # If a and b are both datetime objects then if b comes after a it will return 1
+        if(b-a) >= reference:
+            return 1
+        # b before a returns 2
+        elif(b-a) <= reference:
+            return 2
+        # neither returns 0
+        else:
+            return 0

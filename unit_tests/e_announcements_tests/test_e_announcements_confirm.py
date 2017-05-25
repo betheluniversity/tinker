@@ -17,8 +17,10 @@ class ConfirmTestCase(BaseTestCase):
     #######################
 
     def test_confirm(self):
-        expected_response = b"You've successfully created your E-Announcement. Once your E-Announcement has been approved,"
+        expected_response = repr('\xaf\xa7K\x8b\xaa\x1e8\xd6\x80\x87ax\xb4\xf7\xd8$')
+        # b"You've successfully created your E-Announcement. Once your E-Announcement has been approved,"
         response = self.send_get(self.request)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)

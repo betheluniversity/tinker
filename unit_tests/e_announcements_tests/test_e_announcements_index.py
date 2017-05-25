@@ -17,8 +17,10 @@ class IndexTestCase(BaseTestCase):
     #######################
 
     def test_index(self):
-        expected_response = b'Below is the list of E-Announcements you have access to edit. These are sorted by'
+        expected_response = repr(')\xc9/<q\xd2(!\x07\x96To\x1a$\xfd\x01')
+        # b'Below is the list of E-Announcements you have access to edit. These are sorted by'
         response = self.send_get(self.request)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)

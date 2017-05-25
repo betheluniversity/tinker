@@ -1,4 +1,3 @@
-import json
 from unit_tests import BaseTestCase
 
 
@@ -18,15 +17,9 @@ class AllTestCase(BaseTestCase):
     #######################
 
     def test_all_valid(self):
-        expected_response = b'<h3>Successfully Synced'
+        expected_response = repr('Q\x16\xf1t\xd6\xd5N9\x9c\xe2\xbe\x83\xe5Ahg')  # b'<h3>Successfully Synced'
         response = self.send_post(self.request, {})
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def test_all_invalid_id(self):
-        expected_response = b'<h3>Successfully Synced'
-        response = self.send_post(self.request, {})
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)

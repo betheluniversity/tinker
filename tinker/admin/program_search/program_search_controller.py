@@ -44,8 +44,8 @@ class ProgramSearchController(TinkerController):
 
                 # get school
                 school_element = self.search_for_key_in_dynamic_md(block, 'school')
-                if hasattr(school_element, 'text'):
-                    school = school_element.text
+                if len(school_element) > 0:
+                    school = school_element[0]
                 else:
                     school = None
 
@@ -76,9 +76,9 @@ class ProgramSearchController(TinkerController):
         # add in major/minor
 
         major_or_minor = self.search_for_key_in_dynamic_md(block, 'program-type')
-        if hasattr(major_or_minor, 'text') and major_or_minor.text:
+        if major_or_minor:
             if 'minor' not in program_name.lower() and 'major' not in program_name.lower() and 'program' not in program_name.lower():
-                program_name += ' ' + major_or_minor.text
+                program_name += ' ' + major_or_minor[0]
 
         return program_name
 

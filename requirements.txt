@@ -29,3 +29,7 @@ gspread
 oauth2client
 PyOpenSSL
 flask-profiler
+ordereddict
+chromedriver
+selenium
+HTMLParser

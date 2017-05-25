@@ -1,11 +1,15 @@
+import json
 import time
 import datetime
+from flask import Response
 from flask_classy import FlaskView, route
 from tinker.events.events_controller import EventsController
 from bu_cascade.asset_tools import update
 from flask import Blueprint, redirect, session, render_template, request, url_for, json as fjson
 from tinker import app
 from events_metadata import metadata_list
+# python 2.6 or earlier -- Todo: when we upgrade, use from collections import OrderedDict
+from ordereddict import OrderedDict
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
@@ -22,10 +26,28 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-        user_forms = self.base.traverse_xml(app.config['EVENTS_XML_URL'], 'system-page')
+        show_create = True
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
-            user_forms, other_forms = self.base.split_user_events(user_forms)
-        return render_template('events-home.html', **locals())
+            # The special admin view
+            all_schools = OrderedDict({
+                1: 'All Events',
+                2: 'My Events',
+                3: 'Other Events'},
+                key=lambda t: t[0]
+            )
+            # The below can be added inside of the dictionary as they are built out
+            # {4: 'College of Arts and Sciences'},
+            # {5: 'College of Adult and Professional Studies'},
+            # {6: 'Graduate School'},
+            # {7: 'Bethel Seminary'},
+            # {8: 'Administration with Faculty Status'},
+            # {9: 'Other'}
+        else:  # normal view
+            all_schools = OrderedDict({
+                2: 'User Events'}
+            )
+        return render_template('events-home.html', show_create=show_create, all_schools=all_schools, list_of_events=None,
+                               formsHeader="All Events")
 
     def confirm(self):
         return render_template('submit-confirm.html', **locals())
@@ -140,5 +162,30 @@ class EventsView(FlaskView):
         app.logger.debug(time.strftime("%c") + ": Event deleted by " + session['username'] + " " + str(response))
         self.base.publish(app.config['EVENT_XML_ID'])
         return render_template('events-delete-confirm.html')
+
+    # This is the search for events to pare down what is being shown
+    @route("/search", methods=['POST'])
+    def search(self):
+        # Load the data, get the event type selection and title of the event the user is searching for
+        data = json.loads(request.data)
+        selection = data['selection']
+        title = data['title']
+        try:
+            # Try converting the start date times to seconds representation
+            start = datetime.datetime.strptime(data['start'], "%a %b %d %Y")
+
+        except:
+            # Set start and end to be falsey so that hasDates is set to false
+            start = 0
+        try:
+            # Try converting the end date times to seconds representation
+            end = datetime.datetime.strptime(data['end'], "%a %b %d %Y")
+        except:
+            # Set start and end to be falsey so that hasDates is set to false
+            end = 0
+        search_results, forms_header = self.base.get_search_results(selection, title, start, end)
+        search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
+        return render_template('search_results.html', list_of_events=search_results, formsHeader=forms_header)
+
 
 EventsView.register(EventsBlueprint)

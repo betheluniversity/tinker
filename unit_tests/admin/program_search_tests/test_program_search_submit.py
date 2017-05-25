@@ -1,4 +1,5 @@
 import json
+
 from program_search_base import ProgramSearchBaseTestCase
 
 
@@ -13,7 +14,7 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("submit")
 
-    def create_form(self, key, tag, outcome, topic, other):
+    def create_form(self, key="x", tag="z", outcome="False", topic="False", other="False"):
         return json.dumps({
             'key': key,
             'tag': tag,
@@ -27,50 +28,41 @@ class SubmitTestCase(ProgramSearchBaseTestCase):
     #######################
 
     def test_submit_valid(self):
-        expected_response = b'<label for="key" style="color: #252422">Concentration Code or Program Name:</label>'
-        form_contents = self.create_form("x", "z", "False", "False", "False")
+        expected_response = repr("\x8f\xdd\xacM\xeak\x97\x07\xd0\xb7\x1f'\x1f\xe1\x0e7")
+        # b'<label for="key" style="color: #252422">Concentration Code or Program Name:</label>'
+        form_contents = self.create_form()
         response = self.send_post(self.request, form_contents)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)
 
-    def test_submit_invalid_key(self):
-        expected_response = b'<label for="key" style="color: #252422">Concentration Code or Program Name:</label>'
-        form_contents = self.create_form(None, "z", "False", "False", "False")
-        response = self.send_post(self.request, form_contents)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
+    def test_submit_invalid_successes(self):
+        expected_response = repr("\x8f\xdd\xacM\xeak\x97\x07\xd0\xb7\x1f'\x1f\xe1\x0e7")
+        # b'<label for="key" style="color: #252422">Concentration Code or Program Name:</label>'
+        arg_names = ['key', 'tag']
+        for i in range(len(arg_names)):
+            bad_arg = {arg_names[i]: None}
+            form = self.create_form(**bad_arg)
+            response = self.send_post(self.request, form)
+            short_string = self.get_unique_short_string(response.data)
+            failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                            expected_response,
+                                                            self.class_name + "/submit_invalid_" + arg_names[i],
+                                                            self.get_line_number())
+            self.assertEqual(expected_response, short_string, msg=failure_message)
 
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def test_submit_invalid_tag(self):
-        expected_response = b'<label for="key" style="color: #252422">Concentration Code or Program Name:</label>'
-        form_contents = self.create_form("x", None, "False", "False", "False")
-        response = self.send_post(self.request, form_contents)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def test_submit_invalid_outcome(self):
+    def test_submit_invalid_failures(self):
         expected_response = self.ERROR_400
-        form_contents = self.create_form("x", "z", None, "False", "False")
-        response = self.send_post(self.request, form_contents)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        arg_names = ['outcome', 'topic', 'other']
+        for i in range(len(arg_names)):
+            bad_arg = {arg_names[i]: None}
+            form = self.create_form(**bad_arg)
+            response = self.send_post(self.request, form)
+            short_string = self.get_unique_short_string(response.data)
+            failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
+                                                            expected_response,
+                                                            self.class_name + "/submit_invalid_" + arg_names[i],
+                                                            self.get_line_number())
+            self.assertEqual(expected_response, short_string, msg=failure_message)
 
-    def test_submit_invalid_topic(self):
-        expected_response = self.ERROR_400
-        form_contents = self.create_form("x", "z", "False", None, "False")
-        response = self.send_post(self.request, form_contents)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
-
-    def test_submit_invalid_other(self):
-        expected_response = self.ERROR_400
-        form_contents = self.create_form("x", "z", "False", "False", None)
-        response = self.send_post(self.request, form_contents)
-        failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
-                                                        expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
