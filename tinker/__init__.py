@@ -4,6 +4,7 @@ import platform
 
 # flask
 from flask import Flask, url_for
+from flask import session
 
 # flask extensions
 import flask_profiler
@@ -133,6 +134,11 @@ from tinker_controller import TinkerController
 def before_request():
     base = TinkerController()
     base.before_request()
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    base = TinkerController()
+    return base.logout()
 
 if not TRAVIS_TESTING:
     flask_profiler.init_app(app)
