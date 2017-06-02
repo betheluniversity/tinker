@@ -10,7 +10,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
         self.request_type = ""
         self.request = ""
         self.fbid = ""
-        self.form_arg_names = ['first', 'last', 'author', 'faculty_location', 'highlight', 'schools1', 'undergrad1',
+        self.form_arg_names = ['first', 'last', 'author_faculty', 'faculty_location', 'highlight', 'schools1', 'undergrad1',
                                'dept-chair1', 'adult-undergrad1', 'graduate1', 'lead-faculty1' 'seminary1', 'new-job-title1',
                                'email', 'started_at_bethel', 'school1', 'degree-earned1', 'year1', 'biography',
                                'courses', 'awards', 'publications', 'presentations', 'certificates', 'organizations',
@@ -19,7 +19,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
     def get_faculty_bio_id(self, responseData):
         return re.search('id="faculty_bio_id".*value="(.+)"', responseData).group(1)
 
-    def create_form(self, first='Philip', last='Gibbens', author='phg49389', location='St. Paul',
+    def create_form(self, first='Philip', last='Gibbens', author_faculty='phg49389', location='St. Paul',
                     highlight="A great magazine for the dentist's office", schools='College of Arts and Sciences',
                     undergrad='Math & Computer Science', dept_chair='No', adult_undergrad='None',
                     program_director='No', graduate='None', lead_faculty='Other', seminary='None', job_title="Web Developer",
@@ -36,7 +36,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
             'image_url': '',
             'first': first,
             'last': last,
-            'author': author,
+            'author_faculty': author_faculty,
             'faculty_location': location,
             'highlight': highlight,
 
@@ -106,7 +106,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
         expected_response = b'There were errors with your form'
 
         # Test all independent required fields
-        required_vals = ['first', 'last', 'author', 'location', 'highlight', 'email', 'started_at_bethel']
+        required_vals = ['first', 'last', 'author_faculty', 'location', 'highlight', 'email', 'started_at_bethel']
         for index in range(len(required_vals)):
             bad_args = {required_vals[index]: ""}
             form = self.create_form(**bad_args)
