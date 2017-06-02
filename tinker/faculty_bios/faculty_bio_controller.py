@@ -136,7 +136,7 @@ class FacultyBioController(TinkerController):
         for program_element in program_elements:
             for program in program_element:
                 try:
-                    if self.get_mapping()[program.text] in groups:
+                    if self.get_mapping()[program.text] == groups:
                         return True
                 except:
                     continue
