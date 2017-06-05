@@ -437,7 +437,7 @@ hr {
     line-height: 35px;
 }
 
-.sidebar .nav li.active > a:before, .off-canvas-sidebar .nav li.active > a:before {
+.nav li.active > a:before, .off-canvas-sidebar .nav li.active > a:before {
     border-right: 17px solid #FFFFFF;
     border-top: 17px solid transparent;
     border-bottom: 17px solid transparent;
@@ -448,7 +448,7 @@ hr {
     top: 8px;
 }
 
-.sidebar .nav li.active > a:after, .off-canvas-sidebar .nav li.active > a:after {
+.nav li.active > a:after, .off-canvas-sidebar .nav li.active > a:after {
     border-right: 17px solid #FFFFFF;
     border-top: 17px solid transparent;
     border-bottom: 17px solid transparent;
@@ -457,6 +457,21 @@ hr {
     position: absolute;
     right: -1px;
     top: 8px;
+}
+
+.navbar-right > li > a {
+    margin: 15px 15px !important;
+
+}
+
+.navbar-default .navbar-nav > li > a:not(.btn) {
+    color: #fff
+}
+
+.navbar-default .navbar-nav > li > a:not(.btn):hover,
+.navbar-default .navbar-nav > li > a:not(.btn):focus,
+.navbar-default .navbar-nav > li > a:not(.btn):active {
+    color: #ccc
 }
 
 .off-canvas-sidebar .nav > li.active > a:before {
