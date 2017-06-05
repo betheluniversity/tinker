@@ -460,18 +460,21 @@ hr {
 }
 
 .navbar-right > li > a {
-    margin: 15px 15px !important;
+    margin: 19px 19px !important;
 
 }
 
-.navbar-default .navbar-nav > li > a:not(.btn) {
-    color: #fff
+.btn, .navbar .navbar-nav > li > a.btn {
+    color: #fff !important;
+    background-color: #0069AA !important;
+    border-width: 0 !important;
+    padding: 7px 18px 7px 14px;
 }
 
 .navbar-default .navbar-nav > li > a:not(.btn):hover,
 .navbar-default .navbar-nav > li > a:not(.btn):focus,
 .navbar-default .navbar-nav > li > a:not(.btn):active {
-    color: #ccc
+    color: #fff
 }
 
 .off-canvas-sidebar .nav > li.active > a:before {
