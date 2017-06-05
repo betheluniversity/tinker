@@ -100,30 +100,9 @@ class EventsView(FlaskView):
         if failed:
             return failed
 
-        if not eid:
-            bid = app.config['EVENTS_BASE_ASSET']
-            event_data, metadata, structured_data = self.base.cascade_connector.load_base_asset_by_id(bid, 'page')
-            add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
-            # Changes the dates to a timestamp, needs to occur after a failure is detected or not
-            add_data['event-dates'] = self.base.change_dates(dates, num_dates)
-            add_data['author'] = request.form['author']
-            asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
-            resp = self.base.create_page(asset)
-            eid = resp.asset['page']['id']
-            self.base.log_sentry("New event submission", resp)
-        else:
-            page = self.base.read_page(eid)
-            event_data, metadata, structured_data = page.get_asset()
-            add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
-            # Changes the dates to a timestamp
-            add_data['event-dates'] = self.base.change_dates(dates, num_dates)
-            add_data['author'] = request.form['author']
-            asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow, event_id=eid)
+        add_data, asset, eid = self.base.new_or_edit_form(rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow)
 
-            self.base.check_new_year_folder(eid, add_data, username)
-            proxy_page = self.base.read_page(eid)
-            resp = proxy_page.edit_asset(asset)
-            self.base.log_sentry("Event edit submission", resp)
+        add_data['author'] = request.form['author']
 
         # todo: Test this
         if 'link' in add_data and add_data['link']:
@@ -132,7 +111,6 @@ class EventsView(FlaskView):
             path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
             view.new_internal_redirect_submit(path, add_data['link'])
 
-        # return redirect(url_for('events.EventsView:confirm'), code=302)
         return render_template("submit-confirm.html", **locals())
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])

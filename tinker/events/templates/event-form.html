@@ -288,6 +288,11 @@
                     $(noendlabel).addClass('checked');
                     checkNoEndDate(id, false);
                 }
+                else if (start == end) {
+                    $(noenddateid).attr('checked', true);
+                    $(noendlabel).addClass('checked');
+                    checkNoEndDate(id, false);
+                }
                 //Checks if the all day checkbox was previously checked
                 //Value is 'Yes' if checked and 'No' if not
                 if (allday) {
@@ -391,23 +396,23 @@
                             addHandler(id);
                         }
                         //Now populate the fieldset
-                        var allday = date['all-day'];
+                        var allday = date['all_day'];
                         if (allday == "Yes") {
                             allday = true;
                         }
 
-                        var outsideofminnesota = date['outside-of-minnesota'];
+                        var outsideofminnesota = date['outside_of_minnesota'];
                         if (outsideofminnesota == 'Yes') {
                             outsideofminnesota = true;
                         }
 
-                        var noenddate = date['no-end-date'];
+                        var noenddate = date['no_end_date'];
                         if (noenddate == 'on') {
                             noenddate = true;
                             checkNoEndDate(id, false);
                         }
 
-                        populateFieldset(id, allday, date['start-date'], date['end-date'], outsideofminnesota, date['time-zone'], noenddate);
+                        populateFieldset(id, allday, date['start_date'], date['end_date'], outsideofminnesota, date['time_zone'], noenddate);
                         //no infinite loops today
                         i++;
 
