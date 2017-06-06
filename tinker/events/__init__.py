@@ -91,36 +91,18 @@ class EventsView(FlaskView):
         rform = request.form
         username = session['username']
         eid = rform.get('event_id')
-        dates, dates_good, num_dates = self.base.check_event_dates(rform)
-        failed = self.base.validate_form(rform, dates_good, dates)
+        dates, num_dates = self.base.get_event_dates(rform)
+        dates_str, dates_good = self.base.check_event_dates(num_dates, dates)
+        failed = self.base.validate_form(rform, dates_good, dates_str)
         workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], rform['author'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
         wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']
         if failed:
             return failed
 
-        if not eid:
-            bid = app.config['EVENTS_BASE_ASSET']
-            event_data, metadata, structured_data = self.base.cascade_connector.load_base_asset_by_id(bid, 'page')
-            add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
-            add_data['event-dates'] = self.base.get_dates(add_data)
-            add_data['author'] = request.form['author']
-            asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow)
-            resp = self.base.create_page(asset)
-            eid = resp.asset['page']['id']
-            self.base.log_sentry("New event submission", resp)
-        else:
-            page = self.base.read_page(eid)
-            event_data, metadata, structured_data = page.get_asset()
-            add_data = self.base.get_add_data(metadata_list, rform, wysiwyg_keys)
-            add_data['event-dates'] = self.base.get_dates(add_data)
-            add_data['author'] = request.form['author']
-            asset = self.base.get_event_structure(event_data, metadata, structured_data, add_data, username, workflow=workflow, event_id=eid)
+        add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow)
 
-            self.base.check_new_year_folder(eid, add_data, username)
-            proxy_page = self.base.read_page(eid)
-            resp = proxy_page.edit_asset(asset)
-            self.base.log_sentry("Event edit submission", resp)
+        add_data['author'] = request.form['author']
 
         # todo: Test this
         if 'link' in add_data and add_data['link']:
@@ -129,8 +111,7 @@ class EventsView(FlaskView):
             path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
             view.new_internal_redirect_submit(path, add_data['link'])
 
-        # return redirect(url_for('events.EventsView:confirm'), code=302)
-        return render_template("submit-confirm.html", eid=eid)
+        return render_template("submit-confirm.html", **locals())
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):

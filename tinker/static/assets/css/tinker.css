@@ -556,6 +556,11 @@ label.checkbox {
     font-size: 85%;
 }
 
+/* Makes element have display of none */
+.display-none {
+    display: none;
+}
+
 /* Notifications */
 [data-notify="container"].alert {
     padding: 15px !important;

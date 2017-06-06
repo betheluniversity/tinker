@@ -136,44 +136,118 @@ class EventsController(TinkerController):
 
         return page_values
 
-    def check_event_dates(self, form):
-        event_dates = {}
-        dates_good = False
+    """
+    Submitting a new or edited event form combined into one method
+    """
+    def submit_new_or_edit(self, rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow):
+
+        # Changes the dates to a timestamp, needs to occur after a failure is detected or not
+        add_data = self.get_add_data(metadata_list, rform, wysiwyg_keys)
+        add_data['event-dates'] = self.change_dates(dates, num_dates)
+        if not eid:
+            bid = app.config['EVENTS_BASE_ASSET']
+            event_data, metadata, structured_data = self.cascade_connector.load_base_asset_by_id(bid, 'page')
+            asset = self.update_structure(event_data, metadata, structured_data, add_data, username, num_dates, workflow=workflow)
+            resp = self.create_page(asset)
+            eid = resp.asset['page']['id']
+            self.log_sentry("New event submission", resp)
+        else:
+            page = self.read_page(eid)
+            event_data, metadata, structured_data = page.get_asset()
+            asset = self.update_structure(event_data, metadata, structured_data, add_data, username, num_dates, workflow=workflow, event_id=eid)
+
+            self.check_new_year_folder(eid, add_data, username)
+            proxy_page = self.read_page(eid)
+            resp = proxy_page.edit_asset(asset)
+            self.log_sentry("Event edit submission", resp)
+
+        return add_data, asset, eid
+
+    def get_event_dates(self, form):
+        event_dates = []
+
         num_dates = int(form['num_dates'])
-        for x in range(1, num_dates+1):  # the page doesn't use 0-based indexing
+        for i in range(1, num_dates+1):  # the page doesn't use 0-based indexing
 
-            i = str(x)
-            start_l = 'start' + i
-            end_l = 'end' + i
-            all_day_l = 'allday' + i
-            need_time_zone_l = 'needtimezone' + i
-            time_zone_l = 'timezone' + i
+            i = str(i)
+            new_date = {
+                'start_date': form.get('start' + i, ''),
+                'end_date': form.get('end' + i, ''),
+                'all_day': form.get('allday' + i, ''),
+                'outside_of_minnesota': form.get('outsideofminnesota' + i, ''),
+                'time_zone': form.get('timezone' + i, ''),
+                'no_end_date': form.get('noenddate' + i, '')
+            }
 
-            start = form[start_l]
-            end = form[end_l]
-            all_day = all_day_l in form.keys()
-            need_time_zone = need_time_zone_l in form.keys()
-            time_zone = form[time_zone_l]
+            if not new_date['end_date']:
+                new_date['end_date'] = form.get('start' + i, '')
 
-            event_dates[start_l] = start
-            event_dates[end_l] = end
-            event_dates[all_day_l] = all_day
-            event_dates[need_time_zone] = need_time_zone
-            event_dates[time_zone] = time_zone
-
-            start_and_end = start and end
-
-            condition = True
-            if need_time_zone and str(time_zone) == '':
-                condition = False
-
-            if start_and_end and condition:
-                dates_good = True
+            event_dates.append(new_date)
 
         # convert event dates to JSON
-        return json.dumps(event_dates), dates_good, num_dates
+        return event_dates, num_dates
 
-    def validate_form(self, rform, dates_good, event_dates):
+    def check_event_dates(self, num_dates, event_dates):
+        dates_good = False
+        for i in range(0, num_dates):
+            # try:
+                start_and_end = event_dates[i]['start_date'] and event_dates[i]['end_date']
+
+                condition = True
+                if event_dates[i]['outside_of_minnesota'] and str(event_dates[i]['time_zone']) == '':
+                    condition = False
+
+                if start_and_end and condition:
+                    dates_good = True
+
+        return json.dumps(event_dates), dates_good
+
+    def change_dates(self, event_dates, num_dates):
+        for i in range(0, num_dates):
+            try:
+                # Get rid of the fancy formatting so we just have normal numbers
+                start = event_dates[i]['start_date'].split(' ')
+                end = event_dates[i]['end_date'].split(' ')
+                start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+                end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+
+                start = " ".join(start)
+                end = " ".join(end)
+
+                event_dates[i]['start_date'] = start
+                event_dates[i]['end_date'] = end
+
+                # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
+                # which use milliseconds instead of seconds
+                try:
+                    event_dates[i]['start_date'] = self.date_str_to_timestamp(event_dates[i]['start_date'])
+                except ValueError as e:
+                    app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
+                    event_dates[i]['start_date'] = None
+                try:
+                    event_dates[i]['end_date'] = self.date_str_to_timestamp(event_dates[i]['end_date'])
+                except ValueError as e:
+                    app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
+                    event_dates[i]['end_date'] = None
+
+                # As long as the value for these checkboxes are NOT '' or 'False'
+                # the value in event_dates will be set to 'Yes'
+                if event_dates[i]['all_day']:
+                    event_dates[i]['all_day'] = 'Yes'
+                else:
+                    event_dates[i]['all_day'] = 'No'
+                if event_dates[i]['outside_of_minnesota']:
+                    event_dates[i]['outside_of_minnesota'] = 'Yes'
+                else:
+                    event_dates[i]['outside_of_minnesota'] = 'No'
+
+            except KeyError:
+                # This will break once we run out of dates
+                break
+
+        return event_dates
+
+    def validate_form(self, rform, dates_good, dates):
 
         from forms import EventForm
         form = EventForm()
@@ -213,74 +287,31 @@ class EventsController(TinkerController):
         except TypeError:
             return None
 
-    def get_dates(self, add_data):
-        dates = []
-
-        # format the dates
-        for i in range(1, 200):
-            i = str(i)
-            try:
-                start = 'start' + i
-                end = 'end' + i
-                all_day = 'allday' + i
-                time_zone = 'timezone' + i
-                need_time_zone = 'needtimezone' + i
-
-                start = add_data[start]
-                end = add_data[end]
-                all_day = all_day in add_data.keys()
-                need_time_zone = need_time_zone in add_data.keys()
-                time_zone = add_data[time_zone]
-
-            except KeyError:
-                # This will break once we run out of dates
-                break
-
-            # Get rid of the facy formatting so we just have normal numbers
-            start = start.split(' ')
-            end = end.split(' ')
-            start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
-            end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
-
-            start = " ".join(start)
-            end = " ".join(end)
-
-            # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
-            # which use milliseconds instead of seconds
-            try:
-                start = self.date_str_to_timestamp(start)
-            except ValueError as e:
-                app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
-                start = None
-            try:
-                end = self.date_str_to_timestamp(end)
-            except ValueError as e:
-                app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
-                end = None
-
-            new_date = {'start-date': start, 'end-date': end, 'time-zone': time_zone}
-
-            if all_day:
-                new_date['all-day'] = 'Yes'
-            else:
-                new_date['all-day'] = 'No'
-            if need_time_zone:
-                new_date['outside-of-minnesota'] = 'Yes'
-            else:
-                new_date['outside-of-minnesota'] = 'No'
-
-            dates.append(new_date)
-
-        return dates
-
-    def get_event_structure(self, event_data, metadata, structured_data, add_data, username, workflow=None, event_id=None):
+    def update_structure(self, event_data, metadata, structured_data, add_data, username, num_dates, workflow=None, event_id=None):
         """
          Could this be cleaned up at all?
         """
         new_data = {}
         for key in add_data:
             try:
-                new_data[key.replace("_", "-")] = add_data[key]
+                # Changes date's value names to be hyphens
+                if key == 'event-dates':
+                    new_data[key.replace('_', '-')] = add_data[key]
+                    for i in range(0, num_dates):
+                        # The temp dict is made to later replace new_data's dict
+                        temp_data = {
+                            'start-date': None,
+                            'end-date': None,
+                            'all-day': None,
+                            'outside-of-minnesota': None,
+                            'time-zone': None,
+                            'no-end-date': None
+                        }
+                        for val in add_data[key][i]:
+                            temp_data[val.replace('_', '-')] = add_data['event-dates'][i][val]
+                        new_data[key.replace('_', '-')][i] = temp_data
+                else:
+                    new_data[key.replace('_', '-')] = add_data[key]
             except:
                 pass
 
