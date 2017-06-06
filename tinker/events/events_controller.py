@@ -179,8 +179,6 @@ class EventsController(TinkerController):
                 'no_end_date': form.get('noenddate' + i, '')
             }
 
-            print(new_date)
-
             if not new_date['end_date']:
                 new_date['end_date'] = form.get('start' + i, '')
 
@@ -208,8 +206,16 @@ class EventsController(TinkerController):
         for i in range(0, num_dates):
             try:
                 # Get rid of the fancy formatting so we just have normal numbers
-                event_dates[i]['start_date'] = event_dates[i]['start_date'].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
-                event_dates[i]['end_date'] = event_dates[i]['end_date'].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+                start = event_dates[i]['start_date'].split(' ')
+                end = event_dates[i]['end_date'].split(' ')
+                start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+                end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+
+                start = " ".join(start)
+                end = " ".join(end)
+
+                event_dates[i]['start_date'] = start
+                event_dates[i]['end_date'] = end
 
                 # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
                 # which use milliseconds instead of seconds
