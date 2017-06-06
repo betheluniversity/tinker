@@ -136,7 +136,7 @@ class FacultyBioController(TinkerController):
         for program_element in program_elements:
             for program in program_element:
                 try:
-                    if self.get_mapping()[program.text] in groups:
+                    if self.get_mapping()[program.text] == groups:
                         return True
                 except:
                     continue
@@ -265,8 +265,11 @@ class FacultyBioController(TinkerController):
         else:
             add_data['parentFolderPath'] = '/_testing/philip-gibbens/fac-bios-tests'
         add_data['path'] = None
-        add_data['author'] = session['username']
         faculty_bio_data['page']['metadata']['metaDescription'] = self.build_description(add_data)
+
+        # make sure author is set properly and not overriden by tinker controllers methods :(
+        # todo: add a parameter or something so we don't have to do this exchange.
+        add_data['author'] = add_data['author_faculty']
 
         # todo: eventually adjust the keys in cascade to work.
         add_data['started-at-bethel'] = add_data['started_at_bethel']
