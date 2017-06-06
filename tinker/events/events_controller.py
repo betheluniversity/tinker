@@ -136,7 +136,10 @@ class EventsController(TinkerController):
 
         return page_values
 
-    def new_or_edit_form(self, rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow):
+    """
+    Submitting a new or edited event form combined into one method
+    """
+    def submit_new_or_edit(self, rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow):
 
         # Changes the dates to a timestamp, needs to occur after a failure is detected or not
         add_data = self.get_add_data(metadata_list, rform, wysiwyg_keys)
@@ -175,6 +178,8 @@ class EventsController(TinkerController):
                 'time_zone': form.get('timezone' + i, ''),
                 'no_end_date': form.get('noenddate' + i, '')
             }
+
+            print(new_date)
 
             if not new_date['end_date']:
                 new_date['end_date'] = form.get('start' + i, '')

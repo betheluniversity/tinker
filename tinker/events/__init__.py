@@ -100,7 +100,7 @@ class EventsView(FlaskView):
         if failed:
             return failed
 
-        add_data, asset, eid = self.base.new_or_edit_form(rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow)
+        add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow)
 
         add_data['author'] = request.form['author']
 
