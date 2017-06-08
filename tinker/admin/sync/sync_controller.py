@@ -52,8 +52,7 @@ class SyncController(TinkerController):
         metadata_sets = [
             app.config['METADATA_EVENT_ID'],
             app.config['METADATA_ROBUST_ID'],
-            app.config['METADATA_JOB_POSTING_ID'],
-            app.config['METADATA_PORTAL_ROLES_ID']
+            app.config['METADATA_JOB_POSTING_ID']
         ]
         for metadata_set_id in metadata_sets:
             asset = self.read_metadata_set(metadata_set_id)

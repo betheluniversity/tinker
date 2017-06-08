@@ -83,7 +83,7 @@ class FacultyBioForm(Form):
 
         first = StringField('Faculty first name')
         last = StringField('Faculty last name')
-        author = StringField("Faculty member's username", description="Enter your Bethel username.")
+        author_faculty = StringField("Faculty member's username", description="Enter your Bethel username.")
 
         faculty_location = SelectMultipleField('Location', choices=[('St. Paul', 'St. Paul'), ('San Diego', 'San Diego'), ('Online', 'Online')])
         highlight = TextAreaField('Highlight text', description="This text will appear on faculty listing pages as a short snippet about you!")
@@ -120,7 +120,7 @@ class FacultyBioForm(Form):
 
         first = StringField('Faculty first name', validators=[validators.DataRequired()])
         last = StringField('Faculty last name', validators=[validators.DataRequired()])
-        author = StringField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
+        author_faculty = StringField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
                              description="Enter your Bethel username.")
 
         faculty_location = SelectMultipleField('Location',
