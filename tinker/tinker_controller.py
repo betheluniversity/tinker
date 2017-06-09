@@ -207,6 +207,7 @@ class TinkerController(object):
         session.clear()
         resp = make_response(redirect("https://auth.bethel.edu/cas/logout"))
         resp.set_cookie('MOD_AUTH_CAS_S', '', expires=0)
+        resp.set_cookie('MOD_AUTH_CAS', '', expires=0)
         return resp
 
     def log_sentry(self, message, response):
