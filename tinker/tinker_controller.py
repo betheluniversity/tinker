@@ -204,7 +204,7 @@ class TinkerController(object):
     # Clear session variable and redirect to https://auth.bethel.edu/cas/logout
     def logout(self):
         session.clear()
-        return redirect("https://auth.bethel.edu/cas/logout")
+        return redirect("https://staging.bethel.edu/code/test")
 
     def log_sentry(self, message, response):
 
