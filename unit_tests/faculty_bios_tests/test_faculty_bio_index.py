@@ -17,10 +17,8 @@ class IndexTestCase(BaseTestCase):
     #######################
 
     def test_index(self):
-        expected_response = repr('\x85\xc5[%m\xd6\x98\xfc&\xde\xc6\x18\x818\xd1\xea')
-        # b"Below is a list of faculty bios you have access to edit. If you don't see your faculty"
+        expected_response = b"Below is a list of faculty bios you have access to edit. If you don't see your faculty"
         response = self.send_get(self.request)
-        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertEqual(expected_response, short_string, msg=failure_message)
+        self.assertIn(expected_response, response.data, msg=failure_message)

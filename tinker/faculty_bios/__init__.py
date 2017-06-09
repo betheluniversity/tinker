@@ -107,7 +107,7 @@ class FacultyBiosView(FlaskView):
         page = self.base.read_page(faculty_bio_id)
         faculty_bio_data, mdata, sdata = page.read_asset()
         edit_data = self.base.get_edit_data(sdata, mdata, ['education', 'job-titles'])
-
+        edit_data['author_faculty'] = find(mdata, 'author', False)
         # turn the image into the correct identifier
         try:
             edit_data['image_url'] = edit_data['image']

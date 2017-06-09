@@ -380,15 +380,16 @@ class TinkerController(object):
                     add_data[key] = form[key]
 
         if 'title' in add_data:
-            title = add_data['title']
+            # strip() is called on the title to eliminate whitespace before and after the title
+            title = add_data['title'].strip()
         elif 'first' in add_data and 'last' in add_data:
-            title = add_data['first'] + ' ' + add_data['last']
+            # strip() is called on the title to eliminate whitespace before and after the title
+            title = add_data['first'].strip() + ' ' + add_data['last'].strip()
         else:
             title = None
 
         if title:
             add_data['title'] = title
-
             # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
             system_name = title.lower().replace(' ', '-')
             add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)

@@ -12,8 +12,8 @@
 
 {% block main_content %}
     <script type="text/javascript">
-        function checkNeedTimezone(id, reverse_logic) {
-            var out = 'needtimezone' + id;
+        function checkOutsideOfMinnesota(id, reverse_logic) {
+            var out = 'outsideofminnesota' + id;
             var time = 'timezone' + id;
             // escape if it doesn't exist yet.
             if (document.getElementById(out) == undefined)
@@ -32,6 +32,46 @@
                     document.getElementById(time).style.display = "none";
                 }
             }
+        }
+
+        function checkNoEndDate(id, reverse_logic) {
+            var end = 'end' + id;
+            var start = 'start' + id;
+            var noend = 'noenddate' + id;
+            var endlabel = 'endlabel' + id;
+
+            if (document.getElementById(end) == undefined)
+                return;
+
+            if (reverse_logic == true) {
+                if (document.getElementById(noend).checked) {
+                    document.getElementById(endlabel).style.display = 'block'
+                    document.getElementById(end).style.display = 'block'
+                }
+                else {
+                    document.getElementById(end).value = '';
+                    document.getElementById(endlabel).style.display = 'none'
+                    document.getElementById(end).style.display = 'none'
+                }
+            }
+            else {
+                if (document.getElementById(noend).checked) {
+                    document.getElementById(end).value = '';
+                    document.getElementById(endlabel).style.display = 'none'
+                    document.getElementById(end).style.display = 'none'
+                }
+                else {
+                    document.getElementById(endlabel).style.display = 'block'
+                    document.getElementById(end).style.display = 'block'
+                }
+            }
+        }
+
+        function fillEndDate(id) {
+            if (document.getElementById('end' + id).value)
+                return;
+            else
+                document.getElementById('end' + id).value = document.getElementById('start' + id).value;
         }
     </script>
     <div class="content">
@@ -135,6 +175,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
     <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
     <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+
     <script type="text/javascript">
 
         $(document).ready(function () {
@@ -175,13 +216,17 @@
             $('#registration_heading').change();
 
             function newFieldset(id) {
+                var startlabel = 'startlabel' + id;
                 var start = 'start' + id;
+                var endlabel = 'endlabel' + id;
                 var end = 'end' + id;
                 var all = 'allday' + id;
                 var alllabel = 'alldaylabel' + id;
                 var time = 'timezone' + id;
-                var out = 'needtimezone' + id;
-                var timelabel = 'needtimezonelabel' + id;
+                var out = 'outsideofminnesota' + id;
+                var timelabel = 'outsideofminnesotalabel' + id;
+                var noendlabel = 'noendlabel' + id;
+                var noend = 'noenddate' + id;
                 var fieldset_node = $('<fieldset>').addClass('date-fieldset');
                 var inner_node = $("<div>").addClass('content');
                 inner_node.append($("<legend>")
@@ -194,17 +239,25 @@
                                 .append($("<span>").addClass("second-icon fa fa-check-square-o")))
                         .append($("<input type='checkbox'>").addClass("alldaycheck").attr('id', all).attr('name', all))
                         .append("All Day"));
-                inner_node.append($("<label>").attr('for', start).html("Start Date"));
-                inner_node.append($("<input type='text'>").attr('name', start).attr('id', start).addClass("datepicker"));
-                inner_node.append($("<label>").attr('for', end).html("End Date"));
+                inner_node.append($("<label>").attr('for', start).attr('id', startlabel).html("Start Date"));
+                inner_node.append($("<input type='text'>").attr('name', start).attr('id', start).addClass("datepicker").attr('onchange', "fillEndDate(" + id + ")"));
+                inner_node.append($("<label>").attr('for', end).attr('id', endlabel).html("End Date"));
                 inner_node.append($("<input type='text'>").attr('name', end).attr('id', end).addClass("datepicker"));
 
-                inner_node.append($("<label>").addClass("checkbox").attr("id", timelabel).attr("for", out).attr('onclick', "checkNeedTimezone(" + id + ", true)")
+                inner_node.append($("<label>").addClass("checkbox").attr("id", noendlabel).attr("for", noend).attr('onclick', "checkNoEndDate(" + id + ", true)")
                         .append($("<span>").addClass("icons")
                                 .append($("<span>").addClass("first-icon fa fa-square-o"))
                                 .append($("<span>").addClass("second-icon fa fa-check-square-o")))
-                        .append($("<input type='checkbox'>").attr('name', out).attr('id', out).attr('data-id', out).attr('class', 'needtimezonecheck'))
+                        .append($("<input type='checkbox'>").attr('name', noend).attr('id', noend).attr('data-id', noend))
+                        .append("No End Date"));
+
+                inner_node.append($("<label>").addClass("checkbox").attr("id", timelabel).attr("for", out).attr('onclick', "checkOutsideOfMinnesota(" + id + ", true)")
+                        .append($("<span>").addClass("icons")
+                                .append($("<span>").addClass("first-icon fa fa-square-o"))
+                                .append($("<span>").addClass("second-icon fa fa-check-square-o")))
+                        .append($("<input type='checkbox'>").attr('name', out).attr('id', out).attr('data-id', out))
                         .append("Outside of Minnesota?"));
+
                 inner_node.append($("<label>").attr('for', time).attr('style', 'display: none').attr('id', timelabel).html("Timezone"));
                 inner_node.append($("<select>").attr('name', time).attr('id', time).attr('class', 'timezoneselect').attr('style', 'display: none').html($("<option value>-select-</option><option value='Pacific Time'>Pacific Time</option><option value='Mountain Time'>Mountain Time</option><option value='Central Time'>Central Time</option><option value='Eastern Time'>Eastern Time</option>")));
 
@@ -213,25 +266,45 @@
                 return fieldset_node;
             }
 
-            function populateFieldset(id, allday, start, end, out, timezone) {
+            function populateFieldset(id, allday, start, end, out, timezone, noenddate) {
                 var startid = '#start' + id;
                 var endid = '#end' + id;
                 var alldayid = '#allday' + id;
                 var alldaylabel = '#alldaylabel' + id;
-                var outid = '#needtimezone' + id;
+                var outid = '#outsideofminnesota' + id;
                 var timezoneid = '#timezone' + id;
-                var timezonelabel = '#needtimezonelabel' + id;
+                var timezonelabel = '#outsideofminnesotalabel' + id;
+                var noendlabel = '#noendlabel' + id;
+                var noenddateid = '#noenddate' + id;
+
                 $(startid).val(start);
                 $(endid).val(end);
                 $(timezoneid).val(timezone);
+
+                //Checks if the no end date checkbox was previously checked
+                //Value is 'on' if checked and '' if not
+                if (noenddate) {
+                    $(noenddateid).attr('checked', true);
+                    $(noendlabel).addClass('checked');
+                    checkNoEndDate(id, false);
+                }
+                else if (start == end) {
+                    $(noenddateid).attr('checked', true);
+                    $(noendlabel).addClass('checked');
+                    checkNoEndDate(id, false);
+                }
+                //Checks if the all day checkbox was previously checked
+                //Value is 'Yes' if checked and 'No' if not
                 if (allday) {
                     $(alldayid).attr('checked', true);
                     $(alldaylabel).addClass('checked');
                 }
+                //Checks if the out of minnesota checkbox was previously checked
+                //Value is 'Yes' if checked and 'No' if not
                 if (out) {
                     $(outid).attr('checked', true);
                     $(timezonelabel).addClass('checked');
-                    checkNeedTimezone(id, false);
+                    checkOutsideOfMinnesota(id, false);
                 }
             }
 
@@ -249,14 +322,14 @@
                         else
                             $("#allday" + i).parent().removeClass('checked');
 
-                        if ($("#needtimezone" + (i + 1)).parent().hasClass('checked')) {
-                            $("#needtimezone" + i).parent().addClass('checked');
+                        if ($("#outsideofminnesota" + (i + 1)).parent().hasClass('checked')) {
+                            $("#outsideofminnesota" + i).parent().addClass('checked');
                             $('#timezone' + i).val($('#timezone' + (i + 1)).val());
-                            checkNeedTimezone(i, true);
+                            checkOutsideOfMinnesota(i, true);
                         } else {
-                            $("#needtimezone" + i).parent().removeClass('checked');
+                            $("#outsideofminnesota" + i).parent().removeClass('checked');
                             $('#timezone' + i).val('');
-                            checkNeedTimezone(i, false);
+                            checkOutsideOfMinnesota(i, false);
                         }
                     }
 
@@ -304,8 +377,6 @@
                         showTime: true
                     });
                 });
-
-
                 {% if dates %}
                     var dates = {{ dates|safe }};
                     var i = 0;
@@ -326,10 +397,22 @@
                         }
                         //Now populate the fieldset
                         var allday = date['all_day'];
-                        if (allday && allday.substr(-3) == "Yes") {
+                        if (allday == "Yes") {
                             allday = true;
                         }
-                        populateFieldset(id, allday, date['start_date'], date['end_date'], date['outside_of_minnesota'], date['time_zone']);
+
+                        var outsideofminnesota = date['outside_of_minnesota'];
+                        if (outsideofminnesota == 'Yes') {
+                            outsideofminnesota = true;
+                        }
+
+                        var noenddate = date['no_end_date'];
+                        if (noenddate == 'on') {
+                            noenddate = true;
+                            checkNoEndDate(id, false);
+                        }
+
+                        populateFieldset(id, allday, date['start_date'], date['end_date'], outsideofminnesota, date['time_zone'], noenddate);
                         //no infinite loops today
                         i++;
 
@@ -337,28 +420,38 @@
 
                 {% endif %}
 
-                {% if form.errors or not dates_good and num_dates %}
-                    var event_dates = {{ event_dates|safe }};
-                    var tt = {{ num_dates }};
-                    for (var i = 1; i < {{ num_dates + 1}}; i++) {
-                        if (i == 1) {
-                            $('#allday1').prop('checked', event_dates['allday1']);
-                            $('#start1').val(event_dates['start1']);
-                            $('#end1').val(event_dates['end1']);
-                        } else {
-                            newFieldset(i);
-                            var fieldsets = $(".date-fieldset");
-                            var last = fieldsets.last();
-                            newFieldset(i).insertAfter(last);
-                            $('#allday' + i).prop('checked', event_dates['allday' + i]);
-                            $('#start' + i).val(event_dates['start' + i]);
-                            $('#end' + i).val(event_dates['end' + i]);
-                            $('#needtimezone' + i).val(event_dates['needtimezone' + i]);
-                            $('#timezone' + i).val(event_dates['timezone' + i]);
-                        }
-                    }
-
-                {% endif %}
+{#                {% if form.errors or not dates_good and num_dates %}#}
+{#                    var event_dates = {{ dates|safe }};#}
+{#                    var tt = {{ num_dates }};#}
+{#                    for (var i = 1; i < {{ num_dates + 1}}; i++) {#}
+{#                        if (i == 1) {#}
+{#                            $('#allday1').prop('checked', event_dates[i-1]['all-day']);#}
+{#                            $('#start1').val(event_dates[i-1]['start-date']);#}
+{#                            if ($('#noenddate1').prop('checked')) {#}
+{#                                $('#end' + i).val('');#}
+{#                            }#}
+{#                            else#}
+{#                                $('#end' + i).val(event_dates[i-1]['end-date']);#}
+{##}
+{#                        } else {#}
+{#                            newFieldset(i);#}
+{#                            var fieldsets = $(".date-fieldset");#}
+{#                            var last = fieldsets.last();#}
+{#                            newFieldset(i).insertAfter(last);#}
+{#                            $('#allday' + i).prop('checked', event_dates[i-1]['all-day']);#}
+{#                            $('#start' + i).val(event_dates[i-1]['start-date']);#}
+{#                            if ($('#noenddate' + i).prop('checked')) {#}
+{#                                $('#end' + i).val('');#}
+{#                            }#}
+{#                            else#}
+{#                                $('#end' + i).val(event_dates[i-1]['end-date']);#}
+{#                            $('#outsideofminnesota' + i).val(event_dates[i-1]['outside-of-minnesota']);#}
+{#                            $('#timezone' + i).val(event_dates[i-1]['time-zone']);#}
+{#                            $('#noenddate' + i).val(event_dates[i-1]['no-end-date']);#}
+{#                        }#}
+{#                    }#}
+{##}
+{#                {% endif %}#}
 
                 $("#add_date_button").click(function () {
                     var fieldsets = $(".date-fieldset");
@@ -387,6 +480,10 @@
                     for (i = 1; i <= dates.length; i++) {
                         var start = $('#start' + i);
                         var end = $('#end' + i);
+
+                        if (start.val() != '' && end.val() == '') {
+                            break;
+                        }
 
                         if (start.val() == '' || end.val() == '') {
                             var new_element = $('<div>').html('Dates are required.').addClass('required dates-required red-alert').attr('style', 'margin-bottom: 8px');
@@ -445,18 +542,25 @@
                     All Day
                 </label>
 
-                <label for="start1">Start Date</label>
-                <input type="text" name="start1" id="start1" class="datepicker"/>
+                <label for="start1" id="startlabel1">Start Date</label>
+                <input type="text" name="start1" id="start1" class="datepicker" onchange="fillEndDate(1)"/>
 
-                <label for="end1">End Date</label>
+                <label for="end1" id="endlabel1">End Date</label>
                 <input type="text" name="end1" id="end1" class="datepicker"/>
 
-                <label class="checkbox" id="needtimezonelabel1" for="needtimezone1"
-                       onclick="checkNeedTimezone(1, true)">
+                <label class="checkbox" id="noendlabel1" for="noenddate1"
+                        onclick="checkNoEndDate(1, true)">
                     <span class="icons"><span class="first-icon fa fa-square-o"></span>
                         <span class="second-icon fa fa-check-square-o"></span></span>
-                    <input type="checkbox" id="needtimezone1" data-id="needtimezone1" name="needtimezone1"
-                           value="False">
+                    <input type="checkbox" id="noenddate1" data-id="noenddate1" name="noenddate1">
+                    No End Date
+                </label>
+
+                <label class="checkbox" id="outsideofminnesotalabel1" for="outsideofminnesota1"
+                       onclick="checkOutsideOfMinnesota(1, true)">
+                    <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                        <span class="second-icon fa fa-check-square-o"></span></span>
+                    <input type="checkbox" id="outsideofminnesota1" data-id="outsideofminnesota1" name="outsideofminnesota1">
                     Outside of Minnesota?
                 </label>
 
