@@ -22,6 +22,7 @@ from flask import render_template
 from flask import redirect
 from flask import json as fjson
 from flask import Response
+from flask import make_response
 
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
@@ -204,7 +205,9 @@ class TinkerController(object):
     # Clear session variable and redirect to https://auth.bethel.edu/cas/logout
     def logout(self):
         session.clear()
-        return redirect("https://staging.bethel.edu/code/test")
+        resp = make_response(render_template("index.html"))
+        resp.set_cookie('MOD_AUTH_CAS_S', '', expires=0)
+        return redirect("https://auth.bethel.edu/cas/logout")
 
     def log_sentry(self, message, response):
 
