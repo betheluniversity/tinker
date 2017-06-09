@@ -205,7 +205,7 @@ class TinkerController(object):
     # Clear session variable and redirect to https://auth.bethel.edu/cas/logout
     def logout(self):
         session.clear()
-        resp = make_response(render_template("index.html"))
+        resp = make_response(redirect("https://auth.bethel.edu/cas/logout"))
         resp.set_cookie('MOD_AUTH_CAS_S', '', expires=0)
         return resp
 
