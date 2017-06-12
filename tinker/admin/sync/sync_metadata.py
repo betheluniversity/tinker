@@ -8,7 +8,6 @@ school = [
 
 undergrad_programs = [
     "None",
-    "Anthropology, Sociology, & Reconciliation",
     "Art & Design",
     "Athletic Training",
     "Biblical & Theological Studies",
@@ -34,6 +33,7 @@ undergrad_programs = [
     "Preprofessional",
     "Psychology",
     "Social Work",
+    "Sociology and Reconciliation Studies",
     "Theatre Arts",
     "World Languages and Cultures",
 ]
