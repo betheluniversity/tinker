@@ -19,10 +19,8 @@ from flask import request
 from flask import session
 from flask import current_app
 from flask import render_template
-from flask import redirect
 from flask import json as fjson
 from flask import Response
-from flask import make_response
 
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
@@ -201,14 +199,6 @@ class TinkerController(object):
             session['username'] = 'tinker'
             session['groups'] = []
             session['roles'] = []
-
-    # Clear session variable and redirect to https://auth.bethel.edu/cas/logout
-    def logout(self):
-        session.clear()
-        resp = make_response(redirect("https://auth.bethel.edu/cas/logout"))
-        resp.set_cookie('MOD_AUTH_CAS_S', '', expires=0)
-        resp.set_cookie('MOD_AUTH_CAS', '', expires=0)
-        return resp
 
     def log_sentry(self, message, response):
 

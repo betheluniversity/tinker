@@ -5,6 +5,8 @@ import platform
 # flask
 from flask import Flask, url_for
 from flask import session
+from flask import make_response
+from flask import redirect
 
 # flask extensions
 import flask_profiler
@@ -137,8 +139,11 @@ def before_request():
 
 @app.route("/logout", methods=["GET"])
 def logout():
-    base = TinkerController()
-    return base.logout()
+    session.clear()
+    resp = make_response(redirect("https://auth.bethel.edu/cas/logout"))
+    resp.set_cookie('MOD_AUTH_CAS_S', '', expires=0)
+    resp.set_cookie('MOD_AUTH_CAS', '', expires=0)
+    return resp
 
 if not TRAVIS_TESTING:
     flask_profiler.init_app(app)
