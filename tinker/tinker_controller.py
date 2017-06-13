@@ -94,7 +94,6 @@ class TinkerController(object):
 
     def before_request(self):
         def init_user():
-
             dev = current_app.config['ENVIRON'] != 'prod'
 
             # reset session if it has been more than 24 hours
