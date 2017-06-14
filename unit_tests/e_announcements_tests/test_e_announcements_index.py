@@ -17,7 +17,7 @@ class IndexTestCase(BaseTestCase):
     #######################
 
     def test_index(self):
-        expected_response = repr(')\xc9/<q\xd2(!\x07\x96To\x1a$\xfd\x01')
+        expected_response = repr('%z\x17\xcb\xb5j\n\xd8sh1j\xb3\x99WN')
         # b'Below is the list of E-Announcements you have access to edit. These are sorted by'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)

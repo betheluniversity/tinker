@@ -17,7 +17,7 @@ class IndexTestCase(BaseTestCase):
     #######################
 
     def test_index(self):
-        expected_response = repr('\xcb\x01I\x98\xa2\x96\xe4\xf2\xca\x0c#\xaeH)\xd6\xb0')
+        expected_response = repr("\xadfa\xdf\xf1E{\xdb\x9f\xca'Hj\xf9\x14<")
         # b'All events will be reviewed and approved within 2-3 business days by Conference'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)

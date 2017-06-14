@@ -17,7 +17,7 @@ class DeleteConfirmTestCase(BaseTestCase):
     #######################
 
     def test_delete_confirm(self):
-        expected_response = repr('x\xe8{\x90V\\\x90\xc7p\xa6\xc04\xcb\x17\x9e`')
+        expected_response = repr('\xf3G%$\x19%dVC\xdd\xdf\x03D\xdcKi')
         # b'Your faculty bio has been deleted. It will be removed from your'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)

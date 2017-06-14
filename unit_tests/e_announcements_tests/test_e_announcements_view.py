@@ -20,7 +20,7 @@ class ViewTestCase(BaseTestCase):
         # The id may need to get changed someday if this e-announcement gets deleted
         id_to_test = "12f336eb8c58651305d79299154d15ff"
         self.request = self.generate_url("view", e_announcement_id=id_to_test)
-        expected_response = repr('m\xcd\xb6\xef\xe7\x9a\xc0\xb8\xf6a\n\x94M{\x02\xa0')  # b'<h5>First Date</h5>'
+        expected_response = repr('P\x0c;\x16\xd7\xb3`\x90bE2b\xbc\xc1\x8e\x84')  # b'<h5>First Date</h5>'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
