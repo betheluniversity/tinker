@@ -17,7 +17,7 @@ class IndexTestCase(BaseTestCase):
     #######################
 
     def test_index(self):
-        expected_response = repr('\xd9\xfe\xf9b\xd5=\xfb\xa1\r\x00Y\xd3\x12j6\x0b')  # b'<div class="large-6 columns">'
+        expected_response = repr('\xe7\xafN\xad\x08p\x03\x8a\x981\xf9\xe2,V\xd2\xc1')  # b'<div class="large-6 columns">'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,

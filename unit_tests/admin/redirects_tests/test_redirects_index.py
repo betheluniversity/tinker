@@ -17,7 +17,7 @@ class IndexTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_index(self):
-        expected_response = repr('X\x8e\xeaF\xb9%\xaa\x1e\x9dZ\xf5<B\xb0\x96r')
+        expected_response = repr('\xe8\x9c\xbb}\x18\x94fQ%\xa6\\d{\xab\xda\xaa')
         # b'<form action="" id="new-redirect-form">'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)
