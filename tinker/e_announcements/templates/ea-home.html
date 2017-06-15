@@ -21,7 +21,8 @@
                 <a href="{{ url_for('e_announcements.EAnnouncementsView:new') }}" class="btn btn-primary new-btn">Submit
                     New
                     E-Announcement</a>
-                <a href="{{  TODO }}" class="btn btn-primary new-btn">View E-Announcements</a>
+                <a href="{{  url_for('e_announcements.EAnnouncementsView:ea_future_page') }}" class="btn btn-primary new-btn">
+                    View E-Announcements</a>
 
                 {% for form in forms %}
                     <div class="card">

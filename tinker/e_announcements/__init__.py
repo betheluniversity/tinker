@@ -263,4 +263,12 @@ class EAnnouncementsView(FlaskView):
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 
+    # compares dates to show only future E-announcements
+    # def show_future(self, date):
+        # if
+
+    @route("/e-announcements-future")
+    def ea_future_page(self):
+        return render_template("ea-future.html")
+
 EAnnouncementsView.register(EAnnouncementsBlueprint)
