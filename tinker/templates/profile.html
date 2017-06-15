@@ -4,32 +4,55 @@
 
 {% block styles %}
     <style type="text/css">
-
+        h2 {
+            margin-top: 5px;
+        }
+        th {
+            font-size: 15px;
+            padding-right: 10%;
+            vertical-align: top;
+        }
+        td {
+            vertical-align: top;
+            padding-bottom: 10% !important; /*Overriding tinker.css*/
+        }
+        li {
+            list-style-type: none;
+        }
     </style>
 {% endblock %}
-
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
                 <h2>{{ session['name'] }}</h2>
-                    <hr>
+                <hr>
                 <table>
                     <tr>
-                        <th>Username:</th>
+                        <th>Username</th>
                         <td>{{ session['username'] }}</td>
                     </tr>
                     <tr>
-                        <th>Email:</th>
+                        <th>Email</th>
                         <td>{{ session['user_email'] }}</td>
                     </tr>
                     <tr>
-                        <th>Roles:</th>
-                        <td>{{ session['roles'] }}</td>
+                        <th>Roles</th>
+                        <td>
+                            {% for key in session['roles'] %}
+                                {{ key }}
+                                <br/>
+                            {% endfor %}
+                         </td>
                     </tr>
                     <tr>
-                        <th>Groups:</th>
-                        <td>{{ session['groups'] }}</td>
+                        <th>Groups</th>
+                        <td>
+                            {% for key in session['groups'].split(';') %}
+                                {{ key }}
+                                <br/>
+                            {% endfor %}
+                        </td>
                     </tr>
                 </table>
             </div>
