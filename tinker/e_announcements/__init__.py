@@ -267,8 +267,8 @@ class EAnnouncementsView(FlaskView):
     # def show_future(self, date):
         # if
 
-    @route("/e-announcements-future")
-    def ea_future_page(self):
+    @route("/upcoming")
+    def ea_upcoming(self):
         return render_template("ea-future.html")
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)

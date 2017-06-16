@@ -1,6 +1,6 @@
 {% extends "tinker_base.html" %}
 
-{% set title = 'E-Announcements' %}
+{% set title = 'Upcoming E-Announcements' %}
 
 {% block styles %}
     <style type="text/css">
@@ -13,13 +13,24 @@
     <div class="content">
         <div class="container-fluid">
                 <div class="col-md-12">
-                    
+                    <p class="description"> Choose a date to see upcoming E-Announcements</p>
+                    <hr/>
+                        <a class="btn btn-primary mr1 pikaday" id="datepicker">Pick A Day</a>
+
                 </div>
         </div>
     </div>
 {% endblock %}
 
 {% block scripts %}
+
+    <script src="{{ url_for('static', filename='moment.js') }}"></script>
+    <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+
     <script type="text/javascript">
         $(document).ready(function () {
             $(document).ready(function () {
@@ -82,7 +93,7 @@
                     return false;
                 }
 
-                $('.datepicker').each(function (index) {
+                $('#datepicker').each(function (index) {
                     var picker = new Pikaday({
                         field: this,
                         format: 'MM-DD-YYYY',
