@@ -1,5 +1,6 @@
 import urllib2
 import re
+import inspect
 import time
 import cgi
 from xml.etree import ElementTree as ET
@@ -199,6 +200,21 @@ class TinkerController(object):
             session['username'] = 'tinker'
             session['groups'] = []
             session['roles'] = []
+
+    def cascade_call_logger(self, kwargs):
+        # To use this, simply call:
+        #     self.cascade_call_logger(locals())
+        # right before the return statement of methods that make Cascade calls
+        file_ = 'tinker/' + inspect.stack()[1][1].split('tinker/')[1]
+        method = inspect.stack()[1][3]
+        if 'self' in kwargs.keys():
+            del kwargs['self']
+        resp = {
+            'file': file_,
+            'method': method,
+            'kwargs': kwargs
+        }
+        self.log_sentry("Cascade call", resp)
 
     def log_sentry(self, message, response):
 
