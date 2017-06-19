@@ -219,7 +219,6 @@ class TinkerController(object):
             'method': method,
             'kwargs': kwargs
         }
-        print resp
         self.log_sentry("Cascade call", resp)
 
     def log_sentry(self, message, response):
