@@ -202,6 +202,11 @@ class TinkerController(object):
             session['roles'] = []
 
     def cascade_call_logger(self, kwargs):
+
+        if app.config['UNIT_TESTING']:
+            # Don't want to print out these log messages while unit testing
+            return
+
         # To use this, simply call:
         #     self.cascade_call_logger(locals())
         # right before the return statement of methods that make Cascade calls
@@ -214,6 +219,7 @@ class TinkerController(object):
             'method': method,
             'kwargs': kwargs
         }
+        print resp
         self.log_sentry("Cascade call", resp)
 
     def log_sentry(self, message, response):
@@ -408,10 +414,12 @@ class TinkerController(object):
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
+        # TODO: maybe add cascade logger here? would like it in Block.init, but that's in bu_cascade
         return b
 
     def create_page(self, asset):
         p = Page(self.cascade_connector, asset=asset)
+        # TODO: similarly, i'd like this to be logged by cascade_call_logger
         return p
 
     def read(self, path_or_id, type):
@@ -435,19 +443,27 @@ class TinkerController(object):
         return dd
 
     def publish(self, path_or_id, asset_type='page', destination='production'):
-        return self.cascade_connector.publish(path_or_id, asset_type, destination)
+        resp = self.cascade_connector.publish(path_or_id, asset_type, destination)
+        self.cascade_call_logger(locals())
+        return resp
 
     def unpublish(self, path_or_id, asset_type):
-        return self.cascade_connector.unpublish(path_or_id, asset_type)
+        resp = self.cascade_connector.unpublish(path_or_id, asset_type)
+        self.cascade_call_logger(locals())
+        return resp
 
     def rename(self):
         pass
 
     def move(self, page_id, destination_path, type='page'):
-        return self.cascade_connector.move(page_id, destination_path, type)
+        resp = self.cascade_connector.move(page_id, destination_path, type)
+        self.cascade_call_logger(locals())
+        return resp
 
     def delete(self, path_or_id, asset_type):
-        return self.cascade_connector.delete(path_or_id, asset_type)
+        resp = self.cascade_connector.delete(path_or_id, asset_type)
+        self.cascade_call_logger(locals())
+        return resp
 
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)

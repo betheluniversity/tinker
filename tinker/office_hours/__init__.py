@@ -61,6 +61,7 @@ class OfficeHoursView(FlaskView):
             self.base.rotate_hours(asset)
 
             resp = str(block.edit_asset(asset))
+            self.base.cascade_call_logger(locals())
             self.base.log_sentry("Office Hour Submission", resp)
 
         return render_template('office-hours-confirm.html', **locals())
@@ -71,7 +72,6 @@ class OfficeHoursView(FlaskView):
 
         self.base.rotate_hours(sdata)
         block.edit_asset(data)
-
         return 'success'
 
 OfficeHoursView.register(OfficeHoursBlueprint)

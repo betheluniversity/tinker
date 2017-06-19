@@ -146,6 +146,7 @@ class RedirectsView(FlaskView):
                     print "found bad line (%s): %s" % (i, from_url)
                     bad += 1
         return "done. Found %s bad lines" % bad
+
     # Deletes expired redirects on the day of its expiration date
     @requires_auth
     @route('/public/expire', methods=['get'])
