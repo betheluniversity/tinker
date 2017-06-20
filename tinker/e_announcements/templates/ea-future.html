@@ -15,8 +15,8 @@
                 <div class="col-md-12">
                     <p class="description"> Choose a date to see upcoming E-Announcements</p>
                     <hr/>
-                        <a class="btn btn-primary mr1 pikaday" id="datepicker">Pick A Day</a>
-
+                        <a class="btn btn-primary mr1 pikaday datepicker" id="datepicker" onchange="grabDate()">Pick A Day</a>
+                        <span id="setDate">this should change</span>
                 </div>
         </div>
     </div>
@@ -93,7 +93,7 @@
                     return false;
                 }
 
-                $('#datepicker').each(function (index) {
+                $('.datepicker').each(function (index) {
                     var picker = new Pikaday({
                         field: this,
                         format: 'MM-DD-YYYY',
@@ -119,11 +119,10 @@
                     });
                 });
             });
-            CKEDITOR.config.wordcount = {
-                maxWordCount: 150,
-                showParagraphs: false
-            };
         });
+        function grabDate(){
+            document.getElementById('setDate').innerHTML = document.getElementById('datepicker').value;
+        }
 
     </script>
 {% endblock %}

@@ -255,6 +255,8 @@ class EAnnouncementsView(FlaskView):
 
         except:
             self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.", resp)
+            self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.",
+                                 resp)
             return str(resp)
 
     def edit_all(self):
@@ -263,12 +265,22 @@ class EAnnouncementsView(FlaskView):
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 
-    # compares dates to show only future E-announcements
-    # def show_future(self, date):
+        # compares dates to show only future E-announcements
+        # def show_future(self, date):
         # if
 
     @route("/upcoming")
     def ea_upcoming(self):
         return render_template("ea-future.html")
+
+    @route("/show_date")
+    def show_date(self):
+        pass_in = request.args
+        date_in = pass_in.get("date-id", "null")
+
+        if date_in != datetime.today:
+            date = "this is a test"
+        return date
+
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)
