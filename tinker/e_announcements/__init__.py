@@ -273,14 +273,16 @@ class EAnnouncementsView(FlaskView):
     def ea_upcoming(self):
         return render_template("ea-future.html")
 
-    @route("/show_date")
-    def show_date(self):
-        pass_in = request.args
-        date_in = pass_in.get("date-id", "null")
+    @route("/test", methods=['POST'])
+    def test(self):
+        pass_in = request.form
+        date_id = pass_in.get('dateId', 'null')
 
-        if date_in != datetime.today:
-            date = "this is a test"
-        return date
+        forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block', True)
 
+        forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+
+        info = 'this was a test, the test was passed.' + date_id
+        return info
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)

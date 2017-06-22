@@ -18,6 +18,9 @@
                         <a class="btn btn-primary mr1 pikaday datepicker" id="datepicker" onchange="grabDate()">Pick A Day</a>
                         <span id="setDate">this should change</span>
                 </div>
+            <div class="col-md-12">
+                <span id="testResult">this should change</span>
+            </div>
         </div>
     </div>
 {% endblock %}
@@ -120,8 +123,23 @@
                 });
             });
         });
-        function grabDate(){
-            document.getElementById('setDate').innerHTML = document.getElementById('datepicker').value;
+        function grabDate() {
+            $('#setDate').html($('#datepicker').val());
+            changeInfo();
+        }
+        function changeInfo() {
+            debugger;
+            $.ajax({
+                type: 'POST',
+                url: "/e-announcements/test",
+                data: {'dateId': $("#datepicker").val()},
+                success: function(result) {
+                    $("#testResult").html(result);
+                },
+                error: function() {
+                    $("#testResult").html('the function failed.');
+                }
+            })
         }
 
     </script>
