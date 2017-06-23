@@ -161,6 +161,7 @@ class EventsController(TinkerController):
             resp = proxy_page.edit_asset(asset)
             self.log_sentry("Event edit submission", resp)
 
+        self.cascade_call_logger(locals())
         return add_data, asset, eid
 
     def get_event_dates(self, form):

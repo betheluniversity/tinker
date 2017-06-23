@@ -1,5 +1,6 @@
 import urllib2
 import re
+import inspect
 import time
 import cgi
 from xml.etree import ElementTree as ET
@@ -8,6 +9,7 @@ from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlat
 import datetime
 import fnmatch
 import hashlib
+import logging
 import os
 from jinja2 import Environment, FileSystemLoader, meta
 from functools import wraps
@@ -200,7 +202,26 @@ class TinkerController(object):
             session['groups'] = []
             session['roles'] = []
 
+    def cascade_call_logger(self, kwargs):
+        # To use this, simply call:
+        #     self.cascade_call_logger(locals())
+        # right before the return statement of methods that make Cascade calls
+        file_ = 'tinker/' + inspect.stack()[1][1].split('tinker/')[1]
+        method = inspect.stack()[1][3]
+        if 'self' in kwargs.keys():
+            del kwargs['self']
+        resp = {
+            'file': file_,
+            'method': method,
+            'kwargs': kwargs
+        }
+        self.log_sentry("Cascade call", resp)
+
     def log_sentry(self, message, response):
+
+        if app.config['UNIT_TESTING']:
+            # Don't want to print out these log messages while unit testing
+            return
 
         username = session['username']
         log_time = time.strftime("%c")
@@ -213,7 +234,8 @@ class TinkerController(object):
         })
 
         # log generic message to Sentry for counting
-        app.logger.info(message)
+        # app.logger.info(message)
+        sentry.captureMessage(message, level=logging.INFO)
         # more detailed message to debug text log
         app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
@@ -392,10 +414,12 @@ class TinkerController(object):
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
+        # TODO: maybe add cascade logger here? would like it in Block.init, but that's in bu_cascade
         return b
 
     def create_page(self, asset):
         p = Page(self.cascade_connector, asset=asset)
+        # TODO: similarly, i'd like this to be logged by cascade_call_logger
         return p
 
     def read(self, path_or_id, type):
@@ -419,19 +443,27 @@ class TinkerController(object):
         return dd
 
     def publish(self, path_or_id, asset_type='page', destination='production'):
-        return self.cascade_connector.publish(path_or_id, asset_type, destination)
+        resp = self.cascade_connector.publish(path_or_id, asset_type, destination)
+        self.cascade_call_logger(locals())
+        return resp
 
     def unpublish(self, path_or_id, asset_type):
-        return self.cascade_connector.unpublish(path_or_id, asset_type)
+        resp = self.cascade_connector.unpublish(path_or_id, asset_type)
+        self.cascade_call_logger(locals())
+        return resp
 
     def rename(self):
         pass
 
     def move(self, page_id, destination_path, type='page'):
-        return self.cascade_connector.move(page_id, destination_path, type)
+        resp = self.cascade_connector.move(page_id, destination_path, type)
+        self.cascade_call_logger(locals())
+        return resp
 
     def delete(self, path_or_id, asset_type):
-        return self.cascade_connector.delete(path_or_id, asset_type)
+        resp = self.cascade_connector.delete(path_or_id, asset_type)
+        self.cascade_call_logger(locals())
+        return resp
 
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)

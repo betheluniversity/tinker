@@ -35,7 +35,6 @@ class PublishManagerController(TinkerController):
         }
 
         response = self.search_cascade(search_information)
-
         return response
 
     def search_data_definitions(self, name_search=""):
@@ -45,5 +44,4 @@ class PublishManagerController(TinkerController):
             'searchBlocks': True,
         }
         response = self.search_cascade(search_information)
-
         return response

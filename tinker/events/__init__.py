@@ -136,6 +136,7 @@ class EventsView(FlaskView):
     def delete(self, event_id):
         event_page = self.base.read_page(event_id)
         response = event_page.delete_asset()
+        self.base.cascade_call_logger(locals())
         self.base.unpublish(event_id, 'page')
         app.logger.debug(time.strftime("%c") + ": Event deleted by " + session['username'] + " " + str(response))
         self.base.publish(app.config['EVENT_XML_ID'])

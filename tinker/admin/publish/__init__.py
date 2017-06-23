@@ -105,6 +105,7 @@ class PublishView(FlaskView):
     @route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
     def publish_publish(self, destination, type, id):
         if destination != "staging":
+            # Empty string destination will have it publish to all locations, not just staging
             destination = ""
         # todo create method for publishing blocks
         if type == "block":

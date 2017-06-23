@@ -137,6 +137,7 @@ def before_request():
     base = TinkerController()
     base.before_request()
 
+
 @app.route("/logout", methods=["GET"])
 def logout():
     session.clear()
@@ -144,6 +145,7 @@ def logout():
     resp.set_cookie('MOD_AUTH_CAS_S', '', expires=0)
     resp.set_cookie('MOD_AUTH_CAS', '', expires=0)
     return resp
+
 
 if not TRAVIS_TESTING:
     flask_profiler.init_app(app)
