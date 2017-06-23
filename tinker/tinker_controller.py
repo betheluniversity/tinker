@@ -9,6 +9,7 @@ from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlat
 import datetime
 import fnmatch
 import hashlib
+import logging
 import os
 from jinja2 import Environment, FileSystemLoader, meta
 from functools import wraps
@@ -234,7 +235,8 @@ class TinkerController(object):
         })
 
         # log generic message to Sentry for counting
-        app.logger.info(message)
+        # app.logger.info(message)
+        sentry.captureMessage(message, level=logging.INFO)
         # more detailed message to debug text log
         app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
