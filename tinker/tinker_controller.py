@@ -203,11 +203,6 @@ class TinkerController(object):
             session['roles'] = []
 
     def cascade_call_logger(self, kwargs):
-
-        if app.config['UNIT_TESTING']:
-            # Don't want to print out these log messages while unit testing
-            return
-
         # To use this, simply call:
         #     self.cascade_call_logger(locals())
         # right before the return statement of methods that make Cascade calls
@@ -223,6 +218,10 @@ class TinkerController(object):
         self.log_sentry("Cascade call", resp)
 
     def log_sentry(self, message, response):
+
+        if app.config['UNIT_TESTING']:
+            # Don't want to print out these log messages while unit testing
+            return
 
         username = session['username']
         log_time = time.strftime("%c")
