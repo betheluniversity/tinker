@@ -277,7 +277,7 @@ class EAnnouncementsView(FlaskView):
     def test(self):
         pass_in = request.form
         date_id = pass_in.get('dateId', 'null')
-        total = 0
+        ea_store = []
         ea_display = []
 
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block', True)
@@ -289,9 +289,12 @@ class EAnnouncementsView(FlaskView):
             ea_date = ea_date.strftime('%m-%d-%Y')
 
             if ea_date == str(date_id):
-                ea_display.append(form)
-                total += 1
+                ea_store.append(form)
 
-        return render_template("ea-future.html", **locals())
+        for form in ea_store:
+            message = find(ea_store, 'message', False)
+            ea_display.append(message)
+
+        return render_template("ea-data.html", **locals())
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)

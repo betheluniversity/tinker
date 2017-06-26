@@ -16,10 +16,10 @@
                     <p class="description"> Choose a date to see upcoming E-Announcements</p>
                     <hr/>
                         <a class="btn btn-primary mr1 pikaday datepicker" id="datepicker" onchange="grabDate()">Pick A Day</a>
-                        <span id="setDate">this should change</span>
+                        <span id="setDate">Date</span>
                 </div>
-            <div class="col-md-12">
-                <span id="testResult">this should change</span>
+            <div class="show-ea">
+
             </div>
         </div>
     </div>
@@ -128,16 +128,15 @@
             changeInfo();
         }
         function changeInfo() {
-            debugger;
             $.ajax({
                 type: 'POST',
                 url: "/e-announcements/test",
                 data: {'dateId': $("#datepicker").val()},
                 success: function(result) {
-                    $("#testResult").html(result);
+                    $('.show-ea').html(result)
                 },
                 error: function() {
-                    $("#testResult").html('It didn\'t work this time, but it will work eventually.');
+                    $(".show-ea").html('Error');
                 }
             })
         }
