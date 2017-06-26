@@ -292,8 +292,9 @@ class EAnnouncementsView(FlaskView):
                 ea_store.append(form)
 
         for form in ea_store:
-            message = find(ea_store, 'message', False)
+            message = find(form, 'message', False)
             ea_display.append(message)
+            message = 'null'
 
         return render_template("ea-data.html", **locals())
 
