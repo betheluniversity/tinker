@@ -657,3 +657,13 @@ label.checkbox {
     }
 }
 
+#setDate {
+    padding-left: 25px;
+    font-weight: 900;
+    font-size: large;
+}
+
+
+.show-ea {
+    padding-top: 25px;
+}
