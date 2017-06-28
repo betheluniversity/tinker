@@ -1,5 +1,11 @@
 <ul>
     {%  for form in ea_display %}
-        <li>{{ form|safe }}</li>
+        {% if loop.index - 1 == 0 %}
+            <li class= "ea-title">{{ form|safe }}</li>
+        {% elif (loop.index - 1) % 2 == 0 %}
+            <li class="ea-title">{{ form|safe }}</li>
+        {% else %}
+            <p class="ea-message">{{ form|safe }}</p>
+        {% endif %}
     {% endfor %}
 </ul>
