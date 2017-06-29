@@ -3,7 +3,7 @@ import unittest
 # import sqlite3
 # from tinker import app
 # from StringIO import StringIO
-from testing_suite import get_tests_in_this_dir
+from testing_suite.integration_tests.utilities import get_tests_in_this_dir
 
 
 # def create_temp_db():
