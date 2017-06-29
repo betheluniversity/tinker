@@ -1,5 +1,5 @@
 # from tinker import cascade_connector
-from testing_suite import BaseTestCase
+from testing_suite.integration_tests import BaseTestCase
 
 
 class FacultyBioSequentialTestCase(BaseTestCase):

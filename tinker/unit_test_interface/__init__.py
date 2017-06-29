@@ -10,7 +10,7 @@ from flask import Blueprint, abort, render_template, stream_with_context, Respon
 from flask_classy import FlaskView, route
 from requests import api as Requests_API
 
-from testing_suite import get_tests_in_this_dir
+from testing_suite.integration_tests.unit_test_utilities import get_tests_in_this_dir
 from tinker import app
 
 UnitTestBlueprint = Blueprint('UnitTestBlueprint', __name__, template_folder='templates')

@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
 
 def create_get_test(destination_path, method_name, expected_response):
-    file_contents = """from testing_suite import BaseTestCase
+    file_contents = """from testing_suite.integration_tests import BaseTestCase
 
 
 class %(1)sTestCase(BaseTestCase):
@@ -94,7 +94,7 @@ def create_post_tests(destination_path, method_name, correct_dict, expected_succ
                 to_return += ",\n" + indent
         return to_return
 
-    file_contents = """from testing_suite import BaseTestCase
+    file_contents = """from testing_suite.integration_tests import BaseTestCase
 
 
 class %(1)sTestCase(BaseTestCase):

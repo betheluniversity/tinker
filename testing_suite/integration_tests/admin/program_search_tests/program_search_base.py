@@ -3,7 +3,7 @@ import shutil
 import tempfile
 
 import tinker
-from testing_suite import BaseTestCase
+from testing_suite.integration_tests import BaseTestCase
 
 
 class ProgramSearchBaseTestCase(BaseTestCase):

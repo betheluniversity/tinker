@@ -15,7 +15,6 @@ from tinker import get_url_from_path
 
 
 class BaseTestCase(unittest.TestCase):
-
     def __init__(self, methodName):
         super(BaseTestCase, self).__init__(methodName)
         self.ERROR_400 = repr('\xad\xa0\xa0\xff;\x0e\x0bVx\xda\x99\x8c\xb8U\xc3\xb8')
@@ -51,7 +50,8 @@ class BaseTestCase(unittest.TestCase):
 
     def send_get(self, url, basic_auth=False):
         if basic_auth:
-            to_base64 = tinker.app.config['CASCADE_LOGIN']['username'] + ":" + tinker.app.config['CASCADE_LOGIN']['password']
+            to_base64 = tinker.app.config['CASCADE_LOGIN']['username'] + ":" + tinker.app.config['CASCADE_LOGIN'][
+                'password']
             auth_string = "Basic " + base64.b64encode(to_base64)
             return self.app.get(url, follow_redirects=True, headers={"Authorization": auth_string})
         else:

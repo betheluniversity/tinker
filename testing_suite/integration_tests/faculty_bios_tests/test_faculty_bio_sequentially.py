@@ -1,6 +1,6 @@
 import re
 
-from testing_suite import BaseTestCase
+from testing_suite.integration_tests import BaseTestCase
 
 
 class FacultyBioSequentialTestCase(BaseTestCase):

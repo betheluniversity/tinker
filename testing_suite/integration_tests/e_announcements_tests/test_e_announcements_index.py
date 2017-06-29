@@ -1,4 +1,4 @@
-from testing_suite import BaseTestCase
+from testing_suite.integration_tests import BaseTestCase
 
 
 class IndexTestCase(BaseTestCase):
@@ -17,10 +17,8 @@ class IndexTestCase(BaseTestCase):
     #######################
 
     def test_index(self):
-        expected_response = repr('%z\x17\xcb\xb5j\n\xd8sh1j\xb3\x99WN')
-        # b'Below is the list of E-Announcements you have access to edit. These are sorted by'
+        expected_response = b'Below is the list of E-Announcements you have access to edit. These are sorted by'
         response = self.send_get(self.request)
-        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertEqual(expected_response, short_string, msg=failure_message)
+        self.assertIn(expected_response, response.data, msg=failure_message)

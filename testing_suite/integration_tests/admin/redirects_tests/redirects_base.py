@@ -2,7 +2,7 @@ from flask_fixtures import FixturesMixin
 from flask_sqlalchemy import SQLAlchemy
 
 import tinker
-from testing_suite import BaseTestCase
+from testing_suite.integration_tests import BaseTestCase
 
 
 class RedirectsBaseTestCase(BaseTestCase, FixturesMixin):
