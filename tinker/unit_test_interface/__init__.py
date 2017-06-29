@@ -3,15 +3,15 @@ import calendar
 import json
 import re
 import unittest
-
 from cStringIO import StringIO
 from datetime import datetime, timedelta
+
 from flask import Blueprint, abort, render_template, stream_with_context, Response
 from flask_classy import FlaskView, route
 from requests import api as Requests_API
-from tinker import app
 
-from unit_tests.unit_test_utilities import get_tests_in_this_dir
+from testing_suite import get_tests_in_this_dir
+from tinker import app
 
 UnitTestBlueprint = Blueprint('UnitTestBlueprint', __name__, template_folder='templates')
 
@@ -91,7 +91,7 @@ class UnitTestInterface(FlaskView):
     @route('/<path:module>', methods=['GET'])
     def interface(self, module="all"):
         output = StringIO()
-        test_suite_location = app.config['INSTALL_LOCATION'] + "/unit_tests"
+        test_suite_location = app.config['INSTALL_LOCATION'] + "/testing_suite"
         acceptable_modules = ["admin/blink_roles_tests", "admin/cache_tests", "admin/program_search_tests",
                               "admin/publish_tests", "admin/redirects_tests", "admin/sync_tests",
                               "e_announcements_tests", "events_tests", "faculty_bios_tests", "office_hours_tests"]
@@ -175,7 +175,7 @@ class UnitTestInterface(FlaskView):
 
     @route('/simple-return/<path:module>', methods=['GET'])
     def simpleReturn(self, module):
-        test_suite_location = app.config['INSTALL_LOCATION'] + "/unit_tests"
+        test_suite_location = app.config['INSTALL_LOCATION'] + "/testing_suite"
         modules = ["admin/blink_roles_tests", "admin/cache_tests", "admin/program_search_tests",
                    "admin/publish_tests", "admin/redirects_tests", "admin/sync_tests",
                    "e_announcements_tests", "events_tests", "faculty_bios_tests", "office_hours_tests"]

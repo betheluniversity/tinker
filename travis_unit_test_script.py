@@ -3,7 +3,7 @@ import unittest
 # import sqlite3
 # from tinker import app
 # from StringIO import StringIO
-from unit_tests.unit_test_utilities import get_tests_in_this_dir
+from testing_suite import get_tests_in_this_dir
 
 
 # def create_temp_db():
@@ -24,6 +24,6 @@ from unit_tests.unit_test_utilities import get_tests_in_this_dir
 #     return mem_db
 
 
-testsuite = get_tests_in_this_dir('unit_tests')
+testsuite = get_tests_in_this_dir('testing_suite')
 runner = unittest.TextTestRunner(verbosity=1).run(testsuite)
 sys.exit(len(runner.failures) + len(runner.errors))
