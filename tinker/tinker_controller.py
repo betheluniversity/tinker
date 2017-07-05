@@ -89,7 +89,7 @@ def requires_auth(f):
 
 # *args because some of the menus are called with args and some with **kwargs
 def admin_permissions(self, route_base, *args):
-    # this handle everything but redirects and the program search admin menus
+    # this handles everything but redirects and the program search admin menus because they require extra permissions
     if route_base != '/admin/redirect' or route_base != '/admin/program-search':
         if 'Administrators' not in session['groups']:
             abort(403)
