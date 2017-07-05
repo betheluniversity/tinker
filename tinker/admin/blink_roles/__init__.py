@@ -1,8 +1,8 @@
+from flask import Blueprint, render_template
 from flask_classy import FlaskView
-from flask import Blueprint, abort, session, render_template
 
-# tinker
 from roles_roledata import uid, portal
+from tinker.admin.admin_permissions import admin_permissions
 
 BlinkRolesBlueprint = Blueprint('blink_roles', __name__, template_folder='templates')
 
@@ -11,8 +11,9 @@ class BlinkRolesView(FlaskView):
     route_base = '/admin/blink-roles'
 
     def before_request(self, args):
-        if 'Administrators' not in session['groups']:
-            abort(403)
+        # if 'Administrators' not in session['groups']:
+            # abort(403)
+        admin_permissions('route_base', self, args)
 
     def index(self):
         uid_list = uid

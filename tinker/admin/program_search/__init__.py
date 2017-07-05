@@ -12,7 +12,7 @@ from sqlalchemy import or_
 # tinker
 from tinker.admin.program_search.models import ProgramTag
 from tinker.admin.program_search.program_search_controller import *
-
+from tinker.admin.admin_permissions import admin_permissions
 ProgramSearchBlueprint = Blueprint("program_search", __name__, template_folder='templates')
 
 
@@ -24,8 +24,9 @@ class ProgramSearchView(FlaskView):
 
     def before_request(self, args):
         # give access to admins and lauren
-        if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
-            abort(403)
+        # if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
+            # abort(403)
+        admin_permissions('route_base', self, args)
 
     def index(self):
         school_labels = self.base.get_school_labels()
