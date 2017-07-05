@@ -17,7 +17,7 @@ class IndexTestCase(BaseTestCase):
     #######################
 
     def test_index(self):
-        expected_response = repr('\xf9f3P8S\xb7\xd2\xd1\x1f\xd7\xdf\xbc\x1e\x17\xe7')
+        expected_response = repr('\xe1\x81\xab\xe2\x1b\xa8\xc5!\xe6\x90\x06<A\xe7\xbe9')
         # b'<p>Blocks that are published publish out each page in the relationships tab.</p>'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)

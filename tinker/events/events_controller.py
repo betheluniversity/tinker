@@ -161,6 +161,7 @@ class EventsController(TinkerController):
             resp = proxy_page.edit_asset(asset)
             self.log_sentry("Event edit submission", resp)
 
+        self.cascade_call_logger(locals())
         return add_data, asset, eid
 
     def get_event_dates(self, form):
@@ -179,27 +180,29 @@ class EventsController(TinkerController):
                 'no_end_date': form.get('noenddate' + i, '')
             }
 
-            if not new_date['end_date']:
-                new_date['end_date'] = form.get('start' + i, '')
-
             event_dates.append(new_date)
 
         # convert event dates to JSON
         return event_dates, num_dates
 
     def check_event_dates(self, num_dates, event_dates):
-        dates_good = False
+        dates_good = True
         for i in range(0, num_dates):
-            # try:
-                start_and_end = event_dates[i]['start_date'] and event_dates[i]['end_date']
+                                                        # XOR either having an end date or "no end date" checked
+            start_and_end = event_dates[i]['start_date'] and \
+                                               (bool(event_dates[i]['end_date']) != bool(event_dates[i]['no_end_date']))
 
-                condition = True
-                if event_dates[i]['outside_of_minnesota'] and str(event_dates[i]['time_zone']) == '':
-                    condition = False
+            time_zone_check = True
+            if event_dates[i]['outside_of_minnesota'] and str(event_dates[i]['time_zone']) == '':
+                time_zone_check = False
 
-                if start_and_end and condition:
-                    dates_good = True
+            if not (start_and_end and time_zone_check):
+                dates_good = False
 
+            # Because events that don't need an end date don't have one, just set the end to be the same as the start to
+            # appease the date parser later.
+            if event_dates[i]['no_end_date'] == u'on' and not event_dates[i]['end_date']:
+                event_dates[i]['end_date'] = event_dates[i]['start_date']
         return json.dumps(event_dates), dates_good
 
     def change_dates(self, event_dates, num_dates):
