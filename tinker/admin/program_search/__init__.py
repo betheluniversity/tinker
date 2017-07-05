@@ -23,9 +23,6 @@ class ProgramSearchView(FlaskView):
         self.base = ProgramSearchController()
 
     def before_request(self, args):
-        # give access to admins and lauren
-        # if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
-            # abort(403)
         admin_permissions('route_base', self, args)
 
     def index(self):

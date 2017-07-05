@@ -11,8 +11,6 @@ class BlinkRolesView(FlaskView):
     route_base = '/admin/blink-roles'
 
     def before_request(self, args):
-        # if 'Administrators' not in session['groups']:
-            # abort(403)
         admin_permissions('route_base', self, args)
 
     def index(self):

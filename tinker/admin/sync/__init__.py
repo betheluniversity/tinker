@@ -20,8 +20,6 @@ class SyncView(FlaskView):
         self.base = SyncController()
 
     def before_request(self, name, **kwargs):
-        # if 'Administrators' not in session['groups']:
-            # abort(403)
         admin_permissions('route_base', self, **kwargs)
 
     def index(self):

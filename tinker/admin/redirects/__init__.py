@@ -28,12 +28,6 @@ class RedirectsView(FlaskView):
 
     # This method is called before a request is made
     def before_request(self, name, **kwargs):
-        # if '/public/' in request.path:
-            # return
-
-        # Checks to see what group the user is in
-        # if 'Tinker Redirects' not in session['groups'] and 'Administrators' not in session['groups']:
-            # abort(403)
         admin_permissions('route_base', self, **kwargs)
 
     # Redirects homepage
