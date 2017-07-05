@@ -10,7 +10,7 @@ from inspect import stack, getframeinfo
 from selenium import webdriver
 
 import tinker
-from testing_suite.integration_tests.utilities import get_tests_in_this_dir
+from testing_suite.utilities import get_tests_in_this_dir
 from tinker import get_url_from_path
 
 
