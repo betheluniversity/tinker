@@ -15,8 +15,7 @@ from tinker import app, db
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker import *
 from tinker.tinker_controller import requires_auth
-from tinker.admin.admin_permissions import admin_permissions
-
+from tinker.tinker_controller import admin_permissions
 RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
 
 

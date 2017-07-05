@@ -12,7 +12,7 @@ from sqlalchemy import or_
 # tinker
 from tinker.admin.program_search.models import ProgramTag
 from tinker.admin.program_search.program_search_controller import *
-from tinker.admin.admin_permissions import admin_permissions
+from tinker.tinker_controller import admin_permissions
 ProgramSearchBlueprint = Blueprint("program_search", __name__, template_folder='templates')
 
 

@@ -11,8 +11,7 @@ from flask_classy import FlaskView, route
 
 # tinker
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
-from tinker.admin.admin_permissions import admin_permissions
-
+from tinker.tinker_controller import admin_permissions
 
 PublishBlueprint = Blueprint('publish', __name__, template_folder='templates')
 

@@ -8,8 +8,7 @@ from flask_wtf import Form
 # tinker
 from tinker.admin.sync.sync_metadata import data_to_add
 from sync_controller import *
-from tinker.admin.admin_permissions import admin_permissions
-
+from tinker.tinker_controller import admin_permissions
 SyncBlueprint = Blueprint('sync', __name__, template_folder='templates')
 
 
