@@ -98,7 +98,7 @@
                 $('.datepicker').each(function (index) {
                     var picker = new Pikaday({
                         field: this,
-                        format: 'MM-DD-YYYY',
+                        format: 'dddd MMMM DD, YYYY',
                         disableDayFn: function (date) {
                             // remove all Sun/Tues/Thur/Sat days from the week
                             if ($.inArray(date.getDay(), [0, 2, 4, 6]) > -1 || is_date_a_bethel_holiday(date) ) {
@@ -129,13 +129,14 @@
         function changeInfo() {
             $.ajax({
                 type: 'POST',
-                url: "/e-announcements/test",
+                url: "/e-announcements/ea_future",
                 data: {'dateId': $("#datepicker").val()},
                 success: function(result) {
                     $('.show-ea').html(result)
                 },
+                // TODO elaborate on this error(contact webservices)
                 error: function() {
-                    $(".show-ea").html('Error');
+                    $(".show-ea").html('Error: Contact Web Services for further assistance');
                 }
             })
         }

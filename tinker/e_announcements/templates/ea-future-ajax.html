@@ -1,4 +1,4 @@
-<ul>
+<ol>
     {%  for form in ea_display %}
         {% if loop.index - 1 == 0 %}
             <li class= "ea-title">{{ form|safe }}</li>
@@ -8,4 +8,4 @@
             <p class="ea-message">{{ form|safe }}</p>
         {% endif %}
     {% endfor %}
-</ul>
+</ol>

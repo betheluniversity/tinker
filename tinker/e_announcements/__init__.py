@@ -275,30 +275,35 @@ class EAnnouncementsView(FlaskView):
     def ea_upcoming(self):
         return render_template("ea-future.html")
 
-    @route("/test", methods=['POST'])
-    def test(self):
+    @route("/ea_future", methods=['POST'])
+    def ea_future(self):
         pass_in = request.form
         date_id = pass_in.get('dateId', 'null')
-        ea_store = []
         ea_display = []
 
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block', True)
-        # forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+        forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
 
         for form in forms:
-            grab_date = find(form, 'first_date', False)
-            ea_date = datetime.datetime.strptime(grab_date, "%A %B %d, %Y")
-            ea_date = ea_date.strftime('%m-%d-%Y')
+            first_ea_date = find(form, 'first_date', False)
 
-            if ea_date == str(date_id):
-                ea_store.append(form)
+            if first_ea_date == str(date_id):
+                title = find(form, 'title', False)
+                message = find(form, 'message', False)
+                ea_display.append(title)
+                ea_display.append(message)
 
-        for form in ea_store:
-            title = find(form, 'title', False)
-            message = find(form, 'message', False)
-            ea_display.append(title)
-            ea_display.append(message)
+            # second date is not always present, the second date if statements are necessary
+            second_ea_date = find(form, 'second_date', False)
+            if second_ea_date != '':
+                if second_ea_date == str(date_id):
+                    title = find(form, 'title', False)
+                    message = find(form, 'message', False)
+                    ea_display.append(title)
+                    ea_display.append(message)
 
-        return render_template("ea-data.html", **locals())
+        return render_template("ea-future-ajax.html", **locals())
+
+    # TODO e-announcements by role (someday)
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)
