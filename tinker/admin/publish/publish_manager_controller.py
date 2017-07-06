@@ -16,7 +16,7 @@ class PublishManagerController(TinkerController):
         date = " ".join(dates)
 
         dt = datetime.strptime(date, "%a, %d %b %Y %H:%M:%S")
-        date_time = datetime.strftime(dt, "%B %e, %Y at %I:%M %p")
+        date_time = dt.strftime("%B %e, %Y at %I:%M %p")
 
         return date_time
 
