@@ -23,7 +23,7 @@ class ProgramSearchView(FlaskView):
         self.base = ProgramSearchController()
 
     def before_request(self, args):
-        admin_permissions('route_base', self, args)
+        admin_permissions(self, app.config['ADMIN_PROGRAM_SEARCH_ROUTE_BASE'], args)
 
     def index(self):
         school_labels = self.base.get_school_labels()
