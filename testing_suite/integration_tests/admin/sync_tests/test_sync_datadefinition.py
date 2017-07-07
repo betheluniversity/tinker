@@ -1,9 +1,9 @@
 import json
 
-from testing_suite.integration_tests import BaseTestCase
+from testing_suite.integration_tests import BaseIntegrationTestCase
 
 
-class DataDefinitionTestCase(BaseTestCase):
+class DataDefinitionTestCase(BaseIntegrationTestCase):
 
     #######################
     ### Utility methods ###

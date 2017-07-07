@@ -1,9 +1,9 @@
 import re
 
-from testing_suite.integration_tests import BaseTestCase
+from testing_suite.integration_tests import BaseIntegrationTestCase
 
 
-class EventsSequentialTestCase(BaseTestCase):
+class EventsSequentialTestCase(BaseIntegrationTestCase):
 
     def __init__(self, methodName):
         super(EventsSequentialTestCase, self).__init__(methodName)

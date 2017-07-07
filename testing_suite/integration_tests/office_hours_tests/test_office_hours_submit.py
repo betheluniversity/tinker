@@ -1,7 +1,7 @@
-from testing_suite.integration_tests import BaseTestCase
+from testing_suite.integration_tests import BaseIntegrationTestCase
 
 
-class SubmitTestCase(BaseTestCase):
+class SubmitTestCase(BaseIntegrationTestCase):
 
     #######################
     ### Utility methods ###

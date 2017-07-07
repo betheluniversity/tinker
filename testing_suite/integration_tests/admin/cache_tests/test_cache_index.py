@@ -1,7 +1,7 @@
-from testing_suite.integration_tests import BaseTestCase
+from testing_suite.integration_tests import BaseIntegrationTestCase
 
 
-class IndexTestCase(BaseTestCase):
+class IndexTestCase(BaseIntegrationTestCase):
 
     #######################
     ### Utility methods ###

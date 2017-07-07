@@ -1,4 +1,4 @@
-# Currently, the unit testing suite takes about 4 minutes to run.
+# Currently, the testing suite takes about 4 minutes to run.
 
 import base64
 import hashlib
@@ -14,9 +14,9 @@ from testing_suite.utilities import get_tests_in_this_dir
 from tinker import get_url_from_path
 
 
-class BaseTestCase(unittest.TestCase):
+class BaseIntegrationTestCase(unittest.TestCase):
     def __init__(self, methodName):
-        super(BaseTestCase, self).__init__(methodName)
+        super(BaseIntegrationTestCase, self).__init__(methodName)
         self.ERROR_400 = repr('\xad\xa0\xa0\xff;\x0e\x0bVx\xda\x99\x8c\xb8U\xc3\xb8')
         self.ERROR_500 = '<h1 class="oversized">Whoops! Tinker lost its connection.</h1>'
         current_frame = stack()[1]
