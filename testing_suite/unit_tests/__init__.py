@@ -3,6 +3,7 @@ import unittest
 from inspect import stack, getframeinfo
 
 from testing_suite.utilities import get_tests_in_this_dir
+from tinker import app
 
 
 class BaseUnitTestCase(unittest.TestCase):
@@ -15,7 +16,7 @@ class BaseUnitTestCase(unittest.TestCase):
         self.class_name = name_of_last_folder + "/" + self.__class__.__name__
 
     def setUp(self):
-        pass
+        app.config['UNIT_TESTING'] = True
 
     def get_line_number(self):
         current_frame = stack()[1][0]
@@ -34,7 +35,7 @@ class BaseUnitTestCase(unittest.TestCase):
         self.failIf(substring in string_to_check, msg=msg)
 
     def tearDown(self):
-        pass
+        app.config['UNIT_TESTING'] = False
 
 if __name__ == "__main__":
     testsuite = get_tests_in_this_dir('.')

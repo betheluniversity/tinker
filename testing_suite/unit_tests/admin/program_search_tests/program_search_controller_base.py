@@ -9,8 +9,10 @@ class ProgramSearchControllerBaseTestCase(BaseUnitTestCase):
         self.controller = ProgramSearchController()
 
     def setUp(self):
+        app.config['UNIT_TESTING'] = True
         self.old_csv_path = app.config['PROGRAM_SEARCH_CSV']
         app.config['PROGRAM_SEARCH_CSV'] = './programs.csv'
 
     def tearDown(self):
+        app.config['UNIT_TESTING'] = False
         app.config['PROGRAM_SEARCH_CSV'] = self.old_csv_path
