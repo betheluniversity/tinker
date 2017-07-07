@@ -17,7 +17,14 @@ class BaseUnitTestCase(unittest.TestCase):
     def setUp(self):
         pass
 
+    def get_line_number(self):
+        current_frame = stack()[1][0]
+        frameinfo = getframeinfo(current_frame)
+        return frameinfo.lineno
+
     def generate_failure_message(self, class_name, line_number):
+        # Usage: self.assertTrue(<some boolean expression>,
+        #                        msg=self.generate_failure_message(self.class_name, self.get_line_number())
         return '%(0)s failed on line %(1)s.' % {'0': class_name, '1': line_number}
 
     def assertIn(self, substring, string_to_check, msg=None):
@@ -25,11 +32,6 @@ class BaseUnitTestCase(unittest.TestCase):
 
     def assertNotIn(self, substring, string_to_check, msg=None):
         self.failIf(substring in string_to_check, msg=msg)
-
-    def get_line_number(self):
-        current_frame = stack()[1][0]
-        frameinfo = getframeinfo(current_frame)
-        return frameinfo.lineno
 
     def tearDown(self):
         pass

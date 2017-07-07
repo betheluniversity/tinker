@@ -66,6 +66,11 @@ class BaseIntegrationTestCase(unittest.TestCase):
         else:
             return self.app.post(url, data=form_contents, follow_redirects=True)
 
+    def get_line_number(self):
+        current_frame = stack()[1][0]
+        frameinfo = getframeinfo(current_frame)
+        return frameinfo.lineno
+
     def generate_failure_message(self, type, request, response_data, expected_response, class_name, line_number):
         return '"%(0)s %(1)s" received "%(2)s" when it was expecting "%(3)s" in %(4)s on line %(5)s.' % \
                {'0': type, '1': request, '2': self.get_useful_string(response_data), '3': expected_response,
@@ -103,11 +108,6 @@ class BaseIntegrationTestCase(unittest.TestCase):
         else:
             to_return = string_of_html
         return self.strip_whitespace(to_return)
-
-    def get_line_number(self):
-        current_frame = stack()[1][0]
-        frameinfo = getframeinfo(current_frame)
-        return frameinfo.lineno
 
     def get_form_data_from_html(self, incompletely_rendered_html):
         placeholder_html_path = os.path.abspath("placeholder.html")
