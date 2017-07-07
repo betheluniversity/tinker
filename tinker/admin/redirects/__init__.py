@@ -11,7 +11,7 @@ from flask_classy import FlaskView, route
 from flask_wtf import Form
 
 # tinker
-from tinker import app, db
+# from tinker import app, db
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker import *
 from tinker.tinker_controller import requires_auth

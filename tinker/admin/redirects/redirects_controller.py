@@ -28,6 +28,7 @@ class RedirectsController(TinkerController):
 
         return 'done'
 
+    # TODO: PG, 7/6/17: I can't find where this method is used
     def get_model(self):
         return self.db.Model
 
