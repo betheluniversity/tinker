@@ -284,23 +284,23 @@ class EAnnouncementsView(FlaskView):
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block', True)
         forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
 
+        def get_title_and_message(self, form):
+            title = find(form, 'title', False)
+            message = find(form, 'message', False)
+            ea_display.append(title)
+            ea_display.append(message)
+
         for form in forms:
             first_ea_date = find(form, 'first_date', False)
 
             if first_ea_date == str(date_id):
-                title = find(form, 'title', False)
-                message = find(form, 'message', False)
-                ea_display.append(title)
-                ea_display.append(message)
+                get_title_and_message(self, form)
 
             # second date is not always present, the second date if statements are necessary
             second_ea_date = find(form, 'second_date', False)
             if second_ea_date != '':
                 if second_ea_date == str(date_id):
-                    title = find(form, 'title', False)
-                    message = find(form, 'message', False)
-                    ea_display.append(title)
-                    ea_display.append(message)
+                    get_title_and_message(self, form)
 
         return render_template("ea-future-ajax.html", **locals())
 
