@@ -13,7 +13,7 @@ class SyncMetadataSetTestCase(SyncControllerBaseTestCase):
     ### Testing methods ###
     #######################
 
-    def test_sync_metadata_set(self):
+    def test_sync_metadata_set_valid(self):
         # The reason I have a unit test for sync_metadata_set and not for sync_metadata_sets is because the latter
         # simply calls the former multiple times, effectively duplicating this test.
         metadata_set_id = 'yes'
@@ -22,3 +22,10 @@ class SyncMetadataSetTestCase(SyncControllerBaseTestCase):
         self.assertTrue(len(response) == 8)
         # Having it sync a string that isn't a valid metadata set ID will return a None
         self.assertTrue(response[0] is None)
+
+    def test_sync_metadata_set_invalid(self):
+        # Passing in an invalid ID should make the try/except in this method return an empty list
+        metadata_set_id = None
+        response = self.controller.sync_metadata_set(metadata_set_id)
+        self.assertTrue(isinstance(response, list))
+        self.assertTrue(len(response) == 0)

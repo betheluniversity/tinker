@@ -57,15 +57,15 @@ def pretty_print(obj, depth=0, console=True):
 # was being imported far more often than I would like. Rather than try to remember all the different lines, instead I
 # wrote this method that I can import and use anywhere.
 def describe(object_to_describe):
-    # Convert vars() from dictproxy to dict
+    # Convert vars() from dictproxy to dict for pretty_printing
     vars_alias = vars(object_to_describe)
     vars_dict_copy = {}
     for key in vars_alias.keys():
         vars_dict_copy[key] = vars_alias[key]
     to_return = {
-        'represtation': repr(object_to_describe),
+        'repr': repr(object_to_describe),
         'class': object_to_describe.__class__.__name__,
-        'variables': vars_dict_copy,
+        'vars': vars_dict_copy,
         'methods': dir(object_to_describe)
     }
-    return pretty_print(to_return)
+    print pretty_print(to_return)
