@@ -18,7 +18,7 @@ class BaseTestCase(unittest.TestCase):
     def __init__(self, methodName):
         super(BaseTestCase, self).__init__(methodName)
         self.ERROR_400 = repr('\xad\xa0\xa0\xff;\x0e\x0bVx\xda\x99\x8c\xb8U\xc3\xb8')
-        self.ERROR_500 = repr('\xcd\xfe\xf6\xb4\x16  \xc19\x8a\xc7\xf6\xc4\xc4\xd5\xb2')
+        self.ERROR_500 = '<h1 class="oversized">Whoops! Tinker lost its connection.</h1>'
         current_frame = stack()[1]
         file_of_current_frame = current_frame[0].f_globals.get('__file__', None)
         dir_path_to_current_frame = os.path.dirname(file_of_current_frame)

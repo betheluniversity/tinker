@@ -162,7 +162,7 @@ class FacultyBiosView(FlaskView):
             page_asset, mdata, sdata, = page.read_asset()
             new_asset = self.base.update_structure(page_asset, sdata, rform, faculty_bio_id=faculty_bio_id)
             resp = page.edit_asset(new_asset)
-
+            self.base.cascade_call_logger(locals())
             self.base.log_sentry("Faculty bio edit submission", resp)
             status = 'edit'
         else:
@@ -172,7 +172,7 @@ class FacultyBiosView(FlaskView):
             asset = self.base.update_structure(faculty_bio_data, sdata, rform, faculty_bio_id=faculty_bio_id)
             resp = self.base.create_page(asset)
             faculty_bio_id = resp.asset['page']['id']
-
+            self.base.cascade_call_logger(locals())
             self.base.log_sentry("Faculty bio new submission", resp)
             status = 'new'
 

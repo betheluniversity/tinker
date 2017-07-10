@@ -17,7 +17,7 @@ class EventInWorkflowTestCase(BaseTestCase):
     #######################
 
     def test_event_in_workflow(self):
-        expected_response = repr('\xbd\xd5\xf2j\x95\xce6\xcb\xb0G\xcb\xe6\x91\xaf\x8b\xb1')  # b'Edits pending approval'
+        expected_response = repr('.i\xf9\xa9\x8ab\x1a\x8dV\xdf\x9b\x08\x14\xc43\xaf')  # b'Edits pending approval'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,

@@ -129,7 +129,7 @@ class EventsSequentialTestCase(BaseTestCase):
 
     def delete_testing_object(self):
         self.request = self.generate_url("delete", event_id=self.eid)
-        expected_response = repr('N\xc4\xaa\xb2n\xb9<e\x03\xda.K\xc9K\x99\x07')
+        expected_response = repr('Va\xba\xcc\xc0dF4\xdd\xd4\xd8,}\xa6\xf1I')
         # b'Your event has been deleted. It will be removed from your'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)
