@@ -28,7 +28,7 @@ from inspect import stack, getframeinfo
 class BaseTestCase(unittest.TestCase):
     def __init__(self, methodName):
         super(BaseTestCase, self).__init__(methodName)
-        current_frame = stack()[1]
+        current_frame = stack()[2]
         file_of_current_frame = current_frame[0].f_globals.get('__file__', None)
         dir_path_to_current_frame = os.path.dirname(file_of_current_frame)
         name_of_last_folder = dir_path_to_current_frame.split("/")[-1]
