@@ -1,9 +1,9 @@
-from testing_suite.unit_tests import BaseUnitTestCase
+from testing_suite.unit_tests import UnitTestCase
 from tinker import app, db
 from tinker.admin.redirects import RedirectsController
 
 
-class RedirectsControllerBaseTestCase(BaseUnitTestCase):
+class RedirectsControllerBaseTestCase(UnitTestCase):
     def __init__(self, methodName):
         super(RedirectsControllerBaseTestCase, self).__init__(methodName)
         self.controller = RedirectsController(db)

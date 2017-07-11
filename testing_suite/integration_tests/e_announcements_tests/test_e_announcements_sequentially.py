@@ -1,9 +1,9 @@
 import re
 
-from testing_suite.integration_tests import BaseIntegrationTestCase
+from testing_suite.integration_tests import IntegrationTestCase
 
 
-class EAnnouncementsSequentialTestCase(BaseIntegrationTestCase):
+class EAnnouncementsSequentialTestCase(IntegrationTestCase):
 
     def __init__(self, methodName):
         super(EAnnouncementsSequentialTestCase, self).__init__(methodName)

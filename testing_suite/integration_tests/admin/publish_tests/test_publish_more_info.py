@@ -1,7 +1,7 @@
-from testing_suite.integration_tests import BaseIntegrationTestCase
+from testing_suite.integration_tests import IntegrationTestCase
 
 
-class MoreInfoTestCase(BaseIntegrationTestCase):
+class MoreInfoTestCase(IntegrationTestCase):
 
     #######################
     ### Utility methods ###

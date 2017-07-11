@@ -1,9 +1,9 @@
 import json
 
-from testing_suite.integration_tests import BaseIntegrationTestCase
+from testing_suite.integration_tests import IntegrationTestCase
 
 
-class MetadataTestCase(BaseIntegrationTestCase):
+class MetadataTestCase(IntegrationTestCase):
 
     #######################
     ### Utility methods ###

@@ -1,7 +1,7 @@
-from testing_suite.integration_tests import BaseIntegrationTestCase
+from testing_suite.integration_tests import IntegrationTestCase
 
 
-class InWorkflowTestCase(BaseIntegrationTestCase):
+class InWorkflowTestCase(IntegrationTestCase):
 
     #######################
     ### Utility methods ###

@@ -16,3 +16,47 @@ functions themselves, making sure that passing in specific sets of arguments wil
 sets will break the function intentionally.
 
 """
+
+import hashlib
+import os
+import re
+import unittest
+
+from inspect import stack, getframeinfo
+
+
+class BaseTestCase(unittest.TestCase):
+    def __init__(self, methodName):
+        super(BaseTestCase, self).__init__(methodName)
+        current_frame = stack()[1]
+        file_of_current_frame = current_frame[0].f_globals.get('__file__', None)
+        dir_path_to_current_frame = os.path.dirname(file_of_current_frame)
+        name_of_last_folder = dir_path_to_current_frame.split("/")[-1]
+        self.class_name = name_of_last_folder + "/" + self.__class__.__name__
+
+    def get_line_number(self):
+        current_frame = stack()[1][0]
+        frameinfo = getframeinfo(current_frame)
+        return frameinfo.lineno
+
+    def assertIn(self, substring, string_to_check, msg=None):
+        self.failIf(substring not in string_to_check, msg=msg)
+
+    def assertNotIn(self, substring, string_to_check, msg=None):
+        self.failIf(substring in string_to_check, msg=msg)
+
+    def get_unique_short_string(self, super_long_string):
+        m = hashlib.md5()
+        m.update(self.strip_whitespace(super_long_string))
+        return repr(m.digest())
+
+    def strip_whitespace(self, string):
+        lines = string.split("\n")
+        to_return = ""
+        for line in lines:
+            if isinstance(line, str):
+                line = re.sub("[\t\r\n]+", "", line)  # Remove tabs and new-lines
+                line = re.sub("[ ]{2,}", " ", line)  # Remove multiple spaces and replace with single spaces
+                if len(line) > 1:  # Only add lines that are more than just a \n character
+                    to_return += line + "\n"
+        return to_return

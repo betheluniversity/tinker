@@ -3,10 +3,10 @@ import shutil
 import tempfile
 
 import tinker
-from testing_suite.integration_tests import BaseIntegrationTestCase
+from testing_suite.integration_tests import IntegrationTestCase
 
 
-class ProgramSearchBaseTestCase(BaseIntegrationTestCase):
+class ProgramSearchBaseTestCase(IntegrationTestCase):
 
     # This method is designed to set up a temporary database, such that the tests won't affect the real database
     def setUp(self):

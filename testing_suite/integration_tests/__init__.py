@@ -1,29 +1,24 @@
 # Currently, the testing suite takes about 4 minutes to run.
 
 import base64
-import hashlib
 import os
 import re
 import unittest
-from inspect import stack, getframeinfo
+from inspect import stack
 
 from selenium import webdriver
 
 import tinker
+from testing_suite import BaseTestCase
 from testing_suite.utilities import get_tests_in_this_dir
 from tinker import get_url_from_path
 
 
-class BaseIntegrationTestCase(unittest.TestCase):
+class IntegrationTestCase(BaseTestCase):
     def __init__(self, methodName):
-        super(BaseIntegrationTestCase, self).__init__(methodName)
+        super(IntegrationTestCase, self).__init__(methodName)
         self.ERROR_400 = repr('\xad\xa0\xa0\xff;\x0e\x0bVx\xda\x99\x8c\xb8U\xc3\xb8')
         self.ERROR_500 = '<h1 class="oversized">Whoops! Tinker lost its connection.</h1>'
-        current_frame = stack()[1]
-        file_of_current_frame = current_frame[0].f_globals.get('__file__', None)
-        dir_path_to_current_frame = os.path.dirname(file_of_current_frame)
-        name_of_last_folder = dir_path_to_current_frame.split("/")[-1]
-        self.class_name = name_of_last_folder + "/" + self.__class__.__name__
 
     def setUp(self):
         tinker.app.testing = True
@@ -66,37 +61,10 @@ class BaseIntegrationTestCase(unittest.TestCase):
         else:
             return self.app.post(url, data=form_contents, follow_redirects=True)
 
-    def get_line_number(self):
-        current_frame = stack()[1][0]
-        frameinfo = getframeinfo(current_frame)
-        return frameinfo.lineno
-
     def generate_failure_message(self, type, request, response_data, expected_response, class_name, line_number):
         return '"%(0)s %(1)s" received "%(2)s" when it was expecting "%(3)s" in %(4)s on line %(5)s.' % \
                {'0': type, '1': request, '2': self.get_useful_string(response_data), '3': expected_response,
                 '4': class_name, '5': line_number}
-
-    def assertIn(self, substring, string_to_check, msg=None):
-        self.failIf(substring not in string_to_check, msg=msg)
-
-    def assertNotIn(self, substring, string_to_check, msg=None):
-        self.failIf(substring in string_to_check, msg=msg)
-
-    def get_unique_short_string(self, super_long_string):
-        m = hashlib.md5()
-        m.update(self.strip_whitespace(super_long_string))
-        return repr(m.digest())
-
-    def strip_whitespace(self, string):
-        lines = string.split("\n")
-        to_return = ""
-        for line in lines:
-            if isinstance(line, str):
-                line = re.sub("[\t\r\n]+", "", line)  # Remove tabs and new-lines
-                line = re.sub("[ ]{2,}", " ", line)  # Remove multiple spaces and replace with single spaces
-                if len(line) > 1:  # Only add lines that are more than just a \n character
-                    to_return += line + "\n"
-        return to_return
 
     def get_useful_string(self, string_of_html):
         if "</nav>" in string_of_html and "<footer class=\"footer\">" in string_of_html:

@@ -1,7 +1,7 @@
-from testing_suite.integration_tests import BaseIntegrationTestCase
+from testing_suite.integration_tests import IntegrationTestCase
 
 
-class EditTestCase(BaseIntegrationTestCase):
+class EditTestCase(IntegrationTestCase):
 
     #######################
     ### Utility methods ###

@@ -1,8 +1,8 @@
 # from tinker import cascade_connector
-from testing_suite.integration_tests import BaseIntegrationTestCase
+from testing_suite.integration_tests import IntegrationTestCase
 
 
-class FacultyBioSequentialTestCase(BaseIntegrationTestCase):
+class FacultyBioSequentialTestCase(IntegrationTestCase):
     def __init__(self, methodName):
         super(FacultyBioSequentialTestCase, self).__init__(methodName)
         self.request_type = ""

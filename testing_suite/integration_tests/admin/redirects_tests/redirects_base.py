@@ -2,10 +2,10 @@ from flask_fixtures import FixturesMixin
 from flask_sqlalchemy import SQLAlchemy
 
 import tinker
-from testing_suite.integration_tests import BaseIntegrationTestCase
+from testing_suite.integration_tests import IntegrationTestCase
 
 
-class RedirectsBaseTestCase(BaseIntegrationTestCase, FixturesMixin):
+class RedirectsBaseTestCase(IntegrationTestCase, FixturesMixin):
 
     # fixtures = ['test_database.json']
     tinker_app = tinker.app

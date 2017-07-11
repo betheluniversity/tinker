@@ -1,9 +1,9 @@
-from testing_suite.unit_tests import BaseUnitTestCase
+from testing_suite.unit_tests import UnitTestCase
 from tinker import app
 from tinker.admin.program_search import ProgramSearchController
 
 
-class ProgramSearchControllerBaseTestCase(BaseUnitTestCase):
+class ProgramSearchControllerBaseTestCase(UnitTestCase):
     def __init__(self, methodName):
         super(ProgramSearchControllerBaseTestCase, self).__init__(methodName)
         self.controller = ProgramSearchController()

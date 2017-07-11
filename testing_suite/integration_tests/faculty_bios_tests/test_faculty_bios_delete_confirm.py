@@ -1,7 +1,7 @@
-from testing_suite.integration_tests import BaseIntegrationTestCase
+from testing_suite.integration_tests import IntegrationTestCase
 
 
-class DeleteConfirmTestCase(BaseIntegrationTestCase):
+class DeleteConfirmTestCase(IntegrationTestCase):
 
     #######################
     ### Utility methods ###
