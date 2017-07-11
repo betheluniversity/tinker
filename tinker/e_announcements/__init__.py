@@ -282,13 +282,19 @@ class EAnnouncementsView(FlaskView):
         ea_display = []
 
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block', True)
-        forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+        forms.sort(key=lambda item: ['created_on'], reverse=True)
 
         def get_title_and_message(self, form):
             title = find(form, 'title', False)
             message = find(form, 'message', False)
-            ea_display.append(title)
-            ea_display.append(message)
+            ea_id = find(form, 'id', False)
+            created = find(form, 'created-on', False)
+            ea_display.append({
+                'title': title,
+                'message': message,
+                'id': ea_id
+            })
+            # ea_display.append(message)
 
         for form in forms:
             first_ea_date = find(form, 'first_date', False)
