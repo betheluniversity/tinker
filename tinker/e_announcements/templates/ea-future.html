@@ -18,6 +18,10 @@
                         <a class="btn btn-primary mr1 pikaday datepicker" id="datepicker" onchange="grabDate()">Pick A Day</a>
                         <span id="setDate"></span>
                 </div>
+            {# spinner placeholder #}
+            <div id="spinner" class="spinner" style="display:none;">
+                <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+            </div>
             <div class="show-ea">
             </div>
         </div>
@@ -124,6 +128,7 @@
         });
         function grabDate() {
             $('#setDate').html($('#datepicker').val());
+            $('#spinner').show();
             changeInfo();
         }
         function changeInfo() {
@@ -133,12 +138,13 @@
                 data: {'dateId': $("#datepicker").val()},
                 success: function(result) {
                     $('.show-ea').html(result)
+                    $('#spinner').hide();
                 },
                 error: function() {
                     $(".show-ea").html('Error: Contact Web Services for further assistance');
+                    $('#spinner').hide();
                 }
             })
         }
-
     </script>
 {% endblock %}
