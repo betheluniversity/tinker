@@ -69,8 +69,6 @@ class NewsView(FlaskView):
                 }
 
                 if app.config['ENVIRON'] == 'prod':
-                    self.base_campaign.log_sentry(
-                        "News was sent out for id:" + article_id + " was called on production", current_datetime.strftime("%m-%d-%Y"))
                     self.base_campaign.reset_send_email_value(page)
 
                     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to,
@@ -79,7 +77,7 @@ class NewsView(FlaskView):
 
                     confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
                     new_campaign.send(confirmation_email_sent_to, 'Immediately')
-                    self.base_campaign.log_sentry("News campaign for " + str(current_datetime.strftime('%m/%-d/%Y')), resp)
+                    self.base_campaign.log_sentry("News campaign created", resp)
 
         except:
             return 'failed'
