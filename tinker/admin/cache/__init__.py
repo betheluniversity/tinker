@@ -16,7 +16,7 @@ class CacheView(FlaskView):
         self.base = CacheController()
 
     def before_request(self, args):
-        admin_permissions(self, args)
+        admin_permissions(self)
 
     def index(self):
         return render_template('cache-home.html')

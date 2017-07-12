@@ -19,7 +19,7 @@ class SyncView(FlaskView):
         self.base = SyncController()
 
     def before_request(self, args):
-        admin_permissions(self, args)
+        admin_permissions(self)
 
     def index(self):
         # get the most recent code

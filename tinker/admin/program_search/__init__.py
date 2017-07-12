@@ -23,7 +23,7 @@ class ProgramSearchView(FlaskView):
         self.base = ProgramSearchController()
 
     def before_request(self, args):
-        admin_permissions(self, args)
+        admin_permissions(self)
 
     def index(self):
         school_labels = self.base.get_school_labels()
