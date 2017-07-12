@@ -44,7 +44,7 @@ class SyncController(TinkerController):
                 'metadata_set_id': metadata_set_id,
                 'current_asset': metadata_asset
             })
-
+        # TODO: maybe add cascade logger here? would like it in asset.edit_asset, but that's in bu_cascade
         return returned_keys
 
     def get_metadata_sets_mapping(self):
@@ -101,7 +101,7 @@ class SyncController(TinkerController):
                 'data_definition_id': data_definition_asset,
                 'current_asset': data_definition_asset
             })
-
+        # TODO: maybe add cascade logger here? would like it in asset.edit_asset, but that's in bu_cascade
         return returned_keys
 
     def get_data_definitions_mapping(self):

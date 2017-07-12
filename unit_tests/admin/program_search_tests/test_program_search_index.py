@@ -17,10 +17,8 @@ class IndexTestCase(ProgramSearchBaseTestCase):
     #######################
 
     def test_index(self):
-        expected_response = repr("\x8f\xdd\xacM\xeak\x97\x07\xd0\xb7\x1f'\x1f\xe1\x0e7")
-        # b'<label for="key" style="color: #252422">Concentration Code or Program Name:</label>'
+        expected_response = b'<label for="key" style="color: #252422">Concentration Code or Program Name:</label>'
         response = self.send_get(self.request)
-        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertEqual(expected_response, short_string, msg=failure_message)
+        self.assertIn(expected_response, response.data, msg=failure_message)

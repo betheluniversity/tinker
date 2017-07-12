@@ -437,7 +437,7 @@ hr {
     line-height: 35px;
 }
 
-.sidebar .nav li.active > a:before, .off-canvas-sidebar .nav li.active > a:before {
+.nav li.active > a:before, .off-canvas-sidebar .nav li.active > a:before {
     border-right: 17px solid #FFFFFF;
     border-top: 17px solid transparent;
     border-bottom: 17px solid transparent;
@@ -448,7 +448,7 @@ hr {
     top: 8px;
 }
 
-.sidebar .nav li.active > a:after, .off-canvas-sidebar .nav li.active > a:after {
+.nav li.active > a:after, .off-canvas-sidebar .nav li.active > a:after {
     border-right: 17px solid #FFFFFF;
     border-top: 17px solid transparent;
     border-bottom: 17px solid transparent;
@@ -457,6 +457,24 @@ hr {
     position: absolute;
     right: -1px;
     top: 8px;
+}
+
+.navbar-right > li > a {
+    margin: 19px 19px !important;
+
+}
+
+.btn, .navbar .navbar-nav > li > a.btn {
+    color: #fff !important;
+    background-color: #0069AA !important;
+    border-width: 0 !important;
+    padding: 7px 18px 7px 14px;
+}
+
+.navbar-default .navbar-nav > li > a:not(.btn):hover,
+.navbar-default .navbar-nav > li > a:not(.btn):focus,
+.navbar-default .navbar-nav > li > a:not(.btn):active {
+    color: #fff
 }
 
 .off-canvas-sidebar .nav > li.active > a:before {

@@ -39,9 +39,8 @@ class SearchTestCase(ProgramSearchBaseTestCase):
             bad_arg = {arg_names[i]: None}
             form = self.create_form(**bad_arg)
             response = self.send_post(self.request, form)
-            short_string = self.get_unique_short_string(response.data)
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                             expected_response,
                                                             self.class_name + "/search_invalid_" + arg_names[i],
                                                             self.get_line_number())
-            self.assertEqual(expected_response, short_string, msg=failure_message)
+            self.assertIn(expected_response, response.data, msg=failure_message)
