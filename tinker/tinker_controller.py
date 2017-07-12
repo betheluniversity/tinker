@@ -97,12 +97,13 @@ def admin_permissions(flask_view_class):
 
     # redirect menu
     elif flask_view_class.route_base == '/admin/redirect':
+        # This if statement has to come first so that public API request don't need to have groups associated with them.
+        if '/public/' in request.path:
+            return
+
         # Checks to see what group the user is in
         if 'Administrators' not in session['groups'] and 'Tinker Redirects' not in session['groups']:
             abort(403)
-
-        if '/public/' in request.path:
-            return
 
     # all other admin menus
     elif 'Administrators' not in session['groups']:
@@ -199,7 +200,7 @@ class TinkerController(object):
                     allowed_groups = ""
             else:
                 allowed_groups = app.config['TEST_GROUPS']
-            print allowed_groups
+            # print allowed_groups
             session['groups'] = allowed_groups
             return allowed_groups.split(";")
 
