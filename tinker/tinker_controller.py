@@ -89,25 +89,26 @@ def requires_auth(f):
 
 # *args because some of the menus are called with args and some with **kwargs
 # checks the route base and uses the corresponding permissions to load the correct admin menu
-def admin_permissions(self, route_base, *args):
+def admin_permissions(self, args):
     # checks the route base for redirects or program search
-    if route_base != '/admin/redirect' and route_base != '/admin/program-search':
-        if 'Administrators' not in session['groups']:
-            abort(403)
-
     # program search menu
-    if route_base == '/admin/program-search':
+    if self.route_base == '/admin/program-search':
         # give access to admins and lauren
         if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
             abort(403)
 
     # redirect menu
-    if route_base == '/admin/redirect':
+    elif self.route_base == '/admin/redirect':
         if '/public/' in request.path:
             return
 
         # Checks to see what group the user is in
         if 'Tinker Redirects' not in session['groups'] and 'Administrators' not in session['groups']:
+            abort(403)
+
+    # all other admin menus
+    else:
+        if 'Administrators' not in session['groups']:
             abort(403)
 
 

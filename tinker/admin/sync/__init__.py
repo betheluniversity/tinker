@@ -18,8 +18,8 @@ class SyncView(FlaskView):
     def __init__(self):
         self.base = SyncController()
 
-    def before_request(self, name, **kwargs):
-        admin_permissions('route_base', self, **kwargs)
+    def before_request(self, args):
+        admin_permissions(self, args)
 
     def index(self):
         # get the most recent code

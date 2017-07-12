@@ -11,7 +11,7 @@ class BlinkRolesView(FlaskView):
     route_base = '/admin/blink-roles'
 
     def before_request(self, args):
-        admin_permissions(self, 'route_base', args)
+        admin_permissions(self, args)
 
     def index(self):
         uid_list = uid
