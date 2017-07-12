@@ -11,7 +11,7 @@ from e_announcements_controller import EAnnouncementsController
 from campaign_controller import CampaignController
 
 # flask
-from flask import Blueprint, render_template, url_for, redirect, session
+from flask import Blueprint, render_template, url_for, redirect, session, abort
 from flask_classy import FlaskView, route, request
 
 EAnnouncementsBlueprint = Blueprint('e_announcements', __name__, template_folder='templates')
@@ -257,6 +257,8 @@ class EAnnouncementsView(FlaskView):
 
         except:
             self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.", resp)
+            self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.",
+                                 resp)
             return str(resp)
 
     def edit_all(self):
@@ -264,5 +266,52 @@ class EAnnouncementsView(FlaskView):
         xml_url = app.config['E_ANNOUNCEMENTS_XML_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
+
+    @route("/upcoming")
+    def ea_upcoming(self):
+        if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
+            return abort(403)
+
+        return render_template("ea-future.html")
+
+    @route("/ea_future", methods=['POST'])
+    def ea_future(self):
+        if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
+            return abort(403)
+
+        pass_in = request.form
+        date_id = pass_in.get('dateId', 'null')
+        ea_display = []
+
+        forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block', True)
+        forms.sort(key=lambda item: ['created_on'], reverse=True)
+
+        def get_title_and_message(self, form):
+            title = find(form, 'title', False)
+            message = find(form, 'message', False)
+            ea_id = find(form, 'id', False)
+            created = find(form, 'created-on', False)
+            ea_display.append({
+                'title': title,
+                'message': message,
+                'id': ea_id
+            })
+            # ea_display.append(message)
+
+        for form in forms:
+            first_ea_date = find(form, 'first_date', False)
+
+            if first_ea_date == str(date_id):
+                get_title_and_message(self, form)
+
+            # second date is not always present, the second date if statements are necessary
+            second_ea_date = find(form, 'second_date', False)
+            if second_ea_date != '':
+                if second_ea_date == str(date_id):
+                    get_title_and_message(self, form)
+
+        return render_template("ea-future-ajax.html", **locals())
+
+    # TODO e-announcements by role (someday)
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)
