@@ -11,7 +11,7 @@ from e_announcements_controller import EAnnouncementsController
 from campaign_controller import CampaignController
 
 # flask
-from flask import Blueprint, render_template, url_for, redirect, session
+from flask import Blueprint, render_template, url_for, redirect, session, abort
 from flask_classy import FlaskView, route, request
 
 EAnnouncementsBlueprint = Blueprint('e_announcements', __name__, template_folder='templates')
@@ -273,10 +273,16 @@ class EAnnouncementsView(FlaskView):
 
     @route("/upcoming")
     def ea_upcoming(self):
+        if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
+            return abort(403)
+
         return render_template("ea-future.html")
 
     @route("/ea_future", methods=['POST'])
     def ea_future(self):
+        if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
+            return abort(403)
+
         pass_in = request.form
         date_id = pass_in.get('dateId', 'null')
         ea_display = []

@@ -21,8 +21,10 @@
                 <a href="{{ url_for('e_announcements.EAnnouncementsView:new') }}" class="btn btn-primary new-btn">Submit
                     New
                     E-Announcement</a>
-                <a href="{{  url_for('e_announcements.EAnnouncementsView:ea_upcoming') }}" class="btn btn-primary new-btn">
-                    Upcoming E-Announcements</a>
+                {% if 'E-Announcement Approver' in session['groups'].split(';') or 'Administrators' in session['groups'].split(';') %}
+                    <a href="{{  url_for('e_announcements.EAnnouncementsView:ea_upcoming') }}" class="btn btn-primary new-btn">
+                        Upcoming E-Announcements</a>
+                {% endif %}
 
                 {% for form in forms %}
                     <div class="card">
