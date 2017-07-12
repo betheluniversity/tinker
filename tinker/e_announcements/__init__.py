@@ -267,10 +267,6 @@ class EAnnouncementsView(FlaskView):
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 
-        # compares dates to show only future E-announcements
-        # def show_future(self, date):
-        # if
-
     @route("/upcoming")
     def ea_upcoming(self):
         if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
