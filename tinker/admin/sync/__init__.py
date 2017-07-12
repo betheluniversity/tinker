@@ -18,7 +18,7 @@ class SyncView(FlaskView):
     def __init__(self):
         self.base = SyncController()
 
-    def before_request(self, args):
+    def before_request(self, name, **kwargs):
         admin_permissions(self)
 
     def index(self):
