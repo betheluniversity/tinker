@@ -176,7 +176,8 @@ class EAnnouncementsController(TinkerController):
         split_date = date.split("-")
         month = self.convert_month_num_to_name(split_date[0])
         year = split_date[2]
-
+        
+        # the copy method only processes if the folder being copied does not exist already.
         self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year, 'folder')
         self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year + "/" + month, 'folder')
 
