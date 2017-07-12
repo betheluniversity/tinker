@@ -4,30 +4,28 @@
 
 {% block styles %}
     <style type="text/css">
-        h2 {
+        .profile h2 {
             margin-top: 5px;
         }
-        th {
+        .profile-table th {
             font-size: 15px;
             padding-right: 10%;
             vertical-align: top;
         }
-        td {
+        .profile-table td {
             vertical-align: top;
             padding-bottom: 10% !important; /*Overriding tinker.css*/
         }
-        li {
-            list-style-type: none;
-        }
     </style>
 {% endblock %}
+
 {% block main_content %}
-    <div class="content">
+    <div class="content profile">
         <div class="container-fluid">
             <div class="col-md-12">
                 <h2>{{ session['name'] }}</h2>
                 <hr>
-                <table>
+                <table class="profile-table">
                     <tr>
                         <th>Username</th>
                         <td>{{ session['username'] }}</td>
