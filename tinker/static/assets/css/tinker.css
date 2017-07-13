@@ -657,3 +657,24 @@ label.checkbox {
     }
 }
 
+#setDate {
+    padding-left: 25px;
+    font-weight: 900;
+    font-size: large;
+}
+
+
+.show-ea {
+    padding-top: 25px;
+}
+
+.ea-title {
+    font-weight:600;
+    font-size: 18px;
+    padding-top: 15px;
+}
+
+.ea-message {
+    font-size: 14px;
+    line-height: 5px;
+}
