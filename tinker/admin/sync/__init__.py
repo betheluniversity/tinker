@@ -8,7 +8,7 @@ from flask_wtf import Form
 # tinker
 from tinker.admin.sync.sync_metadata import data_to_add
 from sync_controller import *
-
+from tinker.tinker_controller import admin_permissions
 SyncBlueprint = Blueprint('sync', __name__, template_folder='templates')
 
 
@@ -19,8 +19,7 @@ class SyncView(FlaskView):
         self.base = SyncController()
 
     def before_request(self, name, **kwargs):
-        if 'Administrators' not in session['groups']:
-            abort(403)
+        admin_permissions(self)
 
     def index(self):
         # get the most recent code
