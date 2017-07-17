@@ -1,31 +1,75 @@
-from flask import Blueprint, render_template
-from flask_classy import FlaskView, route
+import requests
+import time
 
-from bu_cascade.cascade_connector import Cascade
+from xml.etree import ElementTree as ET
+from flask import render_template, session, request, make_response, redirect
+from flask.ext.classy import FlaskView, route
 
-from tinker.tinker_controller import admin_permissions
+from app import app
 
+from datetime import datetime
+# solution from here: https://stackoverflow.com/questions/1617078/ordereddict-for-older-versions-of-python
+try:
+    from collections import OrderedDict
+except ImportError:
+    from ordereddict import OrderedDict
 
-class UserRolesView(FlaskView):
-    route_base = '/admin/user-roles'
+if __name__ == '__main__':
+    class TinkerView(FlaskView):
 
-    def before_request(self, args):
-        admin_permissions(self, 'route_base', args)
+        def __init__(self):
+            # init is only run on server startup, so only xml can be loaded here
+            xml = requests.get(app.config['XML_URL'])
+            self.tabs = OrderedDict()
+            self.blocks = {}
+            self.icons = {}
+            self.tab_title = ''
+            self.load_tabs()
+            self.load_blocks()
 
-    def index(self):
-        return render_template('', **locals())  # make .html to return
+        def before_request(self, name, **kwargs):
+            if app.config['DEBUG'] and not session.get('admin_viewer'):
+                session.clear()
 
-    def test_roles_and_user(self):
-        # TODO inhabit this method
-        # same as portal, just use that as template
-        # add config variables to config file
+            start = datetime.now()
+            if 'user_roles' not in session.keys():
+                self.load_user_roles()
+            if 'user_tabs' not in session.keys():
+                self.load_user_tabs()
+            if 'user_icons' not in session.keys():
+                self.load_user_icons()
 
-    @route('/test_roles_and_users_submit/', methods=['POST'])
-    def test_roles_and_users_submit(self):
-        # TODO inhabit this method
-        # same as portal, just use that as template
+            if 'username' not in session.keys():
+                if not app.config['DEBUG']:
+                    session['username'] = request.environ.get('REMOTE_USER')
+                elif not app.config['DEVELOPMENT']:
+                    session['username'] = request.environ.get('REMOTE_USER')
+                else:
+                    session['username'] = app.config['TEST_USERNAME']
 
-    @route('/test_roles_and_users_remove/')
-    def test_roles_and_users_remove(self):
-        # TODO inhabit this method
-        # same as portal, use that as template
+            start = datetime.now()
+            if 'user_profile' not in session.keys():
+                self.load_user_profile()
+            end = datetime.now()
+            print "load_user_profile: %s" % (end - start)
+
+            url_tab = kwargs.get('tab', 'home')
+            tab = url_tab.replace('-', ' ')
+            # todo: sometimes flask is trying to load 'favicon.ico' as a Tab.
+            # if not set(session['user_roles']).intersection(self.tabs[tab]['portal-roles']):
+            #     return "not allowed"
+            session['tab'] = tab
+            session['url_tab'] = url_tab
+            end = datetime.now()
+            print "before_request: %s" % (end - start)
+
+        def index(self):
+            return self.get('home')
+
+        def load_user_roles(self):
+            if app.config['DEVELOPMENT']:
+                session['user_roles'] = [role.upper() for role in app.config['ROLES']]
+            else:
+                session['user_roles'] = [role.upper() for roles in app.config['ROLES']]
+
+        def 

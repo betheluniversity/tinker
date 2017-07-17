@@ -23,7 +23,7 @@ if __name__ == "__main__":
     testsuite = unittest.TestLoader().discover('.')
     unittest.TextTestRunner(verbosity=1).run(testsuite)
 """
-            new_init = open(path + "/__init__.py", "w")
+            new_init = open(path + "/user_roles.py", "w")
             new_init.write(init_contents)
             new_init.close()
 
