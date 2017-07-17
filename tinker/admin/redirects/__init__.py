@@ -27,7 +27,7 @@ class RedirectsView(FlaskView):
 
     # This method is called before a request is made
     def before_request(self, name, **kwargs):
-        admin_permissions(self, app.config['ADMIN_REDIRECT_ROUTE_BASE'], **kwargs)
+        admin_permissions(self)
 
     # Redirects homepage
     def index(self):

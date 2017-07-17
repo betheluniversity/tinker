@@ -10,8 +10,8 @@ BlinkRolesBlueprint = Blueprint('blink_roles', __name__, template_folder='templa
 class BlinkRolesView(FlaskView):
     route_base = '/admin/blink-roles'
 
-    def before_request(self, args):
-        admin_permissions(self, 'route_base', args)
+    def before_request(self, name, **kwargs):
+        admin_permissions(self)
 
     def index(self):
         uid_list = uid

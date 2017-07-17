@@ -24,7 +24,7 @@ class PublishView(FlaskView):
 
     # This method is called before any request to check user's credentials
     def before_request(self, name, **kwargs):
-        admin_permissions('route_base', self, **kwargs)
+        admin_permissions(self)
 
     # Publish manager's homepage
     def index(self):
