@@ -18,4 +18,7 @@ class Base(FlaskView):
     def get_image(self, image_name):
         return send_file('images/' + image_name, mimetype='image/png')
 
+    def profile(self):
+        return render_template('profile.html', **locals())
+
 Base.register(BaseBlueprint)
