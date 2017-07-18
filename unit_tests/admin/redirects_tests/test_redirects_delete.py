@@ -12,7 +12,7 @@ class DeleteTestCase(RedirectsBaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("delete_redirect")
 
-    def create_form(self, from_path):
+    def create_form(self, from_path="/from?"):
         return {
             'from_path': from_path
         }
@@ -29,17 +29,19 @@ class DeleteTestCase(RedirectsBaseTestCase):
             'short-url': "on",
             'expiration-date': "Fri Jul 01 2016"
         })
-        expected_response = b'deleted done'
+        expected_response = repr("\xec\xb6\x18!|\x08Y\x05\xc6\x90'a?\xb4<\xfa")  # b'deleted done'
         form_contents = self.create_form("/from?")
         response = self.send_post(self.request, form_contents)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)
 
     def test_delete_invalid_path(self):
-        expected_response = b'fail'
+        expected_response = repr('\x95\xb3dEV\xb4\x8a%\xf36m\x82\xb0\xe3\xb3I')  # b'fail'
         form_contents = self.create_form("/gibberish_url")
         response = self.send_post(self.request, form_contents)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)

@@ -437,7 +437,7 @@ hr {
     line-height: 35px;
 }
 
-.sidebar .nav li.active > a:before, .off-canvas-sidebar .nav li.active > a:before {
+.nav li.active > a:before, .off-canvas-sidebar .nav li.active > a:before {
     border-right: 17px solid #FFFFFF;
     border-top: 17px solid transparent;
     border-bottom: 17px solid transparent;
@@ -448,7 +448,7 @@ hr {
     top: 8px;
 }
 
-.sidebar .nav li.active > a:after, .off-canvas-sidebar .nav li.active > a:after {
+.nav li.active > a:after, .off-canvas-sidebar .nav li.active > a:after {
     border-right: 17px solid #FFFFFF;
     border-top: 17px solid transparent;
     border-bottom: 17px solid transparent;
@@ -457,6 +457,24 @@ hr {
     position: absolute;
     right: -1px;
     top: 8px;
+}
+
+.navbar-right > li > a {
+    margin: 19px 19px !important;
+
+}
+
+.btn, .navbar .navbar-nav > li > a.btn {
+    color: #fff !important;
+    background-color: #0069AA !important;
+    border-width: 0 !important;
+    padding: 7px 18px 7px 14px;
+}
+
+.navbar-default .navbar-nav > li > a:not(.btn):hover,
+.navbar-default .navbar-nav > li > a:not(.btn):focus,
+.navbar-default .navbar-nav > li > a:not(.btn):active {
+    color: #fff
 }
 
 .off-canvas-sidebar .nav > li.active > a:before {
@@ -535,6 +553,16 @@ label {
     font-family: Muli, Helvetica Neue, sans-serif;
 }
 
+.short_url {
+    background-color: #0069AA;
+    padding: 2px 10px;
+    border-radius: 10px;
+}
+
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    vertical-align: unset !important;
+}
+
 /* Checkbox inputs */
 
 label.checkbox {
@@ -546,12 +574,25 @@ label.checkbox {
     font-size: 85%;
 }
 
+/* Makes element have display of none */
+.display-none {
+    display: none;
+}
+
 /* Notifications */
 [data-notify="container"].alert {
     padding: 15px !important;
     width: 40%;
     color: #FFFFFF;
     background-color: #0069AA;
+}
+
+.program-other, .topic, .delete-checkbox {
+    margin-left: 20% !important
+}
+
+.outcome {
+    margin-left: 30%
 }
 
 @media (max-width: 991px){
@@ -567,7 +608,9 @@ label.checkbox {
     .dropdown-menu > li > a{
         padding-left: 15px !important;
     }
-
+    img.gif-resize {
+        width: 100%;
+    }
 }
 
 @media (min-width: 992px) {
@@ -596,24 +639,42 @@ label.checkbox {
         border: .5px solid #CCCCCC;
         width: 100%;
     }
+    .btn {
+        margin-bottom: 5px;
+    }
+
+    img.gif-resize {
+        width: 100%;
+    }
 }
 
 @media (max-width: 350px) {
     select#school-selector {
         max-width: 100%;
     }
-}
-
-@media (max-width: 450px) {
-    .btn {
-        margin-bottom: 5px;
+    img.gif-resize {
+        width: 100%;
     }
 }
 
-.program-other, .topic, .delete-checkbox {
-    margin-left: 20% !important
+#setDate {
+    padding-left: 25px;
+    font-weight: 900;
+    font-size: large;
 }
 
-.outcome {
-    margin-left: 30%
+
+.show-ea {
+    padding-top: 25px;
+}
+
+.ea-title {
+    font-weight:600;
+    font-size: 18px;
+    padding-top: 15px;
+}
+
+.ea-message {
+    font-size: 14px;
+    line-height: 5px;
 }

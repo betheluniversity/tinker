@@ -1,5 +1,5 @@
 import re
-import time
+
 from unit_tests import BaseTestCase
 
 
@@ -10,7 +10,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
         self.request_type = ""
         self.request = ""
         self.fbid = ""
-        self.form_arg_names = ['first', 'last', 'author', 'faculty_location', 'highlight', 'schools1', 'undergrad1',
+        self.form_arg_names = ['first', 'last', 'author_faculty', 'faculty_location', 'highlight', 'schools1', 'undergrad1',
                                'dept-chair1', 'adult-undergrad1', 'graduate1', 'lead-faculty1' 'seminary1', 'new-job-title1',
                                'email', 'started_at_bethel', 'school1', 'degree-earned1', 'year1', 'biography',
                                'courses', 'awards', 'publications', 'presentations', 'certificates', 'organizations',
@@ -19,7 +19,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
     def get_faculty_bio_id(self, responseData):
         return re.search('id="faculty_bio_id".*value="(.+)"', responseData).group(1)
 
-    def create_form(self, first='Philip', last='Gibbens', author='phg49389', location='St. Paul',
+    def create_form(self, first='Philip', last='Gibbens', author_faculty='phg49389', location='St. Paul',
                     highlight="A great magazine for the dentist's office", schools='College of Arts and Sciences',
                     undergrad='Math & Computer Science', dept_chair='No', adult_undergrad='None',
                     program_director='No', graduate='None', lead_faculty='Other', seminary='None', job_title="Web Developer",
@@ -36,7 +36,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
             'image_url': '',
             'first': first,
             'last': last,
-            'author': author,
+            'author_faculty': author_faculty,
             'faculty_location': location,
             'highlight': highlight,
 
@@ -106,11 +106,15 @@ class FacultyBioSequentialTestCase(BaseTestCase):
         expected_response = b'There were errors with your form'
 
         # Test all independent required fields
-        required_vals = ['first', 'last', 'author', 'location', 'highlight', 'email', 'started_at_bethel']
+        required_vals = ['first', 'last', 'author_faculty', 'location', 'highlight', 'email', 'started_at_bethel']
         for index in range(len(required_vals)):
             bad_args = {required_vals[index]: ""}
             form = self.create_form(**bad_args)
             response = self.send_post(self.request, form)
+            try:
+                possible_id = self.get_faculty_bio_id(response.data)
+            except AttributeError:
+                possible_id = ""
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                             expected_response,
                                                             self.class_name + "/new_invalid_" + required_vals[index],
@@ -168,7 +172,7 @@ class FacultyBioSequentialTestCase(BaseTestCase):
     def get_edit_form(self):
         self.request_type = "GET"
         self.request = self.generate_url("edit", faculty_bio_id=self.fbid)
-        expected_response = b'You recently made edits to your bio and are currently pending approval.'
+        expected_response = b'<input type="hidden" name="faculty_bio_id" id="faculty_bio_id"'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())

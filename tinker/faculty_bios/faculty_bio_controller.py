@@ -97,8 +97,6 @@ class FacultyBioController(TinkerController):
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
-                # Todo: remove this print line, once this is tested
-                print 'bad'
                 return None
         else:
             return None
@@ -115,8 +113,6 @@ class FacultyBioController(TinkerController):
             school_array = []
             for school in child.findall('.//job-titles/school'):
                 school_array.append(school.text or 'Other')
-
-            school_array = list(set(school_array))
 
             page_values = {
                 'author': child.find('author') or None,
@@ -140,7 +136,7 @@ class FacultyBioController(TinkerController):
         for program_element in program_elements:
             for program in program_element:
                 try:
-                    if self.get_mapping()[program.text] in groups:
+                    if self.get_mapping()[program.text] in groups.split(';'):
                         return True
                 except:
                     continue
@@ -264,10 +260,16 @@ class FacultyBioController(TinkerController):
 
         # set/reset the standard data
         add_data['parentFolderID'] = None
-        add_data['parentFolderPath'] = '/academics/faculty'
+        if not app.config['UNIT_TESTING']:
+            add_data['parentFolderPath'] = '/academics/faculty'
+        else:
+            add_data['parentFolderPath'] = '/_testing/philip-gibbens/fac-bios-tests'
         add_data['path'] = None
-        add_data['author'] = session['username']
         faculty_bio_data['page']['metadata']['metaDescription'] = self.build_description(add_data)
+
+        # make sure author is set properly and not overriden by tinker controllers methods :(
+        # todo: add a parameter or something so we don't have to do this exchange.
+        add_data['author'] = add_data['author_faculty']
 
         # todo: eventually adjust the keys in cascade to work.
         add_data['started-at-bethel'] = add_data['started_at_bethel']
@@ -425,6 +427,10 @@ class FacultyBioController(TinkerController):
     def validate_form(self, rform):
         from forms import FacultyBioForm
         form = FacultyBioForm(rform)
+
+        # todo: remove this code for jenny vang soon
+        if session['username'] == 'jev24849':
+            return form
 
         degrees, degrees_good, degree_error_list, num_degrees = self.check_degrees(rform)
         new_jobs_good, new_jobs_error_list, num_new_jobs = self.check_job_titles(rform)

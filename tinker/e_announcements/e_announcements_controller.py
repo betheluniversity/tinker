@@ -126,7 +126,10 @@ class EAnnouncementsController(TinkerController):
 
         # if parent folder ID exists it will use that over path
         add_data['parentFolderId'] = ''
-        add_data['parentFolderPath'] = self.get_e_announcement_parent_folder(add_data['first_date'])
+        if not app.config['UNIT_TESTING']:
+            add_data['parentFolderPath'] = self.get_e_announcement_parent_folder(add_data['first_date'])
+        else:
+            add_data['parentFolderPath'] = "/_testing/philip-gibbens/e-annz-tests"
 
         # todo, update these to have _ instead of - in Cascade so we don't have to translate
         add_data['email'] = session['user_email']
@@ -173,7 +176,8 @@ class EAnnouncementsController(TinkerController):
         split_date = date.split("-")
         month = self.convert_month_num_to_name(split_date[0])
         year = split_date[2]
-
+        
+        # the copy method only processes if the folder being copied does not exist already.
         self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year, 'folder')
         self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year + "/" + month, 'folder')
 

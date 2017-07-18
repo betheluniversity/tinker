@@ -17,8 +17,10 @@ class ConfirmTestCase(BaseTestCase):
     #######################
 
     def test_confirm(self):
-        expected_response = b'<h1 class="first-subtitle">Congrats!</h1>'
+        expected_response = repr('\xda7}\x12\xc8Y\xef\x8b\xba\xb7\x0b\x01\xf6\xf9\xec\xb2')
+        # b'<h1 class="first-subtitle">Congrats!</h1>'
         response = self.send_get(self.request)
+        short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
-        self.assertIn(expected_response, response.data, msg=failure_message)
+        self.assertEqual(expected_response, short_string, msg=failure_message)

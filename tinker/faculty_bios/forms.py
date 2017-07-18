@@ -71,44 +71,88 @@ class FacultyBioForm(Form):
     fac_bio_controller = FacultyBioController()
     user_can_edit_image = fac_bio_controller.should_be_able_to_edit_image()
 
-    if user_can_edit_image:
-        image = FileField("Image")
+    # todo: this is for jenny vang. This should be removed when she is done.
+    # this allows jenny vang to not have to fill out every field
+    if session['username'] == 'jev24849':
+        if user_can_edit_image:
+            image = FileField("Image")
+        else:
+            image = HiddenField("Image")
+
+        image_url = HiddenField("Image URL")
+
+        first = StringField('Faculty first name')
+        last = StringField('Faculty last name')
+        author_faculty = StringField("Faculty member's username", description="Enter your Bethel username.")
+
+        faculty_location = SelectMultipleField('Location', choices=[('St. Paul', 'St. Paul'), ('San Diego', 'San Diego'), ('Online', 'Online')])
+        highlight = TextAreaField('Highlight text', description="This text will appear on faculty listing pages as a short snippet about you!")
+
+        new_job_titles = StringField('')
+
+        email = StringField('Email')
+        started_at_bethel = StringField('Started at Bethel in', description="Enter a year")
+
+        degree = DummyField('')
+
+        biography = CKEditorTextAreaField('Biography')
+        courses = CKEditorTextAreaField('Courses Taught')
+        awards = CKEditorTextAreaField('Awards')
+        publications = CKEditorTextAreaField('Publications')
+        presentations = CKEditorTextAreaField('Presentations')
+        certificates = CKEditorTextAreaField('Certificates and licenses')
+        organizations = CKEditorTextAreaField('Professional Organizations, Committees, and Boards')
+        hobbies = CKEditorTextAreaField('Hobbies and interests')
+        areas = TextAreaField('Areas of expertise')
+        research_interests = TextAreaField('Research interests')
+        teaching_specialty = TextAreaField('Teaching specialty')
+
+        quote = StringField('Quote')
+
+        website = StringField('Professional website or blog')
     else:
-        image = HiddenField("Image")
+        if user_can_edit_image:
+            image = FileField("Image")
+        else:
+            image = HiddenField("Image")
 
-    image_url = HiddenField("Image URL")
+        image_url = HiddenField("Image URL")
 
-    first = StringField('Faculty first name', validators=[validators.DataRequired()])
-    last = StringField('Faculty last name', validators=[validators.DataRequired()])
-    author = StringField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
-                       description="Enter your Bethel username.")
+        first = StringField('Faculty first name', validators=[validators.DataRequired()])
+        last = StringField('Faculty last name', validators=[validators.DataRequired()])
+        author_faculty = StringField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
+                             description="Enter your Bethel username.")
 
-    faculty_location = SelectMultipleField('Location', choices=[('St. Paul', 'St. Paul'), ('San Diego', 'San Diego'), ('Online', 'Online')], validators=[validators.DataRequired()])
-    highlight = TextAreaField('Highlight text', description="This text will appear on faculty listing pages as a short snippet about you!", validators=[validators.DataRequired()])
+        faculty_location = SelectMultipleField('Location',
+                                               choices=[('St. Paul', 'St. Paul'), ('San Diego', 'San Diego'),
+                                                        ('Online', 'Online')], validators=[validators.DataRequired()])
+        highlight = TextAreaField('Highlight text',
+                                  description="This text will appear on faculty listing pages as a short snippet about you!",
+                                  validators=[validators.DataRequired()])
 
-    new_job_titles = StringField('')
+        new_job_titles = StringField('')
 
-    email = StringField('Email', validators=[validators.DataRequired()])
-    started_at_bethel = StringField('Started at Bethel in', validators=[validators.DataRequired()],
-                                  description="Enter a year")
+        email = StringField('Email', validators=[validators.DataRequired()])
+        started_at_bethel = StringField('Started at Bethel in', validators=[validators.DataRequired()],
+                                        description="Enter a year")
 
-    degree = DummyField('')
+        degree = DummyField('')
 
-    biography = CKEditorTextAreaField('Biography')
-    courses = CKEditorTextAreaField('Courses Taught')
-    awards = CKEditorTextAreaField('Awards')
-    publications = CKEditorTextAreaField('Publications')
-    presentations = CKEditorTextAreaField('Presentations')
-    certificates = CKEditorTextAreaField('Certificates and licenses')
-    organizations = CKEditorTextAreaField('Professional Organizations, Committees, and Boards')
-    hobbies = CKEditorTextAreaField('Hobbies and interests')
-    areas = TextAreaField('Areas of expertise')
-    research_interests = TextAreaField('Research interests')
-    teaching_specialty = TextAreaField('Teaching specialty')
+        biography = CKEditorTextAreaField('Biography')
+        courses = CKEditorTextAreaField('Courses Taught')
+        awards = CKEditorTextAreaField('Awards')
+        publications = CKEditorTextAreaField('Publications')
+        presentations = CKEditorTextAreaField('Presentations')
+        certificates = CKEditorTextAreaField('Certificates and licenses')
+        organizations = CKEditorTextAreaField('Professional Organizations, Committees, and Boards')
+        hobbies = CKEditorTextAreaField('Hobbies and interests')
+        areas = TextAreaField('Areas of expertise')
+        research_interests = TextAreaField('Research interests')
+        teaching_specialty = TextAreaField('Teaching specialty')
 
-    quote = StringField('Quote')
+        quote = StringField('Quote')
 
-    website = StringField('Professional website or blog')
+        website = StringField('Professional website or blog')
 
     # Manually override validate, in order to check the 3 headers below
     def validate(self):

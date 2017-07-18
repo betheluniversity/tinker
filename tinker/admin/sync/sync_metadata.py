@@ -8,10 +8,10 @@ school = [
 
 undergrad_programs = [
     "None",
-    "Anthropology, Sociology, & Reconciliation",
     "Art & Design",
     "Athletic Training",
     "Biblical & Theological Studies",
+    "Biochemistry",
     "Biokinetics",
     "Biological Sciences",
     "Business & Economics",
@@ -33,6 +33,7 @@ undergrad_programs = [
     "Preprofessional",
     "Psychology",
     "Social Work",
+    "Sociology and Reconciliation Studies",
     "Theatre Arts",
     "World Languages and Cultures",
 ]
@@ -79,9 +80,11 @@ seminary_programs = [
 graduate_programs = [
     "None",
     "Academic Behavioral Strategist License",
+    "Athletic Training Leadership (M.A.)",
     "Autism Spectrum Disorders License",
     "Certificate in International Baccalaureate Teaching and Learning",
     "Child and Adolescent Mental Health Certificate",
+    "Counseling (M.A.)",
     "Counseling Psychology (M.A.)",
     "Developmental Disabilities License",
     "Director of Special Education License",

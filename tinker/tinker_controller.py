@@ -1,5 +1,6 @@
 import urllib2
 import re
+import inspect
 import time
 import cgi
 from xml.etree import ElementTree as ET
@@ -8,10 +9,12 @@ from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlat
 import datetime
 import fnmatch
 import hashlib
+import logging
 import os
 from jinja2 import Environment, FileSystemLoader, meta
 from functools import wraps
 from subprocess import call
+from createsend import *
 
 # flask
 from flask import request
@@ -20,6 +23,7 @@ from flask import current_app
 from flask import render_template
 from flask import json as fjson
 from flask import Response
+from flask import abort
 
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
@@ -83,6 +87,29 @@ def requires_auth(f):
 #         return False
 
 
+# checks the route base and uses the corresponding permissions to load the correct admin menu
+def admin_permissions(flask_view_class):
+    # program search menu
+    if flask_view_class.route_base == '/admin/program-search':
+        # give access to admins and lauren
+        if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
+            abort(403)
+
+    # redirect menu
+    elif flask_view_class.route_base == '/admin/redirect':
+        # This if statement has to come first so that public API request don't need to have groups associated with them.
+        if '/public/' in request.path:
+            return
+
+        # Checks to see what group the user is in
+        if 'Administrators' not in session['groups'] and 'Tinker Redirects' not in session['groups']:
+            abort(403)
+
+    # all other admin menus
+    elif 'Administrators' not in session['groups']:
+        abort(403)
+
+
 class TinkerController(object):
     def __init__(self):
         # These two lines are to suppress warnings that only occur in 2.6.9; they are unnecessary in 2.7+
@@ -92,13 +119,18 @@ class TinkerController(object):
         self.cascade_connector = cascade_connector
 
     def before_request(self):
-
         def init_user():
-
             dev = current_app.config['ENVIRON'] != 'prod'
 
+            # reset session if it has been more than 24 hours
+            if 'session_time' in session.keys():
+                seconds_in_day = 60 * 60 * 24
+                day_is_passed = time.time() - session['session_time'] >= seconds_in_day
+            else:
+                day_is_passed = True
+
             # if not production, then clear our session variables on each call
-            if dev:
+            if dev or day_is_passed:
                 for key in ['username', 'groups', 'roles', 'top_nav', 'user_email', 'name']:
                     if key in session.keys():
                         session.pop(key, None)
@@ -121,6 +153,8 @@ class TinkerController(object):
 
             if 'name' not in session.keys() and session['username']:
                 get_users_name()
+
+            session['session_time'] = time.time()
 
         def get_user():
             if current_app.config['ENVIRON'] == 'prod':
@@ -150,19 +184,23 @@ class TinkerController(object):
 
         def get_groups_for_user(username=None):
             skip = request.environ.get('skip-groups') == 'skip'
-            if not username:
-                username = session['username']
-            if not skip:
-                try:
-                    user = self.read(username, "user")
-                    allowed_groups = find(user, 'groups', False)
-                except AttributeError:
+
+            if current_app.config['ENVIRON'] == 'prod':
+                if not username:
+                    username = session['username']
+                if not skip:
+                    try:
+                        user = self.read(username, "user")
+                        allowed_groups = find(user, 'groups', False)
+                    except AttributeError:
+                        allowed_groups = ""
+                else:
+                    allowed_groups = ""
+                if allowed_groups is None:
                     allowed_groups = ""
             else:
-                allowed_groups = ""
-            if allowed_groups is None:
-                allowed_groups = ""
-
+                allowed_groups = app.config['TEST_GROUPS']
+            # print allowed_groups
             session['groups'] = allowed_groups
             return allowed_groups.split(";")
 
@@ -192,7 +230,26 @@ class TinkerController(object):
             session['groups'] = []
             session['roles'] = []
 
+    def cascade_call_logger(self, kwargs):
+        # To use this, simply call:
+        #     self.cascade_call_logger(locals())
+        # right before the return statement of methods that make Cascade calls
+        file_ = 'tinker/' + inspect.stack()[1][1].split('tinker/')[1]
+        method = inspect.stack()[1][3]
+        if 'self' in kwargs.keys():
+            del kwargs['self']
+        resp = {
+            'file': file_,
+            'method': method,
+            'kwargs': kwargs
+        }
+        self.log_sentry("Cascade call", resp)
+
     def log_sentry(self, message, response):
+
+        if app.config['UNIT_TESTING']:
+            # Don't want to print out these log messages while unit testing
+            return
 
         username = session['username']
         log_time = time.strftime("%c")
@@ -205,7 +262,8 @@ class TinkerController(object):
         })
 
         # log generic message to Sentry for counting
-        app.logger.info(message)
+        # app.logger.info(message)
+        sentry.captureMessage(message, level=logging.INFO)
         # more detailed message to debug text log
         app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
@@ -219,6 +277,7 @@ class TinkerController(object):
         form_xml = ET.fromstring(response.read())
 
         matches = []
+
         for child in form_xml.findall('.//' + type_to_find):
             match = self.inspect_child(child, find_all)
             if match:
@@ -232,11 +291,13 @@ class TinkerController(object):
 
     # this function is necessary because we don't have python2.7 on the server (we use python2.6)
     def search_for_key_in_dynamic_md(self, block, key_to_find):
+        return_values = []
         metadata = block.findall("dynamic-metadata")
         for md in metadata:
             if md.find('name').text == key_to_find:
-                return md.find('value')
-        return None
+                if hasattr(md.find('value'), 'text'):
+                    return_values.append(md.find('value').text)
+        return return_values
 
     def group_callback(self, node):
         pass
@@ -359,15 +420,16 @@ class TinkerController(object):
                     add_data[key] = form[key]
 
         if 'title' in add_data:
-            title = add_data['title']
+            # strip() is called on the title to eliminate whitespace before and after the title
+            title = add_data['title'].strip()
         elif 'first' in add_data and 'last' in add_data:
-            title = add_data['first'] + ' ' + add_data['last']
+            # strip() is called on the title to eliminate whitespace before and after the title
+            title = add_data['first'].strip() + ' ' + add_data['last'].strip()
         else:
             title = None
 
         if title:
             add_data['title'] = title
-
             # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
             system_name = title.lower().replace(' ', '-')
             add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
@@ -380,10 +442,12 @@ class TinkerController(object):
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)
+        # TODO: maybe add cascade logger here? would like it in Block.init, but that's in bu_cascade
         return b
 
     def create_page(self, asset):
         p = Page(self.cascade_connector, asset=asset)
+        # TODO: similarly, i'd like this to be logged by cascade_call_logger
         return p
 
     def read(self, path_or_id, type):
@@ -407,19 +471,27 @@ class TinkerController(object):
         return dd
 
     def publish(self, path_or_id, asset_type='page', destination='production'):
-        return self.cascade_connector.publish(path_or_id, asset_type, destination)
+        resp = self.cascade_connector.publish(path_or_id, asset_type, destination)
+        self.cascade_call_logger(locals())
+        return resp
 
     def unpublish(self, path_or_id, asset_type):
-        return self.cascade_connector.unpublish(path_or_id, asset_type)
+        resp = self.cascade_connector.unpublish(path_or_id, asset_type)
+        self.cascade_call_logger(locals())
+        return resp
 
     def rename(self):
         pass
 
     def move(self, page_id, destination_path, type='page'):
-        return self.cascade_connector.move(page_id, destination_path, type)
+        resp = self.cascade_connector.move(page_id, destination_path, type)
+        self.cascade_call_logger(locals())
+        return resp
 
     def delete(self, path_or_id, asset_type):
-        return self.cascade_connector.delete(path_or_id, asset_type)
+        resp = self.cascade_connector.delete(path_or_id, asset_type)
+        self.cascade_call_logger(locals())
+        return resp
 
     def asset_in_workflow(self, asset_id, asset_type="page"):
         return self.cascade_connector.is_in_workflow(asset_id, asset_type=asset_type)
@@ -453,7 +525,8 @@ class TinkerController(object):
         return True
 
     def add_workflow_to_asset(self, workflow, data):
-        data['workflowConfiguration'] = workflow
+        if not app.config.get('UNIT_TESTING'):
+            data['workflowConfiguration'] = workflow
 
     def clear_image_cache(self, image_path):
         # /academics/faculty/images/lundberg-kelsey.jpg"
@@ -509,7 +582,8 @@ class TinkerController(object):
             uni = self.__html_entities_to_unicode__(content)
             htmlent = self.__unicode_to_html_entities__(uni)
             clean_xml = self.__escape_xml_illegal_chars__(htmlent).lstrip()
-            return clean_xml
+            divs_removed = clean_xml.replace('&lt;div&gt;', '&lt;p&gt;').replace('&lt;/div&gt;', '&lt;/p&gt;')
+            return divs_removed
         else:
             return None
 
@@ -601,3 +675,71 @@ class TinkerController(object):
         variables = meta.find_undeclared_variables(parsed_content)
         keywords_to_ignore = set(['csrf_token', 'url_for'])
         return variables.difference(keywords_to_ignore)
+
+    # Not currently used in the code. However, this is helpful to find template IDs
+    def get_templates_for_client(self, campaign_monitor_key, client_id):
+        for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
+            print template.TemplateID
+
+    # Not currently used in the code. However, this is helpful to find segment IDs
+    def get_segments_for_client(self, campaign_monitor_key, client_id):
+        for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
+            print segment.SegmentID
+
+    def convert_timestamps_to_bethel_string(self, open, close, all_day):
+        try:
+            is_all_day = False
+            # If the event is all_day set it to true
+            if all_day and all_day == 'Yes':
+                is_all_day = True
+            same_stamp = open == close
+
+            # Format open and close
+            proxy_open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y, %-I:%M%p')
+            proxy_close = datetime.datetime.fromtimestamp(close).strftime('%B %d, %Y, %-I:%M%p')
+
+            same_day = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y') in proxy_close
+
+            # If the event is all day, then the open string is formatted and close is set to an empty string
+            all_day_format = 0
+            if is_all_day:
+                all_day_format = 1
+                if same_day or same_stamp:
+                    open = datetime.datetime.fromtimestamp(open).strftime('%B, %d, %Y')
+                    close = ""
+                else:
+                    open = datetime.datetime.fromtimestamp(open).strftime('%B, %d')
+                    close = datetime.datetime.fromtimestamp(close).strftime('%B, %d, %Y')
+
+            elif same_day and not same_stamp:
+                open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y | %-I:%M%p')
+                close = datetime.datetime.fromtimestamp(close).strftime('%-I:%M%p')
+            elif same_stamp:
+                open = datetime.datetime.fromtimestamp(open).strftime('%B %d, %Y | %-I:%M%p')
+                close = ""
+            else:
+                open = proxy_open
+                close = proxy_close
+
+            bethel_date_string = self.final_format(open, close, all_day_format)
+            return bethel_date_string
+        except:
+            return None
+
+    def final_format(self, open, close, all_day_format):
+        if close == "":
+            combined_string = open
+        else:
+            if 'AM' in open and 'AM' in close and all_day_format == 1:
+                open = open.replace("AM", "")
+            elif 'PM' in open and 'PM' in close and all_day_format == 1:
+                open = open.replace("PM", "")
+            combined_string = "%s - %s" % (open, close)
+        combined_string = combined_string.replace(':00', '')
+        combined_string = combined_string.replace('AM', ' a.m.').replace('PM', ' p.m.')
+        if '12 a.m.' in combined_string:
+            combined_string = combined_string.replace('12 a.m.', 'at midnight')
+        elif '12 p.m.' in combined_string:
+            combined_string = combined_string.replace('12 p.m.', 'at noon')
+
+        return combined_string

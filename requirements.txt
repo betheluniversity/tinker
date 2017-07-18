@@ -18,7 +18,7 @@ Flask-Cors
 arrow
 feedformatter
 feedparser
-createsend
+createsend==4.2.1
 raven
 Flask-Classy
 bu-cascade
@@ -29,3 +29,7 @@ gspread
 oauth2client
 PyOpenSSL
 flask-profiler
+ordereddict
+chromedriver
+selenium
+HTMLParser

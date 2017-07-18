@@ -15,7 +15,7 @@ from tinker import app, db
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker import *
 from tinker.tinker_controller import requires_auth
-
+from tinker.tinker_controller import admin_permissions
 RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
 
 
@@ -27,12 +27,7 @@ class RedirectsView(FlaskView):
 
     # This method is called before a request is made
     def before_request(self, name, **kwargs):
-        if '/public/' in request.path:
-            return
-
-        # Checks to see what group the user is in
-        if 'Tinker Redirects' not in session['groups'] and 'Administrators' not in session['groups']:
-            abort(403)
+        admin_permissions(self)
 
     # Redirects homepage
     def index(self):
@@ -67,7 +62,7 @@ class RedirectsView(FlaskView):
         form = request.form
         from_path = form['new-redirect-from']
         to_url = form['new-redirect-to']
-        short_url = form.get('short-url') == 'on'
+        short_url = form.get('new-redirect-short-url') == 'true'
         expiration_date = form.get('expiration-date')
 
         if expiration_date:
@@ -146,6 +141,7 @@ class RedirectsView(FlaskView):
                     print "found bad line (%s): %s" % (i, from_url)
                     bad += 1
         return "done. Found %s bad lines" % bad
+
     # Deletes expired redirects on the day of its expiration date
     @requires_auth
     @route('/public/expire', methods=['get'])

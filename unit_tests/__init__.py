@@ -1,17 +1,14 @@
-# In an ideal world, here are some features that I would like to implement to unit testing:
-# 1. Make the unit tests much more robust; instead of just testing endpoints of a module, it can also check that each
-#       respective DB or Cascade object gets updated appropriately so that there's no possibility of silent failures
-# 2. Find some way to pass test object ids back and forth between unit tests so that the test_sequentially files can be
-#       split into individual, granular unit tests.
-#
 # Currently, the unit testing suite takes about 4 minutes to run.
 
 import base64
+import hashlib
 import os
 import re
-import tinker
 import unittest
 from inspect import stack, getframeinfo
+from selenium import webdriver
+
+import tinker
 from tinker import get_url_from_path
 from unit_test_utilities import get_tests_in_this_dir
 
@@ -19,12 +16,9 @@ from unit_test_utilities import get_tests_in_this_dir
 class BaseTestCase(unittest.TestCase):
 
     def __init__(self, methodName):
-        # from tinker.admin.redirects.models import BethelRedirect
-        # print len(BethelRedirect.query.all())
         super(BaseTestCase, self).__init__(methodName)
-        self.ERROR_400 = b'<p>The browser (or proxy) sent a request that this server could not understand.</p>'
-        self.ERROR_404 = b'<h1 class="oversized"> It\'s probably not a problem, probably.</h1>'
-        self.ERROR_500 = b'fixing the loose wire right now. Check back soon!</h5>'
+        self.ERROR_400 = repr('\xad\xa0\xa0\xff;\x0e\x0bVx\xda\x99\x8c\xb8U\xc3\xb8')
+        self.ERROR_500 = '<h1 class="oversized">Whoops! Tinker lost its connection.</h1>'
         current_frame = stack()[1]
         file_of_current_frame = current_frame[0].f_globals.get('__file__', None)
         dir_path_to_current_frame = os.path.dirname(file_of_current_frame)
@@ -34,8 +28,8 @@ class BaseTestCase(unittest.TestCase):
     def setUp(self):
         tinker.app.testing = True
         tinker.app.debug = False
-        # tinker.app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
         tinker.app.config['ENVIRON'] = "test"
+        tinker.app.config['UNIT_TESTING'] = True
         tinker.app.config['WTF_CSRF_ENABLED'] = False
         tinker.app.config['WTF_CSRF_METHODS'] = []
         self.app = tinker.app.test_client()
@@ -82,6 +76,11 @@ class BaseTestCase(unittest.TestCase):
     def assertNotIn(self, substring, string_to_check, msg=None):
         self.failIf(substring in string_to_check, msg=msg)
 
+    def get_unique_short_string(self, super_long_string):
+        m = hashlib.md5()
+        m.update(self.strip_whitespace(super_long_string))
+        return repr(m.digest())
+
     def strip_whitespace(self, string):
         lines = string.split("\n")
         to_return = ""
@@ -109,6 +108,50 @@ class BaseTestCase(unittest.TestCase):
         frameinfo = getframeinfo(current_frame)
         return frameinfo.lineno
 
+    def get_form_data_from_html(self, incompletely_rendered_html):
+        placeholder_html_path = os.path.abspath("placeholder.html")
+        placeholder = open(placeholder_html_path, "w")
+        placeholder.write(incompletely_rendered_html)
+        placeholder.close()
+        #                                   This .. chain will take the path back to ~
+        chromedriver_path = os.path.abspath("../../../../envs/tinker26/chromedriver-Darwin")
+        driver = webdriver.Chrome(chromedriver_path)
+        driver.get("file://" + placeholder_html_path)
+
+        # If you want to only return the fully rendered HTML, this is how to do it:
+        # html = driver.find_element_by_tag_name("html")
+        # return html.get_attribute("outerHTML")
+
+        scraped_data = {}
+
+        inputs = driver.find_elements_by_tag_name("input")
+        for input in inputs:
+            name = input.get_attribute("name")
+            if input.get_attribute("type") == "radio":
+                value = driver.execute_script("return $('[name=" + name + "]:checked').val();")
+                scraped_data[name] = value
+            else:
+                value = driver.execute_script("return $('[name=" + name + "]').val();")
+                scraped_data[name] = value
+
+        textareas = driver.find_elements_by_tag_name("textarea")
+        for textarea in textareas:
+            name = textarea.get_attribute("name")
+            value = driver.execute_script("return $('[name=" + name + "]').val();")
+            scraped_data[name] = value
+
+        selects = driver.find_elements_by_tag_name("select")
+        for select in selects:
+            name = select.get_attribute("name")
+            value = driver.execute_script("return $('[name=" + name + "]').val();")
+            if isinstance(value, list):
+                value = value[0]
+            scraped_data[name] = value
+
+        # Clear the placeholder file for the next usage
+        # open(placeholder_html_path, "w").close()
+        return scraped_data
+
     def tearDown(self):
         pass
 
@@ -116,9 +159,3 @@ class BaseTestCase(unittest.TestCase):
 if __name__ == "__main__":
     testsuite = get_tests_in_this_dir(".")
     unittest.TextTestRunner(verbosity=1).run(testsuite)
-
-
-# Missing unit test files:
-# admin/redirects/new_api_submit
-# admin/redirects/new_api_submit_asset_expiration
-# admin/redirects/new_internal_redirect_submit
