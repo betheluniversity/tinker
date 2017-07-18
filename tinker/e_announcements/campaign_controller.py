@@ -125,4 +125,3 @@ class CampaignController(TinkerController):
             if_block += '[else]%s[endif]' % '<p>There are no E-Announcements for you today.</p>'
 
         return if_block
-

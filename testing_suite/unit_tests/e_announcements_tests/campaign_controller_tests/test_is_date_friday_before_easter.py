@@ -1,3 +1,4 @@
+from datetime import datetime
 from campaign_controller_base import CampaignControllerBaseTestCase
 
 
@@ -14,4 +15,10 @@ class IsDateFridayBeforeEasterTestCase(CampaignControllerBaseTestCase):
     #######################
 
     def test_is_date_friday_before_easter(self):
-        pass
+        friday_before_easter = datetime(2017, 4, 14)
+        response = self.controller.is_date_friday_before_easter(friday_before_easter)
+        self.assertTrue(response)
+
+        friday_after_easter = datetime(2017, 4, 21)
+        response = self.controller.is_date_friday_before_easter(friday_after_easter)
+        self.assertFalse(response)

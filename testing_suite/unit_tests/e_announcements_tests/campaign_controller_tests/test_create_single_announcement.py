@@ -21,5 +21,7 @@ class CreateSingleAnnouncementTestCase(CampaignControllerBaseTestCase):
             'roles': ['dinner', 'kaiser', 'croissant']
         }
         with app.app_context():
+            expected_response = repr('\xd4\x1d\x8c\xd9\x8f\x00\xb2\x04\xe9\x80\t\x98\xec\xf8B~')
             response = self.controller.create_single_announcement(dummy_announcement)
-            # print response
+            short_string = self.get_unique_short_string(response)
+            self.assertEqual(expected_response, short_string)
