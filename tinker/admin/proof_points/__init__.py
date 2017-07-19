@@ -9,6 +9,7 @@ from flask_classy import route
 
 # tinker
 from tinker.admin.proof_points.proof_points_controller import *
+from tinker import app
 
 ProofPointsBlueprint = Blueprint("proof_points", __name__, template_folder='templates')
 

@@ -66,3 +66,4 @@ class ProofPointsController(TinkerController):
         }
         temp = None;
         return page_values
+

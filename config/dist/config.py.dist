@@ -1,6 +1,3 @@
-import os
-_basedir = os.path.abspath(os.path.dirname(__file__))
-
 from e_announcements_config import *
 from redirects_config import *
 from sync_config import *
@@ -8,26 +5,33 @@ from faculty_bio_config import *
 from events_config import *
 from office_hours_config import *
 from program_search_config import *
+import os
+_basedir = os.path.abspath(os.path.dirname(__file__))
 
 # Foundation configs
 FOUNDATION_USE_MINIFIED = True
 FOUNDATION_USE_CDN = True
 
-# emails
+# Emails
 ADMINS = ['']
 
 SENTRY_URL = ''
 
-# Cascade/Events
-secret_key = ""
-SECRET_KEY = ""
+# Cascade / Events
+SECRET_KEY = ''
 
-ENVIRON = ""
+FACULTY_BIO_XML_ID = ''
+EVENT_XML_ID = ''
+E_ANNOUNCEMENTS_XML_ID = ''
+PROOF_POINTS_XML_URL = ''
+
+ENVIRON = ''
 UNIT_TESTING = False
 TEST_USER = ''
 TEST_GROUPS = ''
 
-SITE_ID = ""
+SITE_ID = ''
+
 STAGING_DESTINATION_ID = ''
 
 CASCADE_LOGIN = {'username': '', 'password': ''}
@@ -59,6 +63,11 @@ BASE_ASSET_BASIC_FOLDER = ''
 THUMBOR_STORAGE_LOCATION = ''
 THUMBOR_RESULT_STORAGE_LOCATION = ''
 THUMBOR_CALL_CMD = []
+
+METADATA_EVENT_ID = ''
+METADATA_ROBUST_ID = ''
+METADATA_JOB_POSTING_ID = ''
+DATA_DEF_FACULTY_BIO_ID = ''
 
 FACULTY_LISTING_CAPS_ID = ''
 FACULTY_LISTING_GS_ID = ''
