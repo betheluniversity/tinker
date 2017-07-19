@@ -14,4 +14,5 @@ class UpdateStructureTestCase(EAnnouncementsControllerBaseTestCase):
     #######################
 
     def test_update_structure(self):
+        # I don't think this method should be unit tested
         pass

@@ -14,4 +14,5 @@ class InspectChildTestCase(EAnnouncementsControllerBaseTestCase):
     #######################
 
     def test_inspect_child(self):
+        # TODO: Will need example of child element to test this method
         pass

@@ -14,4 +14,5 @@ class EditAllCallbackTestCase(EAnnouncementsControllerBaseTestCase):
     #######################
 
     def test_edit_all_callback(self):
+        # This method doesn't get used and currently has no content, so there's no need to write a proper test for it.
         pass

@@ -14,4 +14,16 @@ class GetEAnnouncementParentFolderTestCase(EAnnouncementsControllerBaseTestCase)
     #######################
 
     def test_get_e_announcement_parent_folder(self):
-        pass
+        test_date_valid = '08-01-2017'
+        expected_response = '/e-announcements/2017/august'
+        response = self.controller.get_e_announcement_parent_folder(test_date_valid)
+        self.assertEqual(expected_response, response)
+
+        test_date_invalid = '08/01/2017'
+        self.assertRaises(ValueError, self.controller.get_e_announcement_parent_folder, test_date_invalid)
+
+        test_date_invalid = '8-2017'
+        self.assertRaises(IndexError, self.controller.get_e_announcement_parent_folder, test_date_invalid)
+
+        test_date_invalid = 'gibberish'
+        self.assertRaises(ValueError, self.controller.get_e_announcement_parent_folder, test_date_invalid)

@@ -14,4 +14,5 @@ class IterateChildXMLTestCase(EAnnouncementsControllerBaseTestCase):
     #######################
 
     def test_iterate_child_xml(self):
+        # TODO: Will need example of child element to test this method
         pass

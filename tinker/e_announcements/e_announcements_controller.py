@@ -9,31 +9,29 @@ from tinker import app
 from tinker.tinker_controller import TinkerController
 from bu_cascade.asset_tools import *
 
-BRM = [
-        'CAS',
-        'CAPS',
-        'GS',
-        'BSSP-TRADITIONAL',
-        'BSSP-DISTANCE',
-        'BSSD-TRADITIONAL',
-        'BSSD-DISTANCE',
-        'BSOE-TRADITIONAL',
-        'BSOE-DISTANCE',
-        'CAS',
-        'CAPS',
-        'GS',
-        'BSSP',
-        'BSSD',
-        'St. Paul',
-        'San Diego'
-]
-
 
 class EAnnouncementsController(TinkerController):
 
     def __init__(self):
         super(EAnnouncementsController, self).__init__()
-        self.brm = BRM
+        self.brm = [
+            'CAS',
+            'CAPS',
+            'GS',
+            'BSSP-TRADITIONAL',
+            'BSSP-DISTANCE',
+            'BSSD-TRADITIONAL',
+            'BSSD-DISTANCE',
+            'BSOE-TRADITIONAL',
+            'BSOE-DISTANCE',
+            'CAS',
+            'CAPS',
+            'GS',
+            'BSSP',
+            'BSSD',
+            'St. Paul',
+            'San Diego'
+        ]
 
     def inspect_child(self, child, find_all=False):
         # if find_all is true, then skip the check to see if you are allowed to see it.
@@ -103,6 +101,8 @@ class EAnnouncementsController(TinkerController):
         return page_values
 
     def validate_form(self, rform):
+        print type(rform)
+        print rform
 
         from forms import EAnnouncementsForm
 
