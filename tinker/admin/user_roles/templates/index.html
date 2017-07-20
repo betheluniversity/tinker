@@ -1,0 +1,12 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'User_Roles' %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+    Here is the index page that will route to all admin functionality.
+    <ul>
+        <li><a href="{{ url_for('user_roles.AdminView:test_roles_and_users') }}">Test Roles and Users</a></li>
+    </ul>
+{% endblock %}

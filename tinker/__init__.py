@@ -109,6 +109,7 @@ from tinker.faculty_bios import FacultyBiosBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
 from tinker.events import EventsBlueprint
 from tinker.news import NewsBlueprint
+from tinker.admin.user_roles import UserRolesBlueprint
 
 app.register_blueprint(BaseBlueprint)
 app.register_blueprint(CacheBlueprint)
@@ -123,6 +124,7 @@ app.register_blueprint(FacultyBiosBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
 app.register_blueprint(EventsBlueprint)
 app.register_blueprint(NewsBlueprint)
+app.register_blueprint(UserRolesBlueprint)
 
 from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
