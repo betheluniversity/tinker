@@ -8,26 +8,25 @@ from tinker.tinker_controller import admin_permissions
 from tinker import app
 
 
-def test_roles_and_user(self):
-    cascade_connection = Cascade(app.config['SOAP_URL'],{'username': app.config['AUTH_USERNAME'], 'password': app.config['AUTH_PASSWORD']},
-                                     app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
-    role_asset = cascade_connection.read(app.config['CASCADE_MD_ROLES_ID'], 'metadataset')
-    role_data = role_asset['asset']['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
-
-    cascade_md_roles = {}
-    for item in role_data:
-        try:
-            cascade_md_roles[item['name']] = item['possibleValues']['possibleValue']
-        except:
-            continue
-
-    return render_template('admin/test_roles_and_users.html', **locals())
-
-
 class AdminView:
 
     def __init__(self):
         pass
+
+    def test_roles_and_user(self):
+        cascade_connection = Cascade(app.config['SOAP_URL'],{'username': app.config['AUTH_USERNAME'], 'password': app.config['AUTH_PASSWORD']},
+                                         app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
+        role_asset = cascade_connection.read(app.config['CASCADE_MD_ROLES_ID'], 'metadataset')
+        role_data = role_asset['asset']['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
+
+        cascade_md_roles = {}
+        for item in role_data:
+            try:
+                cascade_md_roles[item['name']] = item['possibleValues']['possibleValue']
+            except:
+                continue
+
+        return render_template('test_roles_and_users.html', **locals())
 
     @route('/test_roles_and_users_submit/', methods=['POST'])
     def test_roles_and_users_submit(self):

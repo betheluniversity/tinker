@@ -8,6 +8,8 @@ from flask_classy import FlaskView, route
 from tinker import app
 from tinker.tinker_controller import admin_permissions
 
+from bu_cascade.cascade_connector import Cascade
+
 from datetime import datetime
 # solution from here: https://stackoverflow.com/questions/1617078/ordereddict-for-older-versions-of-python
 try:
@@ -28,12 +30,27 @@ class UserRolesView(FlaskView):
         admin_permissions(self)
 
     def index(self):
-        return render_template('index.html', **locals())
+        return render_template('user_roles_home.html', **locals())
 
     def load_user_roles(self):
             if app.config['DEVELOPMENT']:
                 session['user_roles'] = [role.upper() for role in app.config['ROLES']]
             else:
                 session['user_roles'] = [role.upper() for role in app.config['ROLES']]
+
+    def test_roles_and_user(self):
+        cascade_connection = Cascade(app.config['SOAP_URL'],{'username': app.config['AUTH_USERNAME'], 'password': app.config['AUTH_PASSWORD']},
+                                         app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
+        role_asset = cascade_connection.read(app.config['CASCADE_MD_ROLES_ID'], 'metadataset')
+        role_data = role_asset['asset']['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
+
+        cascade_md_roles = {}
+        for item in role_data:
+            try:
+                cascade_md_roles[item['name']] = item['possibleValues']['possibleValue']
+            except:
+                continue
+
+        return render_template('test_roles_and_users.html', **locals())
 
 UserRolesView.register(UserRolesBlueprint)

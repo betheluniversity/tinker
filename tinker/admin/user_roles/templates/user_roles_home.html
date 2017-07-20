@@ -1,0 +1,17 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'User Roles' %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <p class="description">Here is the index page that will route to all admin functionality.</p>
+                    <hr/>
+                <a class="btn btn-primary mr1"  href="{{ url_for('user_roles.UserRolesView:test_roles_and_user') }}">Roles and Users</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
