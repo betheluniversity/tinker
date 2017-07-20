@@ -12,15 +12,17 @@
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
-            <div class="col-md-12">
+            <div class="col-sm-12 col-md-12 col-lg-12">
                 <form id='program_search_form' method="post">
                     <div class="card">
                         <div class="content">
                             <label for="tag" style="color: #252422">Search by Name:</label>
                             <input type="text" name="name" id='search-proof-points' class='search-input form-control'/>
                             <p>Filters for Proof Points:</p>
+                        <div class="col-sm-6 col-md-6">
                             <label for="key" style="color: #252422">School Name:</label>
                             {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
+                            {# TODO Fix the drop down Layout #}
                             <select name="key" id="search-key" class="search-input">
                                 <option value="">Any</option>
                                 {% for school_label in school_labels %}
@@ -34,36 +36,48 @@
                                 {% endfor %}
                             </select>
                         </div>
+                        <div class="col-sm-6 col-md-6">
+                            <label for="key" style="color: #252422">Owner Name</label>
+                            {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
+                            {# TODO Fix the drop down Layout #}
+                            <select name="key" id="search-key" class="search-input">
+                                <option value="">Any</option>
+                                {% for school_label in school_labels %}
+                                    <optgroup label="{{ school_label }}">
+                                        {% for program_concentration in program_concentrations %}
+                                            {% if program_concentration.school == school_label %}
+                                                <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        </div>
                         <label>
                             <div class="col-sm-4">
-                                Outcome:
-                                <div class="radio">
-                                    <label><input type="radio" name="outcome" value="True">Yes</label>
-                                </div>
-                                <div class="radio">
-                                    <label><input type="radio" name="outcome" value="False" checked>No</label>
-                                </div>
+                                <label for="tag" style="color: #252422">Type:</label>
+                                <label class="checkbox" id="typelabel1" for="type1">
+                                    <span class="icons">
+                                        <span class="first-icon fa fa-square-o"></span>
+                                        <span class="second-icon fa fa-check-square-o"></span>
+                                    </span>
+                                    <input class="alldaycheck" id="allday1" name="allday1" type="checkbox">
+                                    Text-Based
+                                </label>
+                                <label class="checkbox" id="typelabel2" for="type2">
+                                    <span class="icons">
+                                        <span class="first-icon fa fa-square-o"></span>
+                                        <span class="second-icon fa fa-check-square-o"></span>
+                                    </span>
+                                    <input class="alldaycheck" id="allday1" name="allday1" type="checkbox">
+                                    Number-Based
+                                </label>
                             </div>
-
-                            <div class="col-sm-4">
-                                Topic:
-                                <div class="radio">
-                                    <label><input type="radio" name="topic" value="True">Yes</label>
-                                </div>
-                                <div class="radio">
-                                    <label><input type="radio" name="topic" value="False" checked>No</label>
-                                </div>
-                            </div>
-
-                            <div class="col-sm-4">
-                                Other:
-                                <div class="radio">
-                                    <label><input type="radio" name="other" value="True">Yes</label>
-                                </div>
-                                <div class="radio">
-                                    <label><input type="radio" name="other" value="False" checked>No</label>
-                                </div>
-                            </div>
+                            <div class="col-sm-offset-8"></div>
+                            <div class="clearfix visible-sm"></div>
+                            <div class="clearfix visible-md"></div>
+                            <div class="clearfix visible-lg"></div>
                             <div class="content">
                                 <button id="program-submit" type="submit" class="btn btn-primary">Submit</button>
                             </div>
