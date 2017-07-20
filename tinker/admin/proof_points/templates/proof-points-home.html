@@ -12,14 +12,13 @@
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
-            <div class="col-sm-12 col-md-12 col-lg-12">
+            <div class="col-sm-12">
                 <form id='program_search_form' method="post">
                     <div class="card">
                         <div class="content">
                             <label for="tag" style="color: #252422">Search by Name:</label>
-                            <input type="text" name="name" id='search-proof-points' class='search-input form-control'/>
+                            <input type="text" name="name" id='search-proof-points' class='search-input'/>
                             <p>Filters for Proof Points:</p>
-                        <div class="col-sm-6 col-md-6">
                             <label for="key" style="color: #252422">School Name:</label>
                             {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
                             {# TODO Fix the drop down Layout #}
@@ -35,8 +34,6 @@
                                     </optgroup>
                                 {% endfor %}
                             </select>
-                        </div>
-                        <div class="col-sm-6 col-md-6">
                             <label for="key" style="color: #252422">Owner Name</label>
                             {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
                             {# TODO Fix the drop down Layout #}
@@ -52,7 +49,6 @@
                                     </optgroup>
                                 {% endfor %}
                             </select>
-                        </div>
                         </div>
                         <label>
                             <div class="col-sm-4">
