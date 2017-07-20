@@ -1,0 +1,30 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'Test' %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+{% if session['admin_viewer'] %}
+    <div class="admin-user-bar">
+        <p>Viewing
+            {% if session['admin_username'] %}
+                user: [{{ session['username'] }}]
+            {% elif session['admin_viewer_role'] %}
+                role: [{{ session['admin_viewer_role'] }}]
+            {% endif %}
+             | Return to your <a id='admin_return'>account</a>.
+        </p>
+    </div>
+
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            $(document).on('click', '#admin_return', function(){
+                window.ajax.post("{{ url_for('AdminView:test_roles_and_users_remove') }}", {}, function (data) {
+                    window.location.href = '/';
+                });
+            });
+        })
+    </script>
+{% endif %}
+{% endblock %}

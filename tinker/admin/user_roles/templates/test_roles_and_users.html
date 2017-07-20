@@ -1,0 +1,49 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'Test' %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+<p>You may choose to view Tinker by viewing as a single role or by viewing as a specific username.</p>
+    <label>
+        Role
+        <br />
+        <select id="role">
+            {% for role in cascade_md_roles['portal-roles'] %}
+                <option value="{{ role['value'] }}">{{ role['value'] }}</option>
+            {% endfor %}
+        </select>
+        <a id='view-by-role' class="btn btn-primary admin-viewer">View</a>
+    </label>
+
+    <hr/>
+
+    <label>
+        Username
+        <input type="text" id="username">
+        <a id='view-by-username' class="btn btn-primary admin-viewer">View</a>
+    </label>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.admin-viewer').click(function(){
+                var role = '';
+                var username = '';
+                if( $(this).attr('id') == 'view-by-role')
+                    role = $('#role').val();
+                if( $(this).attr('id') == 'view-by-username')
+                    username = $('#username').val();
+                window.ajax.post('{{ url_for('AdminView:test_roles_and_users_submit') }}', {'role': role, 'username': username }, function (data) {
+                    if( data == 'error'){
+                        alert('Error (need to write in more robust error notifications)');
+                    } else {
+                        window.location.href = data;
+                    }
+                });
+            })
+        })
+    </script>
+{% endblock %}

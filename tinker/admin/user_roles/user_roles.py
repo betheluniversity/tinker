@@ -5,30 +5,29 @@ from bu_cascade.cascade_connector import Cascade
 
 from tinker.tinker_controller import admin_permissions
 
+from tinker import app
 
-class UserRolesView(FlaskView):
-    route_base = '/admin/user-roles'
 
-    def before_request(self, args):
-        admin_permissions(self, 'route_base', args)
-
-    def index(self):
-        return render_template('', **locals())  # make .html to return
-
-    def test_roles_and_user(self):
-        cascade_connection = Cascade(app.config['SOAP_URL'],{'username': app.config['AUTH_USERNAME'], 'password': app.config['AUTH_PASSWORD']},
+def test_roles_and_user(self):
+    cascade_connection = Cascade(app.config['SOAP_URL'],{'username': app.config['AUTH_USERNAME'], 'password': app.config['AUTH_PASSWORD']},
                                      app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
-        role_asset = cascade_connection.read(app.config['CASCADE_MD_ROLES_ID'], 'metadataset')
-        role_data = role_asset['asset']['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
+    role_asset = cascade_connection.read(app.config['CASCADE_MD_ROLES_ID'], 'metadataset')
+    role_data = role_asset['asset']['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
 
-        cascade_md_roles = {}
-        for item in role_data:
-            try:
-                cascade_md_roles[item['name']] = item['possibleValues']['possibleValue']
-            except:
-                continue
+    cascade_md_roles = {}
+    for item in role_data:
+        try:
+            cascade_md_roles[item['name']] = item['possibleValues']['possibleValue']
+        except:
+            continue
 
-        return render_template('admin/test_roles_and_users.html', **locals())
+    return render_template('admin/test_roles_and_users.html', **locals())
+
+
+class AdminView:
+
+    def __init__(self):
+        pass
 
     @route('/test_roles_and_users_submit/', methods=['POST'])
     def test_roles_and_users_submit(self):
@@ -58,6 +57,7 @@ class UserRolesView(FlaskView):
 
         session['admin_viewer'] = True
         return '/'  # have the JS handle where we go (homepage)
+
 
     @route('/test_roles_and_users_remove/')
     def test_roles_and_users_remove(self):
