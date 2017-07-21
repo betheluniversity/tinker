@@ -94,7 +94,7 @@ class EAnnouncementsSequentialTestCase(BaseTestCase):
 
     def delete_testing_object(self):
         self.request = self.generate_url("delete", e_announcement_id=self.eaid)
-        expected_response = repr('\xa95crF\xd4\x9f\x98\x9e?\xf5{w\xc6/\x16')
+        expected_response = repr('\x13K\x9fO\xf8i\xc9\x0c\xf7\x9c\x00\xb3L\xec\x93\t')
         # b'Your E-Announcements has been deleted. It will be removed from your'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)

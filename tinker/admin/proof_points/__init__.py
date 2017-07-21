@@ -29,8 +29,11 @@ class ProofPointsView(FlaskView):
 
         username = session['username']
         roles = session['roles']
-
         forms = self.base.traverse_xml(app.config['PROOF_POINTS_XML_URL'], 'system-block')
+        # TODO change the value of none in owners to 'No Owner'
+        owners = self.base.gather_dropdown_values_from_key(forms, 'owner')
+        schools = self.base.gather_dropdown_values_from_key(forms, 'school')
+
         # forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
 
         return render_template('proof-points-home.html', **locals())

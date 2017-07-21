@@ -67,3 +67,13 @@ class ProofPointsController(TinkerController):
         temp = None;
         return page_values
 
+    def gather_dropdown_values_from_key(self, forms, key):
+        things = []
+        for thing in forms:
+            things.append(thing[key])
+        things_set = set(things)
+        things = []
+        for thing in things_set:
+            things.append(thing)
+        things.sort()
+        return things
