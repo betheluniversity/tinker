@@ -20,7 +20,7 @@
     <script type="text/javascript">
         document.addEventListener("DOMContentLoaded", function() {
             $(document).on('click', '#admin_return', function(){
-                window.ajax.post("{{ url_for('AdminView:test_roles_and_users_remove') }}", {}, function (data) {
+                window.ajax.post("{{ url_for('user_roles.UserRolesView:test_roles_and_users_remove') }}", {}, function (data) {
                     window.location.href = '/';
                 });
             });
