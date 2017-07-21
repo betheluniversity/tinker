@@ -17,38 +17,44 @@
                     <div class="card">
                         <div class="content">
                             <label for="tag" style="color: #252422">Search by Name:</label>
-                            <input type="text" name="name" id='search-proof-points' class='search-input'/>
+                            <input type="text" name="name" id='search-proof-points'/>
                             <p>Filters for Proof Points:</p>
+                        <div id="dropdown-row">
+                            <div class="proof-dropdown">
                             <label for="key" style="color: #252422">School Name:</label>
                             {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
                             {# TODO Fix the drop down Layout #}
-                            <select name="key" id="search-key" class="search-input">
-                                <option value="">Any</option>
-                                {% for school_label in school_labels %}
-                                    <optgroup label="{{ school_label }}">
-                                        {% for program_concentration in program_concentrations %}
-                                            {% if program_concentration.school == school_label %}
-                                                <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
-                                            {% endif %}
+                                    <select name="key" id="search-key1" class="search-input">
+                                        <option value="">Any</option>
+                                        {% for school_label in school_labels %}
+                                            <optgroup label="{{ school_label }}">
+                                                {% for program_concentration in program_concentrations %}
+                                                    {% if program_concentration.school == school_label %}
+                                                        <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </optgroup>
                                         {% endfor %}
-                                    </optgroup>
-                                {% endfor %}
-                            </select>
-                            <label for="key" style="color: #252422">Owner Name</label>
-                            {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
-                            {# TODO Fix the drop down Layout #}
-                            <select name="key" id="search-key" class="search-input">
-                                <option value="">Any</option>
-                                {% for school_label in school_labels %}
-                                    <optgroup label="{{ school_label }}">
-                                        {% for program_concentration in program_concentrations %}
-                                            {% if program_concentration.school == school_label %}
-                                                <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
-                                            {% endif %}
+                                    </select>
+                                </div>
+                                <div class="proof-dropdown">
+                                    <label for="key" style="color: #252422">Owner Name</label>
+                                    {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
+                                    {# TODO Fix the drop down Layout #}
+                                    <select name="key" id="search-key2" class="search-input">
+                                        <option value="">Any</option>
+                                        {% for school_label in school_labels %}
+                                            <optgroup label="{{ school_label }}">
+                                                {% for program_concentration in program_concentrations %}
+                                                    {% if program_concentration.school == school_label %}
+                                                        <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </optgroup>
                                         {% endfor %}
-                                    </optgroup>
-                                {% endfor %}
-                            </select>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <label>
                             <div class="col-sm-4">

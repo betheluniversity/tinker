@@ -595,6 +595,16 @@ label.checkbox {
     margin-left: 30%
 }
 
+.proof-dropdown {
+    width: 50%;
+    display: block;
+    float: left;
+}
+
+.search-input {
+    width: 90%;
+}
+
 @media (max-width: 991px){
 
     ul.dropdown-menu{
@@ -623,6 +633,16 @@ label.checkbox {
 @media (min-width: 1050px) {
     p.description {
         width: 60%;
+    }
+}
+
+@media (max-width: 700px) {
+    .proof-dropdown {
+        width: 100%;
+    }
+
+    .search-input {
+        width: 50%;
     }
 }
 
