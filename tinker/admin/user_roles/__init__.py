@@ -64,7 +64,6 @@ class UserRolesView(FlaskView):
         username = request.form.get('username')
 
         # Todo: the main problem with doing role based checks, is some channels require a username
-        # Todo: also, things like the profile image are up in the air. do we show the user's image? or hide it.
         if role:
             # set user_roles and clear user_tabs
             session['admin_viewer_role'] = role
