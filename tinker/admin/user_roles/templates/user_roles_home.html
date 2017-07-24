@@ -17,11 +17,9 @@
                             <option value="{{ role['value'] }}">{{ role['value'] }}</option>
                         {% endfor %}
                     </select>
-                    <a id='view-by-role' class="btn btn-primary admin-viewer">View</a>
                 </label>
-
+                    <a id='view-by-role' class="btn btn-primary admin-viewer">View</a>
                 <hr/>
-
                 <label>
                     Username
                     <input type="text" id="username">
@@ -42,14 +40,18 @@
                     role = $('#role').val();
                 if( $(this).attr('id') == 'view-by-username')
                     username = $('#username').val();
-                window.ajax.post('{{ url_for('user_roles.UserRolesView:test_roles_and_users_submit') }}', {'role': role, 'username': username }, function (data) {
-                    if( data == 'error'){
-                        alert('Error (need to write in more robust error notifications)');
-                    } else {
-                        window.location.href = data;
-                    }
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ url_for('user_roles.UserRolesView:test_roles_and_users_submit') }}',
+                    data: {'role': role, 'username': username },
+                        success: function(){
+                            window.location.href = '/'
+                        },
+                        error: function(){
+                            //TODO Write an error function
+                        }
                 });
             })
-        })
+        });
     </script>
 {% endblock %}

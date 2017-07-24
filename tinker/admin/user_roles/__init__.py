@@ -68,7 +68,6 @@ class UserRolesView(FlaskView):
             # set user_roles and clear user_tabs
             session['admin_viewer_role'] = role
             session['user_roles'] = [role]
-            session.pop('user_tabs')
         elif username:
             session.clear()
             session['admin_username'] = current_username
