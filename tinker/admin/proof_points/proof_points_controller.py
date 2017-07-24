@@ -74,6 +74,11 @@ class ProofPointsController(TinkerController):
         things_set = set(things)
         things = []
         for thing in things_set:
-            things.append(thing)
+            if key == "owner" and thing == None:
+                thing = "No Owner"
+                things.append(thing)
+            else:
+                things.append(thing)
+
         things.sort()
         return things
