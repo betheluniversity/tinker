@@ -20,8 +20,15 @@
     <script type="text/javascript">
         document.addEventListener("DOMContentLoaded", function() {
             $(document).on('click', '#admin_return', function(){
-                window.ajax.post("{{ url_for('user_roles.UserRolesView:test_roles_and_users_remove') }}", {}, function (data) {
-                    window.location.href = '/';
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ url_for('user_roles.UserRolesView:test_roles_and_users_remove') }}',
+                        success: function(){
+                            window.location.href = '/'
+                        },
+                        error: function(){
+                            //TODO Write an error function
+                        }
                 });
             });
         })
