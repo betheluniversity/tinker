@@ -45,7 +45,8 @@
                     url: '{{ url_for('user_roles.UserRolesView:test_roles_and_users_submit') }}',
                     data: {'role': role, 'username': username },
                         success: function(data){
-                            window.location.href = data;
+                            alert(data);
+                            window.location.href = '/';
                         },
                         error: function(){
                             //TODO Write an error function

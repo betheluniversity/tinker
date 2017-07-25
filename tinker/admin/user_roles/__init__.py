@@ -76,7 +76,7 @@ class UserRolesView(FlaskView):
             return 'error'
 
         session['admin_viewer'] = True
-        return '/'  # have the JS handle where we go (homepage)
+        return session['admin_viewer']  # have the JS handle where we go (homepage)
 
     @route('/test_roles_and_users_remove/')
     def test_roles_and_users_remove(self):
