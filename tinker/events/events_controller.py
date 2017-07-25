@@ -70,11 +70,10 @@ class EventsController(TinkerController):
             return None
 
     def split_user_events(self, forms):
-        username = session['username']
         user_forms = []
         other_forms = []
         for form in forms:
-            if form['author'] != None and username in form['author']:
+            if form['author'] is not None and session['username'] in form['author']:
                 user_forms.append(form)
             else:
                 other_forms.append(form)
@@ -140,10 +139,9 @@ class EventsController(TinkerController):
     Submitting a new or edited event form combined into one method
     """
     def submit_new_or_edit(self, rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow):
-
         # Changes the dates to a timestamp, needs to occur after a failure is detected or not
         add_data = self.get_add_data(metadata_list, rform, wysiwyg_keys)
-        add_data['event-dates'] = self.change_dates(dates, num_dates)
+        add_data['event-dates'] = self.change_dates(dates)
         if not eid:
             bid = app.config['EVENTS_BASE_ASSET']
             event_data, metadata, structured_data = self.cascade_connector.load_base_asset_by_id(bid, 'page')
@@ -185,9 +183,9 @@ class EventsController(TinkerController):
         # convert event dates to JSON
         return event_dates, num_dates
 
-    def check_event_dates(self, num_dates, event_dates):
+    def check_event_dates(self, event_dates):
         dates_good = True
-        for i in range(0, num_dates):
+        for i in range(len(event_dates)):
                                                         # XOR either having an end date or "no end date" checked
             start_and_end = event_dates[i]['start_date'] and \
                                                (bool(event_dates[i]['end_date']) != bool(event_dates[i]['no_end_date']))
@@ -203,50 +201,46 @@ class EventsController(TinkerController):
             # appease the date parser later.
             if event_dates[i]['no_end_date'] == u'on' and not event_dates[i]['end_date']:
                 event_dates[i]['end_date'] = event_dates[i]['start_date']
+
         return json.dumps(event_dates), dates_good
 
-    def change_dates(self, event_dates, num_dates):
-        for i in range(0, num_dates):
+    def change_dates(self, event_dates):
+        for i in range(len(event_dates)):
+            # Get rid of the fancy formatting so we just have normal numbers
+            start = event_dates[i]['start_date'].split(' ')
+            end = event_dates[i]['end_date'].split(' ')
+            start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+            end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+
+            start = " ".join(start)
+            end = " ".join(end)
+
+            event_dates[i]['start_date'] = start
+            event_dates[i]['end_date'] = end
+
+            # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
+            # which use milliseconds instead of seconds
             try:
-                # Get rid of the fancy formatting so we just have normal numbers
-                start = event_dates[i]['start_date'].split(' ')
-                end = event_dates[i]['end_date'].split(' ')
-                start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
-                end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+                event_dates[i]['start_date'] = self.date_str_to_timestamp(event_dates[i]['start_date'])
+            except ValueError as e:
+                app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
+                event_dates[i]['start_date'] = None
+            try:
+                event_dates[i]['end_date'] = self.date_str_to_timestamp(event_dates[i]['end_date'])
+            except ValueError as e:
+                app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
+                event_dates[i]['end_date'] = None
 
-                start = " ".join(start)
-                end = " ".join(end)
-
-                event_dates[i]['start_date'] = start
-                event_dates[i]['end_date'] = end
-
-                # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
-                # which use milliseconds instead of seconds
-                try:
-                    event_dates[i]['start_date'] = self.date_str_to_timestamp(event_dates[i]['start_date'])
-                except ValueError as e:
-                    app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
-                    event_dates[i]['start_date'] = None
-                try:
-                    event_dates[i]['end_date'] = self.date_str_to_timestamp(event_dates[i]['end_date'])
-                except ValueError as e:
-                    app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
-                    event_dates[i]['end_date'] = None
-
-                # As long as the value for these checkboxes are NOT '' or 'False'
-                # the value in event_dates will be set to 'Yes'
-                if event_dates[i]['all_day']:
-                    event_dates[i]['all_day'] = 'Yes'
-                else:
-                    event_dates[i]['all_day'] = 'No'
-                if event_dates[i]['outside_of_minnesota']:
-                    event_dates[i]['outside_of_minnesota'] = 'Yes'
-                else:
-                    event_dates[i]['outside_of_minnesota'] = 'No'
-
-            except KeyError:
-                # This will break once we run out of dates
-                break
+            # As long as the value for these checkboxes are NOT '' or 'False'
+            # the value in event_dates will be set to 'Yes'
+            if event_dates[i]['all_day']:
+                event_dates[i]['all_day'] = 'Yes'
+            else:
+                event_dates[i]['all_day'] = 'No'
+            if event_dates[i]['outside_of_minnesota']:
+                event_dates[i]['outside_of_minnesota'] = 'Yes'
+            else:
+                event_dates[i]['outside_of_minnesota'] = 'No'
 
         return event_dates
 
@@ -447,6 +441,7 @@ class EventsController(TinkerController):
     # The search method that does the actual searching for the /search in events/init
     def get_search_results(self, selection, title, start, end):
         # Get the events and then split them into user events and other events for quicker searching
+        # TODO: this method is returning no results
         events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'event')
         # Quick check with assignment
         if selection and '-'.join(selection) == '1':
@@ -468,78 +463,91 @@ class EventsController(TinkerController):
         # to_return will hold all of the events that match the search criteria
         to_return = []
 
-        # check for each search parameter and set boolean flags
-        if not title:
-            has_title = False
-        else:
-            has_title = True
-        if start == 0:
-            has_start = False
-        else:
-            has_start = True
-        if end == 0:
-            has_end = False
-        else:
-            has_end = True
-        # Loop through the events based on selection
+        # This checks if exactly one date is missing, and ignores if both are present or if both are missing (XOR)
+        if (start == 0) != (end == 0):
+            # By default, both start/end date values are the midnights at the very beginning of the day, so
+            # if start == end, then it won't catch any events. Therefore we add a day onto end if we need to
+            if start == 0:
+                # This means that they didn't submit a start date, so get the value from end and then add a day to give
+                # a full 24-hour window to match events into
+                start = end
+                end += datetime.timedelta(days=1)
+            elif end == 0:
+                # This means that they didn't submit an end date, so set end to one day after the start value given
+                end = start + datetime.timedelta(days=1)
+            # At this point there is now guaranteed both start and end dates
+
+        # Check if they pass in same start/end day, make end 24 hours later to give a range
+        if start != 0 and end != 0 and self.compare_datetimes(start, end) == 0:
+            end += datetime.timedelta(days=1)
+
+        # At this point both start and end should either both be 0 or both be datetime objects that are not equal
+
         for event in events_to_iterate:
-            if not event['event-dates']:
-                check_dates = False
-            else:
-                check_dates = True
-            # split the event dates into a dictionary, then loop through it for each date to catch all possible events
-            for form in event['event-dates']:
-                if has_start or has_end and check_dates:
-                    try:
-                        # Form Start/End timestamps converted to datetime and then formatted to match start and end
-                        event_start = datetime.datetime.fromtimestamp(form['start']).strftime('%a %b %d %Y')
-                        event_start = datetime.datetime.strptime(event_start, "%a %b %d %Y")
-                        event_end = datetime.datetime.fromtimestamp(form['end']).strftime('%a %b %d %Y')
-                        event_end = datetime.datetime.strptime(event_end, "%a %b %d %Y")
-                    except:
-                        check_dates = False
-                        continue
-                if has_title and title.lower() not in event['title'].lower():
-                    continue
-                elif not check_dates:
-                    continue
-                else:
-                    # The start to check is before the event start and the end to check is after the event ends
-                    if has_end and has_start and self.compare_timedeltas(start, event_start) == 1 and \
-                            self.compare_timedeltas(end, event_end) == 2:
-                        to_return.append(event)
-                        break
-                    # The user did not add an end to check and the event start is before the start check
-                    elif not has_end and has_start and self.compare_timedeltas(start, event_start) == 1:
-                        to_return.append(event)
-                        break
-                    # The user did not add a start to check and the event end is after the end check
-                    elif not has_start and has_end and self.compare_timedeltas(end, event_end) == 2:
-                        to_return.append(event)
-                        break
-                    # The start to check occurs between the events start and end dates
-                    elif has_start and self.compare_timedeltas(start, event_start) == 2 and \
-                            self.compare_timedeltas(start, event_end) == 1:
-                        to_return.append(event)
-                        break
-                    # The end to check occurs between the events start and end dates
-                    elif has_end and self.compare_timedeltas(end, event_start) == 2 and \
-                            self.compare_timedeltas(end, event_end) == 1:
-                        to_return.append(event)
-                        break
-                    elif not has_end and not has_start:
-                        to_return.append(event)
-                        break
+            check_title = bool(title)
+            title_matches = check_title and title.lower() in event['title'].lower()
+            check_dates = start != 0 and end != 0 and len(event['event-dates']) > 0
+            dates_matched = check_dates and self.event_dates_in_date_range(event['event-dates'], start, end)
+
+            add_event = False
+            if check_title and title_matches and check_dates and dates_matched:
+                add_event = True
+            elif check_title and title_matches and not check_dates:
+                add_event = True
+            elif check_dates and dates_matched and not check_title:
+                add_event = True
+
+            if add_event:
+                to_return.append(event)
+
         return to_return, forms_header
 
-    def compare_timedeltas(self, a, b):
-        reference = datetime.timedelta(seconds=0)
-        # If a and b are both datetime objects then if b comes after a it will return 1
-        if(b-a) >= reference:
+    def event_dates_in_date_range(self, list_of_dates, start, end):
+        # Loop through event's dates to see if it matches the queried date range
+        for date in list_of_dates:
+            try:
+                # Form Start/End timestamps converted to datetime and then formatted to match start and end
+                event_start = datetime.datetime.fromtimestamp(date['start'])
+                event_end = datetime.datetime.fromtimestamp(date['end'])
+            except TypeError:
+                # This try/catch is only needed because the asset at events/event can't easily be deleted
+                # from the Cascade DB
+                # TODO: remove the reference in the DB then remove that asset then remove this try/catch
+                break
+
+            A = self.compare_datetimes(start, event_start) <= 0  # Search start is before event start
+            B = self.compare_datetimes(start, event_start) >= 0  # Search start is after event start
+            C = self.compare_datetimes(start, event_end) <= 0    # Search start is before event end
+            # D = self.compare_datetimes(start, event_end) >= 0  # Search start is after event end (auto-fail)
+            # E = self.compare_datetimes(end, event_start) <= 0  # Search end is before event start (auto-fail)
+            F = self.compare_datetimes(end, event_start) >= 0    # Search end is after event start
+            G = self.compare_datetimes(end, event_end) <= 0      # Search end is before event end
+            H = self.compare_datetimes(end, event_end) >= 0      # Search end is after event end
+
+            if (A or (B and C)) and ((F and G) or H):
+                # This is a pretty complicated boolean expression, so I'm going to comment on it for everyone
+                # else's sake. There are 4 cases where an event would be added to the list 'to_return':
+                # 1. A & H         ==> The search range completely encompasses the event being looked at
+                # 2. B & C & F & G ==> The event being looked at completely encompasses the search range
+                # 3. B & C & H     ==> The search range starts inside the event being looked at and continues after
+                # 4. A & F & G     ==> The search range starts before the event being looked at and ends inside
+                # Since any one of those conditions could make this statement true, I wrote them all together in
+                # a large OR statement. I then reverse-FOIL'd to reduce it down to the boolean expression
+                # used in the if statement above.
+
+                # Return immediately on first match to save time
+                return True
+        # Means that none of the dates in list_of_dates overlapped the queried date range
+        return False
+
+    def compare_datetimes(self, a, b):
+        zero = datetime.timedelta(seconds=0)
+        # If a is before b, return -1
+        if (b-a) > zero:
+            return -1
+        # If a is after b, return 1
+        elif (b-a) < zero:
             return 1
-        # b before a returns 2
-        elif(b-a) <= reference:
-            return 2
-        # neither returns 0
+        # If a and b have the same value, return 0
         else:
             return 0

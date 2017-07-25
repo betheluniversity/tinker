@@ -101,9 +101,6 @@ class EAnnouncementsController(TinkerController):
         return page_values
 
     def validate_form(self, rform):
-        print type(rform)
-        print rform
-
         from forms import EAnnouncementsForm
 
         form = EAnnouncementsForm()
