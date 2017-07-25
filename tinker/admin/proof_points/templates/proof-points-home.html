@@ -14,69 +14,56 @@
         <div class="container-fluid">
             <div class="col-sm-12">
                 <form id="filter-form" method="POST" action="filter-points">
-                    <input id="search-bar" type="text"/>
-
-                    <input id="submit" type="submit" value="Submit"/>
+                    <div class="card">
+                        <div class="content">
+                            <label style="color: #252422">Search by Name:</label>
+                            <input id="search-bar" name="search-bar" itype="text"/>
+                            <p>Filters for Proof Points:</p>
+                            <div id="dropdown-row">
+                                <div class="proof-dropdown">
+                                    <label style="color: #252422">School Name:</label>
+                                    <select id="school-dropdown" name='school-dropdown' class="search-input">
+                                        <option value="">-- Any --</option>
+                                        {% for school in schools %}
+                                            <option value="{{ school }}">{{ school }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="proof-dropdown">
+                                    <label style="color: #252422">Owner Name</label>
+                                    <select id="owner-dropdown" name='owner-dropdown' class="search-input">
+                                        <option value="">-- Any --</option>
+                                        {% for owner in owners %}
+                                            <option value="{{ owner }}">{{ owner }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <label style="color: #252422">Type:</label>
+                            <label class="checkbox" id="txt-base">
+                                <span class="icons">
+                                    <span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span>
+                                </span>
+                                <input id="tex-base" type="checkbox">
+                                Text-Based
+                            </label>
+                            <label class="checkbox" id="numb-base">
+                                <span class="icons">
+                                    <span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span>
+                                </span>
+                                <input id="num-base" type="checkbox">
+                                Number-Based
+                            </label>
+                            <div class="col-sm-offset-8"></div>
+                            <div class="clearfix visible-sm"></div>
+                            <div class="clearfix visible-md"></div>
+                            <div class="clearfix visible-lg"></div>
+                            <input id="submit" class="btn btn-primary" type="submit" value="Submit"/>
+                        </div>
+                    </div>
                 </form>
-{#                <form action='javascript:form_submit()' id='program_search_form'>#}
-{#                    <div class="card">#}
-{#                        <div class="content">#}
-{#                            <label for="tag" style="color: #252422">Search by Name:</label>#}
-{#                            <input type="text" name="name" id='search-proof-points'/>#}
-{#                            <p>Filters for Proof Points:</p>#}
-{#                        <div id="dropdown-row">#}
-{#                            <div class="proof-dropdown">#}
-{#                            <label for="key" style="color: #252422">School Name:</label>#}
-                            {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
-                            {# TODO Fix the drop down Layout #}
-{#                                    <select name="key" id="search-key1" class="search-input">#}
-{#                                        <option value="">-- Any --</option>#}
-{#                                        {% for school in schools %}#}
-{#                                            <option value="{{ school }}">{{ school }}</option>#}
-{#                                        {% endfor %}#}
-{#                                    </select>#}
-{#                                </div>#}
-{#                                <div class="proof-dropdown">#}
-{#                                    <label for="key" style="color: #252422">Owner Name</label>#}
-{#                                    <select name="key" id="search-key2" class="search-input">#}
-{#                                        <option value="">-- Any --</option>#}
-{#                                        {% for owner in owners %}#}
-{#                                            <option value="{{ owner }}">{{ owner }}</option>#}
-{#                                        {% endfor %}#}
-{#                                    </select>#}
-{#                                </div>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                        <label>#}
-{#                            <div class="col-sm-4">#}
-{#                                <label for="tag" style="color: #252422">Type:</label>#}
-{#                                <label class="checkbox" id="typelabel1" for="type1">#}
-{#                                    <span class="icons">#}
-{#                                        <span class="first-icon fa fa-square-o"></span>#}
-{#                                        <span class="second-icon fa fa-check-square-o"></span>#}
-{#                                    </span>#}
-{#                                    <input class="alldaycheck" id="tex-base" name="tex-base" type="checkbox">#}
-{#                                    Text-Based#}
-{#                                </label>#}
-{#                                <label class="checkbox" id="typelabel2" for="type2">#}
-{#                                    <span class="icons">#}
-{#                                        <span class="first-icon fa fa-square-o"></span>#}
-{#                                        <span class="second-icon fa fa-check-square-o"></span>#}
-{#                                    </span>#}
-{#                                    <input class="alldaycheck" id="num-base" name="num-base" type="checkbox">#}
-{#                                    Number-Based#}
-{#                                </label>#}
-{#                            </div>#}
-{#                            <div class="col-sm-offset-8"></div>#}
-{#                            <div class="clearfix visible-sm"></div>#}
-{#                            <div class="clearfix visible-md"></div>#}
-{#                            <div class="clearfix visible-lg"></div>#}
-{#                            <div class="content">#}
-{#                                <button id="program-submit" type="submit" class="btn btn-primary">Submit</button>#}
-{#                            </div>#}
-{#                        </label>#}
-{#                    </div>#}
-{#                </form>#}
                 <div class="row">
                     <div class="large-12 columns">
                         <table class="table">
