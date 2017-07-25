@@ -31,8 +31,8 @@ class UserRolesView(FlaskView):
 
     def index(self):
         cascade_connection = Cascade(app.config['SOAP_URL'],
-                                     {'username': app.config['AUTH_USERNAME'], 'password': app.config['AUTH_PASSWORD']},
-                                     app.config['USER_ROLES_SITE_ID'], app.config['USER_ROLES_STAGING_DESTINATION_ID'])
+                                     {'username': app.config['CASCADE_LOGIN'].get('username'), 'password': app.config['CASCADE_LOGIN'].get('password')},
+                                     app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
         role_asset = cascade_connection.read(app.config['CASCADE_MD_ROLES_ID'], 'metadataset')
         role_data = role_asset['asset']['metadataSet']['dynamicMetadataFieldDefinitions'][
             'dynamicMetadataFieldDefinition']
