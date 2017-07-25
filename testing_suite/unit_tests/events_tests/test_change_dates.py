@@ -30,6 +30,7 @@ class ChangeDatesTestCase(EventsControllerBaseTestCase):
         self.assertTrue(isinstance(response[0], dict))
         for expected_key in test_event_dates[0].keys():
             self.assertTrue(expected_key in response[0].keys())
+        print response[0]
         self.assertEqual(response[0]['start_date'], 1501736400000)
         self.assertEqual(response[0]['end_date'], 1501909200000)
         self.assertEqual(response[0]['all_day'], 'No')

@@ -274,7 +274,7 @@ class EventsController(TinkerController):
 
     def date_str_to_timestamp(self, date):
         try:
-            return int(datetime.datetime.strptime(date, '%B %d  %Y, %I:%M %p').strftime("%s")) * 1000
+            return int(datetime.datetime.strptime(date, '%B %d %Y, %I:%M %p').strftime("%s")) * 1000
         except TypeError:
             return None
 
@@ -441,7 +441,6 @@ class EventsController(TinkerController):
     # The search method that does the actual searching for the /search in events/init
     def get_search_results(self, selection, title, start, end):
         # Get the events and then split them into user events and other events for quicker searching
-        # TODO: this method is returning no results
         events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'event')
         # Quick check with assignment
         if selection and '-'.join(selection) == '1':
