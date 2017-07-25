@@ -48,6 +48,10 @@ class ProofPointsController(TinkerController):
             print 'bad'
             return None
 
+    def get_forms_data(self):
+        forms = self.traverse_xml(app.config['PROOF_POINTS_XML_URL'], 'system-block')
+        return forms
+
     def _iterate_child_xml(self, child, author):
 
         school = None;

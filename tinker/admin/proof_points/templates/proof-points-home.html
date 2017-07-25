@@ -13,65 +13,70 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-sm-12">
-                <form id='program_search_form' method="post">
-                    <div class="card">
-                        <div class="content">
-                            <label for="tag" style="color: #252422">Search by Name:</label>
-                            <input type="text" name="name" id='search-proof-points'/>
-                            <p>Filters for Proof Points:</p>
-                        <div id="dropdown-row">
-                            <div class="proof-dropdown">
-                            <label for="key" style="color: #252422">School Name:</label>
+                <form id="filter-form" method="POST" action="filter-points">
+                    <input id="search-bar" type="text"/>
+
+                    <input id="submit" type="submit" value="Submit"/>
+                </form>
+{#                <form action='javascript:form_submit()' id='program_search_form'>#}
+{#                    <div class="card">#}
+{#                        <div class="content">#}
+{#                            <label for="tag" style="color: #252422">Search by Name:</label>#}
+{#                            <input type="text" name="name" id='search-proof-points'/>#}
+{#                            <p>Filters for Proof Points:</p>#}
+{#                        <div id="dropdown-row">#}
+{#                            <div class="proof-dropdown">#}
+{#                            <label for="key" style="color: #252422">School Name:</label>#}
                             {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
                             {# TODO Fix the drop down Layout #}
-                                    <select name="key" id="search-key1" class="search-input">
-                                        <option value="">-- Any --</option>
-                                        {% for school in schools %}
-                                            <option value="{{ school }}">{{ school }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="proof-dropdown">
-                                    <label for="key" style="color: #252422">Owner Name</label>
-                                    <select name="key" id="search-key2" class="search-input">
-                                        <option value="">-- Any --</option>
-                                        {% for owner in owners %}
-                                            <option value="{{ owner }}">{{ owner }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <label>
-                            <div class="col-sm-4">
-                                <label for="tag" style="color: #252422">Type:</label>
-                                <label class="checkbox" id="typelabel1" for="type1">
-                                    <span class="icons">
-                                        <span class="first-icon fa fa-square-o"></span>
-                                        <span class="second-icon fa fa-check-square-o"></span>
-                                    </span>
-                                    <input class="alldaycheck" id="allday1" name="allday1" type="checkbox">
-                                    Text-Based
-                                </label>
-                                <label class="checkbox" id="typelabel2" for="type2">
-                                    <span class="icons">
-                                        <span class="first-icon fa fa-square-o"></span>
-                                        <span class="second-icon fa fa-check-square-o"></span>
-                                    </span>
-                                    <input class="alldaycheck" id="allday1" name="allday1" type="checkbox">
-                                    Number-Based
-                                </label>
-                            </div>
-                            <div class="col-sm-offset-8"></div>
-                            <div class="clearfix visible-sm"></div>
-                            <div class="clearfix visible-md"></div>
-                            <div class="clearfix visible-lg"></div>
-                            <div class="content">
-                                <button id="program-submit" type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-                        </label>
-                    </div>
-                </form>
+{#                                    <select name="key" id="search-key1" class="search-input">#}
+{#                                        <option value="">-- Any --</option>#}
+{#                                        {% for school in schools %}#}
+{#                                            <option value="{{ school }}">{{ school }}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+{#                                </div>#}
+{#                                <div class="proof-dropdown">#}
+{#                                    <label for="key" style="color: #252422">Owner Name</label>#}
+{#                                    <select name="key" id="search-key2" class="search-input">#}
+{#                                        <option value="">-- Any --</option>#}
+{#                                        {% for owner in owners %}#}
+{#                                            <option value="{{ owner }}">{{ owner }}</option>#}
+{#                                        {% endfor %}#}
+{#                                    </select>#}
+{#                                </div>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                        <label>#}
+{#                            <div class="col-sm-4">#}
+{#                                <label for="tag" style="color: #252422">Type:</label>#}
+{#                                <label class="checkbox" id="typelabel1" for="type1">#}
+{#                                    <span class="icons">#}
+{#                                        <span class="first-icon fa fa-square-o"></span>#}
+{#                                        <span class="second-icon fa fa-check-square-o"></span>#}
+{#                                    </span>#}
+{#                                    <input class="alldaycheck" id="tex-base" name="tex-base" type="checkbox">#}
+{#                                    Text-Based#}
+{#                                </label>#}
+{#                                <label class="checkbox" id="typelabel2" for="type2">#}
+{#                                    <span class="icons">#}
+{#                                        <span class="first-icon fa fa-square-o"></span>#}
+{#                                        <span class="second-icon fa fa-check-square-o"></span>#}
+{#                                    </span>#}
+{#                                    <input class="alldaycheck" id="num-base" name="num-base" type="checkbox">#}
+{#                                    Number-Based#}
+{#                                </label>#}
+{#                            </div>#}
+{#                            <div class="col-sm-offset-8"></div>#}
+{#                            <div class="clearfix visible-sm"></div>#}
+{#                            <div class="clearfix visible-md"></div>#}
+{#                            <div class="clearfix visible-lg"></div>#}
+{#                            <div class="content">#}
+{#                                <button id="program-submit" type="submit" class="btn btn-primary">Submit</button>#}
+{#                            </div>#}
+{#                        </label>#}
+{#                    </div>#}
+{#                </form>#}
                 <div class="row">
                     <div class="large-12 columns">
                         <table class="table">
@@ -92,89 +97,117 @@
                     <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
                 </div>
             </div>
-
         </div>
     </div>
 {% endblock %}
 
 {% block scripts %}
-    {#  Script to update the modal submit to delete the correct form#}
+    {# Script to update the modal submit to delete the correct form #}
+    <script>
+{##}
+{#        function form_submit(){#}
+{#            var input_data = {'name': $('#search-proof-points').innerText , 'school': $('#search-key1').innerText, 'owner': $('#search-key2').innerText, 'type': 'both' };#}
+{#            var url = "{{ url_for('proof_points.ProofPointsView:filter_through_proof_points') }}";#}
+{#            $.post(url, input_data, function (data) {#}
+{#                alert(data);#}
+{#                $('#dialog-text').html(data);#}
+{#            });#}
+{#        }#}
+{#    $(document).ready(function(){#}
+{#        #}
+{#        $("#program-submit").click(function(){#}
+{#            $.ajax({#}
+{#                type: "POST",#}
+{#                url: "/admin/proof-points/filter_through_proof_points",#}
+{#                data: {'name': $('#search-proof-points').innerText , 'school': $('#search-key1').innerText, 'owner': $('#search-key2').innerText, 'type': 'both' },#}
+{#                success: function(result){#}
+{#                $("#textValue").html(result);#}
+{#            }});#}
+{#            var input_data = {'name': $('#search-proof-points').innerText , 'school': $('#search-key1').innerText, 'owner': $('#search-key2').innerText, 'type': 'both' };#}
+{#            var url = "{{ url_for('proof_points.ProofPointsView:filter_through_proof_points') }}";#}
+{#            $.post(url, input_data, function (data) {#}
+{#                alert(data);#}
+{#                $('#dialog-text').html(data);#}
+{#            });#}
+{#        });#}
+{#    });#}
+    </script>
     <script type="text/javascript">
-        var delay = (function () {
-            var timer = 0;
-            return function (callback, ms) {
-                clearTimeout(timer);
-                timer = setTimeout(callback, ms);
-            };
-        })();
-
-        $(".search-input").keyup(function () {
-            $('#spinner').show();
-            delay(function () {
-                loadTableForSearch();
-            }, 300);
-        }).change(function () {
-            delay(function () {
-                loadTableForSearch();
-                $('#spinner').hide();
-            }, 300);
-        });
-
-        function loadTableForSearch() {
-            $('#spinner').show();
+{#        var delay = (function () {#}
+{#            var timer = 0;#}
+{#            return function (callback, ms) {#}
+{#                clearTimeout(timer);#}
+{#                timer = setTimeout(callback, ms);#}
+{#            };#}
+{#        })();#}
+{##}
+{#        $(".search-input").keyup(function () {#}
+{#            $('#spinner').show();#}
+{#            delay(function () {#}
+{#                loadTableForSearch();#}
+{#            }, 300);#}
+{#        }).change(function () {#}
+{#            delay(function () {#}
+{#                loadTableForSearch();#}
+{#                $('#spinner').hide();#}
+{#            }, 300);#}
+{#        });#}
+{##}
+{#        function loadTableForSearch() {#}
+{#            $('#spinner').show();#}
             {#            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');#}
-
-            var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";
-            search_tag = $('#search-tag')[0].value;
-            search_key = $('#search-key')[0].value;
-
-            var inputs = {
-                'search_tag': search_tag,
-                'search_key': search_key
-            };
-
-            $.ajax({
-                type: "POST",
-                url: search_url,
-                data: JSON.stringify(inputs),
-                contentType: 'application/json;charset=UTF-8',
-                success: function (result) {
-                    $('#table-body').html(result);
-                    $('#spinner').hide();
-                }
-            });
-        }
-
-        $(".delete-checkbox").click(function () {
-            var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");
-            if (checkbox_elements[0]) {
-                $("#delete-all").style.display = "inline";
-            }
-            else {
-                $("#delete-all").style.display = "none";
-            }
-        });
-
-        $('#program_search_form').submit(function () {
-            var formData = {
-                'key': $('select[name=key]').val(),
-                'tag': $('input[name=tag]').val(),
-                'outcome': $('input[name=outcome]:checked').val(),
-                'topic': $('input[name=topic]:checked').val(),
-                'other': $('input[name=other]:checked').val()
-            };
-
-            $.ajax({
-                type: "POST",
-                url: "{{ url_for('program_search.ProgramSearchView:submit') }}",
-                data: JSON.stringify(formData),
-                contentType: 'application/json;charset=UTF-8',
-                success: function (result) {
-                    loadTableForSearch();
-                }
-            });
-            return false;
-        });
+{##}
+{#            var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";#}
+{#            search_tag = $('#search-tag')[0].value;#}
+{#            search_key = $('#search-key')[0].value;#}
+{##}
+{#            var inputs = {#}
+{#                'search_tag': search_tag,#}
+{#                'search_key': search_key#}
+{#            };#}
+{##}
+{#            $.ajax({#}
+{#                type: "POST",#}
+{#                url: search_url,#}
+{#                data: JSON.stringify(inputs),#}
+{#                contentType: 'application/json;charset=UTF-8',#}
+{#                success: function (result) {#}
+{#                    $('#table-body').html(result);#}
+{#                    $('#spinner').hide();#}
+{#                }#}
+{#            });#}
+{#        }#}
+{##}
+{#        $(".delete-checkbox").click(function () {#}
+{#            var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");#}
+{#            if (checkbox_elements[0]) {#}
+{#                $("#delete-all").style.display = "inline";#}
+{#            }#}
+{#            else {#}
+{#                $("#delete-all").style.display = "none";#}
+{#            }#}
+{#        });#}
+{##}
+{#        $('#program_search_form').submit(function () {#}
+{#            var formData = {#}
+{#                'key': $('select[name=key]').val(),#}
+{#                'tag': $('input[name=tag]').val(),#}
+{#                'outcome': $('input[name=outcome]:checked').val(),#}
+{#                'topic': $('input[name=topic]:checked').val(),#}
+{#                'other': $('input[name=other]:checked').val()#}
+{#            };#}
+{##}
+{#            $.ajax({#}
+{#                type: "POST",#}
+{#                url: "{{ url_for('program_search.ProgramSearchView:submit') }}",#}
+{#                data: JSON.stringify(formData),#}
+{#                contentType: 'application/json;charset=UTF-8',#}
+{#                success: function (result) {#}
+{#                    loadTableForSearch();#}
+{#                }#}
+{#            });#}
+{#            return false;#}
+{#        });#}
     </script>
 
     {% block modalhtml %}

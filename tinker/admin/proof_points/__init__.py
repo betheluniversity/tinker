@@ -9,6 +9,7 @@ from flask_classy import route
 
 # tinker
 from tinker.admin.proof_points.proof_points_controller import *
+from tinker.admin.proof_points import proof_points_controller
 from tinker import app
 
 ProofPointsBlueprint = Blueprint("proof_points", __name__, template_folder='templates')
@@ -29,8 +30,7 @@ class ProofPointsView(FlaskView):
 
         username = session['username']
         roles = session['roles']
-        forms = self.base.traverse_xml(app.config['PROOF_POINTS_XML_URL'], 'system-block')
-        # TODO change the value of none in owners to 'No Owner'
+        forms = self.base.get_forms_data()
         owners = self.base.gather_dropdown_values_from_key(forms, 'owner')
         schools = self.base.gather_dropdown_values_from_key(forms, 'school')
 
@@ -38,5 +38,11 @@ class ProofPointsView(FlaskView):
 
         return render_template('proof-points-home.html', **locals())
 
+    @route("/filter-points", methods=['post'])
+    def filter_points(self):  # , name = '', school = '', owner = '', type = 'both'):
+        pass_in = request.args
+        results = self.base.get_forms_data()
+        print 'It went here'
+        return "meme"
 
 ProofPointsView.register(ProofPointsBlueprint)
