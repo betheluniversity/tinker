@@ -16,12 +16,12 @@
                 $.ajax({
                     type: 'POST',
                     url: '{{ url_for('user_roles.UserRolesView:test_roles_and_users_remove') }}',
-                        success: function(){
-                            window.location.href = '/'
-                        },
-                        error: function(){
-                            //TODO Write an error function
-                        }
+{#                        success: function(){#}
+{#                            window.location.href = '/'#}
+{#                        },#}
+{#                        error: function(){#}
+{#                            //TODO Write an error function#}
+{#                        }#}
                 });
             });
         })
