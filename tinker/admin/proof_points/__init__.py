@@ -40,9 +40,15 @@ class ProofPointsView(FlaskView):
 
     @route("/filter-points", methods=['post'])
     def filter_points(self):  # , name = '', school = '', owner = '', type = 'both'):
-        pass_in = request.form
+        filter_data = request.form
+        search_bar = filter_data.get('search-bar')
+        school = filter_data.get('school-dropdown')
+        owner = filter_data.get('owner-dropdown')
+        num_box = filter_data.get('num-box')
+        txt_box = filter_data.get('txt-box')
+
         results = self.base.get_forms_data()
         print 'It went here'
-        return
+        return "Redirect"
 
 ProofPointsView.register(ProofPointsBlueprint)

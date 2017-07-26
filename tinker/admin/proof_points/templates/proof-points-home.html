@@ -17,7 +17,7 @@
                     <div class="card">
                         <div class="content">
                             <label style="color: #252422">Search by Name:</label>
-                            <input id="search-bar" name="search-bar" itype="text"/>
+                            <input id="search-bar" name="search-bar" type="text"/>
                             <p>Filters for Proof Points:</p>
                             <div id="dropdown-row">
                                 <div class="proof-dropdown">
@@ -40,27 +40,28 @@
                                 </div>
                             </div>
                             <label style="color: #252422">Type:</label>
-                            <label class="checkbox" id="txt-base">
+                            <label class="checkbox" id="txt-box" for="txt-box-input">
                                 <span class="icons">
                                     <span class="first-icon fa fa-square-o"></span>
                                     <span class="second-icon fa fa-check-square-o"></span>
                                 </span>
-                                <input id="tex-base" type="checkbox">
+                                <input id="txt-box-input" type="checkbox">
                                 Text-Based
                             </label>
-                            <label class="checkbox" id="numb-base">
+                            <label class="checkbox" id="num-box" for="num-box-input">
                                 <span class="icons">
                                     <span class="first-icon fa fa-square-o"></span>
                                     <span class="second-icon fa fa-check-square-o"></span>
                                 </span>
-                                <input id="num-base" type="checkbox">
+                                <input id="num-box-input" type="checkbox">
                                 Number-Based
                             </label>
                             <div class="col-sm-offset-8"></div>
                             <div class="clearfix visible-sm"></div>
                             <div class="clearfix visible-md"></div>
                             <div class="clearfix visible-lg"></div>
-                            <input id="submit" class="btn btn-primary" type="submit" value="Submit"/>
+{#                            <input id="submit" class="btn btn-primary" type="submit" value="Submit"/>#}
+                            <a id="submit" class="btn btn-primary">Submit</a>
                         </div>
                     </div>
                 </form>
@@ -89,35 +90,26 @@
 {% endblock %}
 
 {% block scripts %}
-    {# Script to update the modal submit to delete the correct form #}
     <script>
-{##}
-{#        function form_submit(){#}
-{#            var input_data = {'name': $('#search-proof-points').innerText , 'school': $('#search-key1').innerText, 'owner': $('#search-key2').innerText, 'type': 'both' };#}
-{#            var url = "{{ url_for('proof_points.ProofPointsView:filter_through_proof_points') }}";#}
-{#            $.post(url, input_data, function (data) {#}
-{#                alert(data);#}
-{#                $('#dialog-text').html(data);#}
-{#            });#}
-{#        }#}
-{#    $(document).ready(function(){#}
-{#        #}
-{#        $("#program-submit").click(function(){#}
-{#            $.ajax({#}
-{#                type: "POST",#}
-{#                url: "/admin/proof-points/filter_through_proof_points",#}
-{#                data: {'name': $('#search-proof-points').innerText , 'school': $('#search-key1').innerText, 'owner': $('#search-key2').innerText, 'type': 'both' },#}
-{#                success: function(result){#}
-{#                $("#textValue").html(result);#}
-{#            }});#}
-{#            var input_data = {'name': $('#search-proof-points').innerText , 'school': $('#search-key1').innerText, 'owner': $('#search-key2').innerText, 'type': 'both' };#}
-{#            var url = "{{ url_for('proof_points.ProofPointsView:filter_through_proof_points') }}";#}
-{#            $.post(url, input_data, function (data) {#}
-{#                alert(data);#}
-{#                $('#dialog-text').html(data);#}
-{#            });#}
-{#        });#}
-{#    });#}
+        $(document).ready(function(){
+            $("#submit").click(function(){
+                var url = "{{ url_for('proof_points.ProofPointsView:filter_points') }}";
+                var payload = {
+                    'txt-box': $('#txt-box').attr('class'),
+                    'num-box': $('#num-box').attr('class'),
+                    'search-bar': $("#search-bar").val(),
+                    'school-dropdown': $("#school-dropdown").val(),
+                    'owner-dropdown': $("#owner-dropdown").val()
+                    };
+                $.post(url, payload, function (data) {
+{#                    alert(data)#}
+                });
+{#                $.ajax({url: "/get_color", data: {"key": this.id.valueOf()}, success: function(result){#}
+{#                    $("#textValue").html(result);#}
+{#                    $(".colorView").css("background-color", result);#}
+{#                }});#}
+            });
+        });
     </script>
     <script type="text/javascript">
 {#        var delay = (function () {#}
