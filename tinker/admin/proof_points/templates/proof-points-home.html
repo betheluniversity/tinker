@@ -13,7 +13,7 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-sm-12">
-                <form id="filter-form" method="POST" action="filter-points">
+                <form id="filter-form" method="POST">
                     <div class="card">
                         <div class="content">
                             <label style="color: #252422">Search by Name:</label>
@@ -60,8 +60,7 @@
                             <div class="clearfix visible-sm"></div>
                             <div class="clearfix visible-md"></div>
                             <div class="clearfix visible-lg"></div>
-{#                            <input id="submit" class="btn btn-primary" type="submit" value="Submit"/>#}
-                            <a id="submit" class="btn btn-primary">Submit</a>
+                            <button id="submit" class="btn btn-primary">Submit</button>
                         </div>
                     </div>
                 </form>
@@ -93,6 +92,8 @@
     <script>
         $(document).ready(function(){
             $("#submit").click(function(){
+                $('#spinner').show();
+                $('#submit').prop("disabled",true);
                 var url = "{{ url_for('proof_points.ProofPointsView:filter_points') }}";
                 var payload = {
                     'txt-box': $('#txt-box').attr('class'),
@@ -102,12 +103,10 @@
                     'owner-dropdown': $("#owner-dropdown").val()
                     };
                 $.post(url, payload, function (data) {
-{#                    alert(data)#}
+                    alert(data);
+                    $('#spinner').hide();
+                    $('#submit').prop("disabled",false);
                 });
-{#                $.ajax({url: "/get_color", data: {"key": this.id.valueOf()}, success: function(result){#}
-{#                    $("#textValue").html(result);#}
-{#                    $(".colorView").css("background-color", result);#}
-{#                }});#}
             });
         });
     </script>

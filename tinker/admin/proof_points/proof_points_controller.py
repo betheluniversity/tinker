@@ -86,3 +86,18 @@ class ProofPointsController(TinkerController):
 
         things.sort()
         return things
+
+    def filter_with_params(self, filter_data):
+        search_bar = filter_data.get('search-bar')
+        school = filter_data.get('school-dropdown')
+        owner = filter_data.get('owner-dropdown')
+        num_box = filter_data.get('num-box')
+        txt_box = filter_data.get('txt-box')
+
+        print search_bar
+        print school
+        print owner
+        print num_box
+        forms = self.get_forms_data()
+
+        return txt_box
