@@ -19,7 +19,7 @@ class SyncMetadataSetTestCase(SyncControllerBaseTestCase):
         metadata_set_id = 'yes'
         response = self.controller.sync_metadata_set(metadata_set_id)
         self.assertTrue(isinstance(response, list))
-        self.assertTrue(len(response) == 8)
+        self.assertEqual(len(response), 8)
         # Having it sync a string that isn't a valid metadata set ID will return a None
         self.assertTrue(response[0] is None)
 
@@ -28,4 +28,4 @@ class SyncMetadataSetTestCase(SyncControllerBaseTestCase):
         metadata_set_id = None
         response = self.controller.sync_metadata_set(metadata_set_id)
         self.assertTrue(isinstance(response, list))
-        self.assertTrue(len(response) == 0)
+        self.assertEqual(len(response), 0)

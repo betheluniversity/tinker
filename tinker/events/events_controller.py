@@ -167,7 +167,6 @@ class EventsController(TinkerController):
 
         num_dates = int(form['num_dates'])
         for i in range(1, num_dates+1):  # the page doesn't use 0-based indexing
-
             i = str(i)
             new_date = {
                 'start_date': form.get('start' + i, ''),
@@ -272,9 +271,9 @@ class EventsController(TinkerController):
 
         return edit_data, dates, author
 
-    def date_str_to_timestamp(self, date):
+    def date_str_to_timestamp(self, date_string):
         try:
-            return int(datetime.datetime.strptime(date, '%B %d %Y, %I:%M %p').strftime("%s")) * 1000
+            return int(datetime.datetime.strptime(date_string, '%B %d %Y, %I:%M %p').strftime("%s")) * 1000
         except TypeError:
             return None
 

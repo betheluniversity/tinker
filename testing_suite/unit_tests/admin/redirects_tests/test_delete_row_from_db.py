@@ -21,11 +21,11 @@ class DeleteRowFromDBTestCase(RedirectsControllerBaseTestCase):
         added_row = self.controller.api_add_row(from_path, to_url)
         query_results = self.controller.search_db('from_path', from_path)
         self.assertTrue(isinstance(query_results, list))
-        self.assertTrue(len(query_results) == 1)
+        self.assertEqual(len(query_results), 1)
         self.assertEqual(added_row, query_results[0])
 
         # Then delete the added row and make sure it's not in the DB
         self.controller.delete_row_from_db(from_path)
         query_results = self.controller.search_db('from_path', from_path)
         self.assertTrue(isinstance(query_results, list))
-        self.assertTrue(len(query_results) == 0)
+        self.assertEqual(len(query_results), 0)

@@ -23,5 +23,5 @@ class GetMetaDataSetsMappingTestCase(SyncControllerBaseTestCase):
         ]
         for key in response.keys():
             self.assertTrue(isinstance(key, str))
-            self.assertTrue(len(key) == 32)
+            self.assertEqual(len(key), 32)
             self.assertTrue(response[key] in expected_values)

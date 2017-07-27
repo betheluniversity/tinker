@@ -22,7 +22,7 @@ class APIAddRowTestCase(RedirectsControllerBaseTestCase):
         self.assertEqual(str(response), '<Redirect %(0)s to %(1)s>' % {'0': from_path, '1': to_url})
         query_results = self.controller.search_db('from_path', from_path)
         self.assertTrue(isinstance(query_results, list))
-        self.assertTrue(len(query_results) == 1)
+        self.assertEqual(len(query_results), 1)
         self.assertEqual(response, query_results[0])
         self.controller.delete_row_from_db(from_path)
 

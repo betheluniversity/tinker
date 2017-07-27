@@ -19,7 +19,7 @@ class SyncDataDefinitionTestCase(SyncControllerBaseTestCase):
         data_definition_id = 'yes'
         response = self.controller.sync_data_definition(data_definition_id)
         self.assertTrue(isinstance(response, list))
-        self.assertTrue(len(response) == 9)
+        self.assertEqual(len(response), 9)
         # Having it sync a string that isn't a valid data definition ID will return a None
         self.assertTrue(response[0] is None)
 
@@ -28,4 +28,4 @@ class SyncDataDefinitionTestCase(SyncControllerBaseTestCase):
         data_definition_id = None
         response = self.controller.sync_data_definition(data_definition_id)
         self.assertTrue(isinstance(response, list))
-        self.assertTrue(len(response) == 0)
+        self.assertEqual(len(response), 0)

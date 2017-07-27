@@ -70,7 +70,7 @@ class SearchTestCase(PublishControllerBaseTestCase):
             response = self.controller.search(**invalid_args)
             self.assertEqual(response['success'], 'true')
             self.assertTrue(isinstance(response['matches']['match'][0]['id'], Text))
-            self.assertTrue(len(response['matches']['match'][0]['id']) == 32)
+            self.assertEqual(len(response['matches']['match'][0]['id']), 32)
             self.assertIn('events/', response['matches']['match'][0]['path']['path'])
             self.assertEqual(response['matches']['match'][0]['type'], 'page')
 

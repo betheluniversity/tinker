@@ -26,7 +26,7 @@ class ChangeDatesTestCase(EventsControllerBaseTestCase):
         ]
         response = self.controller.change_dates(test_event_dates)
         self.assertTrue(isinstance(response, list))
-        self.assertTrue(len(response) == len(test_event_dates))
+        self.assertEqual(len(response), len(test_event_dates))
         self.assertTrue(isinstance(response[0], dict))
         for expected_key in test_event_dates[0].keys():
             self.assertTrue(expected_key in response[0].keys())

@@ -26,7 +26,7 @@ class CheckEventDatesTestCase(EventsControllerBaseTestCase):
         ]
         response = self.controller.check_event_dates(test_event_dates)
         self.assertTrue(isinstance(response, tuple))
-        self.assertTrue(len(response) == 2)
+        self.assertEqual(len(response), 2)
         self.assertTrue(isinstance(response[0], str))
         expected_response = '[{"end_date": "August 5th 2017, 12:00 am", "outside_of_minnesota": "", "all_day": "", ' \
                             '"time_zone": "", "no_end_date": "", "start_date": "August 3rd 2017, 12:00 am"}]'
@@ -47,5 +47,5 @@ class CheckEventDatesTestCase(EventsControllerBaseTestCase):
         ]
         response = self.controller.check_event_dates(test_event_dates)
         self.assertTrue(isinstance(response, tuple))
-        self.assertTrue(len(response) == 2)
+        self.assertEqual(len(response), 2)
         self.assertTrue(isinstance(response[1], bool))
