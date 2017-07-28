@@ -20,29 +20,34 @@ class ProofPointsView(FlaskView):
 
     def __init__(self):
         self.base = ProofPointsController()
-
+        self.forms = []
     # def before_request(self, args):
     #     # give access to admins and lauren
     #     if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
     #         abort(403)
 
     def index(self):
-
+        self.forms = self.base.get_forms()
         username = session['username']
         roles = session['roles']
-        forms = self.base.get_forms_data()
-        owners = self.base.gather_dropdown_values_from_key(forms, 'owner')
-        schools = self.base.gather_dropdown_values_from_key(forms, 'school')
+        owners = self.base.gather_dropdown_values_from_key(self.forms, 'owner')
+        schools = self.base.gather_dropdown_values_from_key(self.forms, 'school')
+        print owners
+        print schools
 
         # forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
 
         return render_template('proof-points-home.html', **locals())
 
     @route("/filter-points", methods=['post'])
-    def filter_points(self):  # , name = '', school = '', owner = '', type = 'both'):
-        filter_data = request.form
+    def filter_points(self):
+        if len(self.forms) < 1:
+            self.forms = self.base.get_forms()
 
-        print 'It made it to filter_points'
-        return self.base.filter_with_params(filter_data)
+        filter_data = request.form
+        data = self.base.gather_param_data(filter_data)
+        filtered_forms = self.base.filter_with_param(self.forms, data)
+
+        return render_template('filter-results.html', **locals())
 
 ProofPointsView.register(ProofPointsBlueprint)

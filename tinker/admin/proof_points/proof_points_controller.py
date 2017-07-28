@@ -48,7 +48,7 @@ class ProofPointsController(TinkerController):
             print 'bad'
             return None
 
-    def get_forms_data(self):
+    def get_forms(self):
         forms = self.traverse_xml(app.config['PROOF_POINTS_XML_URL'], 'system-block')
         return forms
 
@@ -87,17 +87,84 @@ class ProofPointsController(TinkerController):
         things.sort()
         return things
 
-    def filter_with_params(self, filter_data):
-        search_bar = filter_data.get('search-bar')
-        school = filter_data.get('school-dropdown')
-        owner = filter_data.get('owner-dropdown')
-        num_box = filter_data.get('num-box')
-        txt_box = filter_data.get('txt-box')
+    def gather_param_data(self, filter_data):
+        dict = {
+            'title': filter_data.get('search-bar'),
+            'school': filter_data.get('school-dropdown'),
+            'owner': filter_data.get('owner-dropdown'),
+        }
 
-        print search_bar
-        print school
-        print owner
-        print num_box
-        forms = self.get_forms_data()
+        # Small block tests what type is selected
+        if filter_data['num-box'] == 'checkbox checked':
+            dict['type'] = 'Number'
+        elif filter_data['txt-box'] == 'checkbox checked':
+            dict['type'] = 'Text'
+        else:
+            dict['type'] = 'both'
 
-        return txt_box
+        return dict
+
+    def filter_with_param(self, forms, parameters):
+        results = []
+        title = parameters['title']
+        owner = parameters['owner']
+        school = parameters['school']
+        type = parameters['type']
+
+        for form in forms:
+            # Boolean Check Values - Says 'Do I have to check'
+            owner_check = True
+            school_check = True
+            type_check = True
+            # Boolean Match Values - Says 'Do I match'
+            title_matches = False
+            owner_matches = False
+            school_matches = False
+            type_matches = False
+
+            if owner == 'any':
+                owner_check = False
+
+            if school == 'any':
+                school_check = False
+
+            if type == 'both':
+                type_check = False
+
+            if True and title.lower() in form['title'].lower():
+                title_matches = True
+
+            if owner_check and form['owner'] == owner:
+                owner_matches = True
+
+            if school_check and form['school'] == school:
+                school_matches = True
+
+            if type_check and form['type'] == type:
+                type_matches = True
+
+            
+
+
+
+
+
+
+
+
+
+            if type == 'both':
+                if form['owner'] == owner and form['school'] == school and title.lower() in form['title'].lower():
+                    results.append(form)
+            else:
+                if form['owner'] == owner and form['school'] == school and form['type'] == type and title.lower() in form['title'].lower():
+                    results.append(form)
+
+
+        for fos in results:
+            print fos
+
+        pass
+
+
+

@@ -23,7 +23,7 @@
                                 <div class="proof-dropdown">
                                     <label style="color: #252422">School Name:</label>
                                     <select id="school-dropdown" name='school-dropdown' class="search-input">
-                                        <option value="">-- Any --</option>
+                                        <option value="any">-- Any --</option>
                                         {% for school in schools %}
                                             <option value="{{ school }}">{{ school }}</option>
                                         {% endfor %}
@@ -32,7 +32,7 @@
                                 <div class="proof-dropdown">
                                     <label style="color: #252422">Owner Name</label>
                                     <select id="owner-dropdown" name='owner-dropdown' class="search-input">
-                                        <option value="">-- Any --</option>
+                                        <option value="any">-- Any --</option>
                                         {% for owner in owners %}
                                             <option value="{{ owner }}">{{ owner }}</option>
                                         {% endfor %}
@@ -79,6 +79,9 @@
                         </table>
                     </div>
                 </div>
+                <div id="results">
+                    <p> This is where the content will go</p>
+                </div>
                 {# spinner placeholder #}
                 <div id="spinner" class="spinner" style="display:none;">
                     <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
@@ -103,7 +106,7 @@
                     'owner-dropdown': $("#owner-dropdown").val()
                     };
                 $.post(url, payload, function (data) {
-                    alert(data);
+                    $('#results').html(data);
                     $('#spinner').hide();
                     $('#submit').prop("disabled",false);
                 });
