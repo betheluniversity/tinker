@@ -51,7 +51,7 @@ class UserRolesView(FlaskView):
             else:
                 session['user_roles'] = [role.upper() for role in app.config['ROLES']]
 
-    @route('/test_roles_and_users_submit/', methods=['POST'])
+    @route('/test_roles_and_users_submit', methods=['POST'])
     def test_roles_and_users_submit(self):
         if 'admin_username' in session.keys():
             current_username = session['admin_viewer_username']
@@ -79,7 +79,7 @@ class UserRolesView(FlaskView):
 
         session.modified = True
 
-        return render_template('index.html')  # have the JS handle where we go (homepage)
+        return '/'  # have the JS handle where we go (homepage)
 
     @route('/test_roles_and_users_remove/')
     def test_roles_and_users_remove(self):
