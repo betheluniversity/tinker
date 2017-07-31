@@ -69,7 +69,6 @@ app.config["flask_profiler"] = {
 }
 
 
-
 prod = app.config['ENVIRON'] == 'prod'
 if prod:
     app.config["flask_profiler"]["basicAuth"] = {
@@ -158,61 +157,3 @@ def logout():
 
 if not TRAVIS_TESTING:
     flask_profiler.init_app(app)
-
-# UserRolesBlueprint = Blueprint('user_roles', __name__, template_folder='templates')
-
-
-# class UserRolesView(FlaskView):
-#     route_base = '/admin/user_roles'
-#
-#     def __init__(self):
-#         pass
-#
-#     # def before_request(self, **kwargs):
-#     #     pass
-#
-#     def index(self):
-#         cascade_connection = Cascade(app.config['SOAP_URL'],
-#                             {'username': app.config['CASCADE_LOGIN'].get('username'), 'password': app.config['CASCADE_LOGIN'].get('password')},
-#                                           app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
-#         role_asset = cascade_connection.read(app.config['CASCADE_MD_ROLES_ID'], 'metadataset')
-#         role_data = role_asset['asset']['metadataSet']['dynamicMetadataFieldDefinitions'][
-#              'dynamicMetadataFieldDefinition']
-#
-#         cascade_md_roles = {}
-#         for item in role_data:
-#             try:
-#                 cascade_md_roles[item['name']] = item['possibleValues']['possibleValue']
-#             except:
-#                 continue
-#         return render_template('user_roles_home.html', **locals())
-#
-#     @app.route('/test_roles_and_users_submit/', methods=['POST'])
-#     def test_roles_and_users_submit(self):
-#         if 'admin_username' in session.keys():
-#             current_username = session['admin_viewer_username']
-#         else:
-#             current_username = session['username']
-#
-#         # get roles
-#         role = request.form.get('role')
-#         # get username
-#         username = request.form.get('username')
-#
-#         # Todo: the main problem with doing role based checks, is some channels require a username
-#         if role:
-#             # set user_roles and clear user_tabs
-#             session['admin_viewer_role'] = role
-#             session['user_roles'] = [role]
-#         elif username:
-#             session.clear()
-#             session['admin_username'] = current_username
-#             session['username'] = username
-#         else:
-#             return 'error'
-#
-#         session['admin_viewer'] = True
-#         return str(session['admin_viewer'])  # have the JS handle where we go (homepage)
-
-# UserRolesView.register(UserRolesBlueprint)
-

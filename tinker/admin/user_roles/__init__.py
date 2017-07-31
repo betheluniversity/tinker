@@ -2,7 +2,7 @@ import requests
 import time
 
 from xml.etree import ElementTree as ET
-from flask import render_template, session, request, make_response, redirect, Blueprint
+from flask import render_template, session, request, make_response, redirect, Blueprint, Response
 from flask_classy import FlaskView, route
 
 from tinker import app
@@ -20,6 +20,7 @@ except ImportError:
 UserRolesBlueprint = Blueprint('user_roles', __name__, template_folder='templates')
 
 
+# doesnt work locally, tinker not accepting local cookies
 class UserRolesView(FlaskView):
     route_base = '/admin/user_roles'
 
