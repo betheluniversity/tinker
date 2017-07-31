@@ -49,4 +49,11 @@ class ProofPointsView(FlaskView):
 
         return render_template('filter-results.html', **locals())
 
+    @route("/grab-from-id", methods=['post'])
+    def grab_from_id(self):
+        id = request.form['id[]']
+        form = self.base.return_form_from_id(self.forms, id)
+        return id
+        # return render_template('proof-point.html', **locals())
+
 ProofPointsView.register(ProofPointsBlueprint)

@@ -152,3 +152,11 @@ class ProofPointsController(TinkerController):
                 results.append(form)
 
         return results
+
+    def return_form_from_id(self, forms, id):
+        searched_form = None
+        for form in forms:
+            if form['id'] is id:
+                searched_form = form
+
+        return searched_form

@@ -7,12 +7,49 @@
         font-size: 14px;
     }
 </style>
-
 <form>
     <p>Results Found: {{ count }}</p>
-    <select name="selector" id="selector" multiple="">
+    <select name="selector" id="selector" multiple="" onchange="getID()">
         {% for form in filtered_forms %}
             <option value="{{ form['id'] }}">--Title-- {{ form['title'] }} --School-- {{ form['school'] }} --Owner-- {{ form['owner'] }}</option>
         {% endfor %}
     </select>
 </form>
+<div id="results">
+
+</div>
+
+<script>
+{#    $(document).ready(function(){#}
+{#            $("#view").click(function(){#}
+{#            $(function(){#}
+{#                $('#spinner').show();#}
+{#                $('#view').prop("disabled",true);#}
+{#                var url = "{{ url_for('proof_points.ProofPointsView:grab_from_id') }}";#}
+{#                var payload = {#}
+{#                    'id': $('#selector').val()#}
+{#                    };#}
+{#                $.post(url, payload, function (data) {#}
+{#                    $('#results').html(data);#}
+{#                    alert(data)#}
+{#                    $('#spinner').hide();#}
+{#                    $('#view').prop("disabled",false);#}
+{#                });#}
+{#            });#}
+{#        });#}
+    function getID(){
+        $('#spinner').show();
+        $('#view').prop("disabled",true);
+        var url = "{{ url_for('proof_points.ProofPointsView:grab_from_id') }}";
+        var payload = {
+            'id': $('#selector').val()
+        };
+        $.post(url, payload, function (data) {
+{#            $('#results').html(data);#}
+{#            document.getElementById("results").innerHTML+= data;#}
+            alert(data)
+            $('#spinner').hide();
+            $('#view').prop("disabled",false);
+        });
+    }
+</script>
