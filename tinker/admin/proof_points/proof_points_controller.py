@@ -131,7 +131,7 @@ class ProofPointsController(TinkerController):
             if type == 'both':
                 type_check = False
 
-            if True and title.lower() in form['title'].lower():
+            if title.lower() in form['title'].lower():
                 title_matches = True
 
             if owner_check and form['owner'] == owner:
@@ -143,28 +143,12 @@ class ProofPointsController(TinkerController):
             if type_check and form['type'] == type:
                 type_matches = True
 
-            
+            A = title_matches
+            B = (not owner_check) or (owner_check and owner_matches)
+            C = (not school_check) or (school_check and school_matches)
+            D = (not type_check) or (type_check and type_matches)
 
+            if A and B and C and D:
+                results.append(form)
 
-
-
-
-
-
-
-
-            if type == 'both':
-                if form['owner'] == owner and form['school'] == school and title.lower() in form['title'].lower():
-                    results.append(form)
-            else:
-                if form['owner'] == owner and form['school'] == school and form['type'] == type and title.lower() in form['title'].lower():
-                    results.append(form)
-
-
-        for fos in results:
-            print fos
-
-        pass
-
-
-
+            return results
