@@ -1,12 +1,18 @@
-<p>{{ data['school'] }}</p>
+<style>
+    #selector {
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        height: 150px;
+        width: 100%;
+        font-size: 14px;
+    }
+</style>
+
 <form>
-    <select>
-        <option value="">{{ data["school"] }}</option>
-        <option value="">{{ data["type"] }}</option>
-        <option value="">{{ data["title"] }}</option>
-        <option value="">{{ data["owner"] }}</option>
-{#    {% for key in data %}#}
-{#        <option value="{{ data['school'] }}:{{ data['owner'] }}">{{ data['title'] }}</option>#}
-{#    {% endfor %}#}
+    <p>Results Found: {{ count }}</p>
+    <select name="selector" id="selector" multiple="">
+        {% for form in filtered_forms %}
+            <option value="{{ form['id'] }}">--Title-- {{ form['title'] }} --School-- {{ form['school'] }} --Owner-- {{ form['owner'] }}</option>
+        {% endfor %}
     </select>
 </form>

@@ -32,8 +32,6 @@ class ProofPointsView(FlaskView):
         roles = session['roles']
         owners = self.base.gather_dropdown_values_from_key(self.forms, 'owner')
         schools = self.base.gather_dropdown_values_from_key(self.forms, 'school')
-        print owners
-        print schools
 
         # forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
 
@@ -47,6 +45,7 @@ class ProofPointsView(FlaskView):
         filter_data = request.form
         data = self.base.gather_param_data(filter_data)
         filtered_forms = self.base.filter_with_param(self.forms, data)
+        count = len(filtered_forms)
 
         return render_template('filter-results.html', **locals())
 

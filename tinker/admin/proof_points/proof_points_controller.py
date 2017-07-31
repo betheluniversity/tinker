@@ -151,4 +151,4 @@ class ProofPointsController(TinkerController):
             if A and B and C and D:
                 results.append(form)
 
-            return results
+        return results
