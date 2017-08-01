@@ -513,7 +513,8 @@ class TinkerController(object):
             resp.append(path)
             # remove the file at the path
             # if config.ENVIRON == "prod":
-            call(['rm', path])
+            if not app.config['UNIT_TESTING']:
+                call(['rm', path])
 
         # now the result storage
         file_name = image_path.split('/')[-1]

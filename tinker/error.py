@@ -10,7 +10,8 @@ def error_render_template(template_path, error, code=None):
 
     if code:  # Means that it's a handled error/exception
         if code == 500:  # No need to log 403s, 404s, or 503s
-            app.logger.error("%s -- %s" % (session['username'], str(error)))
+            if not app.config['UNIT_TESTING']:
+                app.logger.error("%s -- %s" % (session['username'], str(error)))
 
     else:  # Means it's an unhandled exception
         app.logger.error('Unhandled Exception: %s', str(error))
