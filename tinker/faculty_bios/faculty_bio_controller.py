@@ -21,6 +21,7 @@ class FacultyBioController(TinkerController):
             'Business & Economics':                         'Business Economics',
             'Chemistry':                                    'Chemistry',
             'Communication Studies':                        'Communication',
+            'Doctor of Ministry':                           'Doctor of Ministry',
             'Education':                                    'Education',
             'English':                                      'English',
             'Environmental Studies':                        'Environmental Studies',
@@ -29,7 +30,6 @@ class FacultyBioController(TinkerController):
             'Honors':                                       'Honors',
             'Human Kinetics & Applied Health Science':      'Human Kinetics',
             'Math & Computer Science':                      'Math CS',
-            'World Languages and Cultures':                 'World Languages',
             'Music':                                        'Music',
             'Nursing':                                      'Nursing',
             'Philosophy':                                   'Philosophy',
@@ -38,7 +38,7 @@ class FacultyBioController(TinkerController):
             'Psychology':                                   'Psychology',
             'Social Work':                                  'Social Work',
             'Theatre Arts':                                 'Theatre',
-            'Doctor of Ministry':                           'Doctor of Ministry'
+            'World Languages and Cultures':                 'World Languages',
         }
         return mapping
 
@@ -502,7 +502,7 @@ class FacultyBioController(TinkerController):
 
     # this is used to generate the checkboxes that aren't on the tinker form, but are on the Cascade DataDef
     def get_wysiwyg_checkboxes(self, add_data):
-
+        # TODO: this checks for 'courses' twice and assigns a different value each time, should be investigated
         options = []
 
         if add_data.get('biography', None):
