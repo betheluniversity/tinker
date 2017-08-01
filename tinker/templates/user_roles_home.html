@@ -42,7 +42,7 @@
                     username = $('#username').val();
                 $.post('{{ url_for('user_roles.UserRolesView:test_roles_and_users_submit') }}', {'role': role, 'username': username }, function (data) {
                     if( data == 'error'){
-                        alert('Error (need to write in more robust error notifications)');
+                        alert('Error: Contact Web Services for further assistance');
                     } else {
                         window.location.href = data;
                     }
