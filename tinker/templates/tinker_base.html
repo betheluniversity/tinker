@@ -15,7 +15,6 @@
 
         <div class="main-panel">
             {{ nav.render(title) }}
-            |{{ session['admin_viewer']|safe }}|
             {% include 'admin_user_bar.html' %}
             {% block main_content %}
             {% endblock %}
