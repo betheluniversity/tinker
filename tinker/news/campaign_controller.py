@@ -1,14 +1,13 @@
+# Global
 import datetime
 import HTMLParser
-import re
-from createsend import *
-from bu_cascade.asset_tools import update, find
+
+# Packages
 from BeautifulSoup import BeautifulStoneSoup
+from bu_cascade.asset_tools import find, update
+from flask import render_template
 
-# flask
-from flask import render_template, session
-
-# tinker
+# Local
 from tinker.tinker_controller import TinkerController
 
 

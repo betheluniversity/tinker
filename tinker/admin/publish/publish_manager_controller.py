@@ -1,11 +1,8 @@
-from datetime import *
+# Global
+from datetime import datetime
 
-# tinker
+# Local
 from tinker.tinker_controller import TinkerController
-from tinker import app
-
-# flask
-from flask import abort
 
 
 class PublishManagerController(TinkerController):

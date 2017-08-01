@@ -1,10 +1,8 @@
-# flask
-from flask import render_template
-from flask import session
+# Packages
+from flask import render_template, session
 
-# local
-from tinker import app
-from tinker import sentry
+# Local
+from tinker import app, sentry
 
 
 def error_render_template(template_path, error, code=None):

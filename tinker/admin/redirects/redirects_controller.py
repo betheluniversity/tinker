@@ -1,7 +1,10 @@
+# Global
 from datetime import datetime
+
+# Packages
 from flask_sqlalchemy import SQLAlchemy
 
-# tinker
+# Local
 from tinker import app
 from tinker.admin.redirects.models import BethelRedirect
 from tinker.tinker_controller import TinkerController

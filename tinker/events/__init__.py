@@ -1,15 +1,19 @@
+# Global
+import datetime
 import json
 import time
-import datetime
-from flask import Response
-from flask_classy import FlaskView, route
-from tinker.events.events_controller import EventsController
+
+# Packages
 from bu_cascade.asset_tools import update
-from flask import Blueprint, redirect, session, render_template, request, url_for, json as fjson
-from tinker import app
-from events_metadata import metadata_list
+from flask import Blueprint, redirect, session, render_template, request, url_for
+from flask_classy import FlaskView, route
 # python 2.6 or earlier -- Todo: when we upgrade, use from collections import OrderedDict
 from ordereddict import OrderedDict
+
+# Local
+from events_metadata import metadata_list
+from tinker import app
+from tinker.events.events_controller import EventsController
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 

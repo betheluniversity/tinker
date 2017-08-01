@@ -1,39 +1,35 @@
-import urllib2
-import re
-import inspect
-import time
+# Global
 import cgi
-from xml.etree import ElementTree as ET
-import requests
-from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlatformWarning
 import datetime
 import fnmatch
 import hashlib
+import inspect
 import logging
 import os
-from jinja2 import Environment, FileSystemLoader, meta
+import re
+import time
+import urllib2
+import warnings
 from functools import wraps
 from subprocess import call
-from createsend import *
+from xml.etree import ElementTree as ET
 
-# flask
-from flask import request
-from flask import session
-from flask import current_app
-from flask import render_template
-from flask import json as fjson
-from flask import Response
-
-from bu_cascade.assets.block import Block
-from bu_cascade.assets.page import Page
-from bu_cascade.assets.metadata_set import MetadataSet
-from bu_cascade.assets.data_definition import DataDefinition
-from bu_cascade.asset_tools import *
-
-from tinker import app
-from tinker import sentry
-from tinker import cascade_connector
+# Packages
+import requests
 from BeautifulSoup import BeautifulStoneSoup
+from createsend import Client
+from jinja2 import Environment, FileSystemLoader, meta
+from bu_cascade.assets.block import Block
+from bu_cascade.assets.data_definition import DataDefinition
+from bu_cascade.assets.metadata_set import MetadataSet
+from bu_cascade.assets.page import Page
+from bu_cascade.asset_tools import find, update
+from flask import current_app, render_template, request, Response, session
+from flask import json as fjson
+from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlatformWarning
+
+# Local
+from tinker import app, cascade_connector, sentry
 
 
 def should_be_able_to_edit_image(roles):
@@ -88,6 +84,7 @@ def requires_auth(f):
 
 class TinkerController(object):
     def __init__(self):
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         # These two lines are to suppress warnings that only occur in 2.6.9; they are unnecessary in 2.7+
         requests.packages.urllib3.disable_warnings(SNIMissingWarning)
         requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)

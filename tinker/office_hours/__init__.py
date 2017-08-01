@@ -1,14 +1,11 @@
-import re
-
-# flask
-from flask import Blueprint, render_template, session, url_for, redirect, request
+# Packages
+from flask import Blueprint, render_template, request, session
 from flask_classy import FlaskView, route
-from flask import json as fjson
 
 # tinker
 from tinker import app
-from tinker.office_hours.office_hours_controller import OfficeHoursController
 from tinker.office_hours.forms import OfficeHoursForm
+from tinker.office_hours.office_hours_controller import OfficeHoursController
 
 
 OfficeHoursBlueprint = Blueprint('office_hours', __name__, template_folder='templates')

@@ -1,18 +1,14 @@
+# Global
 import logging
 import os
 import platform
 
-# flask
-from flask import Flask, url_for
-from flask import session
-from flask import make_response
-from flask import redirect
-
-# flask extensions
+# Packages
 import flask_profiler
+from bu_cascade.cascade_connector import Cascade
+from flask import Flask, make_response, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
-from bu_cascade.cascade_connector import Cascade
 
 app = Flask(__name__)
 
@@ -127,10 +123,8 @@ app.register_blueprint(NewsBlueprint)
 from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
 
-# Import global HTTP error code handling
-import error
+from tinker import error
 from tinker_controller import TinkerController
-
 
 @app.before_request
 def before_request():

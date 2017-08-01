@@ -1,11 +1,11 @@
+# Global
 import datetime
 import math
-from createsend import *
 
-# flask
+# Packages
 from flask import render_template
 
-# tinker
+# Local
 from tinker.tinker_controller import TinkerController
 
 

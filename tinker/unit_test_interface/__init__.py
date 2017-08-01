@@ -1,3 +1,4 @@
+# Global
 import ast
 import calendar
 import json
@@ -6,12 +7,14 @@ import unittest
 from cStringIO import StringIO
 from datetime import datetime, timedelta
 
+# Packages
 from flask import Blueprint, abort, render_template, stream_with_context, Response
 from flask_classy import FlaskView, route
 from requests import api as Requests_API
 
-from testing_suite.utilities import get_tests_in_this_dir
+# Local
 from tinker import app
+from testing_suite.utilities import get_tests_in_this_dir
 
 UnitTestBlueprint = Blueprint('UnitTestBlueprint', __name__, template_folder='templates')
 

@@ -1,13 +1,13 @@
-import datetime
+# Global
+from datetime import datetime
 
-# flask
-from flask import session
-from flask import render_template
+# Packages
+from bu_cascade.asset_tools import update
+from flask import render_template, session
 
-# tinker
+# Local
 from tinker import app
 from tinker.tinker_controller import TinkerController
-from bu_cascade.asset_tools import *
 
 
 class EAnnouncementsController(TinkerController):
@@ -62,16 +62,16 @@ class EAnnouncementsController(TinkerController):
 
         first = child.find('system-data-structure/first-date').text
         second = child.find('system-data-structure/second-date').text
-        first_date_object = datetime.datetime.strptime(first, '%m-%d-%Y')
+        first_date_object = datetime.strptime(first, '%m-%d-%Y')
         first_date = first_date_object.strftime('%A %B %d, %Y')
-        first_date_past = first_date_object < datetime.datetime.now()
+        first_date_past = first_date_object < datetime.now()
 
         second_date = ''
         second_date_past = ''
         if second:
-            second_date_object = datetime.datetime.strptime(second, '%m-%d-%Y')
+            second_date_object = datetime.strptime(second, '%m-%d-%Y')
             second_date = second_date_object.strftime('%A %B %d, %Y')
-            second_date_past = second_date_object < datetime.datetime.now()
+            second_date_past = second_date_object < datetime.now()
 
         roles = []
         elements = child.findall('.//dynamic-metadata')
@@ -157,7 +157,7 @@ class EAnnouncementsController(TinkerController):
     # dates are set to readonly if they occur before today
     def set_readonly_values(self, edit_data):
         # print edit_data
-        today = datetime.datetime.now()
+        today = datetime.now()
         first_readonly = False
         second_readonly = False
         if edit_data['first_date'] < today:

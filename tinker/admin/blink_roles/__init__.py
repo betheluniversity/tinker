@@ -1,7 +1,8 @@
+# Packages
+from flask import abort, Blueprint, render_template, session
 from flask_classy import FlaskView
-from flask import Blueprint, abort, session, render_template
 
-# tinker
+# Local
 from roles_roledata import uid, portal
 
 BlinkRolesBlueprint = Blueprint('blink_roles', __name__, template_folder='templates')

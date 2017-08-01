@@ -1,6 +1,6 @@
+# Packages
+from flask import Blueprint, render_template, send_file
 from flask_classy import FlaskView
-from flask import Flask, Blueprint
-from flask import render_template, send_file
 
 BaseBlueprint = Blueprint('base', __name__, template_folder='templates')
 

@@ -26,4 +26,4 @@ class ValidateFormTestCase(EAnnouncementsControllerBaseTestCase):
         # with app.app_context():
         #     response = self.controller.validate_form(ImmutableMultiDict(test_dict))
         #     print response
-        # TODO: it looks like this is trying to generate CSRF token. Need to look into turning CSRF for these tests.
+        # TODO: it looks like this is trying to generate CSRF token. Need to look into turning CSRF off for these tests.

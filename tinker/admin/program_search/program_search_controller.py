@@ -1,9 +1,14 @@
+# Global
 import csv
+import urllib2
 
-# tinker
+# Packages
+from xml.etree import ElementTree as ET
+
+# Local
+from tinker import app
 from tinker.admin.program_search.models import ProgramTag
-from tinker.tinker_controller import *
-from tinker import app, db
+from tinker.tinker_controller import TinkerController
 
 
 class ProgramSearchController(TinkerController):
