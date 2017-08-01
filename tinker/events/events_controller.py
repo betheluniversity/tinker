@@ -1,10 +1,7 @@
-import urllib2
-from xml.etree import ElementTree as ET
-import json
 import datetime
-import time
+import json
 import re
-import arrow
+import time
 
 # bu-cascade
 from bu_cascade.asset_tools import find
@@ -19,21 +16,6 @@ from flask import json as fjson
 
 
 class EventsController(TinkerController):
-
-    def traverse_short_xml(self, xml_url, find_all=False):
-        response = urllib2.urlopen(xml_url)
-        form_xml = ET.fromstring(response.read())
-
-        matches = []
-        for child in form_xml.findall('event'):
-            match = self.inspect_child(child, find_all)
-            if match:
-                matches.append(match)
-
-        # Todo: maybe add some parameter as a search?
-        # sort by created-on date.
-        matches = sorted(matches, key=lambda k: k['created-on'])
-        return matches
 
     # find_all is currently unused for events (but used for the e-annz)
     def inspect_child(self, child, find_all=False):
@@ -279,7 +261,7 @@ class EventsController(TinkerController):
 
     def timestamp_to_date_str(self, timestamp_date):
         try:
-            return datetime.datetime.fromtimestamp(int(timestamp_date) / 1000).strftime('%B %d  %Y, %I:%M %p')
+            return datetime.datetime.fromtimestamp(int(timestamp_date) / 1000).strftime('%B %d %Y, %I:%M %p')
         except TypeError:
             return None
 
@@ -413,7 +395,7 @@ class EventsController(TinkerController):
         max_year = 0
         for date in dates:
             date_str = self.timestamp_to_date_str(date['end-date'])
-            end_date = datetime.datetime.strptime(date_str, '%B %d  %Y, %I:%M %p').date()
+            end_date = datetime.datetime.strptime(date_str, '%B %d %Y, %I:%M %p').date()
             try:
                 year = end_date.year
             except AttributeError:
