@@ -1,5 +1,5 @@
 from flask_classy import FlaskView
-from flask import Flask, Blueprint
+from flask import Flask, Blueprint, session
 from flask import render_template, send_file
 
 
@@ -11,6 +11,7 @@ class Base(FlaskView):
 
     def index(self):
         # index page for adding events and things
+        # session['admin_viewer'] = True
         return render_template('index.html', **locals())
 
     def about(self):
