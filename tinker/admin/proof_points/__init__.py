@@ -51,9 +51,32 @@ class ProofPointsView(FlaskView):
 
     @route("/grab-from-id", methods=['post'])
     def grab_from_id(self):
+        if len(self.forms) < 1:
+            self.forms = self.base.get_forms()
+
         id = request.form['id[]']
         form = self.base.return_form_from_id(self.forms, id)
-        return id
-        # return render_template('proof-point.html', **locals())
+
+        cms_link = 'https://cms.bethel.edu/entity/open.act?id='"%s"'&type=block&' % id
+        # xml_link = 'https://cms.bethel.edu/render/block.act?renderMode=xml&type=block&id='"%s" % id
+
+        # data_xml = self.base.traverse_xml(xml_link, 'proof-point')
+
+        # print data_xml
+
+        # Get values of form
+        form_array = {
+            'title': form['title'],
+            'school': form['school'],
+            'owner': form['owner'],
+            'path': form['path'],
+            'type': form['type'],
+            'id': id,
+            'cms_link': cms_link}
+
+        if form_array['owner'] == None:
+            form_array['owner'] = 'No Owner'
+
+        return json.dumps(form_array)
 
 ProofPointsView.register(ProofPointsBlueprint)

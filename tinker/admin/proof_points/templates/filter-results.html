@@ -6,6 +6,13 @@
         width: 100%;
         font-size: 14px;
     }
+    p {
+        display: inline;
+    }
+    h5 {
+        display: inline;
+        font-weight: bold;
+    }
 </style>
 <form>
     <p>Results Found: {{ count }}</p>
@@ -15,41 +22,55 @@
         {% endfor %}
     </select>
 </form>
-<div id="results">
-
+<div id="details">
+    <div>
+        <h5>Title:</h5>
+        <p id="title"></p>
+    </div>
+    <div>
+        <h5>School:</h5>
+        <p id="school"></p>
+    </div>
+    <div>
+        <h5>Owner:</h5>
+        <p id="owner"></p>
+    </div>
+    <div>
+        <h5>Path:</h5>
+        <p id="path"></p>
+    </div>
+    <div>
+        <h5>ID:</h5>
+        <p id="id"></p>
+    </div>
+    <div>
+        <h5>CMS Link:</h5>
+        <a id="link" target="_blank"></a>
+    </div>
 </div>
-
 <script>
-{#    $(document).ready(function(){#}
-{#            $("#view").click(function(){#}
-{#            $(function(){#}
-{#                $('#spinner').show();#}
-{#                $('#view').prop("disabled",true);#}
-{#                var url = "{{ url_for('proof_points.ProofPointsView:grab_from_id') }}";#}
-{#                var payload = {#}
-{#                    'id': $('#selector').val()#}
-{#                    };#}
-{#                $.post(url, payload, function (data) {#}
-{#                    $('#results').html(data);#}
-{#                    alert(data)#}
-{#                    $('#spinner').hide();#}
-{#                    $('#view').prop("disabled",false);#}
-{#                });#}
-{#            });#}
-{#        });#}
-    function getID(){
+    function getID() {
         $('#spinner').show();
-        $('#view').prop("disabled",true);
+        $('#view').prop("disabled", true);
         var url = "{{ url_for('proof_points.ProofPointsView:grab_from_id') }}";
         var payload = {
             'id': $('#selector').val()
         };
         $.post(url, payload, function (data) {
-{#            $('#results').html(data);#}
-{#            document.getElementById("results").innerHTML+= data;#}
-            alert(data)
+            var json = JSON.parse(data);
+            setElements(json);
             $('#spinner').hide();
-            $('#view').prop("disabled",false);
+            $('#view').prop("disabled", false);
+
         });
+    }
+    function setElements(json) {
+        $('#title').html(json['title']);
+        $('#school').html(json['school']);
+        $('#owner').html(json['owner']);
+        $('#path').html(json['path']);
+        $('#id').html(json['id']);
+        document.getElementById('link').href=json['cms_link'];
+        $('#link').html(json['title']);
     }
 </script>

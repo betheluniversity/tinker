@@ -156,7 +156,7 @@ class ProofPointsController(TinkerController):
     def return_form_from_id(self, forms, id):
         searched_form = None
         for form in forms:
-            if form['id'] is id:
+            if form['id'] == id:
                 searched_form = form
 
         return searched_form
