@@ -97,7 +97,7 @@ class UserRolesView(FlaskView):
         session.clear()
         return 'success'
 
-    @route('clear')
+    @route('/clear/')
     def clear_session(self):
         session.clear()
 
