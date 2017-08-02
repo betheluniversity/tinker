@@ -11,7 +11,7 @@ from flask_classy import FlaskView, route
 
 # tinker
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
-
+from tinker.tinker_controller import admin_permissions
 
 PublishBlueprint = Blueprint('publish', __name__, template_folder='templates')
 
@@ -24,8 +24,7 @@ class PublishView(FlaskView):
 
     # This method is called before any request to check user's credentials
     def before_request(self, name, **kwargs):
-        if 'Administrators' not in session['groups']:
-            abort(403)
+        admin_permissions(self)
 
     # Publish manager's homepage
     def index(self):
