@@ -14,7 +14,7 @@ from flask_classy import FlaskView, route
 from tinker import app, db
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker.tinker_controller import requires_auth
-
+from tinker.tinker_controller import admin_permissions
 RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
 
 
@@ -26,12 +26,7 @@ class RedirectsView(FlaskView):
 
     # This method is called before a request is made
     def before_request(self, name, **kwargs):
-        if '/public/' in request.path:
-            return
-
-        # Checks to see what group the user is in
-        if 'Tinker Redirects' not in session['groups'] and 'Administrators' not in session['groups']:
-            abort(403)
+        admin_permissions(self)
 
     # Redirects homepage
     def index(self):

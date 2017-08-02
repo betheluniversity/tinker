@@ -1,0 +1,150 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'Upcoming E-Announcements' %}
+
+{% block styles %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+    <div class="content">
+        <div class="container-fluid">
+                <div class="col-md-12">
+                    <p class="description"> Choose a date to see upcoming E-Announcements</p>
+                    <hr/>
+                        <a class="btn btn-primary mr1 pikaday datepicker" id="datepicker" onchange="grabDate()">Pick A Day</a>
+                        <span id="setDate"></span>
+                </div>
+            {# spinner placeholder #}
+            <div id="spinner" class="spinner" style="display:none;">
+                <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+            </div>
+            <div class="show-ea">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+    <script src="{{ url_for('static', filename='moment.js') }}"></script>
+    <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $(document).ready(function () {
+                var today = new Date();
+                function is_date_a_bethel_holiday(date) {
+                    function isDateFridayBeforeEaster(date) {
+                        Y = date.getFullYear();
+
+                        // crazy code to determine easter day
+                        var C = Math.floor(Y/100);
+                        var N = Y - 19*Math.floor(Y/19);
+                        var K = Math.floor((C - 17)/25);
+                        var I = C - Math.floor(C/4) - Math.floor((C - K)/3) + 19*N + 15;
+                        I = I - 30*Math.floor((I/30));
+                        I = I - Math.floor(I/28)*(1 - Math.floor(I/28)*Math.floor(29/(I + 1))*Math.floor((21 - N)/11));
+                        var J = Y + Math.floor(Y/4) + I + 2 - C + Math.floor(C/4);
+                        J = J - 7*Math.floor(J/7);
+                        var L = I - J;
+                        var M = 3 + Math.floor((L + 40)/44);
+                        var D = L + 28 - 31*Math.floor(M/4);
+                        // test
+                        var M_zero_based = M - 1;
+
+                        // The -2 is to check if it is the friday before easter
+                        return date.getMonth() == M_zero_based && date.getDate() == (D-2);
+                    }
+
+                    // Months are zero based indexing
+                    // New Years Day
+                    if( date.getMonth() == 0 && date.getDate() == 1)
+                        return true;
+                    // New Years(observed) -- If new years day is on the weekend, we get the monday off (2nd or 3rd)
+                    else if( date.getMonth() == 0 && date.getDay() == 1 && (date.getDate() == 2 || date.getDate() == 3) )
+                        return true;
+                    // MLK Day - 3rd monday in jan
+                    else if( date.getMonth() == 0 && date.getDay() == 1 && Math.ceil(date.getDate()/7) == 3 )
+                        return true;
+                    // Easter (is the date the friday before easter)
+                    else if( isDateFridayBeforeEaster(date) )
+                        return true;
+                    // memorial day - last monday in may (may, date is after 24th and its a monday)
+                    else if(date.getMonth() == 4 && date.getDate() > 24 && date.getDay() == 1 )
+                        return true;
+                    // july 4
+                    else if(date.getMonth() == 6 && date.getDate() == 4)
+                        return true;
+                    // Labor Day - first monday in sept
+                    else if( date.getMonth() == 8 && date.getDay() == 1 && Math.ceil(date.getDate()/7) == 1 )
+                        return true;
+                    // Thanksgiving and Black Friday -- 4th thursday in nov, 4th friday in nov
+                    else if( date.getMonth() == 10 && Math.ceil(date.getDate()/7) == 4 && (date.getDay() == 4 || date.getDay() == 5))
+                        return true;
+                    // Christmas Eve(observed) - christmas eve is on the weekend, we get the friday off (22nd or 23rd).
+                    else if( date.getMonth() == 11 && date.getDay() == 5 && (date.getDate() == 22 || date.getDate() == 23) )
+                        return true;
+                    // christmas days
+                    else if( date.getMonth() == 11 && date.getDate() >= 24)
+                        return true;
+
+                    return false;
+                }
+
+                $('.datepicker').each(function (index) {
+                    var picker = new Pikaday({
+                        field: this,
+                        format: 'dddd MMMM DD, YYYY',
+                        disableDayFn: function (date) {
+                            // remove all Sun/Tues/Thur/Sat days from the week
+                            if ($.inArray(date.getDay(), [0, 2, 4, 6]) > -1 || is_date_a_bethel_holiday(date) ) {
+                                return date;
+                            }
+
+                            // Find the previous business day at 1pm, continually searching back until you hit a MWF that is not a holiday
+                            var dateCutoff = date;
+                            dateCutoff.setDate(dateCutoff.getDate() - 1);
+
+                            while (dateCutoff.getDay() == 0 || dateCutoff.getDay() == 6 || is_date_a_bethel_holiday(dateCutoff)) {
+                                dateCutoff.setDate(dateCutoff.getDate() - 1);
+                            }
+                            dateCutoff.setHours(13);
+
+                            if (dateCutoff <= today) {
+                                return date;
+                            }
+                        }
+                    });
+                });
+            });
+        });
+        function grabDate() {
+            $('#setDate').html($('#datepicker').val());
+            $('#spinner').show();
+            changeInfo();
+        }
+        function changeInfo() {
+            $.ajax({
+                type: 'POST',
+                url: '{{ url_for("e_announcements.EAnnouncementsView:ea_future") }}',
+                data: {'dateId': $("#datepicker").val()},
+                success: function(result) {
+                    $('.show-ea').html(result)
+                    $('#spinner').hide();
+                },
+                error: function() {
+                    $(".show-ea").html('Error: Contact Web Services for further assistance');
+                    $('#spinner').hide();
+                }
+            })
+        }
+    </script>
+{% endblock %}

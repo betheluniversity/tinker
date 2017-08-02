@@ -1,6 +1,7 @@
 # Global
 import base64
 import json
+import re
 
 # Packages
 from bu_cascade.asset_tools import find
@@ -277,6 +278,11 @@ class FacultyBioController(TinkerController):
         add_data['teaching-specialty'] = add_data['teaching_specialty']
         add_data['research-interests'] = add_data['research_interests']
         add_data['image'] = self.create_faculty_bio_image(add_data)
+
+        # todo: this is a temp fix to override the already set system-name
+        new_system_name = add_data['last'].strip() + ' ' + add_data['first'].strip()
+        new_system_name = new_system_name.lower().replace(' ', '-')
+        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', new_system_name)
 
         workflow_id = self.get_correct_workflow_id(add_data)
         workflow = self.create_workflow(workflow_id, subtitle=add_data['title'])

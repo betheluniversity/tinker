@@ -17,7 +17,7 @@ class ConfirmTestCase(IntegrationTestCase):
     #######################
 
     def test_confirm(self):
-        expected_response = repr('\x87\xceHy\xa6\xd9\x9dDVx\xf6\xa7\x02\xdem\xbc')
+        expected_response = repr('\'\xd1\xe5\xcan"s\xd8"N\xbaFs\x0b\x10@')
         # b"You've successfully created your E-Announcement. Once your E-Announcement has been approved,"
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)

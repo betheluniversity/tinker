@@ -80,6 +80,8 @@ class NewsController(TinkerController):
             elif len(return_content) + temp_character_count <= 500:
                 # keep adding paragraphs until the limit of 500 characters is reached.
                 return_content += str(paragraph)
+            else:
+                return return_content
 
         return return_content
 
