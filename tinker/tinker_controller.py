@@ -424,7 +424,7 @@ class TinkerController(object):
             title = add_data['title'].strip()
         elif 'first' in add_data and 'last' in add_data:
             # strip() is called on the title to eliminate whitespace before and after the title
-            title = add_data['last'].strip() + ' ' + add_data['first'].strip()
+            title = add_data['first'].strip() + ' ' + add_data['last'].strip()
         else:
             title = None
 
