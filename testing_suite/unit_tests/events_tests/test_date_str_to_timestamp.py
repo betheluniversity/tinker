@@ -19,6 +19,7 @@ class DateStringToTimestampTestCase(EventsControllerBaseTestCase):
         self.assertTrue(isinstance(response, int))
         # Because the timezones being used by our machines and the Travis CI machines are different, I can't assert
         # that the timestamp provided has a particular value.
+        # TODO
 
     def test_date_str_to_timestamp_invalid(self):
         test_date_string = 'gibberish'
