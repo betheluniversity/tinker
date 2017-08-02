@@ -154,6 +154,5 @@ def logout():
     resp.set_cookie('MOD_AUTH_CAS', '', expires=0)
     return resp
 
-
 if not TRAVIS_TESTING:
     flask_profiler.init_app(app)

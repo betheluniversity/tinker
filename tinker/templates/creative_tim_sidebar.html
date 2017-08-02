@@ -102,6 +102,12 @@
                                 <p class="admin-list-item">Redirects</p>
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ url_for('user_roles.UserRolesView:clear_session') }}">
+{#                                <i class="fa fa-arrows-alt" aria-hidden="true"></i>#}
+                                <p class="admin-list-item">Clear Session</p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
             {% endif %}

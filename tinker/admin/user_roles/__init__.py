@@ -3,6 +3,7 @@ import time
 
 from xml.etree import ElementTree as ET
 from flask import render_template, session, request, make_response, redirect, Blueprint, Response
+from flask import json as fjson, current_app
 from flask_classy import FlaskView, route
 
 from tinker import app
@@ -47,10 +48,19 @@ class UserRolesView(FlaskView):
         return render_template('user_roles_home.html', **locals())
 
     def load_user_roles(self):
-            if app.config['DEVELOPMENT']:
-                session['user_roles'] = [role.upper() for role in app.config['ROLES']]
-            else:
-                session['user_roles'] = [role.upper() for role in app.config['ROLES']]
+        username = app.config['CASCADE_LOGIN']['username']
+        if not username:
+            username = session['username']
+        url = current_app.config['API_URL'] + "/username/%s/roles" % username
+        r = requests.get(url, auth=(current_app.config['API_USERNAME'], current_app.config['API_PASSWORD']))
+        roles = fjson.loads(r.content)
+        ret = []
+        for key in roles.keys():
+            ret.append(roles[key]['userRole'])
+
+        session['roles'] = ret
+
+        return ret
 
     @route('/test_roles_and_users_submit', methods=['POST'])
     def test_roles_and_users_submit(self):
@@ -86,5 +96,14 @@ class UserRolesView(FlaskView):
     def test_roles_and_users_remove(self):
         session.clear()
         return 'success'
+
+    @route('clear')
+    def clear_session(self):
+        session.clear()
+
+        if 'user_roles' not in session.keys():
+            self.load_user_roles()
+
+        return render_template('tinker_base.html')
 
 UserRolesView.register(UserRolesBlueprint)
