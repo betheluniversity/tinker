@@ -13,6 +13,14 @@
         display: inline;
         font-weight: bold;
     }
+    #pp-card {
+        height: auto;
+        font-family: Gotham A, Gotham B, Helvetica, Arial, sans;
+        background-color: #f5f5f5;
+        border-radius: 6px;
+        border: 1px solid #e5e5e5;
+        margin: 1em;
+    }
 </style>
 <form>
     <p>Results Found: {{ count }}</p>
@@ -22,7 +30,7 @@
         {% endfor %}
     </select>
 </form>
-<div id="details">
+<div id="details" hidden>
     <div>
         <h5>Title:</h5>
         <p id="title"></p>
@@ -48,6 +56,32 @@
         <a id="link" target="_blank"></a>
     </div>
 </div>
+<div id="pp-card" class="col-sm-6 content" hidden>
+    <h1 id="main" style="text-align: center"></h1>
+    <h6 id="lower-text" style="text-align: center"></h6>
+</div>
+<div id="card-details" hidden>
+    <div>
+        <h5>Text-Before:</h5>
+        <p id="text-before"></p>
+    </div>
+    <div>
+        <h5>Number-Field:</h5>
+        <p id="number-field"></p>
+    </div>
+    <div>
+        <h5>Text-Field:</h5>
+        <p id="text-field"></p>
+    </div>
+    <div>
+        <h5>Text-After:</h5>
+        <p id="text-after"></p>
+    </div>
+    <div>
+        <h5>Text-Below:</h5>
+        <p id="text-below"></p>
+    </div>
+</div>
 <script>
     function getID() {
         $('#spinner').show();
@@ -58,10 +92,13 @@
         };
         $.post(url, payload, function (data) {
             var json = JSON.parse(data);
+            $('#details').show();
             setElements(json);
+            $('#pp-card').show();
+            $('#card-details').show();
+            setCard(json);
             $('#spinner').hide();
             $('#view').prop("disabled", false);
-
         });
     }
     function setElements(json) {
@@ -72,5 +109,17 @@
         $('#id').html(json['id']);
         document.getElementById('link').href=json['cms_link'];
         $('#link').html(json['title']);
+    }
+    function setCard(json) {
+        //Constructs the Card
+        var mainStatement = json['text_before'] + json['number_field'] + json['text_field'] + json['text_after'];
+        $('#main').html(mainStatement);
+        $('#lower-text').html(json['text_below']);
+        //Constructs the description
+        $('#text-below').html(json['text_below']);
+        $('#text-before').html(json['text_before']);
+        $('#number-field').html(json['number_field']);
+        $('#text-field').html(json['text_field']);
+        $('#text-after').html(json['text_after']);
     }
 </script>

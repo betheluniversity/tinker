@@ -58,11 +58,6 @@ class ProofPointsView(FlaskView):
         form = self.base.return_form_from_id(self.forms, id)
 
         cms_link = 'https://cms.bethel.edu/entity/open.act?id='"%s"'&type=block&' % id
-        # xml_link = 'https://cms.bethel.edu/render/block.act?renderMode=xml&type=block&id='"%s" % id
-
-        # data_xml = self.base.traverse_xml(xml_link, 'proof-point')
-
-        # print data_xml
 
         # Get values of form
         form_array = {
@@ -72,7 +67,13 @@ class ProofPointsView(FlaskView):
             'path': form['path'],
             'type': form['type'],
             'id': id,
-            'cms_link': cms_link}
+            'cms_link': cms_link,
+            'text_before': form['text_before'],
+            'number_field': form['number_field'],
+            'text_field': form['text_field'],
+            'text_after': form['text_after'],
+            'text_below': form['text_below'],
+        }
 
         if form_array['owner'] == None:
             form_array['owner'] = 'No Owner'

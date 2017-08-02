@@ -54,7 +54,7 @@ class ProofPointsController(TinkerController):
 
     def _iterate_child_xml(self, child, author):
 
-        school = None;
+        school = None
         for node in child.findall('dynamic-metadata'):
             if node.find('name').text == 'school':
                 school = node.find('value').text
@@ -66,9 +66,14 @@ class ProofPointsController(TinkerController):
             'id': child.attrib['id'] or "",
             'path': 'https://www.bethel.edu' + child.find('path').text or "",
             'owner': child.find('system-data-structure').find('info').find('bethel-owner').text or None,
-            'created-on': child.find('created-on') or ""
+            'created-on': child.find('created-on') or "",
+            'text_before': child.find('system-data-structure').find('proof-point').find('number-group').find('text-before').text or '',
+            'number_field': child.find('system-data-structure').find('proof-point').find('number-group').find('number-field').text or '',
+            'text_field': child.find('system-data-structure').find('proof-point').find('text').find('main-text').text or '',
+            'text_after': child.find('system-data-structure').find('proof-point').find('number-group').find('text-after').text or '',
+            'text_below': child.find('system-data-structure').find('proof-point').find('number-group').find('text-below').text or ''
         }
-        temp = None;
+        temp = None
         return page_values
 
     def gather_dropdown_values_from_key(self, forms, key):
