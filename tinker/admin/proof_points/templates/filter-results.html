@@ -29,7 +29,8 @@
     <p>Results Found: {{ count }}</p>
     <select name="selector" id="selector" multiple="" onchange="getID()">
         {% for form in filtered_forms %}
-            <option value="{{ form['id'] }}">--Title-- {{ form['title'] }} --School-- {{ form['school'] }} --Owner-- {{ form['owner'] }}</option>
+{#            <option value="{{ form['id'] }}">--Title-- {{ form['title'] }} --School-- {{ form['school'] }} --Owner-- {{ form['owner'] }}</option>#}
+            <option value="{{ form['id'] }}">Title: {{ form['title'] }} | School: {{ form['school'] }}</option>
         {% endfor %}
     </select>
 </form>

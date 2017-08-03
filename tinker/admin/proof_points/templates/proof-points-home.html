@@ -76,7 +76,7 @@
 {% endblock %}
 
 {% block scripts %}
-    <script>
+    <script type="text/javascript">
         $(document).ready(function(){
             $("#submit").click(function(){
                 $('#spinner').show();
@@ -96,83 +96,6 @@
                 });
             });
         });
-    </script>
-    <script type="text/javascript">
-{#        var delay = (function () {#}
-{#            var timer = 0;#}
-{#            return function (callback, ms) {#}
-{#                clearTimeout(timer);#}
-{#                timer = setTimeout(callback, ms);#}
-{#            };#}
-{#        })();#}
-{##}
-{#        $(".search-input").keyup(function () {#}
-{#            $('#spinner').show();#}
-{#            delay(function () {#}
-{#                loadTableForSearch();#}
-{#            }, 300);#}
-{#        }).change(function () {#}
-{#            delay(function () {#}
-{#                loadTableForSearch();#}
-{#                $('#spinner').hide();#}
-{#            }, 300);#}
-{#        });#}
-{##}
-{#        function loadTableForSearch() {#}
-{#            $('#spinner').show();#}
-            {#            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');#}
-{##}
-{#            var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";#}
-{#            search_tag = $('#search-tag')[0].value;#}
-{#            search_key = $('#search-key')[0].value;#}
-{##}
-{#            var inputs = {#}
-{#                'search_tag': search_tag,#}
-{#                'search_key': search_key#}
-{#            };#}
-{##}
-{#            $.ajax({#}
-{#                type: "POST",#}
-{#                url: search_url,#}
-{#                data: JSON.stringify(inputs),#}
-{#                contentType: 'application/json;charset=UTF-8',#}
-{#                success: function (result) {#}
-{#                    $('#table-body').html(result);#}
-{#                    $('#spinner').hide();#}
-{#                }#}
-{#            });#}
-{#        }#}
-{##}
-{#        $(".delete-checkbox").click(function () {#}
-{#            var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");#}
-{#            if (checkbox_elements[0]) {#}
-{#                $("#delete-all").style.display = "inline";#}
-{#            }#}
-{#            else {#}
-{#                $("#delete-all").style.display = "none";#}
-{#            }#}
-{#        });#}
-{##}
-{#        $('#program_search_form').submit(function () {#}
-{#            var formData = {#}
-{#                'key': $('select[name=key]').val(),#}
-{#                'tag': $('input[name=tag]').val(),#}
-{#                'outcome': $('input[name=outcome]:checked').val(),#}
-{#                'topic': $('input[name=topic]:checked').val(),#}
-{#                'other': $('input[name=other]:checked').val()#}
-{#            };#}
-{##}
-{#            $.ajax({#}
-{#                type: "POST",#}
-{#                url: "{{ url_for('program_search.ProgramSearchView:submit') }}",#}
-{#                data: JSON.stringify(formData),#}
-{#                contentType: 'application/json;charset=UTF-8',#}
-{#                success: function (result) {#}
-{#                    loadTableForSearch();#}
-{#                }#}
-{#            });#}
-{#            return false;#}
-{#        });#}
     </script>
 
     {% block modalhtml %}
