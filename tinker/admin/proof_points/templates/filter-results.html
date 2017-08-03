@@ -19,7 +19,10 @@
         background-color: #f5f5f5;
         border-radius: 6px;
         border: 1px solid #e5e5e5;
-        margin: 1em 1em 1em 0em;
+        margin: 1em 0 1em 0;
+    }
+    .row {
+        margin: 1em 0 1em 0;
     }
 </style>
 <form>
@@ -30,6 +33,7 @@
         {% endfor %}
     </select>
 </form>
+<div class="row">
 <div id="details" hidden>
     <div>
         <h5>Title:</h5>
@@ -56,32 +60,37 @@
         <a id="link" target="_blank"></a>
     </div>
 </div>
+    </div>
+<div class="row">
 <div id="pp-card" class="col-sm-6 content" hidden>
     <h1 id="main" style="text-align: center"></h1>
     <h6 id="lower-text" style="text-align: center"></h6>
 </div>
+    </div>
+<div class="row">
 <div id="card-details" hidden>
     <div>
-        <h5>Text-Before:</h5>
+        <h5 id="h-text-before">Text-Before:</h5>
         <p id="text-before"></p>
     </div>
     <div>
-        <h5>Number-Field:</h5>
+        <h5 id="h-number-field">Number-Field:</h5>
         <p id="number-field"></p>
     </div>
     <div>
-        <h5>Text-Field:</h5>
+        <h5 id="h-text-field">Text-Field:</h5>
         <p id="text-field"></p>
     </div>
     <div>
-        <h5>Text-After:</h5>
+        <h5 id="h-text-after">Text-After:</h5>
         <p id="text-after"></p>
     </div>
     <div>
-        <h5>Text-Below:</h5>
+        <h5 id="h-text-below">Text-Below:</h5>
         <p id="text-below"></p>
     </div>
 </div>
+    </div>
 <script>
     function getID() {
         $('#spinner').show();
@@ -116,10 +125,36 @@
         $('#main').html(mainStatement);
         $('#lower-text').html(json['text_below']);
         //Constructs the description
+        showDetails();
+        hideDetails(json);
         $('#text-below').html(json['text_below']);
         $('#text-before').html(json['text_before']);
         $('#number-field').html(json['number_field']);
         $('#text-field').html(json['text_field']);
         $('#text-after').html(json['text_after']);
+    }
+    function showDetails() {
+        $('#h-text-below').show();
+        $('#h-text-before').show();
+        $('#h-number-field').show();
+        $('#h-text-field').show();
+        $('#h-text-after').show();
+    }
+    function hideDetails(json) {
+        if(json['text_below'] === ''){
+            $('#h-text-below').hide();
+        }
+        if(json['text_before'] === ''){
+            $('#h-text-before').hide();
+        }
+        if(json['number_field'] === ''){
+            $('#h-number-field').hide();
+        }
+        if(json['text_field'] === ''){
+            $('#h-text-field').hide();
+        }
+        if(json['text_after'] === ''){
+            $('#h-text-after').hide();
+        }
     }
 </script>
