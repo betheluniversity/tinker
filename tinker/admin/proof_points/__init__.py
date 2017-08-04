@@ -47,6 +47,19 @@ class ProofPointsView(FlaskView):
         filtered_forms = self.base.filter_with_param(self.forms, data)
         count = len(filtered_forms)
 
+        program = sorted(filtered_forms, key=lambda filtered_forms: filtered_forms['school'])
+        filtered_forms = program
+
+        # TODO add comments as to what is happening
+        test = []
+        for form in filtered_forms:
+            test.append(form['school'])
+        test_set = set(test)
+        test = []
+        for thing in test_set:
+            test.append(thing)
+        schools = test
+
         return render_template('filter-results.html', **locals())
 
     @route("/grab-from-id", methods=['post'])

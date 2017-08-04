@@ -9,9 +9,23 @@
     p {
         display: inline;
     }
+    p#lower-text {
+        display: inherit;
+    }
+    h1 {
+        font-size: 200%;
+    }
     h5 {
         display: inline;
         font-weight: bold;
+    }
+    @media (min-width: 900px) {
+        p#lower-text {
+            font-size: 130%;
+        }
+        h1 {
+            font-size: 275%
+        }
     }
     #pp-card {
         height: auto;
@@ -26,11 +40,21 @@
     }
 </style>
 <form>
-    <p>Results Found: {{ count }}</p>
+    <div class="row">
+        <p>Results Found: {{ count }}</p>
+    </div>
+    <div class="row">
+        <i>Click on an item below to view Details</i>
+    </div>
     <select name="selector" id="selector" multiple="" onchange="getID()">
-        {% for form in filtered_forms %}
-{#            <option value="{{ form['id'] }}">--Title-- {{ form['title'] }} --School-- {{ form['school'] }} --Owner-- {{ form['owner'] }}</option>#}
-            <option value="{{ form['id'] }}">Title: {{ form['title'] }} | School: {{ form['school'] }}</option>
+        {% for school in schools %}
+            <optgroup label="{{ school }}">
+                {% for form in filtered_forms %}
+                    {% if school == form['school'] %}
+                        <option value="{{ form['id'] }}">{{ form['title'] }}</option>#}
+                    {% endif %}
+                {% endfor %}
+            </optgroup>
         {% endfor %}
     </select>
 </form>
@@ -38,7 +62,7 @@
 <div id="details" hidden>
     <div>
         <h5>Title:</h5>
-        <p id="title"></p>
+        <a id="title" target="_blank"></a>
     </div>
     <div>
         <h5>School:</h5>
@@ -48,50 +72,14 @@
         <h5>Owner:</h5>
         <p id="owner"></p>
     </div>
-    <div>
-        <h5>Path:</h5>
-        <p id="path"></p>
-    </div>
-    <div>
-        <h5>ID:</h5>
-        <p id="id"></p>
-    </div>
-    <div>
-        <h5>CMS Link:</h5>
-        <a id="link" target="_blank"></a>
-    </div>
 </div>
     </div>
 <div class="row">
-<div id="pp-card" class="col-sm-6 content" hidden>
-    <h1 id="main" style="text-align: center"></h1>
-    <h6 id="lower-text" style="text-align: center"></h6>
-</div>
-    </div>
-<div class="row">
-<div id="card-details" hidden>
-    <div>
-        <h5 id="h-text-before">Text-Before:</h5>
-        <p id="text-before"></p>
-    </div>
-    <div>
-        <h5 id="h-number-field">Number-Field:</h5>
-        <p id="number-field"></p>
-    </div>
-    <div>
-        <h5 id="h-text-field">Text-Field:</h5>
-        <p id="text-field"></p>
-    </div>
-    <div>
-        <h5 id="h-text-after">Text-After:</h5>
-        <p id="text-after"></p>
-    </div>
-    <div>
-        <h5 id="h-text-below">Text-Below:</h5>
-        <p id="text-below"></p>
+    <div id="pp-card" class="col-sm-6 content" hidden>
+        <h1 id="main" style="text-align: center"></h1>
+        <p id="lower-text" style="text-align: center"></p>
     </div>
 </div>
-    </div>
 <script>
     function getID() {
         $('#spinner').show();
@@ -112,50 +100,15 @@
         });
     }
     function setElements(json) {
+        document.getElementById('title').href=json['cms_link'];
         $('#title').html(json['title']);
         $('#school').html(json['school']);
         $('#owner').html(json['owner']);
-        $('#path').html(json['path']);
-        $('#id').html(json['id']);
-        document.getElementById('link').href=json['cms_link'];
-        $('#link').html(json['title']);
     }
     function setCard(json) {
         //Constructs the Card
         var mainStatement = json['text_before'] + json['number_field'] + json['text_field'] + json['text_after'];
         $('#main').html(mainStatement);
         $('#lower-text').html(json['text_below']);
-        //Constructs the description
-        showDetails();
-        hideDetails(json);
-        $('#text-below').html(json['text_below']);
-        $('#text-before').html(json['text_before']);
-        $('#number-field').html(json['number_field']);
-        $('#text-field').html(json['text_field']);
-        $('#text-after').html(json['text_after']);
-    }
-    function showDetails() {
-        $('#h-text-below').show();
-        $('#h-text-before').show();
-        $('#h-number-field').show();
-        $('#h-text-field').show();
-        $('#h-text-after').show();
-    }
-    function hideDetails(json) {
-        if(json['text_below'] === ''){
-            $('#h-text-below').hide();
-        }
-        if(json['text_before'] === ''){
-            $('#h-text-before').hide();
-        }
-        if(json['number_field'] === ''){
-            $('#h-number-field').hide();
-        }
-        if(json['text_field'] === ''){
-            $('#h-text-field').hide();
-        }
-        if(json['text_after'] === ''){
-            $('#h-text-after').hide();
-        }
     }
 </script>

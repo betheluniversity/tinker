@@ -1,6 +1,6 @@
 {% extends "tinker_base.html" %}
 
-{% set title = 'Proof Points' %}
+{% set title = 'Proof Points-Search' %}
 
 {% block title %}Proof Points{% endblock %}
 
@@ -21,7 +21,7 @@
                             <p>Filters for Proof Points:</p>
                             <div id="dropdown-row">
                                 <div class="proof-dropdown">
-                                    <label style="color: #252422">School Name:</label>
+                                    <label style="color: #252422">School:</label>
                                     <select id="school-dropdown" name='school-dropdown' class="search-input">
                                         <option value="any">-- Any --</option>
                                         {% for school in schools %}
@@ -30,7 +30,7 @@
                                     </select>
                                 </div>
                                 <div class="proof-dropdown">
-                                    <label style="color: #252422">Owner Name</label>
+                                    <label style="color: #252422">Owner:</label>
                                     <select id="owner-dropdown" name='owner-dropdown' class="search-input">
                                         <option value="any">-- Any --</option>
                                         {% for owner in owners %}
@@ -60,7 +60,7 @@
                             <div class="clearfix visible-sm"></div>
                             <div class="clearfix visible-md"></div>
                             <div class="clearfix visible-lg"></div>
-                            <button id="submit" class="btn btn-primary">Submit</button>
+                            <button id="submit" class="btn btn-primary">Search</button>
                         </div>
                     </div>
                 </form>
