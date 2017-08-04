@@ -92,18 +92,18 @@ class UserRolesView(FlaskView):
 
         return '/'  # have the JS handle where we go (homepage)
 
-    @route('/test_roles_and_users_remove/')
+    @route('/test_roles_and_users_remove')
     def test_roles_and_users_remove(self):
         session.clear()
         return 'success'
 
-    @route('/clear/')
-    def clear_session(self):
+    @route('/session_clear', methods=['POST'])
+    def session_clear(self):
         session.clear()
 
         if 'user_roles' not in session.keys():
             self.load_user_roles()
 
-        return render_template('tinker_base.html')
+        return '/'
 
 UserRolesView.register(UserRolesBlueprint)
