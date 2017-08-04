@@ -11,7 +11,6 @@ class Base(FlaskView):
 
     def index(self):
         # index page for adding events and things
-        # session['admin_viewer'] = True
         return render_template('index.html', **locals())
 
     def about(self):

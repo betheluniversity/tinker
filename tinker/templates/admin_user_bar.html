@@ -13,7 +13,7 @@
     <script type="text/javascript">
         document.addEventListener("DOMContentLoaded", function() {
             $(document).on('click', '#admin_return', function(){
-                $.post('{{ url_for('user_roles.UserRolesView:test_roles_and_users_remove') }}', {'role': role, 'username': username }, function (data) {
+                $.post('{{ url_for('user_roles.UserRolesView:session_clear') }}', {}, function (data) {
                     if( data == 'error'){
                         alert('Error: Contact Web Services for further assistance');
                     } else {
