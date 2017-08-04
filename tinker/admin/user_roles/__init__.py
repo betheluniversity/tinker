@@ -92,7 +92,7 @@ class UserRolesView(FlaskView):
 
         return '/'  # have the JS handle where we go (homepage)
 
-    @route('/test_roles_and_users_remove')
+    @route('/test_roles_and_users_remove', methods=['POST'])
     def test_roles_and_users_remove(self):
         session.clear()
         return 'success'
