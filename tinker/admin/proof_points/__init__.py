@@ -34,6 +34,11 @@ class ProofPointsView(FlaskView):
         owners = self.base.gather_dropdown_values_from_key(self.forms, 'owner')
         # 'schools' pulled from sync_metadata
         schools = school_list
+        schools.append('Other')
+
+        # forms = sorted(self.forms, key=lambda form: form['name'])
+        # for form in forms:
+        #     print form['name']
 
         return render_template('proof-points-home.html', **locals())
 
@@ -49,6 +54,8 @@ class ProofPointsView(FlaskView):
         count = len(filtered_forms)
         # Pulls the array of schools from sync_metadata
         schools = school_list
+        schools.append('Other')
+
         # Alphabetizes the List
         filtered_forms = sorted(filtered_forms, key=lambda filtered_forms: filtered_forms['title'])
 

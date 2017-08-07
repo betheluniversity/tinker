@@ -57,8 +57,12 @@ class ProofPointsController(TinkerController):
         school = None
         for node in child.findall('dynamic-metadata'):
             if node.find('name').text == 'school':
-                school = node.find('value').text
+                try:
+                    school = node.find('value').text
+                except:
+                    school = 'Other'
 
+        # TODO cleanup the gathering of some of these values
         page_values = {
             'title': child.find('title').text or None,
             'school': school or None,
@@ -71,7 +75,8 @@ class ProofPointsController(TinkerController):
             'number_field': child.find('system-data-structure').find('proof-point').find('number-group').find('number-field').text or '',
             'text_field': child.find('system-data-structure').find('proof-point').find('text').find('main-text').text or '',
             'text_after': child.find('system-data-structure').find('proof-point').find('number-group').find('text-after').text or '',
-            'text_below': child.find('system-data-structure').find('proof-point').find('number-group').find('text-below').text or ''
+            'text_below': child.find('system-data-structure').find('proof-point').find('number-group').find('text-below').text or '',
+            # 'name': child.find('name').text or None
         }
         temp = None
         return page_values
