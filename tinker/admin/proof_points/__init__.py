@@ -10,6 +10,7 @@ from flask_classy import route
 # tinker
 from tinker.admin.proof_points.proof_points_controller import *
 from tinker.admin.proof_points import proof_points_controller
+from tinker.admin.sync.sync_metadata import school as school_list
 from tinker import app
 
 ProofPointsBlueprint = Blueprint("proof_points", __name__, template_folder='templates')
@@ -31,9 +32,8 @@ class ProofPointsView(FlaskView):
         username = session['username']
         roles = session['roles']
         owners = self.base.gather_dropdown_values_from_key(self.forms, 'owner')
-        schools = self.base.gather_dropdown_values_from_key(self.forms, 'school')
-
-        # forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
+        # 'schools' pulled from sync_metadata
+        schools = school_list
 
         return render_template('proof-points-home.html', **locals())
 
@@ -45,20 +45,16 @@ class ProofPointsView(FlaskView):
         filter_data = request.form
         data = self.base.gather_param_data(filter_data)
         filtered_forms = self.base.filter_with_param(self.forms, data)
+        # The count of the returned forms
         count = len(filtered_forms)
+        # Pulls the array of schools from sync_metadata
+        schools = school_list
+        # Alphabetizes the List
+        filtered_forms = sorted(filtered_forms, key=lambda filtered_forms: filtered_forms['title'])
 
-        program = sorted(filtered_forms, key=lambda filtered_forms: filtered_forms['school'])
-        filtered_forms = program
-
-        # TODO add comments as to what is happening
-        test = []
-        for form in filtered_forms:
-            test.append(form['school'])
-        test_set = set(test)
-        test = []
-        for thing in test_set:
-            test.append(thing)
-        schools = test
+        # Tests the case in which the form data isn't any
+        if data['school'] != 'any':
+            schools = [data['school']]
 
         return render_template('filter-results.html', **locals())
 
