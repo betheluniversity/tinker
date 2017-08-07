@@ -128,9 +128,15 @@ class EAnnouncementsView(FlaskView):
         rform = request.form
         eaid = rform.get('e_announcement_id')
 
-        failed = self.base.validate_form(rform)
-        if failed:
-            return failed
+        form, passed = self.base.validate_form(rform)
+        if not passed:
+            if 'e_announcement_id' in rform.keys():
+                e_announcement_id = rform['e_announcement_id']
+            else:
+                new_form = True
+            # bring in the mapping
+            brm = self.base.brm
+            return render_template('form.html', **locals())
 
         if not eaid:
             status = "new"

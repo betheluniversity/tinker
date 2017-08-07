@@ -1,6 +1,6 @@
 import datetime
 
-# from sqlalchemy import exc
+from sqlalchemy.exc import InvalidRequestError, IntegrityError
 # from sqlite3 import IntegrityError
 
 from redirects_controller_base import RedirectsControllerBaseTestCase
@@ -42,11 +42,13 @@ class AddRowToDBTestCase(RedirectsControllerBaseTestCase):
         #     'short_url': False,
         #     'expiration_date': datetime.datetime(2016, 7, 1, 0, 0)
         # }
+        # self.assertRaises(InvalidRequestError, self.controller.add_row_to_db, **invalid_args)
+
         # try:
         #     self.controller.add_row_to_db(**invalid_args)
-        # except exc.InvalidRequestError:
+        # except InvalidRequestError:
         #     pass
-        # except exc.IntegrityError:
+        # except IntegrityError:
         #     pass
         # except Exception as e:
         #     print e

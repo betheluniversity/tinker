@@ -4,6 +4,28 @@ from inspect import stack
 from discover import DiscoveringTestLoader
 
 
+class FauxElement(object):
+    def __init__(self, tag_type, text='', children={}):
+        self.tag = tag_type
+        self.text = text
+        self.children = dict()
+        for key in children.keys():
+            value = children[key]
+            if isinstance(value, str):
+                self.children[key] = FauxElement(key, text=children[key])
+            elif isinstance(value, dict):
+                self.children[key] = FauxElement(key, children=children[key])
+
+    def find(self, key_name):
+        return self.children.get(key_name)
+
+    def findall(self, key_name):
+        return [self.children.get(key_name)]
+
+    def __repr__(self):
+        return '(FauxElement) <' + self.tag + ' value="%s">: %s' % (self.text, pretty_print(self.children))
+
+
 def get_tests_in_this_dir(path):
     # return unittest.TestLoader().discover(path)
     if path == ".":

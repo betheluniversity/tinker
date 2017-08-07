@@ -103,16 +103,9 @@ class EAnnouncementsController(TinkerController):
     def validate_form(self, rform):
         from forms import EAnnouncementsForm
 
-        form = EAnnouncementsForm()
+        form = EAnnouncementsForm(rform)
 
-        if not form.validate_on_submit():
-            if 'e_announcement_id' in rform.keys():
-                e_announcement_id = rform['e_announcement_id']
-            else:
-                new_form = True
-            # bring in the mapping
-            brm = self.brm
-            return render_template('form.html', **locals())
+        return form, form.validate_on_submit()
 
     def update_structure(self, e_announcement_data, sdata, rform, e_announcement_id=None):
         add_data = self.get_add_data(['banner_roles'], rform, ['message'])

@@ -62,5 +62,4 @@ class CheckNewYearFolderTestCase(EventsControllerBaseTestCase):
         }
 
         response = self.controller.check_new_year_folder(event_id, add_data, 'phg49389')
-        # TODO
-        # self.assertTrue(isinstance(response, None))
+        self.assertTrue(response is None)

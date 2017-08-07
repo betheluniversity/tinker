@@ -224,20 +224,11 @@ class EventsController(TinkerController):
 
         return event_dates
 
-    def validate_form(self, rform, dates_good, dates):
-
+    def validate_form(self, rform, dates_good):
         from forms import EventForm
-        form = EventForm()
+        form = EventForm(rform)
 
-        if not form.validate_on_submit() or not dates_good:
-            if 'event_id' in rform.keys():
-                event_id = rform['event_id']
-            else:
-                new_form = True
-            author = rform["author"]
-            num_dates = int(rform['num_dates'])
-
-            return render_template('event-form.html', **locals())
+        return form, form.validate_on_submit() and dates_good
 
     def build_edit_form(self, event_id):
         page = self.read_page(event_id)

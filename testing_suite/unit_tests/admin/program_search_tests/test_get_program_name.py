@@ -1,4 +1,5 @@
 from program_search_controller_base import ProgramSearchControllerBaseTestCase
+from testing_suite.utilities import FauxElement
 
 
 class GetProgramNameTestCase(ProgramSearchControllerBaseTestCase):
@@ -14,5 +15,17 @@ class GetProgramNameTestCase(ProgramSearchControllerBaseTestCase):
     #######################
 
     def test_get_program_name_valid(self):
-        # TODO: need a way to create artifical blocks and concentrations to test this method
-        pass
+        block = FauxElement('block', children={
+            'display-name': 'foo',
+            'title': 'bar',
+            'dynamic-metadata': {
+                'name': {
+                    'value': 'fizz'
+                }
+            }
+        })
+        concentration = FauxElement('concentration', children={
+            './/concentration_name': 'bin',
+        })
+        response = self.controller.get_program_name(block, concentration)
+        self.assertEqual(response, 'bin')
