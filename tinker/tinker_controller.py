@@ -89,28 +89,25 @@ def requires_auth(f):
 
 # checks the route base and uses the corresponding permissions to load the correct admin menu
 def admin_permissions(flask_view_class):
-    if not session.get('admin_view', False):
-        # program search menu
-        if flask_view_class.route_base == '/admin/program-search':
-            # give access to admins and lauren
-            if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
-                abort(403)
-
-        # redirect menu
-        elif flask_view_class.route_base == '/admin/redirect':
-            # This if statement has to come first so that public API request don't need to have groups associated with them.
-            if '/public/' in request.path:
-                return
-
-            # Checks to see what group the user is in
-            if 'Administrators' not in session['groups'] and 'Tinker Redirects' not in session['groups']:
-                abort(403)
-
-        # all other admin menus
-        elif 'Administrators' not in session['groups']:
+    # program search menu
+    if flask_view_class.route_base == '/admin/program-search':
+        # give access to admins and lauren
+        if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
             abort(403)
-    else:
-        return
+
+    # redirect menu
+    elif flask_view_class.route_base == '/admin/redirect':
+        # This if statement has to come first so that public API request don't need to have groups associated with them.
+        if '/public/' in request.path:
+            return
+
+        # Checks to see what group the user is in
+        if 'Administrators' not in session['groups'] and 'Tinker Redirects' not in session['groups']:
+            abort(403)
+
+    # all other admin menus
+    elif 'Administrators' not in session['groups']:
+        abort(403)
 
 
 class TinkerController(object):

@@ -22,7 +22,8 @@ class UserRolesView(FlaskView):
         pass
 
     def before_request(self, name, **kwargs):
-        admin_permissions(self)
+        if 'session_clear' not in request.path:
+            admin_permissions(self)
 
     def index(self):
         return render_template('user_roles_home.html', **locals())
