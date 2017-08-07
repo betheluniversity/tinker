@@ -59,7 +59,7 @@ class ProofPointsController(TinkerController):
             if node.find('name').text == 'school':
                 try:
                     school = node.find('value').text
-                except:
+                except AttributeError:
                     school = 'Other'
 
         # TODO cleanup the gathering of some of these values
@@ -76,6 +76,7 @@ class ProofPointsController(TinkerController):
             'text_field': child.find('system-data-structure').find('proof-point').find('text').find('main-text').text or '',
             'text_after': child.find('system-data-structure').find('proof-point').find('number-group').find('text-after').text or '',
             'text_below': child.find('system-data-structure').find('proof-point').find('number-group').find('text-below').text or '',
+            # If we need to rename the dropdown values, use this below
             # 'name': child.find('name').text or None
         }
         temp = None

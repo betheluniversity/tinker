@@ -10,7 +10,6 @@ from flask_classy import route
 # tinker
 from tinker.admin.proof_points.proof_points_controller import *
 from tinker.admin.proof_points import proof_points_controller
-from tinker.admin.sync.sync_metadata import school as school_list
 from tinker import app
 
 ProofPointsBlueprint = Blueprint("proof_points", __name__, template_folder='templates')
@@ -22,6 +21,14 @@ class ProofPointsView(FlaskView):
     def __init__(self):
         self.base = ProofPointsController()
         self.forms = []
+        self.schools = [
+            'Bethel University',
+            'College of Arts & Sciences',
+            'College of Adult & Professional Studies',
+            'Graduate School',
+            'Bethel Seminary',
+            'Other'
+        ]
     # def before_request(self, args):
     #     # give access to admins and lauren
     #     if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
@@ -33,8 +40,7 @@ class ProofPointsView(FlaskView):
         roles = session['roles']
         owners = self.base.gather_dropdown_values_from_key(self.forms, 'owner')
         # 'schools' pulled from sync_metadata
-        schools = school_list
-        schools.append('Other')
+        schools = self.schools
 
         # forms = sorted(self.forms, key=lambda form: form['name'])
         # for form in forms:
@@ -53,8 +59,7 @@ class ProofPointsView(FlaskView):
         # The count of the returned forms
         count = len(filtered_forms)
         # Pulls the array of schools from sync_metadata
-        schools = school_list
-        schools.append('Other')
+        schools = self.schools
 
         # Alphabetizes the List
         filtered_forms = sorted(filtered_forms, key=lambda filtered_forms: filtered_forms['title'])
