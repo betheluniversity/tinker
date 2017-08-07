@@ -9,6 +9,7 @@ try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
+import copy
 
 UserRolesBlueprint = Blueprint('user_roles', __name__, template_folder='templates')
 
@@ -37,7 +38,11 @@ class UserRolesView(FlaskView):
         username = request.form.get('username')
 
         if username:
-            session.clear()
+            # session.clear()
+            session_keys = copy.deepcopy(session.keys())
+            for key in session_keys:
+                session.pop(key)
+
             session['admin_username'] = current_username
             session['username'] = username
         else:
@@ -46,7 +51,7 @@ class UserRolesView(FlaskView):
         session['admin_viewer'] = True
 
         session.modified = True
-        print session['username']
+        # print session['username']
         return '/'  # have the JS handle where we go (homepage)
 
     @route('/session_clear', methods=['POST'])
