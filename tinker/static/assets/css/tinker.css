@@ -367,7 +367,7 @@ div#cke_registration_details {
 
 .navbar-default {
     background-color: #0F2C52;
-    border-bottom: 1px solid #BDBCB0;
+    border-bottom: 0;
 }
 
 .card {
