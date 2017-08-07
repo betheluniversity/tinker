@@ -38,10 +38,10 @@ class UserRolesView(FlaskView):
         username = request.form.get('username')
 
         if username:
-            # session.clear()
-            session_keys = copy.deepcopy(session.keys())
-            for key in session_keys:
-                session.pop(key)
+            session.clear()
+            # session_keys = copy.deepcopy(session.keys())
+            # for key in session_keys:
+            #     session.pop(key)
 
             session['admin_username'] = current_username
             session['username'] = username
