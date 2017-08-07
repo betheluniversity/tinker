@@ -1,10 +1,6 @@
-import requests
-import time
-
 from flask import render_template, session, request, Blueprint
 from flask_classy import FlaskView, route
 
-from tinker import app
 from tinker.tinker_controller import admin_permissions
 
 from datetime import datetime
@@ -50,7 +46,7 @@ class UserRolesView(FlaskView):
         session['admin_viewer'] = True
 
         session.modified = True
-
+        print session['username']
         return '/'  # have the JS handle where we go (homepage)
 
     @route('/session_clear', methods=['POST'])

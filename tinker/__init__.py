@@ -15,6 +15,7 @@ from flask import Blueprint
 import flask_profiler
 from flask_classy import FlaskView
 from flask_sqlalchemy import SQLAlchemy
+from flask_cache import Cache
 from raven.contrib.flask import Sentry
 from bu_cascade.cascade_connector import Cascade
 
@@ -67,7 +68,6 @@ app.config["flask_profiler"] = {
         "/static/*"
     ]
 }
-
 
 prod = app.config['ENVIRON'] == 'prod'
 if prod:
