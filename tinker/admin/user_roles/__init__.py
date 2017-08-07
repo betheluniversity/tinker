@@ -50,8 +50,7 @@ class UserRolesView(FlaskView):
 
         session['admin_viewer'] = True
 
-        session.modified = True
-        # print session['username']
+        # session.modified = True
         return '/'  # have the JS handle where we go (homepage)
 
     @route('/session_clear', methods=['POST'])
