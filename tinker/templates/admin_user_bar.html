@@ -1,0 +1,26 @@
+{% if session['admin_viewer'] %}
+    <div class="admin-user-bar">
+        <p>Viewing
+            {% if session['admin_username'] %}
+                user: [{{ session['username'] }}]
+            {% elif session['admin_viewer_role'] %}
+                role: [{{ session['admin_viewer_role'] }}]
+            {% endif %}
+             | Return to your <a id='admin_return'>account</a>.
+        </p>
+    </div>
+
+    <script type="text/javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            $(document).on('click', '#admin_return', function(){
+                $.post('{{ url_for('user_roles.UserRolesView:session_clear') }}', {}, function (data) {
+                    if( data == 'error'){
+                        alert('Error: Contact Web Services for further assistance');
+                    } else {
+                        window.location.href = '/';
+                    }
+                });
+            });
+        })
+    </script>
+{% endif %}

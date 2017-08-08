@@ -3,9 +3,11 @@
 {% import 'nav.html' as nav %}
 {% import 'creative_tim_footer.html' as footer %}
 
+
 {% block title %}{{ title }} | Tinker{% endblock %}
 
 {% block body_content %}
+
     <div class="wrapper">
         <div class="sidebar" data-active-color="green">
             {{ sidebar.render() }}
@@ -13,7 +15,7 @@
 
         <div class="main-panel">
             {{ nav.render(title) }}
-
+            {% include 'admin_user_bar.html' %}
             {% block main_content %}
             {% endblock %}
 

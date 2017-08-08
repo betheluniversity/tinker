@@ -130,7 +130,7 @@ class TinkerController(object):
                 day_is_passed = True
 
             # if not production, then clear our session variables on each call
-            if dev or day_is_passed:
+            if (not session.get('admin_viewer', False)) and (dev or day_is_passed):
                 for key in ['username', 'groups', 'roles', 'top_nav', 'user_email', 'name']:
                     if key in session.keys():
                         session.pop(key, None)
