@@ -23,6 +23,7 @@ from flask import current_app
 from flask import render_template
 from flask import json as fjson
 from flask import Response
+from flask import abort
 
 from bu_cascade.assets.block import Block
 from bu_cascade.assets.page import Page
@@ -84,6 +85,29 @@ def requires_auth(f):
 #         return True
 #     else:
 #         return False
+
+
+# checks the route base and uses the corresponding permissions to load the correct admin menu
+def admin_permissions(flask_view_class):
+    # program search menu
+    if flask_view_class.route_base == '/admin/program-search':
+        # give access to admins and lauren
+        if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
+            abort(403)
+
+    # redirect menu
+    elif flask_view_class.route_base == '/admin/redirect':
+        # This if statement has to come first so that public API request don't need to have groups associated with them.
+        if '/public/' in request.path:
+            return
+
+        # Checks to see what group the user is in
+        if 'Administrators' not in session['groups'] and 'Tinker Redirects' not in session['groups']:
+            abort(403)
+
+    # all other admin menus
+    elif 'Administrators' not in session['groups']:
+        abort(403)
 
 
 class TinkerController(object):
@@ -160,19 +184,23 @@ class TinkerController(object):
 
         def get_groups_for_user(username=None):
             skip = request.environ.get('skip-groups') == 'skip'
-            if not username:
-                username = session['username']
-            if not skip:
-                try:
-                    user = self.read(username, "user")
-                    allowed_groups = find(user, 'groups', False)
-                except AttributeError:
+
+            if current_app.config['ENVIRON'] == 'prod':
+                if not username:
+                    username = session['username']
+                if not skip:
+                    try:
+                        user = self.read(username, "user")
+                        allowed_groups = find(user, 'groups', False)
+                    except AttributeError:
+                        allowed_groups = ""
+                else:
+                    allowed_groups = ""
+                if allowed_groups is None:
                     allowed_groups = ""
             else:
-                allowed_groups = ""
-            if allowed_groups is None:
-                allowed_groups = ""
-
+                allowed_groups = app.config['TEST_GROUPS']
+            # print allowed_groups
             session['groups'] = allowed_groups
             return allowed_groups.split(";")
 
