@@ -146,11 +146,10 @@ class FacultyBioController(TinkerController):
 
     def is_user_in_web_author_groups(self):
         for key, value in self.get_mapping().iteritems():
-            try:
-                if value in session['groups']:
-                    return True
-            except:
-                continue
+            # TODO: PG, Aug 9 2017: I removed a try/except block from around this if statement since it appears useless
+            # If there are exceptions all of a sudden, this is how to fix it.
+            if value in session['groups']:
+                return True
 
         return False
 

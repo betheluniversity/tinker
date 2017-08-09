@@ -1,3 +1,5 @@
+from sqlalchemy.exc import IntegrityError
+
 from redirects_controller_base import RedirectsControllerBaseTestCase
 from tinker.admin.redirects.models import BethelRedirect
 
@@ -27,5 +29,16 @@ class APIAddRowTestCase(RedirectsControllerBaseTestCase):
         self.controller.delete_row_from_db(from_path)
 
     def test_api_add_row_invalid(self):
-        # TODO: just like add_row, until we figure out how to catch those exceptions we can't really test this
-        pass
+        invalid_args = {
+            'from_path': None,
+            'to_url': "to!"
+        }
+        # Because we have to rollback the DB after this exception, I can't use self.assertRaises
+        integrity_error_caught = False
+        try:
+            self.controller.api_add_row(**invalid_args)
+        except IntegrityError:
+            integrity_error_caught = True
+            self.controller.rollback()
+
+        self.assertTrue(integrity_error_caught)

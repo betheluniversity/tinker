@@ -15,6 +15,6 @@ class SearchDataDefintionsTestCase(PublishControllerBaseTestCase):
 
     def test_convert_meta_date_valid(self):
         # TODO: It appears that this method isn't tested in Integration Tests, so I'm not sure if the method
-        # TODO: tinker/publish/__init__.py:publish_program_feeds_return is supposed to be tested, and that's
-        # TODO: the only place that this method gets called.
+        # tinker/publish/__init__.py:publish_program_feeds_return is supposed to be tested, and that's the only place
+        # that this method gets called.
         pass

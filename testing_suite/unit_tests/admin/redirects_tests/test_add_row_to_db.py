@@ -1,7 +1,6 @@
 import datetime
 
-from sqlalchemy.exc import InvalidRequestError, IntegrityError
-# from sqlite3 import IntegrityError
+from sqlalchemy.exc import IntegrityError
 
 from redirects_controller_base import RedirectsControllerBaseTestCase
 from tinker.admin.redirects.models import BethelRedirect
@@ -34,23 +33,18 @@ class AddRowToDBTestCase(RedirectsControllerBaseTestCase):
         self.controller.delete_row_from_db(from_path)
 
     def test_add_row_to_db_invalid(self):
-        # TODO: Can't catch the Exceptions being thrown, so there's no way that I can use self.assertRaises()
-        # TODO: Will need to fix that if we want to test invalid args being passed in to this method
-        # invalid_args = {
-        #     'from_path': None,
-        #     'to_url': "to!",
-        #     'short_url': False,
-        #     'expiration_date': datetime.datetime(2016, 7, 1, 0, 0)
-        # }
-        # self.assertRaises(InvalidRequestError, self.controller.add_row_to_db, **invalid_args)
+        invalid_args = {
+            'from_path': None,
+            'to_url': "to!",
+            'short_url': False,
+            'expiration_date': datetime.datetime(2016, 7, 1, 0, 0)
+        }
+        # Because we have to rollback the DB after this exception, I can't use self.assertRaises
+        integrity_error_caught = False
+        try:
+            self.controller.add_row_to_db(**invalid_args)
+        except IntegrityError:
+            integrity_error_caught = True
+            self.controller.rollback()
 
-        # try:
-        #     self.controller.add_row_to_db(**invalid_args)
-        # except InvalidRequestError:
-        #     pass
-        # except IntegrityError:
-        #     pass
-        # except Exception as e:
-        #     print e
-        #     print e.message
-        pass
+        self.assertTrue(integrity_error_caught)

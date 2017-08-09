@@ -1,3 +1,4 @@
+from flask import session
 from werkzeug.datastructures import ImmutableMultiDict
 
 from events_controller_base import EventsControllerBaseTestCase
@@ -18,7 +19,7 @@ class ValidateFormTestCase(EventsControllerBaseTestCase):
 
     def test_validate_form_valid(self):
         test_form = {
-            'end1': u'August 5th 2017, 12:00 am',
+            'end1': u'August 5th 2018, 12:00 am',
             'on_campus_location': u'Clauson Center (CC)',
             'wufoo_code': u'',
             'main_content': u"This is an event created to make sure that Tinker's connection with Cascade via "
@@ -33,7 +34,7 @@ class ValidateFormTestCase(EventsControllerBaseTestCase):
             'title': u'Test event',
             'event_id': u'',
             'metaDescription': u'This is an event created via unit testing',
-            'start1': u'August 3rd 2017, 12:00 am',
+            'start1': u'August 3rd 2018, 12:00 am',
             'internal': u'None',
             'location': u'On Campus',
             'featuring': u'Testing things!',
@@ -52,10 +53,14 @@ class ValidateFormTestCase(EventsControllerBaseTestCase):
             'graduate_program': u'None',
             'seminary_program': u'None'
         }
-        # TODO: this validates using EventForm, which calls on session['groups'], throwing a RuntimeError
-        # with app.app_context():
-        #  # validate_form takes a second argument, dates_good. That's calculated in a separate method, and AND'd with
-        #     # the results of validate. By passing in True as dates_good, it logically pares the result down to just
-        #     # validate's return.
-        #     response = self.controller.validate_form(ImmutableMultiDict(test_form), True)
-        #     print response
+        with app.test_request_context(method='POST'):
+            session['groups'] = ['Event Approver']
+            # validate_form takes a second argument, dates_good. That's calculated in a separate method, and AND'd with
+            # the results of validate. By passing in True as dates_good, it logically pares the result down to just
+            # validate's return.
+            response = self.controller.validate_form(ImmutableMultiDict(test_form), True)
+            self.assertTrue(isinstance(response, tuple))
+            self.assertEqual(len(response), 2)
+            self.assertEqual(response[0].errors, {})
+            self.assertTrue(isinstance(response[1], bool))
+            self.assertTrue(response[1])
