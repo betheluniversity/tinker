@@ -433,30 +433,14 @@ class EventsController(TinkerController):
         # to_return will hold all of the events that match the search criteria
         to_return = []
 
-        # This checks if exactly one date is missing, and ignores if both are present or if both are missing (XOR)
-        if (start == 0) != (end == 0):
-            # By default, both start/end date values are the midnights at the very beginning of the day, so
-            # if start == end, then it won't catch any events. Therefore we add a day onto end if we need to
-            if start == 0:
-                # This means that they didn't submit a start date, so get the value from end and then add a day to give
-                # a full 24-hour window to match events into
-                start = end
-                end += datetime.timedelta(days=1)
-            elif end == 0:
-                # This means that they didn't submit an end date, so set end to one day after the start value given
-                end = start + datetime.timedelta(days=1)
-            # At this point there is now guaranteed both start and end dates
-
         # Check if they pass in same start/end day, make end 24 hours later to give a range
         if start != 0 and end != 0 and self.compare_datetimes(start, end) == 0:
             end += datetime.timedelta(days=1)
 
-        # At this point both start and end should either both be 0 or both be datetime objects that are not equal
-
         for event in events_to_iterate:
             check_title = bool(title)
             title_matches = check_title and title.lower() in event['title'].lower()
-            check_dates = start != 0 and end != 0 and len(event['event-dates']) > 0
+            check_dates = (start != 0 or end != 0) and len(event['event-dates']) > 0
             dates_matched = check_dates and self.event_dates_in_date_range(event['event-dates'], start, end)
 
             add_event = False
@@ -485,26 +469,25 @@ class EventsController(TinkerController):
                 # TODO: remove the reference in the DB then remove that asset then remove this try/catch
                 break
 
-            A = self.compare_datetimes(start, event_start) <= 0  # Search start is before event start
-            B = self.compare_datetimes(start, event_start) >= 0  # Search start is after event start
-            C = self.compare_datetimes(start, event_end) <= 0    # Search start is before event end
-            # D = self.compare_datetimes(start, event_end) >= 0  # Search start is after event end (auto-fail)
-            # E = self.compare_datetimes(end, event_start) <= 0  # Search end is before event start (auto-fail)
-            F = self.compare_datetimes(end, event_start) >= 0    # Search end is after event start
-            G = self.compare_datetimes(end, event_end) <= 0      # Search end is before event end
-            H = self.compare_datetimes(end, event_end) >= 0      # Search end is after event end
+            if start != 0:
+                A = self.compare_datetimes(start, event_start) <= 0  # Search start is before event start
+                B = self.compare_datetimes(start, event_start) >= 0  # Search start is after event start
+                C = self.compare_datetimes(start, event_end) <= 0    # Search start is before event end
+                # D = self.compare_datetimes(start, event_end) >= 0  # Search start is after event end (auto-fail)
+                start_params = (A or B) and C
+            else:
+                start_params = True
 
-            if (A or (B and C)) and ((F and G) or H):
-                # This is a pretty complicated boolean expression, so I'm going to comment on it for everyone
-                # else's sake. There are 4 cases where an event would be added to the list 'to_return':
-                # 1. A & H         ==> The search range completely encompasses the event being looked at
-                # 2. B & C & F & G ==> The event being looked at completely encompasses the search range
-                # 3. B & C & H     ==> The search range starts inside the event being looked at and continues after
-                # 4. A & F & G     ==> The search range starts before the event being looked at and ends inside
-                # Since any one of those conditions could make this statement true, I wrote them all together in
-                # a large OR statement. I then reverse-FOIL'd to reduce it down to the boolean expression
-                # used in the if statement above.
+            if end != 0:
+                # E = self.compare_datetimes(end, event_start) <= 0  # Search end is before event start (auto-fail)
+                F = self.compare_datetimes(end, event_start) >= 0    # Search end is after event start
+                G = self.compare_datetimes(end, event_end) <= 0      # Search end is before event end
+                H = self.compare_datetimes(end, event_end) >= 0      # Search end is after event end
+                end_params = F and (G or H)
+            else:
+                end_params = True
 
+            if start_params and end_params:
                 # Return immediately on first match to save time
                 return True
         # Means that none of the dates in list_of_dates overlapped the queried date range
