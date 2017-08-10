@@ -13,4 +13,4 @@ class SubmitNewOrEditTestCase(EventsControllerBaseTestCase):
     ### Testing methods ###
     #######################
 
-    # TODO
+    # TODO: It's possible that this method should not be tested

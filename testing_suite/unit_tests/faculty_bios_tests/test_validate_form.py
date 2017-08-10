@@ -1,4 +1,8 @@
+from flask import session
+from werkzeug.datastructures import ImmutableMultiDict
+
 from faculty_bios_controller_base import FacultyBiosControllerBaseTestCase
+from tinker import app
 
 
 class ValidateFormTestCase(FacultyBiosControllerBaseTestCase):
@@ -13,4 +17,50 @@ class ValidateFormTestCase(FacultyBiosControllerBaseTestCase):
     ### Testing methods ###
     #######################
 
-    # TODO
+    def test_validate_form(self):
+        test_form = {
+            'website': u'None.',
+            'image': u'',
+            'degree-earned1': u'B.S. of Computer Science',
+            'graduate1': u'None',
+            'teaching_specialty': u'<p>asdf11</p>\r\n',
+            'seminary1': u'None',
+            'hobbies': u'<p>asdf8</p>\r\n',
+            'school1': u'Bethel University',
+            'research_interests': u'<p>asdf10</p>\r\n',
+            'biography': u'<p>asdf1</p>\r\n',
+            'program-director1': u'No',
+            'faculty_bio_id': u'',
+            'undergrad1': u'Math & Computer Science',
+            'certificates': u'<p>asdf6</p>\r\n',
+            'email': u'phg49389@bethel.edu',
+            'first': u'Philip',
+            'new-job-title1': u'Web Developer',
+            'started_at_bethel': u'2011',
+            'quote': u'Arbitrarily compulsive, compulsively arbitrary.',
+            'year1': u'2016',
+            'awards': u'<p>asdf3</p>\r\n',
+            'last': u'Gibbens',
+            'adult-undergrad1': u'None',
+            'areas': u'<p>asdf9</p>\r\n',
+            'organizations': u'<p>asdf7</p>\r\n',
+            'schools1': u'College of Arts and Sciences',
+            'num_degrees': u'1',
+            'author_faculty': u'phg49389',
+            'dept-chair1': u'No',
+            'presentations': u'<p>asdf5</p>\r\n',
+            'courses': u'<p>asdf2</p>\r\n',
+            'image_url': u'',
+            'publications': u'<p>asdf4</p>\r\n',
+            'highlight': u"A great magazine for the dentist's office",
+            'num_new_jobs': u'1',
+            'num_jobs': u'0',
+            'faculty_location': u'St. Paul',
+            'lead-faculty1': u'Other'
+        }
+        with app.test_request_context(method='POST'):
+            session['username'] = 'phg49389'
+            session['roles'] = ['FACULTY-CAPS']
+            session['groups'] = 'Tinker Faculty Bios'
+            response = self.controller.validate_form(ImmutableMultiDict(test_form))
+            self.assertEqual(response.errors, {})

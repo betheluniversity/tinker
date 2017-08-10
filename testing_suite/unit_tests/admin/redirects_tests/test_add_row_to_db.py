@@ -31,20 +31,3 @@ class AddRowToDBTestCase(RedirectsControllerBaseTestCase):
         self.assertEqual(len(query_results), 1)
         self.assertEqual(response, query_results[0])
         self.controller.delete_row_from_db(from_path)
-
-    def test_add_row_to_db_invalid(self):
-        invalid_args = {
-            'from_path': None,
-            'to_url': "to!",
-            'short_url': False,
-            'expiration_date': datetime.datetime(2016, 7, 1, 0, 0)
-        }
-        # Because we have to rollback the DB after this exception, I can't use self.assertRaises
-        integrity_error_caught = False
-        try:
-            self.controller.add_row_to_db(**invalid_args)
-        except IntegrityError:
-            integrity_error_caught = True
-            self.controller.rollback()
-
-        self.assertTrue(integrity_error_caught)

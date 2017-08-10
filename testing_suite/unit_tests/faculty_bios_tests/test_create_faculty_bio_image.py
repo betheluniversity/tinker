@@ -13,4 +13,8 @@ class CreateFacultyBioImageTestCase(FacultyBiosControllerBaseTestCase):
     ### Testing methods ###
     #######################
 
-    # TODO
+    def test_create_faculty_bio_image(self):
+        # TODO
+        # test_add_data = {}
+        # response = self.controller.create_faculty_bio_image(test_add_data)
+        pass
