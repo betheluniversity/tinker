@@ -16,7 +16,7 @@ class IndexTestCase(IntegrationTestCase):
     #######################
 
     def test_index(self):
-        expected_response = repr('l$hQEL\x1e\n\xaf\xb3\xa5W\xc7w\x0eJ')
+        expected_response = repr('\xa5\xfc\xd0|\xae\xedTu\xb9n\xd6\xf3O\xe0\xcf\xed')
         # b'<form id="blink-login" action="https://blink.bethel.edu/cp/home/login" method="post">'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)
