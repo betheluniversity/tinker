@@ -1,7 +1,7 @@
 from flask import session
 
-from tinker import app
 from events_controller_base import EventsControllerBaseTestCase
+from tinker import app
 
 
 class SplitUserEventsTestCase(EventsControllerBaseTestCase):

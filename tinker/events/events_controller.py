@@ -6,7 +6,7 @@ import time
 
 # Packages
 from bu_cascade.asset_tools import find
-from flask import render_template, session
+from flask import session
 from flask import json as fjson
 
 # Local

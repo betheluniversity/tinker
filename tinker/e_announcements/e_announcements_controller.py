@@ -3,7 +3,7 @@ from datetime import datetime
 
 # Packages
 from bu_cascade.asset_tools import update
-from flask import render_template, session
+from flask import session
 
 # Local
 from tinker import app

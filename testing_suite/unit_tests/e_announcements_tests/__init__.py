@@ -1,4 +1,5 @@
 import unittest
+
 from testing_suite.utilities import get_tests_in_this_dir
 
 if __name__ == "__main__":

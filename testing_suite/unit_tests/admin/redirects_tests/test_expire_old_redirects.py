@@ -1,4 +1,5 @@
 import datetime
+
 from redirects_controller_base import RedirectsControllerBaseTestCase
 
 

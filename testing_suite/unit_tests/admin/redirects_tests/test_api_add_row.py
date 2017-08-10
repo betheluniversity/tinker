@@ -1,5 +1,3 @@
-from sqlalchemy.exc import IntegrityError
-
 from redirects_controller_base import RedirectsControllerBaseTestCase
 from tinker.admin.redirects.models import BethelRedirect
 

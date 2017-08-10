@@ -1,5 +1,5 @@
-from tinker import app
 from faculty_bios_controller_base import FacultyBiosControllerBaseTestCase
+from tinker import app
 
 
 class GetCorrectWorkflowIDTestCase(FacultyBiosControllerBaseTestCase):

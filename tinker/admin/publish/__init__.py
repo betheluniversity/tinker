@@ -5,7 +5,7 @@ import urllib
 # Packages
 from BeautifulSoup import BeautifulSoup
 from bu_cascade.asset_tools import find
-from flask import Blueprint, render_template, request, abort, session
+from flask import Blueprint, render_template, request, session
 from flask_classy import FlaskView, route
 
 # Local
