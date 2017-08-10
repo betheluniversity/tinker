@@ -1,0 +1,48 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'User Roles (Doesnt work Locally)' %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <p>Enter a username to view Tinker as that user.</p>
+                <label>
+                    Username
+                    <input type="text" id="username">
+                    <a id='view-by-username' class="btn btn-primary admin-viewer">View</a>
+                </label>
+                <hr/>
+                    <a id="clear-session" class="btn btn-primary clear-session">Clear Session</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $('.admin-viewer').click(function(){
+                    var username = $('#username').val();
+                console.log(username)
+                $.post('{{ url_for('user_roles.UserRolesView:test_roles_and_users_submit') }}', {'username': username }, function (data) {
+{#                    alert(data);#}
+                    if( data == 'error'){
+                        alert('Error: Contact Web Services for further assistance');
+                    } else {
+                        window.location.href = data;
+                    }
+                });
+            });
+            $('#clear-session').click(function(){
+                console.log('click');
+                $.post('{{ url_for('user_roles.UserRolesView:session_clear') }}', function() {
+                    alert('session cleared');
+                    window.location.href = '/';
+                })
+            });
+        });
+    </script>
+{% endblock %}

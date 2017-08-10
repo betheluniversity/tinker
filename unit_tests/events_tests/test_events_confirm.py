@@ -17,7 +17,7 @@ class ConfirmTestCase(BaseTestCase):
     #######################
 
     def test_confirm(self):
-        expected_response = repr('\x10\x90x\x02\x07\xcf\xd3\xc7\xe0\xda\xea8\x13\xb3\x0c\x11')
+        expected_response = repr('\x93\x9bk\xa4y\xb3\xd4\xcd\x8ae\xd6\tU%\xcf\x99')
         # b'You\'ll receive an email when your event has been approved by Conference and Event Services. Once your'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)

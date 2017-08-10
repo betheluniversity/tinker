@@ -300,6 +300,7 @@ class FacultyBioController(TinkerController):
         form = FacultyBioForm()
 
         # a quick check to quit out if necessary.
+        self.log_sentry('Faculty Bio Image: Form', form)
         try:
             form.image.data.filename
         except AttributeError:
@@ -311,6 +312,7 @@ class FacultyBioController(TinkerController):
         description = self.build_description(add_data)
 
         # todo: someday change how this is done.
+        self.log_sentry('Faculty Bio Image: Name', image_name)
         form.image.data.save(app.config['UPLOAD_FOLDER'] + image_name)
         image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
         stream = image_file.read()

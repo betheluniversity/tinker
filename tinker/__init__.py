@@ -7,10 +7,15 @@ from flask import Flask, url_for
 from flask import session
 from flask import make_response
 from flask import redirect
+from flask import request
+from flask import render_template
+from flask import Blueprint
 
 # flask extensions
 import flask_profiler
+from flask_classy import FlaskView
 from flask_sqlalchemy import SQLAlchemy
+from flask_cache import Cache
 from raven.contrib.flask import Sentry
 from bu_cascade.cascade_connector import Cascade
 
@@ -109,6 +114,7 @@ from tinker.faculty_bios import FacultyBiosBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
 from tinker.events import EventsBlueprint
 from tinker.news import NewsBlueprint
+from tinker.admin.user_roles import UserRolesBlueprint
 
 app.register_blueprint(BaseBlueprint)
 app.register_blueprint(CacheBlueprint)
@@ -123,6 +129,8 @@ app.register_blueprint(FacultyBiosBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
 app.register_blueprint(EventsBlueprint)
 app.register_blueprint(NewsBlueprint)
+app.register_blueprint(UserRolesBlueprint)
+
 
 from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
@@ -145,7 +153,6 @@ def logout():
     resp.set_cookie('MOD_AUTH_CAS_S', '', expires=0)
     resp.set_cookie('MOD_AUTH_CAS', '', expires=0)
     return resp
-
 
 if not TRAVIS_TESTING:
     flask_profiler.init_app(app)
