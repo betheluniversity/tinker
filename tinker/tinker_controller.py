@@ -32,13 +32,6 @@ from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlat
 from tinker import app, cascade_connector, sentry
 
 
-def should_be_able_to_edit_image(roles):
-    if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
-        return False
-    else:
-        return True
-
-
 def check_auth(username, password):
     """This function is called to check if a username /
     password combination is valid.
@@ -144,7 +137,7 @@ class TinkerController(object):
                 get_nav()
 
             if 'user_email' not in session.keys() and session['username']:
-                # todo, get prefered email (alias) from wsapi once its added.
+                # todo, get preferred email (alias) from wsapi once its added.
                 session['user_email'] = session['username'] + "@bethel.edu"
 
             if 'name' not in session.keys() and session['username']:
@@ -268,7 +261,7 @@ class TinkerController(object):
         pass
 
     def traverse_xml(self, xml_url, type_to_find, find_all=False):
-
+        # TODO: change this to the requests package
         response = urllib2.urlopen(xml_url)
         form_xml = ET.fromstring(response.read())
 
@@ -294,9 +287,6 @@ class TinkerController(object):
                 if hasattr(md.find('value'), 'text'):
                     return_values.append(md.find('value').text)
         return return_values
-
-    def group_callback(self, node):
-        pass
 
     def get_edit_data(self, sdata, mdata, multiple=[]):
         """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
@@ -476,9 +466,6 @@ class TinkerController(object):
         self.cascade_call_logger(locals())
         return resp
 
-    def rename(self):
-        pass
-
     def move(self, page_id, destination_path, type='page'):
         resp = self.cascade_connector.move(page_id, destination_path, type)
         self.cascade_call_logger(locals())
@@ -572,8 +559,7 @@ class TinkerController(object):
         }
         return workflow
 
-    # to be used to escape content to give to Cascade
-    # Excape content so its Cascade WYSIWYG friendly
+    # Escape content so its Cascade WYSIWYG friendly
     def escape_wysiwyg_content(self, content):
         if content:
             uni = self.__html_entities_to_unicode__(content)
@@ -629,7 +615,7 @@ class TinkerController(object):
         return return_string
 
     def search_cascade(self, search_information):
-       return self.cascade_connector.search(search_information)
+        return self.cascade_connector.search(search_information)
 
     def edit_all(self, type_to_find, xml_url):
         # assets_to_edit = self.traverse_xml(xml_url, type_to_find)
