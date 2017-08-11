@@ -8,7 +8,9 @@ class FauxElement(object):
     def __init__(self, tag_type, text='', children={}):
         self.tag = tag_type
         self.text = text
+        self.attrib = dict()
         self.children = dict()
+        self.tail = None
         for key in children.keys():
             value = children[key]
             if isinstance(value, str):
@@ -21,6 +23,9 @@ class FauxElement(object):
 
     def findall(self, key_name):
         return [self.children.get(key_name)]
+
+    def __iter__(self):
+        return [self.children[key] for key in self.children.keys()].__iter__()
 
     def __repr__(self):
         return '(FauxElement) <' + self.tag + ' value="%s">: %s' % (self.text, pretty_print(self.children))
