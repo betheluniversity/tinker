@@ -54,7 +54,7 @@ class IterateChildXMLTestCase(EventsControllerBaseTestCase):
         self.assertEqual(response['title'], 'Tertiary Adjunct of Unimatrix 01')
 
         self.assertTrue(isinstance(response['html'], str))
-        self.assertEqual(response['html'], 'August 11, 2017 | 11:21 a.m. - 4:54 p.m.')
+        self.assertIn('August 11, 2017 |', response['html'])
 
         self.assertTrue(isinstance(response['path'], str))
         self.assertEqual(response['path'], 'https://www.bethel.edu/less-traveled')
