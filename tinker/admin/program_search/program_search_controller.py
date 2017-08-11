@@ -1,8 +1,8 @@
 # Global
 import csv
-import urllib2
 
 # Packages
+import requests
 from xml.etree import ElementTree as ET
 
 # Local
@@ -30,9 +30,8 @@ class ProgramSearchController(TinkerController):
         # gather a list of all program concentrations
         program_concentrations = []
 
-        # TODO: change this to the requests package
-        response = urllib2.urlopen(app.config['PROGRAMS_XML'])
-        xml = ET.fromstring(response.read())
+        response = requests.get(app.config['PROGRAMS_XML'])
+        xml = ET.fromstring(response.content)
         program_blocks = xml.findall('.//system-block')
 
         for block in program_blocks:

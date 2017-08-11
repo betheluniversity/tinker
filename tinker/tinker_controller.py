@@ -8,7 +8,6 @@ import logging
 import os
 import re
 import time
-import urllib2
 import warnings
 from functools import wraps
 from subprocess import call
@@ -261,9 +260,8 @@ class TinkerController(object):
         pass
 
     def traverse_xml(self, xml_url, type_to_find, find_all=False):
-        # TODO: change this to the requests package
-        response = urllib2.urlopen(xml_url)
-        form_xml = ET.fromstring(response.read())
+        response = requests.get(xml_url)
+        form_xml = ET.fromstring(response.content)
 
         matches = []
 
