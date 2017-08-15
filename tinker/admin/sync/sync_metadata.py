@@ -113,7 +113,6 @@ graduate_programs = [
 ]
 
 locations = [
-    'Anderson Center',
     'Arden Hills',
     'Bloomington',
     'North Hennepin Community College',
