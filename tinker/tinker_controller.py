@@ -10,12 +10,12 @@ import re
 import time
 import warnings
 from functools import wraps
+from HTMLParser import HTMLParser
 from subprocess import call
 from xml.etree import ElementTree as ET
 
 # Packages
 import requests
-from BeautifulSoup import BeautifulStoneSoup
 from createsend import Client
 from jinja2 import Environment, FileSystemLoader, meta
 from bu_cascade.assets.block import Block
@@ -326,7 +326,7 @@ class TinkerController(object):
         if not datetime_format:
             datetime_format = self.datetime_format
 
-        date = (datetime.datetime.strptime(date, datetime_format))
+        date = datetime.datetime.strptime(date, datetime_format)
 
         # if this is a time field with no date, the  year  will be 1900, and strftime("%s") will return -1000
         if date.year == 1900:
@@ -570,16 +570,14 @@ class TinkerController(object):
 
     def __html_entities_to_unicode__(self, text):
         """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
-        text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
-        return text
+        return HTMLParser().unescape(text)
 
     def __unicode_to_html_entities__(self, text):
         """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
-        text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
-        return text
+        return cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
 
     def __escape_xml_illegal_chars__(self, val, replacement='?'):
-        _illegal_xml_chars_RE = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+        _illegal_xml_chars_RE = re.compile(u'[\x00\x08\x0b\x0c\x0e\x1F\uD800\uDFFF\uFFFE\uFFFF]', re.UNICODE)
         return _illegal_xml_chars_RE.sub(replacement, val)
 
     def element_tree_to_html(self, node):
