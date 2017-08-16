@@ -6,7 +6,7 @@ from datetime import datetime
 from BeautifulSoup import BeautifulSoup
 
 # flask
-from flask import Blueprint, render_template, request, abort, session
+from flask import Blueprint, render_template, request, abort, session, Response, stream_with_context
 from flask_classy import FlaskView, route
 from flask_wtf import Form
 
@@ -237,5 +237,8 @@ class RedirectsView(FlaskView):
 
         app.logger.debug(": Correctly finished")
         return str(redirect)
+
+    def redirect_clear(self):
+        return Response(stream_with_context(self.base.update_redirect_file()))
 
 RedirectsView.register(RedirectsBlueprint)

@@ -1,4 +1,8 @@
+# import requests
+
 from datetime import datetime
+from httplib import InvalidURL
+
 from flask_sqlalchemy import SQLAlchemy
 
 # tinker
@@ -70,3 +74,52 @@ class RedirectsController(TinkerController):
 
     def rollback(self):
         self.db.session.rollback()
+
+    def update_redirect_file(self):
+        redirects = open(app.config['REDIRECTS_FILE_PATH'], 'r+')
+        to_write = ''
+        write_changes = ''
+        counter = 0
+        import urllib2
+        from urllib2 import addinfourl, URLError
+        for line in redirects:
+            try:
+                from_path, to_url = line.split(' ')
+                to_url = to_url.replace('\n', '')
+            except ValueError:
+                yield '<br/>' + line + 'ValueError'
+                continue
+            except InvalidURL:
+                yield '<br/>' + line + 'InvalidURL'
+                continue
+
+            try:
+                response = urllib2.urlopen('https://www.bethel.edu' + from_path)
+            except URLError:
+                continue
+
+            path = response.geturl()
+
+            if response.getcode() == 404:
+                # yield "deleted path %s <br/>" % from_path
+                write_changes += 'deleted path' + from_path + '<br/>'
+                continue
+
+            if '/oops' in to_url:
+                print "this from_path %s goes to oops %s" % (from_path, to_url)
+                continue
+
+            elif to_url != path:
+                # yield "changed to_url %s to %s <br/>" % (to_url, path)
+                write_changes += 'changed to_url' + to_url + 'to' + path + '<br/>'
+                to_url = path
+
+            to_write += from_path + ' ' + to_url + '\n'
+
+            counter += 1
+            if counter % 50 == 0:
+                yield '-'
+
+        yield write_changes
+        redirects.write(to_write)
+
