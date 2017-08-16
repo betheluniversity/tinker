@@ -11,6 +11,7 @@ suds
 simplejson
 --allow-external WTForms
 requests
+requests[security]
 Flask-SQLAlchemy
 SQLAlchemy-migrate
 BeautifulSoup
