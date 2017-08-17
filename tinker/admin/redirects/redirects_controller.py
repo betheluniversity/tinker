@@ -76,50 +76,50 @@ class RedirectsController(TinkerController):
         self.db.session.rollback()
 
     def update_redirect_file(self):
-        redirects = open(app.config['REDIRECTS_FILE_PATH'], 'r+')
         to_write = ''
         write_changes = ''
         counter = 0
         import urllib2
         from urllib2 import addinfourl, URLError
-        for line in redirects:
-            try:
-                from_path, to_url = line.split(' ')
-                to_url = to_url.replace('\n', '')
-            except ValueError:
-                yield '<br/>' + line + 'ValueError'
-                continue
-            except InvalidURL:
-                yield '<br/>' + line + 'InvalidURL'
-                continue
+        with open(app.config['REDIRECTS_FILE_PATH']) as redirects:
+            for line in redirects:
+                counter += 1
+                # if counter < 15000:
+                #     continue
+                try:
+                    from_path, to_url = line.split(' ')
+                    to_url = to_url.replace('\n', '')
+                except ValueError:
+                    yield line + 'ValueError <br/>'
+                    continue
 
-            try:
-                response = urllib2.urlopen('https://www.bethel.edu' + from_path)
-            except URLError:
-                continue
+                try:
+                    response = urllib2.urlopen('https://www.bethel.edu' + from_path)
+                except URLError:
+                    continue
+                except InvalidURL:
+                    yield line + 'InvalidURL <br/>'
+                    continue
 
-            path = response.geturl()
+                path = response.geturl()
 
-            if response.getcode() == 404:
-                # yield "deleted path %s <br/>" % from_path
-                write_changes += 'deleted path' + from_path + '<br/>'
-                continue
+                if response.getcode() == 404:
+                    write_changes += 'deleted path' + from_path + '<br/>'
+                    continue
 
-            if '/oops' in to_url:
-                print "this from_path %s goes to oops %s" % (from_path, to_url)
-                continue
+                if '/oops' in to_url:
+                    print "this from_path '%s' goes to oops %s" % (from_path, to_url)
+                    continue
 
-            elif to_url != path:
-                # yield "changed to_url %s to %s <br/>" % (to_url, path)
-                write_changes += 'changed to_url' + to_url + 'to' + path + '<br/>'
-                to_url = path
+                elif to_url != path:
+                    write_changes += 'changed to_url ' + to_url + ' to ' + path + '<br/>'
+                    to_url = path
 
-            to_write += from_path + ' ' + to_url + '\n'
+                to_write += from_path + ' ' + to_url + '\n'
 
-            counter += 1
-            if counter % 50 == 0:
-                yield '-'
+                if counter % 1000 == 0:
+                    yield line + ' line number %s <br/>' % counter
 
-        yield write_changes
-        redirects.write(to_write)
+            yield '\n' + write_changes
+        # redirects.write(to_write)
 
