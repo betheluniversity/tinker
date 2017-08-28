@@ -355,8 +355,6 @@ class TinkerController(object):
             if not has_text:
                 return
             try:
-                # todo move
-                import datetime
                 date = datetime.datetime.strptime(node['text'], '%m-%d-%Y')
                 if not date:
                     date = ''
