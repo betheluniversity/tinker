@@ -263,8 +263,6 @@ class EAnnouncementsView(FlaskView):
 
         except:
             self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.", resp)
-            self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.",
-                                 resp)
             return str(resp)
 
     def edit_all(self):

@@ -94,7 +94,7 @@ class UnitTestInterface(FlaskView):
     @route('/<path:module>', methods=['GET'])
     def interface(self, module="all"):
         output = StringIO()
-        test_suite_location = app.config['INSTALL_LOCATION'] + "/testing_suite"
+        test_suite_location = app.config['INSTALL_LOCATION'] + "/testing_suite/integration_tests"
         acceptable_modules = ["admin/blink_roles_tests", "admin/cache_tests", "admin/program_search_tests",
                               "admin/publish_tests", "admin/redirects_tests", "admin/sync_tests",
                               "e_announcements_tests", "events_tests", "faculty_bios_tests", "office_hours_tests"]

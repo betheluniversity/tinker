@@ -17,8 +17,8 @@ class SetReadonlyValuesTestCase(EAnnouncementsControllerBaseTestCase):
 
     def test_set_readonly_values(self):
         test_edit_data = {
-            'first_date': datetime(2017, 8, 17),
-            'second_date': datetime(2017, 8, 21)
+            'first_date': datetime(2018, 8, 17),
+            'second_date': datetime(2018, 8, 21)
         }
         self.controller.set_readonly_values(test_edit_data)
 
