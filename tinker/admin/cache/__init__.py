@@ -1,8 +1,8 @@
-# flask
-from flask import Flask, render_template, Blueprint, session, abort, request
+# Packages
+from flask import Blueprint, render_template, request
 from flask_classy import FlaskView, route
 
-# tinker
+# Local
 from tinker.admin.cache.cache_controller import CacheController
 from tinker.tinker_controller import admin_permissions
 

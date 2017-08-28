@@ -1,19 +1,18 @@
+# Global
 import re
+import requests
 import smtplib
 import time
-import requests
 from datetime import datetime
+
+# Packages
 from BeautifulSoup import BeautifulSoup
-
-# flask
-from flask import Blueprint, render_template, request, abort, session
+from flask import Blueprint, render_template, request
 from flask_classy import FlaskView, route
-from flask_wtf import Form
 
-# tinker
+# Local
 from tinker import app, db
 from tinker.admin.redirects.redirects_controller import RedirectsController
-from tinker import *
 from tinker.tinker_controller import requires_auth
 from tinker.tinker_controller import admin_permissions
 RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
@@ -95,7 +94,7 @@ class RedirectsView(FlaskView):
         """ Load new redirects from a Marcel spreadhseet."""
         import gspread
         from oauth2client.service_account import ServiceAccountCredentials
-        from sqlite3 import IntegrityError
+        # from sqlite3 import IntegrityError
         scope = ['https://spreadsheets.google.com/feeds']
 
         credentials = ServiceAccountCredentials.from_json_keyfile_name(app.config['GSPREAD_CONFIG'], scope)
@@ -124,7 +123,7 @@ class RedirectsView(FlaskView):
     def marcel_check(self, key):
         import gspread
         from oauth2client.service_account import ServiceAccountCredentials
-        from sqlite3 import IntegrityError
+        # from sqlite3 import IntegrityError
         scope = ['https://spreadsheets.google.com/feeds']
 
         credentials = ServiceAccountCredentials.from_json_keyfile_name(app.config['GSPREAD_CONFIG'], scope)

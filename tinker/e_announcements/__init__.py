@@ -1,18 +1,18 @@
+# Global
 import datetime
-from createsend import *
 
-# bu-cascade
-from bu_cascade.asset_tools import *
+# Packages
+from bu_cascade.asset_tools import find
+from createsend import Campaign, CreateSend
+from flask import abort, Blueprint, render_template, session
+from flask_classy import FlaskView, request, route
 
-# tinker
+# Local
 from tinker import app
 from tinker.tinker_controller import requires_auth
 from e_announcements_controller import EAnnouncementsController
 from campaign_controller import CampaignController
 
-# flask
-from flask import Blueprint, render_template, url_for, redirect, session, abort
-from flask_classy import FlaskView, route, request
 
 EAnnouncementsBlueprint = Blueprint('e_announcements', __name__, template_folder='templates')
 
@@ -128,9 +128,15 @@ class EAnnouncementsView(FlaskView):
         rform = request.form
         eaid = rform.get('e_announcement_id')
 
-        failed = self.base.validate_form(rform)
-        if failed:
-            return failed
+        form, passed = self.base.validate_form(rform)
+        if not passed:
+            if 'e_announcement_id' in rform.keys():
+                e_announcement_id = rform['e_announcement_id']
+            else:
+                new_form = True
+            # bring in the mapping
+            brm = self.base.brm
+            return render_template('form.html', **locals())
 
         if not eaid:
             status = "new"
@@ -257,8 +263,6 @@ class EAnnouncementsView(FlaskView):
 
         except:
             self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.", resp)
-            self.base.log_sentry("E-Announcements had an error. It seems to have exited without sending the campaign.",
-                                 resp)
             return str(resp)
 
     def edit_all(self):

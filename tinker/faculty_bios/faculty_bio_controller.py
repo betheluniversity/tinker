@@ -1,13 +1,15 @@
+# Global
 import base64
 import json
 import re
-import urllib2
 
-from operator import itemgetter
-from xml.etree import ElementTree
-from wtforms import ValidationError
-from tinker.tinker_controller import *
-from tinker.admin.sync.sync_metadata import data_to_add
+# Packages
+from bu_cascade.asset_tools import find
+from flask import session
+
+# Local
+from tinker import app
+from tinker.tinker_controller import TinkerController
 
 
 class FacultyBioController(TinkerController):
@@ -20,6 +22,7 @@ class FacultyBioController(TinkerController):
             'Business & Economics':                         'Business Economics',
             'Chemistry':                                    'Chemistry',
             'Communication Studies':                        'Communication',
+            'Doctor of Ministry':                           'Doctor of Ministry',
             'Education':                                    'Education',
             'English':                                      'English',
             'Environmental Studies':                        'Environmental Studies',
@@ -28,7 +31,6 @@ class FacultyBioController(TinkerController):
             'Honors':                                       'Honors',
             'Human Kinetics & Applied Health Science':      'Human Kinetics',
             'Math & Computer Science':                      'Math CS',
-            'World Languages and Cultures':                 'World Languages',
             'Music':                                        'Music',
             'Nursing':                                      'Nursing',
             'Philosophy':                                   'Philosophy',
@@ -37,7 +39,7 @@ class FacultyBioController(TinkerController):
             'Psychology':                                   'Psychology',
             'Social Work':                                  'Social Work',
             'Theatre Arts':                                 'Theatre',
-            'Doctor of Ministry':                           'Doctor of Ministry'
+            'World Languages and Cultures':                 'World Languages',
         }
         return mapping
 
@@ -144,11 +146,10 @@ class FacultyBioController(TinkerController):
 
     def is_user_in_web_author_groups(self):
         for key, value in self.get_mapping().iteritems():
-            try:
-                if value in session['groups']:
-                    return True
-            except:
-                continue
+            # TODO: PG, Aug 9 2017: I removed a try/except block from around this if statement since it appears useless
+            # If there are exceptions all of a sudden, this is how to fix it.
+            if value in session['groups']:
+                return True
 
         return False
 
@@ -508,7 +509,7 @@ class FacultyBioController(TinkerController):
 
     # this is used to generate the checkboxes that aren't on the tinker form, but are on the Cascade DataDef
     def get_wysiwyg_checkboxes(self, add_data):
-
+        # TODO: this checks for 'courses' twice and assigns a different value each time, should be investigated
         options = []
 
         if add_data.get('biography', None):

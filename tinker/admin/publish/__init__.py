@@ -1,15 +1,14 @@
+# Global
 import re
-import urllib
+
+# Packages
+import requests
 from BeautifulSoup import BeautifulSoup
-
-# bu-cascade
-from bu_cascade.asset_tools import *
-
-# flask
-from flask import Blueprint, render_template, request, abort, session
+from bu_cascade.asset_tools import find
+from flask import Blueprint, render_template, request, session
 from flask_classy import FlaskView, route
 
-# tinker
+# Local
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
 from tinker.tinker_controller import admin_permissions
 
@@ -157,7 +156,7 @@ class PublishView(FlaskView):
 
                 # prod
                 www_publish_date = 'N/A'
-                page3 = urllib.urlopen("https://www.bethel.edu/" + path + '.' + ext).read()
+                page3 = requests.get("https://www.bethel.edu/" + path + '.' + ext).content
                 soup3 = BeautifulSoup(page3)
                 date = soup3.findAll(attrs={"name": "date"})
                 if date:
@@ -165,7 +164,7 @@ class PublishView(FlaskView):
 
                 # staging
                 staging_publish_date = 'N/A'
-                page3 = urllib.urlopen("https://staging.bethel.edu/" + path + '.' + ext).read()
+                page3 = requests.get("https://staging.bethel.edu/" + path + '.' + ext).content
                 soup3 = BeautifulSoup(page3)
                 date = soup3.findAll(attrs={"name": "date"})
                 if date:

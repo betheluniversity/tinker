@@ -1,23 +1,9 @@
-# coding: utf-8
-
-# python
-
-# modules
-from flask import session
+# Packages
+from bu_cascade.asset_tools import find
 from flask_wtf import Form
-from wtforms import ValidationError
-from wtforms import StringField
-from wtforms import SelectMultipleField
-from wtforms import TextAreaField
-from wtforms import DateField
-from wtforms import HiddenField
-from wtforms import Field
-from wtforms import validators
-from wtforms import widgets
+from wtforms import DateField, Field, SelectMultipleField, StringField, TextAreaField, validators, widgets
 
-# local
-from tinker import app
-from bu_cascade.asset_tools import *
+# Local
 from tinker.tinker_controller import TinkerController
 
 

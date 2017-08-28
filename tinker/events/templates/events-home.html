@@ -60,7 +60,7 @@
 
                 <div>
                     {# create an event button #}
-                    <a href="add#page-title" id="event-create" class="btn btn-primary new-btn">
+                    <a href="{{ url_for('events.EventsView:add') }}" id="event-create" class="btn btn-primary new-btn">
                         Create New Event
                     </a>
                     {# in action add the url calling the post method for search#}
