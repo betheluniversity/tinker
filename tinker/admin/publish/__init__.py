@@ -30,11 +30,11 @@ class PublishView(FlaskView):
         username = session['username']
         return render_template('admin/publish/home.html', **locals())
 
-    @route("/program-feeds", methods=['get', 'post'])
+    @route("/program-feeds")
     def publish_program_feeds(self):
         return render_template('admin/publish/program-feeds.html', **locals())
 
-    @route("/program-feeds/<destination>", methods=['get', 'post'])
+    @route("/program-feeds/<destination>")
     def publish_program_feeds_return(self, destination=''):
         if destination != "production":
             destination = "staging"
@@ -74,7 +74,7 @@ class PublishView(FlaskView):
 
     # Finds all pages, blocks, files, and folders dependent on the
     # name, content, or metadata entered by the user
-    @route('/search', methods=['get', 'post'])
+    @route('/search', methods=['post'])
     def search(self):
         name = request.form['name']
         content = request.form['content']
@@ -125,7 +125,7 @@ class PublishView(FlaskView):
 
     # Displays info about the published block or page
     # Displays examples on web page
-    @route("/more_info", methods=['post'])
+    @route("/more-info", methods=['post'])
     def more_info(self):
         info_type = request.form['type']
         info_id = request.form['id']
