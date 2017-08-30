@@ -19,7 +19,7 @@ class CacheView(FlaskView):
         admin_permissions(self)
 
     def index(self):
-        return render_template('admin/cache/cache-home.html')
+        return render_template('admin/cache/home.html')
 
     # Todo: update the return of this to be creative-tim's notifications
     @route("/submit", methods=['post'])

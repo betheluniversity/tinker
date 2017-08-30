@@ -34,7 +34,7 @@ class CampaignController(TinkerController):
     def e_announcement_html(self, announcement):
         title = announcement['title']
         message = announcement['message']
-        return render_template('announcement.html', **locals())
+        return render_template('e-announcements/announcement.html', **locals())
 
     # Checks if the date provided is a valid date
     # Valid days are 1) not in the past

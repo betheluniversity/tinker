@@ -31,7 +31,7 @@ class SyncView(FlaskView):
         metadata_sets_mapping = self.base.get_metadata_sets_mapping()
         data_definition_mapping = self.base.get_data_definitions_mapping()
 
-        return render_template('sync-home.html', **locals())
+        return render_template('admin/sync/home.html', **locals())
 
     @route("/all", methods=['post'])
     def all(self):
@@ -50,7 +50,7 @@ class SyncView(FlaskView):
         returned_keys.extend(self.base.sync_metadata_sets(metadata_sets_mapping))
         returned_keys.extend(self.base.sync_data_definitions(data_definition_mapping))
 
-        return render_template('sync-data.html', **locals())
+        return render_template('admin/sync/data.html', **locals())
 
     @route("/metadata", methods=['post'])
     def metadata(self):
@@ -67,7 +67,7 @@ class SyncView(FlaskView):
         # sync
         returned_keys = self.base.sync_metadata_set(id)
 
-        return render_template('sync-data.html', **locals())
+        return render_template('admin/sync/data.html', **locals())
 
     @route("/datadefinition", methods=['post'])
     def datadefinition(self):
@@ -84,6 +84,6 @@ class SyncView(FlaskView):
         # sync
         returned_keys = self.base.sync_data_definition(id)
 
-        return render_template('sync-data.html', **locals())
+        return render_template('admin/sync/data.html', **locals())
 
 SyncView.register(SyncBlueprint)

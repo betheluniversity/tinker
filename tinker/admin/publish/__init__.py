@@ -28,11 +28,11 @@ class PublishView(FlaskView):
     # Publish manager's homepage
     def index(self):
         username = session['username']
-        return render_template('publish-home.html', **locals())
+        return render_template('admin/publish/home.html', **locals())
 
     @route("/program-feeds", methods=['get', 'post'])
     def publish_program_feeds(self):
-        return render_template('publish-program-feeds.html', **locals())
+        return render_template('admin/publish/program-feeds.html', **locals())
 
     @route("/program-feeds/<destination>", methods=['get', 'post'])
     def publish_program_feeds_return(self, destination=''):
@@ -70,7 +70,7 @@ class PublishView(FlaskView):
 
                 final_results.append({'id': result.id, 'path': result.path.path, 'pages': pages_added})
 
-        return render_template('publish-program-feeds-table.html', **locals())
+        return render_template('admin/publish/program-feeds-table.html', **locals())
 
     # Finds all pages, blocks, files, and folders dependent on the
     # name, content, or metadata entered by the user
@@ -97,7 +97,7 @@ class PublishView(FlaskView):
                 final_results.append(result)
 
         results = final_results
-        return render_template('publish-table.html', **locals())
+        return render_template('admin/publish/table.html', **locals())
 
     # Publishes the block or page that user
     @route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
@@ -174,6 +174,6 @@ class PublishView(FlaskView):
                 www_publish_date = 'N/A'
                 staging_publish_date = 'N/A'
 
-        return render_template("publish-more-info.html", **locals())
+        return render_template("admin/publish/more-info.html", **locals())
 
 PublishView.register(PublishBlueprint)

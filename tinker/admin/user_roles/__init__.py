@@ -26,7 +26,7 @@ class UserRolesView(FlaskView):
             admin_permissions(self)
 
     def index(self):
-        return render_template('user_roles_home.html', **locals())
+        return render_template('admin/user-roles/home.html', **locals())
 
     @route('/test_roles_and_users_submit', methods=['POST'])
     def test_roles_and_users_submit(self):
