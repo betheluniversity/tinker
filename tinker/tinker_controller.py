@@ -180,7 +180,7 @@ class TinkerController(object):
                     try:
                         user = self.read(username, "user")
                         allowed_groups = find(user, 'groups', False)
-                    except AttributeError:
+                    except:
                         allowed_groups = ""
                 else:
                     allowed_groups = ""

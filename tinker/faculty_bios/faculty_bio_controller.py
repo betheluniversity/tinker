@@ -279,7 +279,7 @@ class FacultyBioController(TinkerController):
         add_data['image'] = self.create_faculty_bio_image(add_data)
 
         # todo: this is a temp fix to override the already set system-name
-        new_system_name = add_data['last'].strip() + ' ' + add_data['first'].strip()
+        new_system_name = add_data['last'].strip() + '-' + add_data['first'].strip()
         new_system_name = new_system_name.lower().replace(' ', '-')
         add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', new_system_name)
 
@@ -437,6 +437,7 @@ class FacultyBioController(TinkerController):
         form = FacultyBioForm(rform)
 
         # todo: remove this code for jenny vang soon
+        # this allows jenny vang to submit any faculty bio form even if it has errors
         if session['username'] == 'jev24849':
             return form
 
@@ -543,20 +544,11 @@ class FacultyBioController(TinkerController):
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
-        print 'research-interests ' + str(find(asset_data, 'research-interests', False))
-        print 'teaching-specialty ' + str(find(asset_data, 'teaching-specialty', False))
-        print 'highlight ' + str(find(asset_data, 'highlight', False))
-        print 'biography ' + str(find(asset_data, 'biography', False))
-        print 'awards ' + str(find(asset_data, 'awards', False))
-        print 'publications ' + str(find(asset_data, 'publications', False))
-        print 'presentations ' + str(find(asset_data, 'presentations', False))
-        print 'certificates ' + str(find(asset_data, 'certificates', False))
-        print 'organizations ' + str(find(asset_data, 'organizations', False))
-        print 'hobbies ' + str(find(asset_data, 'hobbies', False))
-        print 'quote ' + str(find(asset_data, 'quote', False))
-        print 'website ' + str(find(asset_data, 'website', False))
-        print ''
 
+        # first_name = find(asset_data, 'first', False)
+        # last_name = find(asset_data, 'last', False)
+        # update(asset_data, 'name', last_name.lower() + '-' + first_name.lower())
+        # update(asset_data, 'title', first_name + ' ' + last_name)
 
         # Todo: remove this code when the faculty bios have been successfully been transfered.
         # # move areas of interest
