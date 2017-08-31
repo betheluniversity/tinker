@@ -116,6 +116,7 @@ class TinkerController(object):
                 day_is_passed = time.time() - session['session_time'] >= seconds_in_day
             else:
                 day_is_passed = True
+                session['session_time'] = time.time()
 
             # if not production, then clear our session variables on each call
             if (not session.get('admin_viewer', False)) and (dev or day_is_passed):
@@ -142,7 +143,6 @@ class TinkerController(object):
             if 'name' not in session.keys() and session['username']:
                 get_users_name()
 
-            session['session_time'] = time.time()
 
         def get_user():
             if current_app.config['ENVIRON'] == 'prod':
