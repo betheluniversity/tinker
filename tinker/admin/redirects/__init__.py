@@ -239,6 +239,6 @@ class RedirectsView(FlaskView):
         return str(redirect)
 
     def redirect_clear(self):
-        return Response(stream_with_context(self.base.update_redirect_file()))
+        return Response(stream_with_context(self.base.redirect_change()))
 
 RedirectsView.register(RedirectsBlueprint)

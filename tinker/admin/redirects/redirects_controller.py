@@ -1,4 +1,4 @@
-# import requests
+import requests
 
 from datetime import datetime
 from httplib import InvalidURL
@@ -6,6 +6,8 @@ from httplib import InvalidURL
 from flask_sqlalchemy import SQLAlchemy
 
 # tinker
+from requests.exceptions import SSLError, ConnectionError
+
 from tinker import app
 from tinker.admin.redirects.models import BethelRedirect
 from tinker.tinker_controller import TinkerController
@@ -75,51 +77,78 @@ class RedirectsController(TinkerController):
     def rollback(self):
         self.db.session.rollback()
 
-    def update_redirect_file(self):
-        to_write = ''
-        write_changes = ''
-        counter = 0
-        import urllib2
-        from urllib2 import addinfourl, URLError
-        with open(app.config['REDIRECTS_FILE_PATH']) as redirects:
-            for line in redirects:
-                counter += 1
-                # if counter < 15000:
-                #     continue
-                try:
-                    from_path, to_url = line.split(' ')
-                    to_url = to_url.replace('\n', '')
-                except ValueError:
-                    yield line + 'ValueError <br/>'
-                    continue
+    def redirect_change(self):
+        # import urllib2
+        # from urllib2 import addinfourl, URLError
 
-                try:
-                    response = urllib2.urlopen('https://www.bethel.edu' + from_path)
-                except URLError:
-                    continue
-                except InvalidURL:
-                    yield line + 'InvalidURL <br/>'
-                    continue
+        redirects = BethelRedirect.query.all()
+        for row in redirects:
+            try:
+                response = requests.get('https://www.bethel.edu' + row.from_path)
+                row.to_url.replace('\n', '')
+                row.to_url.replace(' ', '')
+            except SSLError:
+                # Throws SSLError for an unknown reason, skipping it because we can't create the response object
+                continue
+            except ConnectionError:  # TODO come back to this error
+                continue
+            except:
+                pass
 
-                path = response.geturl()
+            if response.url != row.to_url:
+                yield 'changing %s to %s <br/>' % (row.to_url, response.url)
+                # redirects.replace(row.to_url, response.url)
 
-                if response.getcode() == 404:
-                    write_changes += 'deleted path' + from_path + '<br/>'
-                    continue
-
-                if '/oops' in to_url:
-                    print "this from_path '%s' goes to oops %s" % (from_path, to_url)
-                    continue
-
-                elif to_url != path:
-                    write_changes += 'changed to_url ' + to_url + ' to ' + path + '<br/>'
-                    to_url = path
-
-                to_write += from_path + ' ' + to_url + '\n'
-
-                if counter % 1000 == 0:
-                    yield line + ' line number %s <br/>' % counter
-
-            yield '\n' + write_changes
-        # redirects.write(to_write)
+    # def update_redirect_file(self):
+    #     changes = open('/Users/bak45247/Desktop/RedirectChanges.txt', 'r+')
+    #     to_write = ''
+    #     write_changes = ''
+    #     counter = 0
+    #     import urllib2
+    #     from urllib2 import addinfourl, URLError
+    #     with open(app.config['REDIRECTS_FILE_PATH']) as redirects:
+    #         for line in redirects:
+    #             counter += 1
+    #             if counter < 850:
+    #                 continue
+    #             try:
+    #                 from_path, to_url = line.split(' ')
+    #                 to_url = to_url.replace('\n', '')
+    #             except ValueError:
+    #                 yield line + 'ValueError <br/>'
+    #                 continue
+    #
+    #             try:
+    #                 response = urllib2.urlopen('https://www.bethel.edu' + from_path)
+    #             except URLError, e:
+    #                 yield line + 'URLError <br/>'
+    #                 print e.args
+    #                 continue
+    #             except InvalidURL:
+    #                 yield line + 'InvalidURL <br/>'
+    #                 continue
+    #
+    #             path = response.geturl()
+    #
+    #             if response.getcode() == 404:
+    #                 write_changes += 'deleted path' + from_path + '<br/>'
+    #                 continue
+    #
+    #             if '/oops' in to_url:
+    #                 print "this from_path '%s' goes to oops %s" % (from_path, to_url)
+    #                 continue
+    #
+    #             elif to_url != path:
+    #                 write_changes += 'changed to_url ' + to_url + ' to ' + path + '<br/>'
+    #                 to_url = path
+    #
+    #             to_write += from_path + ' ' + to_url + '\n'
+    #
+    #             # prints every thousandth line, if it skips a thousandth line, that means the redirect either failed or points to oops
+    #             if counter % 100 == 0:
+    #                 yield line + ' line number %s <br/>' % counter
+    #
+    #         yield '\n' + write_changes
+    #     # redirects.write(to_write)
+    #     changes.write(write_changes)
 
