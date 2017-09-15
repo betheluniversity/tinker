@@ -1,15 +1,19 @@
+# Global
+import datetime
 import json
 import time
-import datetime
-from flask import Response
-from flask_classy import FlaskView, route
-from tinker.events.events_controller import EventsController
+
+# Packages
 from bu_cascade.asset_tools import update
-from flask import Blueprint, redirect, session, render_template, request, url_for, json as fjson
-from tinker import app
-from events_metadata import metadata_list
+from flask import Blueprint, redirect, session, render_template, request, url_for
+from flask_classy import FlaskView, route
 # python 2.6 or earlier -- Todo: when we upgrade, use from collections import OrderedDict
 from ordereddict import OrderedDict
+
+# Local
+from events_metadata import metadata_list
+from tinker import app
+from tinker.events.events_controller import EventsController
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
@@ -92,13 +96,20 @@ class EventsView(FlaskView):
         username = session['username']
         eid = rform.get('event_id')
         dates, num_dates = self.base.get_event_dates(rform)
-        dates_str, dates_good = self.base.check_event_dates(num_dates, dates)
-        failed = self.base.validate_form(rform, dates_good, dates_str)
+        dates_str, dates_good = self.base.check_event_dates(dates)
+        form, passed = self.base.validate_form(rform, dates_good)
         workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], rform['author'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
         wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']
-        if failed:
-            return failed
+        if not passed:
+            if 'event_id' in rform.keys():
+                event_id = rform['event_id']
+            else:
+                new_form = True
+            author = rform["author"]
+            num_dates = int(rform['num_dates'])
+
+            return render_template('event-form.html', **locals())
 
         add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow)
 

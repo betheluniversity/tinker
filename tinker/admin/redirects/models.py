@@ -2,7 +2,7 @@ from tinker import db
 
 
 class BethelRedirect(db.Model):
-    from_path = db.Column(db.String(256), primary_key=True)
+    from_path = db.Column(db.String(256), primary_key=True, default='no_path_provided')
     to_url = db.Column(db.String(256))
     short_url = db.Column(db.Boolean)
     expiration_date = db.Column(db.Date)

@@ -1,8 +1,11 @@
+# Global
 import os
-from flask import send_from_directory
+
+# Packages
+from flask import Blueprint, render_template, send_file, send_from_directory
 from flask_classy import FlaskView
-from flask import Flask, Blueprint, session
-from flask import render_template, send_file
+
+# Local
 from tinker import app
 
 

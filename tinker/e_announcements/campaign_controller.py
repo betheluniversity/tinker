@@ -1,11 +1,11 @@
+# Global
 import datetime
 import math
-from createsend import *
 
-# flask
+# Packages
 from flask import render_template
 
-# tinker
+# Local
 from tinker.tinker_controller import TinkerController
 
 
@@ -125,4 +125,3 @@ class CampaignController(TinkerController):
             if_block += '[else]%s[endif]' % '<p>There are no E-Announcements for you today.</p>'
 
         return if_block
-

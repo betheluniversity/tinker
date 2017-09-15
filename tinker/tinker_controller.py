@@ -1,47 +1,34 @@
-import urllib2
-import re
-import inspect
-import time
+# Global
 import cgi
-from xml.etree import ElementTree as ET
-import requests
-from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlatformWarning
 import datetime
 import fnmatch
 import hashlib
+import inspect
 import logging
 import os
-from jinja2 import Environment, FileSystemLoader, meta
+import re
+import time
+import warnings
 from functools import wraps
+from HTMLParser import HTMLParser
 from subprocess import call
-from createsend import *
+from xml.etree import ElementTree as ET
 
-# flask
-from flask import request
-from flask import session
-from flask import current_app
-from flask import render_template
-from flask import json as fjson
-from flask import Response
-from flask import abort
-
+# Packages
+import requests
+from createsend import Client
+from jinja2 import Environment, FileSystemLoader, meta
 from bu_cascade.assets.block import Block
-from bu_cascade.assets.page import Page
-from bu_cascade.assets.metadata_set import MetadataSet
 from bu_cascade.assets.data_definition import DataDefinition
-from bu_cascade.asset_tools import *
+from bu_cascade.assets.metadata_set import MetadataSet
+from bu_cascade.assets.page import Page
+from bu_cascade.asset_tools import find, update
+from flask import abort, current_app, render_template, request, Response, session
+from flask import json as fjson
+from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlatformWarning
 
-from tinker import app
-from tinker import sentry
-from tinker import cascade_connector
-from BeautifulSoup import BeautifulStoneSoup
-
-
-def should_be_able_to_edit_image(roles):
-    if 'FACULTY-CAS' in roles or 'FACULTY-BSSP' in roles or 'FACULTY-BSSD' in roles:
-        return False
-    else:
-        return True
+# Local
+from tinker import app, cascade_connector, sentry
 
 
 def check_auth(username, password):
@@ -112,6 +99,7 @@ def admin_permissions(flask_view_class):
 
 class TinkerController(object):
     def __init__(self):
+        warnings.filterwarnings("ignore", category=DeprecationWarning)
         # These two lines are to suppress warnings that only occur in 2.6.9; they are unnecessary in 2.7+
         requests.packages.urllib3.disable_warnings(SNIMissingWarning)
         requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
@@ -128,6 +116,7 @@ class TinkerController(object):
                 day_is_passed = time.time() - session['session_time'] >= seconds_in_day
             else:
                 day_is_passed = True
+                session['session_time'] = time.time()
 
             # if not production, then clear our session variables on each call
             if (not session.get('admin_viewer', False)) and (dev or day_is_passed):
@@ -148,13 +137,12 @@ class TinkerController(object):
                 get_nav()
 
             if 'user_email' not in session.keys() and session['username']:
-                # todo, get prefered email (alias) from wsapi once its added.
+                # todo, get preferred email (alias) from wsapi once its added.
                 session['user_email'] = session['username'] + "@bethel.edu"
 
             if 'name' not in session.keys() and session['username']:
                 get_users_name()
 
-            session['session_time'] = time.time()
 
         def get_user():
             if current_app.config['ENVIRON'] == 'prod':
@@ -192,7 +180,7 @@ class TinkerController(object):
                     try:
                         user = self.read(username, "user")
                         allowed_groups = find(user, 'groups', False)
-                    except AttributeError:
+                    except:
                         allowed_groups = ""
                 else:
                     allowed_groups = ""
@@ -272,9 +260,8 @@ class TinkerController(object):
         pass
 
     def traverse_xml(self, xml_url, type_to_find, find_all=False):
-
-        response = urllib2.urlopen(xml_url)
-        form_xml = ET.fromstring(response.read())
+        response = requests.get(xml_url)
+        form_xml = ET.fromstring(response.content)
 
         matches = []
 
@@ -298,9 +285,6 @@ class TinkerController(object):
                 if hasattr(md.find('value'), 'text'):
                     return_values.append(md.find('value').text)
         return return_values
-
-    def group_callback(self, node):
-        pass
 
     def get_edit_data(self, sdata, mdata, multiple=[]):
         """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
@@ -342,7 +326,7 @@ class TinkerController(object):
         if not datetime_format:
             datetime_format = self.datetime_format
 
-        date = (datetime.datetime.strptime(date, datetime_format))
+        date = datetime.datetime.strptime(date, datetime_format)
 
         # if this is a time field with no date, the  year  will be 1900, and strftime("%s") will return -1000
         if date.year == 1900:
@@ -371,8 +355,6 @@ class TinkerController(object):
             if not has_text:
                 return
             try:
-                # todo move
-                import datetime
                 date = datetime.datetime.strptime(node['text'], '%m-%d-%Y')
                 if not date:
                     date = ''
@@ -480,9 +462,6 @@ class TinkerController(object):
         self.cascade_call_logger(locals())
         return resp
 
-    def rename(self):
-        pass
-
     def move(self, page_id, destination_path, type='page'):
         resp = self.cascade_connector.move(page_id, destination_path, type)
         self.cascade_call_logger(locals())
@@ -544,7 +523,8 @@ class TinkerController(object):
             resp.append(path)
             # remove the file at the path
             # if config.ENVIRON == "prod":
-            call(['rm', path])
+            if not app.config['UNIT_TESTING']:
+                call(['rm', path])
 
         # now the result storage
         file_name = image_path.split('/')[-1]
@@ -575,8 +555,7 @@ class TinkerController(object):
         }
         return workflow
 
-    # to be used to escape content to give to Cascade
-    # Excape content so its Cascade WYSIWYG friendly
+    # Escape content so its Cascade WYSIWYG friendly
     def escape_wysiwyg_content(self, content):
         if content:
             uni = self.__html_entities_to_unicode__(content)
@@ -589,16 +568,14 @@ class TinkerController(object):
 
     def __html_entities_to_unicode__(self, text):
         """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
-        text = unicode(BeautifulStoneSoup(text, convertEntities=BeautifulStoneSoup.ALL_ENTITIES))
-        return text
+        return HTMLParser().unescape(text)
 
     def __unicode_to_html_entities__(self, text):
         """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
-        text = cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
-        return text
+        return cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
 
     def __escape_xml_illegal_chars__(self, val, replacement='?'):
-        _illegal_xml_chars_RE = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+        _illegal_xml_chars_RE = re.compile(u'[\x00\x08\x0b\x0c\x0e\x1F\uD800\uDFFF\uFFFE\uFFFF]', re.UNICODE)
         return _illegal_xml_chars_RE.sub(replacement, val)
 
     def element_tree_to_html(self, node):
@@ -632,7 +609,7 @@ class TinkerController(object):
         return return_string
 
     def search_cascade(self, search_information):
-       return self.cascade_connector.search(search_information)
+        return self.cascade_connector.search(search_information)
 
     def edit_all(self, type_to_find, xml_url):
         # assets_to_edit = self.traverse_xml(xml_url, type_to_find)

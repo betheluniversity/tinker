@@ -1,16 +1,17 @@
-from werkzeug.utils import secure_filename
+# Global
+import json
+from operator import itemgetter
 
-# bu-cascade
-from bu_cascade.asset_tools import *
-
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-# flask
-from flask import Blueprint, redirect, send_from_directory, abort
+# Packages
+from bu_cascade.asset_tools import find, update
+from flask import abort, Blueprint, redirect, render_template, request, session
+from flask import json as fjson
 from flask_classy import FlaskView, route
-# tinker
+
+# Local
+from tinker import app
 from tinker.admin.sync.sync_metadata import data_to_add
-from faculty_bio_controller import *
+from faculty_bio_controller import FacultyBioController
 
 
 FacultyBiosBlueprint = Blueprint('faculty_bios', __name__, template_folder='templates')
@@ -26,6 +27,7 @@ class FacultyBiosView(FlaskView):
     def before_request(self, name, **kwargs):
         if 'FACULTY' not in session['roles'] \
                 and 'SPONSORED-FACULTY' not in session['roles'] \
+                and 'Tinker Faculty Bios' not in session['groups'] \
                 and 'Tinker Faculty Bios - CAS' not in session['groups'] \
                 and 'Tinker Faculty Bios - CAPS and GS' not in session['groups'] \
                 and 'Tinker Faculty Bios - SEM' not in session['groups'] \

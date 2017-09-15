@@ -1,10 +1,10 @@
-# bu-cascade
+# Packages
 from bu_cascade import asset_tools
 
-# tinker
+# Local
+from tinker import app
 from tinker.tinker_controller import TinkerController
 from tinker.admin.sync.sync_metadata import data_to_add
-from tinker import app
 
 
 class SyncController(TinkerController):

@@ -1,9 +1,14 @@
+# Global
 import csv
 
-# tinker
+# Packages
+import requests
+from xml.etree import ElementTree as ET
+
+# Local
+from tinker import app
 from tinker.admin.program_search.models import ProgramTag
-from tinker.tinker_controller import *
-from tinker import app, db
+from tinker.tinker_controller import TinkerController
 
 
 class ProgramSearchController(TinkerController):
@@ -25,8 +30,8 @@ class ProgramSearchController(TinkerController):
         # gather a list of all program concentrations
         program_concentrations = []
 
-        response = urllib2.urlopen(app.config['PROGRAMS_XML'])
-        xml = ET.fromstring(response.read())
+        response = requests.get(app.config['PROGRAMS_XML'])
+        xml = ET.fromstring(response.content)
         program_blocks = xml.findall('.//system-block')
 
         for block in program_blocks:

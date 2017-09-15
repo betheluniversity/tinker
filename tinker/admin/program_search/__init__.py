@@ -1,18 +1,19 @@
+# Global
 import ast
 import json
 
-# flask
-from flask_classy import FlaskView
-from flask import Blueprint
-from flask import abort
-from flask_classy import route
-
+# Packages
+from flask import abort, Blueprint, render_template, request
+from flask_classy import FlaskView, route
 from sqlalchemy import or_
 
-# tinker
+# Local
+from tinker import db
 from tinker.admin.program_search.models import ProgramTag
-from tinker.admin.program_search.program_search_controller import *
+from tinker.admin.program_search.program_search_controller import ProgramSearchController
 from tinker.tinker_controller import admin_permissions
+
+
 ProgramSearchBlueprint = Blueprint("program_search", __name__, template_folder='templates')
 
 

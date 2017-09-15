@@ -1,14 +1,16 @@
-import ast
+# Global
 import json
 
-# flask
-from flask import Blueprint, render_template, session, abort, request
+# Packages
+from flask import abort, Blueprint, render_template, request
 from flask_classy import FlaskView, route
-from flask_wtf import Form
-# tinker
+
+# Local
 from tinker.admin.sync.sync_metadata import data_to_add
-from sync_controller import *
+from sync_controller import SyncController
 from tinker.tinker_controller import admin_permissions
+
+
 SyncBlueprint = Blueprint('sync', __name__, template_folder='templates')
 
 
