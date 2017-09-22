@@ -95,10 +95,14 @@ class RedirectsController(TinkerController):
                 response = requests.get('https://www.bethel.edu' + row.from_path)
                 row.to_url.replace('\n', '')
                 row.to_url.replace(' ', '')
-            except SSLError:
+            except SSLError as e:
+                print row.from_path
+                print e.args
                 # Throws SSLError for an unknown reason, skipping it because we can't create the response object
                 continue
-            except ConnectionError:  # TODO come back to this error
+            except ConnectionError as e:  # TODO come back to this error
+                print row.from_path
+                print e.args
                 continue
             except:
                 pass
@@ -106,7 +110,7 @@ class RedirectsController(TinkerController):
             if response.url != row.to_url:
                 yield 'changing %s to %s <br/>' % (row.to_url, response.url)
                 # redirects.replace(row.to_url, response.url)
-
+        print 'done'
     # def update_redirect_file(self):
     #     changes = open('/Users/bak45247/Desktop/RedirectChanges.txt', 'r+')
     #     to_write = ''
