@@ -5,7 +5,7 @@ import json
 # Packages
 from flask import abort, Blueprint, render_template, request
 from flask_classy import FlaskView, route
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 
 # Local
 from tinker import db
@@ -99,20 +99,12 @@ class ProgramSearchView(FlaskView):
             search_key = "%" + search_key + "%"
 
         search_results = ProgramTag.query.filter(
-            or_(ProgramTag.tag.like(search_tag), ProgramTag.key.like(search_key))
+            and_(ProgramTag.tag.like(search_tag), ProgramTag.key.like(search_key))
         ).all()
 
-        # gather the 'Actual name' for each program, instead of concentration code or name of program block.
-        # todo: this is a pretty slow process, will need to speed it up.
-        program_concentrations = self.base.get_programs_for_dropdown()
-        actual_search_result = []
-        for search_result in search_results:
-            actual_name = filter(lambda person: person['value'] == search_result.key, program_concentrations)
-            if len(actual_name) > 0:
-                if actual_name[0]:
-                    search_result.actual_name = actual_name[0]['name']
-            else:
-                print 'error'
+        # builds a dict that is used to change concentration codes to program names
+        program_concentrations = self.base.get_programs_for_dropdown(True)
+
         return render_template('program-search-ajax.html', **locals())
 
     @route('/audit', methods=['get'])
