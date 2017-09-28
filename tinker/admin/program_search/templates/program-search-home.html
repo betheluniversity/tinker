@@ -136,14 +136,13 @@
                 loadTableForSearch();
             }, 300);
         }).change(function () {
+            $('#spinner').show();
             delay(function () {
                 loadTableForSearch();
-                $('#spinner').hide();
             }, 300);
         });
 
         function loadTableForSearch() {
-            $('#spinner').show();
             {#            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');#}
 
             var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";
