@@ -86,81 +86,49 @@ class RedirectsController(TinkerController):
         self.db.session.rollback()
 
     def redirect_change(self):
-        # import urllib2
-        # from urllib2 import addinfourl, URLError
 
         redirects = BethelRedirect.query.all()
+        # following are files to be written so we can pass the 'change log' over to marketing
+        # with this, they can approve or ask us to fix/replace some of the redirects
+        deleted = open('Redirect_Deleted.txt', 'w+')
+        changed = open('Redirect_Changed.txt', 'w+')
+        today = datetime.now()
+        today = today.strftime("%m/%d/%y %I:%M")
+
+        changed.write('These are the redirects that are being changed. \n' + str(today) + '\n')
+        deleted.write('These are the redirects that are being deleted. \n' + str(today) + '\n')
+
         for row in redirects:
             try:
                 response = requests.get('https://www.bethel.edu' + row.from_path)
                 row.to_url.replace('\n', '')
                 row.to_url.replace(' ', '')
+
             except SSLError as e:
-                print row.from_path
-                print e.args
-                # Throws SSLError for an unknown reason, skipping it because we can't create the response object
+                # BKJ SSLError.SSLError and SSLError.CertificateError thrown here. Not sure how to prevent these.
+                # print row.from_path
+                # print e.args
                 continue
-            except ConnectionError as e:  # TODO come back to this error
-                print row.from_path
-                print e.args
+
+            except ConnectionError as e:
+                # BKJ MaxRetryError and ProtocolError being thrown here. Not sure how to prevent these.
+                # print row.from_path
+                # redirects.delete(row)
+                # print e.args
+                deleted.write('from_path: ' + row.from_path + ' to_url: ' + row.to_url + '\n')
                 continue
             except:
-                pass
+                # BKJ Can't print these arguments, but all the other errors are being caught here. Nothing else should break this.
+                continue
 
             if response.url != row.to_url:
                 yield 'changing %s to %s <br/>' % (row.to_url, response.url)
                 # redirects.replace(row.to_url, response.url)
+                changed.write('from_path: ' + row.from_path + ' to_url changing from: ' + row.to_url + ' to: ' + response.url + '\n')
         print 'done'
-    # def update_redirect_file(self):
-    #     changes = open('/Users/bak45247/Desktop/RedirectChanges.txt', 'r+')
-    #     to_write = ''
-    #     write_changes = ''
-    #     counter = 0
-    #     import urllib2
-    #     from urllib2 import addinfourl, URLError
-    #     with open(app.config['REDIRECTS_FILE_PATH']) as redirects:
-    #         for line in redirects:
-    #             counter += 1
-    #             if counter < 850:
-    #                 continue
-    #             try:
-    #                 from_path, to_url = line.split(' ')
-    #                 to_url = to_url.replace('\n', '')
-    #             except ValueError:
-    #                 yield line + 'ValueError <br/>'
-    #                 continue
-    #
-    #             try:
-    #                 response = urllib2.urlopen('https://www.bethel.edu' + from_path)
-    #             except URLError, e:
-    #                 yield line + 'URLError <br/>'
-    #                 print e.args
-    #                 continue
-    #             except InvalidURL:
-    #                 yield line + 'InvalidURL <br/>'
-    #                 continue
-    #
-    #             path = response.geturl()
-    #
-    #             if response.getcode() == 404:
-    #                 write_changes += 'deleted path' + from_path + '<br/>'
-    #                 continue
-    #
-    #             if '/oops' in to_url:
-    #                 print "this from_path '%s' goes to oops %s" % (from_path, to_url)
-    #                 continue
-    #
-    #             elif to_url != path:
-    #                 write_changes += 'changed to_url ' + to_url + ' to ' + path + '<br/>'
-    #                 to_url = path
-    #
-    #             to_write += from_path + ' ' + to_url + '\n'
-    #
-    #             # prints every thousandth line, if it skips a thousandth line, that means the redirect either failed or points to oops
-    #             if counter % 100 == 0:
-    #                 yield line + ' line number %s <br/>' % counter
-    #
-    #         yield '\n' + write_changes
-    #     # redirects.write(to_write)
-    #     changes.write(write_changes)
 
+        changed.write('If you have any questions/concerns, please contact web services.')
+        deleted.write('If you have any questions/concerns, please contact web services.')
+        # who to contact upon finishing writing the files
+        changed.close()
+        deleted.close()
