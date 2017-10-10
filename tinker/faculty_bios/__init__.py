@@ -1,16 +1,17 @@
-from werkzeug.utils import secure_filename
+# Global
+import json
+from operator import itemgetter
 
-# bu-cascade
-from bu_cascade.asset_tools import *
-
-import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
-# flask
-from flask import Blueprint, redirect, send_from_directory, abort
+# Packages
+from bu_cascade.asset_tools import find, update
+from flask import abort, Blueprint, redirect, render_template, request, session
+from flask import json as fjson
 from flask_classy import FlaskView, route
-# tinker
+
+# Local
+from tinker import app
 from tinker.admin.sync.sync_metadata import data_to_add
-from faculty_bio_controller import *
+from faculty_bio_controller import FacultyBioController
 
 
 FacultyBiosBlueprint = Blueprint('faculty_bios', __name__, template_folder='templates')
@@ -25,6 +26,8 @@ class FacultyBiosView(FlaskView):
     # todo: add a before_request method
     def before_request(self, name, **kwargs):
         if 'FACULTY' not in session['roles'] \
+                and 'SPONSORED-FACULTY' not in session['roles'] \
+                and 'Tinker Faculty Bios' not in session['groups'] \
                 and 'Tinker Faculty Bios - CAS' not in session['groups'] \
                 and 'Tinker Faculty Bios - CAPS and GS' not in session['groups'] \
                 and 'Tinker Faculty Bios - SEM' not in session['groups'] \
@@ -106,7 +109,7 @@ class FacultyBiosView(FlaskView):
         page = self.base.read_page(faculty_bio_id)
         faculty_bio_data, mdata, sdata = page.read_asset()
         edit_data = self.base.get_edit_data(sdata, mdata, ['education', 'job-titles'])
-
+        edit_data['author_faculty'] = find(mdata, 'author', False)
         # turn the image into the correct identifier
         try:
             edit_data['image_url'] = edit_data['image']
@@ -161,7 +164,7 @@ class FacultyBiosView(FlaskView):
             page_asset, mdata, sdata, = page.read_asset()
             new_asset = self.base.update_structure(page_asset, sdata, rform, faculty_bio_id=faculty_bio_id)
             resp = page.edit_asset(new_asset)
-
+            self.base.cascade_call_logger(locals())
             self.base.log_sentry("Faculty bio edit submission", resp)
             status = 'edit'
         else:
@@ -171,7 +174,7 @@ class FacultyBiosView(FlaskView):
             asset = self.base.update_structure(faculty_bio_data, sdata, rform, faculty_bio_id=faculty_bio_id)
             resp = self.base.create_page(asset)
             faculty_bio_id = resp.asset['page']['id']
-
+            self.base.cascade_call_logger(locals())
             self.base.log_sentry("Faculty bio new submission", resp)
             status = 'new'
 

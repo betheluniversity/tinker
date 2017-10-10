@@ -1,9 +1,8 @@
 # modules
 from flask_wtf import Form
+from wtforms.fields import RadioField, StringField
 from wtforms.widgets import TextInput
-from wtforms.fields import FormField, RadioField, StringField
-from wtforms import Field
-from wtforms import validators
+from wtforms import Field, validators
 
 
 class NextOpenField(Field):

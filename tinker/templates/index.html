@@ -33,7 +33,9 @@
                     </div>
                 </div>
             </div>
-            {% if 'FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups'] %}
+            {% if 'FACULTY' in session['roles'] or 'SPONSORED-FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups']
+                    or 'Tinker Faculty Bios - CAS' in session['groups'] or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] or 'Tinker Faculty Bios - SEM' in session['groups']
+                    or 'Tinker Faculty Bios - Admin' in session['groups'] %}
                 <div class="col-sm-6">
                     <div class="card">
                         <div class="header">

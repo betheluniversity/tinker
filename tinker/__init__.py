@@ -1,15 +1,14 @@
+# Global
 import logging
 import os
 import platform
 
-# flask
-from flask import Flask, url_for
-
-# flask extensions
+# Packages
 import flask_profiler
+from bu_cascade.cascade_connector import Cascade
+from flask import Flask, make_response, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
-from bu_cascade.cascade_connector import Cascade
 
 app = Flask(__name__)
 
@@ -105,7 +104,12 @@ from tinker.e_announcements import EAnnouncementsBlueprint
 from tinker.faculty_bios import FacultyBiosBlueprint
 from tinker.office_hours import OfficeHoursBlueprint
 from tinker.events import EventsBlueprint
+<<<<<<< HEAD
 from tinker.unit_test_interface import UnitTestBlueprint
+=======
+from tinker.news import NewsBlueprint
+from tinker.admin.user_roles import UserRolesBlueprint
+>>>>>>> master
 
 app.register_blueprint(BaseBlueprint)
 app.register_blueprint(CacheBlueprint)
@@ -116,20 +120,32 @@ app.register_blueprint(PublishBlueprint)
 app.register_blueprint(ProgramSearchBlueprint)
 app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(EAnnouncementsBlueprint)
-app.register_blueprint(EventsBlueprint)
 app.register_blueprint(FacultyBiosBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
+app.register_blueprint(EventsBlueprint)
+app.register_blueprint(NewsBlueprint)
+app.register_blueprint(UserRolesBlueprint)
+
+
+from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
 
-# Import global HTTP error code handling
-import error
+from tinker import error
 from tinker_controller import TinkerController
-
 
 @app.before_request
 def before_request():
     base = TinkerController()
     base.before_request()
+
+
+@app.route("/logout", methods=["GET"])
+def logout():
+    session.clear()
+    resp = make_response(redirect(app.config['LOGOUT_URL']))
+    resp.set_cookie('MOD_AUTH_CAS_S', '', expires=0)
+    resp.set_cookie('MOD_AUTH_CAS', '', expires=0)
+    return resp
 
 if not TRAVIS_TESTING:
     flask_profiler.init_app(app)

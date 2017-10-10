@@ -1,7 +1,10 @@
+# Global
 from datetime import datetime
+
+# Packages
 from flask_sqlalchemy import SQLAlchemy
 
-# tinker
+# Local
 from tinker import app
 from tinker.admin.redirects.models import BethelRedirect
 from tinker.tinker_controller import TinkerController
@@ -28,6 +31,7 @@ class RedirectsController(TinkerController):
 
         return 'done'
 
+    # TODO: PG, 7/6/17: I can't find where this method is used
     def get_model(self):
         return self.db.Model
 

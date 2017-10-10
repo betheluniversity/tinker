@@ -1,13 +1,15 @@
+# Global
 import base64
 import json
 import re
-import urllib2
 
-from operator import itemgetter
-from xml.etree import ElementTree
-from wtforms import ValidationError
-from tinker.tinker_controller import *
-from tinker.admin.sync.sync_metadata import data_to_add
+# Packages
+from bu_cascade.asset_tools import find
+from flask import session
+
+# Local
+from tinker import app
+from tinker.tinker_controller import TinkerController
 
 
 class FacultyBioController(TinkerController):
@@ -20,6 +22,7 @@ class FacultyBioController(TinkerController):
             'Business & Economics':                         'Business Economics',
             'Chemistry':                                    'Chemistry',
             'Communication Studies':                        'Communication',
+            'Doctor of Ministry':                           'Doctor of Ministry',
             'Education':                                    'Education',
             'English':                                      'English',
             'Environmental Studies':                        'Environmental Studies',
@@ -28,7 +31,6 @@ class FacultyBioController(TinkerController):
             'Honors':                                       'Honors',
             'Human Kinetics & Applied Health Science':      'Human Kinetics',
             'Math & Computer Science':                      'Math CS',
-            'World Languages and Cultures':                 'World Languages',
             'Music':                                        'Music',
             'Nursing':                                      'Nursing',
             'Philosophy':                                   'Philosophy',
@@ -37,7 +39,7 @@ class FacultyBioController(TinkerController):
             'Psychology':                                   'Psychology',
             'Social Work':                                  'Social Work',
             'Theatre Arts':                                 'Theatre',
-            'Doctor of Ministry':                           'Doctor of Ministry'
+            'World Languages and Cultures':                 'World Languages',
         }
         return mapping
 
@@ -97,8 +99,6 @@ class FacultyBioController(TinkerController):
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
-                # Todo: remove this print line, once this is tested
-                print 'bad'
                 return None
         else:
             return None
@@ -115,8 +115,6 @@ class FacultyBioController(TinkerController):
             school_array = []
             for school in child.findall('.//job-titles/school'):
                 school_array.append(school.text or 'Other')
-
-            school_array = list(set(school_array))
 
             page_values = {
                 'author': child.find('author') or None,
@@ -140,7 +138,7 @@ class FacultyBioController(TinkerController):
         for program_element in program_elements:
             for program in program_element:
                 try:
-                    if self.get_mapping()[program.text] in groups:
+                    if self.get_mapping()[program.text] in groups.split(';'):
                         return True
                 except:
                     continue
@@ -148,11 +146,10 @@ class FacultyBioController(TinkerController):
 
     def is_user_in_web_author_groups(self):
         for key, value in self.get_mapping().iteritems():
-            try:
-                if value in session['groups']:
-                    return True
-            except:
-                continue
+            # TODO: PG, Aug 9 2017: I removed a try/except block from around this if statement since it appears useless
+            # If there are exceptions all of a sudden, this is how to fix it.
+            if value in session['groups']:
+                return True
 
         return False
 
@@ -264,16 +261,27 @@ class FacultyBioController(TinkerController):
 
         # set/reset the standard data
         add_data['parentFolderID'] = None
-        add_data['parentFolderPath'] = '/academics/faculty'
+        if not app.config['UNIT_TESTING']:
+            add_data['parentFolderPath'] = '/academics/faculty'
+        else:
+            add_data['parentFolderPath'] = '/_testing/philip-gibbens/fac-bios-tests'
         add_data['path'] = None
-        add_data['author'] = session['username']
         faculty_bio_data['page']['metadata']['metaDescription'] = self.build_description(add_data)
+
+        # make sure author is set properly and not overriden by tinker controllers methods :(
+        # todo: add a parameter or something so we don't have to do this exchange.
+        add_data['author'] = add_data['author_faculty']
 
         # todo: eventually adjust the keys in cascade to work.
         add_data['started-at-bethel'] = add_data['started_at_bethel']
         add_data['teaching-specialty'] = add_data['teaching_specialty']
         add_data['research-interests'] = add_data['research_interests']
         add_data['image'] = self.create_faculty_bio_image(add_data)
+
+        # todo: this is a temp fix to override the already set system-name
+        new_system_name = add_data['last'].strip() + '-' + add_data['first'].strip()
+        new_system_name = new_system_name.lower().replace(' ', '-')
+        add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', new_system_name)
 
         workflow_id = self.get_correct_workflow_id(add_data)
         workflow = self.create_workflow(workflow_id, subtitle=add_data['title'])
@@ -293,6 +301,7 @@ class FacultyBioController(TinkerController):
         form = FacultyBioForm()
 
         # a quick check to quit out if necessary.
+        self.log_sentry('Faculty Bio Image: Form', form)
         try:
             form.image.data.filename
         except AttributeError:
@@ -304,6 +313,7 @@ class FacultyBioController(TinkerController):
         description = self.build_description(add_data)
 
         # todo: someday change how this is done.
+        self.log_sentry('Faculty Bio Image: Name', image_name)
         form.image.data.save(app.config['UPLOAD_FOLDER'] + image_name)
         image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
         stream = image_file.read()
@@ -427,6 +437,7 @@ class FacultyBioController(TinkerController):
         form = FacultyBioForm(rform)
 
         # todo: remove this code for jenny vang soon
+        # this allows jenny vang to submit any faculty bio form even if it has errors
         if session['username'] == 'jev24849':
             return form
 
@@ -499,7 +510,7 @@ class FacultyBioController(TinkerController):
 
     # this is used to generate the checkboxes that aren't on the tinker form, but are on the Cascade DataDef
     def get_wysiwyg_checkboxes(self, add_data):
-
+        # TODO: this checks for 'courses' twice and assigns a different value each time, should be investigated
         options = []
 
         if add_data.get('biography', None):
@@ -533,20 +544,11 @@ class FacultyBioController(TinkerController):
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
-        print 'research-interests ' + str(find(asset_data, 'research-interests', False))
-        print 'teaching-specialty ' + str(find(asset_data, 'teaching-specialty', False))
-        print 'highlight ' + str(find(asset_data, 'highlight', False))
-        print 'biography ' + str(find(asset_data, 'biography', False))
-        print 'awards ' + str(find(asset_data, 'awards', False))
-        print 'publications ' + str(find(asset_data, 'publications', False))
-        print 'presentations ' + str(find(asset_data, 'presentations', False))
-        print 'certificates ' + str(find(asset_data, 'certificates', False))
-        print 'organizations ' + str(find(asset_data, 'organizations', False))
-        print 'hobbies ' + str(find(asset_data, 'hobbies', False))
-        print 'quote ' + str(find(asset_data, 'quote', False))
-        print 'website ' + str(find(asset_data, 'website', False))
-        print ''
 
+        # first_name = find(asset_data, 'first', False)
+        # last_name = find(asset_data, 'last', False)
+        # update(asset_data, 'name', last_name.lower() + '-' + first_name.lower())
+        # update(asset_data, 'title', first_name + ' ' + last_name)
 
         # Todo: remove this code when the faculty bios have been successfully been transfered.
         # # move areas of interest

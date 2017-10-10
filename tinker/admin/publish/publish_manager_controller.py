@@ -1,11 +1,8 @@
-from datetime import *
+# Global
+from datetime import datetime
 
-# tinker
+# Local
 from tinker.tinker_controller import TinkerController
-from tinker import app
-
-# flask
-from flask import abort
 
 
 class PublishManagerController(TinkerController):
@@ -16,7 +13,7 @@ class PublishManagerController(TinkerController):
         date = " ".join(dates)
 
         dt = datetime.strptime(date, "%a, %d %b %Y %H:%M:%S")
-        date_time = datetime.strftime(dt, "%B %e, %Y at %I:%M %p")
+        date_time = dt.strftime("%B %e, %Y at %I:%M %p")
 
         return date_time
 
@@ -35,7 +32,6 @@ class PublishManagerController(TinkerController):
         }
 
         response = self.search_cascade(search_information)
-
         return response
 
     def search_data_definitions(self, name_search=""):
@@ -45,5 +41,4 @@ class PublishManagerController(TinkerController):
             'searchBlocks': True,
         }
         response = self.search_cascade(search_information)
-
         return response

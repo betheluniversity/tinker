@@ -1,12 +1,14 @@
+# Global
 import datetime
 import re
 import ldap
 
+# Packages
+from bu_cascade.asset_tools import find, update
 from flask import session
-from flask import render_template
-from tinker import app
-from bu_cascade.asset_tools import *
 
+# Local
+from tinker import app
 from tinker.tinker_controller import TinkerController
 
 

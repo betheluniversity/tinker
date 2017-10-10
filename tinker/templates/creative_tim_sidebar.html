@@ -29,7 +29,7 @@
                 </a>
             </li>
 
-            {% if 'FACULTY' in session['roles'] or 'Administrators' in session['groups']
+            {% if 'FACULTY' in session['roles'] or 'SPONSORED-FACULTY' in session['roles'] or 'Administrators' in session['groups']
                 or 'Tinker Faculty Bios - Admin' in session['groups']
                 or 'Tinker Faculty Bios - CAS' in session['groups']
                 or 'Tinker Faculty Bios - CAPS and GS' in session['groups']
@@ -67,6 +67,14 @@
                                 <a href="{{ url_for('sync.SyncView:index') }}">
                                     <i class="fa fa-share-alt" aria-hidden="true"></i>
                                     <p class="admin-list-item">Sync Metadata</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ url_for('user_roles.UserRolesView:index') }}">
+                                    <i class="fa fa-user-secret" aria-hidden="true"></i>
+                                    <p class="admin-list-item">User Test Roles</p>
+                                    {# doesnt work locally #}
+                                    {# local session cookie not being stored #}
                                 </a>
                             </li>
                             <li>

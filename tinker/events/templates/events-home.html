@@ -9,7 +9,6 @@
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 
-
 {% macro form_card(form)-%}
 
     <div class="card">
@@ -35,8 +34,7 @@
                     {% if form.is_published %}
                         <li><a href="{{ form.path }}" class="small btn btn-primary">View</a></li>
                         <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}"
-                               class="small btn btn-primary">Edit</a>
-                        </li>
+                               class="small btn btn-primary">Edit</a></li>
                         <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
                                class="small btn btn-primary">Duplicate</a></li>
                     {% else %}
@@ -62,44 +60,53 @@
 
                 <div>
                     {# create an event button #}
-                    <a href="add#page-title" id="event-create" class="btn btn-primary new-btn">
+                    <a href="{{ url_for('events.EventsView:add') }}" id="event-create" class="btn btn-primary new-btn">
                         Create New Event
                     </a>
+                    {# in action add the url calling the post method for search#}
+                    <div>
+                        <h3 class="first-subtitle">View:</h3>
+                            <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
+                                    multiple>
+                                {% for school_code, school in all_schools.items() %}
+                                    {% if loop.first %}
+                                        <option value="{{ school_code}}"
+                                                selected="selected">{{ school }}</option>
+                                    {%  elif not loop.last %}
+                                        <option value="{{ school_code}}">{{ school }}</option>
+                                    {%  endif %}
+                                {% endfor %}
+                            </select>
+                            <p class="description"> The below are optional parameters to help in your search.</p>
+                            <div></div>
+                                <small>Used by entering in part of a name, for example "scho" will select events with
+                                    words "scholar", "school", "scholastic" etc.</small>
+                                <label for="eventTitle">Event Title:</label>
+                                    <input id="eventTitle" type="text" name="EventTitle"><br/>
+                                <small>The Start and End fields are to specify the date range where an event might fall,
+                                    for example "New Years Eve" and "Christmas" would both show up if you started at December 25th
+                                    and ended on December 31st</small>
+                                <label for="startDate">Start Date:</label>
+                                    <input id="startDate" class='datepicker' size='11'/>
+                                <label for="endDate">End Date:</label>
+                                    <input id="endDate" class='datepicker' size='11'/>
+                                <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
+                            </div>
+                        {# spinner placeholder #}
+                        <div id="spinner" class="spinner" style="display:none;">
+                            <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div id="results">
 
-                    {% if user_forms %}
-                        <hr />
-                        <h2>Your Events</h2>
-                        <hr/>
-                    {% endif %}
-
-                    {% for form in user_forms %}
-                        {{ form_card(form) }}
-                    {% endfor %}
-
-
-                    <!-- other forms -->
-                    {% if other_forms %}
-                        <br/>
-                        <hr/>
-                        {% if 'Event Approver' in session['groups'] %}
-                            <h2>Event Approver</h2>
-                        {% elif 'Tinker Events - CAS' in session['groups'] %}
-                            <h2>Undergrad Events</h2>
-                        {% else %}
-                            <h2>Other Events</h2>
-                        {% endif %}
-                        <hr/>
-                        {% for form in other_forms %}
-                           {{ form_card(form) }}
-                        {% endfor %}
-                    {% endif %}
+                    </div>
                 </div>
-
                 <br/>
-
             </div>
         </div>
     </div>
+
 {% endblock %}
 
 {% block modalhtml %}
@@ -126,11 +133,82 @@
 
 {% block scripts %}
 
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+
     {#    Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/events/delete/" + $(this).data('event-id'));
         });
+        $("#school-selector").change(function () {
+            $('.school-bios').hide();
+            var array_of_values = $("#school-selector").val();
+            for (i = 0; i < array_of_values.length; i++) {
+                $('.' + array_of_values[i]).show();
+            }
+        });
+        $('.datepicker').each(function () {
+            var current_element = $(this);
+            var starting_values = {
+                field: this,
+                format: 'MM DD YYYY',
+                minDate: new Date('2000-01-01'),
+                maxDate: new Date('2040-12-31'),
+                yearRange: [2000, 2040],
+                disableDayFn: function (date) {
+                    var start_populated = $("#startDate").val();
+                    var end_populated = $("#endDate").val();
+                    if(start_populated == "" && end_populated == ""){
+                        return null;
+                    }else if(start_populated != "" && current_element.attr('id') == 'endDate'){
+                        if(new Date(start_populated) >= date){
+                            return date;
+                        }
+                    }else if(end_populated != "" && current_element.attr('id') == 'startDate'){
+                        if(new Date(end_populated) <= date){
+                            return date;
+                        }
+                    }
+                }
+            };
+            // if its the startDate, set default date to today
+            if( $(this).attr('id') == 'startDate' ) {
+                starting_values['defaultDate'] = new Date();
+                starting_values['setDefaultDate'] = true;
+            }
+
+
+            var picker = new Pikaday(starting_values);
+        });
+        function search_events() {
+            search_url = "{{ url_for('events.EventsView:search') }}";
+            $('#spinner').show();
+            inputs = {
+                "title": $("#eventTitle").val(),
+                "start": $("#startDate").val(),
+                "end": $("#endDate").val(),
+                "selection": $("#school-selector").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: search_url,
+                data: JSON.stringify(inputs),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    // window.location.replace(result);
+                    document.getElementById('results').innerHTML = result;
+                    $('#spinner').hide();
+                }
+            });
+        }
+        $(".search-events").click(function () {
+            search_events();
+        });
+        search_events();
     </script>
 
 {% endblock %}
+
+

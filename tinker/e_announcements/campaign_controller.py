@@ -1,11 +1,11 @@
+# Global
 import datetime
 import math
-from createsend import *
 
-# flask
+# Packages
 from flask import render_template
 
-# tinker
+# Local
 from tinker.tinker_controller import TinkerController
 
 
@@ -125,13 +125,3 @@ class CampaignController(TinkerController):
             if_block += '[else]%s[endif]' % '<p>There are no E-Announcements for you today.</p>'
 
         return if_block
-
-    # Not currently used. However, this is helpful to find template IDs
-    def get_templates_for_client(self, campaign_monitor_key, client_id):
-        for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
-            print template.TemplateID
-
-    # Not currently used. However, this is helpful to find segment IDs
-    def get_segments_for_client(self, campaign_monitor_key, client_id):
-        for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
-            print segment.SegmentID

@@ -1,13 +1,15 @@
-import ast
+# Global
 import json
 
-# flask
-from flask import Blueprint, render_template, session, abort, request
+# Packages
+from flask import abort, Blueprint, render_template, request
 from flask_classy import FlaskView, route
-from flask_wtf import Form
-# tinker
+
+# Local
 from tinker.admin.sync.sync_metadata import data_to_add
-from sync_controller import *
+from sync_controller import SyncController
+from tinker.tinker_controller import admin_permissions
+
 
 SyncBlueprint = Blueprint('sync', __name__, template_folder='templates')
 
@@ -19,13 +21,12 @@ class SyncView(FlaskView):
         self.base = SyncController()
 
     def before_request(self, name, **kwargs):
-        if 'Administrators' not in session['groups']:
-            abort(403)
+        admin_permissions(self)
 
     def index(self):
         # get the most recent code
         # todo: this will need to be added back in. but it currently breaks on xp (since its using a different branch)
-        # self.base.git_pull()
+        self.base.git_pull()
 
         metadata_sets_mapping = self.base.get_metadata_sets_mapping()
         data_definition_mapping = self.base.get_data_definitions_mapping()

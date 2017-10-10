@@ -1,15 +1,18 @@
+# Global
 import ast
 import json
 
-# flask
-from flask_classy import FlaskView
-from flask import Blueprint
-from flask import abort
-from flask_classy import route
+# Packages
+from flask import abort, Blueprint, render_template, request
+from flask_classy import FlaskView, route
+from sqlalchemy import or_, and_
 
-# tinker
+# Local
+from tinker import db
 from tinker.admin.program_search.models import ProgramTag
-from tinker.admin.program_search.program_search_controller import *
+from tinker.admin.program_search.program_search_controller import ProgramSearchController
+from tinker.tinker_controller import admin_permissions
+
 
 ProgramSearchBlueprint = Blueprint("program_search", __name__, template_folder='templates')
 
@@ -20,10 +23,8 @@ class ProgramSearchView(FlaskView):
     def __init__(self):
         self.base = ProgramSearchController()
 
-    def before_request(self, args):
-        # give access to admins and lauren
-        if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
-            abort(403)
+    def before_request(self, name, **kwargs):
+        admin_permissions(self)
 
     def index(self):
         school_labels = self.base.get_school_labels()
@@ -79,40 +80,31 @@ class ProgramSearchView(FlaskView):
         try:
             data = json.loads(request.data)
             search_tag = data['search_tag']
+            if search_tag is None:
+                return abort(500)
             search_key = data['search_key']
+            if search_key is None:
+                return abort(500)
         except ValueError:
             return abort(500)
-        search_results = []
-        results_from_search_tag = []
-        results_from_search_key = []
 
-        # search
-        if search_tag:
-            results_from_search_tag = ProgramTag.query.filter(ProgramTag.tag.like("%" + search_tag + "%")).all()
-        if search_key:
-            results_from_search_key = ProgramTag.query.filter(ProgramTag.key.like(search_key + "%")).all()
+        if len(search_tag) == 0:  # If empty string, make generic wildcard
+            search_tag = "%"
+        else:
+            search_tag = "%" + search_tag + "%"
 
-        # return results
-        if search_tag and search_key:
-            for result in results_from_search_key:
-                if result in results_from_search_tag:
-                    search_results.append(result)
-        elif search_tag:
-            search_results = results_from_search_tag
-        elif search_key:
-            search_results = results_from_search_key
+        if len(search_key) == 0:  # If empty string, make generic wildcard
+            search_key = "%"
+        else:
+            search_key = "%" + search_key + "%"
 
-        # gather the 'Actual name' for each program, instead of concentration code or name of program block.
-        # todo: this is a pretty slow process, will need to speed it up.
-        program_concentrations = self.base.get_programs_for_dropdown()
-        actual_search_result = []
-        for search_result in search_results:
-            actual_name = filter(lambda person: person['value'] == search_result.key, program_concentrations)
-            if len(actual_name) > 0:
-                if actual_name[0]:
-                    search_result.actual_name = actual_name[0]['name']
-            else:
-                print 'error'
+        search_results = ProgramTag.query.filter(
+            and_(ProgramTag.tag.like(search_tag), ProgramTag.key.like(search_key))
+        ).all()
+
+        # builds a dict that is used to change concentration codes to program names
+        program_concentrations = self.base.get_programs_for_dropdown(True)
+
         return render_template('program-search-ajax.html', **locals())
 
     @route('/audit', methods=['get'])

@@ -1,9 +1,10 @@
-# flask
-from flask import Flask, render_template, Blueprint, session, abort, request
+# Packages
+from flask import Blueprint, render_template, request
 from flask_classy import FlaskView, route
 
-# tinker
+# Local
 from tinker.admin.cache.cache_controller import CacheController
+from tinker.tinker_controller import admin_permissions
 
 CacheBlueprint = Blueprint('cache', __name__, template_folder='templates')
 
@@ -15,8 +16,7 @@ class CacheView(FlaskView):
         self.base = CacheController()
 
     def before_request(self, name, **kwargs):
-        if 'Administrators' not in session['groups']:
-            abort(403)
+        admin_permissions(self)
 
     def index(self):
         return render_template('cache-home.html')

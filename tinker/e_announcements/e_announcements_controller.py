@@ -1,39 +1,37 @@
-import datetime
+# Global
+from datetime import datetime
 
-# flask
+# Packages
+from bu_cascade.asset_tools import update
 from flask import session
-from flask import render_template
 
-# tinker
+# Local
 from tinker import app
 from tinker.tinker_controller import TinkerController
-from bu_cascade.asset_tools import *
-
-BRM = [
-        'CAS',
-        'CAPS',
-        'GS',
-        'BSSP-TRADITIONAL',
-        'BSSP-DISTANCE',
-        'BSSD-TRADITIONAL',
-        'BSSD-DISTANCE',
-        'BSOE-TRADITIONAL',
-        'BSOE-DISTANCE',
-        'CAS',
-        'CAPS',
-        'GS',
-        'BSSP',
-        'BSSD',
-        'St. Paul',
-        'San Diego'
-]
 
 
 class EAnnouncementsController(TinkerController):
 
     def __init__(self):
         super(EAnnouncementsController, self).__init__()
-        self.brm = BRM
+        self.brm = [
+            'CAS',
+            'CAPS',
+            'GS',
+            'BSSP-TRADITIONAL',
+            'BSSP-DISTANCE',
+            'BSSD-TRADITIONAL',
+            'BSSD-DISTANCE',
+            'BSOE-TRADITIONAL',
+            'BSOE-DISTANCE',
+            'CAS',
+            'CAPS',
+            'GS',
+            'BSSP',
+            'BSSD',
+            'St. Paul',
+            'San Diego'
+        ]
 
     def inspect_child(self, child, find_all=False):
         # if find_all is true, then skip the check to see if you are allowed to see it.
@@ -64,16 +62,16 @@ class EAnnouncementsController(TinkerController):
 
         first = child.find('system-data-structure/first-date').text
         second = child.find('system-data-structure/second-date').text
-        first_date_object = datetime.datetime.strptime(first, '%m-%d-%Y')
+        first_date_object = datetime.strptime(first, '%m-%d-%Y')
         first_date = first_date_object.strftime('%A %B %d, %Y')
-        first_date_past = first_date_object < datetime.datetime.now()
+        first_date_past = first_date_object < datetime.now()
 
         second_date = ''
         second_date_past = ''
         if second:
-            second_date_object = datetime.datetime.strptime(second, '%m-%d-%Y')
+            second_date_object = datetime.strptime(second, '%m-%d-%Y')
             second_date = second_date_object.strftime('%A %B %d, %Y')
-            second_date_past = second_date_object < datetime.datetime.now()
+            second_date_past = second_date_object < datetime.now()
 
         roles = []
         elements = child.findall('.//dynamic-metadata')
@@ -103,19 +101,11 @@ class EAnnouncementsController(TinkerController):
         return page_values
 
     def validate_form(self, rform):
-
         from forms import EAnnouncementsForm
 
-        form = EAnnouncementsForm()
+        form = EAnnouncementsForm(rform)
 
-        if not form.validate_on_submit():
-            if 'e_announcement_id' in rform.keys():
-                e_announcement_id = rform['e_announcement_id']
-            else:
-                new_form = True
-            # bring in the mapping
-            brm = self.brm
-            return render_template('form.html', **locals())
+        return form, form.validate_on_submit()
 
     def update_structure(self, e_announcement_data, sdata, rform, e_announcement_id=None):
         add_data = self.get_add_data(['banner_roles'], rform, ['message'])
@@ -126,7 +116,10 @@ class EAnnouncementsController(TinkerController):
 
         # if parent folder ID exists it will use that over path
         add_data['parentFolderId'] = ''
-        add_data['parentFolderPath'] = self.get_e_announcement_parent_folder(add_data['first_date'])
+        if not app.config['UNIT_TESTING']:
+            add_data['parentFolderPath'] = self.get_e_announcement_parent_folder(add_data['first_date'])
+        else:
+            add_data['parentFolderPath'] = "/_testing/philip-gibbens/e-annz-tests"
 
         # todo, update these to have _ instead of - in Cascade so we don't have to translate
         add_data['email'] = session['user_email']
@@ -157,7 +150,7 @@ class EAnnouncementsController(TinkerController):
     # dates are set to readonly if they occur before today
     def set_readonly_values(self, edit_data):
         # print edit_data
-        today = datetime.datetime.now()
+        today = datetime.now()
         first_readonly = False
         second_readonly = False
         if edit_data['first_date'] < today:
@@ -173,7 +166,8 @@ class EAnnouncementsController(TinkerController):
         split_date = date.split("-")
         month = self.convert_month_num_to_name(split_date[0])
         year = split_date[2]
-
+        
+        # the copy method only processes if the folder being copied does not exist already.
         self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year, 'folder')
         self.copy(app.config['BASE_ASSET_BASIC_FOLDER'], '/e-announcements/' + year + "/" + month, 'folder')
 

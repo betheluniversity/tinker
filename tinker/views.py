@@ -1,8 +1,20 @@
+# Global
+import os
+
+# Packages
+from flask import Blueprint, render_template, send_file, send_from_directory
 from flask_classy import FlaskView
-from flask import Flask, Blueprint
-from flask import render_template, send_file
+
+# Local
+from tinker import app
+
 
 BaseBlueprint = Blueprint('base', __name__, template_folder='templates')
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static/assets/img'), 'favicon.ico')
 
 
 class Base(FlaskView):
@@ -17,5 +29,8 @@ class Base(FlaskView):
 
     def get_image(self, image_name):
         return send_file('images/' + image_name, mimetype='image/png')
+
+    def profile(self):
+        return render_template('profile.html', **locals())
 
 Base.register(BaseBlueprint)

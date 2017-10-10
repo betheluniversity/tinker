@@ -1,9 +1,14 @@
+# Global
 import csv
 
-# tinker
+# Packages
+import requests
+from xml.etree import ElementTree as ET
+
+# Local
+from tinker import app
 from tinker.admin.program_search.models import ProgramTag
-from tinker.tinker_controller import *
-from tinker import app, db
+from tinker.tinker_controller import TinkerController
 
 
 class ProgramSearchController(TinkerController):
@@ -21,12 +26,15 @@ class ProgramSearchController(TinkerController):
         outfile.close()
         return "<pre>%s</pre>" % str(rows)
 
-    def get_programs_for_dropdown(self):
+    def get_programs_for_dropdown(self, return_dict_for_renaming=False):
         # gather a list of all program concentrations
-        program_concentrations = []
+        if return_dict_for_renaming:
+            program_concentrations = {}
+        else:
+            program_concentrations = []
 
-        response = urllib2.urlopen(app.config['PROGRAMS_XML'])
-        xml = ET.fromstring(response.read())
+        response = requests.get(app.config['PROGRAMS_XML'])
+        xml = ET.fromstring(response.content)
         program_blocks = xml.findall('.//system-block')
 
         for block in program_blocks:
@@ -44,18 +52,22 @@ class ProgramSearchController(TinkerController):
 
                 # get school
                 school_element = self.search_for_key_in_dynamic_md(block, 'school')
-                if hasattr(school_element, 'text'):
-                    school = school_element.text
+                if len(school_element) > 0:
+                    school = school_element[0]
                 else:
                     school = None
 
-                program_concentrations.append({
-                    'name': program_name,
-                    'value': concentration_code,
-                    'school': school
-                })
+                if return_dict_for_renaming:
+                    program_concentrations[concentration_code] = program_name
+                else:
+                    program_concentrations.append({
+                        'name': program_name,
+                        'value': concentration_code,
+                        'school': school
+                    })
 
-        program_concentrations = sorted(program_concentrations, key=lambda k: k['name'])
+        if return_dict_for_renaming is False:
+            program_concentrations = sorted(program_concentrations, key=lambda k: k['name'])
         return program_concentrations
 
     def get_program_name(self, block, concentration):
@@ -76,9 +88,9 @@ class ProgramSearchController(TinkerController):
         # add in major/minor
 
         major_or_minor = self.search_for_key_in_dynamic_md(block, 'program-type')
-        if hasattr(major_or_minor, 'text') and major_or_minor.text:
+        if major_or_minor:
             if 'minor' not in program_name.lower() and 'major' not in program_name.lower() and 'program' not in program_name.lower():
-                program_name += ' ' + major_or_minor.text
+                program_name += ' ' + major_or_minor[0]
 
         return program_name
 

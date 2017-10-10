@@ -6,10 +6,11 @@ from flask import Blueprint, render_template, session, url_for, redirect, reques
 from flask_classy import FlaskView, route
 from flask import json as fjson, abort
 
+
 # tinker
 from tinker import app
-from tinker.office_hours.office_hours_controller import OfficeHoursController
 from tinker.office_hours.forms import OfficeHoursForm
+from tinker.office_hours.office_hours_controller import OfficeHoursController
 
 
 OfficeHoursBlueprint = Blueprint('office_hours', __name__, template_folder='templates')
@@ -73,6 +74,7 @@ class OfficeHoursView(FlaskView):
             # asset = self.base.rotate_hours(asset)
 
             resp = str(block.edit_asset(asset))
+            self.base.cascade_call_logger(locals())
             self.base.log_sentry("Office Hour Submission", resp)
 
         return render_template('office-hours-confirm.html', **locals())
@@ -83,7 +85,6 @@ class OfficeHoursView(FlaskView):
 
         self.base.rotate_hours(sdata)
         block.edit_asset(data)
-
         return 'success'
 
 OfficeHoursView.register(OfficeHoursBlueprint)

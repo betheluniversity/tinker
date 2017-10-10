@@ -1,17 +1,12 @@
+# Packages
+import requests
+from flask import session
 from flask_wtf import Form
 from flask_wtf.file import FileField
-from tinker import app
-import requests
-from tinker.faculty_bios.faculty_bio_controller import *
-from wtforms import Field
-from wtforms import HiddenField
-from wtforms import SelectMultipleField
-from wtforms import TextAreaField
-from wtforms import StringField
-from wtforms import ValidationError
-from wtforms import validators
+from wtforms import Field, HiddenField, SelectMultipleField, StringField, TextAreaField, ValidationError, validators
 
-tinker = TinkerController
+# Local
+from tinker.faculty_bios.faculty_bio_controller import FacultyBioController
 
 
 # Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
@@ -83,7 +78,7 @@ class FacultyBioForm(Form):
 
         first = StringField('Faculty first name')
         last = StringField('Faculty last name')
-        author = StringField("Faculty member's username", description="Enter your Bethel username.")
+        author_faculty = StringField("Faculty member's username", description="Enter your Bethel username.")
 
         faculty_location = SelectMultipleField('Location', choices=[('St. Paul', 'St. Paul'), ('San Diego', 'San Diego'), ('Online', 'Online')])
         highlight = TextAreaField('Highlight text', description="This text will appear on faculty listing pages as a short snippet about you!")
@@ -120,7 +115,7 @@ class FacultyBioForm(Form):
 
         first = StringField('Faculty first name', validators=[validators.DataRequired()])
         last = StringField('Faculty last name', validators=[validators.DataRequired()])
-        author = StringField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
+        author_faculty = StringField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
                              description="Enter your Bethel username.")
 
         faculty_location = SelectMultipleField('Location',
