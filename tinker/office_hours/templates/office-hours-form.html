@@ -30,40 +30,42 @@
 {% endmacro %}
 
 {% macro ExceptionsFieldset() -%}
-    <fieldset class="exceptions-fieldset">
-        <div id="exception1" class="card">
-            <div class="content">
-                <legend>Exception 1</legend>
-                <label for="exception_date">
-                    Exception Date
-                </label>
-                <input class="datepicker office-hours-input" id="date1" name="date1" type="text" value=""/>
+    <div id="exceptions">
+        <fieldset class="exceptions-fieldset">
+            <div id="exception1" class="card">
+                <div class="content">
+                    <legend>Exception 1</legend>
+                    <label for="exception_date">
+                        Exception Date
+                    </label>
+                    <input class="datepicker office-hours-input" id="date1" name="date1" type="text" value=""/>
 
-                <table><tr>
-                    <td class="div-to-hide">
-                        <div class="timeRange">
-                            <input class="time start ui-timepicker-input office-hours-input hide-when-none" id="open1" name="open1" type="text"
-                               value=""
-                               autocomplete="off">
-                            - <input class="time end ui-timepicker-input office-hours-input hide-when-none" id="close1" name="close1" type="text"
-                                 value=""
-                                 autocomplete="off">
-                        </div>
-                    </td>
-                    <td class="checkbox-div">
-                        <label class="checkbox hide-checkboxes">
-                          <span class="icons">
-                                <span class="first-icon fa fa-square-o"></span>
-                                <span class="second-icon fa fa-check-square-o"></span>
-                          </span>
-                          <input type="checkbox">
-                          Closed
-                        </label>
-                    </td>
-                </tr></table>
+                    <table><tr>
+                        <td class="div-to-hide">
+                            <div class="timeRange">
+                                <input class="time start ui-timepicker-input office-hours-input hide-when-none" id="open1" name="open1" type="text"
+                                   value=""
+                                   autocomplete="off">
+                                - <input class="time end ui-timepicker-input office-hours-input hide-when-none" id="close1" name="close1" type="text"
+                                     value=""
+                                     autocomplete="off">
+                            </div>
+                        </td>
+                        <td class="checkbox-div">
+                            <label class="checkbox hide-checkboxes">
+                              <span class="icons">
+                                    <span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span>
+                              </span>
+                              <input type="checkbox">
+                              Closed
+                            </label>
+                        </td>
+                    </tr></table>
+                </div>
             </div>
-        </div>
-    </fieldset>
+        </fieldset>
+    </div>
     <div id="exception-btn-group" class="col-md-12 less-left-margin">
         <a href="javascript:void(0);" id="add_exception_button" class="btn btn-primary tiny">Add Another Exception</a>
         <a href="javascript:void(0);" id="remove_exception_button" style="display:none"
@@ -269,21 +271,18 @@
             }
 
             $(document).on('click', '#add_exception_button', function() {
-                var last = $(".exceptions-fieldset").last();
-                var old_num = last.children()[0].textContent.replace("Exception ", "");
-                var new_num = (parseInt(old_num) + 1);
+                var new_num = $("#exceptions").children().length + 1;
                 var new_exception = newExceptionFieldset(new_num);
-                new_exception.insertAfter(last);
+                $("#exceptions").append(new_exception);
                 $("#remove_exception_button").show();
                 dateTimePickers('#exception' + new_num + ' ');
             });
 
             $(document).on('click', '#remove_exception_button', function() {
-                var list = $(".exceptions-fieldset");
-                if (list.length == 2) {
+                $(".exceptions-fieldset").last().remove();
+                if ($(".exceptions-fieldset").length == 0) {
                     $("#remove_exception_button").hide();
                 }
-                list.last().remove();
             });
 
             function populateFieldset(id, exception) {

@@ -52,6 +52,23 @@
                 </div>
             {% endif %}
 
+            {% if 'Administrators' in session['groups'] %}
+                <div class="col-sm-6">
+                    <div class="card">
+                        <div class="header">
+                            <h4 class="title">Office Hours</h4>
+                        </div>
+                        <div class="content">
+                            <div class="icon-big icon-warning text-center">
+                                <a href="{{ url_for('office_hours.OfficeHoursView:index') }}">
+                                    <i class="fa fa-clock-o fa-4x" aria-hidden="true" style='width:100%'></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
             {% if 'Tinker Redirects' in session['groups'] or 'Administrators' in session['groups'] %}
                 <div class="col-sm-6">
                     <div class="card">
