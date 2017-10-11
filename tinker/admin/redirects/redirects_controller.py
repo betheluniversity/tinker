@@ -1,11 +1,6 @@
-import requests
-
-from datetime import datetime
-from httplib import InvalidURL
-
-from flask_sqlalchemy import SQLAlchemy
 
 # tinker
+import requests
 from requests.exceptions import SSLError, ConnectionError
 
 # Global
@@ -90,13 +85,43 @@ class RedirectsController(TinkerController):
         redirects = BethelRedirect.query.all()
         # following are files to be written so we can pass the 'change log' over to marketing
         # with this, they can approve or ask us to fix/replace some of the redirects
-        deleted = open('Redirect_Deleted.txt', 'w+')
-        changed = open('Redirect_Changed.txt', 'w+')
+        deleted = open('Redirect_Deleted.html', 'w+')
+        changed = open('Redirect_Changed.html', 'w+')
+        redundant_changes = open('Redundant_Changes.html', 'w+')
+
         today = datetime.now()
         today = today.strftime("%m/%d/%y %I:%M")
 
-        changed.write('These are the redirects that are being changed. \n' + str(today) + '\n')
-        deleted.write('These are the redirects that are being deleted. \n' + str(today) + '\n')
+        changed.write('These are the redirects that are being changed. \n' + str(today) + '</br></br>')
+        changed.write("""<table>
+                        <thead>
+                        <tr>
+                        <th style = 'text-align: left'> From Path </th>
+                        <th style = 'text-align: left'> To Url </th>
+                        <th style = 'text-align: left'> Changed to </th>
+                        </tr>
+                        </thead>
+                        <tfoot>""")
+
+        deleted.write('These are the redirects that are being deleted. \n' + str(today) + '</br></br>')
+        deleted.write("""<table>
+                        <thead>
+                        <tr>
+                        <th style = 'text-align: left'> From Path </th>
+                        <th style = 'text-align: left'> To Url </th>
+                        </tr>
+                        </thead>
+                        <tfoot>""")
+
+        redundant_changes.write("""<table>
+                                    <thead>
+                                    <tr>
+                                    <th style = 'text-align: left'> From Path </th>
+                                    <th style = 'text-align: left'> To Url </th>
+                                    <th style = 'text-align: left'> Change </th>
+                                    </tr>
+                                    </thead>
+                                    <tfoot>""")
 
         for row in redirects:
             try:
@@ -113,22 +138,64 @@ class RedirectsController(TinkerController):
             except ConnectionError as e:
                 # BKJ MaxRetryError and ProtocolError being thrown here. Not sure how to prevent these.
                 # print row.from_path
-                # redirects.delete(row)
                 # print e.args
-                deleted.write('from_path: ' + row.from_path + ' to_url: ' + row.to_url + '\n')
+                yield "Deleting redirect: " + row.from_path
+                ## TODO delete row here :)
+                # deleted.write('from_path: ' + row.from_path + ' to_url: ' + row.to_url + '\n')
+                deleted.write("<tr>\n" +
+                                "<td>" + row.from_path + "</td>\n"
+                                "<td>" + row.to_url + "</td>\n"
+                              "</tr>\n")
+
                 continue
             except:
                 # BKJ Can't print these arguments, but all the other errors are being caught here. Nothing else should break this.
                 continue
 
             if response.url != row.to_url:
-                yield 'changing %s to %s <br/>' % (row.to_url, response.url)
-                # redirects.replace(row.to_url, response.url)
-                changed.write('from_path: ' + row.from_path + ' to_url changing from: ' + row.to_url + ' to: ' + response.url + '\n')
-        print 'done'
 
-        changed.write('If you have any questions/concerns, please contact web services.')
-        deleted.write('If you have any questions/concerns, please contact web services.')
-        # who to contact upon finishing writing the files
+                # checking for redundant changes in the to_url
+                if 'https' not in row.to_url:
+                    https_test = row.to_url.replace('http', 'https')
+                    if response.url == https_test:
+                        # [redirects.replace(row.to_url, response.url) for item in row]
+                        # row.to_url.replace(row.to_url, response.url)
+                        # redundant_changes.write('from path: ' + row.from_path + ' to url: ' + row.to_url + ' only changing http to https \n')
+                        redundant_changes.write("<tr>\n" +
+                                                "<td>" + row.from_path + "</td>\n"
+                                                "<td>" + row.to_url + "</td>\n"
+                                                "<td> Changing http to https </td>\n"
+                                                "</tr>\n")
+                        continue
+                elif response.url == row.to_url + '/':
+                    # [redirects.replace(row.to_url, response.url) for item in row]
+                    # row.to_url.replace(row.to_url, response.url)
+                    # redundant_changes.write('from path: ' + row.from_path + ' to url: ' + row.to_url + 'only adding "/" at the end \n')
+                    redundant_changes.write("<tr>\n" +
+                                            "<td>" + row.from_path + "</td>\n"
+                                            "<td>" + row.to_url + "</td>\n"
+                                            "<td> Adding '/' at end </td>\n"
+                                            "</tr>\n")
+                    continue
+
+                yield 'changing %s to %s <br/>' % (row.to_url, response.url)
+                # [redirects.replace(row.to_url, response.url) for item in row]
+                # row.to_url.replace(row.to_url, response.url)
+                # changed.write('from_path: ' + row.from_path + ' to_url changing from: ' + row.to_url + ' to: ' + response.url + '\n')
+                changed.write("<tr>\n" +
+                                "<td>" + row.from_path + "</td>\n"
+                                "<td>" + row.to_url + "</td>\n"
+                                "<td>" + response.url + "</td>"
+                                "</tr>\n")
+
+        contact_footer = 'If you have any questions/concerns, please contact web services.'
+
+        changed.write('</tfoot></table> \n \n' + contact_footer)
+        deleted.write('</tfoot></table> \n \n' + contact_footer)
+        redundant_changes.write('</tfoot></table>')
+
         changed.close()
         deleted.close()
+        redundant_changes.close()
+
+        print 'done'
