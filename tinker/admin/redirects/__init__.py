@@ -5,12 +5,9 @@ import smtplib
 import time
 from datetime import datetime
 
-<<<<<<< HEAD
 # flask
 from flask import Blueprint, render_template, request, abort, session, Response, stream_with_context
 
-=======
->>>>>>> master
 # Packages
 from BeautifulSoup import BeautifulSoup
 from flask import Blueprint, render_template, request
