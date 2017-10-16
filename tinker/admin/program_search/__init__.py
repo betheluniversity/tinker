@@ -5,11 +5,11 @@ import json
 # Packages
 from flask import abort, Blueprint, render_template, request
 from flask_classy import FlaskView, route
-<<<<<<< HEAD
+
 from sqlalchemy import or_
-=======
+
 from sqlalchemy import or_, and_
->>>>>>> master
+
 
 # Local
 from tinker import db

@@ -1,11 +1,8 @@
-<<<<<<< HEAD
 
 # tinker
 import requests
 from requests.exceptions import SSLError, ConnectionError
 
-=======
->>>>>>> master
 # Global
 from datetime import datetime
 
