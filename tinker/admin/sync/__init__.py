@@ -112,7 +112,6 @@ class SyncView(FlaskView):
                     block_asset = self.base.read_block(block.attrib.get('id'))
                     update(block_asset.asset, 'activated', 'Deactivated')
                     block_asset.edit_asset(block_asset.asset)
-
             except:
                 pass
 

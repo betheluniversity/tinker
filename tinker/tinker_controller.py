@@ -92,6 +92,11 @@ def admin_permissions(flask_view_class):
         if 'Administrators' not in session['groups'] and 'Tinker Redirects' not in session['groups']:
             abort(403)
 
+    elif flask_view_class.route_base == '/admin/sync':
+        # This if statement has to come first so that public API request don't need to have groups associated with them.
+        if '/public/' in request.path:
+            return
+
     # all other admin menus
     elif 'Administrators' not in session['groups']:
         abort(403)
