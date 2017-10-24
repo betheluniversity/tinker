@@ -97,6 +97,10 @@ def admin_permissions(flask_view_class):
         if '/public/' in request.path:
             return
 
+        # Checks to see what group the user is in
+        if 'Administrators' not in session['groups']:
+            abort(403)
+
     # all other admin menus
     elif 'Administrators' not in session['groups']:
         abort(403)
