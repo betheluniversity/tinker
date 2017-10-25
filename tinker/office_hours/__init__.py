@@ -87,6 +87,7 @@ class OfficeHoursView(FlaskView):
         block.edit_asset(data)
         return 'success'
 
+    # todo: will need to be removed at some point, but I want this test in version control for the time being.
     def test(self):
         con = ldap.initialize('ldap://bsp-ldap.bu.ac.bethel.edu:389')
         con.simple_bind_s('BU\svc-tinker', app.config['LDAP_SVC_TINKER_PASSWORD'])
