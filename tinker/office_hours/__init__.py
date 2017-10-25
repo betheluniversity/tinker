@@ -87,4 +87,20 @@ class OfficeHoursView(FlaskView):
         block.edit_asset(data)
         return 'success'
 
+    def test(self):
+        con = ldap.initialize('ldap://bsp-ldap.bu.ac.bethel.edu:389')
+        con.simple_bind_s('BU\svc-tinker', app.config['LDAP_SVC_TINKER_PASSWORD'])
+
+        results = con.search_s('ou=Groups,dc=bu,dc=ac,dc=bethel,dc=edu', ldap.SCOPE_SUBTREE, 'cn=*- Employee*')
+        list = []
+        for result in results:
+            list.append(result[0].split(',OU')[0].split('CN=')[1])
+
+        sorted(list)
+
+        for item in list:
+            print item
+
+        return 'test'
+
 OfficeHoursView.register(OfficeHoursBlueprint)
