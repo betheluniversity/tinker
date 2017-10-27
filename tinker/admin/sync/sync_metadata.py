@@ -81,6 +81,7 @@ graduate_programs = [
     "None",
     "Academic Behavioral Strategist License",
     "Athletic Training Leadership (M.A.)",
+    "Athletic Training (M.S.)",
     "Autism Spectrum Disorders License",
     "Certificate in International Baccalaureate Teaching and Learning",
     "Child and Adolescent Mental Health Certificate",
