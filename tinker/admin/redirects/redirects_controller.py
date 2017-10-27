@@ -10,6 +10,8 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 
 # Local
+from urllib3.exceptions import ProtocolError, MaxRetryError
+
 from tinker import app
 from tinker.admin.redirects.models import BethelRedirect
 from tinker.tinker_controller import TinkerController
@@ -92,6 +94,7 @@ class RedirectsController(TinkerController):
         today = datetime.now()
         today = today.strftime("%m/%d/%y %I:%M")
 
+        # Might stay, might not :}
         changed.write('These are the redirects that are being changed. \n' + str(today) + '</br></br>')
         changed.write("""<table>
                         <thead>
@@ -137,15 +140,21 @@ class RedirectsController(TinkerController):
 
             except ConnectionError as e:
                 # BKJ MaxRetryError and ProtocolError being thrown here. Not sure how to prevent these.
-                # print row.from_path
-                # print e.args
-                yield "Deleting redirect: " + row.from_path
-                ## TODO delete row here :)
-                # deleted.write('from_path: ' + row.from_path + ' to_url: ' + row.to_url + '\n')
-                deleted.write("<tr>\n" +
-                                "<td>" + row.from_path + "</td>\n"
-                                "<td>" + row.to_url + "</td>\n"
-                              "</tr>\n")
+                print row.from_path
+                print e.args
+
+                #
+                # if 'MaxRetryError' in e.args[0]:
+                #     continue
+
+                # 'Connection aborted is the message in e.args[0][0]. This is how we catch the protocol error and execute them.
+                if 'Connection aborted' in e.args[0][0]:
+                    yield "Deleting redirect: " + row.from_path + "<br/>"
+                    ## TODO delete row here :)
+                    deleted.write("<tr>\n" +
+                                    "<td>" + row.from_path + "</td>\n"
+                                    "<td>" + row.to_url + "</td>\n"
+                                  "</tr>\n")
 
                 continue
             except:
@@ -160,7 +169,6 @@ class RedirectsController(TinkerController):
                     if response.url == https_test:
                         # [redirects.replace(row.to_url, response.url) for item in row]
                         # row.to_url.replace(row.to_url, response.url)
-                        # redundant_changes.write('from path: ' + row.from_path + ' to url: ' + row.to_url + ' only changing http to https \n')
                         redundant_changes.write("<tr>\n" +
                                                 "<td>" + row.from_path + "</td>\n"
                                                 "<td>" + row.to_url + "</td>\n"
@@ -170,7 +178,6 @@ class RedirectsController(TinkerController):
                 elif response.url == row.to_url + '/':
                     # [redirects.replace(row.to_url, response.url) for item in row]
                     # row.to_url.replace(row.to_url, response.url)
-                    # redundant_changes.write('from path: ' + row.from_path + ' to url: ' + row.to_url + 'only adding "/" at the end \n')
                     redundant_changes.write("<tr>\n" +
                                             "<td>" + row.from_path + "</td>\n"
                                             "<td>" + row.to_url + "</td>\n"
@@ -181,7 +188,6 @@ class RedirectsController(TinkerController):
                 yield 'changing %s to %s <br/>' % (row.to_url, response.url)
                 # [redirects.replace(row.to_url, response.url) for item in row]
                 # row.to_url.replace(row.to_url, response.url)
-                # changed.write('from_path: ' + row.from_path + ' to_url changing from: ' + row.to_url + ' to: ' + response.url + '\n')
                 changed.write("<tr>\n" +
                                 "<td>" + row.from_path + "</td>\n"
                                 "<td>" + row.to_url + "</td>\n"
