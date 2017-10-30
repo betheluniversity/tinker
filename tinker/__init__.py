@@ -12,11 +12,13 @@ from raven.contrib.flask import Sentry
 
 app = Flask(__name__)
 
+print platform.node()
 if "testing" not in platform.node():
     TRAVIS_TESTING = False
     app.config.from_object('config.config')
 else:
-    import ast, glob
+    import ast
+    import glob
     TRAVIS_TESTING = True
     app.debug = True
     keywords = []
