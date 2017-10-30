@@ -25,7 +25,7 @@ class SearchTestCase(ProgramSearchBaseTestCase):
     #######################
 
     def test_search_valid(self):
-        expected_response = b'class="program-search-row table-hover">'
+        expected_response = b'class="program-search-row"'
         form_contents = self.create_form()
         response = self.send_post(self.request, form_contents)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,

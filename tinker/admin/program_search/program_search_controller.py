@@ -26,9 +26,12 @@ class ProgramSearchController(TinkerController):
         outfile.close()
         return "<pre>%s</pre>" % str(rows)
 
-    def get_programs_for_dropdown(self):
+    def get_programs_for_dropdown(self, return_dict_for_renaming=False):
         # gather a list of all program concentrations
-        program_concentrations = []
+        if return_dict_for_renaming:
+            program_concentrations = {}
+        else:
+            program_concentrations = []
 
         response = requests.get(app.config['PROGRAMS_XML'])
         xml = ET.fromstring(response.content)
@@ -54,13 +57,17 @@ class ProgramSearchController(TinkerController):
                 else:
                     school = None
 
-                program_concentrations.append({
-                    'name': program_name,
-                    'value': concentration_code,
-                    'school': school
-                })
+                if return_dict_for_renaming:
+                    program_concentrations[concentration_code] = program_name
+                else:
+                    program_concentrations.append({
+                        'name': program_name,
+                        'value': concentration_code,
+                        'school': school
+                    })
 
-        program_concentrations = sorted(program_concentrations, key=lambda k: k['name'])
+        if return_dict_for_renaming is False:
+            program_concentrations = sorted(program_concentrations, key=lambda k: k['name'])
         return program_concentrations
 
     def get_program_name(self, block, concentration):
