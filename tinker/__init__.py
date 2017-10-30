@@ -12,7 +12,6 @@ from raven.contrib.flask import Sentry
 
 app = Flask(__name__)
 
-print platform.node()
 if "testing" not in platform.node():
     TRAVIS_TESTING = False
     app.config.from_object('config.config')
@@ -33,7 +32,7 @@ else:
                 if possible_keyword.isupper():
                     keywords.append(possible_keyword)
     for kw in keywords:
-        if kw in ['_basedir', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_MIGRATE_REPO', 'PROGRAM_SEARCH_CSV', 'REDIRECTS_FILE_PATH']:
+        if kw in ['_basedir', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_MIGRATE_REPO', 'PROGRA M_SEARCH_CSV', 'REDIRECTS_FILE_PATH']:
             continue
         value = os.environ[kw]
         if "[" in value or "{" in value:
@@ -46,7 +45,7 @@ else:
     # These config vars require code operations, and aren't just values
     _basedir = os.path.abspath(os.path.dirname(__file__))
     app.config['_basedir'] = _basedir
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db.back')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db')
     app.config['SQLALCHEMY_MIGRATE_REPO'] = os.path.join(_basedir, 'db_repository')
     app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../programs.csv')
     app.config['REDIRECTS_FILE_PATH'] = os.path.join(_basedir, '../redirects.txt')
