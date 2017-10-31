@@ -63,7 +63,7 @@ class FacultyBiosView(FlaskView):
                           or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
                           or 'Tinker Faculty Bios - SEM' in session['groups'] \
                           or self.base.is_user_in_web_author_groups()
-        return render_template('faculty-bio-home.html', **locals())
+        return render_template('faculty-bios/home.html', **locals())
 
     @route('delete/<faculty_bio_id>', methods=['GET'])
     def delete(self, faculty_bio_id):
@@ -74,7 +74,7 @@ class FacultyBiosView(FlaskView):
 
     @route('/delete-confirm', methods=['GET'])
     def delete_confirm(self):
-        return render_template('faculty-bio-delete-confirm.html')
+        return render_template('faculty-bios/delete-confirm.html')
 
     def new(self):
         # import this here so we dont load all the content
@@ -87,14 +87,14 @@ class FacultyBiosView(FlaskView):
         metadata = fjson.dumps(data_to_add)
         add_form = True
 
-        return render_template('faculty-bio-form.html', **locals())
+        return render_template('faculty-bios/form.html', **locals())
 
     def confirm(self):
-        return render_template('faculty-bio-confirm.html')
+        return render_template('faculty-bios/confirm.html')
 
     @route('/in-workflow', methods=['GET'])
     def faculty_bio_in_workflow(self):
-        return render_template('faculty-bio-in-workflow.html')
+        return render_template('faculty-bios/in-workflow.html')
 
     def edit(self, faculty_bio_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
@@ -131,7 +131,7 @@ class FacultyBiosView(FlaskView):
         # pre-filled metadata for job titles
         metadata = fjson.dumps(data_to_add)
 
-        return render_template('faculty-bio-form.html', **locals())
+        return render_template('faculty-bios/form.html', **locals())
 
     @route('/submit', methods=['POST'])
     def submit(self):
@@ -156,7 +156,7 @@ class FacultyBiosView(FlaskView):
             metadata = fjson.dumps(data_to_add)
             new_job_titles = fjson.dumps(self.base.get_job_titles(add_data))
             degrees = fjson.dumps(self.base.get_degrees(add_data))
-            return render_template('faculty-bio-form.html', **locals())
+            return render_template('faculty-bios/form.html', **locals())
 
         if faculty_bio_id:
             # existing bio
@@ -179,7 +179,7 @@ class FacultyBiosView(FlaskView):
             status = 'new'
 
         self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
-        return render_template('faculty-bio-confirm.html', **locals())
+        return render_template('faculty-bios/confirm.html', **locals())
 
     @route('/activate', methods=['post'])
     def activate(self):

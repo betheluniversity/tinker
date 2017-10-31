@@ -15,35 +15,34 @@
             <div class="col-md-12">
                 <h3 class="subtitle">Automated publishers</h3>
                 <hr/>
-                <a href='/admin/publish-manager/program-feeds' class="btn btn-primary">Program Feeds</a>
-                </br>
-                </br>
+                <a href='{{ url_for('publish.PublishView:publish_program_feeds') }}' class="btn btn-primary">Program Feeds</a>
+                <br/>
+                <br/>
                 <div class="card">
                     <div class="content">
                         <p>Blocks that are published publish out each page in the relationships tab.</p>
-
-                        <form action="." id="publish-search-form">
-
+                        <form>
                             <div class="zero-left-padding col-sm-4">
-                                Search by Name:
+                                <label for="publish-search-by-name">Search by Name:</label>
                                 <input type="text" id="publish-search-by-name" class="form-control publish-search"/>
                             </div>
                             <div class="zero-left-padding col-sm-4">
-                                Search by Content:
+                                <label for="publish-search-by-content">Search by Content:</label>
                                 <input type="text" id="publish-search-by-content"
                                        class="form-control publish-search"/>
                             </div>
                             <div class="zero-left-padding col-sm-4">
-                                Search by Metadata:
+                                <label for="publish-search-by-metadata">Search by Metadata:</label>
                                 <input type="text" id="publish-search-by-metadata"
                                        class="form-control publish-search"/>
                             </div>
 
                             <div class="large-6 columns">
-                                <label>Publish to:
+                                <div>
+                                    Publish to:
                                     <div class="radio">
                                         <label>
-                                            <input type="radio" name="optionsRadios" value='staging' checked="true">
+                                            <input type="radio" name="optionsRadios" value='staging' checked="checked">
                                             Staging
                                         </label>
                                     </div>
@@ -53,7 +52,7 @@
                                             Production and Staging
                                         </label>
                                     </div>
-                                </label>
+                                </div>
                             </div>
                             <div class="large-2 columns">
                                 <label>Asset Types: </label>
@@ -102,7 +101,7 @@
                         </table>
                     </div>
                 </div>
-                </br>
+                <br/>
             </div>
             <div id="spinner" class="spinner" style="display:none;">
                 <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
