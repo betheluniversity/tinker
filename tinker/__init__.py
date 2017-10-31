@@ -12,6 +12,7 @@ from raven.contrib.flask import Sentry
 
 app = Flask(__name__)
 
+print "platform.node() =", platform.node()
 if "testing" not in platform.node():
     TRAVIS_TESTING = False
     app.config.from_object('config.config')
