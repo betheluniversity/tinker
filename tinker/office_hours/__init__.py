@@ -26,7 +26,7 @@ class OfficeHoursView(FlaskView):
 
         forms = self.base.traverse_xml(app.config['OFFICE_HOURS_XML_URL'], 'system-block')
 
-        return render_template('office-hours-home.html', **locals())
+        return render_template('office-hours/home.html', **locals())
 
     def edit(self, block_id):
         edit_data, sdata, mdata = self.base.load_office_hours_block(block_id=block_id)
@@ -43,7 +43,7 @@ class OfficeHoursView(FlaskView):
 
         form = OfficeHoursForm(**edit_data)
 
-        return render_template('office-hours-form.html', **locals())
+        return render_template('office-hours/form.html', **locals())
 
     @route('/submit', methods=['POST'])
     def submit(self):
@@ -61,7 +61,7 @@ class OfficeHoursView(FlaskView):
             self.base.cascade_call_logger(locals())
             self.base.log_sentry("Office Hour Submission", resp)
 
-        return render_template('office-hours-confirm.html', **locals())
+        return render_template('office-hours/confirm.html', **locals())
 
     def rotate_hours(self, block_id):
         block = self.base.read_block(block_id)

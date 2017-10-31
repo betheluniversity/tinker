@@ -550,7 +550,6 @@ class FacultyBioController(TinkerController):
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
-
         # first_name = find(asset_data, 'first', False)
         # last_name = find(asset_data, 'last', False)
         # update(asset_data, 'name', last_name.lower() + '-' + first_name.lower())

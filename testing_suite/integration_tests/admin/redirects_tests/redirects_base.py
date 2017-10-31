@@ -7,7 +7,6 @@ from testing_suite.integration_tests import IntegrationTestCase
 
 class RedirectsBaseTestCase(IntegrationTestCase, FixturesMixin):
 
-    # fixtures = ['test_database.json']
     tinker_app = tinker.app
     tinker_app.testing = True
     tinker_app.debug = False

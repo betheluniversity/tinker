@@ -50,14 +50,14 @@ class EventsView(FlaskView):
             all_schools = OrderedDict({
                 2: 'User Events'}
             )
-        return render_template('events-home.html', show_create=show_create, all_schools=all_schools, list_of_events=None,
+        return render_template('events/home.html', show_create=show_create, all_schools=all_schools, list_of_events=None,
                                formsHeader="All Events")
 
     def confirm(self):
-        return render_template('submit-confirm.html', **locals())
+        return render_template('events/submit-confirm.html', **locals())
 
     def event_in_workflow(self):
-        return render_template('event-in-workflow.html')
+        return render_template('events/in-workflow.html')
 
     def add(self):
         # import this here so we dont load all the content from cascade during homepage load
@@ -65,7 +65,7 @@ class EventsView(FlaskView):
 
         form = EventForm()
         new_form = True
-        return render_template('event-form.html', **locals())
+        return render_template('events/form.html', **locals())
 
     def edit(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
@@ -80,7 +80,7 @@ class EventsView(FlaskView):
         if 'location' in edit_data and edit_data['location']:
             edit_data['location'].replace(' c', ' C')
 
-        return render_template('event-form.html', **locals())
+        return render_template('events/form.html', **locals())
 
     def duplicate(self, event_id):
         edit_data, dates, author = self.base.build_edit_form(event_id)
@@ -88,7 +88,7 @@ class EventsView(FlaskView):
         form = EventForm(**edit_data)
         new_form = True
 
-        return render_template('event-form.html', **locals())
+        return render_template('events/form.html', **locals())
 
     @route("/submit", methods=['post'])
     def submit(self):
@@ -109,7 +109,7 @@ class EventsView(FlaskView):
             author = rform["author"]
             num_dates = int(rform['num_dates'])
 
-            return render_template('event-form.html', **locals())
+            return render_template('events/form.html', **locals())
 
         add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow)
 
@@ -122,7 +122,7 @@ class EventsView(FlaskView):
             path = str(asset['page']['parentFolderPath'] + "/" + asset['page']['name'])
             view.new_internal_redirect_submit(path, add_data['link'])
 
-        return render_template("submit-confirm.html", **locals())
+        return render_template("events/submit-confirm.html", **locals())
 
     @route('/api/reset-tinker-edits/<event_id>', methods=['get', 'post'])
     def reset_tinker_edits(self, event_id):
@@ -151,7 +151,7 @@ class EventsView(FlaskView):
         self.base.unpublish(event_id, 'page')
         app.logger.debug(time.strftime("%c") + ": Event deleted by " + session['username'] + " " + str(response))
         self.base.publish(app.config['EVENT_XML_ID'])
-        return render_template('events-delete-confirm.html')
+        return render_template('events/delete-confirm.html')
 
     # This is the search for events to pare down what is being shown
     @route("/search", methods=['POST'])
@@ -175,7 +175,7 @@ class EventsView(FlaskView):
             end = 0
         search_results, forms_header = self.base.get_search_results(selection, title, start, end)
         search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
-        return render_template('search_results.html', list_of_events=search_results, formsHeader=forms_header)
+        return render_template('events/search-results.html', list_of_events=search_results, formsHeader=forms_header)
 
 
 EventsView.register(EventsBlueprint)

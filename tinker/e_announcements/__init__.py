@@ -31,7 +31,7 @@ class EAnnouncementsView(FlaskView):
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
 
         forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
-        return render_template('ea-home.html', **locals())
+        return render_template('e-announcements/home.html', **locals())
 
     @route("/delete/<e_announcement_id>", methods=['GET', 'POST'])
     def delete(self, e_announcement_id):
@@ -48,7 +48,7 @@ class EAnnouncementsView(FlaskView):
         self.base.delete(e_announcement_id, 'block')
         self.base.publish(app.config['E_ANNOUNCEMENTS_XML_ID'])
 
-        return render_template('delete-confirm.html', **locals())
+        return render_template('e-announcements/delete-confirm.html', **locals())
 
     def view(self, e_announcement_id):
         block = self.base.read_block(e_announcement_id)
@@ -60,7 +60,7 @@ class EAnnouncementsView(FlaskView):
         second = find(sdata, 'second-date', False)
         banner_roles = find(mdata, 'banner-roles', False)
 
-        return render_template('view.html', **locals())
+        return render_template('e-announcements/view.html', **locals())
 
     def new(self):
         from forms import EAnnouncementsForm
@@ -69,19 +69,19 @@ class EAnnouncementsView(FlaskView):
 
         # extra variable the form uses
         brm = self.base.brm
-        return render_template('form.html', **locals())
+        return render_template('e-announcements/form.html', **locals())
 
     # @route("/confirm", methods=['GET'])
     @route("/confirm/<status>", methods=['GET'])
     def confirm(self, status='new'):
-        return render_template('confirm.html', **locals())
+        return render_template('e-announcements/confirm.html', **locals())
 
     def edit(self, e_announcement_id):
         from tinker.e_announcements.forms import EAnnouncementsForm
 
         # if its in the workflow, give a warning
         if self.base.asset_in_workflow(e_announcement_id, asset_type='block'):
-            return render_template('in-workflow.html')
+            return render_template('e-announcements/in-workflow.html')
 
         # Get the e-ann data from cascade
         block = self.base.read_block(e_announcement_id)
@@ -97,14 +97,14 @@ class EAnnouncementsView(FlaskView):
         if '/duplicate/' in request.url:
             new_form = True
 
-        return render_template('form.html', **locals())
+        return render_template('e-announcements/form.html', **locals())
 
     def duplicate(self, e_announcement_id):
         from tinker.e_announcements.forms import EAnnouncementsForm
 
         # if its in the workflow, give a warning
         if self.base.asset_in_workflow(e_announcement_id, asset_type='block'):
-            return render_template('in-workflow.html')
+            return render_template('e-announcements/in-workflow.html')
 
         # Get the e-ann data from cascade
         block = self.base.read_block(e_announcement_id)
@@ -121,7 +121,7 @@ class EAnnouncementsView(FlaskView):
         if '/duplicate/' in request.url:
             new_form = True
 
-        return render_template('form.html', **locals())
+        return render_template('e-announcements/form.html', **locals())
 
     @route("/submit", methods=['post'])
     def submit(self):
@@ -136,7 +136,7 @@ class EAnnouncementsView(FlaskView):
                 new_form = True
             # bring in the mapping
             brm = self.base.brm
-            return render_template('form.html', **locals())
+            return render_template('e-announcements/form.html', **locals())
 
         if not eaid:
             status = "new"
@@ -154,7 +154,7 @@ class EAnnouncementsView(FlaskView):
             resp = str(block.edit_asset(asset))
             self.base.log_sentry("E-Announcement edit submission", resp)
 
-        return render_template('confirm.html', **locals())
+        return render_template('e-announcements/confirm.html', **locals())
 
     @route("/public/create_and_send_campaign", methods=['get', 'post'])
     @route("/public/create_campaign", methods=['get', 'post'])
@@ -276,7 +276,7 @@ class EAnnouncementsView(FlaskView):
         if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
             return abort(403)
 
-        return render_template("ea-future.html")
+        return render_template("e-announcements/future.html")
 
     @route("/ea_future", methods=['POST'])
     def ea_future(self):
@@ -314,7 +314,7 @@ class EAnnouncementsView(FlaskView):
                 if second_ea_date == str(date_id):
                     get_title_and_message(self, form)
 
-        return render_template("ea-future-ajax.html", **locals())
+        return render_template("e-announcements/future-ajax.html", **locals())
 
     # TODO e-announcements by role (someday)
 
