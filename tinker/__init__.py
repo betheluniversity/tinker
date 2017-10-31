@@ -32,7 +32,7 @@ else:
                 if possible_keyword.isupper():
                     keywords.append(possible_keyword)
     for kw in keywords:
-        if kw in ['_basedir', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_MIGRATE_REPO', 'PROGRA M_SEARCH_CSV', 'REDIRECTS_FILE_PATH']:
+        if kw in ['_basedir', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_MIGRATE_REPO', 'PROGRAM_SEARCH_CSV', 'REDIRECTS_FILE_PATH']:
             continue
         value = os.environ[kw]
         if "[" in value or "{" in value:
