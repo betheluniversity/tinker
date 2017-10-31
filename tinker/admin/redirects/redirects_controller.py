@@ -31,10 +31,6 @@ class RedirectsController(TinkerController):
 
         return 'done'
 
-    # TODO: PG, 7/6/17: I can't find where this method is used
-    def get_model(self):
-        return self.db.Model
-
     def add_row_to_db(self, from_path, to_url, short_url, expiration_date):
         new_redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url,
                                       expiration_date=expiration_date)

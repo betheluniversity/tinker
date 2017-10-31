@@ -47,10 +47,9 @@ class RedirectsView(FlaskView):
     # Finds all redirects associated with the from path entered
     @route("/search", methods=['post'])
     def search(self):
-        # todo: limit results to...100?
         search_type = request.form['type']
         search_query = request.form['search']
-        if self.search == "%" or search_type not in ['from_path', 'to_url']:
+        if search_query == "%" or search_type not in ['from_path', 'to_url']:
             return ""
         redirects = self.base.search_db(search_type, search_query)
         return render_template('admin/redirects/ajax.html', **locals())

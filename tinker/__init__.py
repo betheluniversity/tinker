@@ -45,7 +45,7 @@ else:
     # These config vars require code operations, and aren't just values
     _basedir = os.path.abspath(os.path.dirname(__file__))
     app.config['_basedir'] = _basedir
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db.back')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db')
     app.config['SQLALCHEMY_MIGRATE_REPO'] = os.path.join(_basedir, 'db_repository')
     app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../programs.csv')
     app.config['REDIRECTS_FILE_PATH'] = os.path.join(_basedir, '../redirects.txt')
