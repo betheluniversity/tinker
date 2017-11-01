@@ -84,6 +84,8 @@ class RedirectsController(TinkerController):
 
     def redirect_change(self):
 
+        loop_counter = 0
+
         redirects = BethelRedirect.query.all()
         # following are files to be written so we can pass the 'change log' over to marketing
         # with this, they can approve or ask us to fix/replace some of the redirects
@@ -126,73 +128,77 @@ class RedirectsController(TinkerController):
                                     </thead>
                                     <tfoot>""")
 
-        for row in redirects:
+        for redirect in redirects:
+            loop_counter += 1
+            # if loop_counter < 4100:
+            #     continue
             try:
-                response = requests.get('https://www.bethel.edu' + row.from_path)
-                row.to_url.replace('\n', '')
-                row.to_url.replace(' ', '')
+                response = requests.get('https://www.bethel.edu' + redirect.from_path)
+                redirect.to_url.replace('\n', '')
+                redirect.to_url.replace(' ', '')
 
             except SSLError as e:
                 # BKJ SSLError.SSLError and SSLError.CertificateError thrown here. Not sure how to prevent these.
-                # print row.from_path
+                # print redirect.from_path
                 # print e.args
                 continue
 
             except ConnectionError as e:
                 # BKJ MaxRetryError and ProtocolError being thrown here. Not sure how to prevent these.
-                print row.from_path
-                print e.args
+                # print redirect.from_path
+                # print e.args
 
-                #
-                # if 'MaxRetryError' in e.args[0]:
-                #     continue
+                if 'Max retries exceeded' in e.args[0].args[0]:
+                    # catches and deletes the MaxRetryErrors
 
-                # 'Connection aborted is the message in e.args[0][0]. This is how we catch the protocol error and execute them.
-                if 'Connection aborted' in e.args[0][0]:
-                    yield "Deleting redirect: " + row.from_path + "<br/>"
-                    ## TODO delete row here :)
+                    yield "Deleting redirect: " + redirect.from_path + "<br/>"
+                    # TODO delete redirect here :)
+                    # self.db.session.delete(redirect)
+                    print e.args[0][0]
                     deleted.write("<tr>\n" +
-                                    "<td>" + row.from_path + "</td>\n"
-                                    "<td>" + row.to_url + "</td>\n"
+                                    "<td>" + redirect.from_path + "</td>\n"
+                                    "<td>" + redirect.to_url + "</td>\n"
                                   "</tr>\n")
+                    continue
 
-                continue
+                else:
+                    # If it gets here, it's a ProtocolError and life goes on
+                    continue
+
             except:
                 # BKJ Can't print these arguments, but all the other errors are being caught here. Nothing else should break this.
                 continue
 
-            if response.url != row.to_url:
+            if response.url != redirect.to_url:
 
                 # checking for redundant changes in the to_url
-                if 'https' not in row.to_url:
-                    https_test = row.to_url.replace('http', 'https')
+                if 'https' not in redirect.to_url:
+                    https_test = redirect.to_url.replace('http', 'https')
                     if response.url == https_test:
-                        # [redirects.replace(row.to_url, response.url) for item in row]
-                        # row.to_url.replace(row.to_url, response.url)
+                        # [redirects.replace(redirect.to_url, response.url) for item in redirect]
                         redundant_changes.write("<tr>\n" +
-                                                "<td>" + row.from_path + "</td>\n"
-                                                "<td>" + row.to_url + "</td>\n"
+                                                "<td>" + redirect.from_path + "</td>\n"
+                                                "<td>" + redirect.to_url + "</td>\n"
                                                 "<td> Changing http to https </td>\n"
                                                 "</tr>\n")
                         continue
-                elif response.url == row.to_url + '/':
-                    # [redirects.replace(row.to_url, response.url) for item in row]
-                    # row.to_url.replace(row.to_url, response.url)
+                elif response.url == redirect.to_url + '/':
+                    # [redirects.replace(redirect.to_url, response.url) for item in redirect]
                     redundant_changes.write("<tr>\n" +
-                                            "<td>" + row.from_path + "</td>\n"
-                                            "<td>" + row.to_url + "</td>\n"
+                                            "<td>" + redirect.from_path + "</td>\n"
+                                            "<td>" + redirect.to_url + "</td>\n"
                                             "<td> Adding '/' at end </td>\n"
                                             "</tr>\n")
                     continue
 
-                yield 'changing %s to %s <br/>' % (row.to_url, response.url)
-                # [redirects.replace(row.to_url, response.url) for item in row]
-                # row.to_url.replace(row.to_url, response.url)
+                yield 'changing %s to %s <br/>' % (redirect.to_url, response.url)
+                # [redirects.replace(redirect.to_url, response.url) for item in redirect]
                 changed.write("<tr>\n" +
-                                "<td>" + row.from_path + "</td>\n"
-                                "<td>" + row.to_url + "</td>\n"
+                                "<td>" + redirect.from_path + "</td>\n"
+                                "<td>" + redirect.to_url + "</td>\n"
                                 "<td>" + response.url + "</td>"
                                 "</tr>\n")
+
 
         contact_footer = 'If you have any questions/concerns, please contact web services.'
 
