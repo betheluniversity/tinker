@@ -34,7 +34,7 @@ class RedirectsView(FlaskView):
     # Redirects homepage
     def index(self):
         redirects = self.base.get_all_rows()
-        return render_template('redirects.html', **locals())
+        return render_template('admin/redirects/home.html', **locals())
 
     # Deletes the chosen redirect
     @route("/delete", methods=['post'])
@@ -50,13 +50,12 @@ class RedirectsView(FlaskView):
     # Finds all redirects associated with the from path entered
     @route("/search", methods=['post'])
     def search(self):
-        # todo: limit results to...100?
         search_type = request.form['type']
         search_query = request.form['search']
-        if self.search == "%" or search_type not in ['from_path', 'to_url']:
+        if search_query == "%" or search_type not in ['from_path', 'to_url']:
             return ""
         redirects = self.base.search_db(search_type, search_query)
-        return render_template('redirect-ajax.html', **locals())
+        return render_template('admin/redirects/ajax.html', **locals())
 
     # Saves the new redirect created
     @route("/new-redirect-submit", methods=['post'])

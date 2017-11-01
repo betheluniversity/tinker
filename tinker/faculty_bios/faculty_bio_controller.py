@@ -43,65 +43,71 @@ class FacultyBioController(TinkerController):
         }
         return mapping
 
-    # todo: this is better, but it still needs a little work
     def inspect_child(self, child, find_all=False):
+        # Set up the variables that this method will use to determine whether or not it should iterate over this bio
+        author = None
         try:
-            author = child.find('author').text
-            author = author.replace(' ', '').split(',')
+            author = child.find('author').text.replace(' ', '').split(',')
         except AttributeError:
-            author = None
+            pass
 
         username = session['username']
         groups = session['groups']
+        program_elements = [
+            child.findall('system-data-structure/job-titles/department'),
+            child.findall('system-data-structure/job-titles/seminary-program')
+        ]
         iterate_bio = False
 
-        # 1) admin
-        if 'Tinker Faculty Bios - Admin' in groups or 'Administrators' in groups:
+        # Go through the 5 conditions when we would want to iterate over the fac bio, 'child', and chain them into an
+        # if/elif chain so that as soon as we have a successful condition, it doesn't need to check the other
+        # conditions. Following that line of thought, they've been organized from fastest check to slowest check to get
+        # a successful condition as fast as possible, and then move on.
+        if find_all:
+            # Because we're iterating over all of the bios.
             iterate_bio = True
-
-        # 2) user's bio
-        if author is not None and username in author:
+        elif 'Tinker Faculty Bios - Admin' in groups or 'Administrators' in groups:
+            # Because the user running this operation is an administrator
             iterate_bio = True
-
-        # 3) user is in special group -- check school
-        if 'Tinker Faculty Bios - CAS' in groups:
-            schools_to_check = ['College of Arts and Sciences']
-        elif 'Tinker Faculty Bios - CAPS and GS' in groups:
-            schools_to_check = ['College of Adult and Professional Studies', 'Graduate School']
-        elif 'Tinker Faculty Bios - SEM' in groups:
-            schools_to_check = ['Bethel Seminary']
+        elif author is not None and username in author:
+            # Because the user running this operation is one of the people who created/edited this bio
+            iterate_bio = True
+        elif self.check_web_author_groups(groups, program_elements):
+            # Because the user running this operation is in a group that's authorized to edit this bio
+            iterate_bio = True
         else:
-            schools_to_check = None
+            if 'Tinker Faculty Bios - CAS' in groups:
+                schools_to_check = ['College of Arts and Sciences']
+            elif 'Tinker Faculty Bios - CAPS and GS' in groups:
+                schools_to_check = ['College of Adult and Professional Studies', 'Graduate School']
+            elif 'Tinker Faculty Bios - SEM' in groups:
+                schools_to_check = ['Bethel Seminary']
+            else:
+                schools_to_check = []
 
-        if schools_to_check:
-            try:
+            if len(schools_to_check) > 0:
                 school_values = []
-                for school in child.findall('system-data-structure/job-titles/school'):
-                    school_text = school.text
-                    school_values.append(school_text)
-            except:
-                school_values = []
+                try:
+                    school_values = [school.text for school in child.findall('system-data-structure/job-titles/school')]
+                except:
+                    pass
 
-            for school_value in school_values:
-                if school_value in schools_to_check:
-                    iterate_bio = True
+                for school_value in school_values:
+                    if school_value in schools_to_check:
+                        # Because the user running this operation is in a group allowed to edit all bios for this bio's
+                        # particular school
+                        iterate_bio = True
+                        # Don't need to keep iterating through school values in the bio if we already have a match
+                        break
 
-        # 4) user is in web admin group
-        program_elements = []
-        program_elements.append(child.findall('system-data-structure/job-titles/department'))
-        program_elements.append(child.findall('system-data-structure/job-titles/seminary-program'))
-
-        if self.check_web_author_groups(groups, program_elements):
-            iterate_bio = True
-
-        # get value of bio, if allowed
-        if iterate_bio or find_all:
+        to_return = None
+        if iterate_bio:
             try:
-                return self._iterate_child_xml(child, author)
+                to_return = self._iterate_child_xml(child, author)
             except AttributeError:
-                return None
-        else:
-            return None
+                pass
+
+        return to_return
 
     def _iterate_child_xml(self, child, author):
 
@@ -544,7 +550,6 @@ class FacultyBioController(TinkerController):
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
-
         # first_name = find(asset_data, 'first', False)
         # last_name = find(asset_data, 'last', False)
         # update(asset_data, 'name', last_name.lower() + '-' + first_name.lower())

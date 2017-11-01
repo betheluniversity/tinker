@@ -34,7 +34,7 @@ class ProgramSearchView(FlaskView):
         school_labels = self.base.get_school_labels()
         program_concentrations = self.base.get_programs_for_dropdown()
 
-        return render_template('program-search-home.html', **locals())
+        return render_template('admin/program-search/home.html', **locals())
 
     @route('/submit', methods=['post'])
     def submit(self):
@@ -47,7 +47,7 @@ class ProgramSearchView(FlaskView):
             tag = rform.get('tag')
 
             if key == 'Any' or tag == '' or tag is None:
-                return render_template('program-search-home.html', **locals())
+                return render_template('admin/program-search/home.html', **locals())
 
             outcome = ast.literal_eval(rform.get('outcome'))
             topic = ast.literal_eval(rform.get('topic'))
@@ -66,7 +66,7 @@ class ProgramSearchView(FlaskView):
         except:
             db.session.rollback()
 
-        return render_template('program-search-home.html', **locals())
+        return render_template('admin/program-search/home.html', **locals())
 
     @route('/multi-delete', methods=['POST'])
     def multi_delete(self):
@@ -109,12 +109,12 @@ class ProgramSearchView(FlaskView):
         # builds a dict that is used to change concentration codes to program names
         program_concentrations = self.base.get_programs_for_dropdown(True)
 
-        return render_template('program-search-ajax.html', **locals())
+        return render_template('admin/program-search/ajax.html', **locals())
 
     @route('/audit', methods=['get'])
     @route('/database-audit', methods=['get'])
     def database_audit(self):
-        return render_template('database-audit.html', **locals())
+        return render_template('admin/program-search/database-audit.html', **locals())
 
     @route('/database-audit-table', methods=['post'])
     def database_audit_table(self):
@@ -137,7 +137,7 @@ class ProgramSearchView(FlaskView):
         unmatched_keys_in_tinker_db = list(set(list_of_issue_programs) & set(keys_in_tinker_db))
         unmatched_keys_in_cascade = list(set(list_of_issue_programs) & set(keys_in_cascade))
 
-        return render_template('database-audit-table.html', **locals())
+        return render_template('admin/program-search/database-audit-table.html', **locals())
 
     @route('/database-audit-update', methods=['post'])
     def database_audit_update(self):
