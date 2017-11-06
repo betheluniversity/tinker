@@ -1,5 +1,7 @@
 
 # tinker
+import urllib
+
 import requests
 from requests.exceptions import SSLError, ConnectionError
 
@@ -83,16 +85,18 @@ class RedirectsController(TinkerController):
         loop_counter = 0
 
         redirects = BethelRedirect.query.all()
+
         # following are files to be written so we can pass the 'change log' over to marketing
         # with this, they can approve or ask us to fix/replace some of the redirects
-        deleted = open('Redirect_Deleted.html', 'w+')
+
+        # deleted = open('Redirect_Deleted.html', 'w+')
         changed = open('Redirect_Changed.html', 'w+')
         redundant_changes = open('Redundant_Changes.html', 'w+')
 
         today = datetime.now()
         today = today.strftime("%m/%d/%y %I:%M")
 
-        # Might stay, might not :}
+        # Might stay, might not :)
         changed.write('These are the redirects that are being changed. \n' + str(today) + '</br></br>')
         changed.write("""<table>
                         <thead>
@@ -104,15 +108,15 @@ class RedirectsController(TinkerController):
                         </thead>
                         <tfoot>""")
 
-        deleted.write('These are the redirects that are being deleted. \n' + str(today) + '</br></br>')
-        deleted.write("""<table>
-                        <thead>
-                        <tr>
-                        <th style = 'text-align: left'> From Path </th>
-                        <th style = 'text-align: left'> To Url </th>
-                        </tr>
-                        </thead>
-                        <tfoot>""")
+        # deleted.write('These are the redirects that are being deleted. \n' + str(today) + '</br></br>')
+        # deleted.write("""<table>
+        #                 <thead>
+        #                 <tr>
+        #                 <th style = 'text-align: left'> From Path </th>
+        #                 <th style = 'text-align: left'> To Url </th>
+        #                 </tr>
+        #                 </thead>
+        #                 <tfoot>""")
 
         redundant_changes.write("""<table>
                                     <thead>
@@ -141,31 +145,20 @@ class RedirectsController(TinkerController):
 
             except ConnectionError as e:
                 # BKJ MaxRetryError and ProtocolError being thrown here. Not sure how to prevent these.
+                # Not causing any issues or anything so it's fine.
                 # print redirect.from_path
                 # print e.args
-
-                if 'Max retries exceeded' in e.args[0].args[0]:
-                    # catches and deletes the MaxRetryErrors
-
-                    yield "Deleting redirect: " + redirect.from_path + "<br/>"
-                    # TODO delete redirect here :)
-                    # self.db.session.delete(redirect)
-                    print e.args[0][0]
-                    deleted.write("<tr>\n" +
-                                    "<td>" + redirect.from_path + "</td>\n"
-                                    "<td>" + redirect.to_url + "</td>\n"
-                                  "</tr>\n")
-                    continue
-
-                else:
-                    # If it gets here, it's a ProtocolError and life goes on
-                    continue
+                continue
 
             except:
                 # BKJ Can't print these arguments, but all the other errors are being caught here. Nothing else should break this.
                 continue
 
             if response.url != redirect.to_url:
+
+                if 'auth' in response.url:
+                    response.url = urllib.unquote(urllib.unquote(response.url))
+                    continue
 
                 # checking for redundant changes in the to_url
                 if 'https' not in redirect.to_url:
@@ -199,11 +192,11 @@ class RedirectsController(TinkerController):
         contact_footer = 'If you have any questions/concerns, please contact web services.'
 
         changed.write('</tfoot></table> \n \n' + contact_footer)
-        deleted.write('</tfoot></table> \n \n' + contact_footer)
+        # deleted.write('</tfoot></table> \n \n' + contact_footer)
         redundant_changes.write('</tfoot></table>')
 
         changed.close()
-        deleted.close()
+        # deleted.close()
         redundant_changes.close()
 
         print 'done'
