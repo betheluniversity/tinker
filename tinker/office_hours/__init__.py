@@ -1,7 +1,7 @@
 import re
 import ldap
 
-# flask
+from bu_cascade.asset_tools import find
 from flask import Blueprint, render_template, session, url_for, redirect, request
 from flask_classy import FlaskView, route
 from flask import json as fjson, abort
@@ -22,13 +22,32 @@ class OfficeHoursView(FlaskView):
     def __init__(self):
         self.base = OfficeHoursController()
 
-    # todo: add iam group logic here
     def before_request(self, name, **kwargs):
-        # todo: make sure that session['username'] exists
-        # todo: maybe set this value in the session?
-        if not self.base.is_current_user_in_iam_group('CommMktg - Tinker Office Hours Editor') and "Administrators" not in session['groups']:
-            # failure
+        # todo: if admin, pass
+        if "Administrators" in session['groups']:
+            pass
+        # todo: if route is /, then see if they are in at least 1 of the groups
+        elif True:
+            identifier = {
+                'id': '25c877428c5865133e9151d30fd984e0',
+                'type': 'block',
+            }
+
+            my_array = self.base.cascade_connector.client.service.readAccessRights(self.base.cascade_connector.login,
+                                                                                   identifier).accessRightsInformation.aclEntries.aclEntry
+
+            for item in my_array:
+                if item.type == 'group' and item.name in session['groups']:
+                    print item.name
+
+            self.base.cascade_connector.client.service.readAccessRights(self.base.cascade_connector.login, identifier)
+            pass
+        # todo: if route is specific, make sure they are in the block route (which is convenientely in the request.path!
+        elif True:
+            pass
+        else:
             abort(403)
+
 
     def index(self):
         username = session['username']
