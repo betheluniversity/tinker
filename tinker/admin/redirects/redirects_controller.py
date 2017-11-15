@@ -170,21 +170,26 @@ class RedirectsController(TinkerController):
 
                 if 'auth' in response.url:  # checks if the response.url is an auth page, decodes it and replaces the to_url to that
                     response.url = urllib.unquote(urllib.unquote(response.url))
-                    redirect.to_url.replace(redirect.to_url, response.url)
+                    # creates a new redirect to replace the old one after deleting
+                    new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
+                                                  short_url=redirect.short_url,
+                                                  expiration_date=redirect.expiration_date)
                     self.db.session.delete(redirect)
-                    self.db.session.add(redirect)
-                    # self.db.session.commit()
+                    self.db.session.add(new_redirect)
+                    self.db.session.commit()
                     continue
 
                 # checking for redundant changes in the to_url
                 if 'https' not in redirect.to_url:
                     https_test = redirect.to_url.replace('http', 'https')
                     if response.url == https_test:
-                        # [redirects.replace(redirect.to_url, response.url) for item in redirect]
-                        redirect.to_url.replace(redirect.to_url, response.url)
+                        # Creates a new redirect to replace the old one after deleting
+                        new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
+                                                      short_url=redirect.short_url,
+                                                      expiration_date=redirect.expiration_date)
                         self.db.session.delete(redirect)
-                        self.db.session.add(redirect)
-                        # self.db.session.commit()
+                        self.db.session.add(new_redirect)
+                        self.db.session.commit()
                         redundant_changes.write("<tr>\n" +
                                                 "<td>" + redirect.from_path + "</td>\n"
                                                 "<td>" + redirect.to_url + "</td>\n"
@@ -192,11 +197,14 @@ class RedirectsController(TinkerController):
                                                 "</tr>\n")
                         continue
                 elif response.url == redirect.to_url + '/':
-                    # [redirects.replace(redirect.to_url, response.url) for item in redirect]
-                    redirect.to_url.replace(redirect.to_url, response.url)
+                    # creates a new redirect to replace the old one after deleting
+                    new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
+                                                  short_url=redirect.short_url,
+                                                  expiration_date=redirect.expiration_date)
                     self.db.session.delete(redirect)
-                    self.db.session.add(redirect)
-                    # self.db.session.commit()
+                    self.db.session.delete(redirect)
+                    self.db.session.add(new_redirect)
+                    self.db.session.commit()
                     redundant_changes.write("<tr>\n" +
                                             "<td>" + redirect.from_path + "</td>\n"
                                             "<td>" + redirect.to_url + "</td>\n"
@@ -206,10 +214,12 @@ class RedirectsController(TinkerController):
 
                 yield 'changing %s to %s <br/>' % (redirect.to_url, response.url)
                 # [redirects.replace(redirect.to_url, response.url) for item in redirect]
-                redirect.to_url.replace(redirect.to_url, response.url)
+                new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
+                                              short_url=redirect.short_url,
+                                              expiration_date=redirect.expiration_date)
                 self.db.session.delete(redirect)
-                self.db.session.add(redirect)
-                # self.db.session.commit()
+                self.db.session.add(new_redirect)
+                self.db.session.commit()
                 changed.write("<tr>\n" +
                                 "<td>" + redirect.from_path + "</td>\n"
                                 "<td>" + redirect.to_url + "</td>\n"
@@ -222,7 +232,6 @@ class RedirectsController(TinkerController):
         checkDelete.write('</tfoot></table> \n \n' + contact_footer)
         redundant_changes.write('</tfoot></table>')
 
-        self.db.session.commit()
         changed.close()
         checkDelete.close()
         redundant_changes.close()
