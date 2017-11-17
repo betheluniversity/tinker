@@ -94,7 +94,7 @@ class RedirectsController(TinkerController):
         today = datetime.now()
         today = today.strftime("%m/%d/%y %I:%M")
 
-        # Might stay, might not :)
+        # redirects that are being changed (not redundant changes though)
         changed.write('These are the redirects that are being changed. \n' + str(today) + '</br></br>')
         changed.write("""<table>
                         <thead>
@@ -106,7 +106,8 @@ class RedirectsController(TinkerController):
                         </thead>
                         <tfoot>""")
 
-        checkDelete.write('These are the redirects that are being deleted. \n' + str(today) + '</br></br>')
+        # these redirects will be marked for deletion. keeping them is based on discretion
+        checkDelete.write('These are the redirects that are should be looked at for deletion. \n' + str(today) + '</br></br>')
         checkDelete.write("""<table>
                         <thead>
                         <tr>
@@ -116,6 +117,7 @@ class RedirectsController(TinkerController):
                         </thead>
                         <tfoot>""")
 
+        # file for redundant changes (adding '/' to the end or only switching 'http' to 'https'
         redundant_changes.write("""<table>
                                     <thead>
                                     <tr>
@@ -135,40 +137,29 @@ class RedirectsController(TinkerController):
                 redirect.to_url.replace('\n', '')
                 redirect.to_url.replace(' ', '')
 
-            except SSLError as e:
-                # BKJ SSLError.SSLError and SSLError.CertificateError thrown here. Not sure how to prevent these.
-                # print redirect.from_path
-                # print e.args
+            except SSLError as e:  # .SSLError and .CertificateError caught here
                 continue
 
-            except ConnectionError as e:
-                # BKJ MaxRetryError and ProtocolError being thrown here. Not sure how to prevent these.
-                # MaxRetryError is being caught and deleted
-                # print redirect.from_path
-                # print e.args
+            except ConnectionError as e:  # MaxRetry and ProtocolError are being thrown here
 
-                if 'Max retries exceeded' in e.args[0].args[0]:
-                    # catches and deletes the MaxRetryErrors
+                if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
 
                     yield "Printing to check for deletion: " + redirect.from_path + "<br/>"
-                    # print e.args[0][0]  # e.args[0][0] is the section of the tuple containing the error message
                     checkDelete.write("<tr>\n" +
                                     "<td>" + redirect.from_path + "</td>\n"
                                     "<td>" + redirect.to_url + "</td>\n"
                                   "</tr>\n")
                     continue
 
-                else:
-                    # If it gets here, it's a ProtocolError and life goes on
+                else:  # If it passes the other logic, its a protocol error
                     continue
 
-            except:
-                # BKJ Can't print these arguments, but all the other errors are being caught here. Nothing else should break this.
+            except:  # Needs to be here to catch the rest of the hiccups in the redirects
                 continue
 
             if response.url != redirect.to_url:
 
-                if 'auth' in response.url:  # checks if the response.url is an auth page, decodes it and replaces the to_url to that
+                if 'auth' in response.url:  # if auth is in the response.url, its decoded
                     response.url = urllib.unquote(urllib.unquote(response.url))
                     # creates a new redirect to replace the old one after deleting
                     new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
@@ -179,7 +170,7 @@ class RedirectsController(TinkerController):
                     self.db.session.commit()
                     continue
 
-                # checking for redundant changes in the to_url
+                # checks if the changes are redundant (adding '/' or changing 'http' > 'https')
                 if 'https' not in redirect.to_url:
                     https_test = redirect.to_url.replace('http', 'https')
                     if response.url == https_test:
