@@ -7,6 +7,7 @@ import platform
 import flask_profiler
 from bu_cascade.cascade_connector import Cascade
 from flask import Flask, make_response, redirect, session, url_for
+from flask.ext.cache import Cache
 from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
 
@@ -60,6 +61,26 @@ app.config["flask_profiler"] = {
         "/static/*"
     ]
 }
+
+if app.config['ENVIRON']:
+    cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+else:
+    cache = Cache(app, config={
+        'CACHE_TYPE': 'redis',
+        # The default value for CACHE_REDIS_HOST is localhost/127.0.0.1, but if we ever wanted to make it accessible by
+        # another server, say h20, we could change this value to be the IP of h12 itself
+        # 'CACHE_REDIS_HOST': 'localhost',
+
+        # Likewise, the default port number is 6379, but we can set it here if we want to make Redis publicly accessible
+        # 'CACHE_REDIS_PORT': 6379,
+
+        # Finally, if we make it accessible, this is how we would set it to be password-protected
+        # 'CACHE_REDIS_PASSWORD': None,
+
+        # This key is needed in case we want to call cache.clear(); Redis' backend implementation in Flask-Cache is
+        # finicky and should have a prefix so that .clear() knows which values to remove.
+        'CACHE_KEY_PREFIX': 'tinker-'
+    })
 
 prod = app.config['ENVIRON'] == 'prod'
 if prod:
