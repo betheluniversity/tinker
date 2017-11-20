@@ -62,7 +62,7 @@ app.config["flask_profiler"] = {
     ]
 }
 
-if app.config['ENVIRON']:
+if app.config['ENVIRON'] == 'test':
     cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 else:
     cache = Cache(app, config={
