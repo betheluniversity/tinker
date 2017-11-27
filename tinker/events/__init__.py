@@ -12,7 +12,7 @@ from ordereddict import OrderedDict
 
 # Local
 from events_metadata import metadata_list
-from tinker import app
+from tinker import app, cache
 from tinker.events.events_controller import EventsController
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
@@ -29,6 +29,7 @@ class EventsView(FlaskView):
     def before_request(self, name, **kwargs):
         pass
 
+    @cache.memoize(timeout=600)
     def index(self):
         show_create = True
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:

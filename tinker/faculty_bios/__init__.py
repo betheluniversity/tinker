@@ -9,7 +9,7 @@ from flask import json as fjson
 from flask_classy import FlaskView, route
 
 # Local
-from tinker import app
+from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from faculty_bio_controller import FacultyBioController
 
@@ -63,7 +63,13 @@ class FacultyBiosView(FlaskView):
                           or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
                           or 'Tinker Faculty Bios - SEM' in session['groups'] \
                           or self.base.is_user_in_web_author_groups()
+        # return render_template('faculty-bios/home.html', **locals())
+        return self.index_cache()
+
+    @cache.memoize(timeout=600)
+    def index_cache(self):
         return render_template('faculty-bios/home.html', **locals())
+    # What should this method look like? what should it have for parameters?
 
     @route('delete/<faculty_bio_id>', methods=['GET'])
     def delete(self, faculty_bio_id):

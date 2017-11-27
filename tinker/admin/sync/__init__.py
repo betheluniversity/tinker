@@ -9,6 +9,7 @@ from flask_classy import FlaskView, route
 from tinker.admin.sync.sync_metadata import data_to_add
 from sync_controller import SyncController
 from tinker.tinker_controller import admin_permissions
+from tinker import cache
 
 
 SyncBlueprint = Blueprint('sync', __name__, template_folder='templates')
@@ -23,6 +24,7 @@ class SyncView(FlaskView):
     def before_request(self, name, **kwargs):
         admin_permissions(self)
 
+    @cache.memoize(timeout=600)
     def index(self):
         # get the most recent code
         # todo: this will need to be added back in. but it currently breaks on xp (since its using a different branch)
