@@ -1,7 +1,6 @@
 # Global
 import datetime
 
-# Packages
 from bu_cascade.asset_tools import find
 from createsend import Campaign, CreateSend
 from flask import abort, Blueprint, render_template, session
@@ -32,6 +31,7 @@ class EAnnouncementsView(FlaskView):
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
 
         forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+
         return render_template('e-announcements/home.html', **locals())
 
     @route("/delete/<e_announcement_id>", methods=['GET', 'POST'])
