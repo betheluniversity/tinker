@@ -14,8 +14,8 @@ class EscapeWYSIWYGContentTestCase(TinkerControllerBaseTestCase):
     #######################
 
     def test_escape_wysiwyg_content(self):
-        test_content = u'<div>asdf</div>'
-        expected_response = '&lt;p&gt;asdf&lt;/p&gt;'
+        test_content = u'<p>asdf</p>'
+        expected_response = '<p>asdf</p>'
         response = self.controller.escape_wysiwyg_content(test_content)
-        self.assertTrue(isinstance(response, str))
+        self.assertTrue(isinstance(response, unicode))
         self.assertEqual(response, expected_response)

@@ -558,11 +558,14 @@ class TinkerController(object):
     # Escape content so its Cascade WYSIWYG friendly
     def escape_wysiwyg_content(self, content):
         if content:
-            uni = self.__html_entities_to_unicode__(content)
-            htmlent = self.__unicode_to_html_entities__(uni)
-            clean_xml = self.__escape_xml_illegal_chars__(htmlent).lstrip()
+            htmlent = self.__unicode_to_html_entities__(content)
+            uni = self.__html_entities_to_unicode__(htmlent)
+            clean_xml = self.__escape_xml_illegal_chars__(uni).lstrip()
             divs_removed = clean_xml.replace('&lt;div&gt;', '&lt;p&gt;').replace('&lt;/div&gt;', '&lt;/p&gt;')
-            return divs_removed
+            # (Caleb) I added this and it seemed to fix our issue with John Dunne's bio (awards). I don't understand
+            # why it works, but it clearly does. This same code is used a few lines above. eh.
+            remove_html_entities = self.__html_entities_to_unicode__(divs_removed)
+            return remove_html_entities
         else:
             return None
 

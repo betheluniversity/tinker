@@ -31,5 +31,5 @@ PyOpenSSL
 flask-profiler
 ordereddict
 chromedriver
-selenium
+selenium==3.6.0
 HTMLParser
