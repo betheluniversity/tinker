@@ -24,7 +24,7 @@ class CacheView(FlaskView):
     # Todo: update the return of this to be creative-tim's notifications
     @route("/submit", methods=['post'])
     def submit(self):
-        path = request.form['url']
+        path = request.form['url'].encode('utf-8').strip()
         return self.base.cache_clear(path)
 
 CacheView.register(CacheBlueprint)

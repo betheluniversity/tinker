@@ -39,6 +39,7 @@ class UserRolesView(FlaskView):
         username = request.form.get('username')
 
         if username:
+            username = username.encode('utf-8').strip()
             session.clear()
             # session_keys = copy.deepcopy(session.keys())
             # for key in session_keys:

@@ -36,7 +36,7 @@ class RedirectsView(FlaskView):
     # Deletes the chosen redirect
     @route("/delete", methods=['post'])
     def delete_redirect(self):
-        path = request.form['from_path']
+        path = request.form['from_path'].encode('utf-8').strip()
         try:
             self.base.delete_row_from_db(path)
             resp = self.base.create_redirect_text_file()
@@ -47,8 +47,8 @@ class RedirectsView(FlaskView):
     # Finds all redirects associated with the from path entered
     @route("/search", methods=['post'])
     def search(self):
-        search_type = request.form['type']
-        search_query = request.form['search']
+        search_type = request.form['type'].encode('utf-8').strip()
+        search_query = request.form['search'].encode('utf-8').strip()
         if search_query == "%" or search_type not in ['from_path', 'to_url']:
             return ""
         redirects = self.base.search_db(search_type, search_query)
@@ -58,15 +58,13 @@ class RedirectsView(FlaskView):
     @route("/new-redirect-submit", methods=['post'])
     def new_redirect_submit(self):
         form = request.form
-        from_path = form['new-redirect-from']
-        to_url = form['new-redirect-to']
-        short_url = form.get('new-redirect-short-url') == 'true'
+        from_path = form['new-redirect-from'].encode('utf-8').strip()
+        to_url = form['new-redirect-to'].encode('utf-8').strip()
+        short_url = form.get('new-redirect-short-url').encode('utf-8').strip() == 'true'
         expiration_date = form.get('expiration-date')
 
-        if expiration_date:
-            expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
-        else:
-            expiration_date = None
+        if expiration_date is not None:
+            expiration_date = datetime.strptime(expiration_date.encode('utf-8').strip(), "%a %b %d %Y")
 
         if not from_path.startswith("/"):
             from_path = "/%s" % from_path
@@ -152,7 +150,7 @@ class RedirectsView(FlaskView):
     @requires_auth
     @route('/public/api-submit', methods=['post'])  # ['get', 'post'])
     def new_api_submit(self):
-        body = request.form['body']
+        body = request.form['body'].encode('utf-8').strip()
 
         soup = BeautifulSoup(body)
         all_text = ''.join(soup.findAll(text=True))
@@ -179,7 +177,7 @@ class RedirectsView(FlaskView):
     def new_api_submit_asset_expiration(self):
         from_path = ''
         to_url = ''
-        subject = request.form['subject']
+        subject = request.form['subject'].encode('utf-8').strip()
         soup = BeautifulSoup(subject)
         all_text = ''.join(soup.findAll(text=True))
 

@@ -76,13 +76,13 @@ class PublishView(FlaskView):
     # name, content, or metadata entered by the user
     @route('/search', methods=['post'])
     def search(self):
-        name = request.form['name']
-        content = request.form['content']
-        metadata = request.form['metadata']
-        pages = request.form['pages']
-        blocks = request.form['blocks']
-        files = request.form['files']
-        folders = request.form['folders']
+        name = request.form['name'].encode('utf-8').strip()
+        content = request.form['content'].encode('utf-8').strip()
+        metadata = request.form['metadata'].encode('utf-8').strip()
+        pages = request.form['pages'].encode('utf-8').strip()
+        blocks = request.form['blocks'].encode('utf-8').strip()
+        files = request.form['files'].encode('utf-8').strip()
+        folders = request.form['folders'].encode('utf-8').strip()
 
         # test search info
         results = self.base.search(name, content, metadata, pages, blocks, files, folders)
@@ -127,8 +127,8 @@ class PublishView(FlaskView):
     # Displays examples on web page
     @route("/more-info", methods=['post'])
     def more_info(self):
-        info_type = request.form['type']
-        info_id = request.form['id']
+        info_type = request.form['type'].encode('utf-8').strip()
+        info_id = request.form['id'].encode('utf-8').strip()
 
         # page
         if info_type == 'page':
