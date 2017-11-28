@@ -5,7 +5,7 @@ import re
 import requests
 from BeautifulSoup import BeautifulSoup
 from bu_cascade.asset_tools import find
-from flask import Blueprint, render_template, request, session
+from flask import Blueprint, render_template, request, session, abort
 from flask_classy import FlaskView, route
 
 # Local
@@ -84,6 +84,10 @@ class PublishView(FlaskView):
         blocks = rform['blocks']
         files = rform['files']
         folders = rform['folders']
+
+        if name is None or content is None or metadata is None or pages is None \
+                or blocks is None or files is None or folders is None:
+            abort(400)
 
         # test search info
         results = self.base.search(name, content, metadata, pages, blocks, files, folders)
