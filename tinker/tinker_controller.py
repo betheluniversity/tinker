@@ -38,24 +38,58 @@ class EncodingDict(object):
     # I'm wrapping any instance where unicode data exists in a dictionary with this class so that it gets converted to
     # String before it gets to the rest of the code.
     def __init__(self, dictionary):
-        self.failure = False
+        self._failure = False
         if isinstance(dictionary, (ImmutableMultiDict, dict)):
-            self.rform = dictionary
+            self._dictionary = dictionary
         else:
-            self.failure = "EncodingDict was not passed an ImmutableMultiDict or dictionary"
-
-    def get(self, key, default_return=None):
-        if isinstance(self.failure, bool) and not self.failure:
-            internal_get = self.rform.get(key, default_return)
-            if isinstance(internal_get, unicode):
-                internal_get = internal_get.encode('utf-8').strip()
-            return internal_get
-        else:
-            return self.failure
+            self._failure = "EncodingDict was not passed an ImmutableMultiDict or dictionary"
 
     # This method allows us to use the rform['key'] shortcut vs the rform.get('key') long way
     def __getitem__(self, key):
         return self.get(key)
+
+    # This method returns the dictionary being wrapped by this object (used in WTForm Validation; they seem to need an
+    # ImmutableMultiDict.
+    def internal_dictionary(self):
+        return self._dictionary
+
+    # This is the primary wrapping method; it asks for the value at its internal dictionary's key, and if it returns a
+    # unicode string, this method converts it to a String using the "correct" way.
+    def get(self, key, default_return=None):
+        if isinstance(self._failure, bool) and not self._failure:
+            internal_get = self._dictionary.get(key, default_return)
+            if isinstance(internal_get, unicode):
+                internal_get = internal_get.encode('utf-8').strip()
+            return internal_get
+        else:
+            return self._failure
+
+    # This method is written for ImmutableMultiDicts; they store data as a dictionary of dictionaries, allowing it to
+    # accept multiple values for a single key (think of an HTML MultipleSelect; returns many values to one id). Since we
+    # use this method I must "ape" the method and pass it on.
+    def getlist(self, key):
+        if isinstance(self._failure, bool) and not self._failure:
+            if isinstance(self._dictionary, ImmutableMultiDict):
+                internal_list_response = self._dictionary.getlist(key)
+                to_return = []
+                for item in internal_list_response:
+                    if isinstance(item, unicode):
+                        to_return.append(item.encode('utf-8').strip())
+                    else:
+                        to_return.append(item)
+                return to_return
+            else:
+                return "This EncodingDict does not have an ImmutableMultiDict stored internally, " \
+                       "so getlist is not a valid method to call."
+        else:
+            return self._failure
+
+    # Simple pass-along method
+    def keys(self):
+        if isinstance(self._failure, bool) and not self._failure:
+            return self._dictionary.keys()
+        else:
+            return self._failure
 
 
 def check_auth(username, password):

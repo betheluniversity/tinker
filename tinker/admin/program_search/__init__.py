@@ -72,7 +72,7 @@ class ProgramSearchView(FlaskView):
                 id_to_delete = id_to_delete.encode('utf-8').strip()
 
             if isinstance(id_to_delete, str):
-                ProgramTag.query.filter_by(id=id).delete()
+                ProgramTag.query.filter_by(id=id_to_delete).delete()
             else:
                 return "One of the ids given to this method was not a string"
         db.session.commit()

@@ -7,7 +7,7 @@ from datetime import datetime
 
 # Packages
 from BeautifulSoup import BeautifulSoup
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, abort
 from flask_classy import FlaskView, route
 
 # Local
@@ -51,7 +51,7 @@ class RedirectsView(FlaskView):
         rform = EncodingDict(request.form)
         search_type = rform['type']
         search_query = rform['search']
-        if search_query == "%" or search_type not in ['from_path', 'to_url']:
+        if search_query == "%" or search_type not in ['from_path', 'to_url'] or search_query is None:
             return ""
         redirects = self.base.search_db(search_type, search_query)
         return render_template('admin/redirects/ajax.html', **locals())
@@ -67,6 +67,9 @@ class RedirectsView(FlaskView):
 
         if expiration_date is not None:
             expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
+
+        if from_path is None or to_url is None:
+            return abort(400)
 
         if not from_path.startswith("/"):
             from_path = "/%s" % from_path
