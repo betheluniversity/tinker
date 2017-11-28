@@ -157,8 +157,6 @@ class ProgramSearchView(FlaskView):
     def database_audit_delete(self):
         data = EncodingDict(json.loads(request.data))
         old_key = data['old_key']
-        if old_key is not None:
-            old_key = old_key.encode('utf-8').strip()
 
         search_results = ProgramTag.query.filter(ProgramTag.key == old_key).delete()
         db.session.commit()
