@@ -6,6 +6,7 @@ from flask_classy import FlaskView, route
 from tinker import app
 from tinker.office_hours.forms import OfficeHoursForm
 from tinker.office_hours.office_hours_controller import OfficeHoursController
+from tinker.tinker_controller import EncodingDict
 
 
 OfficeHoursBlueprint = Blueprint('office_hours', __name__, template_folder='templates')
@@ -47,7 +48,7 @@ class OfficeHoursView(FlaskView):
 
     @route('/submit', methods=['POST'])
     def submit(self):
-        rform = request.form
+        rform = EncodingDict(request.form)
         block_id = rform.get('block_id')
 
         if block_id:

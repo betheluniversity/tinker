@@ -33,10 +33,11 @@ from tinker import app, cascade_connector, sentry
 
 
 class EncodingDict(object):
-    # This class was created because all the POST methods that take in data use unicode, which doesn't encode to String
-    # using the default str() method. Rather than go through the whole project and make the change everywhere, instead
-    # I'm wrapping any instance where unicode data exists in a dictionary with this class so that it gets converted to
-    # String before it gets to the rest of the code.
+    # This class was created because all the POST methods that take in a form of data return strings as unicode, which
+    # doesn't fully encode to String using the default str() method. Rather than go through the whole project and make
+    # the change everywhere, instead I'm wrapping any instance where POST forms have their data accessed like a
+    # dictionary  with this class so that any unicode values get converted to String before it gets to the rest of
+    # the code.
     def __init__(self, dictionary):
         self._failure = False
         if isinstance(dictionary, (ImmutableMultiDict, dict)):
@@ -44,12 +45,12 @@ class EncodingDict(object):
         else:
             self._failure = "EncodingDict was not passed an ImmutableMultiDict or dictionary"
 
-    # This method allows us to use the rform['key'] shortcut vs the rform.get('key') long way
+    # This method allows us to use the rform['key'] shortcut
     def __getitem__(self, key):
         return self.get(key)
 
     # This method returns the dictionary being wrapped by this object (used in WTForm Validation; they seem to need an
-    # ImmutableMultiDict.
+    # ImmutableMultiDict)
     def internal_dictionary(self):
         return self._dictionary
 
@@ -66,7 +67,7 @@ class EncodingDict(object):
 
     # This method is written for ImmutableMultiDicts; they store data as a dictionary of dictionaries, allowing it to
     # accept multiple values for a single key (think of an HTML MultipleSelect; returns many values to one id). Since we
-    # use this method I must "ape" the method and pass it on.
+    # use this method in our code, I must "ape" the method and pass it on.
     def getlist(self, key):
         if isinstance(self._failure, bool) and not self._failure:
             if isinstance(self._dictionary, ImmutableMultiDict):
