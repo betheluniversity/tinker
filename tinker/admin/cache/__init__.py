@@ -4,7 +4,7 @@ from flask_classy import FlaskView, route
 
 # Local
 from tinker.admin.cache.cache_controller import CacheController
-from tinker.tinker_controller import admin_permissions
+from tinker.tinker_controller import admin_permissions, EncodingDict
 
 CacheBlueprint = Blueprint('cache', __name__, template_folder='templates')
 
@@ -24,7 +24,8 @@ class CacheView(FlaskView):
     # Todo: update the return of this to be creative-tim's notifications
     @route("/submit", methods=['post'])
     def submit(self):
-        path = request.form['url'].encode('utf-8').strip()
+        rform = EncodingDict(request.form)
+        path = rform['url']
         return self.base.cache_clear(path)
 
 CacheView.register(CacheBlueprint)

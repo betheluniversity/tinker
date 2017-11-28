@@ -26,9 +26,36 @@ from bu_cascade.asset_tools import find, update
 from flask import abort, current_app, render_template, request, Response, session
 from flask import json as fjson
 from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlatformWarning
+from werkzeug.datastructures import ImmutableMultiDict
 
 # Local
 from tinker import app, cascade_connector, sentry
+
+
+class EncodingDict(object):
+    # This class was created because all the POST methods that take in data use unicode, which doesn't encode to String
+    # using the default str() method. Rather than go through the whole project and make the change everywhere, instead
+    # I'm wrapping any instance where unicode data exists in a dictionary with this class so that it gets converted to
+    # String before it gets to the rest of the code.
+    def __init__(self, dictionary):
+        self.failure = False
+        if isinstance(dictionary, (ImmutableMultiDict, dict)):
+            self.rform = dictionary
+        else:
+            self.failure = "EncodingDict was not passed an ImmutableMultiDict or dictionary"
+
+    def get(self, key, default_return=None):
+        if isinstance(self.failure, bool) and not self.failure:
+            internal_get = self.rform.get(key, default_return)
+            if isinstance(internal_get, unicode):
+                internal_get = internal_get.encode('utf-8').strip()
+            return internal_get
+        else:
+            return self.failure
+
+    # This method allows us to use the rform['key'] shortcut vs the rform.get('key') long way
+    def __getitem__(self, key):
+        return self.get(key)
 
 
 def check_auth(username, password):

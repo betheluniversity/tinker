@@ -1,7 +1,7 @@
 from flask import render_template, session, request, Blueprint
 from flask_classy import FlaskView, route
 
-from tinker.tinker_controller import admin_permissions
+from tinker.tinker_controller import admin_permissions, EncodingDict
 
 from datetime import datetime
 # solution from here: https://stackoverflow.com/questions/1617078/ordereddict-for-older-versions-of-python
@@ -36,10 +36,10 @@ class UserRolesView(FlaskView):
             current_username = session['username']
 
         # get username
-        username = request.form.get('username')
+        rform = EncodingDict(request.form)
+        username = rform.get('username')
 
         if username:
-            username = username.encode('utf-8').strip()
             session.clear()
             # session_keys = copy.deepcopy(session.keys())
             # for key in session_keys:

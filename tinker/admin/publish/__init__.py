@@ -10,7 +10,7 @@ from flask_classy import FlaskView, route
 
 # Local
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
-from tinker.tinker_controller import admin_permissions
+from tinker.tinker_controller import admin_permissions, EncodingDict
 
 PublishBlueprint = Blueprint('publish', __name__, template_folder='templates')
 
@@ -76,13 +76,14 @@ class PublishView(FlaskView):
     # name, content, or metadata entered by the user
     @route('/search', methods=['post'])
     def search(self):
-        name = request.form['name'].encode('utf-8').strip()
-        content = request.form['content'].encode('utf-8').strip()
-        metadata = request.form['metadata'].encode('utf-8').strip()
-        pages = request.form['pages'].encode('utf-8').strip()
-        blocks = request.form['blocks'].encode('utf-8').strip()
-        files = request.form['files'].encode('utf-8').strip()
-        folders = request.form['folders'].encode('utf-8').strip()
+        rform = EncodingDict(request.form)
+        name = rform['name']
+        content = rform['content']
+        metadata = rform['metadata']
+        pages = rform['pages']
+        blocks = rform['blocks']
+        files = rform['files']
+        folders = rform['folders']
 
         # test search info
         results = self.base.search(name, content, metadata, pages, blocks, files, folders)
@@ -127,8 +128,9 @@ class PublishView(FlaskView):
     # Displays examples on web page
     @route("/more-info", methods=['post'])
     def more_info(self):
-        info_type = request.form['type'].encode('utf-8').strip()
-        info_id = request.form['id'].encode('utf-8').strip()
+        rform = EncodingDict(request.form)
+        info_type = rform['type']
+        info_id = rform['id']
 
         # page
         if info_type == 'page':

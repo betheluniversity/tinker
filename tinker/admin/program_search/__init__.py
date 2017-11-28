@@ -11,7 +11,7 @@ from sqlalchemy import or_, and_
 from tinker import db
 from tinker.admin.program_search.models import ProgramTag
 from tinker.admin.program_search.program_search_controller import ProgramSearchController
-from tinker.tinker_controller import admin_permissions
+from tinker.tinker_controller import admin_permissions, EncodingDict
 
 
 ProgramSearchBlueprint = Blueprint("program_search", __name__, template_folder='templates')
@@ -38,26 +38,16 @@ class ProgramSearchView(FlaskView):
         program_concentrations = self.base.get_programs_for_dropdown()
 
         try:
-            rform = json.loads(request.data)
+            rform = EncodingDict(json.loads(request.data))
             key = rform.get('key')
-            if key is not None:
-                key = key.encode('utf-8').strip()
             tag = rform.get('tag')
-            if tag is not None:
-                tag = tag.encode('utf-8').strip()
 
             if key == 'Any' or tag == '' or tag is None:
                 return render_template('admin/program-search/home.html', **locals())
 
-            outcome = rform.get('outcome')
-            if outcome is not None:
-                outcome = ast.literal_eval(outcome.encode('utf-8').strip())
-            topic = rform.get('topic')
-            if topic is not None:
-                topic = ast.literal_eval(topic.encode('utf-8').strip())
-            other = rform.get('other')
-            if other is not None:
-                other = ast.literal_eval(other.encode('utf-8').strip())
+            outcome = ast.literal_eval(rform.get('outcome'))
+            topic = ast.literal_eval(rform.get('topic'))
+            other = ast.literal_eval(rform.get('other'))
         except ValueError:
             return abort(400)
 
@@ -76,8 +66,8 @@ class ProgramSearchView(FlaskView):
 
     @route('/multi-delete', methods=['POST'])
     def multi_delete(self):
-        ids_to_delete = json.loads(request.data)
-        for id_to_delete in ids_to_delete:
+        list_of_ids_to_delete = json.loads(request.data)
+        for id_to_delete in list_of_ids_to_delete:
             if isinstance(id_to_delete, unicode):
                 id_to_delete = id_to_delete.encode('utf-8').strip()
 
@@ -87,24 +77,20 @@ class ProgramSearchView(FlaskView):
                 return "One of the ids given to this method was not a string"
         db.session.commit()
         self.base.create_new_csv_file()
-        return 'Deleted ids: ' + ', '.join(ids_to_delete)
+        return 'Deleted ids: ' + ', '.join(list_of_ids_to_delete)
 
     @route('/search', methods=['post'])
     def search(self):
         try:
-            data = json.loads(request.data)
+            data = EncodingDict(json.loads(request.data))
 
             search_tag = data['search_tag']
             if search_tag is None:
                 return abort(500)
-            else:
-                search_tag = search_tag.encode('utf-8').strip()
 
             search_key = data['search_key']
             if search_key is None:
                 return abort(500)
-            else:
-                search_key = search_key.encode('utf-8').strip()
         except ValueError:
             return abort(500)
 
@@ -157,14 +143,9 @@ class ProgramSearchView(FlaskView):
 
     @route('/database-audit-update', methods=['post'])
     def database_audit_update(self):
-        data = json.loads(request.data)
+        data = EncodingDict(json.loads(request.data))
         old_key = data['old_key']
-        if old_key is not None:
-            old_key = old_key.encode('utf-8').strip()
-
         new_key = data['new_key']
-        if new_key is not None:
-            new_key = new_key.encode('utf-8').strip()
 
         if old_key and new_key:
             search_results = ProgramTag.query.filter(ProgramTag.key == old_key).update({'key': new_key})
@@ -174,7 +155,7 @@ class ProgramSearchView(FlaskView):
 
     @route('/database-audit-delete', methods=['post'])
     def database_audit_delete(self):
-        data = json.loads(request.data)
+        data = EncodingDict(json.loads(request.data))
         old_key = data['old_key']
         if old_key is not None:
             old_key = old_key.encode('utf-8').strip()

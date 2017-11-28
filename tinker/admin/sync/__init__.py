@@ -8,7 +8,7 @@ from flask_classy import FlaskView, route
 # Local
 from tinker.admin.sync.sync_metadata import data_to_add
 from sync_controller import SyncController
-from tinker.tinker_controller import admin_permissions
+from tinker.tinker_controller import admin_permissions, EncodingDict
 
 
 SyncBlueprint = Blueprint('sync', __name__, template_folder='templates')
@@ -54,8 +54,8 @@ class SyncView(FlaskView):
 
     @route("/metadata", methods=['post'])
     def metadata(self):
-        data = json.loads(request.data)
-        id = data['id'].encode('utf-8').strip()
+        data = EncodingDict(json.loads(request.data))
+        id = data['id']
         if not isinstance(id, str):
             return abort(400)
         data = data_to_add
@@ -71,8 +71,8 @@ class SyncView(FlaskView):
 
     @route("/datadefinition", methods=['post'])
     def datadefinition(self):
-        data = json.loads(request.data)
-        id = data['id'].encode('utf-8').strip()
+        data = EncodingDict(json.loads(request.data))
+        id = data['id']
         if not isinstance(id, str):
             return abort(400)
         data = data_to_add

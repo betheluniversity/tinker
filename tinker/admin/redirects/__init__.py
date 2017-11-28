@@ -14,7 +14,7 @@ from flask_classy import FlaskView, route
 from tinker import app, db
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker.tinker_controller import requires_auth
-from tinker.tinker_controller import admin_permissions
+from tinker.tinker_controller import admin_permissions, EncodingDict
 RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
 
 
@@ -36,7 +36,8 @@ class RedirectsView(FlaskView):
     # Deletes the chosen redirect
     @route("/delete", methods=['post'])
     def delete_redirect(self):
-        path = request.form['from_path'].encode('utf-8').strip()
+        rform = EncodingDict(request.form)
+        path = rform['from_path']
         try:
             self.base.delete_row_from_db(path)
             resp = self.base.create_redirect_text_file()
@@ -47,8 +48,9 @@ class RedirectsView(FlaskView):
     # Finds all redirects associated with the from path entered
     @route("/search", methods=['post'])
     def search(self):
-        search_type = request.form['type'].encode('utf-8').strip()
-        search_query = request.form['search'].encode('utf-8').strip()
+        rform = EncodingDict(request.form)
+        search_type = rform['type']
+        search_query = rform['search']
         if search_query == "%" or search_type not in ['from_path', 'to_url']:
             return ""
         redirects = self.base.search_db(search_type, search_query)
@@ -57,14 +59,14 @@ class RedirectsView(FlaskView):
     # Saves the new redirect created
     @route("/new-redirect-submit", methods=['post'])
     def new_redirect_submit(self):
-        form = request.form
-        from_path = form['new-redirect-from'].encode('utf-8').strip()
-        to_url = form['new-redirect-to'].encode('utf-8').strip()
-        short_url = form.get('new-redirect-short-url').encode('utf-8').strip() == 'true'
+        form = EncodingDict(request.form)
+        from_path = form['new-redirect-from']
+        to_url = form['new-redirect-to']
+        short_url = form.get('new-redirect-short-url') == 'true'
         expiration_date = form.get('expiration-date')
 
         if expiration_date is not None:
-            expiration_date = datetime.strptime(expiration_date.encode('utf-8').strip(), "%a %b %d %Y")
+            expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
 
         if not from_path.startswith("/"):
             from_path = "/%s" % from_path
@@ -150,7 +152,8 @@ class RedirectsView(FlaskView):
     @requires_auth
     @route('/public/api-submit', methods=['post'])  # ['get', 'post'])
     def new_api_submit(self):
-        body = request.form['body'].encode('utf-8').strip()
+        rform = EncodingDict(request.form)
+        body = rform['body']
 
         soup = BeautifulSoup(body)
         all_text = ''.join(soup.findAll(text=True))
@@ -175,9 +178,10 @@ class RedirectsView(FlaskView):
     @requires_auth
     @route('/public/api-submit-asset-expiration', methods=['get', 'post'])
     def new_api_submit_asset_expiration(self):
+        rform = EncodingDict(request.form)
         from_path = ''
         to_url = ''
-        subject = request.form['subject'].encode('utf-8').strip()
+        subject = rform['subject']
         soup = BeautifulSoup(subject)
         all_text = ''.join(soup.findAll(text=True))
 
