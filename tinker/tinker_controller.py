@@ -76,31 +76,6 @@ class EncodingDict(object):
 
     # This method is what actually does the conversion from unicode to String
     def _safely_encode_unicode_to_str(self, unsafe_unicode):
-        # def html_unescape(regex_match):
-        #     return HTMLParser().unescape(regex_match.group(1))
-        #
-        # # First, replace all pre-escaped HTML entities with their unicode equivalent
-        # replaced_string = re.sub(r'(&\w+?;)', html_unescape, unsafe_unicode)
-        #
-        # disallowed_chars = [
-        #     u'\x00',
-        #     u'\x08',
-        #     u'\x0b',
-        #     u'\x0c',
-        #     u'\x0e',
-        #     u'\x1F',
-        #     u'\uD800',
-        #     u'\uDFFF',
-        #     u'\uFFFE',
-        #     u'\uFFFF',
-        #     u'\u2018',
-        #     u'\u2019'
-        # ]
-        # # Second, replace all unicode characters that don't work with ASCII UTF-8 Strings with a '?'
-        # regex_for_disallowed_chars = re.compile(u'[' + u''.join(disallowed_chars) + u']', re.UNICODE)
-        # unicode_without_disallowed_chars = regex_for_disallowed_chars.sub(u'?', replaced_string)
-        # # Finally, encode the unicode into String using the built-in .encode method
-        # encoded_str = unicode_without_disallowed_chars.encode('utf-8')
         encoded_str = unidecode(unsafe_unicode)
         return encoded_str
 

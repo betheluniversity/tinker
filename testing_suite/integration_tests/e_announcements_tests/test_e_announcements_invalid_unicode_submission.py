@@ -27,6 +27,8 @@ class EAnnouncementsInvalidUnicodeSubmission(IntegrationTestCase):
                     "interested in doing one, meet us in the Makerspace to take that next step.</p>\r\n\r\n<p>CAS "\
                     "Faculty Development</p>\r\n",
         else:
+            # TODO: When the full message is used, Flask tries to open this as a file?! Leaving it as a single rsquo
+            # to roll this fix out the door.
             message = u'’'
             # message = u"<p>Join us for the next Innovation Studio in the Makerspace (University Library - HC302) "\
             #         u"on Monday, December 4 from 4:00-5:00pm. Sam Mulberry (History) and Chris Moore (Political "\
