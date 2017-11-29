@@ -40,4 +40,5 @@ class EAnnouncementsInvalidUnicodeSubmission(IntegrationTestCase):
                                                         expected_response, self.class_name, self.get_line_number())
         self.assertIn(expected_response, response.data, msg=failure_message)
         self.eaid = self.get_eaid(response.data)
-        print "eaid:", self.eaid
+        # Delete the created e-annz if the unit test passes
+        self.send_get(self.generate_url("delete", e_announcement_id=self.eaid))
