@@ -47,7 +47,7 @@ class OfficeHoursView(FlaskView):
 
     @route('/submit', methods=['POST'])
     def submit(self):
-        rform = request.form
+        rform = self.base.dictionary_encoder.encode(request.form)
         block_id = rform.get('block_id')
 
         if block_id:

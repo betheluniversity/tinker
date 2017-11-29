@@ -5,7 +5,7 @@ import re
 import requests
 from BeautifulSoup import BeautifulSoup
 from bu_cascade.asset_tools import find
-from flask import Blueprint, render_template, request, session
+from flask import Blueprint, render_template, request, session, abort
 from flask_classy import FlaskView, route
 
 # Local
@@ -76,13 +76,18 @@ class PublishView(FlaskView):
     # name, content, or metadata entered by the user
     @route('/search', methods=['post'])
     def search(self):
-        name = request.form['name']
-        content = request.form['content']
-        metadata = request.form['metadata']
-        pages = request.form['pages']
-        blocks = request.form['blocks']
-        files = request.form['files']
-        folders = request.form['folders']
+        rform = self.base.dictionary_encoder.encode(request.form)
+        name = rform['name']
+        content = rform['content']
+        metadata = rform['metadata']
+        pages = rform['pages']
+        blocks = rform['blocks']
+        files = rform['files']
+        folders = rform['folders']
+
+        if name is None or content is None or metadata is None or pages is None \
+                or blocks is None or files is None or folders is None:
+            abort(400)
 
         # test search info
         results = self.base.search(name, content, metadata, pages, blocks, files, folders)
@@ -127,8 +132,9 @@ class PublishView(FlaskView):
     # Displays examples on web page
     @route("/more-info", methods=['post'])
     def more_info(self):
-        info_type = request.form['type']
-        info_id = request.form['id']
+        rform = self.base.dictionary_encoder.encode(request.form)
+        info_type = rform['type']
+        info_id = rform['id']
 
         # page
         if info_type == 'page':
