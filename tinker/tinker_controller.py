@@ -49,6 +49,78 @@ class EncodingDict(object):
     def __getitem__(self, key):
         return self.get(key)
 
+    def _recursively_encode(self, item):
+        if isinstance(item, dict):
+            for key in item.keys():
+                item[key] = self._recursively_encode(item[key])
+            return item
+        elif isinstance(item, ImmutableMultiDict):
+            to_return = {}
+            for key in item.keys():
+                to_return[key] = self._recursively_encode(item[key])
+            return ImmutableMultiDict(to_return)
+        elif isinstance(item, list):
+            return [self._recursively_encode(x) for x in item]
+        elif isinstance(item, tuple):
+            return (self._recursively_encode(x) for x in item)
+        elif isinstance(item, unicode):
+            # The problem is that it's being passed mixed code; it has both <p> tags and a &rsquo; entity.
+            # Need to make a regex that finds the &; entities and replaces them, then pass it on to the unicode encoder.
+
+            # Disclaimer: this is probably NOT the most efficient way to do this.
+            # That being said, here's the solution I came up with:
+            # 1. Search for any HTML entities that are already escaped (and thus mixed with the WYSIWYG <p> and <div> tags
+            # 2. If you find at least one, begin the while loop
+            # 3. Get the next matched, escaped HTML entity
+            # 4. Find the correct un-escaped character in unicode
+            # 5. Replace the escaped HTML entity with its unescaped counterpart
+            # 6. Repeat steps 1 - 5 until there are no more escaped HTML entities in the unicode string.
+            # At the end of the while loop, now all HTML entities (like <p>, <div>, and &) are unescaped so when we call
+            # the method to escape them, it will work as expected.
+            html_entity_pattern = r'(.*?)(&\w+?;)(.*?)'
+            reg_exp = re.compile(html_entity_pattern)
+            replaced_string = item
+            there_is_another_match = reg_exp.search(replaced_string)  # .search returns True if it finds a match
+            while there_is_another_match:
+                entity_found = re.match(html_entity_pattern, replaced_string).group(2)  # .group(2) specifies to get the 2nd defined group in the match, (&\w+?;)
+                replacement = self._html_entities_to_unicode(entity_found)
+                replaced_string = re.sub(r'&\w+?;', replacement, replaced_string, 1)  # Specifying the 1 at the end tells it to only replace the first match found instead of all matches found (since not all escaped HTML entities are guaranteed to be the same)
+                there_is_another_match = reg_exp.search(replaced_string)
+
+            disallowed_chars = [
+                u'\x00',
+                u'\x08',
+                u'\x0b',
+                u'\x0c',
+                u'\x0e',
+                u'\x1F',
+                u'\uD800',
+                u'\uDFFF',
+                u'\uFFFE',
+                u'\uFFFF',
+                u'\u2018',
+                u'\u2019'
+            ]
+            regex_for_disallowed_chars = re.compile(u'[' + u''.join(disallowed_chars) + u']', re.UNICODE)
+            unicode_without_disallowed_chars = regex_for_disallowed_chars.sub(u'?', replaced_string)
+            encoded_str = unicode_without_disallowed_chars.encode('utf-8')
+            return encoded_str
+
+        elif isinstance(item, (str, bool, int, long, float)) or item is None:
+            # All of these types of objects don't need to be encoded from unicode to String, so they can pass through.
+            return item
+        else:
+            # Anything else is unhandled
+            return 'EncodingDict failed to encode object type %s' % type(item)
+
+    def _html_entities_to_unicode(self, text):
+        """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
+        return HTMLParser().unescape(text)
+
+    def _text_to_html_entities(self, text):
+        """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
+        return cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
+
     # This method returns the dictionary being wrapped by this object (used in WTForm Validation; they seem to need an
     # ImmutableMultiDict)
     def internal_dictionary(self):
@@ -59,9 +131,10 @@ class EncodingDict(object):
     def get(self, key, default_return=None):
         if isinstance(self._failure, bool) and not self._failure:
             internal_get = self._dictionary.get(key, default_return)
-            if isinstance(internal_get, unicode):
-                internal_get = internal_get.encode('utf-8').strip()
-            return internal_get
+            # if isinstance(internal_get, unicode):
+            #     internal_get = internal_get.encode('utf-8')
+            # return internal_get
+            return self._recursively_encode(internal_get)
         else:
             return self._failure
 
@@ -72,13 +145,14 @@ class EncodingDict(object):
         if isinstance(self._failure, bool) and not self._failure:
             if isinstance(self._dictionary, ImmutableMultiDict):
                 internal_list_response = self._dictionary.getlist(key)
-                to_return = []
-                for item in internal_list_response:
-                    if isinstance(item, unicode):
-                        to_return.append(item.encode('utf-8').strip())
-                    else:
-                        to_return.append(item)
-                return to_return
+                # to_return = []
+                # for item in internal_list_response:
+                #     if isinstance(item, unicode):
+                #         to_return.append(item.encode('utf-8').strip())
+                #     else:
+                #         to_return.append(item)
+                # return to_return
+                return self._recursively_encode(internal_list_response)
             else:
                 return "This EncodingDict does not have an ImmutableMultiDict stored internally, " \
                        "so getlist is not a valid method to call."
