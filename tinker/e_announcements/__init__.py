@@ -125,7 +125,7 @@ class EAnnouncementsView(FlaskView):
 
     @route("/submit", methods=['post'])
     def submit(self):
-        rform = EncodingDict(request.form)
+        rform = self.base.encoding_dict_factory.get_encoded_dictionary(request.form)
         eaid = rform.get('e_announcement_id')
 
         form, passed = self.base.validate_form(rform.internal_dictionary())

@@ -33,6 +33,10 @@ from tinker import app, cascade_connector, sentry
 
 
 class EncodingDict(object):
+    # This class was created because some of the unicode strings being passed to Cascade didn't properly encode to
+    # ASCII/UTF-8, and that caused problems. Rather than go through the whole project and
+
+
     # This class was created because all the POST methods that take in a form of data return strings as unicode, which
     # doesn't fully encode to String using the default str() method. Rather than go through the whole project and make
     # the change everywhere, instead I'm wrapping any instance where POST forms have their data accessed like a
@@ -149,6 +153,11 @@ class EncodingDict(object):
             return self._failure
 
 
+class EncodingDictFactory(object):
+    def get_encoded_dictionary(self, dictionary_to_encode):
+        return EncodingDict(dictionary_to_encode)
+
+
 def check_auth(username, password):
     """This function is called to check if a username /
     password combination is valid.
@@ -223,6 +232,7 @@ class TinkerController(object):
         requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
         self.datetime_format = "%B %d %Y, %I:%M %p"
         self.cascade_connector = cascade_connector
+        self.encoding_dict_factory = EncodingDictFactory()
 
     def before_request(self):
         def init_user():
