@@ -10,7 +10,7 @@ from flask_classy import FlaskView, route
 
 # Local
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
-from tinker.tinker_controller import admin_permissions, EncodingDict
+from tinker.tinker_controller import admin_permissions
 
 PublishBlueprint = Blueprint('publish', __name__, template_folder='templates')
 
@@ -76,7 +76,7 @@ class PublishView(FlaskView):
     # name, content, or metadata entered by the user
     @route('/search', methods=['post'])
     def search(self):
-        rform = EncodingDict(request.form)
+        rform = self.base.dictionary_encoder.encode(request.form)
         name = rform['name']
         content = rform['content']
         metadata = rform['metadata']
@@ -132,7 +132,7 @@ class PublishView(FlaskView):
     # Displays examples on web page
     @route("/more-info", methods=['post'])
     def more_info(self):
-        rform = EncodingDict(request.form)
+        rform = self.base.dictionary_encoder.encode(request.form)
         info_type = rform['type']
         info_id = rform['id']
 

@@ -14,7 +14,6 @@ from ordereddict import OrderedDict
 from events_metadata import metadata_list
 from tinker import app
 from tinker.events.events_controller import EventsController
-from tinker.tinker_controller import EncodingDict
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
@@ -93,7 +92,7 @@ class EventsView(FlaskView):
 
     @route("/submit", methods=['post'])
     def submit(self):
-        rform = EncodingDict(request.form)
+        rform = self.base.dictionary_encoder.encode(request.form)
         username = session['username']
         eid = rform.get('event_id')
         dates, num_dates = self.base.get_event_dates(rform)
@@ -158,7 +157,7 @@ class EventsView(FlaskView):
     @route("/search", methods=['POST'])
     def search(self):
         # Load the data, get the event type selection and title of the event the user is searching for
-        data = EncodingDict(json.loads(request.data))
+        data = self.base.dictionary_encoder.encode(json.loads(request.data))
         selection = data['selection']
         title = data['title']
         try:

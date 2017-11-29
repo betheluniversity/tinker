@@ -14,7 +14,7 @@ from flask_classy import FlaskView, route
 from tinker import app, db
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker.tinker_controller import requires_auth
-from tinker.tinker_controller import admin_permissions, EncodingDict
+from tinker.tinker_controller import admin_permissions
 RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
 
 
@@ -36,7 +36,7 @@ class RedirectsView(FlaskView):
     # Deletes the chosen redirect
     @route("/delete", methods=['post'])
     def delete_redirect(self):
-        rform = EncodingDict(request.form)
+        rform = self.base.dictionary_encoder.encode(request.form)
         path = rform['from_path']
         try:
             self.base.delete_row_from_db(path)
@@ -48,7 +48,7 @@ class RedirectsView(FlaskView):
     # Finds all redirects associated with the from path entered
     @route("/search", methods=['post'])
     def search(self):
-        rform = EncodingDict(request.form)
+        rform = self.base.dictionary_encoder.encode(request.form)
         search_type = rform['type']
         search_query = rform['search']
         if search_query == "%" or search_type not in ['from_path', 'to_url'] or search_query is None:
@@ -59,7 +59,7 @@ class RedirectsView(FlaskView):
     # Saves the new redirect created
     @route("/new-redirect-submit", methods=['post'])
     def new_redirect_submit(self):
-        form = EncodingDict(request.form)
+        form = self.base.dictionary_encoder.encode(request.form)
         from_path = form['new-redirect-from']
         to_url = form['new-redirect-to']
         short_url = form.get('new-redirect-short-url') == 'true'
@@ -155,7 +155,7 @@ class RedirectsView(FlaskView):
     @requires_auth
     @route('/public/api-submit', methods=['post'])  # ['get', 'post'])
     def new_api_submit(self):
-        rform = EncodingDict(request.form)
+        rform = self.base.dictionary_encoder.encode(request.form)
         body = rform['body']
 
         soup = BeautifulSoup(body)
@@ -181,7 +181,7 @@ class RedirectsView(FlaskView):
     @requires_auth
     @route('/public/api-submit-asset-expiration', methods=['get', 'post'])
     def new_api_submit_asset_expiration(self):
-        rform = EncodingDict(request.form)
+        rform = self.base.dictionary_encoder.encode(request.form)
         from_path = ''
         to_url = ''
         subject = rform['subject']

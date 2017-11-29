@@ -36,8 +36,8 @@ class UserRolesView(FlaskView):
             current_username = session['username']
 
         # get username
-        rform = EncodingDict(request.form)
-        username = rform.get('username')
+        rform = EncodingDict(request.form)  # When this module gets a controller,
+        username = rform.get('username')    # replace EncodingDict() with self.base.dictionary_encoder.encode()
 
         if username:
             session.clear()

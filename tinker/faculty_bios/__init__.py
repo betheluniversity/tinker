@@ -11,7 +11,6 @@ from flask_classy import FlaskView, route
 # Local
 from tinker import app
 from tinker.admin.sync.sync_metadata import data_to_add
-from tinker.tinker_controller import EncodingDict
 from faculty_bio_controller import FacultyBioController
 
 
@@ -136,7 +135,7 @@ class FacultyBiosView(FlaskView):
 
     @route('/submit', methods=['POST'])
     def submit(self):
-        rform = EncodingDict(request.form)
+        rform = self.base.dictionary_encoder.encode(request.form)
         username = session['username']
         groups = session['groups']
 
@@ -184,7 +183,7 @@ class FacultyBiosView(FlaskView):
 
     @route('/activate', methods=['post'])
     def activate(self):
-        data = EncodingDict(json.loads(request.data))
+        data = self.base.dictionary_encoder.encode(json.loads(request.data))
         faculty_bio_id = data['id']
         activate_page = data['activate']
 

@@ -9,7 +9,7 @@ from flask_classy import FlaskView, request, route
 
 # Local
 from tinker import app
-from tinker.tinker_controller import requires_auth, EncodingDict
+from tinker.tinker_controller import requires_auth
 from e_announcements_controller import EAnnouncementsController
 from campaign_controller import CampaignController
 
@@ -125,7 +125,7 @@ class EAnnouncementsView(FlaskView):
 
     @route("/submit", methods=['post'])
     def submit(self):
-        rform = self.base.encoding_dict_factory.get_encoded_dictionary(request.form)
+        rform = self.base.dictionary_encoder.encode(request.form)
         eaid = rform.get('e_announcement_id')
 
         form, passed = self.base.validate_form(rform.internal_dictionary())
@@ -283,7 +283,7 @@ class EAnnouncementsView(FlaskView):
         if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
             return abort(403)
 
-        pass_in = EncodingDict(request.form)
+        pass_in = self.base.dictionary_encoder.encode(request.form)
         date_id = pass_in.get('dateId', 'null')
         ea_display = []
 
