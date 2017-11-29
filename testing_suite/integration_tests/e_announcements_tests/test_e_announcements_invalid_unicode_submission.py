@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import re
 
 from testing_suite.integration_tests import IntegrationTestCase
@@ -14,17 +17,28 @@ class EAnnouncementsInvalidUnicodeSubmission(IntegrationTestCase):
     def get_eaid(self, text):
         return re.search('<input(.*)id="new_eaid"(.*)value="(.+)"(/?)>', text).group(3)
 
-    def create_form(self):
+    def create_form(self, html_entities=False):
+        if html_entities:
+            message = "<p>Join us for the next Innovation Studio in the Makerspace (University Library - HC302) "\
+                    "on Monday, December 4 from 4:00-5:00pm. Sam Mulberry (History) and Chris Moore (Political "\
+                    "Science) will show how they create podcasts, like <em>Election Shock Therapy</em>, by "\
+                    "making one with your help. Come prepared to discuss and learn the hows and whys of podcasting "\
+                    "including how to use it in your teaching. If you&rsquo;re a little curious or are already "\
+                    "interested in doing one, meet us in the Makerspace to take that next step.</p>\r\n\r\n<p>CAS "\
+                    "Faculty Development</p>\r\n",
+        else:
+            message = u'’'
+            # message = u"<p>Join us for the next Innovation Studio in the Makerspace (University Library - HC302) "\
+            #         u"on Monday, December 4 from 4:00-5:00pm. Sam Mulberry (History) and Chris Moore (Political "\
+            #         u"Science) will show how they create podcasts, like <em>Election Shock Therapy</em>, by "\
+            #         u"making one with your help. Come prepared to discuss and learn the hows and whys of podcasting "\
+            #         u"including how to use it in your teaching. If you’re a little curious or are already "\
+            #         u"interested in doing one, meet us in the Makerspace to take that next step.</p>\r\n\r\n<p>CAS "\
+            #         u"Faculty Development</p>\r\n",
         # &rsquo; => ' is the problem
         to_return = {
             'title': "Podcasting iStudio Monday December 4, 4-5pm",
-            'message': "<p>Join us for the next Innovation Studio in the Makerspace (University Library - HC302) "
-                       "on Monday, December 4 from 4:00-5:00pm. Sam Mulberry (History) and Chris Moore (Political "
-                       "Science) will show how they create podcasts, like <em>Election Shock Therapy</em>, by "
-                       "making one with your help. Come prepared to discuss and learn the hows and whys of podcasting "
-                       "including how to use it in your teaching. If you&rsquo;re a little curious or are already "
-                       "interested in doing one, meet us in the Makerspace to take that next step.</p>\r\n\r\n<p>CAS "
-                       "Faculty Development</p>\r\n",
+            'message': message,
             'first_date': "12-01-2017",
             'second_date': "12-04-2017",
             'banner_roles': "FACULTY-CAS"
