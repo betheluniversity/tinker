@@ -65,8 +65,10 @@ class RedirectsView(FlaskView):
         short_url = form.get('new-redirect-short-url') == 'true'
         expiration_date = form.get('expiration-date')
 
-        if expiration_date is not None:
+        if expiration_date:
             expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
+        else:
+            expiration_date = None
 
         if from_path is None or to_url is None:
             return abort(400)
