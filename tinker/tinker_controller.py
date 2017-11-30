@@ -76,8 +76,7 @@ class EncodingDict(object):
 
     # This method is what actually does the conversion from unicode to String
     def _safely_encode_unicode_to_str(self, unsafe_unicode):
-        ampersand_hotfix = unsafe_unicode.replace('&amp;', '&amp;amp;')
-        encoded_str = unidecode(ampersand_hotfix)
+        encoded_str = unidecode(unsafe_unicode)
         return encoded_str
 
     # This method returns the dictionary being wrapped by this object (used in WTForm Validation; they seem to need an
@@ -661,7 +660,8 @@ class TinkerController(object):
         if content:
             htmlent = self.__unicode_to_html_entities__(content)
             uni = self.__html_entities_to_unicode__(htmlent)
-            clean_xml = self.__escape_xml_illegal_chars__(uni).lstrip()
+            ampersand_hotfix = uni.replace('&amp;', '&amp;amp;')
+            clean_xml = self.__escape_xml_illegal_chars__(ampersand_hotfix).lstrip()
             divs_removed = clean_xml.replace('<div>', '<p>').replace('</div>', '</p>')
             return divs_removed
         else:
