@@ -93,8 +93,8 @@ class SyncView(FlaskView):
 
     # todo: create crontab using wget
     # todo: update apache to allow /public routes
-    @ requires_auth
-    @ route("/public/sync-prayer-and-memorial", methods=['get'])
+    @requires_auth
+    @route("/public/sync-prayer-and-memorial", methods=['get'])
     def sync_prayer_and_memorial(self):
         # read in xml
         resp = requests.get(app.config['PRAYER_AND_MEMORIAL_XML'])
@@ -107,7 +107,7 @@ class SyncView(FlaskView):
             try:
                 block_date = datetime.fromtimestamp(int(date.text.strip()) / 1000)
                 # for each that is activated and more than 10 days old, deactivate it
-                if activated.text.lower() == 'activated' and (datetime.now() - block_date).days > 10:
+                if activated.text.lower() == 'activated' and (datetime.now() - block_date).days > 7:
                     block_asset = self.base.read_block(block.attrib.get('id'))
                     update(block_asset.asset, 'activated', 'Deactivated')
                     block_asset.edit_asset(block_asset.asset)
