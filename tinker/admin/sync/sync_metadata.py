@@ -54,6 +54,7 @@ adult_undergrad_programs = [
     "Management Information Systems (B.S.)",
     "Nursing (RN to B.S.)",
     "Organizational Leadership (B.A.)",
+    "Special Education (B.A.)",
 ]
 
 seminary_programs = [
@@ -89,6 +90,7 @@ graduate_programs = [
     "Counseling Psychology (M.A.)",
     "Developmental Disabilities License",
     "Director of Special Education License",
+    "Doctor of Nursing Practice",
     "Ed.D.",
     "Ed.D. in Higher Education Leadership",
     "Ed.D. in K-12 Administration",
