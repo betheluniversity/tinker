@@ -76,7 +76,8 @@ class EncodingDict(object):
 
     # This method is what actually does the conversion from unicode to String
     def _safely_encode_unicode_to_str(self, unsafe_unicode):
-        encoded_str = unidecode(unsafe_unicode)
+        ampersand_hotfix = unsafe_unicode.replace('&amp;', '&amp;amp;')
+        encoded_str = unidecode(ampersand_hotfix)
         return encoded_str
 
     # This method returns the dictionary being wrapped by this object (used in WTForm Validation; they seem to need an
@@ -661,11 +662,8 @@ class TinkerController(object):
             htmlent = self.__unicode_to_html_entities__(content)
             uni = self.__html_entities_to_unicode__(htmlent)
             clean_xml = self.__escape_xml_illegal_chars__(uni).lstrip()
-            divs_removed = clean_xml.replace('&lt;div&gt;', '&lt;p&gt;').replace('&lt;/div&gt;', '&lt;/p&gt;')
-            # (Caleb) I added this and it seemed to fix our issue with John Dunne's bio (awards). I don't understand
-            # why it works, but it clearly does. This same code is used a few lines above. eh.
-            remove_html_entities = self.__html_entities_to_unicode__(divs_removed)
-            return remove_html_entities
+            divs_removed = clean_xml.replace('<div>', '<p>').replace('</div>', '</p>')
+            return divs_removed
         else:
             return None
 

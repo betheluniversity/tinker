@@ -20,7 +20,6 @@ CKEDITOR.editorConfig = function( config ) {
 			{ name: 'about', groups: [ 'about' ] }
 		];
 		CKEDITOR.config.removeButtons = 'Underline,Subscript,Superscript,Undo,Redo,Cut,Copy,Paste,PasteText,PasteFromWord,Scayt,Strike,RemoveFormat,Blockquote,Anchor,Image,Table,HorizontalRule,SpecialChar,Maximize,Source,Styles';
-		CKEDITOR.config.htmlEncodeOutput = false;
 		CKEDITOR.config.entities = false;
 };
 
