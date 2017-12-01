@@ -26,9 +26,108 @@ from bu_cascade.asset_tools import find, update
 from flask import abort, current_app, render_template, request, Response, session
 from flask import json as fjson
 from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlatformWarning
+from unidecode import unidecode
+from werkzeug.datastructures import ImmutableMultiDict
 
 # Local
 from tinker import app, cascade_connector, sentry
+
+
+class EncodingDict(object):
+    # This class was created because some of the unicode strings being passed to Cascade didn't properly encode to
+    # ASCII/UTF-8, and that caused problems. Rather than go through the whole project and write the same code over
+    # and over, I created this object to wrap request.form dictionaries and sanitize the values returned as they're
+    # requested via dictionary key lookups.
+    def __init__(self, dictionary):
+        self._failure = False
+        if isinstance(dictionary, (ImmutableMultiDict, dict)):
+            self._dictionary = dictionary
+        else:
+            self._failure = "EncodingDict was not passed an ImmutableMultiDict or dictionary"
+
+    # This method allows us to use the rform['key'] shortcut
+    def __getitem__(self, key):
+        return self.get(key)
+
+    # This method is written so that if we choose to, we can encode entire objects being returned by the dictionaries
+    # instead of just the unicode strings.
+    def _recursively_encode(self, item):
+        if isinstance(item, dict):
+            for key in item.keys():
+                item[key] = self._recursively_encode(item[key])
+            return item
+        elif isinstance(item, ImmutableMultiDict):
+            to_return = {}
+            for key in item.keys():
+                to_return[key] = self._recursively_encode(item[key])
+            return ImmutableMultiDict(to_return)
+        elif isinstance(item, list):
+            return [self._recursively_encode(x) for x in item]
+        elif isinstance(item, tuple):
+            return (self._recursively_encode(x) for x in item)
+        elif isinstance(item, unicode):
+            return self._safely_encode_unicode_to_str(item)
+        elif isinstance(item, (str, bool, int, long, float)) or item is None:
+            # All of these types of objects don't need to be encoded from unicode to String, so they can pass through.
+            return item
+        else:
+            # Anything else is unhandled
+            return 'EncodingDict failed to encode object type %s' % type(item)
+
+    # This method is what actually does the conversion from unicode to String
+    def _safely_encode_unicode_to_str(self, unsafe_unicode):
+        encoded_str = unidecode(unsafe_unicode)
+        return encoded_str
+
+    # This method returns the dictionary being wrapped by this object (used in WTForm Validation; they seem to need an
+    # ImmutableMultiDict)
+    def internal_dictionary(self):
+        return self._dictionary
+
+    # This is the primary wrapping method; it asks for the value at its internal dictionary's key, and if it returns a
+    # unicode string, this method converts it to a String using the "correct" way.
+    def get(self, key, default_return=None):
+        if isinstance(self._failure, bool) and not self._failure:
+            internal_get = self._dictionary.get(key, default_return)
+            # return self._recursively_encode(internal_get)
+            if isinstance(internal_get, unicode):
+                internal_get = self._safely_encode_unicode_to_str(internal_get)
+            return internal_get
+        else:
+            return self._failure
+
+    # This method is written for ImmutableMultiDicts; they store data as a dictionary of dictionaries, allowing it to
+    # accept multiple values for a single key (think of an HTML MultipleSelect; returns many values to one id). Since we
+    # use this method in our code, I must "ape" the method and pass it on.
+    def getlist(self, key):
+        if isinstance(self._failure, bool) and not self._failure:
+            if isinstance(self._dictionary, ImmutableMultiDict):
+                internal_list_response = self._dictionary.getlist(key)
+                # return self._recursively_encode(internal_list_response)
+                to_return = []
+                for item in internal_list_response:
+                    if isinstance(item, unicode):
+                        to_return.append(self._safely_encode_unicode_to_str(item))
+                    else:
+                        to_return.append(item)
+                return to_return
+            else:
+                return "This EncodingDict does not have an ImmutableMultiDict stored internally, " \
+                       "so getlist is not a valid method to call."
+        else:
+            return self._failure
+
+    # Simple pass-along method
+    def keys(self):
+        if isinstance(self._failure, bool) and not self._failure:
+            return self._dictionary.keys()
+        else:
+            return self._failure
+
+
+class EncodingDictFactory(object):
+    def encode(self, dictionary_to_encode):
+        return EncodingDict(dictionary_to_encode)
 
 
 def check_auth(username, password):
@@ -92,6 +191,15 @@ def admin_permissions(flask_view_class):
         if 'Administrators' not in session['groups'] and 'Tinker Redirects' not in session['groups']:
             abort(403)
 
+    elif flask_view_class.route_base == '/admin/sync':
+        # This if statement has to come first so that public API request don't need to have groups associated with them.
+        if '/public/' in request.path:
+            return
+
+        # Checks to see what group the user is in
+        if 'Administrators' not in session['groups']:
+            abort(403)
+
     # all other admin menus
     elif 'Administrators' not in session['groups']:
         abort(403)
@@ -105,6 +213,7 @@ class TinkerController(object):
         requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
         self.datetime_format = "%B %d %Y, %I:%M %p"
         self.cascade_connector = cascade_connector
+        self.dictionary_encoder = EncodingDictFactory()
 
     def before_request(self):
         def init_user():
@@ -142,7 +251,6 @@ class TinkerController(object):
 
             if 'name' not in session.keys() and session['username']:
                 get_users_name()
-
 
         def get_user():
             if current_app.config['ENVIRON'] == 'prod':
@@ -560,12 +668,10 @@ class TinkerController(object):
         if content:
             htmlent = self.__unicode_to_html_entities__(content)
             uni = self.__html_entities_to_unicode__(htmlent)
-            clean_xml = self.__escape_xml_illegal_chars__(uni).lstrip()
-            divs_removed = clean_xml.replace('&lt;div&gt;', '&lt;p&gt;').replace('&lt;/div&gt;', '&lt;/p&gt;')
-            # (Caleb) I added this and it seemed to fix our issue with John Dunne's bio (awards). I don't understand
-            # why it works, but it clearly does. This same code is used a few lines above. eh.
-            remove_html_entities = self.__html_entities_to_unicode__(divs_removed)
-            return remove_html_entities
+            ampersand_hotfix = uni.replace('&amp;', '&amp;amp;')
+            clean_xml = self.__escape_xml_illegal_chars__(ampersand_hotfix).lstrip()
+            divs_removed = clean_xml.replace('<div>', '<p>').replace('</div>', '</p>')
+            return divs_removed
         else:
             return None
 

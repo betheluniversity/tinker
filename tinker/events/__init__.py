@@ -93,12 +93,12 @@ class EventsView(FlaskView):
 
     @route("/submit", methods=['post'])
     def submit(self):
-        rform = request.form
+        rform = self.base.dictionary_encoder.encode(request.form)
         username = session['username']
         eid = rform.get('event_id')
         dates, num_dates = self.base.get_event_dates(rform)
         dates_str, dates_good = self.base.check_event_dates(dates)
-        form, passed = self.base.validate_form(rform, dates_good)
+        form, passed = self.base.validate_form(rform.internal_dictionary(), dates_good)
         workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], rform['author'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
         wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']
@@ -114,7 +114,7 @@ class EventsView(FlaskView):
 
         add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow)
 
-        add_data['author'] = request.form['author']
+        add_data['author'] = rform['author']
 
         # todo: Test this
         if 'link' in add_data and add_data['link']:
@@ -158,7 +158,7 @@ class EventsView(FlaskView):
     @route("/search", methods=['POST'])
     def search(self):
         # Load the data, get the event type selection and title of the event the user is searching for
-        data = json.loads(request.data)
+        data = self.base.dictionary_encoder.encode(json.loads(request.data))
         selection = data['selection']
         title = data['title']
         try:

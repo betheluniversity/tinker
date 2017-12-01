@@ -17,7 +17,7 @@ class ConfirmTestCase(IntegrationTestCase):
     #######################
 
     def test_confirm(self):
-        expected_response = repr('''\\'\\xca\\x04\\xb6\\x13\\xa2\\xc8\\r\\xcf\\xfc\\x96\\x03\\xde"S%\\x19\\''')
+        expected_response = repr('\xd8;\xad\xec\xd2\xd1\xe8\x93\x04\xf7\xbbqX\x82\xd0\x0e')
         # b'<h1 class="first-subtitle">Congrats!</h1>'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)
