@@ -1,5 +1,6 @@
 # Global
 import json
+import random
 from operator import itemgetter
 
 # Packages
@@ -35,6 +36,7 @@ class FacultyBiosView(FlaskView):
                 and 'Tinker Faculty Bios - Admin' not in session['groups']:
             abort(403)
 
+    @cache.memoize(timeout=600)
     def index(self):
         username = session['username']
         roles = session['roles']
@@ -63,12 +65,12 @@ class FacultyBiosView(FlaskView):
                           or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
                           or 'Tinker Faculty Bios - SEM' in session['groups'] \
                           or self.base.is_user_in_web_author_groups()
-        # return render_template('faculty-bios/home.html', **locals())
-        return self.index_cache()
-
-    @cache.memoize(timeout=600)
-    def index_cache(self):
         return render_template('faculty-bios/home.html', **locals())
+        # return self.index_cache()
+
+    # @cache.memoize(timeout=600)
+    # def index_cache(self):
+    #     return render_template('faculty-bios/home.html', **locals())
     # What should this method look like? what should it have for parameters?
 
     @route('delete/<faculty_bio_id>', methods=['GET'])
