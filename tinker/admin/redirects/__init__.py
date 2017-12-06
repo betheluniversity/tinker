@@ -249,6 +249,7 @@ class RedirectsView(FlaskView):
     @requires_auth
     @route('/public/clear-redirects')
     def redirect_clear(self):
-        return self.base.redirect_change()
+        return "Test"
+        # return self.base.redirect_change()
 
 RedirectsView.register(RedirectsBlueprint)
