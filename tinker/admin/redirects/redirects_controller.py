@@ -140,7 +140,6 @@ class RedirectsController(TinkerController):
 
                 if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
 
-                    yield "Printing to check for deletion: " + redirect.from_path + "<br/>"
                     check_delete += """<tr>\n" +
                                     "<td>" + redirect.from_path + "</td>\n"
                                     "<td>" + redirect.to_url + "</td>\n"
@@ -199,8 +198,6 @@ class RedirectsController(TinkerController):
                                             "</tr>\n"""
                     continue
 
-                yield 'changing %s to %s <br/>' % (redirect.to_url, response.url)
-                # [redirects.replace(redirect.to_url, response.url) for item in redirect]
                 new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
                                               short_url=redirect.short_url,
                                               expiration_date=redirect.expiration_date)
@@ -220,5 +217,4 @@ class RedirectsController(TinkerController):
         redundant_changes += '</tfoot></table>'
 
         all_changes = changed + redundant_changes + check_delete
-        yield all_changes
-        return
+        return all_changes
