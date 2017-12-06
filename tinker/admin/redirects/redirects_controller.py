@@ -82,21 +82,20 @@ class RedirectsController(TinkerController):
 
     def redirect_change(self):
 
-        loop_counter = 0
+        # loop_counter = 0
 
         redirects = BethelRedirect.query.all()
-        # following are files to be written so we can pass the 'change log' over to marketing
-        # with this, they can approve or ask us to fix/replace some of the redirects
-        checkDelete = open('Check_For_Deletion.html', 'w+')
-        changed = open('Redirect_Changed.html', 'w+')
-        redundant_changes = open('Redundant_Changes.html', 'w+')
 
         today = datetime.now()
         today = today.strftime("%m/%d/%y %I:%M")
 
-        # redirects that are being changed (not redundant changes though)
-        changed.write('These are the redirects that are being changed. \n' + str(today) + '</br></br>')
-        changed.write("""<table>
+        changed = ''
+        check_delete = ''
+        redundant_changes = ''
+
+        # redirects that are being changed (but not redundant changes)
+        changed += 'These are the redirects that are being changed. \n' + str(today) + '</br></br>'
+        changed += """<table>
                         <thead>
                         <tr>
                         <th style = 'text-align: left'> From Path </th>
@@ -104,21 +103,21 @@ class RedirectsController(TinkerController):
                         <th style = 'text-align: left'> Changed to </th>
                         </tr>
                         </thead>
-                        <tfoot>""")
+                        <tfoot>"""
 
         # these redirects will be marked for deletion. keeping them is based on discretion
-        checkDelete.write('These are the redirects that are should be looked at for deletion. \n' + str(today) + '</br></br>')
-        checkDelete.write("""<table>
+        check_delete += 'These are the redirects that are should be looked at for deletion. \n' + str(today) + '</br></br>'
+        check_delete += """<table>
                         <thead>
                         <tr>
                         <th style = 'text-align: left'> From Path </th>
                         <th style = 'text-align: left'> To Url </th>
                         </tr>
                         </thead>
-                        <tfoot>""")
+                        <tfoot>"""
 
         # file for redundant changes (adding '/' to the end or only switching 'http' to 'https'
-        redundant_changes.write("""<table>
+        redundant_changes += """<table>
                                     <thead>
                                     <tr>
                                     <th style = 'text-align: left'> From Path </th>
@@ -126,12 +125,9 @@ class RedirectsController(TinkerController):
                                     <th style = 'text-align: left'> Change </th>
                                     </tr>
                                     </thead>
-                                    <tfoot>""")
+                                    <tfoot>"""
 
         for redirect in redirects:
-            loop_counter += 1
-            if loop_counter % 2000 == 0:
-                print loop_counter
             try:
                 response = requests.get('https://www.bethel.edu' + redirect.from_path)
                 redirect.to_url.replace('\n', '')
@@ -145,10 +141,10 @@ class RedirectsController(TinkerController):
                 if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
 
                     yield "Printing to check for deletion: " + redirect.from_path + "<br/>"
-                    checkDelete.write("<tr>\n" +
+                    check_delete += """<tr>\n" +
                                     "<td>" + redirect.from_path + "</td>\n"
                                     "<td>" + redirect.to_url + "</td>\n"
-                                  "</tr>\n")
+                                  "</tr>\n"""
                     continue
 
                 else:  # If it passes the other logic, its a protocol error
@@ -181,11 +177,11 @@ class RedirectsController(TinkerController):
                         self.db.session.delete(redirect)
                         self.db.session.add(new_redirect)
                         self.db.session.commit()
-                        redundant_changes.write("<tr>\n" +
+                        redundant_changes += """"<tr>\n" +
                                                 "<td>" + redirect.from_path + "</td>\n"
                                                 "<td>" + redirect.to_url + "</td>\n"
                                                 "<td> Changing http to https </td>\n"
-                                                "</tr>\n")
+                                                "</tr>\n"""
                         continue
                 elif response.url == redirect.to_url + '/':
                     # creates a new redirect to replace the old one after deleting
@@ -196,11 +192,11 @@ class RedirectsController(TinkerController):
                     self.db.session.delete(redirect)
                     self.db.session.add(new_redirect)
                     self.db.session.commit()
-                    redundant_changes.write("<tr>\n" +
+                    redundant_changes += """<tr>\n" +
                                             "<td>" + redirect.from_path + "</td>\n"
                                             "<td>" + redirect.to_url + "</td>\n"
                                             "<td> Adding '/' at end </td>\n"
-                                            "</tr>\n")
+                                            "</tr>\n"""
                     continue
 
                 yield 'changing %s to %s <br/>' % (redirect.to_url, response.url)
@@ -211,20 +207,18 @@ class RedirectsController(TinkerController):
                 self.db.session.delete(redirect)
                 self.db.session.add(new_redirect)
                 self.db.session.commit()
-                changed.write("<tr>\n" +
+                changed += """"<tr>\n" +
                                 "<td>" + redirect.from_path + "</td>\n"
                                 "<td>" + redirect.to_url + "</td>\n"
                                 "<td>" + response.url + "</td>"
-                                "</tr>\n")
+                                "</tr>\n"""
 
         contact_footer = 'If you have any questions/concerns, please contact web services.'
 
-        changed.write('</tfoot></table> \n \n' + contact_footer)
-        checkDelete.write('</tfoot></table> \n \n' + contact_footer)
-        redundant_changes.write('</tfoot></table>')
+        changed += '</tfoot></table> \n \n' + contact_footer
+        check_delete += '</tfoot></table> \n \n' + contact_footer
+        redundant_changes += '</tfoot></table>'
 
-        changed.close()
-        checkDelete.close()
-        redundant_changes.close()
-
-        print 'done'
+        all_changes = changed + redundant_changes + check_delete
+        yield all_changes
+        return
