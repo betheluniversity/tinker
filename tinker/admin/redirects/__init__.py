@@ -10,7 +10,7 @@ from flask import Blueprint, render_template, request, abort, session, Response,
 
 # Packages
 from BeautifulSoup import BeautifulSoup
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, abort
 from flask_classy import FlaskView, route
 
 # Local
@@ -39,7 +39,8 @@ class RedirectsView(FlaskView):
     # Deletes the chosen redirect
     @route("/delete", methods=['post'])
     def delete_redirect(self):
-        path = request.form['from_path']
+        rform = self.base.dictionary_encoder.encode(request.form)
+        path = rform['from_path']
         try:
             self.base.delete_row_from_db(path)
             resp = self.base.create_redirect_text_file()
@@ -50,9 +51,10 @@ class RedirectsView(FlaskView):
     # Finds all redirects associated with the from path entered
     @route("/search", methods=['post'])
     def search(self):
-        search_type = request.form['type']
-        search_query = request.form['search']
-        if search_query == "%" or search_type not in ['from_path', 'to_url']:
+        rform = self.base.dictionary_encoder.encode(request.form)
+        search_type = rform['type']
+        search_query = rform['search']
+        if search_query == "%" or search_type not in ['from_path', 'to_url'] or search_query is None:
             return ""
         redirects = self.base.search_db(search_type, search_query)
         return render_template('admin/redirects/ajax.html', **locals())
@@ -60,7 +62,7 @@ class RedirectsView(FlaskView):
     # Saves the new redirect created
     @route("/new-redirect-submit", methods=['post'])
     def new_redirect_submit(self):
-        form = request.form
+        form = self.base.dictionary_encoder.encode(request.form)
         from_path = form['new-redirect-from']
         to_url = form['new-redirect-to']
         short_url = form.get('new-redirect-short-url') == 'true'
@@ -70,6 +72,9 @@ class RedirectsView(FlaskView):
             expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
         else:
             expiration_date = None
+
+        if from_path is None or to_url is None:
+            return abort(400)
 
         if not from_path.startswith("/"):
             from_path = "/%s" % from_path
@@ -155,7 +160,8 @@ class RedirectsView(FlaskView):
     @requires_auth
     @route('/public/api-submit', methods=['post'])  # ['get', 'post'])
     def new_api_submit(self):
-        body = request.form['body']
+        rform = self.base.dictionary_encoder.encode(request.form)
+        body = rform['body']
 
         soup = BeautifulSoup(body)
         all_text = ''.join(soup.findAll(text=True))
@@ -180,9 +186,10 @@ class RedirectsView(FlaskView):
     @requires_auth
     @route('/public/api-submit-asset-expiration', methods=['get', 'post'])
     def new_api_submit_asset_expiration(self):
+        rform = self.base.dictionary_encoder.encode(request.form)
         from_path = ''
         to_url = ''
-        subject = request.form['subject']
+        subject = rform['subject']
         soup = BeautifulSoup(subject)
         all_text = ''.join(soup.findAll(text=True))
 

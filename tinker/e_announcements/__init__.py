@@ -125,10 +125,10 @@ class EAnnouncementsView(FlaskView):
 
     @route("/submit", methods=['post'])
     def submit(self):
-        rform = request.form
+        rform = self.base.dictionary_encoder.encode(request.form)
         eaid = rform.get('e_announcement_id')
 
-        form, passed = self.base.validate_form(rform)
+        form, passed = self.base.validate_form(rform.internal_dictionary())
         if not passed:
             if 'e_announcement_id' in rform.keys():
                 e_announcement_id = rform['e_announcement_id']
@@ -283,14 +283,14 @@ class EAnnouncementsView(FlaskView):
         if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
             return abort(403)
 
-        pass_in = request.form
+        pass_in = self.base.dictionary_encoder.encode(request.form)
         date_id = pass_in.get('dateId', 'null')
         ea_display = []
 
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block', True)
         forms.sort(key=lambda item: ['created_on'], reverse=True)
 
-        def get_title_and_message(self, form):
+        def get_title_and_message(form):
             title = find(form, 'title', False)
             message = find(form, 'message', False)
             ea_id = find(form, 'id', False)
@@ -306,13 +306,13 @@ class EAnnouncementsView(FlaskView):
             first_ea_date = find(form, 'first_date', False)
 
             if first_ea_date == str(date_id):
-                get_title_and_message(self, form)
+                get_title_and_message(form)
 
             # second date is not always present, the second date if statements are necessary
             second_ea_date = find(form, 'second_date', False)
             if second_ea_date != '':
                 if second_ea_date == str(date_id):
-                    get_title_and_message(self, form)
+                    get_title_and_message(form)
 
         return render_template("e-announcements/future-ajax.html", **locals())
 
