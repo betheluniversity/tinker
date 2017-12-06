@@ -239,6 +239,8 @@ class RedirectsView(FlaskView):
         app.logger.debug(": Correctly finished")
         return str(redirect)
 
+    @requires_auth
+    @route('/public/clear-redirects')
     def redirect_clear(self):
         return Response(stream_with_context(self.base.redirect_change()))
 
