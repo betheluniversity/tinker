@@ -91,7 +91,7 @@ class RedirectsController(TinkerController):
         # today = today.strftime("%m/%d/%y %I:%M")
 
         changed = []
-        check_delete = []
+        deleted = []
 
         for redirect in redirects:
             try:
@@ -106,7 +106,7 @@ class RedirectsController(TinkerController):
 
                 if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
 
-                    check_delete.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
+                    deleted.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
                     continue
 
                 else:  # If it passes the other logic, its a protocol error
