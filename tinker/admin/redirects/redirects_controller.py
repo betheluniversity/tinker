@@ -129,10 +129,10 @@ class RedirectsController(TinkerController):
 
                 if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
 
-                    check_delete += """<tr>\n" +
-                                    "<td>" + %s + "</td>\n"
-                                    "<td>" + %s + "</td>\n"
-                                  "</tr>\n""" % (redirect.from_path, redirect.to_url)
+                    check_delete += """<tr>\n +
+                                    <td> + %s + </td>\n
+                                    <td> + %s + </td>\n
+                                  </tr>\n""" % (redirect.from_path, redirect.to_url)
                     continue
 
                 else:  # If it passes the other logic, its a protocol error
@@ -183,10 +183,10 @@ class RedirectsController(TinkerController):
                 self.db.session.delete(redirect)
                 self.db.session.add(new_redirect)
                 self.db.session.commit()
-                changed += """"<tr>\n" +
-                                <td>" + %s + "</td>\n
-                                <td>" + %s + "</td>\n
-                                <td>" + %s + "</td>
+                changed += """"<tr>\n +
+                                <td> + %s + </td>\n
+                                <td> + %s + </td>\n
+                                <td> + %s + </td>
                                 </tr>\n""" % (redirect.from_path, redirect.to_url, response.url)
 
         contact_footer = 'If you have any questions/concerns, please contact web services.'
