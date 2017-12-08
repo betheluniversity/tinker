@@ -129,7 +129,7 @@ class RedirectsController(TinkerController):
 
                 if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
 
-                    check_delete += '''<tr>\n +
+                    check_delete += '''<tr>\n
                                     <td>  %s  </td>\n
                                     <td>  %s  </td>\n
                                   </tr>\n''' % (redirect.from_path, redirect.to_url)
@@ -183,7 +183,7 @@ class RedirectsController(TinkerController):
                 self.db.session.delete(redirect)
                 self.db.session.add(new_redirect)
                 self.db.session.commit()
-                changed += '''<tr>\n +
+                changed += '''<tr>\n 
                                 <td>  %s  </td>\n
                                 <td>  %s  </td>\n
                                 <td>  %s  </td>
