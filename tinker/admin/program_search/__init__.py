@@ -5,9 +5,6 @@ import json
 # Packages
 from flask import abort, Blueprint, render_template, request
 from flask_classy import FlaskView, route
-
-from sqlalchemy import or_
-
 from sqlalchemy import or_, and_
 
 
