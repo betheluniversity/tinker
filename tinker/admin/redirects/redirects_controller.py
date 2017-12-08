@@ -3,6 +3,7 @@
 import urllib
 
 import requests
+from flask import render_template
 from requests.exceptions import SSLError, ConnectionError
 
 # Global
@@ -86,35 +87,11 @@ class RedirectsController(TinkerController):
 
         redirects = BethelRedirect.query.all()
 
-        today = datetime.now()
-        today = today.strftime("%m/%d/%y %I:%M")
+        # today = datetime.now()
+        # today = today.strftime("%m/%d/%y %I:%M")
 
-        changed = ''
-        check_delete = ''
-        redundant_changes = ''
-
-        # redirects that are being changed (but not redundant changes)
-        changed += 'These are the redirects that are being changed. \n' + str(today) + '</br></br>'
-        changed += """<table>
-                        <thead>
-                        <tr>
-                        <th style = 'text-align: left'> From Path </th>
-                        <th style = 'text-align: left'> To Url </th>
-                        <th style = 'text-align: left'> Changed to </th>
-                        </tr>
-                        </thead>
-                        <tfoot>"""
-
-        # these redirects will be marked for deletion. keeping them is based on discretion
-        check_delete += 'These are the redirects that are should be looked at for deletion. \n' + str(today) + '</br></br>'
-        check_delete += """<table>
-                        <thead>
-                        <tr>
-                        <th style = 'text-align: left'> From Path </th>
-                        <th style = 'text-align: left'> To Url </th>
-                        </tr>
-                        </thead>
-                        <tfoot>"""
+        changed = []
+        check_delete = []
 
         for redirect in redirects:
             try:
@@ -129,10 +106,7 @@ class RedirectsController(TinkerController):
 
                 if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
 
-                    check_delete += '''<tr>\n
-                                    <td>  %s  </td>\n
-                                    <td>  %s  </td>\n
-                                  </tr>\n''' % (redirect.from_path, redirect.to_url)
+                    check_delete.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
                     continue
 
                 else:  # If it passes the other logic, its a protocol error
@@ -183,17 +157,6 @@ class RedirectsController(TinkerController):
                 self.db.session.delete(redirect)
                 self.db.session.add(new_redirect)
                 self.db.session.commit()
-                changed += '''<tr>\n 
-                                <td>  %s  </td>\n
-                                <td>  %s  </td>\n
-                                <td>  %s  </td>
-                                </tr>\n''' % (redirect.from_path, redirect.to_url, response.url)
+                changed.append({'to_url': redirect.to_url, 'response': response.url})
 
-        contact_footer = 'If you have any questions/concerns, please contact web services.'
-
-        changed += '</tfoot></table> \n \n' + contact_footer
-        check_delete += '</tfoot></table> \n \n' + contact_footer
-        redundant_changes += '</tfoot></table>'
-
-        all_changes = changed + redundant_changes + check_delete
-        return all_changes
+        return render_template('admin/redirects/clear-redirects.html', **locals())
