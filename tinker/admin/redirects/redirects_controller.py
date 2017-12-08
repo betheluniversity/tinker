@@ -1,20 +1,16 @@
 
-# tinker
-import urllib
-
-import requests
-from flask import render_template
-from requests.exceptions import SSLError, ConnectionError
-
-# Global
+# local
 from datetime import datetime
+import urllib
+import requests
 
 # Packages
 from flask_sqlalchemy import SQLAlchemy
-
-# Local
+from flask import render_template
+from requests.exceptions import SSLError, ConnectionError
 from urllib3.exceptions import ProtocolError, MaxRetryError
 
+# tinker
 from tinker import app
 from tinker.admin.redirects.models import BethelRedirect
 from tinker.tinker_controller import TinkerController
