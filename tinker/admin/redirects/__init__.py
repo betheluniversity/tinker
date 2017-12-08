@@ -7,7 +7,7 @@ from datetime import datetime
 
 # Packages
 from BeautifulSoup import BeautifulSoup
-from flask import Blueprint, render_template, request, abort
+from flask import Blueprint, render_template, request, abort, session, Response, stream_with_context
 from flask_classy import FlaskView, route
 
 # Local
@@ -242,5 +242,11 @@ class RedirectsView(FlaskView):
 
         app.logger.debug(": Correctly finished")
         return str(redirect)
+
+    @requires_auth
+    @route('/public/clear-redirects')
+    def redirect_clear(self):
+        # return "Test"
+        return self.base.redirect_change()
 
 RedirectsView.register(RedirectsBlueprint)
