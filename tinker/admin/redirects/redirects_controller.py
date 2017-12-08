@@ -116,17 +116,6 @@ class RedirectsController(TinkerController):
                         </thead>
                         <tfoot>"""
 
-        # file for redundant changes (adding '/' to the end or only switching 'http' to 'https'
-        redundant_changes += """<table>
-                                    <thead>
-                                    <tr>
-                                    <th style = 'text-align: left'> From Path </th>
-                                    <th style = 'text-align: left'> To Url </th>
-                                    <th style = 'text-align: left'> Change </th>
-                                    </tr>
-                                    </thead>
-                                    <tfoot>"""
-
         for redirect in redirects:
             try:
                 response = requests.get('https://www.bethel.edu' + redirect.from_path)
@@ -141,9 +130,9 @@ class RedirectsController(TinkerController):
                 if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
 
                     check_delete += """<tr>\n" +
-                                    "<td>" + redirect.from_path + "</td>\n"
-                                    "<td>" + redirect.to_url + "</td>\n"
-                                  "</tr>\n"""
+                                    "<td>" + %s + "</td>\n"
+                                    "<td>" + %s + "</td>\n"
+                                  "</tr>\n""" % (redirect.from_path, redirect.to_url)
                     continue
 
                 else:  # If it passes the other logic, its a protocol error
@@ -176,11 +165,6 @@ class RedirectsController(TinkerController):
                         self.db.session.delete(redirect)
                         self.db.session.add(new_redirect)
                         self.db.session.commit()
-                        redundant_changes += """"<tr>\n" +
-                                                "<td>" + redirect.from_path + "</td>\n"
-                                                "<td>" + redirect.to_url + "</td>\n"
-                                                "<td> Changing http to https </td>\n"
-                                                "</tr>\n"""
                         continue
                 elif response.url == redirect.to_url + '/':
                     # creates a new redirect to replace the old one after deleting
@@ -191,11 +175,6 @@ class RedirectsController(TinkerController):
                     self.db.session.delete(redirect)
                     self.db.session.add(new_redirect)
                     self.db.session.commit()
-                    redundant_changes += """<tr>\n" +
-                                            "<td>" + redirect.from_path + "</td>\n"
-                                            "<td>" + redirect.to_url + "</td>\n"
-                                            "<td> Adding '/' at end </td>\n"
-                                            "</tr>\n"""
                     continue
 
                 new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
@@ -205,10 +184,10 @@ class RedirectsController(TinkerController):
                 self.db.session.add(new_redirect)
                 self.db.session.commit()
                 changed += """"<tr>\n" +
-                                "<td>" + redirect.from_path + "</td>\n"
-                                "<td>" + redirect.to_url + "</td>\n"
-                                "<td>" + response.url + "</td>"
-                                "</tr>\n"""
+                                <td>" + %s + "</td>\n
+                                <td>" + %s + "</td>\n
+                                <td>" + %s + "</td>
+                                </tr>\n""" % (redirect.from_path, redirect.to_url, response.url)
 
         contact_footer = 'If you have any questions/concerns, please contact web services.'
 
