@@ -1,3 +1,4 @@
+import datetime
 from e_annz_controller_base import EAnnouncementsControllerBaseTestCase
 from testing_suite.utilities import FauxElement
 
@@ -15,9 +16,13 @@ class IterateChildXMLTestCase(EAnnouncementsControllerBaseTestCase):
     #######################
 
     def test_iterate_child_xml(self):
+        current_date = datetime.datetime.now()
+        datestring_first = current_date + datetime.timedelta(weeks=1)
+        datestring_second = current_date + datetime.timedelta(weeks=2)
+
         child = FauxElement('element', children={
-            'system-data-structure/first-date': '11-21-2017',
-            'system-data-structure/second-date': '11-22-2017',
+            'system-data-structure/first-date': datestring_first.strftime('%m-%d-%Y'),
+            'system-data-structure/second-date': datestring_second.strftime('%m-%d-%Y'),
             './/dynamic-metadata': {
                 'value': 'intrinsic'
             },
@@ -62,13 +67,13 @@ class IterateChildXMLTestCase(EAnnouncementsControllerBaseTestCase):
         self.assertEqual(response['message'], '<a href="http://www.google.com">Hello frands!</a>')
 
         self.assertTrue(isinstance(response['first_date'], str))
-        self.assertEqual(response['first_date'], 'Tuesday November 21, 2017')
+        self.assertEqual(response['first_date'], datestring_first.strftime('%A %B %d, %Y'))
 
         self.assertTrue(isinstance(response['first_date_past'], bool))
         self.assertFalse(response['first_date_past'])
 
         self.assertTrue(isinstance(response['second_date'], str))
-        self.assertEqual(response['second_date'], 'Wednesday November 22, 2017')
+        self.assertEqual(response['second_date'], datestring_second.strftime('%A %B %d, %Y'))
 
         self.assertTrue(isinstance(response['second_date_past'], bool))
         self.assertFalse(response['second_date_past'])

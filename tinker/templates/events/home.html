@@ -1,0 +1,214 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'Events' %}
+
+{% block styles %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% macro form_card(form)-%}
+
+    <div class="card">
+        <div class="content">
+            <div class="large-6 columns">
+                <p>
+                    {% if form.is_published %}
+                        <a href={{ form.path }}>{{ form.title }}</a>
+                    {% else %}
+                        {{ form.title }}
+                    {% endif %}
+                    <br/>
+                    {% if form.is_published %}
+{#                                            <small>#}
+                        <p>{{ form.dates | safe }}</p>
+                        <a class="small-link" href={{ form.path }}>{{ form.path }}</a>
+{#                                            </small>#}
+                    {% endif %}
+                </p>
+            </div>
+            <div class="large-6 columns small-3">
+                <ul class="btn-group-horizontal">
+                    {% if form.is_published %}
+                        <li><a href="{{ form.path }}" class="small btn btn-primary">View</a></li>
+                        <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}"
+                               class="small btn btn-primary">Edit</a></li>
+                        <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
+                               class="small btn btn-primary">Duplicate</a></li>
+                    {% else %}
+                        <li>This event is pending approval.</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endmacro %}
+
+{% block main_content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+
+                <p class="description">All events will be reviewed and approved within 2-3 business days by Conference
+                    and Event Services.
+                    You'll receive an email to let you know when your event has been approved.</p>
+
+                <p class="description">If you have any questions, please contact Conference and Event Services at
+                    651.638.6090.</p>
+
+                <div>
+                    {# create an event button #}
+                    <a href="{{ url_for('events.EventsView:add') }}" id="event-create" class="btn btn-primary new-btn">
+                        Create New Event
+                    </a>
+                    {# in action add the url calling the post method for search#}
+                    <div>
+                        <h3 class="first-subtitle">View:</h3>
+                            <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
+                                    multiple>
+                                {% for school_code, school in all_schools.items() %}
+                                    {% if loop.first %}
+                                        <option value="{{ school_code}}"
+                                                selected="selected">{{ school }}</option>
+                                    {%  elif not loop.last %}
+                                        <option value="{{ school_code}}">{{ school }}</option>
+                                    {%  endif %}
+                                {% endfor %}
+                            </select>
+                            <p class="description"> The below are optional parameters to help in your search.</p>
+                            <div></div>
+                                <small>Used by entering in part of a name, for example "scho" will select events with
+                                    words "scholar", "school", "scholastic" etc.</small>
+                                <label for="eventTitle">Event Title:</label>
+                                    <input id="eventTitle" type="text" name="EventTitle"><br/>
+                                <small>The Start and End fields are to specify the date range where an event might fall,
+                                    for example "New Years Eve" and "Christmas" would both show up if you started at December 25th
+                                    and ended on December 31st</small>
+                                <label for="startDate">Start Date:</label>
+                                    <input id="startDate" class='datepicker' size='11'/>
+                                <label for="endDate">End Date:</label>
+                                    <input id="endDate" class='datepicker' size='11'/>
+                                <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
+                            </div>
+                        {# spinner placeholder #}
+                        <div id="spinner" class="spinner" style="display:none;">
+                            <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+                        </div>
+                    </div>
+                    <hr/>
+                    <div id="results">
+
+                    </div>
+                </div>
+                <br/>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block modalhtml %}
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+                </div>
+                <div class="modal-body">
+                    Your event page will be unpublished and removed from the calendar.
+                </div>
+                <div class="modal-footer">
+                    <a id="modal-confirm" href="/events/delete/formid"
+                       class="btn btn-primary btn-alert modal-confirm">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+
+    {#    Script to update the modal submit to delete the correct form#}
+    <script type="text/javascript">
+        $(".delete-press").click(function () {
+            $("#modal-confirm").attr("href", "/events/delete/" + $(this).data('event-id'));
+        });
+        $("#school-selector").change(function () {
+            $('.school-bios').hide();
+            var array_of_values = $("#school-selector").val();
+            for (i = 0; i < array_of_values.length; i++) {
+                $('.' + array_of_values[i]).show();
+            }
+        });
+        $('.datepicker').each(function () {
+            var current_element = $(this);
+            var starting_values = {
+                field: this,
+                format: 'MM DD YYYY',
+                minDate: new Date('2000-01-01'),
+                maxDate: new Date('2040-12-31'),
+                yearRange: [2000, 2040],
+                disableDayFn: function (date) {
+                    var start_populated = $("#startDate").val();
+                    var end_populated = $("#endDate").val();
+                    if(start_populated == "" && end_populated == ""){
+                        return null;
+                    }else if(start_populated != "" && current_element.attr('id') == 'endDate'){
+                        if(new Date(start_populated) >= date){
+                            return date;
+                        }
+                    }else if(end_populated != "" && current_element.attr('id') == 'startDate'){
+                        if(new Date(end_populated) <= date){
+                            return date;
+                        }
+                    }
+                }
+            };
+            // if its the startDate, set default date to today
+            if( $(this).attr('id') == 'startDate' ) {
+                starting_values['defaultDate'] = new Date();
+                starting_values['setDefaultDate'] = true;
+            }
+
+
+            var picker = new Pikaday(starting_values);
+        });
+        function search_events() {
+            search_url = "{{ url_for('events.EventsView:search') }}";
+            $('#spinner').show();
+            inputs = {
+                "title": $("#eventTitle").val(),
+                "start": $("#startDate").val(),
+                "end": $("#endDate").val(),
+                "selection": $("#school-selector").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: search_url,
+                data: JSON.stringify(inputs),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    // window.location.replace(result);
+                    document.getElementById('results').innerHTML = result;
+                    $('#spinner').hide();
+                }
+            });
+        }
+        $(".search-events").click(function () {
+            search_events();
+        });
+        search_events();
+    </script>
+
+{% endblock %}
+
+

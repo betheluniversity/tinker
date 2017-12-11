@@ -5,7 +5,7 @@ import re
 import requests
 from BeautifulSoup import BeautifulSoup
 from bu_cascade.asset_tools import find
-from flask import Blueprint, render_template, request, session
+from flask import Blueprint, render_template, request, session, abort
 from flask_classy import FlaskView, route
 
 # Local
@@ -28,13 +28,13 @@ class PublishView(FlaskView):
     # Publish manager's homepage
     def index(self):
         username = session['username']
-        return render_template('publish-home.html', **locals())
+        return render_template('admin/publish/home.html', **locals())
 
-    @route("/program-feeds", methods=['get', 'post'])
+    @route("/program-feeds")
     def publish_program_feeds(self):
-        return render_template('publish-program-feeds.html', **locals())
+        return render_template('admin/publish/program-feeds.html', **locals())
 
-    @route("/program-feeds/<destination>", methods=['get', 'post'])
+    @route("/program-feeds/<destination>")
     def publish_program_feeds_return(self, destination=''):
         if destination != "production":
             destination = "staging"
@@ -70,19 +70,24 @@ class PublishView(FlaskView):
 
                 final_results.append({'id': result.id, 'path': result.path.path, 'pages': pages_added})
 
-        return render_template('publish-program-feeds-table.html', **locals())
+        return render_template('admin/publish/program-feeds-table.html', **locals())
 
     # Finds all pages, blocks, files, and folders dependent on the
     # name, content, or metadata entered by the user
-    @route('/search', methods=['get', 'post'])
+    @route('/search', methods=['post'])
     def search(self):
-        name = request.form['name']
-        content = request.form['content']
-        metadata = request.form['metadata']
-        pages = request.form['pages']
-        blocks = request.form['blocks']
-        files = request.form['files']
-        folders = request.form['folders']
+        rform = self.base.dictionary_encoder.encode(request.form)
+        name = rform['name']
+        content = rform['content']
+        metadata = rform['metadata']
+        pages = rform['pages']
+        blocks = rform['blocks']
+        files = rform['files']
+        folders = rform['folders']
+
+        if name is None or content is None or metadata is None or pages is None \
+                or blocks is None or files is None or folders is None:
+            abort(400)
 
         # test search info
         results = self.base.search(name, content, metadata, pages, blocks, files, folders)
@@ -97,7 +102,7 @@ class PublishView(FlaskView):
                 final_results.append(result)
 
         results = final_results
-        return render_template('publish-table.html', **locals())
+        return render_template('admin/publish/table.html', **locals())
 
     # Publishes the block or page that user
     @route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
@@ -125,10 +130,11 @@ class PublishView(FlaskView):
 
     # Displays info about the published block or page
     # Displays examples on web page
-    @route("/more_info", methods=['post'])
+    @route("/more-info", methods=['post'])
     def more_info(self):
-        info_type = request.form['type']
-        info_id = request.form['id']
+        rform = self.base.dictionary_encoder.encode(request.form)
+        info_type = rform['type']
+        info_id = rform['id']
 
         # page
         if info_type == 'page':
@@ -174,6 +180,6 @@ class PublishView(FlaskView):
                 www_publish_date = 'N/A'
                 staging_publish_date = 'N/A'
 
-        return render_template("publish-more-info.html", **locals())
+        return render_template("admin/publish/more-info.html", **locals())
 
 PublishView.register(PublishBlueprint)

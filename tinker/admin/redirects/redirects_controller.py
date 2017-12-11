@@ -1,10 +1,16 @@
-# Global
+
+# local
 from datetime import datetime
+import urllib
+import requests
 
 # Packages
 from flask_sqlalchemy import SQLAlchemy
+from flask import render_template
+from requests.exceptions import SSLError, ConnectionError
+from urllib3.exceptions import ProtocolError, MaxRetryError
 
-# Local
+# tinker
 from tinker import app
 from tinker.admin.redirects.models import BethelRedirect
 from tinker.tinker_controller import TinkerController
@@ -30,10 +36,6 @@ class RedirectsController(TinkerController):
             map_file_back.write("%s %s\n" % (item.from_path, item.to_url))
 
         return 'done'
-
-    # TODO: PG, 7/6/17: I can't find where this method is used
-    def get_model(self):
-        return self.db.Model
 
     def add_row_to_db(self, from_path, to_url, short_url, expiration_date):
         new_redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url,
@@ -74,3 +76,83 @@ class RedirectsController(TinkerController):
 
     def rollback(self):
         self.db.session.rollback()
+
+    def redirect_change(self):
+
+        # loop_counter = 0
+
+        redirects = BethelRedirect.query.all()
+
+        # today = datetime.now()
+        # today = today.strftime("%m/%d/%y %I:%M")
+
+        changed = []
+        deleted = []
+
+        for redirect in redirects:
+            try:
+                response = requests.get('https://www.bethel.edu' + redirect.from_path)
+                redirect.to_url.replace('\n', '')
+                redirect.to_url.replace(' ', '')
+
+            except SSLError as e:  # .SSLError and .CertificateError caught here
+                continue
+
+            except ConnectionError as e:  # MaxRetry and ProtocolError are being thrown here
+
+                if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
+
+                    deleted.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
+                    continue
+
+                else:  # If it passes the other logic, its a protocol error
+                    continue
+
+            except:  # Needs to be here to catch the rest of the hiccups in the redirects
+                continue
+
+            if response.url != redirect.to_url:
+
+                if 'auth' in response.url:  # if auth is in the response.url, its decoded
+                    response.url = urllib.unquote(urllib.unquote(response.url))
+                    # creates a new redirect to replace the old one after deleting
+                    new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
+                                                  short_url=redirect.short_url,
+                                                  expiration_date=redirect.expiration_date)
+                    self.db.session.delete(redirect)
+                    self.db.session.add(new_redirect)
+                    self.db.session.commit()
+                    continue
+
+                # checks if the changes are redundant (adding '/' or changing 'http' > 'https')
+                if 'https' not in redirect.to_url:
+                    https_test = redirect.to_url.replace('http', 'https')
+                    if response.url == https_test:
+                        # Creates a new redirect to replace the old one after deleting
+                        new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
+                                                      short_url=redirect.short_url,
+                                                      expiration_date=redirect.expiration_date)
+                        self.db.session.delete(redirect)
+                        self.db.session.add(new_redirect)
+                        self.db.session.commit()
+                        continue
+                elif response.url == redirect.to_url + '/':
+                    # creates a new redirect to replace the old one after deleting
+                    new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
+                                                  short_url=redirect.short_url,
+                                                  expiration_date=redirect.expiration_date)
+                    self.db.session.delete(redirect)
+                    self.db.session.delete(redirect)
+                    self.db.session.add(new_redirect)
+                    self.db.session.commit()
+                    continue
+
+                new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
+                                              short_url=redirect.short_url,
+                                              expiration_date=redirect.expiration_date)
+                self.db.session.delete(redirect)
+                self.db.session.add(new_redirect)
+                self.db.session.commit()
+                changed.append({'to_url': redirect.to_url, 'response': response.url})
+
+        return render_template('admin/redirects/clear-redirects.html', **locals())

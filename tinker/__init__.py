@@ -12,11 +12,12 @@ from raven.contrib.flask import Sentry
 
 app = Flask(__name__)
 
-if "testing" not in platform.node():
+if "travis" not in platform.node():
     TRAVIS_TESTING = False
     app.config.from_object('config.config')
 else:
-    import ast, glob
+    import ast
+    import glob
     TRAVIS_TESTING = True
     app.debug = True
     keywords = []
@@ -44,7 +45,7 @@ else:
     # These config vars require code operations, and aren't just values
     _basedir = os.path.abspath(os.path.dirname(__file__))
     app.config['_basedir'] = _basedir
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db.back')
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db')
     app.config['SQLALCHEMY_MIGRATE_REPO'] = os.path.join(_basedir, 'db_repository')
     app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../programs.csv')
     app.config['REDIRECTS_FILE_PATH'] = os.path.join(_basedir, '../redirects.txt')

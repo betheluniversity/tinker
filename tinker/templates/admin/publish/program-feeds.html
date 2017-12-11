@@ -1,0 +1,24 @@
+{% extends "tinker_base.html" %}
+
+{% set title='Publish Manager' %}
+
+{% block styles %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <h3 class="subtitle">Publish Program Feeds</h3>
+                <br/>
+                <a href='{{ url_for('publish.PublishView:publish_program_feeds_return', destination = "staging") }}' class="btn">Publish to Staging</a>
+                <a href='{{ url_for('publish.PublishView:publish_program_feeds_return', destination = "production") }}' class="btn">Publish to Production and Staging</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

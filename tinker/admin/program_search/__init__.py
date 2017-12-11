@@ -7,6 +7,7 @@ from flask import abort, Blueprint, render_template, request
 from flask_classy import FlaskView, route
 from sqlalchemy import or_, and_
 
+
 # Local
 from tinker import db
 from tinker.admin.program_search.models import ProgramTag
@@ -30,7 +31,7 @@ class ProgramSearchView(FlaskView):
         school_labels = self.base.get_school_labels()
         program_concentrations = self.base.get_programs_for_dropdown()
 
-        return render_template('program-search-home.html', **locals())
+        return render_template('admin/program-search/home.html', **locals())
 
     @route('/submit', methods=['post'])
     def submit(self):
@@ -38,12 +39,12 @@ class ProgramSearchView(FlaskView):
         program_concentrations = self.base.get_programs_for_dropdown()
 
         try:
-            rform = json.loads(request.data)
+            rform = self.base.dictionary_encoder.encode(json.loads(request.data))
             key = rform.get('key')
             tag = rform.get('tag')
 
             if key == 'Any' or tag == '' or tag is None:
-                return render_template('program-search-home.html', **locals())
+                return render_template('admin/program-search/home.html', **locals())
 
             outcome = ast.literal_eval(rform.get('outcome'))
             topic = ast.literal_eval(rform.get('topic'))
@@ -62,26 +63,32 @@ class ProgramSearchView(FlaskView):
         except:
             db.session.rollback()
 
-        return render_template('program-search-home.html', **locals())
+        return render_template('admin/program-search/home.html', **locals())
 
     @route('/multi-delete', methods=['POST'])
     def multi_delete(self):
-        ids_to_delete = json.loads(request.data)
-        for id in ids_to_delete:
-            if not (isinstance(id, str) or isinstance(id, unicode)):
+        list_of_ids_to_delete = json.loads(request.data)
+        for id_to_delete in list_of_ids_to_delete:
+            if isinstance(id_to_delete, unicode):
+                id_to_delete = id_to_delete.encode('utf-8').strip()
+
+            if isinstance(id_to_delete, str):
+                ProgramTag.query.filter_by(id=id_to_delete).delete()
+            else:
                 return "One of the ids given to this method was not a string"
-            ProgramTag.query.filter_by(id=id).delete()
         db.session.commit()
         self.base.create_new_csv_file()
-        return 'Deleted ids: ' + ', '.join(ids_to_delete)
+        return 'Deleted ids: ' + ', '.join(list_of_ids_to_delete)
 
     @route('/search', methods=['post'])
     def search(self):
         try:
-            data = json.loads(request.data)
+            data = self.base.dictionary_encoder.encode(json.loads(request.data))
+
             search_tag = data['search_tag']
             if search_tag is None:
                 return abort(500)
+
             search_key = data['search_key']
             if search_key is None:
                 return abort(500)
@@ -105,12 +112,12 @@ class ProgramSearchView(FlaskView):
         # builds a dict that is used to change concentration codes to program names
         program_concentrations = self.base.get_programs_for_dropdown(True)
 
-        return render_template('program-search-ajax.html', **locals())
+        return render_template('admin/program-search/ajax.html', **locals())
 
     @route('/audit', methods=['get'])
     @route('/database-audit', methods=['get'])
     def database_audit(self):
-        return render_template('database-audit.html', **locals())
+        return render_template('admin/program-search/database-audit.html', **locals())
 
     @route('/database-audit-table', methods=['post'])
     def database_audit_table(self):
@@ -133,11 +140,11 @@ class ProgramSearchView(FlaskView):
         unmatched_keys_in_tinker_db = list(set(list_of_issue_programs) & set(keys_in_tinker_db))
         unmatched_keys_in_cascade = list(set(list_of_issue_programs) & set(keys_in_cascade))
 
-        return render_template('database-audit-table.html', **locals())
+        return render_template('admin/program-search/database-audit-table.html', **locals())
 
     @route('/database-audit-update', methods=['post'])
     def database_audit_update(self):
-        data = json.loads(request.data)
+        data = self.base.dictionary_encoder.encode(json.loads(request.data))
         old_key = data['old_key']
         new_key = data['new_key']
 
@@ -149,7 +156,7 @@ class ProgramSearchView(FlaskView):
 
     @route('/database-audit-delete', methods=['post'])
     def database_audit_delete(self):
-        data = json.loads(request.data)
+        data = self.base.dictionary_encoder.encode(json.loads(request.data))
         old_key = data['old_key']
 
         search_results = ProgramTag.query.filter(ProgramTag.key == old_key).delete()

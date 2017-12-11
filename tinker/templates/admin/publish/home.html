@@ -1,0 +1,219 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'Publish Manager' %}
+
+{% block styles %}
+    <style type="text/css">
+    </style>
+{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <h3 class="subtitle">Automated publishers</h3>
+                <hr/>
+                <a href='{{ url_for('publish.PublishView:publish_program_feeds') }}' class="btn btn-primary">Program Feeds</a>
+                <br/>
+                <br/>
+                <div class="card">
+                    <div class="content">
+                        <p>Blocks that are published publish out each page in the relationships tab.</p>
+                        <form>
+                            <div class="zero-left-padding col-sm-4">
+                                <label for="publish-search-by-name">Search by Name:</label>
+                                <input type="text" id="publish-search-by-name" class="form-control publish-search"/>
+                            </div>
+                            <div class="zero-left-padding col-sm-4">
+                                <label for="publish-search-by-content">Search by Content:</label>
+                                <input type="text" id="publish-search-by-content"
+                                       class="form-control publish-search"/>
+                            </div>
+                            <div class="zero-left-padding col-sm-4">
+                                <label for="publish-search-by-metadata">Search by Metadata:</label>
+                                <input type="text" id="publish-search-by-metadata"
+                                       class="form-control publish-search"/>
+                            </div>
+
+                            <div class="large-6 columns">
+                                <div>
+                                    Publish to:
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="optionsRadios" value='staging' checked="checked">
+                                            Staging
+                                        </label>
+                                    </div>
+                                    <div class="radio">
+                                        <label>
+                                            <input type="radio" name="optionsRadios" value='production'>
+                                            Production and Staging
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="large-2 columns">
+                                <label>Asset Types: </label>
+                            </div>
+                            <label class="checkbox checked" for="publish-pages">
+                                <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span></span>
+                                <input type="checkbox" id="publish-pages" name="optionsCheckboxes" checked="">
+                                Pages
+                            </label>
+                            <label class="checkbox checked" for="publish-blocks">
+                                <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span></span>
+                                <input type="checkbox" id="publish-blocks" name="optionsCheckboxes" checked="">
+                                Blocks
+                            </label>
+                            <label class="checkbox checked" for="publish-files">
+                                <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span></span>
+                                <input type="checkbox" id="publish-files" name="optionsCheckboxes" checked="">
+                                Files
+                            </label>
+                            <label class="checkbox checked" for="publish-folders">
+                                <span class="icons"><span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span></span>
+                                <input type="checkbox" id="publish-folders" name="optionsCheckboxes" checked="">
+                                Folders
+                            </label>
+                            <div class="large-2 columns"></div>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="large-12 columns">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th width="200">Asset Type</th>
+                                <th width="700">Page URL</th>
+                                <th width="300">Publish</th>
+                                <th width="300">More info</th>
+                            </tr>
+                            </thead>
+                            <tbody id="publish-table">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <br/>
+            </div>
+            <div id="spinner" class="spinner" style="display:none;">
+                <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            var delay = (function () {
+                var timer = 0;
+                return function (callback, ms) {
+                    clearTimeout(timer);
+                    timer = setTimeout(callback, ms);
+                };
+            })();
+
+            function updateTable(data) {
+                // Todo if no data exists, display message
+                $("#publish-table").html(data);
+                $('.more-info').click(function () {
+                    $('#dialog-text').html(". . . Loading . . .");
+                    var type = $(this).data('publish-type');
+                    var id = $(this).data('publish-id');
+                    moreInfo(type, id)
+                });
+                $('.publishButton').click(function () {
+                    $('#dialog-text').html(". . . Loading . . .");
+                    var type = $(this).data('publish-type');
+                    var id = $(this).data('publish-id');
+                    var counter = $(this).data('counter');
+                    publishAsset(type, id, counter);
+                });
+            }
+
+            function loadTableForSearch(name_value, content_value, metadata_value, pages_value, blocks_value, files_value, folders_value) {
+                var search = {
+                    'name': name_value, 'content': content_value, 'metadata': metadata_value, 'pages': pages_value,
+                    'blocks': blocks_value, 'files': files_value, 'folders': folders_value
+                };
+                var url = "{{ url_for('publish.PublishView:search') }}";
+                $.post(url, search, function (data) {
+                    updateTable(data)
+                });
+            }
+
+            function search() {
+                var name = '*' + $('#publish-search-by-name').val() + '*';
+                var content = '*' + $('#publish-search-by-content').val() + '*';
+                var metadata = '*' + $('#publish-search-by-metadata').val() + '*';
+
+                if ($('#publish-pages').is(":checked"))
+                    var pages = true;
+                else
+                    pages = false;
+                if ($('#publish-blocks').is(":checked"))
+                    var blocks = true;
+                else
+                    blocks = false;
+                if ($('#publish-files').is(":checked"))
+                    var files = true;
+                else
+                    files = false;
+                if ($('#publish-folders').is(":checked"))
+                    var folders = true;
+                else
+                    folders = false;
+                delay(function () {
+                    loadTableForSearch(name, content, metadata, pages, blocks, files, folders);
+                    $('#spinner').hide();
+                }, 300);
+            }
+
+            $('.publish-search').keyup(function () {
+                $('#spinner').show();
+                search();
+            });
+
+            function publishAsset(type, id, counter) {
+                var destination = $(':radio:checked').radio('check').val();
+                var url = "/admin/publish-manager/publish/" + destination + "/" + type + "/" + id;
+                $.post(url, function (data) {
+                    $("#publish_button_" + counter).text(data);
+                });
+            }
+
+            function moreInfo(type, id) {
+                var input_data = {'type': type, 'id': id};
+                var url = "{{ url_for('publish.PublishView:more_info') }}";
+                $.post(url, input_data, function (data) {
+                    $('#dialog-text').html(data);
+                });
+            }
+        })
+        ;
+    </script>
+
+{% endblock %}
+
+{% block modalhtml %}
+    <div id="dialog" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true" data-reveal>
+        <div id="publish-modal" class="modal-dialog">
+            <div class="modal-content">
+                <div id="more-info-title" class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">More Info</h4>
+                </div>
+                <div id="dialog-text" class="modal-body">
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

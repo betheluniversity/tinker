@@ -19,12 +19,13 @@ class CacheView(FlaskView):
         admin_permissions(self)
 
     def index(self):
-        return render_template('cache-home.html')
+        return render_template('admin/cache/home.html')
 
     # Todo: update the return of this to be creative-tim's notifications
     @route("/submit", methods=['post'])
     def submit(self):
-        path = request.form['url']
+        rform = self.base.dictionary_encoder.encode(request.form)
+        path = rform['url']
         return self.base.cache_clear(path)
 
 CacheView.register(CacheBlueprint)

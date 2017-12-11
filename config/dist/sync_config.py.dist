@@ -9,3 +9,7 @@ DATA_DEF_PROGRAM_BLOCK_ID = ''
 DATA_DEF_PORTAL_CHANNEL_ID = ''
 DATA_DEF_PORTAL_TAB_ID = ''
 DATA_DEF_PROGRAM_SEARCH_ID = ''
+
+# sync for prayer requests and memorial notices
+PRAYER_AND_MEMORIAL_XML = ''
+PRAYER_AND_MEMORIAL_ID = ''

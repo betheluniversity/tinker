@@ -1,0 +1,21 @@
+{% extends "tinker_base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block main_content %}
+
+    <p>{{ message | safe}}</p>
+
+    <hr/>
+
+    <h5>First Date</h5>
+    <p>{{ first }}</p>
+    {% if second %}
+        <h5>Second Date</h5>
+        <p>{{ second }}</p>
+    {% endif %}
+    <small>{{ banner_roles }}</small>
+
+{% endblock %}
+

@@ -1,6 +1,0 @@
-<ol>
-    {%  for e_announcement_dict in ea_display %}
-        <li class="ea-title"><a href="https://cms.bethel.edu/entity/open.act?id={{ e_announcement_dict['id'] }}&type=block">{{ e_announcement_dict['title']|safe }}</a></li>
-        <p class="ea-message">{{ e_announcement_dict['message']|safe }}</p>
-    {% endfor %}
-</ol>

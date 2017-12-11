@@ -1,0 +1,26 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'Faculty Bios' %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+
+                <h3>
+                    Edits Pending Approval
+                </h3>
+
+                <p>You recently made edits to your bio and are currently pending approval. Please wait until the changes
+                    have been approved before you make additional edits. Go back to your <a
+                            href="{{ url_for('faculty_bios.FacultyBiosView:index') }}">faculty bios</a>.</p>
+
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

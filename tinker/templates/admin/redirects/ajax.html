@@ -1,0 +1,17 @@
+{% for redirect in redirects %}
+    <tr class="redirect-row table-hover" data-reveal-id="confirmModal" data-toggle="modal" data-target="#myModal"
+        data-from-path="{{ redirect.from_path }}">
+        <td>
+            <span class="from_path">{{ redirect.from_path }}</span>
+            {% if redirect.short_url %}
+                <span class="short_url label round">Short URL</span>
+            {% endif %}
+        </td>
+        <td class="to_url">{{ redirect.to_url }}</td>
+        {% if redirect.expiration_date %}
+            <td class="expiration_date">{{ redirect.expiration_date }}</td>
+        {% else %}
+            <td></td>
+        {% endif %}
+    </tr>
+{% endfor %}

@@ -1,0 +1,381 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'Office Hours' %}
+
+{% block styles %}
+    <style type="text/css">
+        .time {
+            width: 25% !important;
+            display: inline-block !important;
+        }
+    </style>
+{% endblock %}
+
+{% block page_title %}
+    Edit {{ mdata['title'] }}'s Office Hours
+{% endblock %}
+
+{% macro CheckFieldLabel(field) -%}
+    {% if 'close' in field.name and 'next_closed_for_chapel' not in field.name %}
+        {#    {% elif '_open' in field.name %}#}
+    {% elif field.label.text != '' and field.type not in ['FormField', 'CSRFTokenField', 'ExceptionsField'] and not field.hidden %}
+        <label for="{{ field.name }}">
+            {{ field.label.text }}{% if field.flags.required %} <small class="required">required</small>{% endif %}
+        </label>
+        {% if field.description != '' %}
+            <p>{{ field.description }}</p>
+        {% endif %}
+    {% endif %}
+
+{% endmacro %}
+
+{% macro ExceptionsFieldset() -%}
+    <div id="exceptions">
+        <fieldset class="exceptions-fieldset">
+            <div id="exception1" class="card">
+                <div class="content">
+                    <legend>Exception 1</legend>
+                    <label for="exception_date">
+                        Exception Date
+                    </label>
+                    <input class="datepicker office-hours-input" id="date1" name="date1" type="text" value=""/>
+
+                    <table><tr>
+                        <td class="div-to-hide">
+                            <div class="timeRange">
+                                <input class="time start ui-timepicker-input office-hours-input hide-when-none" id="open1" name="open1" type="text"
+                                   value=""
+                                   autocomplete="off">
+                                - <input class="time end ui-timepicker-input office-hours-input hide-when-none" id="close1" name="close1" type="text"
+                                     value=""
+                                     autocomplete="off">
+                            </div>
+                        </td>
+                        <td class="checkbox-div">
+                            <label class="checkbox hide-checkboxes">
+                              <span class="icons">
+                                    <span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span>
+                              </span>
+                              <input type="checkbox">
+                              Closed
+                            </label>
+                        </td>
+                    </tr></table>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <div id="exception-btn-group" class="col-md-12 less-left-margin">
+        <a href="javascript:void(0);" id="add_exception_button" class="btn btn-primary tiny">Add Another Exception</a>
+        <a href="javascript:void(0);" id="remove_exception_button" style="display:none"
+           class="btn btn-primary tiny btn-alert">Remove Exception</a>
+    </div>
+
+{% endmacro %}
+
+{% macro current_hours(title, current, show_chapel=True) -%}
+    {% set days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] %}
+    <div class="col-sm-6">
+        <h5>{{ title }}</h5>
+        <p>
+            {% for day in days %}
+                {% set open = day+ '_open' %}
+                {% set close = day + '_close' %}
+                {{ day.title() }}:
+                {% if current[open] != None and current[close] != None%}
+                    {{ current[open] }} - {{ current[close] }}
+                {% else %}
+                    Closed
+                {% endif %}
+                <br/>
+            {% endfor %}
+            {% if show_chapel %}
+                Office closed for Chapel: {{ current['closed_for_chapel'] }}
+            {% endif %}
+        </p>
+    </div>
+{% endmacro %}
+
+
+{% block main_content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <h3 class="subtitle">Edit {{ mdata['title'] }}'s Office Hours</h3>
+                <hr/>
+                <p>
+                    Below shows the hours that Bethel University's campus is open along with your office's hours.
+                    <br/>
+                    Please select your next office's hours and any exceptions that need to be applied. Note, Bethel's holidays will automatically be added as exceptions.
+                </p>
+                <div class="container-fluid">
+                    {{ current_hours('BU Standard Hours', standard_edit_data['current'], False) }}
+
+                    {{ current_hours('Current ' + mdata['title'], edit_data['current']) }}
+                </div>
+
+                <form id="officehoursform" action="/office-hours/submit" method="post" enctype="multipart/form-data">
+                    <input type="hidden" name="block_id" id="block_id" value="{{ block_id }}"/>
+
+                    {% if form.errors %}
+                        <div class="error-alert">
+                            <div data-alert class="red-alert">
+                                There were errors with your form.
+                                <a href="#" class="close">&times;</a>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    {{ form.hidden_tag() }}
+                    {% for field in form if field.widget.input_type != 'hidden' %}
+                        {{ CheckFieldLabel(field) }}
+
+                        {% for error in form.errors[field.name] %}
+                            <div class="error-alert">
+                                <div data-alert class="red-alert">
+                                    {{ error }}
+                                    <a href="#" class="close">&times;</a>
+                                </div>
+                            </div>
+                        {% endfor %}
+
+                        {% if field.type == 'FormField' %}
+                            <div class="large-6 columns">
+                                {{ ExceptionForm(field) }}
+                            </div>
+
+                        {% elif field.type == 'TimeField' %}
+                            {% if 'open' in field.name %}
+                                <table><tr>
+                                    <td class="div-to-hide">
+                                        <div class="timeRange">
+                                            {{ field(class='time start office-hours-input hide-when-none') }}
+                            {% elif 'close' in field.name %}
+                                            - {{ field(class='time end office-hours-input hide-when-none') }}
+                                        </div>
+                                    </td>
+                                    <td class="checkbox-div">
+                                        <label class="checkbox hide-checkboxes">
+                                          <span class="icons">
+                                                <span class="first-icon fa fa-square-o"></span>
+                                                <span class="second-icon fa fa-check-square-o"></span>
+                                          </span>
+                                          <input type="checkbox">
+                                          Closed
+                                        </label>
+                                    </td>
+                                </tr></table>
+                            {% endif %}
+
+                        {% elif field.type == 'DatePickerField' %}
+                            {{ field(class='datepicker office-hours-input') }}
+
+                        {% elif field.type == 'NextOpenField' %}
+                            <hr/>
+                            <fieldset>
+                                <div class="card">
+                                    <div class="content">
+                                        <legend>Next Hours</legend>
+
+                                        {% elif field.type == 'NextCloseField' %}
+
+                                    </div>
+                                </div>
+                            </fieldset>
+
+                        {% elif field.type == 'ExceptionsField' %}
+                            {{ ExceptionsFieldset() }}
+
+                        {% elif field.type == 'RadioField' %}
+                            {% for subfield in field %}
+                                <label>
+                                    <div class="radio">{{ subfield() }}{{ subfield.label }}</div>
+                                </label>
+                            {% endfor %}
+                            <hr class="hr-margin">
+                        {% else %}
+                            {{ field() }}
+                        {% endif %}
+                    {% endfor %}
+                    <br/>
+                    <br/>
+                    <button type="submit" id="office-hours-submit-btn" class="btn btn-primary postfix">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datepair.js/0.4.14/jquery.datepair.min.js"></script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css">
+    {#        <link rel="stylesheet"#}
+    {#              href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.1/css/bootstrap-datepicker.standalone.css">#}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            // A subpar way to hide/show all of the elements.
+            // However, this does it all in few lines, so it should be easy to redo later.
+            $(document).on('click', '.hide-checkboxes', function() {
+                var input_element = $(this).closest('tr').children('.div-to-hide');
+                if( $(this).attr('class').indexOf('checked') != -1 ) {
+                    input_element.hide();
+                    input_element.find('input').val('')
+                }
+                else {
+                    input_element.show();
+                    {# set default hours values #}
+                    input_element.find('div').find('.start').val('8:00 AM');
+                    input_element.find('div').find('.end').val('4:30 PM');
+                }
+            });
+
+            function init_closed_checkboxes(){
+                $('.hide-when-none').each(function() {
+                    if( $(this).val() == ''){
+                        $(this).closest('tr').children('.div-to-hide').hide();
+                        $(this).closest('tr').children('.checkbox-div').children('label').addClass('checked');
+                        $(this).closest('tr').children('.checkbox-div').children('label').children('input').attr('checked', 'checked');
+                    }
+                });
+            }
+
+            function dateTimePickers(selection_string) {
+                $(selection_string + '.time').timepicker({
+                    'minTime': '6:00am',
+                    'maxTime': '8:00pm',
+                    'timeFormat': 'g:i A'
+                });
+                $(selection_string + '.timeRange').datepair({
+                    'defaultTimeDelta': 32400000
+                });
+                $(selection_string + '.datepicker').each(function (index) {
+                    var picker = new Pikaday({
+                        field: this,
+                        format: 'MM/DD/YYYY'
+                    });
+                });
+            }
+
+            $(document).on('click', '#add_exception_button', function() {
+                var new_num = $("#exceptions").children().length + 1;
+                var new_exception = newExceptionFieldset(new_num);
+                $("#exceptions").append(new_exception);
+                $("#remove_exception_button").show();
+                dateTimePickers('#exception' + new_num + ' ');
+            });
+
+            $(document).on('click', '#remove_exception_button', function() {
+                $(".exceptions-fieldset").last().remove();
+                if ($(".exceptions-fieldset").length == 0) {
+                    $("#remove_exception_button").hide();
+                }
+            });
+
+            function populateFieldset(id, exception) {
+                var dateid = '#date' + id;
+                var openid = '#open' + id;
+                var closeid = '#close' + id;
+                $(dateid).val(exception['date']);
+                $(dateid).val(exception['date']);
+                $(openid).val(exception['open']);
+                $(closeid).val(exception['close']);
+            }
+
+            function newExceptionFieldset(id) {
+                var date = 'date' + id;
+                var open = 'open' + id;
+                var close = 'close' + id;
+                var exception_id = 'exception' + id;
+                var fieldset_node = $('<fieldset>').addClass('exceptions-fieldset');
+                var inner_node = $("<div>").addClass('content');
+                inner_node.append($("<legend>").html("Exception " + id));
+
+                inner_node.append($("<label>").attr('date', date).html("Exception Date "));
+                inner_node.append($("<input type='text'>").attr('name', date).attr('id', date).addClass("datepicker office-hours-input"));
+
+                var table = $("<table>").html(`
+                    <tr>
+                        <td class="div-to-hide">
+                           <div class="timeRange">
+                                <input class="time start ui-timepicker-input office-hours-input hide-when-none" id="open` + id + `" name="open` + id + `" type="text" value="" autocomplete="off">
+                                - <input class="time end ui-timepicker-input office-hours-input hide-when-none" id="close` + id + `" name="close` + id + `" type="text" value="" autocomplete="off">
+                        </div>
+                        </td>
+                        <td class="checkbox-div">
+                            <label class="checkbox hide-checkboxes">
+                              <span class="icons">
+                                    <span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span>
+                              </span>
+                              <input type="checkbox">
+                              Closed
+                            </label>
+                        </td>
+                    </tr>
+                `);
+
+                inner_node.append(table);
+                fieldset_node.append($("<div>").addClass('card').attr('id', exception_id).append(inner_node));
+
+                return fieldset_node;
+            }
+
+            $(document).on('click', '.hide-timerange', function() {
+                var timerange_element = $(this).parent().parent().children('.timeRange');
+                alert($(this).is(':checked'));
+                if ( $(this).is(':checked') ) {
+                    timerange_element.show();
+                } else {
+                    timerange_element.hide();
+                    timerange_element.children().children('input').val('');
+                }
+            });
+
+
+            {% if edit_data['exceptions'] %}
+                var exceptions = {{ edit_data['exceptions'] | replace(" None,", " '',") | safe }};
+                var i = 0;
+                while (i < 200) {
+                    exception = exceptions[i];
+                    if (!exception) {
+                        break;
+                    }
+                    //Convert to correct value
+                    id = i + 1;
+
+                    //If this is not the first node, create it before we can populate it and insert after the last one.
+                    //show the remove buton
+                    if (i != 0) {
+                        var last = $(".exceptions-fieldset").last();
+                        var new_exception = newExceptionFieldset(id);
+                        new_exception.insertAfter(last);
+                        $("#remove_exception_button").show();
+                    }
+
+                    populateFieldset(id, exception);
+                    i++;
+                }
+                init_closed_checkboxes();
+
+            {% endif %}
+
+            dateTimePickers("");
+            init_closed_checkboxes();
+        });
+    </script>
+
+{% endblock %}

@@ -66,7 +66,7 @@ class NewsController(TinkerController):
             image_path = find(article_asset, 'image', False)['filePath']
         except:
             return ''
-        return render_template('news-article.html', **locals())
+        return render_template('news/article.html', **locals())
 
     def get_first_paragraph(self, tree_content):
         return_content = ''
