@@ -13,14 +13,18 @@
             <div class="col-md-12">
                 <p>Below is the list of Office Hours you have access to edit.</p>
                 <hr/>
+                {% if standard_hours or office_hours|length > 0 %}
+                    {% if standard_hours %}
+                        {{ render_office_hours(standard_hours) }}
+                    {% endif %}
 
-                {% if standard_hours %}
-                    {{ render_office_hours(standard_hours) }}
+                    {% for form in office_hours %}
+                        {{ render_office_hours(form) }}
+                    {% endfor %}
+                {% else %}
+                    {# this should never happen, as they shouldn't see the page if they can't edit any. #}
+                    <p>There are no Office Hour Blocks you can edit.</p>
                 {% endif %}
-
-                {% for form in office_hours %}
-                    {{ render_office_hours(form) }}
-                {% endfor %}
             </div>
         </div>
     </div>

@@ -1,7 +1,6 @@
 # Global
 import datetime
 import re
-import ldap
 
 # Packages
 from bu_cascade.asset_tools import find, update
@@ -21,13 +20,7 @@ class OfficeHoursController(TinkerController):
     def inspect_child(self, child, find_all=False):
         username = session['username']
         try:
-            hours = self.search_for_key_in_dynamic_md(child, 'offices')
-            if hasattr(hours, 'text'):
-                hours = hours.text
-            else:
-                hours = None
-
-            if (hours and hours in session['depts']) or 'Administrators' in session['groups'] or username in app.config['OFFICE_HOURS_EXTRA_ADMINS']:
+            if 'Administrators' in session['groups'] or self.can_user_access_block(child.attrib['id']):
                 return self._iterate_child_xml(child, username)
             else:
                 return None
@@ -151,7 +144,7 @@ class OfficeHoursController(TinkerController):
                 return 'noon'
         return datestring
 
-    def convert_timestamps_to_bethel_string(self, open, close):
+    def convert_timestamps_to_bethel_string_hours_only(self, open, close):
         try:
             open = datetime.datetime.fromtimestamp(int(open) / 1000).strftime('%-I:%M%p')
             close = datetime.datetime.fromtimestamp(int(close) / 1000).strftime('%-I:%M%p')
@@ -213,7 +206,7 @@ class OfficeHoursController(TinkerController):
         # build summary for next (if it applies)
         if self.is_date_within_two_weeks(next_start_date):
             next_summary = self.create_summary(sdata, 'next_')
-            next_title = '<h3>New hours starting %s </h3>' % (datetime.datetime.strptime(next_start_date, '%m-%d-%Y').strftime('%A, %B %d, %Y'))
+            next_title = '<h4>New hours starting %s </h4>' % (datetime.datetime.strptime(next_start_date, '%m-%d-%Y').strftime('%A, %B %d, %Y'))
 
             new_summary = initial_summary + next_title + next_summary
 
@@ -244,7 +237,7 @@ class OfficeHoursController(TinkerController):
 
                 week_dict.append({
                     'day': week_day,
-                    'time': self.convert_timestamps_to_bethel_string(open, close),
+                    'time': self.convert_timestamps_to_bethel_string_hours_only(open, close),
                     'chapel': chapel,
                 })
             except:  # if a open/close key doesn't exist, set 'Closed'
@@ -284,7 +277,7 @@ class OfficeHoursController(TinkerController):
                         date_timestamp = datetime.datetime.strptime(date, '%m-%d-%Y')
 
                         exceptions_text.append({
-                            'html': '<p>%s: %s</p>' % (date_timestamp.strftime('%A, %B %d, %Y'), self.convert_timestamps_to_bethel_string(open, close)),
+                            'html': '<p>%s: %s</p>' % (date_timestamp.strftime('%A, %B %d, %Y'), self.convert_timestamps_to_bethel_string_hours_only(open, close)),
                             'sort-date': date_timestamp
                         })
                 if self.is_date_after_today(date):
@@ -307,6 +300,7 @@ class OfficeHoursController(TinkerController):
         # merge and sort the vacation hours
         all_exceptions = sorted(vacation_exception_array + office_exception_array, key=lambda x: x['sort-date'])
 
+        # todo: add in exceptions header
         return ''.join(exception['html'] for exception in all_exceptions)
 
     def is_date_within_two_weeks(self, date):
@@ -323,20 +317,35 @@ class OfficeHoursController(TinkerController):
                 return True
         return False
 
-    def is_current_user_in_iam_group(self, group):
-        user_in_group = False
-        try:
-            con = ldap.initialize('ldap://bsp-ldap.bu.ac.bethel.edu:389')
-            con.simple_bind_s('BU\svc-tinker', app.config['LDAP_SVC_TINKER_PASSWORD'])
-            results = con.search_s('ou=Bethel Users,dc=bu,dc=ac,dc=bethel,dc=edu', ldap.SCOPE_SUBTREE,
-                                   "(cn=" + session['username'] + ")")
-            # code to get all users in a group
-            # con.search_s('ou=Bethel Users,dc=bu,dc=ac,dc=bethel,dc=edu', ldap.SCOPE_SUBTREE, "(|(&(objectClass=Person)(memberof=cn=webadmin,OU=Groups,DC=bu,DC=ac,DC=bethel,DC=edu)))")
+    def can_user_access_block(self, block_id):
+        identifier = {
+            'id': block_id,
+            'type': 'block',
+        }
 
-            for result in results[0][1].get('memberOf'):
-                if group in result:
-                    user_in_group = True
-        except:
-            pass
+        # todo: maybe move this to bu_cascade
+        my_array = self.cascade_connector.client.service.readAccessRights(self.cascade_connector.login,identifier).accessRightsInformation.aclEntries.aclEntry
 
-        return user_in_group
+        for item in my_array:
+            if item.type == 'group' and item.name in session['groups']:
+                return True
+        return False
+
+    # todo: leave this code please, I want this test in version control for the time being.
+    # def is_current_user_in_iam_group(self, group):
+    #     user_in_group = False
+    #     try:
+    #         con = ldap.initialize('ldap://bsp-ldap.bu.ac.bethel.edu:389')
+    #         con.simple_bind_s('BU\svc-tinker', app.config['LDAP_SVC_TINKER_PASSWORD'])
+    #         results = con.search_s('ou=Bethel Users,dc=bu,dc=ac,dc=bethel,dc=edu', ldap.SCOPE_SUBTREE,
+    #                                "(cn=" + session['username'] + ")")
+    #         # code to get all users in a group
+    #         # con.search_s('ou=Bethel Users,dc=bu,dc=ac,dc=bethel,dc=edu', ldap.SCOPE_SUBTREE, "(|(&(objectClass=Person)(memberof=cn=webadmin,OU=Groups,DC=bu,DC=ac,DC=bethel,DC=edu)))")
+    #
+    #         for result in results[0][1].get('memberOf'):
+    #             if group in result:
+    #                 user_in_group = True
+    #     except:
+    #         pass
+    #
+    #     return user_in_group

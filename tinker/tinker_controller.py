@@ -789,9 +789,8 @@ class TinkerController(object):
         for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
             print segment.SegmentID
 
-    def convert_timestamps_to_bethel_string(self, open, close, all_day):
+    def convert_timestamps_to_bethel_string(self, open, close, all_day=False):
         try:
-            is_all_day = False
             # If the event is all_day set it to true
             if all_day and all_day == 'Yes':
                 is_all_day = True

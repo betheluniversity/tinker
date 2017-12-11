@@ -1,5 +1,4 @@
 import re
-import ldap
 
 from bu_cascade.asset_tools import find
 from flask import Blueprint, render_template, session, url_for, redirect, request
@@ -26,28 +25,25 @@ class OfficeHoursView(FlaskView):
         # todo: if admin, pass
         if "Administrators" in session['groups']:
             pass
-        # todo: if route is /, then see if they are in at least 1 of the groups
-        elif True:
-            identifier = {
-                'id': '25c877428c5865133e9151d30fd984e0',
-                'type': 'block',
-            }
-
-            my_array = self.base.cascade_connector.client.service.readAccessRights(self.base.cascade_connector.login,
-                                                                                   identifier).accessRightsInformation.aclEntries.aclEntry
-
-            for item in my_array:
-                if item.type == 'group' and item.name in session['groups']:
-                    print item.name
-
-            self.base.cascade_connector.client.service.readAccessRights(self.base.cascade_connector.login, identifier)
-            pass
-        # todo: if route is specific, make sure they are in the block route (which is convenientely in the request.path!
-        elif True:
-            pass
+        # homepage check
+        elif request.path == '/office-hours/':
+            try:
+                # loop over all.
+                office_blocks_can_access = self.base.traverse_xml('https://staging.bethel.edu/_shared-content/xml/office-hours.xml', 'system-block')
+                if len(office_blocks_can_access) == 0:
+                    abort(403)
+            except:
+                abort(403)
+        # submit/edit check
+        elif '/edit/' in request.path or '/submit/' in request.path:
+            try:
+                block_id = request.path.split('/')[-1]
+                if not self.base.can_user_access_block(block_id):
+                    abort(403)
+            except:
+                abort(403)
         else:
             abort(403)
-
 
     def index(self):
         username = session['username']
@@ -106,21 +102,22 @@ class OfficeHoursView(FlaskView):
         block.edit_asset(data)
         return 'success'
 
-    # todo: will need to be removed at some point, but I want this test in version control for the time being.
-    def test(self):
-        con = ldap.initialize('ldap://bsp-ldap.bu.ac.bethel.edu:389')
-        con.simple_bind_s('BU\svc-tinker', app.config['LDAP_SVC_TINKER_PASSWORD'])
-
-        results = con.search_s('ou=Groups,dc=bu,dc=ac,dc=bethel,dc=edu', ldap.SCOPE_SUBTREE, 'cn=*- Employee*')
-        list = []
-        for result in results:
-            list.append(result[0].split(',OU')[0].split('CN=')[1])
-
-        sorted(list)
-
-        for item in list:
-            print item
-
-        return 'test'
+    # todo: leave this code please, I want this test in version control for the time being.
+    # this method tests using ldap
+    # def test(self):
+    #     con = ldap.initialize('ldap://bsp-ldap.bu.ac.bethel.edu:389')
+    #     con.simple_bind_s('BU\svc-tinker', app.config['LDAP_SVC_TINKER_PASSWORD'])
+    #
+    #     results = con.search_s('ou=Groups,dc=bu,dc=ac,dc=bethel,dc=edu', ldap.SCOPE_SUBTREE, 'cn=*- Employee*')
+    #     list = []
+    #     for result in results:
+    #         list.append(result[0].split(',OU')[0].split('CN=')[1])
+    #
+    #     sorted(list)
+    #
+    #     for item in list:
+    #         print item
+    #
+    #     return 'test'
 
 OfficeHoursView.register(OfficeHoursBlueprint)
