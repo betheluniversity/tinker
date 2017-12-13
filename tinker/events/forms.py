@@ -72,9 +72,9 @@ def get_event_choices():
 
 
 def get_buildings():
-    page = tinker.read('ba1355ea8c586513100ee2a725b9ebea', type="block")
-    buildings = find(page, 'main-campus')['structuredDataNodes']['structuredDataNode']
     labels = [("none", '-select-')]
+    block = tinker.read('04d538728c5865132abe9a84a6e0838d', type="block")
+    buildings = find(block, 'buildings')
     for building in buildings:
         label = building['structuredDataNodes']['structuredDataNode'][0]['text']
         labels.append((label, label))

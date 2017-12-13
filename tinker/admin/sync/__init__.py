@@ -93,8 +93,6 @@ class SyncView(FlaskView):
 
         return render_template('admin/sync/data.html', **locals())
 
-    # todo: create crontab using wget
-    # todo: update apache to allow /public routes
     @requires_auth
     @route("/public/sync-prayer-and-memorial", methods=['get'])
     def sync_prayer_and_memorial(self):

@@ -258,6 +258,9 @@ class FacultyBioController(TinkerController):
         wysiwyg_keys = ['biography', 'courses', 'awards', 'publications', 'presentations', 'certificates', 'organizations', 'hobbies']
         add_data = self.get_add_data(['faculty_location'], rform, wysiwyg_keys)
 
+        add_data['last'] = add_data['last'].strip()
+        add_data['first'] = add_data['first'].strip()
+
         add_data['education'] = self.get_degrees(add_data)
         # todo: these wysiwyg checkboxes aren't returning correctly for the wysiwygs
         add_data['options'] = self.get_wysiwyg_checkboxes(add_data)
