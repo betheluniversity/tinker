@@ -395,9 +395,7 @@ class TinkerController(object):
             if match:
                 matches.append(match)
 
-        # Todo: maybe add some parameter as a search?
-        # sort by created-on date.
-        matches = sorted(matches, key=lambda k: k['created-on'])
+        matches = sorted(matches, key=lambda k: k['title'])
 
         return matches
 
@@ -429,11 +427,12 @@ class TinkerController(object):
 
         dynamic_fields = find(mdata, 'dynamicField', False)
         # now metadata dynamic fields
-        for field in dynamic_fields:
-            if find(field, 'fieldValue', False):
-                # find(item, 'value', False) was set in order for events md select fields to work
-                items = [find(item, 'value', False) for item in find(field, 'fieldValue', False)]
-                edit_data[field['name'].replace('-', '_')] = items
+        if dynamic_fields:
+            for field in dynamic_fields:
+                if find(field, 'fieldValue', False):
+                    # find(item, 'value', False) was set in order for events md select fields to work
+                    items = [find(item, 'value', False) for item in find(field, 'fieldValue', False)]
+                    edit_data[field['name'].replace('-', '_')] = items
 
         # Add the rest of the fields. Can't loop over these kinds of metadata
         if 'title' in mdata:

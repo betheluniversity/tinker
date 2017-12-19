@@ -22,7 +22,6 @@ class OfficeHoursView(FlaskView):
         self.base = OfficeHoursController()
 
     def before_request(self, name, **kwargs):
-        # todo: if admin, pass
         if "Administrators" in session['groups']:
             pass
         # homepage check

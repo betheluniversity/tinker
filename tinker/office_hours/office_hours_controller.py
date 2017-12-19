@@ -18,22 +18,19 @@ class OfficeHoursController(TinkerController):
         self.datetime_format = "%I:%M %p"
 
     def inspect_child(self, child, find_all=False):
-        username = session['username']
         try:
             if 'Administrators' in session['groups'] or self.can_user_access_block(child.attrib['id']):
-                return self._iterate_child_xml(child, username)
+                return self._iterate_child_xml(child)
             else:
                 return None
         except:
             return None
 
-    def _iterate_child_xml(self, child, author):
+    def _iterate_child_xml(self, child):
 
         page_values = {
-            'author': author,
             'id': child.attrib['id'] or "",
-            'title': child.find('title').text or None,
-            'created-on': child.find('created-on').text or None,
+            'title': child.find('title').text or None
         }
 
         return page_values
@@ -300,8 +297,10 @@ class OfficeHoursController(TinkerController):
         # merge and sort the vacation hours
         all_exceptions = sorted(vacation_exception_array + office_exception_array, key=lambda x: x['sort-date'])
 
-        # todo: add in exceptions header
-        return ''.join(exception['html'] for exception in all_exceptions)
+        if len(all_exceptions) < 0:
+            return ''
+        else:
+            return '<h4>Exceptions</h4>' + ''.join(exception['html'] for exception in all_exceptions)
 
     def is_date_within_two_weeks(self, date):
         if date:
