@@ -235,13 +235,13 @@ class FacultyBioController(TinkerController):
 
             staff_check = (school == 'Bethel University' and job_title)
             cas_check = (school == 'College of Arts and Sciences' and undergrad and dept_chair and
-                         ((d_c_value == 'Yes' and not job_title) or (d_c_value == 'No' and job_title)))
+                         ((d_c_value == 'Yes') or (d_c_value == 'No' and job_title)))
             caps_check = (school == 'College of Adult and Professional Studies' and caps and program_director and
-                          ((p_d_value == 'Yes' and not job_title) or (p_d_value == 'No' and job_title)))
+                          ((p_d_value == 'Yes') or (p_d_value == 'No' and job_title)))
             gs_check = (school == 'Graduate School' and gs and program_director and
-                        ((p_d_value == 'Yes' and not job_title) or (p_d_value == 'No' and job_title)))
+                        ((p_d_value == 'Yes') or (p_d_value == 'No' and job_title)))
             sem_check = (school == 'Bethel Seminary' and seminary and lead_faculty and
-                         (((l_f_value == 'Lead Faculty' or l_f_value == 'Program Director') and not job_title) or
+                         (((l_f_value == 'Lead Faculty' or l_f_value == 'Program Director')) or
                           (l_f_value == 'Other' and job_title)))
 
             check = staff_check or cas_check or caps_check or gs_check or sem_check
