@@ -91,7 +91,6 @@ graduate_programs = [
     "Developmental Disabilities License",
     "Director of Special Education License",
     "Doctor of Nursing Practice",
-    "Ed.D.",
     "Ed.D. in Higher Education Leadership",
     "Ed.D. in K-12 Administration",
     "Education K-12 (M.A.)",
