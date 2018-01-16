@@ -18,7 +18,7 @@ undergrad_programs = [
     "Chemistry",
     "Communication Studies",
     "Education",
-    "English",
+    "English and Journalism",
     "Environmental Studies",
     "General Education",
     "Health and Physical Education",
