@@ -18,11 +18,7 @@ class GetDataDefinitionsMappingTestCase(SyncControllerBaseTestCase):
         self.assertTrue(isinstance(response, dict))
         expected_values = [
             'Program',
-<<<<<<< HEAD
-            'Tab',
-=======
             'Page',
->>>>>>> master
             'Channel Block',
             'Program Feed',
             'Faculty Bio'

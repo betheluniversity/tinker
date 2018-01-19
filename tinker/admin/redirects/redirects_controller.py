@@ -1,20 +1,16 @@
 
-# tinker
-import urllib
-
-import requests
-from flask import render_template
-from requests.exceptions import SSLError, ConnectionError
-
-# Global
+# local
 from datetime import datetime
+import urllib
+import requests
 
 # Packages
 from flask_sqlalchemy import SQLAlchemy
-
-# Local
+from flask import render_template
+from requests.exceptions import SSLError, ConnectionError
 from urllib3.exceptions import ProtocolError, MaxRetryError
 
+# tinker
 from tinker import app
 from tinker.admin.redirects.models import BethelRedirect
 from tinker.tinker_controller import TinkerController
@@ -91,7 +87,7 @@ class RedirectsController(TinkerController):
         # today = today.strftime("%m/%d/%y %I:%M")
 
         changed = []
-        check_delete = []
+        deleted = []
 
         for redirect in redirects:
             try:
@@ -106,7 +102,7 @@ class RedirectsController(TinkerController):
 
                 if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
 
-                    check_delete.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
+                    deleted.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
                     continue
 
                 else:  # If it passes the other logic, its a protocol error

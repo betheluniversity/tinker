@@ -17,10 +17,11 @@ class ValidateFormTestCase(EventsControllerBaseTestCase):
     ### Testing methods ###
     #######################
 
+    # todo: change the on_campus_location to pull a value from the current possible locations
     def test_validate_form_valid(self):
         test_form = {
             'end1': u'August 5th 2018, 12:00 am',
-            'on_campus_location': u'Clauson Center (CC)',
+            'on_campus_location': u'Benson Great Hall',
             'wufoo_code': u'',
             'main_content': u"This is an event created to make sure that Tinker's connection with Cascade via "
                             u"events continues working as we make changes",

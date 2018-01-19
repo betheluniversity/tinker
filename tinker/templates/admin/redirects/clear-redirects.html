@@ -1,31 +1,40 @@
-<table>
-    <caption>{{ 'These are the redirects being changed' }}</caption>
-    <thead>
-        <tr>
-            <th>{{ 'To Url' }}</th>
-            <th>{{ 'Response' }}</th>
-        </tr>
-    </thead>
-    {% for changed_dict in redirect_changes %}
-        <tr>
-            <td>{{ changed_dict['to_url'] }}</td>
-            <td>{{ changed_dict['response'] }}</td>
-        </tr>
-    {% endfor %}
-</table>
+{% if changed|length == 0 and deleted|length == 0 %}
+    <p>There are no changes or deletions to worry about. Good work!</p>
+{% else %}
+    {% if changed|length > 0 %}
+        <table>
+            <caption>These are the redirects being changed</caption>
+            <thead>
+                <tr>
+                    <th>To Url</th>
+                    <th>Response</th>
+                </tr>
+            </thead>
+            {% for changed_dict in changed %}
+                <tr>
+                    <td>{{ changed_dict['to_url'] }}</td>
+                    <td>{{ changed_dict['response'] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
 
-<table>
-    <caption>{{ 'These are the redirects that can be deleted' }}</caption>
-    <thead>
-        <tr>
-            <th>{{ 'From Path' }}</th>
-            <th>{{ 'To Url' }}</th>
-        </tr>
-    </thead>
-    {% for deleted_dict in redirect_changes %}
-        <tr>
-            <td>{{ deleted_dict['from_path'] }}</td>
-            <td>{{ deleted_dict['to_url'] }}</td>
-        </tr>
-    {% endfor %}
-</table>
+    {% if deleted|length > 0 %}
+        <table>
+            <caption>These are the redirects that can be deleted</caption>
+            <thead>
+                <tr>
+                    <th>From Path</th>
+                    <th>To Url</th>
+                </tr>
+            </thead>
+            {% for deleted_dict in deleted %}
+                <tr>
+                    <td>{{ deleted_dict['from_path'] }}</td>
+                    <td>{{ deleted_dict['to_url'] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+
+    {% endif %}
+{% endif %}
