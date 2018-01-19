@@ -16,7 +16,7 @@ from xml.etree import ElementTree as ET
 
 # Packages
 import requests
-# from __future__ import print_function # Python 2/3 compatibiltiy (namedentities)
+# from __future__ import print_function # Python 2/3 compatibiltiy (namedentities) - this might not be needed anymore
 from createsend import Client
 from jinja2 import Environment, FileSystemLoader, meta
 from bu_cascade.assets.block import Block
