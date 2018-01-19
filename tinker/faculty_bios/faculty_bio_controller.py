@@ -254,9 +254,7 @@ class FacultyBioController(TinkerController):
         return not failed_check, error_list, num_new_jobs
 
     def update_structure(self, faculty_bio_data, sdata, rform, faculty_bio_id=None):
-
-        wysiwyg_keys = ['biography', 'courses', 'awards', 'publications', 'presentations', 'certificates', 'organizations', 'hobbies']
-        add_data = self.get_add_data(['faculty_location'], rform, wysiwyg_keys)
+        add_data = self.get_add_data(['faculty_location'], rform)
 
         add_data['last'] = add_data['last'].strip()
         add_data['first'] = add_data['first'].strip()
