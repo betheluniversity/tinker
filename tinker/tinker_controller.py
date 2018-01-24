@@ -16,6 +16,7 @@ from xml.etree import ElementTree as ET
 
 # Packages
 import requests
+# from __future__ import print_function # Python 2/3 compatibiltiy (namedentities) - this might not be needed anymore
 from createsend import Client
 from jinja2 import Environment, FileSystemLoader, meta
 from bu_cascade.assets.block import Block
@@ -25,6 +26,7 @@ from bu_cascade.assets.page import Page
 from bu_cascade.asset_tools import find, update
 from flask import abort, current_app, render_template, request, Response, session
 from flask import json as fjson
+from namedentities import numeric_entities  # (namedentities)
 from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlatformWarning
 from unidecode import unidecode
 from werkzeug.datastructures import ImmutableMultiDict
@@ -77,7 +79,10 @@ class EncodingDict(object):
     # This method is what actually does the conversion from unicode to String
     def _safely_encode_unicode_to_str(self, unsafe_unicode):
         encoded_str = unidecode(unsafe_unicode)
-        return encoded_str
+        # numeric_entities | https://pypi.python.org/pypi/namedentities/1.9.4
+        str_numeric_entities = numeric_entities(encoded_str)
+        ampersand_hotfix = str_numeric_entities.replace('&', '&amp;')
+        return ampersand_hotfix
 
     # This method returns the dictionary being wrapped by this object (used in WTForm Validation; they seem to need an
     # ImmutableMultiDict)
@@ -496,7 +501,7 @@ class TinkerController(object):
                 else:
                     return ''
 
-    def get_add_data(self, lists, form, wysiwyg_keys):
+    def get_add_data(self, lists, form):
         # A dict to populate with all the interesting data.
         add_data = {}
 
@@ -504,10 +509,7 @@ class TinkerController(object):
             if key in lists:
                 add_data[key] = form.getlist(key)
             else:
-                if key in wysiwyg_keys:
-                    add_data[key] = self.escape_wysiwyg_content(form[key])
-                else:
-                    add_data[key] = form[key]
+                add_data[key] = form[key]
 
         if 'title' in add_data:
             # strip() is called on the title to eliminate whitespace before and after the title
@@ -663,30 +665,6 @@ class TinkerController(object):
         }
         return workflow
 
-    # Escape content so its Cascade WYSIWYG friendly
-    def escape_wysiwyg_content(self, content):
-        if content:
-            htmlent = self.__unicode_to_html_entities__(content)
-            uni = self.__html_entities_to_unicode__(htmlent)
-            ampersand_hotfix = uni.replace('&amp;', '&amp;amp;')
-            clean_xml = self.__escape_xml_illegal_chars__(ampersand_hotfix).lstrip()
-            divs_removed = clean_xml.replace('<div>', '<p>').replace('</div>', '</p>')
-            return divs_removed
-        else:
-            return None
-
-    def __html_entities_to_unicode__(self, text):
-        """Converts HTML entities to unicode.  For example '&amp;' becomes '&'."""
-        return HTMLParser().unescape(text)
-
-    def __unicode_to_html_entities__(self, text):
-        """Converts unicode to HTML entities.  For example '&' becomes '&amp;'."""
-        return cgi.escape(text).encode('ascii', 'xmlcharrefreplace')
-
-    def __escape_xml_illegal_chars__(self, val, replacement='?'):
-        _illegal_xml_chars_RE = re.compile(u'[\x00\x08\x0b\x0c\x0e\x1F\uD800\uDFFF\uFFFE\uFFFF]', re.UNICODE)
-        return _illegal_xml_chars_RE.sub(replacement, val)
-
     def element_tree_to_html(self, node):
         return_string = ''
         for child in node:
@@ -762,15 +740,15 @@ class TinkerController(object):
         keywords_to_ignore = set(['csrf_token', 'url_for'])
         return variables.difference(keywords_to_ignore)
 
-    # Not currently used in the code. However, this is helpful to find template IDs
-    def get_templates_for_client(self, campaign_monitor_key, client_id):
-        for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
-            print template.TemplateID
-
-    # Not currently used in the code. However, this is helpful to find segment IDs
-    def get_segments_for_client(self, campaign_monitor_key, client_id):
-        for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
-            print segment.SegmentID
+    # # Not currently used in the code. However, this is helpful to find template IDs
+    # def get_templates_for_client(self, campaign_monitor_key, client_id):
+    #     for template in Client({'api_key': campaign_monitor_key}, client_id).templates():
+    #         print template.TemplateID
+    #
+    # # Not currently used in the code. However, this is helpful to find segment IDs
+    # def get_segments_for_client(self, campaign_monitor_key, client_id):
+    #     for segment in Client({'api_key': campaign_monitor_key}, client_id).segments():
+    #         print segment.SegmentID
 
     def convert_timestamps_to_bethel_string(self, open, close, all_day):
         try:

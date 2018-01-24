@@ -91,9 +91,7 @@ class OfficeHoursController(TinkerController):
         return exceptions
 
     def update_structure(self, data, mdata, rform):
-        wysiwyg_keys = ['']
-
-        add_data = self.get_add_data(mdata, rform, wysiwyg_keys)
+        add_data = self.get_add_data(mdata, rform)
         add_data['exceptions'] = self.get_exceptions(rform)
         for key, value in add_data.iteritems():
             if not value:

@@ -1,4 +1,5 @@
 config.py
+programs.csv
 *.pyc
 migrations/
 creds.json
