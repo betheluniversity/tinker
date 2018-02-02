@@ -94,7 +94,7 @@ class RedirectsController(TinkerController):
 
         for redirect in redirects:
             try:
-                response = requests.get('https://www.bethel.edu' + redirect.from_path)
+                response = requests.get('https://www.bethel.edu' + redirect.from_path, verify=False)
                 redirect.to_url.replace('\n', '')
                 redirect.to_url.replace(' ', '')
 
