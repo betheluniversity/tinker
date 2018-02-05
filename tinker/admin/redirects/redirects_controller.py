@@ -119,11 +119,11 @@ class RedirectsController(TinkerController):
                 if 'auth' in response.url:  # if auth is in the response.url, its decoded
                     response.url = urllib.unquote(urllib.unquote(response.url))
                     # creates a new redirect to replace the old one after deleting
-                    new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
-                                                  short_url=redirect.short_url,
-                                                  expiration_date=redirect.expiration_date)
-                    self.db.session.delete(redirect)
-                    self.db.session.add(new_redirect)
+                    redirect.update(from_path=redirect.from_path, to_url=response.url,
+                                    short_url=redirect.short_url,
+                                    expiration_date=redirect.expiration_date)
+                    # self.db.session.delete(redirect)
+                    # self.db.session.add(new_redirect)
                     self.db.session.commit()
                     continue
 
@@ -132,29 +132,28 @@ class RedirectsController(TinkerController):
                     https_test = redirect.to_url.replace('http', 'https')
                     if response.url == https_test:
                         # Creates a new redirect to replace the old one after deleting
-                        new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
-                                                      short_url=redirect.short_url,
-                                                      expiration_date=redirect.expiration_date)
-                        self.db.session.delete(redirect)
-                        self.db.session.add(new_redirect)
+                        redirect.update(from_path=redirect.from_path, to_url=response.url,
+                                        short_url=redirect.short_url,
+                                        expiration_date=redirect.expiration_date)
+                        # self.db.session.delete(redirect)
+                        # self.db.session.add(new_redirect)
                         self.db.session.commit()
                         continue
                 elif response.url == redirect.to_url + '/':
                     # creates a new redirect to replace the old one after deleting
-                    new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
-                                                  short_url=redirect.short_url,
-                                                  expiration_date=redirect.expiration_date)
-                    self.db.session.delete(redirect)
-                    self.db.session.delete(redirect)
-                    self.db.session.add(new_redirect)
+                    redirect.update(from_path=redirect.from_path, to_url=response.url,
+                                    short_url=redirect.short_url,
+                                    expiration_date=redirect.expiration_date)
+                    # self.db.session.delete(redirect)
+                    # self.db.session.add(new_redirect)
                     self.db.session.commit()
                     continue
 
-                new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
-                                              short_url=redirect.short_url,
-                                              expiration_date=redirect.expiration_date)
-                self.db.session.delete(redirect)
-                self.db.session.add(new_redirect)
+                redirect.update(from_path=redirect.from_path, to_url=response.url,
+                                short_url=redirect.short_url,
+                                expiration_date=redirect.expiration_date)
+                # self.db.session.delete(redirect)
+                # self.db.session.add(new_redirect)
                 self.db.session.commit()
                 changed.append({'to_url': redirect.to_url, 'response': response.url})
 
