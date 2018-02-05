@@ -33,3 +33,5 @@ config/.DS_Store
 flask_profiler.sql
 
 */placeholder.html
+
+programs.csv

@@ -157,9 +157,7 @@ class FacultyBiosView(FlaskView):
                 add_form = True
 
             form = validated_form
-            wysiwyg_keys = ['biography', 'courses', 'awards', 'publications', 'presentations', 'certificates',
-                            'organizations', 'hobbies']
-            add_data = self.base.get_add_data(['faculty_location'], rform, wysiwyg_keys)
+            add_data = self.base.get_add_data(['faculty_location'], rform)
             metadata = fjson.dumps(data_to_add)
             new_job_titles = fjson.dumps(self.base.get_job_titles(add_data))
             degrees = fjson.dumps(self.base.get_degrees(add_data))

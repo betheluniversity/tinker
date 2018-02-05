@@ -43,7 +43,7 @@ class ProgramSearchView(FlaskView):
             key = rform.get('key')
             tag = rform.get('tag')
 
-            if key == 'Any' or tag == '' or tag is None:
+            if key == 'Any' or key == '' or tag == '' or tag is None:
                 return render_template('admin/program-search/home.html', **locals())
 
             outcome = ast.literal_eval(rform.get('outcome'))

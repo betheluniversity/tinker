@@ -15,6 +15,5 @@ class HTMLEntitiesToUnicodeTestCase(TinkerControllerBaseTestCase):
 
     def test_html_entities_to_unicode(self):
         test_text = '&lt;p&gt;123&amp;4&lt;/p&gt;'
-        response = self.controller.__html_entities_to_unicode__(test_text)
-        self.assertTrue(isinstance(response, unicode))
-        self.assertEqual(response, u'<p>123&4</p>')
+        self.assertTrue(isinstance(test_text, unicode))
+        self.assertEqual(test_text, u'<p>123&4</p>')

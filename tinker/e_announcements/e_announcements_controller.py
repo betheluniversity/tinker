@@ -108,7 +108,7 @@ class EAnnouncementsController(TinkerController):
         return form, form.validate_on_submit()
 
     def update_structure(self, e_announcement_data, sdata, rform, e_announcement_id=None):
-        add_data = self.get_add_data(['banner_roles'], rform, ['message'])
+        add_data = self.get_add_data(['banner_roles'], rform)
 
         # create workflow
         workflow = self.create_workflow(app.config['E_ANNOUNCEMENTS_WORKFLOW_ID'], add_data['title'])

@@ -119,9 +119,9 @@ class EventsController(TinkerController):
     """
     Submitting a new or edited event form combined into one method
     """
-    def submit_new_or_edit(self, rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow):
+    def submit_new_or_edit(self, rform, username, eid, dates, num_dates, metadata_list, workflow):
         # Changes the dates to a timestamp, needs to occur after a failure is detected or not
-        add_data = self.get_add_data(metadata_list, rform, wysiwyg_keys)
+        add_data = self.get_add_data(metadata_list, rform)
         add_data['event-dates'] = self.change_dates(dates)
         if not eid:
             bid = app.config['EVENTS_BASE_ASSET']

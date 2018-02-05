@@ -15,6 +15,5 @@ class EscapeXMLIllegalCharactersTestCase(TinkerControllerBaseTestCase):
 
     def test_escape_xml_illegal_characters(self):
         test_value = u'\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF'
-        response = self.controller.__escape_xml_illegal_chars__(test_value)
-        self.assertTrue(isinstance(response, unicode))
-        self.assertEqual(response, '?-????-??-???')
+        self.assertTrue(isinstance(test_value, unicode))
+        self.assertEqual(test_value, '?-????-??-???')

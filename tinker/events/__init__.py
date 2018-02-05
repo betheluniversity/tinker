@@ -101,7 +101,6 @@ class EventsView(FlaskView):
         form, passed = self.base.validate_form(rform.internal_dictionary(), dates_good)
         workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], rform['author'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
-        wysiwyg_keys = ['main_content', 'questions', 'link', 'registration_details', 'sponsors', 'maps_directions']
         if not passed:
             if 'event_id' in rform.keys():
                 event_id = rform['event_id']
@@ -112,7 +111,7 @@ class EventsView(FlaskView):
 
             return render_template('events/form.html', **locals())
 
-        add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates, num_dates, metadata_list, wysiwyg_keys, workflow)
+        add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates, num_dates, metadata_list, workflow)
 
         add_data['author'] = rform['author']
 
