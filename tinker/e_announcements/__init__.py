@@ -26,7 +26,6 @@ class EAnnouncementsView(FlaskView):
     def before_request(self, name, **kwargs):
         pass
 
-    @cache.memoize(timeout=600)
     def index(self):
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
 
@@ -63,6 +62,7 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('e-announcements/view.html', **locals())
 
+    @cache.memoize(timeout=600)
     def new(self):
         from forms import EAnnouncementsForm
         form = EAnnouncementsForm()
@@ -279,6 +279,7 @@ class EAnnouncementsView(FlaskView):
 
         return render_template("e-announcements/future.html")
 
+    @cache.memoize(timeout=600)
     @route("/ea_future", methods=['POST'])
     def ea_future(self):
         if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):

@@ -96,6 +96,7 @@ class FacultyBiosView(FlaskView):
 
         return render_template('faculty-bios/form.html', **locals())
 
+    @cache.memoize(timeout=600)
     def confirm(self):
         return render_template('faculty-bios/confirm.html')
 

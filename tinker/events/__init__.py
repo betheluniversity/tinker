@@ -29,7 +29,6 @@ class EventsView(FlaskView):
     def before_request(self, name, **kwargs):
         pass
 
-    @cache.memoize(timeout=600)
     def index(self):
         show_create = True
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
@@ -60,6 +59,7 @@ class EventsView(FlaskView):
     def event_in_workflow(self):
         return render_template('events/in-workflow.html')
 
+    @cache.memoize(timeout=600)
     def add(self):
         # import this here so we dont load all the content from cascade during homepage load
         from tinker.events.forms import EventForm
