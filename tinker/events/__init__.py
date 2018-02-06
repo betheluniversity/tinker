@@ -59,7 +59,7 @@ class EventsView(FlaskView):
     def event_in_workflow(self):
         return render_template('events/in-workflow.html')
 
-    @cache.memoize(timeout=600)
+    @cache.memoize(timeout=3600)
     def add(self):
         # import this here so we dont load all the content from cascade during homepage load
         from tinker.events.forms import EventForm
