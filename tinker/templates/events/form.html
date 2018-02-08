@@ -339,7 +339,7 @@
             };
 
 
-            function testOffCampusLocation() {
+            function offCampusLocation() {
                 var location = $("#location")[0];
                 var val = location.options[location.selectedIndex].innerHTML;
                 if (val == "Off Campus") {
@@ -466,7 +466,7 @@
                 });
 
                 $("#location").change(function () {
-                    testOffCampusLocation();
+                    offCampusLocation();
                 });
 
                 $("#eventform").submit(function () {
@@ -513,8 +513,7 @@
 
                 });
 
-                //Test this right away if we are editing because the callback won't fire
-                testOffCampusLocation();
+                offCampusLocation();
 
 
             });
