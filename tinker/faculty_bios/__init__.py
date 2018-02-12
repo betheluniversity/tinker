@@ -70,7 +70,7 @@ class FacultyBiosView(FlaskView):
 
             return render_template('faculty-bios/home.html', **locals())
 
-        index_cache(username)
+        return index_cache(username)
 
     @route('delete/<faculty_bio_id>', methods=['GET'])
     def delete(self, faculty_bio_id):

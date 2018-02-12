@@ -27,11 +27,15 @@ class EAnnouncementsView(FlaskView):
         pass
 
     def index(self):
-        forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
+        username = session['username']
 
-        forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+        @cache.memoize(timeout=600)
+        def index_cache(username):
+            forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
 
-        return render_template('e-announcements/home.html', **locals())
+            forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+            return render_template('e-announcements/home.html', **locals())
+        return index_cache(username)
 
     @route("/delete/<e_announcement_id>", methods=['GET', 'POST'])
     def delete(self, e_announcement_id):
