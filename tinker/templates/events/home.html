@@ -47,7 +47,7 @@
 {% endmacro %}
 
 {% block main_content %}
-    <div class="content">
+<div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
 
@@ -60,7 +60,7 @@
 
                 <div>
                     {# create an event button #}
-                    <a href="{{ url_for('events.EventsView:add') }}" id="event-create" class="btn btn-primary new-btn">
+                    <a href="add#page-title" id="event-create" class="btn btn-primary new-btn">
                         Create New Event
                     </a>
                     {# in action add the url calling the post method for search#}
@@ -77,6 +77,12 @@
                                     {%  endif %}
                                 {% endfor %}
                             </select>
+                        <p class="description">Click "Slide Down" button for additional search parameters.
+                            Press "Slide Up" to hide selection</p>
+                        <button class="s-up">Slide Up</button>
+                        <button class="s-down">Slide Down</button>
+                        <div id="additional-search-params" style="display: none;">
+
                             <p class="description"> The below are optional parameters to help in your search.</p>
                             <div></div>
                                 <small>Used by entering in part of a name, for example "scho" will select events with
@@ -90,8 +96,10 @@
                                     <input id="startDate" class='datepicker' size='11'/>
                                 <label for="endDate">End Date:</label>
                                     <input id="endDate" class='datepicker' size='11'/>
-                                <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
                             </div>
+                        </div>
+                        <br id="search-space">
+                        <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
                         {# spinner placeholder #}
                         <div id="spinner" class="spinner" style="display:none;">
                             <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
@@ -106,6 +114,7 @@
             </div>
         </div>
     </div>
+
 
 {% endblock %}
 
@@ -203,6 +212,16 @@
                 }
             });
         }
+        $(document).ready(function(){
+            $(".s-up").click(function(){
+                $("#additional-search-params").slideUp();
+                $("#search-space").show();
+            });
+            $(".s-down").click(function(){
+                $("#additional-search-params").slideDown();
+                $("#search-space").hide();
+            });
+        });
         $(".search-events").click(function () {
             search_events();
         });
