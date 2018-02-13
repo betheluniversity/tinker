@@ -115,7 +115,7 @@ class RedirectsController(TinkerController):
                 if 'auth' in response.url:  # if auth is in the response.url, its decoded
                     response.url = urllib.unquote(urllib.unquote(response.url))
                     # creates a new redirect to replace the old one after deleting
-                    redirect.update(from_path=redirect.from_path, to_url=response.url,
+                    redirect.update().values(from_path=redirect.from_path, to_url=response.url,
                                     short_url=redirect.short_url,
                                     expiration_date=redirect.expiration_date)
                     self.db.session.commit()
@@ -126,14 +126,14 @@ class RedirectsController(TinkerController):
                     https_test = redirect.to_url.replace('http', 'https')
                     if response.url == https_test:
                         # Creates a new redirect to replace the old one after deleting
-                        redirect.update(from_path=redirect.from_path, to_url=response.url,
+                        redirect.update().values(from_path=redirect.from_path, to_url=response.url,
                                         short_url=redirect.short_url,
                                         expiration_date=redirect.expiration_date)
                         self.db.session.commit()
                         continue
                 elif response.url == redirect.to_url + '/':
                     # creates a new redirect to replace the old one after deleting
-                    redirect.update(from_path=redirect.from_path, to_url=response.url,
+                    redirect.update().values(from_path=redirect.from_path, to_url=response.url,
                                     short_url=redirect.short_url,
                                     expiration_date=redirect.expiration_date)
                     self.db.session.commit()
