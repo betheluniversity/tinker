@@ -1,19 +1,22 @@
 from tinker import db
 from datetime import datetime
-
+from flask import session
 
 class BethelRedirect(db.Model):
-    from_path = db.Column(db.String(256), primary_key=True, default='no_path_provided')
+    id = db.Column(db.Integer, primary_key=True)
+    from_path = db.Column(db.String(256), unique=True, default='no_path_provided')
     to_url = db.Column(db.String(256))
     short_url = db.Column(db.Boolean)
     expiration_date = db.Column(db.Date)
     timestamp = db.Column(db.Date, default=datetime.now())
+    username = db.Column(db.String(20), default='n/a')
 
     def __init__(self, from_path, to_url, short_url=None, expiration_date=None):
         self.from_path = from_path
         self.to_url = to_url
         self.short_url = short_url
         self.expiration_date = expiration_date
+        self.username = session['username']
 
     def __repr__(self):
         return '<Redirect %s to %s>' % (self.from_path, self.to_url)
