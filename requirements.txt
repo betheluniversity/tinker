@@ -35,3 +35,4 @@ selenium==3.6.0
 HTMLParser
 unidecode==0.4.21
 namedentities
+redis
