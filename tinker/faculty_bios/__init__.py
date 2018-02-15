@@ -1,5 +1,6 @@
 # Global
 import json
+import random
 from operator import itemgetter
 
 # Packages
@@ -9,7 +10,7 @@ from flask import json as fjson
 from flask_classy import FlaskView, route
 
 # Local
-from tinker import app
+from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from faculty_bio_controller import FacultyBioController
 
@@ -37,33 +38,39 @@ class FacultyBiosView(FlaskView):
 
     def index(self):
         username = session['username']
-        roles = session['roles']
 
-        forms = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page')
-        forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
+        @cache.memoize(timeout=600)
+        def index_cache(username):
+            roles = session['roles']
 
-        # the faculty special admins should be able to see every bio, based on school.
-        if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups']:
-            show_special_admin_view = True
-            show_create = True
+            forms = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page')
+            forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
 
-            # This nastiness is to maintain order and have the class value
-            all_schools = [
-                {'cas': 'College of Arts and Sciences'},
-                {'caps': 'College of Adult and Professional Studies'},
-                {'gs': 'Graduate School'},
-                {'sem': 'Bethel Seminary'},
-                {'bu': 'Administration with Faculty Status'},
-                {'other-category': 'Other'}
-            ]
-        else:  # normal view
-            show_special_admin_view = False
-            show_create = len(forms) == 0 \
-                          or 'Tinker Faculty Bios - CAS' in session['groups'] \
-                          or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
-                          or 'Tinker Faculty Bios - SEM' in session['groups'] \
-                          or self.base.is_user_in_web_author_groups()
-        return render_template('faculty-bios/home.html', **locals())
+            # the faculty special admins should be able to see every bio, based on school.
+            if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups']:
+                show_special_admin_view = True
+                show_create = True
+
+                # This nastiness is to maintain order and have the class value
+                all_schools = [
+                    {'cas': 'College of Arts and Sciences'},
+                    {'caps': 'College of Adult and Professional Studies'},
+                    {'gs': 'Graduate School'},
+                    {'sem': 'Bethel Seminary'},
+                    {'bu': 'Administration with Faculty Status'},
+                    {'other-category': 'Other'}
+                ]
+            else:  # normal view
+                show_special_admin_view = False
+                show_create = len(forms) == 0 \
+                              or 'Tinker Faculty Bios - CAS' in session['groups'] \
+                              or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
+                              or 'Tinker Faculty Bios - SEM' in session['groups'] \
+                              or self.base.is_user_in_web_author_groups()
+
+            return render_template('faculty-bios/home.html', **locals())
+
+        return index_cache(username)
 
     @route('delete/<faculty_bio_id>', methods=['GET'])
     def delete(self, faculty_bio_id):
@@ -89,6 +96,7 @@ class FacultyBiosView(FlaskView):
 
         return render_template('faculty-bios/form.html', **locals())
 
+    @cache.memoize(timeout=3600)
     def confirm(self):
         return render_template('faculty-bios/confirm.html')
 

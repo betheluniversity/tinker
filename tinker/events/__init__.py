@@ -12,7 +12,7 @@ from ordereddict import OrderedDict
 
 # Local
 from events_metadata import metadata_list
-from tinker import app
+from tinker import app, cache
 from tinker.events.events_controller import EventsController
 
 EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
@@ -30,28 +30,35 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-        show_create = True
-        if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
-            # The special admin view
-            all_schools = OrderedDict({
-                1: 'All Events',
-                2: 'My Events',
-                3: 'Other Events'},
-                key=lambda t: t[0]
-            )
-            # The below can be added inside of the dictionary as they are built out
-            # {4: 'College of Arts and Sciences'},
-            # {5: 'College of Adult and Professional Studies'},
-            # {6: 'Graduate School'},
-            # {7: 'Bethel Seminary'},
-            # {8: 'Administration with Faculty Status'},
-            # {9: 'Other'}
-        else:  # normal view
-            all_schools = OrderedDict({
-                2: 'User Events'}
-            )
-        return render_template('events/home.html', show_create=show_create, all_schools=all_schools, list_of_events=None,
-                               formsHeader="All Events")
+        username = session['username']
+
+        @cache.memoize(timeout=600)
+        def index_cache(username):
+            show_create = True
+            if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
+                # The special admin view
+                all_schools = OrderedDict({
+                    1: 'All Events',
+                    2: 'My Events',
+                    3: 'Other Events'},
+                    key=lambda t: t[0]
+                )
+                # The below can be added inside of the dictionary as they are built out
+                # {4: 'College of Arts and Sciences'},
+                # {5: 'College of Adult and Professional Studies'},
+                # {6: 'Graduate School'},
+                # {7: 'Bethel Seminary'},
+                # {8: 'Administration with Faculty Status'},
+                # {9: 'Other'}
+            else:  # normal view
+                all_schools = OrderedDict({
+                    2: 'User Events'}
+                )
+
+            return render_template('events/home.html', show_create=show_create, all_schools=all_schools, list_of_events=None,
+                                   formsHeader="All Events")
+
+        return index_cache(username)
 
     def confirm(self):
         return render_template('events/submit-confirm.html', **locals())
@@ -59,6 +66,7 @@ class EventsView(FlaskView):
     def event_in_workflow(self):
         return render_template('events/in-workflow.html')
 
+    @cache.memoize(timeout=3600)
     def add(self):
         # import this here so we dont load all the content from cascade during homepage load
         from tinker.events.forms import EventForm

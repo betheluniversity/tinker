@@ -5,6 +5,7 @@ from flask_classy import FlaskView, route
 # Local
 from tinker.admin.cache.cache_controller import CacheController
 from tinker.tinker_controller import admin_permissions
+from tinker import cache
 
 CacheBlueprint = Blueprint('cache', __name__, template_folder='templates')
 

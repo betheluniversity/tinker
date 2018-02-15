@@ -11,7 +11,7 @@ from flask import Blueprint, render_template, request, abort, session, Response,
 from flask_classy import FlaskView, route
 
 # Local
-from tinker import app, db
+from tinker import app, db, cache
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker.tinker_controller import requires_auth
 from tinker.tinker_controller import admin_permissions
