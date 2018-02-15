@@ -1,4 +1,5 @@
 from tinker import db
+from datetime import datetime
 
 
 class BethelRedirect(db.Model):
@@ -6,6 +7,7 @@ class BethelRedirect(db.Model):
     to_url = db.Column(db.String(256))
     short_url = db.Column(db.Boolean)
     expiration_date = db.Column(db.Date)
+    timestamp = db.Column(db.Date, default=datetime.now())
 
     def __init__(self, from_path, to_url, short_url=None, expiration_date=None):
         self.from_path = from_path
