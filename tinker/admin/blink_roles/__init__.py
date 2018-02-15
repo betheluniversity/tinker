@@ -15,6 +15,7 @@ class BlinkRolesView(FlaskView):
     def before_request(self, name, **kwargs):
         admin_permissions(self)
 
+
     def index(self):
         uid_list = uid
         portal_list = portal
