@@ -1,6 +1,6 @@
 SQLAlchemy==1.1.15
-SQLAlchemy-migrate==1.1.15
 Flask-SQLAlchemy==2.1
+SQLAlchemy-migrate
 six
 Flask
 gunicorn
