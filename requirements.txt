@@ -1,3 +1,4 @@
+six
 Flask
 gunicorn
 Flask-Cache
@@ -12,7 +13,7 @@ simplejson
 --allow-external WTForms
 requests
 Flask-SQLAlchemy==2.1
-SQLAlchemy-migrate
+SQLAlchemy-migrate==1.1.15
 BeautifulSoup
 Flask-Cors
 arrow
