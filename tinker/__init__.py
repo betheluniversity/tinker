@@ -116,20 +116,20 @@ def get_url_from_path(path, **kwargs):
 
 
 # New importing of routes and blueprints
-from tinker.views import BaseBlueprint
-from tinker.admin.cache import CacheBlueprint
-from tinker.admin.blink_roles import BlinkRolesBlueprint
-from tinker.admin.program_search import ProgramSearchBlueprint
-from tinker.admin.sync import SyncBlueprint
-from tinker.admin.publish import PublishBlueprint
-from tinker.admin.program_search import ProgramSearchBlueprint
-from tinker.admin.redirects import RedirectsBlueprint
-from tinker.e_announcements import EAnnouncementsBlueprint
+# from tinker.views import BaseBlueprint
+# from tinker.admin.cache import CacheBlueprint
+# from tinker.admin.blink_roles import BlinkRolesBlueprint
+# from tinker.admin.program_search import ProgramSearchBlueprint
+# from tinker.admin.sync import SyncBlueprint
+# from tinker.admin.publish import PublishBlueprint
+# from tinker.admin.program_search import ProgramSearchBlueprint
+# from tinker.admin.redirects import RedirectsBlueprint
+# from tinker.e_announcements import EAnnouncementsBlueprint
 from tinker.faculty_bios import FacultyBiosView
-from tinker.office_hours import OfficeHoursBlueprint
-from tinker.events import EventsBlueprint
-from tinker.news import NewsBlueprint
-from tinker.admin.user_roles import UserRolesBlueprint
+# from tinker.office_hours import OfficeHoursBlueprint
+# from tinker.events import EventsBlueprint
+# from tinker.news import NewsBlueprint
+# from tinker.admin.user_roles import UserRolesBlueprint
 
 FacultyBiosView.register(app)
 
