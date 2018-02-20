@@ -18,7 +18,7 @@ def favicon():
 
 
 class Base(FlaskView):
-    route_base = '/'
+    route_base = '/tinker'
 
     def index(self):
         # index page for adding events and things
