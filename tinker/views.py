@@ -22,8 +22,6 @@ class Base(FlaskView):
     route_base = '/'
 
     def index(self):
-        a = 0
-        a = a['BROKEN']
         # index page for adding events and things
         return render_template('index.html', **locals())
 
