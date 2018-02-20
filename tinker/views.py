@@ -17,7 +17,7 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/assets/img'), 'favicon.ico')
 
 
-class BaseView(FlaskView):
+class View(FlaskView):
 
     def index(self):
         # index page for adding events and things

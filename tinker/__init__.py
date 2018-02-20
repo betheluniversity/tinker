@@ -103,7 +103,8 @@ cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'],
 
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
-
+from tinker import error
+from tinker_controller import TinkerController
 
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
@@ -116,33 +117,33 @@ def get_url_from_path(path, **kwargs):
 
 
 # New importing of routes and blueprints
-from tinker.views import BaseView
-from tinker.admin.cache import CacheView
 from tinker.admin.blink_roles import BlinkRolesView
+from tinker.admin.cache import CacheView
 from tinker.admin.program_search import ProgramSearchView
-from tinker.admin.sync import SyncView
 from tinker.admin.publish import PublishView
-from tinker.admin.program_search import ProgramSearchView
 from tinker.admin.redirects import RedirectsView
-from tinker.e_announcements import EAnnouncementsView
-from tinker.faculty_bios import FacultyBiosView
-from tinker.office_hours import OfficeHoursView
-from tinker.events import EventsView
-from tinker.news import NewsView
+from tinker.admin.sync import SyncView
 from tinker.admin.user_roles import UserRolesView
+from tinker.e_announcements import EAnnouncementsView
+from tinker.events import EventsView
+from tinker.faculty_bios import FacultyBiosView
+from tinker.news import NewsView
+from tinker.office_hours import OfficeHoursView
+from tinker.views import View
 
-BaseView.register(app)
-CacheView.register(app)
 BlinkRolesView.register(app)
-SyncView.register(app)
-PublishView.register(app)
+CacheView.register(app)
 ProgramSearchView.register(app)
+PublishView.register(app)
 RedirectsView.register(app)
-EAnnouncementsView.register(app)
-FacultyBiosView.register(app)
-EventsView.register(app)
-NewsView.register(app)
+SyncView.register(app)
 UserRolesView.register(app)
+EAnnouncementsView.register(app)
+EventsView.register(app)
+FacultyBiosView.register(app)
+NewsView.register(app)
+OfficeHoursView.register(app)
+View.register(app)
 
 # app.register_blueprint(BaseBlueprint)
 # app.register_blueprint(CacheBlueprint)
@@ -159,28 +160,8 @@ UserRolesView.register(app)
 # app.register_blueprint(NewsBlueprint)
 # app.register_blueprint(UserRolesBlueprint)
 
-# import urllib
-# from flask import url_for
-# with app.test_request_context():
-#     output = []
-#     for rule in app.url_map.iter_rules():
-#
-#         options = {}
-#         for arg in rule.arguments:
-#             options[arg] = "<{0}>".format(arg)
-#
-#         url = url_for(rule.endpoint, **options)
-#         line = urllib.unquote(rule.endpoint + ' ' + url)
-#         output.append(line)
-#
-#         for line in sorted(output):
-#             app.logger.error(line)
-
-from tinker.unit_test_interface import UnitTestBlueprint
-app.register_blueprint(UnitTestBlueprint)
-
-from tinker import error
-from tinker_controller import TinkerController
+# from tinker.unit_test_interface import UnitTestBlueprint
+# app.register_blueprint(UnitTestBlueprint)
 
 @app.before_request
 def before_request():
