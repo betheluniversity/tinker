@@ -185,4 +185,4 @@ class EventsView(FlaskView):
         return render_template('events/search-results.html', list_of_events=search_results, formsHeader=forms_header)
 
 
-EventsView.register(EventsBlueprint)
+# EventsView.register(EventsBlueprint)

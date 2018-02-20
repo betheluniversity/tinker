@@ -249,4 +249,4 @@ class RedirectsView(FlaskView):
         # return "Test"
         return self.base.redirect_change()
 
-RedirectsView.register(RedirectsBlueprint)
+# RedirectsView.register(RedirectsBlueprint)

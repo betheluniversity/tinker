@@ -21,4 +21,4 @@ class BlinkRolesView(FlaskView):
         portal_list = portal
         return render_template('admin/blink-roles/home.html', **locals())
 
-BlinkRolesView.register(BlinkRolesBlueprint)
+# BlinkRolesView.register(BlinkRolesBlueprint)

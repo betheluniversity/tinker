@@ -29,4 +29,4 @@ class CacheView(FlaskView):
         path = rform['url']
         return self.base.cache_clear(path)
 
-CacheView.register(CacheBlueprint)
+# CacheView.register(CacheBlueprint)

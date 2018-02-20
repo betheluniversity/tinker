@@ -182,4 +182,4 @@ class PublishView(FlaskView):
 
         return render_template("admin/publish/more-info.html", **locals())
 
-PublishView.register(PublishBlueprint)
+# PublishView.register(PublishBlueprint)

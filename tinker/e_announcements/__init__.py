@@ -324,4 +324,4 @@ class EAnnouncementsView(FlaskView):
 
     # TODO e-announcements by role (someday)
 
-EAnnouncementsView.register(EAnnouncementsBlueprint)
+# EAnnouncementsView.register(EAnnouncementsBlueprint)

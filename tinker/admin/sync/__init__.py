@@ -119,4 +119,4 @@ class SyncView(FlaskView):
 
         return 'success'
 
-SyncView.register(SyncBlueprint)
+# SyncView.register(SyncBlueprint)

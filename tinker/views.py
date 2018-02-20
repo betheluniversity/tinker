@@ -35,4 +35,4 @@ class Base(FlaskView):
         return render_template('profile.html', **locals())
 
 
-Base.register(BaseBlueprint)
+# Base.register(BaseBlueprint)

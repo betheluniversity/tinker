@@ -71,4 +71,4 @@ class OfficeHoursView(FlaskView):
         block.edit_asset(data)
         return 'success'
 
-OfficeHoursView.register(OfficeHoursBlueprint)
+# OfficeHoursView.register(OfficeHoursBlueprint)

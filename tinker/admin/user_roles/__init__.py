@@ -61,4 +61,4 @@ class UserRolesView(FlaskView):
 
         return 'success'
 
-UserRolesView.register(UserRolesBlueprint)
+# UserRolesView.register(UserRolesBlueprint)

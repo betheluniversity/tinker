@@ -165,4 +165,4 @@ class ProgramSearchView(FlaskView):
         return 'DONE'
 
 
-ProgramSearchView.register(ProgramSearchBlueprint)
+# ProgramSearchView.register(ProgramSearchBlueprint)

@@ -116,22 +116,33 @@ def get_url_from_path(path, **kwargs):
 
 
 # New importing of routes and blueprints
-# from tinker.views import BaseBlueprint
-# from tinker.admin.cache import CacheBlueprint
-# from tinker.admin.blink_roles import BlinkRolesBlueprint
-# from tinker.admin.program_search import ProgramSearchBlueprint
-# from tinker.admin.sync import SyncBlueprint
-# from tinker.admin.publish import PublishBlueprint
-# from tinker.admin.program_search import ProgramSearchBlueprint
-# from tinker.admin.redirects import RedirectsBlueprint
-# from tinker.e_announcements import EAnnouncementsBlueprint
+from tinker.views import Base
+from tinker.admin.cache import CacheView
+from tinker.admin.blink_roles import BlinkRolesView
+from tinker.admin.program_search import ProgramSearchView
+from tinker.admin.sync import SyncView
+from tinker.admin.publish import PublishView
+from tinker.admin.program_search import ProgramSearchView
+from tinker.admin.redirects import RedirectsView
+from tinker.e_announcements import EAnnouncementsView
 from tinker.faculty_bios import FacultyBiosView
-# from tinker.office_hours import OfficeHoursBlueprint
-# from tinker.events import EventsBlueprint
-# from tinker.news import NewsBlueprint
-# from tinker.admin.user_roles import UserRolesBlueprint
+from tinker.office_hours import OfficeHoursView
+from tinker.events import EventsView
+from tinker.news import NewsView
+from tinker.admin.user_roles import UserRolesView
 
+Base.register(app)
+CacheView.register(app)
+BlinkRolesView.register(app)
+SyncView.register(app)
+PublishView.register(app)
+ProgramSearchView.register(app)
+RedirectsView.register(app)
+EAnnouncementsView.register(app)
 FacultyBiosView.register(app)
+EventsView.register(app)
+NewsView.register(app)
+UserRolesView.register(app)
 
 # app.register_blueprint(BaseBlueprint)
 # app.register_blueprint(CacheBlueprint)

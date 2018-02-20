@@ -88,4 +88,4 @@ class NewsView(FlaskView):
         return resp
 
 
-NewsView.register(NewsBlueprint)
+# NewsView.register(NewsBlueprint)
