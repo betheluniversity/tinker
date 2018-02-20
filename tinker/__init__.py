@@ -146,22 +146,22 @@ app.register_blueprint(EventsBlueprint)
 app.register_blueprint(NewsBlueprint)
 app.register_blueprint(UserRolesBlueprint)
 
-import urllib
-from flask import url_for
-with app.test_request_context():
-    output = []
-    for rule in app.url_map.iter_rules():
-
-        options = {}
-        for arg in rule.arguments:
-            options[arg] = "<{0}>".format(arg)
-
-        url = url_for(rule.endpoint, **options)
-        line = urllib.unquote(rule.endpoint + ' ' + url)
-        output.append(line)
-
-        for line in sorted(output):
-            app.logger.error(line)
+# import urllib
+# from flask import url_for
+# with app.test_request_context():
+#     output = []
+#     for rule in app.url_map.iter_rules():
+#
+#         options = {}
+#         for arg in rule.arguments:
+#             options[arg] = "<{0}>".format(arg)
+#
+#         url = url_for(rule.endpoint, **options)
+#         line = urllib.unquote(rule.endpoint + ' ' + url)
+#         output.append(line)
+#
+#         for line in sorted(output):
+#             app.logger.error(line)
 
 from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
