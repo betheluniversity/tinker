@@ -12,7 +12,8 @@ from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
 
 app = Flask(__name__)
-
+a = 0
+a = a['BROKEN']
 if "travis" not in platform.node():
     TRAVIS_TESTING = False
     app.config.from_object('config.config')
