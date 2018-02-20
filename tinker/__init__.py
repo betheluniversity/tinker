@@ -51,6 +51,13 @@ else:
     app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../programs.csv')
     app.config['REDIRECTS_FILE_PATH'] = os.path.join(_basedir, '../redirects.txt')
 
+# create logging
+if not app.debug:
+    from logging import FileHandler
+    file_handler = FileHandler(app.config['INSTALL_LOCATION'] + '/error.log')
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.DEBUG)
+
 app.config["flask_profiler"] = {
     "enabled": True,
     "storage": {
@@ -96,12 +103,7 @@ cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'],
 
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
-# create logging
-if not app.debug:
-    from logging import FileHandler
-    file_handler = FileHandler(app.config['INSTALL_LOCATION'] + '/error.log')
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.DEBUG)
+
 
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
