@@ -116,7 +116,7 @@ def get_url_from_path(path, **kwargs):
 
 
 # New importing of routes and blueprints
-from tinker.views import Base
+from tinker.views import BaseView
 from tinker.admin.cache import CacheView
 from tinker.admin.blink_roles import BlinkRolesView
 from tinker.admin.program_search import ProgramSearchView
@@ -131,7 +131,7 @@ from tinker.events import EventsView
 from tinker.news import NewsView
 from tinker.admin.user_roles import UserRolesView
 
-Base.register(app)
+BaseView.register(app)
 CacheView.register(app)
 BlinkRolesView.register(app)
 SyncView.register(app)
