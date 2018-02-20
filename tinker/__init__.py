@@ -129,7 +129,7 @@ from tinker.events import EventsBlueprint
 from tinker.news import NewsBlueprint
 from tinker.admin.user_roles import UserRolesBlueprint
 
-app.register_blueprint(BaseBlueprint, url_prefix='/')
+app.register_blueprint(BaseBlueprint, url_prefix='/tinker')
 app.register_blueprint(CacheBlueprint)
 app.register_blueprint(BlinkRolesBlueprint)
 app.register_blueprint(ProgramSearchBlueprint)
