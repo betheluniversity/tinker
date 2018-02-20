@@ -219,4 +219,4 @@ class FacultyBiosView(FlaskView):
         return 'success'
 
 
-FacultyBiosView.register(FacultyBiosBlueprint)
+# FacultyBiosView.register(FacultyBiosBlueprint)
