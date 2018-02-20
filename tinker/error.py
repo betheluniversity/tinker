@@ -6,7 +6,6 @@ from tinker import app, sentry
 
 
 def error_render_template(template_path, error, code=None):
-    app.logger.error('Unhandled Exception: %s', str(error))
     sentry.captureException()
 
     if code:  # Means that it's a handled error/exception
@@ -30,7 +29,6 @@ def permission_denied(e):
 
 @app.errorhandler(404)
 def page_not_found(e):
-    app.logger.error('Unhandled Exception: %s', str(e))
     return error_render_template('error/404.html', e, 404)
 
 
