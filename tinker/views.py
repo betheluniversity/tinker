@@ -33,4 +33,5 @@ class Base(FlaskView):
     def profile(self):
         return render_template('profile.html', **locals())
 
+
 Base.register(BaseBlueprint)
