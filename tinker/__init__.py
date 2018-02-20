@@ -147,9 +147,6 @@ app.register_blueprint(NewsBlueprint)
 app.register_blueprint(UserRolesBlueprint)
 
 
-a = 0
-a = a['BROKEN']
-
 from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
 
