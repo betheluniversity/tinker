@@ -125,11 +125,13 @@ from tinker.admin.publish import PublishBlueprint
 from tinker.admin.program_search import ProgramSearchBlueprint
 from tinker.admin.redirects import RedirectsBlueprint
 from tinker.e_announcements import EAnnouncementsBlueprint
-from tinker.faculty_bios import FacultyBiosBlueprint
+from tinker.faculty_bios import FacultyBiosView
 from tinker.office_hours import OfficeHoursBlueprint
 from tinker.events import EventsBlueprint
 from tinker.news import NewsBlueprint
 from tinker.admin.user_roles import UserRolesBlueprint
+
+FacultyBiosView.register(app)
 
 app.register_blueprint(BaseBlueprint)
 app.register_blueprint(CacheBlueprint)
@@ -140,7 +142,7 @@ app.register_blueprint(PublishBlueprint)
 app.register_blueprint(ProgramSearchBlueprint)
 app.register_blueprint(RedirectsBlueprint)
 app.register_blueprint(EAnnouncementsBlueprint)
-app.register_blueprint(FacultyBiosBlueprint)
+# app.register_blueprint(FacultyBiosBlueprint)
 app.register_blueprint(OfficeHoursBlueprint)
 app.register_blueprint(EventsBlueprint)
 app.register_blueprint(NewsBlueprint)
