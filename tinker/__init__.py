@@ -161,8 +161,7 @@ with app.test_request_context():
         output.append(line)
 
         for line in sorted(output):
-            print line
-            app.logger.error("asdf")
+            app.logger.error(line)
 
 from tinker.unit_test_interface import UnitTestBlueprint
 app.register_blueprint(UnitTestBlueprint)
