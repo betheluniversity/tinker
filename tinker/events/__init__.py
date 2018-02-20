@@ -78,7 +78,7 @@ class EventsView(FlaskView):
     def edit(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         if self.base.asset_in_workflow(event_id, asset_type='page'):
-            return redirect(url_for('events.EventsView:event_in_workflow'), code=302)
+            return redirect(url_for('EventsView:event_in_workflow'), code=302)
 
         edit_data, dates, author = self.base.build_edit_form(event_id)
         # todo: fix this with the submit_all() functionality ASK CALEB

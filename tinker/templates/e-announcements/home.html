@@ -18,11 +18,11 @@
                     entered, newest dates first.
                 </p>
                 <hr/>
-                <a href="{{ url_for('e_announcements.EAnnouncementsView:new') }}" class="btn btn-primary new-btn">Submit
+                <a href="{{ url_for('EAnnouncementsView:new') }}" class="btn btn-primary new-btn">Submit
                     New
                     E-Announcement</a>
                 {% if 'E-Announcement Approver' in session['groups'].split(';') or 'Administrators' in session['groups'].split(';') %}
-                    <a href="{{  url_for('e_announcements.EAnnouncementsView:ea_upcoming') }}" class="btn btn-primary new-btn">
+                    <a href="{{  url_for('EAnnouncementsView:ea_upcoming') }}" class="btn btn-primary new-btn">
                         Upcoming E-Announcements</a>
                 {% endif %}
 
@@ -47,15 +47,15 @@
                                     {% else %}
                                         {% if not form.first_date_past and not form.second_date_past %}
                                             <li>
-                                                <a href="{{ url_for('e_announcements.EAnnouncementsView:edit', e_announcement_id=form.id) }}"
+                                                <a href="{{ url_for('EAnnouncementsView:edit', e_announcement_id=form.id) }}"
                                                    class="btn btn-primary">Edit</a></li>
                                         {% else %}
                                             <li>
-                                                <a href="{{ url_for('e_announcements.EAnnouncementsView:view', e_announcement_id=form.id) }}"
+                                                <a href="{{ url_for('EAnnouncementsView:view', e_announcement_id=form.id) }}"
                                                    class="btn btn-primary">View</a></li>
                                         {% endif %}
                                         <li>
-                                            <a href="{{ url_for('e_announcements.EAnnouncementsView:duplicate', e_announcement_id=form.id) }}"
+                                            <a href="{{ url_for('EAnnouncementsView:duplicate', e_announcement_id=form.id) }}"
                                                class="btn btn-primary">Duplicate</a></li>
                                         {% if not form.first_date_past %}
                                             <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}"

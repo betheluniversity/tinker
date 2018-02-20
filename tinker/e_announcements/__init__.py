@@ -41,7 +41,7 @@ class EAnnouncementsView(FlaskView):
     def delete(self, e_announcement_id):
         # must have access to delete
         # if session['groups'] not in 'E-Announcement Approver':
-        #     return redirect(url_for('e_announcements.EAnnouncementsView:index'), code=302)
+        #     return redirect(url_for('EAnnouncementsView:index'), code=302)
 
         block = self.base.read_block(e_announcement_id)
         e_announcement_data, mdata, sdata = block.read_asset()
