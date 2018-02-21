@@ -2,14 +2,11 @@
 import os
 
 # Packages
-from flask import Blueprint, render_template, send_file, send_from_directory
+from flask import render_template, send_file, send_from_directory
 from flask_classy import FlaskView
 
 # Local
 from tinker import app
-
-
-BaseBlueprint = Blueprint('base', __name__, template_folder='templates')
 
 
 @app.route('/favicon.ico')
@@ -31,6 +28,3 @@ class View(FlaskView):
 
     def profile(self):
         return render_template('profile.html', **locals())
-
-
-# Base.register(BaseBlueprint)
