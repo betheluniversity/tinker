@@ -145,6 +145,28 @@ NewsView.register(app)
 OfficeHoursView.register(app)
 View.register(app)
 
+import urllib
+from flask import url_for
+
+to_return = ''
+with app.test_request_context():
+    output = []
+    for rule in app.url_map.iter_rules():
+
+        options = {}
+        for arg in rule.arguments:
+            options[arg] = "<{0}>".format(arg)
+
+        url = url_for(rule.endpoint, **options)
+        line = urllib.unquote(rule.endpoint + ' ' + url)
+        output.append(line)
+
+        for line in sorted(output):
+            # print line
+            to_return += line + '\n'
+
+raise Exception(output)
+
 # app.register_blueprint(BaseBlueprint)
 # app.register_blueprint(CacheBlueprint)
 # app.register_blueprint(BlinkRolesBlueprint)
