@@ -29,7 +29,7 @@
     <script type="text/javascript">
         function loadTableForSearch() {
             $('#tables').html('<td colspan="2" style="text-align:center">. . . searching . . .</td>');
-            var search_url = "{{ url_for('program_search.ProgramSearchView:database_audit_table') }}";
+            var search_url = "{{ url_for('ProgramSearchView:database_audit_table') }}";
             $.ajax({
                 type: "POST",
                 url: search_url,
@@ -44,7 +44,7 @@
 
         function addUpdateHandlers() {
             $('.tinker-update').click(function () {
-                var url = "{{ url_for('program_search.ProgramSearchView:database_audit_update') }}";
+                var url = "{{ url_for('ProgramSearchView:database_audit_update') }}";
                 var id = $(this).data('id');
                 var data = {
                     'old_key': $('#tinker-old-key' + id).html(),
@@ -63,7 +63,7 @@
             });
 
             $('.tinker-delete').click(function(){
-                var url = "{{ url_for('program_search.ProgramSearchView:database_audit_delete') }}";
+                var url = "{{ url_for('ProgramSearchView:database_audit_delete') }}";
                 var id = $(this).data('id');
                 var data = {
                     'old_key':  $('#tinker-old-key' + id).html()

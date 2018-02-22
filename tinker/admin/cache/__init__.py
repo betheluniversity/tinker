@@ -1,13 +1,11 @@
 # Packages
-from flask import Blueprint, render_template, request
+from flask import render_template, request
 from flask_classy import FlaskView, route
 
 # Local
 from tinker.admin.cache.cache_controller import CacheController
 from tinker.tinker_controller import admin_permissions
 from tinker import cache
-
-CacheBlueprint = Blueprint('cache', __name__, template_folder='templates')
 
 
 class CacheView(FlaskView):
@@ -28,5 +26,3 @@ class CacheView(FlaskView):
         rform = self.base.dictionary_encoder.encode(request.form)
         path = rform['url']
         return self.base.cache_clear(path)
-
-CacheView.register(CacheBlueprint)

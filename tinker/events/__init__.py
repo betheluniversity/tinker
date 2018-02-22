@@ -5,7 +5,7 @@ import time
 
 # Packages
 from bu_cascade.asset_tools import update
-from flask import Blueprint, redirect, session, render_template, request, url_for
+from flask import redirect, session, render_template, request, url_for
 from flask_classy import FlaskView, route
 # python 2.6 or earlier -- Todo: when we upgrade, use from collections import OrderedDict
 from ordereddict import OrderedDict
@@ -14,8 +14,6 @@ from ordereddict import OrderedDict
 from events_metadata import metadata_list
 from tinker import app, cache
 from tinker.events.events_controller import EventsController
-
-EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
 
 class EventsView(FlaskView):
@@ -78,7 +76,7 @@ class EventsView(FlaskView):
     def edit(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         if self.base.asset_in_workflow(event_id, asset_type='page'):
-            return redirect(url_for('events.EventsView:event_in_workflow'), code=302)
+            return redirect(url_for('EventsView:event_in_workflow'), code=302)
 
         edit_data, dates, author = self.base.build_edit_form(event_id)
         # todo: fix this with the submit_all() functionality ASK CALEB
@@ -183,6 +181,3 @@ class EventsView(FlaskView):
         search_results, forms_header = self.base.get_search_results(selection, title, start, end)
         search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
         return render_template('events/search-results.html', list_of_events=search_results, formsHeader=forms_header)
-
-
-EventsView.register(EventsBlueprint)

@@ -16,14 +16,14 @@
             </li>
 
             <li class="{% if 'e-announcements/' in request.path %}active{% endif %}">
-                <a href="{{ url_for('e_announcements.EAnnouncementsView:index') }}">
+                <a href="{{ url_for('EAnnouncementsView:index') }}">
                     <i class="fa fa-envelope-o"></i>
                     <p>E-Announcements</p>
                 </a>
             </li>
 
             <li class="{% if 'events/' in request.path %}active{% endif %}">
-                <a href="{{ url_for('events.EventsView:index') }}">
+                <a href="{{ url_for('EventsView:index') }}">
                     <i class="fa fa-calendar"></i>
                     <p>Events</p>
                 </a>
@@ -35,7 +35,7 @@
                 or 'Tinker Faculty Bios - CAPS and GS' in session['groups']
                 or 'Tinker Faculty Bios - SEM' in session['groups'] %}
                 <li class="{% if 'faculty-bios/' in request.path %}active{% endif %}">
-                    <a href="{{ url_for('faculty_bios.FacultyBiosView:index') }}">
+                    <a href="{{ url_for('FacultyBiosView:index') }}">
                         <i class="fa fa-user"></i>
                         <p>Faculty Bios</p>
                     </a>
@@ -43,7 +43,7 @@
             {% endif %}
 
 {#            <li class="{% if 'office-hours/' in request.path %}active{% endif %}">#}
-{#                <a href="{{ url_for('office_hours.OfficeHoursView:index') }}">#}
+{#                <a href="{{ url_for('OfficeHoursView:index') }}">#}
 {#                    <i class="fa fa-clock-o"></i>#}
 {#                    <p>Office Hours</p>#}
 {#                </a>#}
@@ -58,19 +58,19 @@
                     <ul class="dropdown-menu">
                         {% if 'Administrators' in session['groups'] %}
                             <li>
-                                <a href="{{ url_for('publish.PublishView:index') }}">
+                                <a href="{{ url_for('PublishView:index') }}">
                                     <i class="fa fa-file" aria-hidden="true"></i>
                                     <p class="admin-list-item">Publisher</p>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ url_for('sync.SyncView:index') }}">
+                                <a href="{{ url_for('SyncView:index') }}">
                                     <i class="fa fa-share-alt" aria-hidden="true"></i>
                                     <p class="admin-list-item">Sync Metadata</p>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ url_for('user_roles.UserRolesView:index') }}">
+                                <a href="{{ url_for('UserRolesView:index') }}">
                                     <i class="fa fa-user-secret" aria-hidden="true"></i>
                                     <p class="admin-list-item">User Test Roles</p>
                                     {# doesnt work locally #}
@@ -78,26 +78,26 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ url_for('blink_roles.BlinkRolesView:index') }}" class="button-nav">
+                                <a href="{{ url_for('BlinkRolesView:index') }}" class="button-nav">
                                     <i class="fa fa-users" aria-hidden="true"></i>
                                     <p class="admin-list-item">Blink Layout Owners</p>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ url_for('program_search.ProgramSearchView:index') }}">
+                                <a href="{{ url_for('ProgramSearchView:index') }}">
                                     <i class="fa fa-search" aria-hidden="true"></i>
                                     <p class="admin-list-item">Program Search Tags</p>
                                 </a>
                             </li>
                         {% endif %}
                         <li>
-                            <a href="{{ url_for('cache.CacheView:index') }}">
+                            <a href="{{ url_for('CacheView:index') }}">
                                 <i class="fa fa-recycle" aria-hidden="true"></i>
                                 <p class="admin-list-item">Clear Cache</p>
                             </a>
                         </li>
                         <li>
-                            <a href="{{ url_for('redirects.RedirectsView:index') }}">
+                            <a href="{{ url_for('RedirectsView:index') }}">
                                 <i class="fa fa-arrows-alt" aria-hidden="true"></i>
                                 <p class="admin-list-item">Redirects</p>
                             </a>

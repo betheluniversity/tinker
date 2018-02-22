@@ -5,14 +5,12 @@ import re
 import requests
 from BeautifulSoup import BeautifulSoup
 from bu_cascade.asset_tools import find
-from flask import Blueprint, render_template, request, session, abort
+from flask import render_template, request, session, abort
 from flask_classy import FlaskView, route
 
 # Local
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
 from tinker.tinker_controller import admin_permissions
-
-PublishBlueprint = Blueprint('publish', __name__, template_folder='templates')
 
 
 class PublishView(FlaskView):
@@ -181,5 +179,3 @@ class PublishView(FlaskView):
                 staging_publish_date = 'N/A'
 
         return render_template("admin/publish/more-info.html", **locals())
-
-PublishView.register(PublishBlueprint)

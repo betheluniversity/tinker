@@ -28,7 +28,7 @@
             function submitpath() {
                 var urlpath = $("#cpath").val();
                 var input_data = {'url': urlpath};
-                var cacheurl = "{{ url_for('cache.CacheView:submit') }}";
+                var cacheurl = "{{ url_for('CacheView:submit') }}";
                 $.post(cacheurl, input_data, function (data) {
                     $("#output").text(data);
                 });

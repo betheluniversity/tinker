@@ -5,7 +5,7 @@ from operator import itemgetter
 
 # Packages
 from bu_cascade.asset_tools import find, update
-from flask import abort, Blueprint, redirect, render_template, request, session
+from flask import abort, redirect, render_template, request, session
 from flask import json as fjson
 from flask_classy import FlaskView, route
 
@@ -13,9 +13,6 @@ from flask_classy import FlaskView, route
 from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from faculty_bio_controller import FacultyBioController
-
-
-FacultyBiosBlueprint = Blueprint('faculty_bios', __name__, template_folder='templates')
 
 
 class FacultyBiosView(FlaskView):
@@ -217,6 +214,3 @@ class FacultyBiosView(FlaskView):
         xml_url = app.config['FACULTY_BIOS_XML_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
-
-
-FacultyBiosView.register(FacultyBiosBlueprint)

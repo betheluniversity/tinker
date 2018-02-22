@@ -51,6 +51,13 @@ else:
     app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../programs.csv')
     app.config['REDIRECTS_FILE_PATH'] = os.path.join(_basedir, '../redirects.txt')
 
+# create logging
+if not app.debug:
+    from logging import FileHandler
+    file_handler = FileHandler(app.config['INSTALL_LOCATION'] + '/error.log')
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(logging.DEBUG)
+
 app.config["flask_profiler"] = {
     "enabled": True,
     "storage": {
@@ -96,12 +103,8 @@ cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'],
 
 sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
 
-# create logging
-if not app.debug:
-    from logging import FileHandler
-    file_handler = FileHandler(app.config['INSTALL_LOCATION'] + '/error.log')
-    app.logger.addHandler(file_handler)
-    app.logger.setLevel(logging.DEBUG)
+from tinker import error
+from tinker_controller import TinkerController
 
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
@@ -114,42 +117,37 @@ def get_url_from_path(path, **kwargs):
 
 
 # New importing of routes and blueprints
-from tinker.views import BaseBlueprint
-from tinker.admin.cache import CacheBlueprint
-from tinker.admin.blink_roles import BlinkRolesBlueprint
-from tinker.admin.program_search import ProgramSearchBlueprint
-from tinker.admin.sync import SyncBlueprint
-from tinker.admin.publish import PublishBlueprint
-from tinker.admin.program_search import ProgramSearchBlueprint
-from tinker.admin.redirects import RedirectsBlueprint
-from tinker.e_announcements import EAnnouncementsBlueprint
-from tinker.faculty_bios import FacultyBiosBlueprint
-from tinker.office_hours import OfficeHoursBlueprint
-from tinker.events import EventsBlueprint
-from tinker.news import NewsBlueprint
-from tinker.admin.user_roles import UserRolesBlueprint
+from tinker.admin.blink_roles import BlinkRolesView
+from tinker.admin.cache import CacheView
+from tinker.admin.program_search import ProgramSearchView
+from tinker.admin.publish import PublishView
+from tinker.admin.redirects import RedirectsView
+from tinker.admin.sync import SyncView
+from tinker.admin.user_roles import UserRolesView
+from tinker.e_announcements import EAnnouncementsView
+from tinker.events import EventsView
+from tinker.faculty_bios import FacultyBiosView
+from tinker.news import NewsView
+from tinker.office_hours import OfficeHoursView
+from tinker.views import View
+from tinker.unit_test_interface import UnitTestInterfaceView
 
-app.register_blueprint(BaseBlueprint)
-app.register_blueprint(CacheBlueprint)
-app.register_blueprint(BlinkRolesBlueprint)
-app.register_blueprint(ProgramSearchBlueprint)
-app.register_blueprint(SyncBlueprint)
-app.register_blueprint(PublishBlueprint)
-app.register_blueprint(ProgramSearchBlueprint)
-app.register_blueprint(RedirectsBlueprint)
-app.register_blueprint(EAnnouncementsBlueprint)
-app.register_blueprint(FacultyBiosBlueprint)
-app.register_blueprint(OfficeHoursBlueprint)
-app.register_blueprint(EventsBlueprint)
-app.register_blueprint(NewsBlueprint)
-app.register_blueprint(UserRolesBlueprint)
+BlinkRolesView.register(app)
+CacheView.register(app)
+ProgramSearchView.register(app)
+PublishView.register(app)
+RedirectsView.register(app)
+SyncView.register(app)
+UserRolesView.register(app)
+EAnnouncementsView.register(app)
+EventsView.register(app)
+FacultyBiosView.register(app)
+NewsView.register(app)
+OfficeHoursView.register(app)
+View.register(app)
+UnitTestInterfaceView.register(app)
 
 
-from tinker.unit_test_interface import UnitTestBlueprint
-app.register_blueprint(UnitTestBlueprint)
-
-from tinker import error
-from tinker_controller import TinkerController
 
 @app.before_request
 def before_request():
@@ -164,6 +162,7 @@ def logout():
     resp.set_cookie('MOD_AUTH_CAS_S', '', expires=0)
     resp.set_cookie('MOD_AUTH_CAS', '', expires=0)
     return resp
+
 
 if not TRAVIS_TESTING:
     flask_profiler.init_app(app)

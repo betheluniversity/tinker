@@ -4,7 +4,7 @@ import requests
 from datetime import datetime
 
 # Packages
-from flask import abort, Blueprint, render_template, request
+from flask import abort, render_template, request
 from flask_classy import FlaskView, route
 from xml.etree import ElementTree as ET
 
@@ -15,9 +15,6 @@ from tinker.admin.sync.sync_metadata import data_to_add
 from sync_controller import SyncController
 from tinker.tinker_controller import admin_permissions, requires_auth
 from bu_cascade.asset_tools import update
-
-
-SyncBlueprint = Blueprint('sync', __name__, template_folder='templates')
 
 
 class SyncView(FlaskView):
@@ -118,5 +115,3 @@ class SyncView(FlaskView):
         self.base.publish(app.config['PRAYER_AND_MEMORIAL_ID'])
 
         return 'success'
-
-SyncView.register(SyncBlueprint)
