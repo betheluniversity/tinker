@@ -3,7 +3,7 @@ import datetime
 
 from bu_cascade.asset_tools import find
 from createsend import Campaign, CreateSend
-from flask import abort, Blueprint, render_template, session
+from flask import abort, render_template, session
 from flask_classy import FlaskView, request, route
 
 # Local

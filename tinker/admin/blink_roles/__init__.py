@@ -1,5 +1,5 @@
 # Packages
-from flask import Blueprint, render_template
+from flask import render_template
 from flask_classy import FlaskView
 
 # Local

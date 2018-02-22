@@ -1,5 +1,5 @@
 # Packages
-from flask import Blueprint, render_template, request
+from flask import render_template, request
 from flask_classy import FlaskView, route
 
 # Local

@@ -7,7 +7,7 @@ from datetime import datetime
 
 # Packages
 from BeautifulSoup import BeautifulSoup
-from flask import Blueprint, render_template, request, abort, session, Response, stream_with_context
+from flask import render_template, request, abort, session, Response, stream_with_context
 from flask_classy import FlaskView, route
 
 # Local

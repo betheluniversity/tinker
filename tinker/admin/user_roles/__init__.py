@@ -1,4 +1,4 @@
-from flask import render_template, session, request, Blueprint
+from flask import render_template, session, request
 from flask_classy import FlaskView, route
 
 from tinker.tinker_controller import admin_permissions, EncodingDict

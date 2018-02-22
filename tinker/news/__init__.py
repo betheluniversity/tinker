@@ -5,7 +5,6 @@ import HTMLParser
 # Packages
 from bu_cascade.asset_tools import find
 from createsend import Campaign, CreateSend
-from flask import Blueprint
 from flask_classy import FlaskView, route
 
 # Local
