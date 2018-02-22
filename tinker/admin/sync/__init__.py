@@ -17,9 +17,6 @@ from tinker.tinker_controller import admin_permissions, requires_auth
 from bu_cascade.asset_tools import update
 
 
-SyncBlueprint = Blueprint('sync', __name__, template_folder='templates')
-
-
 class SyncView(FlaskView):
     route_base = '/admin/sync'
 
@@ -118,5 +115,3 @@ class SyncView(FlaskView):
         self.base.publish(app.config['PRAYER_AND_MEMORIAL_ID'])
 
         return 'success'
-
-# SyncView.register(SyncBlueprint)

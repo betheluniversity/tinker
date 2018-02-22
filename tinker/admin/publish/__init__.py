@@ -12,8 +12,6 @@ from flask_classy import FlaskView, route
 from tinker.admin.publish.publish_manager_controller import PublishManagerController
 from tinker.tinker_controller import admin_permissions
 
-PublishBlueprint = Blueprint('publish', __name__, template_folder='templates')
-
 
 class PublishView(FlaskView):
     route_base = '/admin/publish-manager'
@@ -181,5 +179,3 @@ class PublishView(FlaskView):
                 staging_publish_date = 'N/A'
 
         return render_template("admin/publish/more-info.html", **locals())
-
-# PublishView.register(PublishBlueprint)

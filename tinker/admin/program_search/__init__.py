@@ -15,9 +15,6 @@ from tinker.admin.program_search.program_search_controller import ProgramSearchC
 from tinker.tinker_controller import admin_permissions
 
 
-ProgramSearchBlueprint = Blueprint("program_search", __name__, template_folder='templates')
-
-
 class ProgramSearchView(FlaskView):
     route_base = '/admin/program-search'
 
@@ -163,6 +160,3 @@ class ProgramSearchView(FlaskView):
         db.session.commit()
 
         return 'DONE'
-
-
-# ProgramSearchView.register(ProgramSearchBlueprint)

@@ -15,8 +15,6 @@ from events_metadata import metadata_list
 from tinker import app, cache
 from tinker.events.events_controller import EventsController
 
-EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
-
 
 class EventsView(FlaskView):
     route_base = '/events'
@@ -183,6 +181,3 @@ class EventsView(FlaskView):
         search_results, forms_header = self.base.get_search_results(selection, title, start, end)
         search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
         return render_template('events/search-results.html', list_of_events=search_results, formsHeader=forms_header)
-
-
-# EventsView.register(EventsBlueprint)

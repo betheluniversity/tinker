@@ -13,9 +13,6 @@ from e_announcements_controller import EAnnouncementsController
 from campaign_controller import CampaignController
 
 
-EAnnouncementsBlueprint = Blueprint('e_announcements', __name__, template_folder='templates')
-
-
 class EAnnouncementsView(FlaskView):
     route_base = '/e-announcements'
 
@@ -321,7 +318,3 @@ class EAnnouncementsView(FlaskView):
                     get_title_and_message(form)
 
         return render_template("e-announcements/future-ajax.html", **locals())
-
-    # TODO e-announcements by role (someday)
-
-# EAnnouncementsView.register(EAnnouncementsBlueprint)

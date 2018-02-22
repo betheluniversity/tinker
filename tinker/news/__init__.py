@@ -14,9 +14,6 @@ from tinker import app
 from tinker.tinker_controller import requires_auth
 
 
-NewsBlueprint = Blueprint('news', __name__, template_folder='templates')
-
-
 class NewsView(FlaskView):
     route_base = '/news'
 
@@ -86,6 +83,3 @@ class NewsView(FlaskView):
             return 'failed'
 
         return resp
-
-
-# NewsView.register(NewsBlueprint)

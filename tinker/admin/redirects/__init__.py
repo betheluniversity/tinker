@@ -15,7 +15,6 @@ from tinker import app, db, cache
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker.tinker_controller import requires_auth
 from tinker.tinker_controller import admin_permissions
-RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
 
 
 class RedirectsView(FlaskView):
@@ -248,5 +247,3 @@ class RedirectsView(FlaskView):
     def redirect_clear(self):
         # return "Test"
         return self.base.redirect_change()
-
-# RedirectsView.register(RedirectsBlueprint)

@@ -8,9 +8,6 @@ from tinker.office_hours.forms import OfficeHoursForm
 from tinker.office_hours.office_hours_controller import OfficeHoursController
 
 
-OfficeHoursBlueprint = Blueprint('office_hours', __name__, template_folder='templates')
-
-
 class OfficeHoursView(FlaskView):
     route_base = '/office-hours'
 
@@ -70,5 +67,3 @@ class OfficeHoursView(FlaskView):
         self.base.rotate_hours(sdata)
         block.edit_asset(data)
         return 'success'
-
-# OfficeHoursView.register(OfficeHoursBlueprint)
