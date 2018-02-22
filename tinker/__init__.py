@@ -145,45 +145,6 @@ NewsView.register(app)
 OfficeHoursView.register(app)
 View.register(app)
 
-# import urllib
-# from flask import url_for
-#
-# to_return = ''
-# with app.test_request_context():
-#     output = []
-#     for rule in app.url_map.iter_rules():
-#
-#         options = {}
-#         for arg in rule.arguments:
-#             options[arg] = "<{0}>".format(arg)
-#
-#         url = url_for(rule.endpoint, **options)
-#         line = urllib.unquote(rule.endpoint + ' ' + url)
-#         output.append(line)
-#
-#         for line in sorted(output):
-#             # print line
-#             to_return += line + '\n'
-#
-# raise Exception(to_return)
-
-# app.register_blueprint(BaseBlueprint)
-# app.register_blueprint(CacheBlueprint)
-# app.register_blueprint(BlinkRolesBlueprint)
-# app.register_blueprint(ProgramSearchBlueprint)
-# app.register_blueprint(SyncBlueprint)
-# app.register_blueprint(PublishBlueprint)
-# app.register_blueprint(ProgramSearchBlueprint)
-# app.register_blueprint(RedirectsBlueprint)
-# app.register_blueprint(EAnnouncementsBlueprint)
-# # app.register_blueprint(FacultyBiosBlueprint)
-# app.register_blueprint(OfficeHoursBlueprint)
-# app.register_blueprint(EventsBlueprint)
-# app.register_blueprint(NewsBlueprint)
-# app.register_blueprint(UserRolesBlueprint)
-
-# from tinker.unit_test_interface import UnitTestBlueprint
-# app.register_blueprint(UnitTestBlueprint)
 
 @app.before_request
 def before_request():
@@ -198,6 +159,7 @@ def logout():
     resp.set_cookie('MOD_AUTH_CAS_S', '', expires=0)
     resp.set_cookie('MOD_AUTH_CAS', '', expires=0)
     return resp
+
 
 if not TRAVIS_TESTING:
     flask_profiler.init_app(app)
