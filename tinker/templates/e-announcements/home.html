@@ -22,9 +22,45 @@
                     New
                     E-Announcement</a>
                 {% if 'E-Announcement Approver' in session['groups'].split(';') or 'Administrators' in session['groups'].split(';') %}
-                    <a href="{{  url_for('e_announcements.EAnnouncementsView:ea_upcoming') }}" class="btn btn-primary new-btn">
+                    <a href="{{ url_for('e_announcements.EAnnouncementsView:ea_upcoming') }}"
+                       class="btn btn-primary new-btn">
                         Upcoming E-Announcements</a>
                 {% endif %}
+                <hr>
+                <p class="description">Click "Slide Down" button for additional search parameters.
+                    Press "Slide Up" to hide selection</p>
+                <button class="s-up">Slide Up</button>
+                <button class="s-down">Slide Down</button>
+
+
+                <div id="additional-search-params" style="display: none;">
+                    <p class="description"> The below are optional parameters to help in your search.</p>
+                    <div></div>
+                    <small>Used by entering in part of a name, for example "scho" will select events with
+                        words "scholar", "school", "scholastic" etc.
+                    </small>
+                    <label for="e-annz-title">E-Announcement Title:</label>
+                    <input id="e-annz-title" type="text" name="E-Annz-Title"><br/>
+                    <small>The Start and End fields are to specify the date range where an e-announcement might fall,
+                        for example "New Years Eve" and "Christmas" would both show up if you started at December 25th
+                        and ended on December 31st
+                    </small>
+                    <label for="startDate">Start Date:</label>
+                    <input id="startDate" class='datepicker' size='11'/>
+                    <label for="endDate">End Date:</label>
+                    <input id="endDate" class='datepicker' size='11'/>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <br id="search-space">
+                <a type="submit" id="e-annz-submit-btn" class="btn btn-primary search-e-annz">Search</a>
+                {# spinner placeholder #}
+                <div id="spinner" class="spinner" style="display:none;">
+                    <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+                </div>
+                <br>
+                <br>
 
                 {% for form in forms %}
                     <div class="card">
@@ -79,26 +115,27 @@
 {% endblock %}
 
 {% block modalhtml %}
-<!-- Modal Core -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"
-                        aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
-            </div>
-            <div class="modal-body">
-                Your E-Announcement will be removed.
-            </div>
-            <div class="modal-footer">
-                <a id="modal-confirm" href="/e-announcements/delete/formid" type="button"
-                   class="btn btn-primary btn-alert modal-confirm">Delete</a>
+    <!-- Modal Core -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+                </div>
+                <div class="modal-body">
+                    Your E-Announcement will be removed.
+                </div>
+                <div class="modal-footer">
+                    <a id="modal-confirm" href="/e-announcements/delete/formid" type="button"
+                       class="btn btn-primary btn-alert modal-confirm">Delete</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
@@ -108,6 +145,42 @@
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/e-announcements/delete/" + $(this).data('e-announcement-id'));
         });
+
+
+        {#   Search E-ANNZ   #}
+
+        function search_e_annz() {
+            search_url = "{{ url_for('e_announcements.EAnnouncementsView:search') }}";
+            $('#spinner').show();
+            inputs = {
+                "title": $("#e-annz-title").val(),
+                "start": $("#startDate").val(),
+                "end": $("#endDate").val(),
+                "selection": $("#school-selector").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: search_url,
+                data: JSON.stringify(inputs),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    // window.location.replace(result);
+                    document.getElementById('results').innerHTML = result;
+                    $('#spinner').hide();
+                }
+            });
+        }
+        $(document).ready(function () {
+            $(".s-up").click(function () {
+                $("#additional-search-params").slideUp();
+                $("#search-space").show();
+            });
+            $(".s-down").click(function () {
+                $("#additional-search-params").slideDown();
+                $("#search-space").hide();
+            });
+        });
+
     </script>
 
 {% endblock %}

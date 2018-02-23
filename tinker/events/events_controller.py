@@ -15,7 +15,6 @@ from tinker.tinker_controller import TinkerController
 
 
 class EventsController(TinkerController):
-
     # find_all is currently unused for events (but used for the e-annz)
     def inspect_child(self, child, find_all=False):
         try:
@@ -41,7 +40,8 @@ class EventsController(TinkerController):
 
         school_event = undergrad_event or post_trad_event or sem_event
 
-        if (author is not None and username in author) or 'Event Approver' in session['groups'] or (school_event and school_event != 'None'):
+        if (author is not None and username in author) or 'Event Approver' in session['groups'] or (
+            school_event and school_event != 'None'):
             try:
                 return self._iterate_child_xml(child, author)
             except AttributeError:
@@ -119,6 +119,7 @@ class EventsController(TinkerController):
     """
     Submitting a new or edited event form combined into one method
     """
+
     def submit_new_or_edit(self, rform, username, eid, dates, num_dates, metadata_list, workflow):
         # Changes the dates to a timestamp, needs to occur after a failure is detected or not
         add_data = self.get_add_data(metadata_list, rform)
@@ -126,14 +127,16 @@ class EventsController(TinkerController):
         if not eid:
             bid = app.config['EVENTS_BASE_ASSET']
             event_data, metadata, structured_data = self.cascade_connector.load_base_asset_by_id(bid, 'page')
-            asset = self.update_structure(event_data, metadata, structured_data, add_data, username, num_dates, workflow=workflow)
+            asset = self.update_structure(event_data, metadata, structured_data, add_data, username, num_dates,
+                                          workflow=workflow)
             resp = self.create_page(asset)
             eid = resp.asset['page']['id']
             self.log_sentry("New event submission", resp)
         else:
             page = self.read_page(eid)
             event_data, metadata, structured_data = page.get_asset()
-            asset = self.update_structure(event_data, metadata, structured_data, add_data, username, num_dates, workflow=workflow, event_id=eid)
+            asset = self.update_structure(event_data, metadata, structured_data, add_data, username, num_dates,
+                                          workflow=workflow, event_id=eid)
 
             self.check_new_year_folder(eid, add_data, username)
             proxy_page = self.read_page(eid)
@@ -147,7 +150,7 @@ class EventsController(TinkerController):
         event_dates = []
 
         num_dates = int(form['num_dates'])
-        for i in range(1, num_dates+1):  # the page doesn't use 0-based indexing
+        for i in range(1, num_dates + 1):  # the page doesn't use 0-based indexing
             i = str(i)
             new_date = {
                 'start_date': form.get('start' + i, ''),
@@ -166,9 +169,9 @@ class EventsController(TinkerController):
     def check_event_dates(self, event_dates):
         dates_good = True
         for i in range(len(event_dates)):
-                                                        # XOR either having an end date or "no end date" checked
+            # XOR either having an end date or "no end date" checked
             start_and_end = event_dates[i]['start_date'] and \
-                                               (bool(event_dates[i]['end_date']) != bool(event_dates[i]['no_end_date']))
+                            (bool(event_dates[i]['end_date']) != bool(event_dates[i]['no_end_date']))
 
             time_zone_check = True
             if event_dates[i]['outside_of_minnesota'] and str(event_dates[i]['time_zone']) == '':
@@ -255,7 +258,8 @@ class EventsController(TinkerController):
         except TypeError:
             return None
 
-    def update_structure(self, event_data, metadata, structured_data, add_data, username, num_dates, workflow=None, event_id=None):
+    def update_structure(self, event_data, metadata, structured_data, add_data, username, num_dates, workflow=None,
+                         event_id=None):
         """
          Could this be cleaned up at all?
         """
@@ -333,7 +337,7 @@ class EventsController(TinkerController):
             hide_site_nav = "Hide"
             path = "events/%s/athletics" % max_year
 
-        elif common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'],  general):
+        elif common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'], general):
             hide_site_nav = "Do not hide"
             path = "events/arts/galleries/exhibits/%s" % max_year
 
@@ -399,9 +403,11 @@ class EventsController(TinkerController):
     # Converts date dict to the date picker format that front-end tinker can read
     def sanitize_dates(self, dates):
         for date in dates:
-            if 'all_day' in date and (date['all_day'] == "::CONTENT-XML-CHECKBOX::No" or date['all_day'] == "::CONTENT-XML-CHECKBOX::"):
+            if 'all_day' in date and (
+                    date['all_day'] == "::CONTENT-XML-CHECKBOX::No" or date['all_day'] == "::CONTENT-XML-CHECKBOX::"):
                 date['all_day'] = None
-            if 'outside_of_minnesota' in date and (date['outside_of_minnesota'] == "::CONTENT-XML-CHECKBOX::No" or date['outside_of_minnesota'] == "::CONTENT-XML-CHECKBOX::"):
+            if 'outside_of_minnesota' in date and (date['outside_of_minnesota'] == "::CONTENT-XML-CHECKBOX::No" or date[
+                'outside_of_minnesota'] == "::CONTENT-XML-CHECKBOX::"):
                 date['outside_of_minnesota'] = None
         return dates
 
@@ -472,7 +478,7 @@ class EventsController(TinkerController):
             if start != 0:
                 A = self.compare_datetimes(start, event_start) <= 0  # Search start is before event start
                 B = self.compare_datetimes(start, event_start) >= 0  # Search start is after event start
-                C = self.compare_datetimes(start, event_end) <= 0    # Search start is before event end
+                C = self.compare_datetimes(start, event_end) <= 0  # Search start is before event end
                 # D = self.compare_datetimes(start, event_end) >= 0  # Search start is after event end (auto-fail)
                 start_params = (A or B) and C
             else:
@@ -480,9 +486,9 @@ class EventsController(TinkerController):
 
             if end != 0:
                 # E = self.compare_datetimes(end, event_start) <= 0  # Search end is before event start (auto-fail)
-                F = self.compare_datetimes(end, event_start) >= 0    # Search end is after event start
-                G = self.compare_datetimes(end, event_end) <= 0      # Search end is before event end
-                H = self.compare_datetimes(end, event_end) >= 0      # Search end is after event end
+                F = self.compare_datetimes(end, event_start) >= 0  # Search end is after event start
+                G = self.compare_datetimes(end, event_end) <= 0  # Search end is before event end
+                H = self.compare_datetimes(end, event_end) >= 0  # Search end is after event end
                 end_params = F and (G or H)
             else:
                 end_params = True
@@ -496,10 +502,10 @@ class EventsController(TinkerController):
     def compare_datetimes(self, a, b):
         zero = datetime.timedelta(seconds=0)
         # If a is before b, return -1
-        if (b-a) > zero:
+        if (b - a) > zero:
             return -1
         # If a is after b, return 1
-        elif (b-a) < zero:
+        elif (b - a) < zero:
             return 1
         # If a and b have the same value, return 0
         else:

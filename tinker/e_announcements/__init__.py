@@ -1,5 +1,6 @@
 # Global
 import datetime
+import json
 
 # Packages
 from bu_cascade.asset_tools import find
@@ -317,5 +318,11 @@ class EAnnouncementsView(FlaskView):
         return render_template("e-announcements/future-ajax.html", **locals())
 
     # TODO e-announcements by role (someday)
+
+    # TODO e-announcements search
+    @route("/search", methods=['POST'])
+    def search(self):
+        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        return 0
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)

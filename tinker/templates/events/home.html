@@ -22,10 +22,10 @@
                     {% endif %}
                     <br/>
                     {% if form.is_published %}
-{#                                            <small>#}
+                        {#                                            <small>#}
                         <p>{{ form.dates | safe }}</p>
                         <a class="small-link" href={{ form.path }}>{{ form.path }}</a>
-{#                                            </small>#}
+                        {#                                            </small>#}
                     {% endif %}
                 </p>
             </div>
@@ -47,7 +47,7 @@
 {% endmacro %}
 
 {% block main_content %}
-<div class="content">
+    <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
 
@@ -66,17 +66,17 @@
                     {# in action add the url calling the post method for search#}
                     <div>
                         <h3 class="first-subtitle">View:</h3>
-                            <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
-                                    multiple>
-                                {% for school_code, school in all_schools.items() %}
-                                    {% if loop.first %}
-                                        <option value="{{ school_code}}"
-                                                selected="selected">{{ school }}</option>
-                                    {%  elif not loop.last %}
-                                        <option value="{{ school_code}}">{{ school }}</option>
-                                    {%  endif %}
-                                {% endfor %}
-                            </select>
+                        <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
+                                multiple>
+                            {% for school_code, school in all_schools.items() %}
+                                {% if loop.first %}
+                                    <option value="{{ school_code }}"
+                                            selected="selected">{{ school }}</option>
+                                {% elif not loop.last %}
+                                    <option value="{{ school_code }}">{{ school }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
                         <p class="description">Click "Slide Down" button for additional search parameters.
                             Press "Slide Up" to hide selection</p>
                         <button class="s-up">Slide Up</button>
@@ -85,34 +85,37 @@
 
                             <p class="description"> The below are optional parameters to help in your search.</p>
                             <div></div>
-                                <small>Used by entering in part of a name, for example "scho" will select events with
-                                    words "scholar", "school", "scholastic" etc.</small>
-                                <label for="eventTitle">Event Title:</label>
-                                    <input id="eventTitle" type="text" name="EventTitle"><br/>
-                                <small>The Start and End fields are to specify the date range where an event might fall,
-                                    for example "New Years Eve" and "Christmas" would both show up if you started at December 25th
-                                    and ended on December 31st</small>
-                                <label for="startDate">Start Date:</label>
-                                    <input id="startDate" class='datepicker' size='11'/>
-                                <label for="endDate">End Date:</label>
-                                    <input id="endDate" class='datepicker' size='11'/>
-                            </div>
-                        </div>
-                        <br id="search-space">
-                        <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
-                        {# spinner placeholder #}
-                        <div id="spinner" class="spinner" style="display:none;">
-                            <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+                            <small>Used by entering in part of a name, for example "scho" will select events with
+                                words "scholar", "school", "scholastic" etc.
+                            </small>
+                            <label for="eventTitle">Event Title:</label>
+                            <input id="eventTitle" type="text" name="EventTitle"><br/>
+                            <small>The Start and End fields are to specify the date range where an event might fall,
+                                for example "New Years Eve" and "Christmas" would both show up if you started at
+                                December 25th
+                                and ended on December 31st
+                            </small>
+                            <label for="startDate">Start Date:</label>
+                            <input id="startDate" class='datepicker' size='11'/>
+                            <label for="endDate">End Date:</label>
+                            <input id="endDate" class='datepicker' size='11'/>
                         </div>
                     </div>
-                    <hr/>
-                    <div id="results">
-
+                    <br id="search-space">
+                    <a type="submit" id="event-submit-btn" class="btn btn-primary search-events">Search</a>
+                    {# spinner placeholder #}
+                    <div id="spinner" class="spinner" style="display:none;">
+                        <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
                     </div>
                 </div>
-                <br/>
+                <hr/>
+                <div id="results">
+
+                </div>
             </div>
+            <br/>
         </div>
+    </div>
     </div>
 
 
@@ -125,7 +128,8 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"
-                            aria-hidden="true">&times;</button>
+                            aria-hidden="true">&times;
+                    </button>
                     <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
                 </div>
                 <div class="modal-body">
@@ -169,21 +173,21 @@
                 disableDayFn: function (date) {
                     var start_populated = $("#startDate").val();
                     var end_populated = $("#endDate").val();
-                    if(start_populated == "" && end_populated == ""){
+                    if (start_populated == "" && end_populated == "") {
                         return null;
-                    }else if(start_populated != "" && current_element.attr('id') == 'endDate'){
-                        if(new Date(start_populated) >= date){
+                    } else if (start_populated != "" && current_element.attr('id') == 'endDate') {
+                        if (new Date(start_populated) >= date) {
                             return date;
                         }
-                    }else if(end_populated != "" && current_element.attr('id') == 'startDate'){
-                        if(new Date(end_populated) <= date){
+                    } else if (end_populated != "" && current_element.attr('id') == 'startDate') {
+                        if (new Date(end_populated) <= date) {
                             return date;
                         }
                     }
                 }
             };
             // if its the startDate, set default date to today
-            if( $(this).attr('id') == 'startDate' ) {
+            if ($(this).attr('id') == 'startDate') {
                 starting_values['defaultDate'] = new Date();
                 starting_values['setDefaultDate'] = true;
             }
@@ -212,12 +216,12 @@
                 }
             });
         }
-        $(document).ready(function(){
-            $(".s-up").click(function(){
+        $(document).ready(function () {
+            $(".s-up").click(function () {
                 $("#additional-search-params").slideUp();
                 $("#search-space").show();
             });
-            $(".s-down").click(function(){
+            $(".s-down").click(function () {
                 $("#additional-search-params").slideDown();
                 $("#search-space").hide();
             });
