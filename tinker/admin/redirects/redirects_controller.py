@@ -1,4 +1,3 @@
-
 # local
 from datetime import datetime
 import urllib
@@ -17,7 +16,6 @@ from tinker.tinker_controller import TinkerController
 
 
 class RedirectsController(TinkerController):
-
     def __init__(self, database):
         super(RedirectsController, self).__init__()
         if isinstance(database, SQLAlchemy):
@@ -82,7 +80,6 @@ class RedirectsController(TinkerController):
 
     def redirect_change(self):
 
-
         redirects = BethelRedirect.query.all()
 
         changed = []
@@ -114,34 +111,11 @@ class RedirectsController(TinkerController):
 
                 if 'auth' in response.url:  # if auth is in the response.url, its decoded
                     response.url = urllib.unquote(urllib.unquote(response.url))
-                    # creates a new redirect to replace the old one after deleting
-                    redirect.update(from_path=redirect.from_path, to_url=response.url,
-                                    short_url=redirect.short_url,
-                                    expiration_date=redirect.expiration_date)
+                    redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
                     self.db.session.commit()
                     continue
 
-                # checks if the changes are redundant (adding '/' or changing 'http' > 'https')
-                if 'https' not in redirect.to_url:
-                    https_test = redirect.to_url.replace('http', 'https')
-                    if response.url == https_test:
-                        # Creates a new redirect to replace the old one after deleting
-                        redirect.update(from_path=redirect.from_path, to_url=response.url,
-                                        short_url=redirect.short_url,
-                                        expiration_date=redirect.expiration_date)
-                        self.db.session.commit()
-                        continue
-                elif response.url == redirect.to_url + '/':
-                    # creates a new redirect to replace the old one after deleting
-                    redirect.update(from_path=redirect.from_path, to_url=response.url,
-                                    short_url=redirect.short_url,
-                                    expiration_date=redirect.expiration_date)
-                    self.db.session.commit()
-                    continue
-
-                redirect.update(from_path=redirect.from_path, to_url=response.url,
-                                short_url=redirect.short_url,
-                                expiration_date=redirect.expiration_date)
+                redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
                 self.db.session.commit()
                 changed.append({'to_url': redirect.to_url, 'response': response.url})
 
