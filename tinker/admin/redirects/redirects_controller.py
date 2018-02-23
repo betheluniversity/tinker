@@ -120,8 +120,3 @@ class RedirectsController(TinkerController):
                 changed.append({'to_url': redirect.to_url, 'response': response.url})
 
         return render_template('admin/redirects/clear-redirects.html', **locals())
-
-        ##TODO update redirects method, JK it doesnt work
-        # def update_redirects(redirect, response, self):
-        #     redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
-        #     self.db.session.commit()
