@@ -54,6 +54,8 @@
                         <table class="table">
                             <thead>
                             <tr>
+                                <th width="25"></th> <!-- Place holder for info -->
+                                <th width="25"></th> <!-- Place holder for delete -->
                                 <th width="400">From Path</th>
                                 <th width="400">To URL</th>
                                 <th width="400">Expiration Date</th>
@@ -90,9 +92,12 @@
                         return false;
                     }
                 });
-                $(".redirect-row").on('click', function () {
+                $(".delete-column").on('click', function () { //was redirect-row, not delete-column
                     $("#modal-confirm").attr("data-delete-path", $(this).data('from-path'));
                 });
+                //$(".info-column").on('click',function(){
+                  //  $("#modal-confirm")
+                //});
             }
 
             var delay = (function () {
@@ -191,7 +196,8 @@
 {% endblock %}
 
 {% block modalhtml %}
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    <!-- delete modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -210,6 +216,24 @@
             </div>
         </div>
     </div>
+
+    <!-- Info modal -->
+    <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Redirect Information</h4>
+                </div>
+                <div class="modal-body">
+                    <div>ID:</div>
+                    <div>Username:</div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}
@@ -224,3 +248,4 @@
         });
     </script>
 {% endblock %}
+

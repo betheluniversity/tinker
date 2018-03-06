@@ -1,17 +1,35 @@
 {% for redirect in redirects %}
-    <tr class="redirect-row table-hover" data-reveal-id="confirmModal" data-toggle="modal" data-target="#myModal"
-        data-from-path="{{ redirect.from_path }}">
+
+    <!-- Table of Redirects -->
+    <tr class="redirect-row table-hover">
+
+        <!-- Info column stuff -->
+        <td class="info-column" data-reveal-id="confirmModal" data-toggle="modal" data-target="#infoModal"
+        data-id="{{ redirect.id }}" data-username="{{ redirect.username }}">&#9432;</td> <!-- This is the info symbol -->
+
+        <!-- Delete column stuff -->
+        <td class="delete-column" data-reveal-id="confirmModal" data-toggle="modal" data-target="#deleteModal"
+        data-from-path="{{ redirect.from_path }}">x</td>
+
+        <!-- From Path -->
         <td>
             <span class="from_path">{{ redirect.from_path }}</span>
+            <!-- Short URL, if it has one -->
             {% if redirect.short_url %}
                 <span class="short_url label round">Short URL</span>
             {% endif %}
         </td>
+
+        <!-- To URL -->
         <td class="to_url">{{ redirect.to_url }}</td>
+
+        <!-- Expiration Date, if it has one -->
         {% if redirect.expiration_date %}
             <td class="expiration_date">{{ redirect.expiration_date }}</td>
         {% else %}
             <td></td>
         {% endif %}
+
     </tr>
+
 {% endfor %}
