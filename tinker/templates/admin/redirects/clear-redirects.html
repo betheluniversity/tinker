@@ -6,16 +6,20 @@
     {% if changed|length > 0 %}
        <p>These are the redirects being changed</p>
        <p>To Url | Response</p>
+        <p>
         {% for changed_dict in changed %}
-            <p>{{ changed_dict['to_url'] }} => {{ changed_dict['response'] }}</p>
+            {{ changed_dict['to_url'] }} => {{ changed_dict['response'] }}<br/>
         {% endfor %}
+        </p>
     {% endif %}
 
     {% if deleted|length > 0 %}
         <p>These are the redirects that can be deleted</p>
         <p>From Path | To Url</p>
+        <p>
         {% for deleted_dict in deleted %}
-            <p>{{ deleted_dict['from_path'] }} => {{ deleted_dict['to_url'] }}</p>
+            {{ deleted_dict['from_path'] }} => {{ deleted_dict['to_url'] }}<br/>
         {% endfor %}
+        </p>
     {% endif %}
 {% endif %}
