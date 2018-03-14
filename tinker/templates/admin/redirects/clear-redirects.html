@@ -1,25 +1,21 @@
-<p>--- THIS IS A TEST (caleb) ---</p>
-
+<div>
 {% if changed|length == 0 and deleted|length == 0 %}
-    <p>There are no changes or deletions to worry about. Good work!</p>
+    There are no changes or deletions to worry about. Good work!<br>
 {% else %}
     {% if changed|length > 0 %}
-       <p>These are the redirects being changed</p>
-       <p>To Url | Response</p>
-        <p>
+       These are the redirects being changed<br>
+       To Url --> Response<br/>
         {% for changed_dict in changed %}
-            {{ changed_dict['to_url'] }} => {{ changed_dict['response'] }}<br/>
+            {{ changed_dict['to_url'] }} --> {{ changed_dict['response'] }}<br>
         {% endfor %}
-        </p>
     {% endif %}
 
     {% if deleted|length > 0 %}
-        <p>These are the redirects that can be deleted</p>
-        <p>From Path | To Url</p>
-        <p>
+        These are the redirects that can be deleted<br>
+        From Path --> To Url<br/>
         {% for deleted_dict in deleted %}
-            {{ deleted_dict['from_path'] }} => {{ deleted_dict['to_url'] }}<br/>
+            {{ deleted_dict['from_path'] }} --> {{ deleted_dict['to_url'] }}<br>
         {% endfor %}
-        </p>
     {% endif %}
 {% endif %}
+</div>
