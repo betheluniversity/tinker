@@ -84,8 +84,16 @@ class RedirectsController(TinkerController):
 
         changed = []
         deleted = []
+        count = 0
 
         for redirect in redirects:
+            if count > 10:
+                continue
+
+            changed.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
+            deleted.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
+            count += 1
+
             try:
                 response = requests.get('https://www.bethel.edu' + redirect.from_path, verify=False)
                 redirect.to_url.replace('\n', '')
