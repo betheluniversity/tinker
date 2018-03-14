@@ -1,21 +1,21 @@
---- THIS IS A TEST (caleb) ---
+--- THIS IS A TEST (caleb) ---\n\n
 
 {% if changed|length == 0 and deleted|length == 0 %}
-    There are no changes or deletions to worry about. Good work!
+    There are no changes or deletions to worry about. Good work!\n
 {% else %}
     {% if changed|length > 0 %}
-       These are the redirects being changed\n
-       To Url | Response
+       These are the redirects being changed\n\n
+       To Url | Response\n
         {% for changed_dict in changed %}
-            {{ changed_dict['to_url'] }} => {{ changed_dict['response'] }}
+            {{ changed_dict['to_url'] }} => {{ changed_dict['response'] }}\n
         {% endfor %}
     {% endif %}
 
     {% if deleted|length > 0 %}
-        These are the redirects that can be deleted
-        From Path | To Url
+        These are the redirects that can be deleted\n
+        From Path | To Url\n
         {% for deleted_dict in deleted %}
-            {{ deleted_dict['from_path'] }} => {{ deleted_dict['to_url'] }}
+            {{ deleted_dict['from_path'] }} => {{ deleted_dict['to_url'] }}\n
         {% endfor %}
     {% endif %}
 {% endif %}
