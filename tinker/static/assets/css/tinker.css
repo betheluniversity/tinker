@@ -584,7 +584,14 @@ label.checkbox {
     padding: 15px !important;
     width: 40%;
     color: #FFFFFF;
+}
+
+[data-notify="container"].alert-success {
     background-color: #0069AA;
+}
+
+[data-notify="container"].alert-danger {
+    background-color: #D9534F;
 }
 
 .program-other, .topic, .delete-checkbox {

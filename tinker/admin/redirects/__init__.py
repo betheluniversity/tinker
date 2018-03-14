@@ -1,4 +1,5 @@
 # Global
+import json
 import re
 import requests
 import smtplib
@@ -69,24 +70,34 @@ class RedirectsView(FlaskView):
         else:
             expiration_date = None
 
-        if from_path is None or to_url is None:
-            return abort(400)
+        if self.base.paths_are_valid(from_path, to_url):
+            if not from_path.startswith("/"):
+                from_path = "/%s" % from_path
+            try:
+                new_redirect = self.base.add_row_to_db(from_path, to_url, short_url, expiration_date)
+                # Update the file after every submit?
+                self.base.create_redirect_text_file()
+                return json.dumps({
+                    'type': 'success',
+                    'message': 'Your redirect is saved'
+                })
 
-        if not from_path.startswith("/"):
-            from_path = "/%s" % from_path
-        try:
-            new_redirect = self.base.add_row_to_db(from_path, to_url, short_url, expiration_date)
-            # Update the file after every submit?
-            self.base.create_redirect_text_file()
-            return str(new_redirect)
-        except:
-            # Currently we are unable to track down why multiple redirects are being created. This causes this error:
-            # (IntegrityError) column from_path is not unique u'INSERT INTO bethel_redirect (from_path, to_url,
-            # short_url, expiration_date)
-            # Our work around is to just ignore the issue.
-            # hopefully this will catch the error.
-            self.base.rollback()
-            return ""
+            except:
+                # Currently we are unable to track down why multiple redirects are being created. This causes this error:
+                # (IntegrityError) column from_path is not unique u'INSERT INTO bethel_redirect (from_path, to_url,
+                # short_url, expiration_date)
+                # Our work around is to just ignore the issue.
+                # hopefully this will catch the error.
+                self.base.rollback()
+                return json.dumps({
+                    'type': 'danger',
+                    'message': 'Failed to add your redirect. A redirect with that from_path already exists.'
+                })
+        else:
+            return json.dumps({
+                'type': 'danger',
+                'message': 'Your redirect is invalid. Make sure the from_path is not "/" and the to_url exists'
+            })
 
     # Updates the redirect text file upon request
     def compile(self):
@@ -108,14 +119,14 @@ class RedirectsView(FlaskView):
             if i > 0:
                 from_url = row[0].split("bethel.edu")[1]
                 to_url = row[1]
-
-                try:
-                    self.base.add_row_to_db(from_url, to_url, None, None)
-                except Exception as e:
-                    # redirect already exists
-                    self.base.rollback()
-                    print e
-                    continue
+                if self.base.paths_are_valid(from_url, to_url):
+                    try:
+                        self.base.add_row_to_db(from_url, to_url, None, None)
+                    except Exception as e:
+                        # redirect already exists
+                        self.base.rollback()
+                        print e
+                        continue
             done_cell = "C%s" % str(i + 1)
             worksheet.update_acell(done_cell, 'x')
             time.sleep(1)
@@ -170,7 +181,9 @@ class RedirectsView(FlaskView):
                     line = line.replace('redirect:', '').lstrip().rstrip()
                     from_url, to_url = line.split()
                     from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
-                    redirect = self.base.api_add_row(from_path, to_url)
+
+                    if self.base.paths_are_valid(from_path, to_url):
+                        redirect = self.base.api_add_row(from_path, to_url)
             except:
                 self.base.rollback()
 
@@ -193,8 +206,8 @@ class RedirectsView(FlaskView):
             lines = all_text.split("Asset expiration notice for Public:")
             from_path = "/" + lines[1].lstrip().rstrip()
             to_url = "https://www.bethel.edu/employment/openings/postings/job-closed"
-            redirect = self.base.api_add_row(from_path, to_url)
-
+            if not self.base.paths_are_valid(from_path, to_url):
+                redirect = self.base.api_add_row(from_path, to_url)
         except:
             message = "redirect from %s to %s already exists" % (from_path, to_url)
             sender = 'tinker@bethel.edu'

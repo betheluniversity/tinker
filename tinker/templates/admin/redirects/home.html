@@ -79,17 +79,6 @@
             function updateTable(data) {
                 $("#redirects-table").html(data);
                 $('#new-redirect-to').attr("disabled", false);
-                //should the inputs be disabled?
-                var search_val = $("#new-redirect-from").val();
-                $(".from_path").each(function () {
-                    var this_val = $(this).html();
-                    if (search_val == this_val) {
-                        $("#new-redirect-to").val('');
-                        $("#new-redirect-from").val('');
-                        $("#expiration-date").val('');
-                        return false;
-                    }
-                });
                 $(".redirect-row").on('click', function () {
                     $("#modal-confirm").attr("data-delete-path", $(this).data('from-path'));
                 });
@@ -143,18 +132,6 @@
                 }, 300);
             });
 
-            $("#redirects-save").click(function () {
-                $.notify({
-                    message: 'Your redirect is saved'
-                }, {
-                    type: 'success',
-                    placement: {
-                        align: 'center'
-                    },
-
-                });
-            });
-
             $(document).ready(function () {
 
                 $('#redirects-save').click(function () {
@@ -167,6 +144,17 @@
 
                     var url = "{{ url_for('RedirectsView:new_redirect_submit') }}";
                     $.post(url, data, function (data) {
+                        if(data){
+                            data = JSON.parse(data);
+                            $.notify({
+                                message: data.message
+                            }, {
+                                type: data.type,
+                                placement: {
+                                    align: 'center'
+                                },
+                            });
+                        }
                         loadTableForSearch($('#new-redirect-from').val(), 'from_path');
                     });
 
