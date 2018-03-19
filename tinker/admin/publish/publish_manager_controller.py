@@ -17,8 +17,8 @@ class PublishManagerController(TinkerController):
 
         return date_time
 
-    def search(self, name_search="", content_search="", metadata_search="", pages_search="", blocks_search="",
-               files_search="", folders_search=""):
+    def search(self, name_search="", content_search="", metadata_search="", pages_search=False, blocks_search=False,
+               files_search=False, folders_search=False):
 
         search_information = {
             'matchType': "match-all",

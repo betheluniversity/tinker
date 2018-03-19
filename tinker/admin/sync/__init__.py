@@ -13,6 +13,7 @@ from xml.etree import ElementTree as ET
 from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from sync_controller import SyncController
+from tinker.admin.publish import PublishManagerController
 from tinker.tinker_controller import admin_permissions, requires_auth
 from bu_cascade.asset_tools import update
 
@@ -22,6 +23,7 @@ class SyncView(FlaskView):
 
     def __init__(self):
         self.base = SyncController()
+        self.publish_controller = PublishManagerController()
 
     def before_request(self, name, **kwargs):
         admin_permissions(self)
@@ -34,6 +36,7 @@ class SyncView(FlaskView):
 
         metadata_sets_mapping = self.base.get_metadata_sets_mapping()
         data_definition_mapping = self.base.get_data_definitions_mapping()
+        mapping_key_values = self.base.get_mapping_keys()
 
         return render_template('admin/sync/home.html', **locals())
 
@@ -116,3 +119,32 @@ class SyncView(FlaskView):
         self.base.publish(app.config['PRAYER_AND_MEMORIAL_ID'])
 
         return 'success'
+
+    @route("/find-and-replace", methods=['post'])
+    def find_and_replace(self):
+        data_dict = json.loads(request.data)
+        change_metadata_mapping = data_dict.get('change_metadata_mapping')
+        change_metadata_old_value = data_dict.get('change_metadata_old_value')
+        change_metadata_new_value = data_dict.get('change_metadata_new_value')
+
+        # get mapping
+        mapping_keys = self.base.get_mapping_keys()
+        # todo: let mapping have a default value, add the logic here
+        mapping = mapping_keys.get(change_metadata_mapping)
+
+        # todo: use the search to get the things.
+        assets_to_update = self.publish_controller.search(metadata_search=change_metadata_old_value, pages_search=True, blocks_search=True)
+
+        if hasattr(assets_to_update, 'matches') and hasattr(assets_to_update.matches, 'match'):
+            for asset in assets_to_update.matches.match:
+                try:
+                    # todo: check if it has the value
+                    # todo: do a cascade read/edit on each page
+                    # todo: set this up with a generator with content output below the "Find replace" button
+                    pass
+                except:
+                    continue
+        else:
+            return 'FAIL'
+
+        return 'DONE'
