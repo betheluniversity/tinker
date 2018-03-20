@@ -5,16 +5,12 @@ import HTMLParser
 # Packages
 from bu_cascade.asset_tools import find
 from createsend import Campaign, CreateSend
-from flask import Blueprint
 from flask_classy import FlaskView, route
 
 # Local
 from campaign_controller import NewsController
 from tinker import app
 from tinker.tinker_controller import requires_auth
-
-
-NewsBlueprint = Blueprint('news', __name__, template_folder='templates')
 
 
 class NewsView(FlaskView):
@@ -86,6 +82,3 @@ class NewsView(FlaskView):
             return 'failed'
 
         return resp
-
-
-NewsView.register(NewsBlueprint)

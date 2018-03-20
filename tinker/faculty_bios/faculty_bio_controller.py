@@ -275,20 +275,21 @@ class FacultyBioController(TinkerController):
         add_data['path'] = None
         faculty_bio_data['page']['metadata']['metaDescription'] = self.build_description(add_data)
 
-        # make sure author is set properly and not overriden by tinker controllers methods :(
-        # todo: add a parameter or something so we don't have to do this exchange.
+        # todo: eventually adjust the keys in cascade to work.
         add_data['author'] = add_data['author_faculty']
 
         # todo: eventually adjust the keys in cascade to work.
         add_data['started-at-bethel'] = add_data['started_at_bethel']
         add_data['teaching-specialty'] = add_data['teaching_specialty']
         add_data['research-interests'] = add_data['research_interests']
-        add_data['image'] = self.create_faculty_bio_image(add_data)
 
         # todo: this is a temp fix to override the already set system-name
         new_system_name = add_data['last'].strip() + '-' + add_data['first'].strip()
         new_system_name = new_system_name.lower().replace(' ', '-')
         add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', new_system_name)
+
+        # this needs to be done AFTER the system name is made.
+        add_data['image'] = self.create_faculty_bio_image(add_data)
 
         workflow_id = self.get_correct_workflow_id(add_data)
         workflow = self.create_workflow(workflow_id, subtitle=add_data['title'])
@@ -307,19 +308,19 @@ class FacultyBioController(TinkerController):
         from forms import FacultyBioForm
         form = FacultyBioForm()
 
-        # a quick check to quit out if necessary.
         self.log_sentry('Faculty Bio Image: Form', form)
         try:
+            # an image was uploaded
             form.image.data.filename
         except AttributeError:
-            return None
+            # no image selected - make sure to keep the image url as is.
+            return add_data.get('image_url')
 
-        image_name = add_data['last'].lower() + '-' + add_data['first'].lower() + '.jpg'
+        image_name = add_data['system_name'] + '.jpg'
         image_sub_path = '/academics/faculty/images'
         image_path = image_sub_path + '/' + image_name
         description = self.build_description(add_data)
 
-        # todo: someday change how this is done.
         self.log_sentry('Faculty Bio Image: Name', image_name)
         form.image.data.save(app.config['UPLOAD_FOLDER'] + image_name)
         image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
@@ -363,6 +364,10 @@ class FacultyBioController(TinkerController):
             self.update_asset(image_asset, new_values)
             resp = self.cascade_connector.create(image_asset)
             self.log_sentry('Created Faculty Bio Image', resp)
+
+        # delete the old image, if their name is changed (since it would have created a new image anyway.
+        if add_data.get('image_url') and add_data.get('image_url') != image_path:
+            self.delete(add_data.get('image_url'), 'file')
 
         self.publish(image_path, 'file')
         return image_path

@@ -134,10 +134,10 @@
         function changeInfo() {
             $.ajax({
                 type: 'POST',
-                url: '{{ url_for("e_announcements.EAnnouncementsView:ea_future") }}',
+                url: '{{ url_for("EAnnouncementsView:ea_future") }}',
                 data: {'dateId': $("#datepicker").val()},
                 success: function(result) {
-                    $('.show-ea').html(result)
+                    $('.show-ea').html(result);
                     $('#spinner').hide();
                 },
                 error: function() {

@@ -675,8 +675,12 @@ class TinkerController(object):
             # recursively renders children
             try:
                 if child.tag == 'a':
+                    if hasattr(child, 'attrib') and 'href' in child.attrib:
+                        child_href = child.attrib['href']
+                    else:
+                        child_href = '#'
                     return_string += '<%s href="%s">%s%s</%s>' % (
-                        child.tag, child.attrib['href'], child_text, self.element_tree_to_html(child), child.tag)
+                        child.tag, child_href, child_text, self.element_tree_to_html(child), child.tag)
                 else:
                     return_string += '<%s>%s%s</%s>' % (
                         child.tag, child_text, self.element_tree_to_html(child), child.tag)
@@ -684,8 +688,12 @@ class TinkerController(object):
                 # gets the basic text
                 if child_text:
                     if child.tag == 'a':
+                        if hasattr(child, 'attrib') and 'href' in child.attrib:
+                            child_href = child.attrib['href']
+                        else:
+                            child_href = '#'
                         return_string += '<%s href="%s">%s</%s>' % (
-                            child.tag, child.attrib['href'], child_text, child.tag)
+                            child.tag, child_href, child_text, child.tag)
                     else:
                         return_string += '<%s>%s</%s>' % (child.tag, child_text, child.tag)
 

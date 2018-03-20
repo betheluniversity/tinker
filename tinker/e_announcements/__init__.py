@@ -1,20 +1,16 @@
 # Global
 import datetime
 
-# Packages
 from bu_cascade.asset_tools import find
 from createsend import Campaign, CreateSend
-from flask import abort, Blueprint, render_template, session
+from flask import abort, render_template, session
 from flask_classy import FlaskView, request, route
 
 # Local
-from tinker import app
+from tinker import app, cache
 from tinker.tinker_controller import requires_auth
 from e_announcements_controller import EAnnouncementsController
 from campaign_controller import CampaignController
-
-
-EAnnouncementsBlueprint = Blueprint('e_announcements', __name__, template_folder='templates')
 
 
 class EAnnouncementsView(FlaskView):
@@ -28,16 +24,21 @@ class EAnnouncementsView(FlaskView):
         pass
 
     def index(self):
-        forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
+        username = session['username']
 
-        forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
-        return render_template('e-announcements/home.html', **locals())
+        @cache.memoize(timeout=600)
+        def index_cache(username):
+            forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
+
+            forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+            return render_template('e-announcements/home.html', **locals())
+        return index_cache(username)
 
     @route("/delete/<e_announcement_id>", methods=['GET', 'POST'])
     def delete(self, e_announcement_id):
         # must have access to delete
         # if session['groups'] not in 'E-Announcement Approver':
-        #     return redirect(url_for('e_announcements.EAnnouncementsView:index'), code=302)
+        #     return redirect(url_for('EAnnouncementsView:index'), code=302)
 
         block = self.base.read_block(e_announcement_id)
         e_announcement_data, mdata, sdata = block.read_asset()
@@ -62,6 +63,7 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('e-announcements/view.html', **locals())
 
+    @cache.memoize(timeout=3600)
     def new(self):
         from forms import EAnnouncementsForm
         form = EAnnouncementsForm()
@@ -278,6 +280,7 @@ class EAnnouncementsView(FlaskView):
 
         return render_template("e-announcements/future.html")
 
+    @cache.memoize(timeout=3601)
     @route("/ea_future", methods=['POST'])
     def ea_future(self):
         if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
@@ -315,7 +318,3 @@ class EAnnouncementsView(FlaskView):
                     get_title_and_message(form)
 
         return render_template("e-announcements/future-ajax.html", **locals())
-
-    # TODO e-announcements by role (someday)
-
-EAnnouncementsView.register(EAnnouncementsBlueprint)

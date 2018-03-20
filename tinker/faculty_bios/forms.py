@@ -59,7 +59,7 @@ def validate_username(form, field):
 
     content = req.content
     if content == str({}):
-        raise ValidationError("Enter the username you use to login to Blink and don't include '@bethel.edu'.")
+        raise ValidationError("Enter the username you use to login to MyBethel and don't include '@bethel.edu'.")
 
 
 class FacultyBioForm(Form):
