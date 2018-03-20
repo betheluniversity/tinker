@@ -3,13 +3,14 @@
     <!-- Table of Redirects -->
     <tr class="redirect-row table-hover">
 
-        <!-- Info column stuff -->
-        <td class="info-column" data-reveal-id="confirmModal" data-toggle="modal" data-target="#infoModal"
-        data-id="{{ redirect.id }}" data-username="{{ redirect.username }}">&#9432;</td> <!-- This is the info symbol -->
-
-        <!-- Delete column stuff -->
-        <td class="delete-column" data-reveal-id="confirmModal" data-toggle="modal" data-target="#deleteModal"
-        data-from-path="{{ redirect.from_path }}">x</td>
+        <!-- Info and Delete column stuff -->
+        <td>
+            <span class="info-column" data-reveal-id="confirmModal" data-toggle="modal" data-target="#infoModal"
+            data-id="{{ redirect.id }}" data-username="{{ redirect.username }}"
+            data-timestamp="{{ redirect.timestamp }}">&#9432;<!-- Info symbol --></span>
+            <span class="delete-column" data-reveal-id="confirmModal" data-toggle="modal" data-target="#deleteModal"
+            data-from-path="{{ redirect.from_path }}">x</span>
+        </td>
 
         <!-- From Path -->
         <td>

@@ -54,8 +54,7 @@
                         <table class="table">
                             <thead>
                             <tr>
-                                <th width="25"></th> <!-- Place holder for info -->
-                                <th width="25"></th> <!-- Place holder for delete -->
+                                <th width="150"></th> <!-- place holder for info and delete -->
                                 <th width="400">From Path</th>
                                 <th width="400">To URL</th>
                                 <th width="400">Expiration Date</th>
@@ -92,12 +91,16 @@
                         return false;
                     }
                 });
-                $(".delete-column").on('click', function () { //was redirect-row, not delete-column
+                //Listens for a click to delete a redirect
+                $(".delete-column").on('click', function () {
                     $("#modal-confirm").attr("data-delete-path", $(this).data('from-path'));
                 });
-                //$(".info-column").on('click',function(){
-                  //  $("#modal-confirm")
-                //});
+                //Listens for a click to get info on a redirect
+                $(".info-column").on('click',function(){
+                    $("#modal-id-display").text($(this).data('id'));
+                    $("#modal-username-display").text($(this).data("username"));
+                    $("#modal-date-display").text($(this).data("timestamp"));
+                });
             }
 
             var delay = (function () {
@@ -228,8 +231,18 @@
                     <h4 class="modal-title" id="myModalLabel">Redirect Information</h4>
                 </div>
                 <div class="modal-body">
-                    <div>ID:</div>
-                    <div>Username:</div>
+                    <div>
+                        ID:
+                        <span id="modal-id-display">No id was loaded</span>
+                    </div>
+                    <div>
+                        Username:
+                        <span id="modal-username-display">No username was loaded</span>
+                    </div>
+                    <div>
+                        Date Created:
+                        <span id="modal-date-display">No timestamp was loaded</span>
+                    </div>
                 </div>
             </div>
         </div>

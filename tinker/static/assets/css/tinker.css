@@ -692,3 +692,11 @@ label.checkbox {
 
 .admin-user-bar > p > a:hover {
   color: #337ab7; }
+
+.info-column{
+    color: gray;
+}
+
+.delete-column{
+    color: red;
+}
