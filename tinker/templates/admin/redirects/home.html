@@ -54,10 +54,10 @@
                         <table class="table">
                             <thead>
                             <tr>
-                                <th width="150"></th> <!-- place holder for info and delete -->
+                                <th width="25" class="info-label">Info</th>
                                 <th width="400">From Path</th>
                                 <th width="400">To URL</th>
-                                <th width="400">Expiration Date</th>
+                                <th width="25" class="delete-label">Delete</th>
                             </tr>
                             </thead>
                             <tbody id="redirects-table">
@@ -87,7 +87,6 @@
                     if (search_val == this_val) {
                         $("#new-redirect-to").val('');
                         $("#new-redirect-from").val('');
-                        $("#expiration-date").val('');
                         return false;
                     }
                 });
@@ -100,6 +99,7 @@
                     $("#modal-id-display").text($(this).data('id'));
                     $("#modal-username-display").text($(this).data("username"));
                     $("#modal-date-display").text($(this).data("timestamp"));
+                    $("#modal-exp-date-display").text($(this).data("exp-date"));
                 });
             }
 
@@ -242,6 +242,10 @@
                     <div>
                         Date Created:
                         <span id="modal-date-display">No timestamp was loaded</span>
+                    </div>
+                    <div>
+                        Expiration Date:
+                        <span id="modal-exp-date-display">No expiration date was loaded</span>
                     </div>
                 </div>
             </div>

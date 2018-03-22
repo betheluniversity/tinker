@@ -28,7 +28,7 @@
     height: 122px; /* height of the spinner gif +2px to fix IE8 issue */
 }
 
-.redirect-row {
+.clickable {
     cursor: pointer;
 }
 
@@ -694,9 +694,33 @@ label.checkbox {
   color: #337ab7; }
 
 .info-column{
-    color: gray;
+    color: grey;
+    font-size: 18px;
+    display: inline-block;
+    transition: transform .5s;
 }
 
 .delete-column{
+    color: grey;
+    font-size: 18px;
+    display: inline-block;
+    transition: transform .5s;
+}
+
+.delete-column:hover{
     color: red;
+    transform: scale(1.5);
+}
+
+.info-column:hover{
+    color: #0f69a9;
+    transform: scale(1.5);
+}
+
+.info-label{
+    text-align: left;
+}
+
+.delete-label{
+    text-align: center;
 }

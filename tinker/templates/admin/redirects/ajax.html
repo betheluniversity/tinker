@@ -1,15 +1,15 @@
 {% for redirect in redirects %}
 
     <!-- Table of Redirects -->
-    <tr class="redirect-row table-hover">
+    <tr>
 
-        <!-- Info and Delete column stuff -->
+        <!-- Info column -->
         <td>
-            <span class="info-column" data-reveal-id="confirmModal" data-toggle="modal" data-target="#infoModal"
+            <div class="info-column clickable" data-reveal-id="confirmModal" data-toggle="modal" data-target="#infoModal"
             data-id="{{ redirect.id }}" data-username="{{ redirect.username }}"
-            data-timestamp="{{ redirect.timestamp }}">&#9432;<!-- Info symbol --></span>
-            <span class="delete-column" data-reveal-id="confirmModal" data-toggle="modal" data-target="#deleteModal"
-            data-from-path="{{ redirect.from_path }}">x</span>
+            data-timestamp="{{ redirect.timestamp }}" data-exp-date="{{ redirect.expiration_date }}">
+                <i class="fa fa-info-circle"></i>
+            </div>
         </td>
 
         <!-- From Path -->
@@ -24,12 +24,13 @@
         <!-- To URL -->
         <td class="to_url">{{ redirect.to_url }}</td>
 
-        <!-- Expiration Date, if it has one -->
-        {% if redirect.expiration_date %}
-            <td class="expiration_date">{{ redirect.expiration_date }}</td>
-        {% else %}
-            <td></td>
-        {% endif %}
+        <!-- Delete Column -->
+        <td>
+            <div class="delete-column clickable" data-reveal-id="confirmModal" data-toggle="modal" data-target="#deleteModal"
+            data-from-path="{{ redirect.from_path }}">
+                <i class="fa fa-window-close"></i>
+            </div>
+        </td>
 
     </tr>
 
