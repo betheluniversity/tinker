@@ -4,18 +4,17 @@ import requests
 from datetime import datetime
 
 # Packages
-from flask import abort, render_template, request
+from flask import abort, render_template, request, Response
 from flask_classy import FlaskView, route
 from xml.etree import ElementTree as ET
 
 # Local
-
 from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from sync_controller import SyncController
 from tinker.admin.publish import PublishManagerController
 from tinker.tinker_controller import admin_permissions, requires_auth
-from bu_cascade.asset_tools import update
+from bu_cascade.asset_tools import find, update
 
 
 class SyncView(FlaskView):
@@ -120,31 +119,67 @@ class SyncView(FlaskView):
 
         return 'success'
 
-    @route("/find-and-replace", methods=['post'])
-    def find_and_replace(self):
-        data_dict = json.loads(request.data)
-        change_metadata_mapping = data_dict.get('change_metadata_mapping')
-        change_metadata_old_value = data_dict.get('change_metadata_old_value')
-        change_metadata_new_value = data_dict.get('change_metadata_new_value')
+    @requires_auth
+    @route("/find-and-replace/<change_metadata_mapping>/<change_metadata_old_value>/<change_metadata_new_value>")
+    def find_and_replace(self, change_metadata_mapping, change_metadata_old_value, change_metadata_new_value):
+        if not change_metadata_mapping or not change_metadata_old_value or not change_metadata_new_value:
+            abort(500)
 
-        # get mapping
-        mapping_keys = self.base.get_mapping_keys()
-        # todo: let mapping have a default value, add the logic here
-        mapping = mapping_keys.get(change_metadata_mapping)
+        def generate():
+            yield 'Mapping: %s\n' % change_metadata_mapping
+            yield 'Old Value: %s\n' % change_metadata_old_value
+            yield 'New Value: %s\n' % change_metadata_new_value
+            yield '----------------\n'
+            # get mapping
+            mapping_keys = self.base.get_all_mappings()
+            # todo: let mapping have a default value, add the logic here
+            mapping = mapping_keys.get(change_metadata_mapping)
 
-        # todo: use the search to get the things.
-        assets_to_update = self.publish_controller.search(metadata_search=change_metadata_old_value, pages_search=True, blocks_search=True)
+            assets_to_update = self.publish_controller.search(metadata_search=change_metadata_old_value, pages_search=True, blocks_search=True)
 
-        if hasattr(assets_to_update, 'matches') and hasattr(assets_to_update.matches, 'match'):
-            for asset in assets_to_update.matches.match:
-                try:
-                    # todo: check if it has the value
-                    # todo: do a cascade read/edit on each page
-                    # todo: set this up with a generator with content output below the "Find replace" button
-                    pass
-                except:
-                    continue
-        else:
-            return 'FAIL'
+            # check to make sure there are valid matches
+            if hasattr(assets_to_update, 'matches') and hasattr(assets_to_update.matches, 'match'):
+                num_assets = len(assets_to_update.matches.match)
+                asset_number = 0
+                for asset in assets_to_update.matches.match:
+                    asset_number += 1
+                    asset_path = '(blank)'
+                    try:
+                        if asset.type == 'page':
+                            asset_object = self.base.read_page(asset.id)
+                        elif asset.type == 'block':
+                            asset_object = self.base.read_block(asset.id)
+                        else:
+                            continue
 
-        return 'DONE'
+                        asset_to_update = asset_object.asset
+                        asset_path = '/' + find(asset_to_update, 'path', False)
+                        asset_changed = False
+
+                        for mapping_key in mapping:
+                            old_values = find(asset_to_update, mapping_key, False)
+                            new_values = []
+                            if old_values:
+                                for value in old_values:
+                                    if value == change_metadata_old_value:
+                                        new_values.append(change_metadata_new_value)
+                                    else:
+                                        new_values.append(value)
+
+                            if old_values != new_values:
+                                update(asset_to_update, mapping_key, new_values)
+                                asset_changed = True
+
+                        if asset_changed:
+                            # asset_object.edit_asset(asset_to_update)
+                            yield '(%s/%s) success: %s\n' % (asset_number, num_assets, asset_path)
+                        else:
+                            yield '(%s/%s) skip, nothing to change: %s\n' % (asset_number, num_assets, asset_path)
+                    except:
+                        yield '(%s/%s) failed: Could not load %s' % (asset_number, num_assets, asset_path)
+                        continue
+                yield 'finish'
+            else:
+                yield 'fail: unable to search for matches\n'
+
+        return Response(generate(), mimetype='text/json')

@@ -129,7 +129,8 @@ class SyncController(TinkerController):
 
     def get_mapping_keys(self):
         mapping_key_values = {
-            'school': 'School',
+            #  this is disabled due to rarely needing it, and also because we have assets with different uses
+            # 'school': 'School',
             'department': 'CAS Program',
             'adult-undergrad-program': 'CAPS Program',
             'graduate-program': 'Graduate Program',
@@ -143,7 +144,8 @@ class SyncController(TinkerController):
 
     def get_all_mappings(self):
         mapping = {
-            'school': ['school'],  # todo: need to modify school to work with both
+            # this is disabled due to rarely needing it, and also because we have assets with different uses
+            # 'school': ['school'],
             'department': ['department', 'cas-departments'],
             'adult-undergrad-program': ['adult-undergrad-program'],
             'graduate-program': ['graduate-program'],
