@@ -697,6 +697,7 @@ label.checkbox {
     color: grey;
     font-size: 18px;
     display: inline-block;
+    padding-left: 25%;
     transition: transform .5s;
 }
 
@@ -704,6 +705,7 @@ label.checkbox {
     color: grey;
     font-size: 18px;
     display: inline-block;
+    padding-left: 35%;
     transition: transform .5s;
 }
 
@@ -715,12 +717,4 @@ label.checkbox {
 .info-column:hover{
     color: #0f69a9;
     transform: scale(1.5);
-}
-
-.info-label{
-    text-align: left;
-}
-
-.delete-label{
-    text-align: center;
 }

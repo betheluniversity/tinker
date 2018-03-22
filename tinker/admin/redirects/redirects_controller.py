@@ -62,8 +62,8 @@ class RedirectsController(TinkerController):
         results.sort()
         return results
 
-    def delete_row_from_db(self, from_path):
-        redirect_to_delete = BethelRedirect.query.get(from_path)
+    def delete_row_from_db(self, id):
+        redirect_to_delete = BethelRedirect.query.get(id)
         self.db.session.delete(redirect_to_delete)
         self.db.session.commit()
 
