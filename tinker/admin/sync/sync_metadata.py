@@ -61,6 +61,7 @@ adult_undergrad_programs = [
 seminary_programs = [
     "None",
     "Anglican Studies Certificate",
+    "Biblical Studies Certificate",
     "Certificate in Church Planting",
     "Children's & Family Ministry (M.A.)",
     "Christian Studies Certificate",
