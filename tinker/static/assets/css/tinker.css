@@ -560,25 +560,25 @@ label {
 }
 
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
-    /*vertical-align: unset !important;*/
+    vertical-align: unset !important;
 }
 
-.table{
+.redirect-table{
     table-layout: fixed;
     width: 100%;
 }
 
-.table tbody{
+.redirect-table tbody{
     word-wrap: break-word;
 }
 
-.table th:nth-child(1),
-.table th:nth-child(4){
+.redirect-table th:nth-child(1),
+.redirect-table th:nth-child(4){
     width: 10%;
 }
 
-.table th:nth-child(2),
-.table th:nth-child(3){
+.redirect-table th:nth-child(2),
+.redirect-table th:nth-child(3){
     width: 40%;
 }
 
@@ -704,13 +704,16 @@ label.checkbox {
   width: 100%;
   text-align: center;
   height: 3em;
-  padding-top: 1em; }
+  padding-top: 1em;
+}
 
 .admin-user-bar > p > a {
-  color: #0f2c52; }
+  color: #0f2c52;
+}
 
 .admin-user-bar > p > a:hover {
-  color: #337ab7; }
+  color: #337ab7;
+}
 
 .info-column{
     color: grey;

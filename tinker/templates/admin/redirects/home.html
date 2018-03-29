@@ -48,7 +48,7 @@
                         </form>
                     </div>
                 </div>
-                <table class="table">
+                <table class="redirect-table table">
                     <thead>
                     <tr>
                         <th>Info</th>
@@ -57,7 +57,7 @@
                         <th>Delete</th>
                     </tr>
                     </thead>
-                    <tbody id="redirects-table">
+                    <tbody id="redirects-search-output">
                     </tbody>
                 </table>
                 {# spinner placeholder #}
@@ -73,7 +73,7 @@
         $(document).ready(function () {
 
             function updateTable(data) {
-                $("#redirects-table").html(data);
+                $("#redirects-search-output").html(data);
                 $('#new-redirect-to').attr("disabled", false);
                 //should the inputs be disabled?
                 var search_val = $("#new-redirect-from").val();
@@ -171,10 +171,13 @@
                     var url = "{{ url_for('redirects.RedirectsView:new_redirect_submit') }}";
                     $.post(url, data, function (data) {
                         loadTableForSearch($('#new-redirect-from').val(), 'from_path');
+                        // After search, clears fields
+                        $("#new-redirect-to").val('');
+                        $("#new-redirect-from").val('');
+                        $('#expiration-date').val('');
+                        $('#new-redirect-short-url').attr('checked', false);
+                        $('#new-redirect-short-url').parent().removeClass('checked');
                     });
-                    $('#expiration-date').val('');
-                    $('#new-redirect-short-url').attr('checked', false);
-                    $('#new-redirect-short-url').parent().removeClass('checked');
                 });
 
                 $(".btn-alert").click(function () {
