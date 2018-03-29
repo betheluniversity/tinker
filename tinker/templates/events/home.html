@@ -33,9 +33,9 @@
                 <ul class="btn-group-horizontal">
                     {% if form.is_published %}
                         <li><a href="{{ form.path }}" class="small btn btn-primary">View</a></li>
-                        <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}"
+                        <li><a href="{{ url_for('EventsView:edit', event_id=form.id) }}"
                                class="small btn btn-primary">Edit</a></li>
-                        <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
+                        <li><a href="{{ url_for('EventsView:duplicate', event_id=form.id) }}"
                                class="small btn btn-primary">Duplicate</a></li>
                     {% else %}
                         <li>This event is pending approval.</li>
@@ -60,7 +60,7 @@
 
                 <div>
                     {# create an event button #}
-                    <a href="{{ url_for('events.EventsView:add') }}" id="event-create" class="btn btn-primary new-btn">
+                    <a href="{{ url_for('EventsView:add') }}" id="event-create" class="btn btn-primary new-btn">
                         Create New Event
                     </a>
                     {# in action add the url calling the post method for search#}
@@ -183,7 +183,7 @@
             var picker = new Pikaday(starting_values);
         });
         function search_events() {
-            search_url = "{{ url_for('events.EventsView:search') }}";
+            search_url = "{{ url_for('EventsView:search') }}";
             $('#spinner').show();
             inputs = {
                 "title": $("#eventTitle").val(),

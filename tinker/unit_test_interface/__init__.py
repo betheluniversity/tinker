@@ -8,15 +8,13 @@ from cStringIO import StringIO
 from datetime import datetime, timedelta
 
 # Packages
-from flask import Blueprint, abort, render_template, stream_with_context, Response
+from flask import abort, render_template, stream_with_context, Response
 from flask_classy import FlaskView, route
 from requests import api as Requests_API
 
 # Local
 from tinker import app
 from testing_suite.utilities import get_tests_in_this_dir
-
-UnitTestBlueprint = Blueprint('UnitTestBlueprint', __name__, template_folder='templates')
 
 
 def convert_string_to_HTML(string_to_change):
@@ -79,7 +77,7 @@ def format_date(date_string):
         return str(time_zone_adjusted_date_object) + " A.M."
 
 
-class UnitTestInterface(FlaskView):
+class UnitTestInterfaceView(FlaskView):
     route_base = '/unit-test'
 
     def __init__(self):
@@ -193,5 +191,3 @@ class UnitTestInterface(FlaskView):
         else:
             succinct_result = "Pass"
         return json.dumps([module, succinct_result, convert_string_to_HTML(output.getvalue())])
-
-UnitTestInterface.register(UnitTestBlueprint)

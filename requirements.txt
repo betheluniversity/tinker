@@ -1,3 +1,7 @@
+SQLAlchemy==1.1.15
+Flask-SQLAlchemy==2.1
+SQLAlchemy-migrate
+six
 Flask
 gunicorn
 Flask-Cache
@@ -35,3 +39,4 @@ selenium==3.6.0
 HTMLParser
 unidecode==0.4.21
 namedentities
+redis

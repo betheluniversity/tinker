@@ -366,7 +366,7 @@ class FacultyBioController(TinkerController):
             self.log_sentry('Created Faculty Bio Image', resp)
 
         # delete the old image, if their name is changed (since it would have created a new image anyway.
-        if add_data.get('image_url') != image_path:
+        if add_data.get('image_url') and add_data.get('image_url') != image_path:
             self.delete(add_data.get('image_url'), 'file')
 
         self.publish(image_path, 'file')

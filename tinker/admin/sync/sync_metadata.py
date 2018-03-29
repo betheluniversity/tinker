@@ -54,12 +54,14 @@ adult_undergrad_programs = [
     "Management Information Systems (B.S.)",
     "Nursing (RN to B.S.)",
     "Organizational Leadership (B.A.)",
+    "Senior Care Leadership and Administration Certificate",
     "Special Education (B.A.)",
 ]
 
 seminary_programs = [
     "None",
     "Anglican Studies Certificate",
+    "Biblical Studies Certificate",
     "Certificate in Church Planting",
     "Children's & Family Ministry (M.A.)",
     "Christian Studies Certificate",

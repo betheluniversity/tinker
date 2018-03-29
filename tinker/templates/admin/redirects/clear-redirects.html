@@ -1,40 +1,21 @@
+<div>
 {% if changed|length == 0 and deleted|length == 0 %}
-    <p>There are no changes or deletions to worry about. Good work!</p>
+    There are no changes or deletions to worry about. Good work!<br>
 {% else %}
     {% if changed|length > 0 %}
-        <table>
-            <caption>These are the redirects being changed</caption>
-            <thead>
-                <tr>
-                    <th>To Url</th>
-                    <th>Response</th>
-                </tr>
-            </thead>
-            {% for changed_dict in changed %}
-                <tr>
-                    <td>{{ changed_dict['to_url'] }}</td>
-                    <td>{{ changed_dict['response'] }}</td>
-                </tr>
-            {% endfor %}
-        </table>
+       These are the redirects being changed<br>
+       To Url --> Response<br/>
+        {% for changed_dict in changed %}
+            {{ changed_dict['to_url'] }} --> {{ changed_dict['response'] }}<br>
+        {% endfor %}
     {% endif %}
 
     {% if deleted|length > 0 %}
-        <table>
-            <caption>These are the redirects that can be deleted</caption>
-            <thead>
-                <tr>
-                    <th>From Path</th>
-                    <th>To Url</th>
-                </tr>
-            </thead>
-            {% for deleted_dict in deleted %}
-                <tr>
-                    <td>{{ deleted_dict['from_path'] }}</td>
-                    <td>{{ deleted_dict['to_url'] }}</td>
-                </tr>
-            {% endfor %}
-        </table>
-
+        These are the redirects that can be deleted<br>
+        From Path --> To Url<br/>
+        {% for deleted_dict in deleted %}
+            {{ deleted_dict['from_path'] }} --> {{ deleted_dict['to_url'] }}<br>
+        {% endfor %}
     {% endif %}
 {% endif %}
+</div>

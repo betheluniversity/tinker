@@ -15,7 +15,7 @@
             <div class="col-md-12">
                 <h3 class="subtitle">Automated publishers</h3>
                 <hr/>
-                <a href='{{ url_for('publish.PublishView:publish_program_feeds') }}' class="btn btn-primary">Program Feeds</a>
+                <a href='{{ url_for('PublishView:publish_program_feeds') }}' class="btn btn-primary">Program Feeds</a>
                 <br/>
                 <br/>
                 <div class="card">
@@ -143,7 +143,7 @@
                     'name': name_value, 'content': content_value, 'metadata': metadata_value, 'pages': pages_value,
                     'blocks': blocks_value, 'files': files_value, 'folders': folders_value
                 };
-                var url = "{{ url_for('publish.PublishView:search') }}";
+                var url = "{{ url_for('PublishView:search') }}";
                 $.post(url, search, function (data) {
                     updateTable(data)
                 });
@@ -191,7 +191,7 @@
 
             function moreInfo(type, id) {
                 var input_data = {'type': type, 'id': id};
-                var url = "{{ url_for('publish.PublishView:more_info') }}";
+                var url = "{{ url_for('PublishView:more_info') }}";
                 $.post(url, input_data, function (data) {
                     $('#dialog-text').html(data);
                 });

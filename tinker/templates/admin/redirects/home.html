@@ -114,7 +114,7 @@
             function loadTableForSearch(search_value, type) {
                 // type needs to be either 'from_path' or 'to_url'
                 var search = {'type': type, 'search': search_value};
-                var url = "{{ url_for('redirects.RedirectsView:search') }}";
+                var url = "{{ url_for('RedirectsView:search') }}";
                 $.post(url, search, function (data) {
                     updateTable(data);
                 });
@@ -168,7 +168,7 @@
                         'expiration-date': $('#expiration-date').val()
                     };
 
-                    var url = "{{ url_for('redirects.RedirectsView:new_redirect_submit') }}";
+                    var url = "{{ url_for('RedirectsView:new_redirect_submit') }}";
                     $.post(url, data, function (data) {
                         loadTableForSearch($('#new-redirect-from').val(), 'from_path');
                         // After search, clears fields
@@ -181,9 +181,9 @@
                 });
 
                 $(".btn-alert").click(function () {
-                    var redirect_data = {"redirect_id": $(this).attr('data-delete-id')};
-                    var url = "{{ url_for('redirects.RedirectsView:delete_redirect') }}";
-                    $.post(url, redirect_data, function (data) {
+                    var from_path = {"from_path": $(this).attr('data-delete-path')};
+                    var url = "{{ url_for('RedirectsView:delete_redirect') }}";
+                    $.post(url, from_path, function (data) {
                         if (data) {
                             loadTableForSearch($("#new-redirect-from").val(), 'from_path');
                         }
