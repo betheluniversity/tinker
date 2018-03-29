@@ -36,9 +36,9 @@ class RedirectsView(FlaskView):
     @route("/delete", methods=['post'])
     def delete_redirect(self):
         rform = self.base.dictionary_encoder.encode(request.form)
-        path = rform['from_path']
+        redirect_id = rform['redirect_id']
         try:
-            self.base.delete_row_from_db(path)
+            self.base.delete_row_from_db(redirect_id)
             resp = self.base.create_redirect_text_file()
         except:
             return "fail"
