@@ -118,29 +118,29 @@
             };
         })();
 
-        $("#program-submit").click(function () {
-            $.notify({
-                message: 'You have successfully submitted your program'
-            }, {
-                type: 'success',
-                placement: {
-                    align: 'center'
-                },
+        {#$("#program-submit").click(function () {#}
+        {#    $.notify({#}
+        {#        message: 'You have successfully submitted your program'#}
+        {#    }, {#}
+        {#        type: 'success',#}
+        {#        placement: {#}
+        {#            align: 'center'#}
+        {#        },#}
+        {##}
+        {#    });#}
+        {# });#}
 
-            });
-        });
-
-        $(".search-input").keyup(function () {
-            $('#spinner').show();
-            delay(function () {
-                loadTableForSearch();
-            }, 300);
-        }).change(function () {
-            $('#spinner').show();
-            delay(function () {
-                loadTableForSearch();
-            }, 300);
-        });
+        {#$(".search-input").keyup(function () {#}
+        {#    $('#spinner').show();#}
+        {#    delay(function () {#}
+        {#        loadTableForSearch();#}
+        {#    }, 300);#}
+        {# }).change(function () {#}
+        {#    $('#spinner').show();#}
+        {#    delay(function () {#}
+        {#        loadTableForSearch();#}
+        {#    }, 300);#}
+        {# });#}
 
         function loadTableForSearch() {
             {#            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');#}
@@ -171,7 +171,7 @@
             var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");
             for (var i = 0; i < checkbox_elements.length; i++) {
                 checkboxes_to_delete.push(checkbox_elements[i].id);
-            }
+             }
 
             $.ajax({
                 type: "POST",
@@ -181,7 +181,7 @@
                 success: function (result) {
                     loadTableForSearch();
                 }
-            });
+             });
         });
 
         $(".delete-checkbox").click(function () {
@@ -195,25 +195,37 @@
         });
 
         $('#program_search_form').submit(function () {
-            var formData = {
-                'key': $('select[name=key]').val(),
-                'tag': $('input[name=tag]').val(),
-                'outcome': $('input[name=outcome]:checked').val(),
-                'topic': $('input[name=topic]:checked').val(),
-                'other': $('input[name=other]:checked').val()
-            };
-
-            $.ajax({
-                type: "POST",
-                url: "{{ url_for('ProgramSearchView:submit') }}",
-                data: JSON.stringify(formData),
-                contentType: 'application/json;charset=UTF-8',
-                success: function (result) {
-                    loadTableForSearch();
-                }
-            });
-            return false;
+            $('#spinner').show();
+            delay(function () {
+                loadTableForSearch();
+            }, 300);
+        }).change(function () {
+            $('#spinner').show();
+            delay(function () {
+                loadTableForSearch();
+            }, 300);
         });
+
+        {#$('#program_search_form').submit(function () {#}
+        {#    var formData = {#}
+        {#        'key': $('select[name=key]').val(),#}
+        {#        'tag': $('input[name=tag]').val(),#}
+        {#        'outcome': $('input[name=outcome]:checked').val(),#}
+        {#        'topic': $('input[name=topic]:checked').val(),#}
+        {#        'other': $('input[name=other]:checked').val()#}
+        {#    };#}
+        {##}
+        {#    $.ajax({#}
+        {#        type: "POST",#}
+        {#        url: "{{ url_for('ProgramSearchView:submit') }}",#}
+        {#        data: JSON.stringify(formData),#}
+        {#        contentType: 'application/json;charset=UTF-8',#}
+        {#        success: function (result) {#}
+        {#            loadTableForSearch();#}
+        {#        }#}
+        {#    });#}
+        {#    return false;#}
+        {# });#}
     </script>
 
     {% block modalhtml %}
