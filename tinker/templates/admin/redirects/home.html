@@ -95,6 +95,9 @@
                     $("#modal-username-display").text($(this).data("username"));
                     $("#modal-date-display").text($(this).data("timestamp"));
                     $("#modal-exp-date-display").text($(this).data("exp-date"));
+                    $("#modal-from-path-display").text($(this).data("from-path"));
+                    $("#modal-to-url-display").text($(this).data("to-url"));
+                    $("#modal-short-url-display").text($(this).data("short-url"));
                 });
             }
 
@@ -232,19 +235,31 @@
                 </div>
                 <div class="modal-body">
                     <div>
-                        ID:
+                        <u>ID:</u>
                         <span id="modal-id-display">No id was loaded</span>
                     </div>
                     <div>
-                        Username:
+                        <u>Username:</u>
                         <span id="modal-username-display">No username was loaded</span>
                     </div>
                     <div>
-                        Date Created:
+                        <u>Date Created:</u>
                         <span id="modal-date-display">No timestamp was loaded</span>
                     </div>
                     <div>
-                        Expiration Date:
+                        <u>From Path:</u>
+                        <span id="modal-from-path-display">No from path was loaded</span>
+                    </div>
+                    <div>
+                        <u>To URL:</u>
+                        <span id="modal-to-url-display">No to URL was loaded</span>
+                    </div>
+                    <div>
+                        <u>Short URL:</u>
+                        <span id="modal-short-url-display">No short URL was loaded</span>
+                    </div>
+                    <div>
+                        <u>Expiration Date:</u>
                         <span id="modal-exp-date-display">No expiration date was loaded</span>
                     </div>
                 </div>
