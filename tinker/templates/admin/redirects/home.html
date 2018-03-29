@@ -181,9 +181,9 @@
                 });
 
                 $(".btn-alert").click(function () {
-                    var from_path = {"from_path": $(this).attr('data-delete-path')};
+                    var redirect_data = {"redirect_id": $(this).attr('data-delete-id')};
                     var url = "{{ url_for('RedirectsView:delete_redirect') }}";
-                    $.post(url, from_path, function (data) {
+                    $.post(url, redirect_data, function (data) {
                         if (data) {
                             loadTableForSearch($("#new-redirect-from").val(), 'from_path');
                         }
