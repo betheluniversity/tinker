@@ -741,4 +741,6 @@ label.checkbox {
     transform: scale(1.5);
 }
 
-
+.edit-btn{
+    margin-top: 15px;
+}
