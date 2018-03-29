@@ -5,9 +5,14 @@
 
         <!-- Info column -->
         <td>
+            {% if redirect.timestamp %}
+                {% set data_timestamp = redirect.timestamp %}
+            {% else %}
+                {% set data_timestamp = "Before DATE" %}
+            {% endif %}
             <div class="info-column clickable" data-reveal-id="confirmModal" data-toggle="modal" data-target="#infoModal"
             data-id="{{ redirect.id }}" data-username="{{ redirect.username }}"
-            data-timestamp="{{ redirect.timestamp }}" data-exp-date="{{ redirect.expiration_date }}">
+            data-timestamp="{{ data_timestamp }}" data-exp-date="{{ redirect.expiration_date }}">
                 <i class="fa fa-info-circle"></i>
             </div>
         </td>
