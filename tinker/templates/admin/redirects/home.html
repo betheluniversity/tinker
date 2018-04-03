@@ -85,12 +85,13 @@
                         return false;
                     }
                 });
-                //Listens for a click to delete a redirect
+                // Listens for a click to delete a redirect
                 $(".delete-column").on('click', function () {
                     $("#modal-confirm").attr("data-delete-id", $(this).data('id'));
                 });
-                //Listens for a click to get info on a redirect
+                // Listens for a click to get info on a redirect
                 $(".info-column").on('click',function(){
+                    // Displaying data
                     $("#modal-id-display").text($(this).data('id'));
                     $("#modal-username-display").text($(this).data("username"));
                     $("#modal-date-display").text($(this).data("timestamp"));
@@ -98,6 +99,13 @@
                     $("#modal-from-path-display").text($(this).data("from-path"));
                     $("#modal-to-url-display").text($(this).data("to-url"));
                     $("#modal-short-url-display").text($(this).data("short-url"));
+                    // Hiding edit fields
+                    $("#modal-id-edit").hide();
+                    $("#modal-username-edit").hide();
+                    $("#modal-date-edit").hide();
+                    $("#modal-exp-date-edit").hide();
+                    $("#modal-from-path-edit").hide();
+                    $("#modal-to-url-edit").hide();
                 });
             }
 
@@ -192,6 +200,22 @@
                         }
                     });
                 });
+                $(".edit-redirect-btn").click(function () {
+                    //Hiding info fields
+                    $("#modal-id-display").hide();
+                    $("#modal-username-display").hide();
+                    $("#modal-date-display").hide();
+                    $("#modal-exp-date-display").hide();
+                    $("#modal-from-path-display").hide();
+                    $("#modal-to-url-display").hide();
+                    // Showing edit fields and putting in default values
+                    $("#modal-id-edit").show();
+                    $("#modal-username-edit").show();
+                    $("#modal-date-edit").show();
+                    $("#modal-exp-date-edit").show();
+                    $("#modal-from-path-edit").show();
+                    $("#modal-to-url-edit").show();
+                });
 
             });
 
@@ -237,35 +261,55 @@
                     <table class="table">
                         <tr>
                             <th>ID:</th>
-                            <td id="modal-id-display">No id was loaded</td>
+                            <td>
+                                <span id="modal-id-display">No id was loaded</span>
+                                <input type="text" id="modal-id-edit" readonly/>
+                            </td>
                         </tr>
                         <tr>
                             <th>Username:</th>
-                            <td id="modal-username-display">No username was loaded</td>
+                            <td>
+                                <span id="modal-username-display">No username was loaded</span>
+                                <input type="text" id="modal-username-edit" readonly/>
+                            </td>
                         </tr>
                         <tr>
                             <th>From Path:</th>
-                            <td id="modal-from-path-display">No from path was loaded</td>
+                            <td>
+                                <span id="modal-from-path-display">No from path was loaded</span>
+                                <input type="text" id="modal-from-path-edit"/>
+                            </td>
                         </tr>
                         <tr>
                             <th>To URL:</th>
-                            <td id="modal-to-url-display">No to URL was loaded</td>
+                            <td>
+                                <span id="modal-to-url-display">No to URL was loaded</span>
+                                <input type="text" id="modal-to-url-edit"/>
+                            </td>
                         </tr>
                         <tr>
                             <th>Short URL:</th>
-                            <td id="modal-short-url-display">No short URL was loaded</td>
+                            <td>
+                                <span id="modal-short-url-display">No short URL was loaded</span>
+                            </td>
                         </tr>
                         <tr>
                             <th>Date Created:</th>
-                            <td id="modal-date-display">No timestamp was loaded</td>
+                            <td>
+                                <span id="modal-date-display">No timestamp was loaded</span>
+                                <input type="text" id="modal-date-edit" readonly/>
+                            </td>
                         </tr>
                         <tr>
                             <th>Expiration Date:</th>
-                            <td id="modal-exp-date-display">No expiration date was loaded</td>
+                            <td>
+                                <span id="modal-exp-date-display">No expiration date was loaded</span>
+                                <input type="text" id="modal-exp-date-edit"/>
+                            </td>
                         </tr>
                     </table>
                     <div class="edit-btn">
-                        <a class="btn btn-primary">Edit</a>
+                        <a id="modal-edit-redirect-btn" class="btn btn-primary edit-redirect-btn">Edit</a>
                     </div>
                 </div>
             </div>
