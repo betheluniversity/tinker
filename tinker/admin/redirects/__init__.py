@@ -110,7 +110,7 @@ class RedirectsView(FlaskView):
                 to_url = row[1]
 
                 try:
-                    self.base.add_row_to_db(from_url, to_url, None, None)
+                    self.base.add_row_to_db(from_url, to_url, None, None, username="API-Marcel")
                 except Exception as e:
                     # redirect already exists
                     self.base.rollback()

@@ -11,12 +11,15 @@ class BethelRedirect(db.Model):
     timestamp = db.Column(db.Date, default=datetime.now())
     username = db.Column(db.String(20), default='n/a')
 
-    def __init__(self, from_path, to_url, short_url=None, expiration_date=None):
+    def __init__(self, from_path, to_url, short_url=None, expiration_date=None, username=None):
         self.from_path = from_path
         self.to_url = to_url
         self.short_url = short_url
         self.expiration_date = expiration_date
-        self.username = session['username']
+        if username:
+            self.username = username
+        else:
+            self.username = session["username"]
 
     def __repr__(self):
         return '<Redirect %s to %s>' % (self.from_path, self.to_url)

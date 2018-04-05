@@ -85,10 +85,12 @@
                         return false;
                     }
                 });
+
                 // Listens for a click to delete a redirect
                 $(".delete-column").on('click', function () {
                     $("#modal-confirm").attr("data-delete-id", $(this).data('id'));
                 });
+
                 // Listens for a click to get info on a redirect
                 $(".info-column").on('click',function(){
                     // Displaying data
@@ -99,6 +101,9 @@
                     $("#modal-from-path-display").text($(this).data("from-path")).show();
                     $("#modal-to-url-display").text($(this).data("to-url")).show();
                     $("#modal-edit-redirect-btn").show();
+                    //Check or uncheck short url
+                    $('#redirect-short-url').attr('checked', true);
+                    $('#redirect-short-url').parent().addClass('checked');
                     // Hiding edit fields
                     $("#modal-id-edit").val($(this).data('id')).hide();
                     $("#modal-username-edit").val($(this).data('username')).hide();
@@ -166,7 +171,7 @@
                     type: 'success',
                     placement: {
                         align: 'center'
-                    },
+                    }
 
                 });
             });
@@ -202,6 +207,7 @@
                         }
                     });
                 });
+
                 $(".edit-redirect-btn").click(function () {
                     // Hiding info fields
                     $("#modal-id-display").hide();
@@ -211,7 +217,7 @@
                     $("#modal-from-path-display").hide();
                     $("#modal-to-url-display").hide();
                     $("#modal-edit-redirect-btn").hide();
-                    // Showing edit fields and putting in default values
+                    // Showing edit fields
                     $("#modal-id-edit").show();
                     $("#modal-username-edit").show();
                     $("#modal-date-edit").show();
@@ -220,6 +226,20 @@
                     $("#modal-to-url-edit").show();
                     $("#modal-submit-edits-btn").show();
                     $("#modal-cancel-edits-btn").show();
+                });
+
+                $(".submit-edits-btn").click(function(){
+                    // Submit changes
+
+                    // Notify changes
+                    $.notify({
+                        message: 'Your changes have been saved'
+                    }, {
+                        type: 'success',
+                        placement: {
+                            align: 'center'
+                        }
+                    });
                 });
 
             });
@@ -268,14 +288,14 @@
                             <th>ID:</th>
                             <td>
                                 <span id="modal-id-display">No id was loaded</span>
-                                <input type="text" id="modal-id-edit" value="$(this).data('id')" readonly/>
+                                <input type="text" id="modal-id-edit" class="uneditable" readonly/>
                             </td>
                         </tr>
                         <tr>
                             <th>Username:</th>
                             <td>
                                 <span id="modal-username-display">No username was loaded</span>
-                                <input type="text" id="modal-username-edit" readonly/>
+                                <input type="text" id="modal-username-edit" class="uneditable" readonly/>
                             </td>
                         </tr>
                         <tr>
@@ -295,12 +315,12 @@
                         <tr>
                             <th>Short URL:</th>
                             <td>
-                                <label class="checkbox" for="new-redirect-short-url">
+                                <label class="checkbox" for="redirect-short-url">
                                     <span class="icons">
                                         <span class="first-icon fa fa-square-o"></span>
                                         <span class="second-icon fa fa-check-square-o"></span>
                                     </span>
-                                    <input type="checkbox" name="new-redirect-short-url" id="new-redirect-short-url">
+                                    <input type="checkbox" name="redirect-short-url" id="redirect-short-url">
                                 </label>
                             </td>
                         </tr>
@@ -308,7 +328,7 @@
                             <th>Date Created:</th>
                             <td>
                                 <span id="modal-date-display">No timestamp was loaded</span>
-                                <input type="text" id="modal-date-edit" readonly/>
+                                <input type="text" id="modal-date-edit" class="uneditable" readonly/>
                             </td>
                         </tr>
                         <tr>
@@ -319,10 +339,10 @@
                             </td>
                         </tr>
                     </table>
-                    <div class="edit-btn">
+                    <div class="edit-btn-options">
                         <a id="modal-edit-redirect-btn" class="btn btn-primary edit-redirect-btn">Edit</a>
-                        <a id="modal-submit-edits-btn" class="btn btn-primary">Submit</a>
-                        <a id="modal-cancel-edits-btn" class="btn btn-primary">Cancel</a>
+                        <a id="modal-submit-edits-btn" class="btn btn-primary submit-edits-btn" data-dismiss="modal">Submit</a>
+                        <a id="modal-cancel-edits-btn" class="btn btn-primary cancel-edits-btn" data-dismiss="modal">Cancel</a>
                     </div>
                 </div>
             </div>

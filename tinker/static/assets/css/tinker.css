@@ -741,6 +741,11 @@ label.checkbox {
     transform: scale(1.5);
 }
 
-.edit-btn{
+.edit-btn-options{
     margin-top: 15px;
+}
+
+.uneditable{
+    background-color: lightgrey;
+    cursor: not-allowed;
 }

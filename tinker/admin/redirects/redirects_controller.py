@@ -5,7 +5,7 @@ import requests
 
 # Packages
 from flask_sqlalchemy import SQLAlchemy
-from flask import render_template
+from flask import render_template, session
 from requests.exceptions import SSLError, ConnectionError
 from urllib3.exceptions import ProtocolError, MaxRetryError
 
@@ -35,18 +35,21 @@ class RedirectsController(TinkerController):
 
         return 'done'
 
-    def add_row_to_db(self, from_path, to_url, short_url, expiration_date):
+    def add_row_to_db(self, from_path, to_url, short_url, expiration_date, username=None):
         if from_path == '/':
             return False
 
+        if not username:
+            username = session["username"]
+
         new_redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url,
-                                      expiration_date=expiration_date)
+                                      expiration_date=expiration_date, username=username)
         self.db.session.add(new_redirect)
         self.db.session.commit()
         return new_redirect
 
     def api_add_row(self, from_path, to_url):
-        new_redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+        new_redirect = BethelRedirect(username="API-Generated", from_path=from_path, to_url=to_url)
         self.db.session.add(new_redirect)
         self.db.session.commit()
         return new_redirect
