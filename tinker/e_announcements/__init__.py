@@ -7,6 +7,7 @@ from bu_cascade.asset_tools import find
 from createsend import Campaign, CreateSend
 from flask import abort, Blueprint, render_template, session
 from flask_classy import FlaskView, request, route
+from ordereddict import OrderedDict
 
 # Local
 from tinker import app
@@ -32,6 +33,26 @@ class EAnnouncementsView(FlaskView):
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
 
         forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+
+        if 'Tinker E-Announcements - CAS' in session['groups'] or 'E-Announcement Approver' in session['groups']:
+            # The special admin view
+            all_schools = OrderedDict({
+                1: 'All E-Announcements',
+                2: 'My E-Announcements',
+                3: 'Other E-Announcements'},
+                key=lambda t: t[0]
+            )
+            # The below can be added inside of the dictionary as they are built out
+            # {4: 'College of Arts and Sciences'},
+            # {5: 'College of Adult and Professional Studies'},
+            # {6: 'Graduate School'},
+            # {7: 'Bethel Seminary'},
+            # {8: 'Administration with Faculty Status'},
+            # {9: 'Other'}
+        else:  # normal view
+            all_schools = OrderedDict({
+                2: 'User E-Announcements'}
+            )
         return render_template('e-announcements/home.html', **locals())
 
     @route("/delete/<e_announcement_id>", methods=['GET', 'POST'])
@@ -319,10 +340,21 @@ class EAnnouncementsView(FlaskView):
 
     # TODO e-announcements by role (someday)
 
-    # TODO e-announcements search
     @route("/search", methods=['POST'])
     def search(self):
         data = self.base.dictionary_encoder.encode(json.loads(request.data))
-        return 0
+        selection = data['selection']
+        title = data['title']
+        date = data['date']
+        try:
+            date = datetime.datetime.strptime(date, "%a %b %d %Y")
+
+        except:
+            # Set start and end to be falsey so that hasDates is set to false
+            date = 0
+
+        search_results, forms_header = self.base.get_search_results(selection, title, date)
+        # search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
+        return render_template('e-announcements/results.html', list_of_annz=search_results, formsHeader=forms_header)
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)

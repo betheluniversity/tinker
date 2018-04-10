@@ -176,3 +176,52 @@ class EAnnouncementsController(TinkerController):
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
         pass
+
+    def split_user_e_annz(self, forms):
+        user_forms = []
+        other_forms = []
+        for form in forms:
+            if form['author'] is not None and session['username'] in form['author']:
+                user_forms.append(form)
+            else:
+                other_forms.append(form)
+        return user_forms, other_forms
+
+    def get_search_results(self, selection, title, date):
+        announcements = self.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
+        if selection and '-'.join(selection) == '1':
+            e_annz_to_iterate = announcements
+            # default is for the automatic event population
+            forms_header = "All E-Announcements"
+        else:
+            user_e_annz, other_e_annz = self.split_user_e_annz(announcements)
+            if selection and '-'.join(selection) == '2':
+                e_annz_to_iterate = user_e_annz
+                forms_header = "My E-Announcements"
+            else:
+                e_annz_to_iterate = other_e_annz
+                forms_header = "Other Events"
+        # Early return if no parameters to check in the search
+        if not title and not date:
+            return e_annz_to_iterate, forms_header
+
+        # to_return will hold all of the events that match the search criteria
+        to_return = []
+
+        for annz in e_annz_to_iterate:
+            check_title = bool(title)
+            title_matches = check_title and title.lower() in annz['title'].lower()
+            check_date = bool(date)
+            format_date = datetime.strptime(annz['first_date'], "%A %B %d, %Y")
+            date_matches = check_date and (date == format_date)
+
+            add_event = False
+            if check_title and title_matches:
+                add_event = True
+            elif check_date and date_matches:
+                add_event = True
+
+            if add_event:
+                to_return.append(annz)
+
+        return to_return, forms_header
