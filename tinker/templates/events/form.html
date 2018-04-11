@@ -339,7 +339,12 @@
             };
 
 
-            function offCampusLocation() {
+            function offCampusLocation(clear_values) {
+                if (clear_values){ //Clears other options if the user switches in between them
+                    $("#off_campus_location").val('');
+                    $("#on_campus_location").val('none');
+                    $("#other_on_campus").val('');
+                }
                 var location = $("#location")[0];
                 var val = location.options[location.selectedIndex].innerHTML;
                 if (val == "Off Campus") {
@@ -347,10 +352,15 @@
                     $("#on_campus_wrap").hide();
                     $("#other_wrap").hide();
                 }
-                else {
+                else if(val == "Other On Campus"){
+                    $("#off_location_wrap").hide();
+                    $("#on_campus_wrap").hide();
+                    $("#other_wrap").show();
+                }
+                else { //val must == "On Campus"
                     $("#off_location_wrap").hide();
                     $("#on_campus_wrap").show();
-                    $("#other_wrap").show();
+                    $("#other_wrap").hide();
                 }
             }
 
@@ -466,7 +476,7 @@
                 });
 
                 $("#location").change(function () {
-                    offCampusLocation();
+                    offCampusLocation(true);
                 });
 
                 $("#eventform").submit(function () {
@@ -513,7 +523,7 @@
 
                 });
 
-                offCampusLocation();
+                offCampusLocation(false);
 
 
             });

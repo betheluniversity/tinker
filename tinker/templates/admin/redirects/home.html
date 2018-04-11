@@ -48,22 +48,18 @@
                         </form>
                     </div>
                 </div>
-
-                <div class="row">
-                    <div class="col-md-12">
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th width="400">From Path</th>
-                                <th width="400">To URL</th>
-                                <th width="400">Expiration Date</th>
-                            </tr>
-                            </thead>
-                            <tbody id="redirects-table">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <table class="redirect-table table">
+                    <thead>
+                    <tr>
+                        <th>Info</th>
+                        <th>From Path</th>
+                        <th>To URL</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody id="redirects-search-output">
+                    </tbody>
+                </table>
                 {# spinner placeholder #}
                 <div id="spinner" class="spinner" style="display:none;">
                     <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
@@ -77,10 +73,29 @@
         $(document).ready(function () {
 
             function updateTable(data) {
-                $("#redirects-table").html(data);
+                $("#redirects-search-output").html(data);
                 $('#new-redirect-to').attr("disabled", false);
-                $(".redirect-row").on('click', function () {
-                    $("#modal-confirm").attr("data-delete-path", $(this).data('from-path'));
+
+                //should the inputs be disabled?
+                var search_val = $("#new-redirect-from").val();
+                $(".from_path").each(function () {
+                    var this_val = $(this).html();
+                    if (search_val == this_val) {
+                        $("#new-redirect-to").val('');
+                        $("#new-redirect-from").val('');
+                        return false;
+                    }
+                });
+                //Listens for a click to delete a redirect
+                $(".delete-column").on('click', function () {
+                    $("#modal-confirm").attr("data-delete-id", $(this).data('id'));
+                });
+                //Listens for a click to get info on a redirect
+                $(".info-column").on('click',function(){
+                    $("#modal-id-display").text($(this).data('id'));
+                    $("#modal-username-display").text($(this).data("username"));
+                    $("#modal-date-display").text($(this).data("timestamp"));
+                    $("#modal-exp-date-display").text($(this).data("exp-date"));
                 });
             }
 
@@ -156,14 +171,19 @@
                             });
                         }
                         loadTableForSearch($('#new-redirect-from').val(), 'from_path');
+                        // After search, clears fields
+                        $("#new-redirect-to").val('');
+                        $("#new-redirect-from").val('');
+                        $('#expiration-date').val('');
+                        $('#new-redirect-short-url').attr('checked', false);
+                        $('#new-redirect-short-url').parent().removeClass('checked');
                     });
-
                 });
 
                 $(".btn-alert").click(function () {
-                    var from_path = {"from_path": $(this).attr('data-delete-path')};
+                    var redirect_data = {"redirect_id": $(this).attr('data-delete-id')};
                     var url = "{{ url_for('RedirectsView:delete_redirect') }}";
-                    $.post(url, from_path, function (data) {
+                    $.post(url, redirect_data, function (data) {
                         if (data) {
                             loadTableForSearch($("#new-redirect-from").val(), 'from_path');
                         }
@@ -179,7 +199,8 @@
 {% endblock %}
 
 {% block modalhtml %}
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    <!-- delete modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -192,8 +213,40 @@
                     Your redirect will be gone forever and ever.
                 </div>
                 <div class="modal-footer">
-                    <a id="modal-confirm" data-delete-path="/delete/path" data-dismiss="modal"
+                    <a id="modal-confirm" data-delete-id="ID" data-dismiss="modal"
                        class="btn btn-primary btn-alert modal-confirm">Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info modal -->
+    <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="myModalLabel">Redirect Information</h4>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        ID:
+                        <span id="modal-id-display">No id was loaded</span>
+                    </div>
+                    <div>
+                        Username:
+                        <span id="modal-username-display">No username was loaded</span>
+                    </div>
+                    <div>
+                        Date Created:
+                        <span id="modal-date-display">No timestamp was loaded</span>
+                    </div>
+                    <div>
+                        Expiration Date:
+                        <span id="modal-exp-date-display">No expiration date was loaded</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -212,3 +265,4 @@
         });
     </script>
 {% endblock %}
+
