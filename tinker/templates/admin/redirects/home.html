@@ -76,16 +76,6 @@
                 $("#redirects-search-output").html(data);
                 $('#new-redirect-to').attr("disabled", false);
 
-                //should the inputs be disabled?
-                var search_val = $("#new-redirect-from").val();
-                $(".from_path").each(function () {
-                    var this_val = $(this).html();
-                    if (search_val == this_val) {
-                        $("#new-redirect-to").val('');
-                        $("#new-redirect-from").val('');
-                        return false;
-                    }
-                });
                 //Listens for a click to delete a redirect
                 $(".delete-column").on('click', function () {
                     $("#modal-confirm").attr("data-delete-id", $(this).data('id'));
