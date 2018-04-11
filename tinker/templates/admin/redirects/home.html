@@ -104,10 +104,18 @@
                     // Checkbox for short url
                     $("#modal-short-url-info").show();
                     $("#modal-short-url-edit").hide();
-                    if($("#modal-short-url-info").data("short-url")){
-                        
+                    if($(this).data("short-url") == "True"){
+                        // Show the uneditable checkboxes
+                        $("#modal-checked").show();
+                        $("#modal-unchecked").hide();
+                        // Set the values for when edit is clicked
+                        $('#edit-redirect-short-url').attr('checked', true);
+                        $('#edit-redirect-short-url').parent().addClass('checked');
                     }else{
-
+                        $("#modal-checked").hide();
+                        $("#modal-unchecked").show();
+                        $('#edit-redirect-short-url').attr('checked', false);
+                        $('#edit-redirect-short-url').parent().removeClass('checked');
                     }
                     // Hiding edit fields
                     $("#modal-id-edit").val($(this).data('id')).hide();
@@ -240,13 +248,14 @@
                     // Submit changes
                     var edits = {
                         'edit-id': $('#modal-id-edit').val(),
-                        'username': $('#modal-username-edit').val(),
                         'edit-redirect-from': $('#modal-from-path-edit').val(),
                         'edit-redirect-to': $('#modal-to-url-edit').val(),
-                        'edit-redirect-short-url': $('#edit-redirect-short-url').parent().hasClass('checked'), // This one needs work!
-                        'edit-redirect-date-created': $('#modal-date-edit').val(),
+                        'edit-redirect-short-url': $('#edit-redirect-short-url').parent().hasClass('checked'),
                         'edit-expiration-date': $('#modal-exp-date-edit').val()
                     };
+                    var url = "{{ url_for('RedirectsView:edit_redirect_submit') }}";
+                    $.post(url, edits);
+
                     // Notify changes
                     $.notify({
                         message: 'Your changes have been saved'
@@ -333,8 +342,8 @@
                             <td>
                                 <label id="modal-short-url-info" class="checkbox">
                                     <span class="icons">
-                                        <span class="fa fa-square-o"></span>
-                                        <span class="fa fa-check-square-o"></span>
+                                        <span id="modal-unchecked" class="fa fa-square-o"></span>
+                                        <span id="modal-checked" class="fa fa-check-square-o"></span>
                                     </span>
                                 </label>
                                 <label id="modal-short-url-edit" class="checkbox" for="edit-redirect-short-url">

@@ -15,6 +15,7 @@ from tinker import app, db, cache
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker.tinker_controller import requires_auth
 from tinker.tinker_controller import admin_permissions
+from tinker.admin.redirects.models import BethelRedirect
 
 
 class RedirectsView(FlaskView):
@@ -87,6 +88,37 @@ class RedirectsView(FlaskView):
             # hopefully this will catch the error.
             self.base.rollback()
             return ""
+
+    # Saves the edits to an existing redirect
+    @route('/edit-redirect-submit', methods=['post'])
+    def edit_redirect_submit(self):
+        form = self.base.dictionary_encoder.encode(request.form)
+        id = form['edit-id']
+        from_path = form['edit-redirect-from']
+        to_url = form['edit-redirect-to']
+        short_url = form.get('edit-redirect-short-url') == 'True'
+        expiration_date = form.get('edit-expiration-date')
+
+        # if expiration_date:
+        #     expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
+        # else:
+        #     expiration_date = None
+
+        if from_path is None or to_url is None:
+            return abort(400)
+
+        if not from_path.startswith("/"):
+            from_path = "/%s" % from_path
+
+        edit_dict = {
+            'from_path': from_path,
+            'to_url': to_url,
+            'short_url': short_url,
+            'expiration_date': expiration_date
+        }
+        edit_redirect = BethelRedirect.query.filter_by(id=BethelRedirect.id)
+        edit_redirect.update(edit_dict)
+        self.base.db.session.commit()
 
     # Updates the redirect text file upon request
     def compile(self):
