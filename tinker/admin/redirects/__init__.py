@@ -99,10 +99,10 @@ class RedirectsView(FlaskView):
         short_url = form.get('edit-redirect-short-url') == 'True'
         expiration_date = form.get('edit-expiration-date')
 
-        # if expiration_date:
-        #     expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
-        # else:
-        #     expiration_date = None
+        if expiration_date:
+            expiration_date = datetime.strptime(expiration_date, "%Y-%m-%d")
+        else:
+            expiration_date = None
 
         if from_path is None or to_url is None:
             return abort(400)
@@ -116,9 +116,10 @@ class RedirectsView(FlaskView):
             'short_url': short_url,
             'expiration_date': expiration_date
         }
-        edit_redirect = BethelRedirect.query.filter_by(id=BethelRedirect.id)
+        edit_redirect = BethelRedirect.query.filter(BethelRedirect.id == id)
         edit_redirect.update(edit_dict)
         self.base.db.session.commit()
+        
 
     # Updates the redirect text file upon request
     def compile(self):
