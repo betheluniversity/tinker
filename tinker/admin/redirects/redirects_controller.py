@@ -81,6 +81,11 @@ class RedirectsController(TinkerController):
     def rollback(self):
         self.db.session.rollback()
 
+    def paths_are_valid(self, from_path, to_url):
+        if not from_path or from_path == '/' or not to_url:
+            return False
+        return True
+
     def redirect_change(self):
 
         redirects = BethelRedirect.query.all()
