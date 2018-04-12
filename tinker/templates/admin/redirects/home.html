@@ -243,17 +243,20 @@
                         'edit-expiration-date': $('#modal-exp-date-edit').val()
                     };
                     var url = "{{ url_for('RedirectsView:edit_redirect_submit') }}";
-                    $.post(url, edits);
-
-                    // Notify changes
-                    $.notify({
-                        message: 'Your changes have been saved'
-                    }, {
-                        type: 'success',
-                        placement: {
-                            align: 'center'
+                    $.post(url, edits, function (edits) {
+                        if(edits){
+                            edits = JSON.parse(edits);
+                            $.notify({
+                                message: edits.message
+                            }, {
+                                type: edits.type,
+                                placement: {
+                                    align: 'center'
+                                },
+                            });
                         }
                     });
+                    loadTableForSearch($('#modal-from-path-edit').val(), 'from_path');
                 });
 
             });

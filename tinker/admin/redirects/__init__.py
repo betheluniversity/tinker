@@ -107,34 +107,54 @@ class RedirectsView(FlaskView):
         id = form['edit-id']
         from_path = form['edit-redirect-from']
         to_url = form['edit-redirect-to']
-        short_url = form.get('edit-redirect-short-url') == 'True'
+        short_url = form.get('edit-redirect-short-url') == 'true'
         expiration_date = form.get('edit-expiration-date')
 
         if expiration_date:
-            expiration_date = datetime.strptime(expiration_date, "%Y-%m-%d")
+            if expiration_date == 'None':
+                expiration_date = None
+            elif '-' in expiration_date:
+                expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d')
+            else:
+                expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
         else:
             expiration_date = None
 
         if from_path is None or to_url is None:
             return abort(400)
 
-        if not from_path.startswith("/"):
-            from_path = "/%s" % from_path
+        if self.base.paths_are_valid(from_path, to_url):
+            if not from_path.startswith("/"):
+                from_path = "/%s" % from_path
 
-        edit_dict = {
-            'from_path': from_path,
-            'to_url': to_url,
-            'short_url': short_url,
-            'expiration_date': expiration_date
-        }
-        edit_redirect = BethelRedirect.query.filter(BethelRedirect.id == id)
-        edit_redirect.update(edit_dict)
-        self.base.db.session.commit()
+            try:
+                edit_dict = {
+                    'from_path': from_path,
+                    'to_url': to_url,
+                    'short_url': short_url,
+                    'expiration_date': expiration_date
+                }
+                edit_redirect = BethelRedirect.query.filter(BethelRedirect.id == id)
+                edit_redirect.update(edit_dict)
+                self.base.db.session.commit()
 
-        return json.dumps({
-            'type': 'success',
-            'message': 'Your redirect has been updated'
-        })
+                return json.dumps({
+                    'type': 'success',
+                    'message': 'Your redirect has been updated'
+                })
+
+            except:
+                self.base.rollback()
+                return json.dumps({
+                    'type': 'danger',
+                    'message': 'Failed to add your redirect. A redirect with that from_path already exists.'
+                })
+
+        else:
+            return json.dumps({
+                'type': 'danger',
+                'message': 'Your redirect is invalid. Make sure the from_path is not "/" and the to_url exists'
+            })
         
 
     # Updates the redirect text file upon request
