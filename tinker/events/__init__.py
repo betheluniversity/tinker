@@ -166,18 +166,14 @@ class EventsView(FlaskView):
         selection = data['selection']
         title = data['title']
         try:
-            # Try converting the start date times to seconds representation
             start = datetime.datetime.strptime(data['start'], "%a %b %d %Y")
-
         except:
-            # Set start and end to be falsey so that hasDates is set to false
             start = 0
         try:
-            # Try converting the end date times to seconds representation
             end = datetime.datetime.strptime(data['end'], "%a %b %d %Y")
         except:
-            # Set start and end to be falsey so that hasDates is set to false
             end = 0
+
         search_results, forms_header = self.base.get_search_results(selection, title, start, end)
         search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
         return render_template('events/search-results.html', list_of_events=search_results, formsHeader=forms_header)
