@@ -435,7 +435,7 @@ class FacultyBioController(TinkerController):
 
     def should_be_able_to_edit_image(self):
         roles = set(session['roles'])
-        wanted_roles = set(['FACULTY-CAPS', 'FACULTY-GS'])
+        wanted_roles = set(['FACULTY-CAPS', 'RECENT-FACULTY-CAPS', 'FACULTY-GS', 'RECENT-FACULTY-GS'])
         has_roles = wanted_roles.intersection(roles)
 
         groups = set(session['groups'].split(';'))
