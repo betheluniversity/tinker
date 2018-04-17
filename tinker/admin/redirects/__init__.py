@@ -50,11 +50,9 @@ class RedirectsView(FlaskView):
     @route("/search", methods=['post'])
     def search(self):
         rform = self.base.dictionary_encoder.encode(request.form)
-        search_type = rform['type']
-        search_query = rform['search']
-        if search_query == "%" or search_type not in ['from_path', 'to_url'] or search_query is None:
-            return ""
-        redirects = self.base.search_db(search_type, search_query)
+        redirect_from_path = rform['from_path']
+        redirect_to_url = rform['to_url']
+        redirects = self.base.search_db(redirect_from_path, redirect_to_url)
         return render_template('admin/redirects/ajax.html', **locals())
 
     # Saves the new redirect created
@@ -109,6 +107,7 @@ class RedirectsView(FlaskView):
         to_url = form['edit-redirect-to']
         short_url = form.get('edit-redirect-short-url') == 'true'
         expiration_date = form.get('edit-expiration-date')
+        username = session["username"]
 
         if expiration_date:
             if expiration_date == 'None':
@@ -129,6 +128,7 @@ class RedirectsView(FlaskView):
 
             try:
                 edit_dict = {
+                    'username': username,
                     'from_path': from_path,
                     'to_url': to_url,
                     'short_url': short_url,

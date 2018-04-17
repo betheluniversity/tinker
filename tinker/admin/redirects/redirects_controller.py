@@ -8,6 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import render_template, session
 from requests.exceptions import SSLError, ConnectionError
 from urllib3.exceptions import ProtocolError, MaxRetryError
+from sqlalchemy import and_
 
 # tinker
 from tinker import app
@@ -54,12 +55,11 @@ class RedirectsController(TinkerController):
         self.db.session.commit()
         return new_redirect
 
-    def search_db(self, search_type, term):
-        term += "%"
-        if search_type == "from_path":  # Search by from_path
-            results = BethelRedirect.query.filter(BethelRedirect.from_path.like(term)).limit(100).all()
-        else:  # Search by to_url
-            results = BethelRedirect.query.filter(BethelRedirect.to_url.like(term)).limit(100).all()
+    def search_db(self, redirect_from_path, redirect_to_url):
+        if redirect_from_path == "" and redirect_to_url == "":
+            return ""
+        results = BethelRedirect.query.filter(and_(BethelRedirect.from_path.like(redirect_from_path + '%'),
+                                                   BethelRedirect.to_url.like('%' + redirect_to_url + '%'))).limit(100).all()
         results.sort()
         return results
 

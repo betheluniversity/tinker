@@ -132,9 +132,9 @@
                 $("#redirect-add").show();
             }
 
-            function loadTableForSearch(search_value, type) {
+            function loadTableForSearch(redirect_from_path, redirect_to_url) {
                 // type needs to be either 'from_path' or 'to_url'
-                var search = {'type': type, 'search': search_value};
+                var search = {'from_path': redirect_from_path, 'to_url': redirect_to_url};
                 var url = "{{ url_for('RedirectsView:search') }}";
                 $.post(url, search, function (data) {
                     updateTable(data);
@@ -144,25 +144,25 @@
             $('#new-redirect-to').keyup(function () {
                 $('#spinner').show();
                 var input = $(this);
-                input.val(input.val().replace(/ /g, ''));
-                var value = input.val();
+                input.val(input.val().replace(/ /g, '')); // eliminates spaces
                 delay(function () {
+                    loadTableForSearch($('#new-redirect-from').val(), input.val());
                     $('#spinner').hide();
-                    loadTableForSearch(value, 'to_url');
                 }, 300);
             });
 
             $('#new-redirect-from').keyup(function () {
                 $('#spinner').show();
                 var input = $(this);
-                input.val(input.val().replace(/ /g, ''));
+                input.val(input.val().replace(/ /g, '')); // eliminates spaces
                 var value = input.val();
+                // check if the from path starts with a /
                 if (value[0] != '/' && value.length > 0) {
-                    input.val("/" + value);
+                    input.val("/" + value); // add in a slash
                     value = input.val();
                 }
                 delay(function () {
-                    loadTableForSearch(value, 'from_path');
+                    loadTableForSearch(value, $('#new-redirect-to').val());
                     $('#spinner').hide();
                 }, 300);
             });
@@ -190,13 +190,8 @@
                                 },
                             });
                         }
-                        loadTableForSearch($('#new-redirect-from').val(), 'from_path');
-                        // After search, clears fields
-                        $("#new-redirect-to").val('');
-                        $("#new-redirect-from").val('');
-                        $('#expiration-date').val('');
-                        $('#new-redirect-short-url').attr('checked', false);
-                        $('#new-redirect-short-url').parent().removeClass('checked');
+                        loadTableForSearch($('#new-redirect-from').val(), $('#new-redirect-to').val());
+                        clearFields();
                     });
                 });
 
@@ -205,9 +200,10 @@
                     var url = "{{ url_for('RedirectsView:delete_redirect') }}";
                     $.post(url, redirect_data, function (data) {
                         if (data) {
-                            loadTableForSearch($("#new-redirect-from").val(), 'from_path');
+                            loadTableForSearch($("#new-redirect-from").val(), $('#new-redirect-to').val());
                         }
                     });
+                    clearFields();
                 });
 
                 $(".edit-redirect-btn").click(function () {
@@ -256,10 +252,20 @@
                             });
                         }
                     });
-                    loadTableForSearch($('#modal-from-path-edit').val(), 'from_path');
+                    loadTableForSearch($('#modal-from-path-edit').val(), $('#modal-to-url-edit').val());
+                    clearFields();
                 });
 
             });
+
+            // After buttons are pushed, clears the search/create fields
+            function clearFields(){
+                $('#new-redirect-to').val('');
+                $('#new-redirect-from').val('');
+                $('#expiration-date').val('');
+                $('#new-redirect-short-url').attr('checked', false);
+                $('#new-redirect-short-url').parent().removeClass('checked');
+            }
 
         })
         ;
