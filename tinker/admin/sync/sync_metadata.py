@@ -47,15 +47,11 @@ adult_undergrad_programs = [
     "Associate of Science (A.S.)",
     "Business Management (B.A.)",
     "Christian Ministries (B.A.)",
-    "Communication Studies (B.A.)",
     "Finance (B.S.)",
-    "Human Resource Management Certificate",
     "Human Services (B.A.)",
     "Management Information Systems (B.S.)",
     "Nursing (RN to B.S.)",
     "Organizational Leadership (B.A.)",
-    "Senior Care Leadership and Administration Certificate",
-    "Special Education (B.A.)",
 ]
 
 seminary_programs = [
@@ -64,11 +60,9 @@ seminary_programs = [
     "Biblical Studies Certificate",
     "Certificate in Church Planting",
     "Children's & Family Ministry (M.A.)",
-    "Christian Studies Certificate",
     "M.A. (Christian Thought)",
     "Doctor of Ministry",
     "Marital & Family Therapy (M.A.)",
-    "Marriage & Family Therapy Certificate",
     "Marriage & Family Therapy (M.A.)",
     "Master of Divinity",
     "Mental Health Counseling (M.A.)",
@@ -77,7 +71,6 @@ seminary_programs = [
     "Theological Studies Certificate",
     "M.A. (Theological Studies)",
     "Transformational Leadership (M.A.)",
-    "Young Life Youth Ministry Certificate",
 ]
 
 graduate_programs = [
@@ -96,7 +89,6 @@ graduate_programs = [
     "Ed.D. in Higher Education Leadership",
     "Ed.D. in K-12 Administration",
     "Education K-12 (M.A.)",
-    "Emerging Leaders in Private Colleges Certificate",
     "Emotional and Behavioral Disorders License",
     "ENVoY Classroom Management Strategies Certificate",
     "Gerontology Certificate",
@@ -104,9 +96,7 @@ graduate_programs = [
     "K-12 Principal License",
     "Leadership Foundations Certificate",
     "MBA",
-    "Nurse Educator Certificate",
     "Nurse-Midwifery (M.S.)",
-    "Nursing (M.S.)",
     "Physician Assistant (M.S.)",
     "Special Education (M.A.)",
     "STEM in K-12 Education Certificate",
