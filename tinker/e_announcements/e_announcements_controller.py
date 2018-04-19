@@ -191,7 +191,6 @@ class EAnnouncementsController(TinkerController):
         announcements = self.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
         if selection and '-'.join(selection) == '1':
             e_annz_to_iterate = announcements
-            # default is for the automatic event population
             forms_header = "All E-Announcements"
         else:
             user_e_annz, other_e_annz = self.split_user_e_annz(announcements)

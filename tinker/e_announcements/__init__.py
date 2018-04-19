@@ -350,11 +350,11 @@ class EAnnouncementsView(FlaskView):
             date = datetime.datetime.strptime(date, "%a %b %d %Y")
 
         except:
-            # Set start and end to be falsey so that hasDates is set to false
+            # Set start and end to be false so that hasDates is set to false
             date = 0
 
         search_results, forms_header = self.base.get_search_results(selection, title, date)
-        # search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
+        search_results.sort(reverse=True)
         return render_template('e-announcements/results.html', list_of_annz=search_results, formsHeader=forms_header)
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)
