@@ -90,6 +90,7 @@
                     $("#modal-exp-date-display").text($(this).data("exp-date")).show();
                     $("#modal-from-path-display").text($(this).data("from-path")).show();
                     $("#modal-to-url-display").text($(this).data("to-url")).show();
+                    $("#modal-last-edited-display").text($(this).data("last-edited")).show();
                     $("#modal-edit-redirect-btn").show();
                     // Checkbox for short url
                     $("#modal-short-url-info").show();
@@ -114,6 +115,7 @@
                     $("#modal-exp-date-edit").val($(this).data('exp-date')).hide();
                     $("#modal-from-path-edit").val($(this).data('from-path')).hide();
                     $("#modal-to-url-edit").val($(this).data('to-url')).hide();
+                    $("#modal-last-edited-edit").val($(this).data("last-edited")).hide();
                     $("#modal-submit-edits-btn").hide();
                     $("#modal-cancel-edits-btn").hide();
                 });
@@ -203,7 +205,6 @@
                             loadTableForSearch($("#new-redirect-from").val(), $('#new-redirect-to').val());
                         }
                     });
-                    clearFields();
                 });
 
                 $(".edit-redirect-btn").click(function () {
@@ -215,6 +216,7 @@
                     $("#modal-from-path-display").hide();
                     $("#modal-to-url-display").hide();
                     $("#modal-edit-redirect-btn").hide();
+                    $("#modal-last-edited-display").hide();
                     // Showing edit fields
                     $("#modal-id-edit").show();
                     $("#modal-username-edit").show();
@@ -224,6 +226,7 @@
                     $("#modal-to-url-edit").show();
                     $("#modal-submit-edits-btn").show();
                     $("#modal-cancel-edits-btn").show();
+                    $("#modal-last-edited-edit").show();
                     // Checkbox for short url
                     $("#modal-short-url-info").hide();
                     $("#modal-short-url-edit").show();
@@ -252,8 +255,7 @@
                             });
                         }
                     });
-                    loadTableForSearch($('#modal-from-path-edit').val(), $('#modal-to-url-edit').val());
-                    clearFields();
+                    loadTableForSearch($('#new-redirect-from').val(), $('#new-redirect-to').val());
                 });
 
             });
@@ -365,6 +367,13 @@
                             <td>
                                 <span id="modal-exp-date-display">No expiration date was loaded</span>
                                 <input type="text" id="modal-exp-date-edit"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Date Last Edited:</th>
+                            <td>
+                                <span id="modal-last-edited-display">No timestamp was loaded</span>
+                                <input type="text" id="modal-last-edited-edit" class="uneditable" readonly/>
                             </td>
                         </tr>
                     </table>

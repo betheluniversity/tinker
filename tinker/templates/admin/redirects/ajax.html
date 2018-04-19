@@ -12,11 +12,18 @@
                 {% set data_timestamp = "Before 2018-03-28" %}
             {% endif %}
 
+            {# Checks for a date last edited #}
+            {% if redirect.last_edited %}
+                {% set data_last_edited = redirect.last_edited %}
+            {% else %}
+                {% set data_last_edited = data_timestamp %}
+            {% endif %}
+
             <div class="info-column clickable" data-reveal-id="confirmModal" data-toggle="modal" data-target="#infoModal"
             data-id="{{ redirect.id }}" data-username="{{ redirect.username }}"
             data-timestamp="{{ data_timestamp }}" data-exp-date="{{ redirect.expiration_date }}"
              data-from-path="{{ redirect.from_path }}" data-to-url="{{ redirect.to_url }}"
-             data-short-url="{{ redirect.short_url }}">
+             data-short-url="{{ redirect.short_url }}" data-last-edited="{{ data_last_edited }}">
                 <i class="fa fa-info-circle"></i>
             </div>
         </td>
