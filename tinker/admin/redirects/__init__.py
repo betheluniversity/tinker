@@ -110,13 +110,18 @@ class RedirectsView(FlaskView):
         username = session["username"]
         last_edited = datetime.now()
 
+        # There are potentially 3 different formats an expiration date can come in as
         if expiration_date:
+            # No expiration date, will pass in String "None"
             if expiration_date == 'None':
                 expiration_date = None
+            # If not changed, it will be in form YYYY-MM-DD
             elif '-' in expiration_date:
                 expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d')
+            # If changed, it will be in form WEEKDAY MONTH DAY YEAR
             else:
                 expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
+        # No expiration date
         else:
             expiration_date = None
 

@@ -83,15 +83,16 @@
 
                 // Listens for a click to get info on a redirect
                 $(".info-column").on('click',function(){
-                    // Displaying data
-                    $("#modal-id-display").text($(this).data('id')).show();
-                    $("#modal-username-display").text($(this).data("username")).show();
-                    $("#modal-date-display").text($(this).data("timestamp")).show();
-                    $("#modal-exp-date-display").text($(this).data("exp-date")).show();
-                    $("#modal-from-path-display").text($(this).data("from-path")).show();
-                    $("#modal-to-url-display").text($(this).data("to-url")).show();
-                    $("#modal-last-edited-display").text($(this).data("last-edited")).show();
-                    $("#modal-edit-redirect-btn").show();
+                    // Sets info
+                    $("#modal-id-display").text($(this).data('id'));
+                    $("#modal-username-display").text($(this).data("username"));
+                    $("#modal-date-display").text($(this).data("timestamp"));
+                    $("#modal-exp-date-display").text($(this).data("exp-date"));
+                    $("#modal-from-path-display").text($(this).data("from-path"));
+                    $("#modal-to-url-display").text($(this).data("to-url"));
+                    $("#modal-last-edited-display").text($(this).data("last-edited"));
+                    // Shows info
+                    $(".display").show();
                     // Checkbox for short url
                     $("#modal-short-url-info").show();
                     $("#modal-short-url-edit").hide();
@@ -108,16 +109,16 @@
                         $('#edit-redirect-short-url').attr('checked', false);
                         $('#edit-redirect-short-url').parent().removeClass('checked');
                     }
+                    // Setting edit fields
+                    $("#modal-id-edit").val($(this).data('id'));
+                    $("#modal-username-edit").val($(this).data('username'));
+                    $("#modal-date-edit").val($(this).data('timestamp'));
+                    $("#modal-exp-date-edit").val($(this).data('exp-date'));
+                    $("#modal-from-path-edit").val($(this).data('from-path'));
+                    $("#modal-to-url-edit").val($(this).data('to-url'));
+                    $("#modal-last-edited-edit").val($(this).data("last-edited"));
                     // Hiding edit fields
-                    $("#modal-id-edit").val($(this).data('id')).hide();
-                    $("#modal-username-edit").val($(this).data('username')).hide();
-                    $("#modal-date-edit").val($(this).data('timestamp')).hide();
-                    $("#modal-exp-date-edit").val($(this).data('exp-date')).hide();
-                    $("#modal-from-path-edit").val($(this).data('from-path')).hide();
-                    $("#modal-to-url-edit").val($(this).data('to-url')).hide();
-                    $("#modal-last-edited-edit").val($(this).data("last-edited")).hide();
-                    $("#modal-submit-edits-btn").hide();
-                    $("#modal-cancel-edits-btn").hide();
+                    $(".edit").hide()
                 });
             }
 
@@ -209,24 +210,9 @@
 
                 $(".edit-redirect-btn").click(function () {
                     // Hiding info fields
-                    $("#modal-id-display").hide();
-                    $("#modal-username-display").hide();
-                    $("#modal-date-display").hide();
-                    $("#modal-exp-date-display").hide();
-                    $("#modal-from-path-display").hide();
-                    $("#modal-to-url-display").hide();
-                    $("#modal-edit-redirect-btn").hide();
-                    $("#modal-last-edited-display").hide();
+                    $(".display").hide();
                     // Showing edit fields
-                    $("#modal-id-edit").show();
-                    $("#modal-username-edit").show();
-                    $("#modal-date-edit").show();
-                    $("#modal-exp-date-edit").show();
-                    $("#modal-from-path-edit").show();
-                    $("#modal-to-url-edit").show();
-                    $("#modal-submit-edits-btn").show();
-                    $("#modal-cancel-edits-btn").show();
-                    $("#modal-last-edited-edit").show();
+                    $(".edit").show();
                     // Checkbox for short url
                     $("#modal-short-url-info").hide();
                     $("#modal-short-url-edit").show();
@@ -312,29 +298,29 @@
                         <tr>
                             <th>ID:</th>
                             <td>
-                                <span id="modal-id-display">No id was loaded</span>
-                                <input type="text" id="modal-id-edit" class="uneditable" readonly/>
+                                <span id="modal-id-display" class="display">No id was loaded</span>
+                                <input type="text" id="modal-id-edit" class="uneditable edit" readonly/>
                             </td>
                         </tr>
                         <tr>
                             <th>Username:</th>
                             <td>
-                                <span id="modal-username-display">No username was loaded</span>
-                                <input type="text" id="modal-username-edit" class="uneditable" readonly/>
+                                <span id="modal-username-display" class="display">No username was loaded</span>
+                                <input type="text" id="modal-username-edit" class="uneditable edit" readonly/>
                             </td>
                         </tr>
                         <tr>
                             <th>From Path:</th>
                             <td>
-                                <span id="modal-from-path-display">No from path was loaded</span>
-                                <input type="text" id="modal-from-path-edit"/>
+                                <span id="modal-from-path-display" class="display">No from path was loaded</span>
+                                <input type="text" id="modal-from-path-edit" class="edit"/>
                             </td>
                         </tr>
                         <tr>
                             <th>To URL:</th>
                             <td>
-                                <span id="modal-to-url-display">No to URL was loaded</span>
-                                <input type="text" id="modal-to-url-edit"/>
+                                <span id="modal-to-url-display" class="display">No to URL was loaded</span>
+                                <input type="text" id="modal-to-url-edit" class="edit"/>
                             </td>
                         </tr>
                         <tr>
@@ -358,29 +344,31 @@
                         <tr>
                             <th>Date Created:</th>
                             <td>
-                                <span id="modal-date-display">No timestamp was loaded</span>
-                                <input type="text" id="modal-date-edit" class="uneditable" readonly/>
+                                <span id="modal-date-display" class="display">No timestamp was loaded</span>
+                                <input type="text" id="modal-date-edit" class="uneditable edit" readonly/>
                             </td>
                         </tr>
                         <tr>
                             <th>Expiration Date:</th>
                             <td>
-                                <span id="modal-exp-date-display">No expiration date was loaded</span>
-                                <input type="text" id="modal-exp-date-edit"/>
+                                <span id="modal-exp-date-display" class="display">No expiration date was loaded</span>
+                                <input type="text" id="modal-exp-date-edit" class="edit"/>
                             </td>
                         </tr>
                         <tr>
                             <th>Date Last Edited:</th>
                             <td>
-                                <span id="modal-last-edited-display">No timestamp was loaded</span>
-                                <input type="text" id="modal-last-edited-edit" class="uneditable" readonly/>
+                                <span id="modal-last-edited-display" class="display">No timestamp was loaded</span>
+                                <input type="text" id="modal-last-edited-edit" class="uneditable edit" readonly/>
                             </td>
                         </tr>
                     </table>
                     <div class="edit-btn-options">
-                        <a id="modal-edit-redirect-btn" class="btn btn-primary edit-redirect-btn">Edit</a>
-                        <a id="modal-submit-edits-btn" class="btn btn-primary submit-edits-btn" data-dismiss="modal">Submit</a>
-                        <a id="modal-cancel-edits-btn" class="btn btn-primary cancel-edits-btn" data-dismiss="modal">Cancel</a>
+                        <a id="modal-edit-redirect-btn" class="btn btn-primary edit-redirect-btn display">Edit</a>
+                        <a id="modal-submit-edits-btn" class="btn btn-primary submit-edits-btn edit"
+                           data-dismiss="modal">Submit</a>
+                        <a id="modal-cancel-edits-btn" class="btn btn-primary cancel-edits-btn edit"
+                           data-dismiss="modal">Cancel</a>
                     </div>
                 </div>
             </div>
