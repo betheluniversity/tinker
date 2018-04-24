@@ -15,7 +15,6 @@ suds
 simplejson
 --allow-external WTForms
 requests
-Flask-SQLAlchemy==2.3.2
 sqlalchemy-migrate==0.11.0
 BeautifulSoup
 Flask-Cors

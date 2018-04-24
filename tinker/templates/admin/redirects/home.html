@@ -80,12 +80,45 @@
                 $(".delete-column").on('click', function () {
                     $("#modal-confirm").attr("data-delete-id", $(this).data('id'));
                 });
-                //Listens for a click to get info on a redirect
+
+                // Listens for a click to get info on a redirect
                 $(".info-column").on('click',function(){
+                    // Sets info
                     $("#modal-id-display").text($(this).data('id'));
                     $("#modal-username-display").text($(this).data("username"));
                     $("#modal-date-display").text($(this).data("timestamp"));
                     $("#modal-exp-date-display").text($(this).data("exp-date"));
+                    $("#modal-from-path-display").text($(this).data("from-path"));
+                    $("#modal-to-url-display").text($(this).data("to-url"));
+                    $("#modal-last-edited-display").text($(this).data("last-edited"));
+                    // Shows info
+                    $(".display").show();
+                    // Checkbox for short url
+                    $("#modal-short-url-info").show();
+                    $("#modal-short-url-edit").hide();
+                    if($(this).data("short-url") == "True"){
+                        // Show the uneditable checkboxes
+                        $("#modal-checked").show();
+                        $("#modal-unchecked").hide();
+                        // Set the values for when edit is clicked
+                        $('#edit-redirect-short-url').attr('checked', true);
+                        $('#edit-redirect-short-url').parent().addClass('checked');
+                    }else{
+                        $("#modal-checked").hide();
+                        $("#modal-unchecked").show();
+                        $('#edit-redirect-short-url').attr('checked', false);
+                        $('#edit-redirect-short-url').parent().removeClass('checked');
+                    }
+                    // Setting edit fields
+                    $("#modal-id-edit").val($(this).data('id'));
+                    $("#modal-username-edit").val($(this).data('username'));
+                    $("#modal-date-edit").val($(this).data('timestamp'));
+                    $("#modal-exp-date-edit").val($(this).data('exp-date'));
+                    $("#modal-from-path-edit").val($(this).data('from-path'));
+                    $("#modal-to-url-edit").val($(this).data('to-url'));
+                    $("#modal-last-edited-edit").val($(this).data("last-edited"));
+                    // Hiding edit fields
+                    $(".edit").hide()
                 });
             }
 
@@ -102,9 +135,9 @@
                 $("#redirect-add").show();
             }
 
-            function loadTableForSearch(search_value, type) {
+            function loadTableForSearch(redirect_from_path, redirect_to_url) {
                 // type needs to be either 'from_path' or 'to_url'
-                var search = {'type': type, 'search': search_value};
+                var search = {'from_path': redirect_from_path, 'to_url': redirect_to_url};
                 var url = "{{ url_for('RedirectsView:search') }}";
                 $.post(url, search, function (data) {
                     updateTable(data);
@@ -114,25 +147,25 @@
             $('#new-redirect-to').keyup(function () {
                 $('#spinner').show();
                 var input = $(this);
-                input.val(input.val().replace(/ /g, ''));
-                var value = input.val();
+                input.val(input.val().replace(/ /g, '')); // eliminates spaces
                 delay(function () {
+                    loadTableForSearch($('#new-redirect-from').val(), input.val());
                     $('#spinner').hide();
-                    loadTableForSearch(value, 'to_url');
                 }, 300);
             });
 
             $('#new-redirect-from').keyup(function () {
                 $('#spinner').show();
                 var input = $(this);
-                input.val(input.val().replace(/ /g, ''));
+                input.val(input.val().replace(/ /g, '')); // eliminates spaces
                 var value = input.val();
+                // check if the from path starts with a /
                 if (value[0] != '/' && value.length > 0) {
-                    input.val("/" + value);
+                    input.val("/" + value); // add in a slash
                     value = input.val();
                 }
                 delay(function () {
-                    loadTableForSearch(value, 'from_path');
+                    loadTableForSearch(value, $('#new-redirect-to').val());
                     $('#spinner').hide();
                 }, 300);
             });
@@ -160,13 +193,8 @@
                                 },
                             });
                         }
-                        loadTableForSearch($('#new-redirect-from').val(), 'from_path');
-                        // After search, clears fields
-                        $("#new-redirect-to").val('');
-                        $("#new-redirect-from").val('');
-                        $('#expiration-date').val('');
-                        $('#new-redirect-short-url').attr('checked', false);
-                        $('#new-redirect-short-url').parent().removeClass('checked');
+                        loadTableForSearch($('#new-redirect-from').val(), $('#new-redirect-to').val());
+                        clearFields();
                     });
                 });
 
@@ -175,12 +203,57 @@
                     var url = "{{ url_for('RedirectsView:delete_redirect') }}";
                     $.post(url, redirect_data, function (data) {
                         if (data) {
-                            loadTableForSearch($("#new-redirect-from").val(), 'from_path');
+                            loadTableForSearch($("#new-redirect-from").val(), $('#new-redirect-to').val());
                         }
                     });
                 });
 
+                $(".edit-redirect-btn").click(function () {
+                    // Hiding info fields
+                    $(".display").hide();
+                    // Showing edit fields
+                    $(".edit").show();
+                    // Checkbox for short url
+                    $("#modal-short-url-info").hide();
+                    $("#modal-short-url-edit").show();
+                });
+
+                $(".submit-edits-btn").click(function(){
+                    // Submit changes
+                    var edits = {
+                        'edit-id': $('#modal-id-edit').val(),
+                        'edit-redirect-from': $('#modal-from-path-edit').val(),
+                        'edit-redirect-to': $('#modal-to-url-edit').val(),
+                        'edit-redirect-short-url': $('#edit-redirect-short-url').parent().hasClass('checked'),
+                        'edit-expiration-date': $('#modal-exp-date-edit').val()
+                    };
+                    var url = "{{ url_for('RedirectsView:edit_redirect_submit') }}";
+                    $.post(url, edits, function (edits) {
+                        if(edits){
+                            edits = JSON.parse(edits);
+                            $.notify({
+                                message: edits.message
+                            }, {
+                                type: edits.type,
+                                placement: {
+                                    align: 'center'
+                                },
+                            });
+                        }
+                    });
+                    loadTableForSearch($('#new-redirect-from').val(), $('#new-redirect-to').val());
+                });
+
             });
+
+            // After buttons are pushed, clears the search/create fields
+            function clearFields(){
+                $('#new-redirect-to').val('');
+                $('#new-redirect-from').val('');
+                $('#expiration-date').val('');
+                $('#new-redirect-short-url').attr('checked', false);
+                $('#new-redirect-short-url').parent().removeClass('checked');
+            }
 
         })
         ;
@@ -221,21 +294,81 @@
                     <h4 class="modal-title" id="myModalLabel">Redirect Information</h4>
                 </div>
                 <div class="modal-body">
-                    <div>
-                        ID:
-                        <span id="modal-id-display">No id was loaded</span>
-                    </div>
-                    <div>
-                        Username:
-                        <span id="modal-username-display">No username was loaded</span>
-                    </div>
-                    <div>
-                        Date Created:
-                        <span id="modal-date-display">No timestamp was loaded</span>
-                    </div>
-                    <div>
-                        Expiration Date:
-                        <span id="modal-exp-date-display">No expiration date was loaded</span>
+                    <table class="table">
+                        <tr>
+                            <th>ID:</th>
+                            <td>
+                                <span id="modal-id-display" class="display">No id was loaded</span>
+                                <input type="text" id="modal-id-edit" class="uneditable edit" readonly/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Username:</th>
+                            <td>
+                                <span id="modal-username-display" class="display">No username was loaded</span>
+                                <input type="text" id="modal-username-edit" class="uneditable edit" readonly/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>From Path:</th>
+                            <td>
+                                <span id="modal-from-path-display" class="display">No from path was loaded</span>
+                                <input type="text" id="modal-from-path-edit" class="edit"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>To URL:</th>
+                            <td>
+                                <span id="modal-to-url-display" class="display">No to URL was loaded</span>
+                                <input type="text" id="modal-to-url-edit" class="edit"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Short URL:</th>
+                            <td>
+                                <label id="modal-short-url-info" class="checkbox">
+                                    <span class="icons">
+                                        <span id="modal-unchecked" class="fa fa-square-o"></span>
+                                        <span id="modal-checked" class="fa fa-check-square-o"></span>
+                                    </span>
+                                </label>
+                                <label id="modal-short-url-edit" class="checkbox" for="edit-redirect-short-url">
+                                    <span class="icons">
+                                        <span class="first-icon fa fa-square-o"></span>
+                                        <span class="second-icon fa fa-check-square-o"></span>
+                                    </span>
+                                    <input type="checkbox" name="edit-redirect-short-url" id="edit-redirect-short-url">
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Date Created:</th>
+                            <td>
+                                <span id="modal-date-display" class="display">No timestamp was loaded</span>
+                                <input type="text" id="modal-date-edit" class="uneditable edit" readonly/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Expiration Date:</th>
+                            <td>
+                                <span id="modal-exp-date-display" class="display">No expiration date was loaded</span>
+                                <input type="text" id="modal-exp-date-edit" class="edit"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Date Last Edited:</th>
+                            <td>
+                                <span id="modal-last-edited-display" class="display">No timestamp was loaded</span>
+                                <input type="text" id="modal-last-edited-edit" class="uneditable edit" readonly/>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="edit-btn-options">
+                        <a id="modal-edit-redirect-btn" class="btn btn-primary edit-redirect-btn display">Edit</a>
+                        <a id="modal-submit-edits-btn" class="btn btn-primary submit-edits-btn edit"
+                           data-dismiss="modal">Submit</a>
+                        <a id="modal-cancel-edits-btn" class="btn btn-primary cancel-edits-btn edit"
+                           data-dismiss="modal">Cancel</a>
                     </div>
                 </div>
             </div>
@@ -251,6 +384,9 @@
         $(document).ready(function () {
             var picker = new Pikaday({
                 field: document.getElementById('expiration-date')
+            });
+            var picker_edit = new Pikaday({
+                field: document.getElementById('modal-exp-date-edit')
             });
         });
     </script>

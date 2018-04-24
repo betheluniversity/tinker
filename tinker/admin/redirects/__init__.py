@@ -16,6 +16,7 @@ from tinker import app, db, cache
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker.tinker_controller import requires_auth
 from tinker.tinker_controller import admin_permissions
+from tinker.admin.redirects.models import BethelRedirect
 
 
 class RedirectsView(FlaskView):
@@ -49,11 +50,9 @@ class RedirectsView(FlaskView):
     @route("/search", methods=['post'])
     def search(self):
         rform = self.base.dictionary_encoder.encode(request.form)
-        search_type = rform['type']
-        search_query = rform['search']
-        if search_query == "%" or search_type not in ['from_path', 'to_url'] or search_query is None:
-            return ""
-        redirects = self.base.search_db(search_type, search_query)
+        redirect_from_path = rform['from_path']
+        redirect_to_url = rform['to_url']
+        redirects = self.base.search_db(redirect_from_path, redirect_to_url)
         return render_template('admin/redirects/ajax.html', **locals())
 
     # Saves the new redirect created
@@ -99,6 +98,72 @@ class RedirectsView(FlaskView):
                 'message': 'Your redirect is invalid. Make sure the from_path is not "/" and the to_url exists'
             })
 
+    # Saves the edits to an existing redirect
+    @route('/edit-redirect-submit', methods=['post'])
+    def edit_redirect_submit(self):
+        form = self.base.dictionary_encoder.encode(request.form)
+        id = form['edit-id']
+        from_path = form['edit-redirect-from']
+        to_url = form['edit-redirect-to']
+        short_url = form.get('edit-redirect-short-url') == 'true'
+        expiration_date = form.get('edit-expiration-date')
+        username = session["username"]
+        last_edited = datetime.now()
+
+        # There are potentially 3 different formats an expiration date can come in as
+        if expiration_date:
+            # No expiration date, will pass in String "None"
+            if expiration_date == 'None':
+                expiration_date = None
+            # If not changed, it will be in form YYYY-MM-DD
+            elif '-' in expiration_date:
+                expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d')
+            # If changed, it will be in form WEEKDAY MONTH DAY YEAR
+            else:
+                expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
+        # No expiration date
+        else:
+            expiration_date = None
+
+        if from_path is None or to_url is None:
+            return abort(400)
+
+        if self.base.paths_are_valid(from_path, to_url):
+            if not from_path.startswith("/"):
+                from_path = "/%s" % from_path
+
+            try:
+                edit_dict = {
+                    'username': username,
+                    'from_path': from_path,
+                    'to_url': to_url,
+                    'short_url': short_url,
+                    'expiration_date': expiration_date,
+                    'last_edited': last_edited
+                }
+                edit_redirect = BethelRedirect.query.filter(BethelRedirect.id == id)
+                edit_redirect.update(edit_dict)
+                self.base.db.session.commit()
+
+                return json.dumps({
+                    'type': 'success',
+                    'message': 'Your redirect has been updated'
+                })
+
+            except:
+                self.base.rollback()
+                return json.dumps({
+                    'type': 'danger',
+                    'message': 'Failed to add your redirect. A redirect with that from_path already exists.'
+                })
+
+        else:
+            return json.dumps({
+                'type': 'danger',
+                'message': 'Your redirect is invalid. Make sure the from_path is not "/" and the to_url exists'
+            })
+        
+
     # Updates the redirect text file upon request
     def compile(self):
         resp = self.base.create_redirect_text_file()
@@ -119,14 +184,16 @@ class RedirectsView(FlaskView):
             if i > 0:
                 from_url = row[0].split("bethel.edu")[1]
                 to_url = row[1]
+
                 if self.base.paths_are_valid(from_url, to_url):
                     try:
-                        self.base.add_row_to_db(from_url, to_url, None, None)
+                        self.base.add_row_to_db(from_url, to_url, None, None, username="API-Marcel")
                     except Exception as e:
                         # redirect already exists
                         self.base.rollback()
                         print e
                         continue
+
             done_cell = "C%s" % str(i + 1)
             worksheet.update_acell(done_cell, 'x')
             time.sleep(1)

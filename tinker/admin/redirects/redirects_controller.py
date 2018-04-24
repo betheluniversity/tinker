@@ -5,9 +5,10 @@ import requests
 
 # Packages
 from flask_sqlalchemy import SQLAlchemy
-from flask import render_template
+from flask import render_template, session
 from requests.exceptions import SSLError, ConnectionError
 from urllib3.exceptions import ProtocolError, MaxRetryError
+from sqlalchemy import and_
 
 # tinker
 from tinker import app
@@ -35,28 +36,30 @@ class RedirectsController(TinkerController):
 
         return 'done'
 
-    def add_row_to_db(self, from_path, to_url, short_url, expiration_date):
+    def add_row_to_db(self, from_path, to_url, short_url, expiration_date, username=None):
         if from_path == '/':
             return False
 
+        if not username:
+            username = session["username"]
+
         new_redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url,
-                                      expiration_date=expiration_date)
+                                      expiration_date=expiration_date, username=username)
         self.db.session.add(new_redirect)
         self.db.session.commit()
         return new_redirect
 
     def api_add_row(self, from_path, to_url):
-        new_redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+        new_redirect = BethelRedirect(username="API-Generated", from_path=from_path, to_url=to_url)
         self.db.session.add(new_redirect)
         self.db.session.commit()
         return new_redirect
 
-    def search_db(self, search_type, term):
-        term += "%"
-        if search_type == "from_path":  # Search by from_path
-            results = BethelRedirect.query.filter(BethelRedirect.from_path.like(term)).limit(100).all()
-        else:  # Search by to_url
-            results = BethelRedirect.query.filter(BethelRedirect.to_url.like(term)).limit(100).all()
+    def search_db(self, redirect_from_path, redirect_to_url):
+        if redirect_from_path == "" and redirect_to_url == "":
+            return ""
+        results = BethelRedirect.query.filter(and_(BethelRedirect.from_path.like(redirect_from_path + '%'),
+                                                   BethelRedirect.to_url.like('%' + redirect_to_url + '%'))).limit(100).all()
         results.sort()
         return results
 
