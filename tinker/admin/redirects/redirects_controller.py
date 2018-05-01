@@ -36,14 +36,14 @@ class RedirectsController(TinkerController):
 
         return 'done'
 
-    def add_row_to_db(self, from_path, to_url, short_url, expiration_date, username=None):
+    def add_row_to_db(self, domain, from_path, to_url, short_url, expiration_date, username=None):
         if from_path == '/':
             return False
 
         if not username:
             username = session["username"]
 
-        new_redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url,
+        new_redirect = BethelRedirect(domain=domain, from_path=from_path, to_url=to_url, short_url=short_url,
                                       expiration_date=expiration_date, username=username)
         self.db.session.add(new_redirect)
         self.db.session.commit()

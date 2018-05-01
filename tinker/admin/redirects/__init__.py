@@ -14,6 +14,8 @@ from flask_classy import FlaskView, route
 # Local
 from tinker import app, db, cache
 from tinker.admin.redirects.redirects_controller import RedirectsController
+from tinker.admin.redirects.models import BethelRedirect
+from tinker.admin.redirects.redirect_domains import redirect_domains
 from tinker.tinker_controller import requires_auth
 from tinker.tinker_controller import admin_permissions
 from tinker.admin.redirects.models import BethelRedirect
@@ -32,6 +34,7 @@ class RedirectsView(FlaskView):
     # Redirects homepage
     def index(self):
         redirects = self.base.get_all_rows()
+        redirect_domain_list = redirect_domains
         return render_template('admin/redirects/home.html', **locals())
 
     # Deletes the chosen redirect
@@ -59,6 +62,7 @@ class RedirectsView(FlaskView):
     @route("/new-redirect-submit", methods=['post'])
     def new_redirect_submit(self):
         form = self.base.dictionary_encoder.encode(request.form)
+        domain = form['new-redirect-domain']
         from_path = form['new-redirect-from']
         to_url = form['new-redirect-to']
         short_url = form.get('new-redirect-short-url') == 'true'
@@ -73,7 +77,7 @@ class RedirectsView(FlaskView):
             if not from_path.startswith("/"):
                 from_path = "/%s" % from_path
             try:
-                new_redirect = self.base.add_row_to_db(from_path, to_url, short_url, expiration_date)
+                new_redirect = self.base.add_row_to_db(domain, from_path, to_url, short_url, expiration_date)
                 # Update the file after every submit?
                 self.base.create_redirect_text_file()
                 return json.dumps({
@@ -103,6 +107,7 @@ class RedirectsView(FlaskView):
     def edit_redirect_submit(self):
         form = self.base.dictionary_encoder.encode(request.form)
         id = form['edit-id']
+        domain = form['edit-domain']
         from_path = form['edit-redirect-from']
         to_url = form['edit-redirect-to']
         short_url = form.get('edit-redirect-short-url') == 'true'
@@ -135,6 +140,7 @@ class RedirectsView(FlaskView):
             try:
                 edit_dict = {
                     'username': username,
+                    'domain': domain,
                     'from_path': from_path,
                     'to_url': to_url,
                     'short_url': short_url,

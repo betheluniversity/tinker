@@ -19,11 +19,12 @@
                 {% set data_last_edited = data_timestamp %}
             {% endif %}
 
-            <div class="info-column clickable" data-reveal-id="confirmModal" data-toggle="modal" data-target="#infoModal"
-            data-id="{{ redirect.id }}" data-username="{{ redirect.username }}"
-            data-timestamp="{{ data_timestamp }}" data-exp-date="{{ redirect.expiration_date }}"
-             data-from-path="{{ redirect.from_path }}" data-to-url="{{ redirect.to_url }}"
-             data-short-url="{{ redirect.short_url }}" data-last-edited="{{ data_last_edited }}">
+            <div class="info-column clickable" data-reveal-id="confirmModal" data-toggle="modal"
+                 data-target="#infoModal" data-id="{{ redirect.id }}" data-username="{{ redirect.username }}"
+                 data-timestamp="{{ data_timestamp }}" data-exp-date="{{ redirect.expiration_date }}"
+                 data-from-path="{{ redirect.from_path }}" data-to-url="{{ redirect.to_url }}"
+                 data-short-url="{{ redirect.short_url }}" data-last-edited="{{ data_last_edited }}"
+                 data-domain="{{ redirect.domain }}">
                 <i class="fa fa-info-circle"></i>
             </div>
         </td>
@@ -42,8 +43,8 @@
 
         <!-- Delete Column -->
         <td>
-            <div class="delete-column clickable" data-reveal-id="confirmModal" data-toggle="modal" data-target="#deleteModal"
-            data-id="{{ redirect.id }}">
+            <div class="delete-column clickable" data-reveal-id="confirmModal"
+                 data-toggle="modal" data-target="#deleteModal" data-id="{{ redirect.id }}">
                 <i class="fa fa-window-close"></i>
             </div>
         </td>

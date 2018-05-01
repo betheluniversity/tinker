@@ -119,10 +119,3 @@ class SyncController(TinkerController):
             data_definition_mapping[data_definition_id] = data_definition_asset['dataDefinition']['name']
 
         return data_definition_mapping
-
-    def git_pull(self):
-        # don't pull locally. It's just a bad idea.
-        if 'User' not in app.config['INSTALL_LOCATION']:
-            import commands
-            commands.getoutput(
-                "cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
