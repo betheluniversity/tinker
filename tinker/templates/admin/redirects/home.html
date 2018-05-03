@@ -13,13 +13,18 @@
                 <div class="card">
                     <div class="content">
                         <form action="" id="new-redirect-form">
-                            <div class="form-group">
-                                Domain:
-                                <select name="domain" id="new-redirect-domain">
-                                    {% for domain in redirect_domain_list %}
-                                        <option value="{{ domain }}">{{ domain }}</option>
-                                    {% endfor %}
-                                </select>
+                            <div class="row less-left-margin">
+                                <div class="form-group col-sm-10">
+                                    Domain:
+                                    <select name="domain" id="new-redirect-domain">
+                                        {% for domain in redirect_domain_list %}
+                                            <option value="{{ domain }}">{{ domain }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <div id="add-domain" class="btn btn-primary">
+                                        Add Domain
+                                    </div>
+                                </div>
                             </div>
                             <div class="row less-left-margin">
                                 <div class="col-sm-4">
