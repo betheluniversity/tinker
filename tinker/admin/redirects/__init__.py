@@ -37,6 +37,11 @@ class RedirectsView(FlaskView):
         redirect_domain_list = redirect_domains
         return render_template('admin/redirects/home.html', **locals())
 
+    # Add domain to drop down menu
+    def add_domain(self):
+        redirect_domain_list = redirect_domains
+        return render_template('admin/redirects/add_domain.html', **locals())
+
     # Deletes the chosen redirect
     @route("/delete", methods=['post'])
     def delete_redirect(self):
