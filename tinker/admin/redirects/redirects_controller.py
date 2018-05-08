@@ -41,7 +41,7 @@ class RedirectsController(TinkerController):
 
         return 'done'
 
-    def add_row_to_db(self, domain, from_path, to_url, short_url, expiration_date, username=None):
+    def add_row_to_db(self, from_path, to_url, short_url, expiration_date, username=None, domain="www.bethel.edu"):
         if from_path == '/':
             return False
 

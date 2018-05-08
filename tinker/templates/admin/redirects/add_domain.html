@@ -8,13 +8,14 @@
     <h1>Instructions:</h1>
         <ol>
             <li>Double check the list of domains:</li>
-                <ul>
+                <select>
                     {% for domain in redirect_domain_list %}
-                        <li>{{ domain }}</li>
+                        <option value="{{ domain }}">{{ domain }}</option>
                     {% endfor %}
-                </ul>
+                </select>
             <li>If you don't see your desired domain above, click
-                <a href="https://github.com/betheluniversity/tinker/blob/Redirect-Multiple-Domains/tinker/admin/redirects/redirect_domains.py">
+                <a href="https://github.com/betheluniversity/tinker/blob/Redirect-Multiple-Domains/tinker/admin/redirects/redirect_domains.py"
+                   target="_blank">
                     here</a> to go to Github.</li>
             <li>Once you are on the page, hit the edit button to add your domain to the list separated by a comma.</li>
                 <ul>
@@ -23,13 +24,27 @@
                 </ul>
             <li>When your domain is added, come back to this page to click the button.
                 This will update the list on the site.</li>
-                <div id="update-domains" class="btn btn-primary">Update</div>
+                <div id="update-domains" class="btn btn-primary"
+                     onclick="{{ url_for('RedirectsView:add_domain_option') }}">
+                    Update
+                </div>
             <li>Click <a href='{{ url_for("RedirectsView:index") }}'>here</a> to return to the Redirects page.</li>
         </ol>
 
     <script type="text/javascript">
 
         $(document).ready( function (){
+
+            $('#update-domains').click(function(){
+                $.notify({
+                message: 'Adding domain options'
+                }, {
+                    type: 'success',
+                    placement: {
+                        align: 'center'
+                    },
+                });
+            });
 
         });
 

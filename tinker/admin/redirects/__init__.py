@@ -8,7 +8,7 @@ from datetime import datetime
 
 # Packages
 from BeautifulSoup import BeautifulSoup
-from flask import render_template, request, abort, session, Response, stream_with_context
+from flask import render_template, request, abort, session, Response, stream_with_context, redirect, url_for
 from flask_classy import FlaskView, route
 
 # Local
@@ -37,10 +37,15 @@ class RedirectsView(FlaskView):
         redirect_domain_list = redirect_domains
         return render_template('admin/redirects/home.html', **locals())
 
-    # Add domain to drop down menu
-    def add_domain(self):
+    # Add domain page
+    def domain_homepage(self):
         redirect_domain_list = redirect_domains
         return render_template('admin/redirects/add_domain.html', **locals())
+
+    # Add domain to drop down menu
+    def add_domain_option(self):
+        self.base.git_pull()
+        return redirect(url_for("RedirectsView:index"))
 
     # Deletes the chosen redirect
     @route("/delete", methods=['post'])
@@ -82,7 +87,7 @@ class RedirectsView(FlaskView):
             if not from_path.startswith("/"):
                 from_path = "/%s" % from_path
             try:
-                new_redirect = self.base.add_row_to_db(domain, from_path, to_url, short_url, expiration_date)
+                new_redirect = self.base.add_row_to_db(from_path, to_url, short_url, expiration_date, domain=domain)
                 # Update the file after every submit?
                 self.base.create_redirect_text_file()
                 return json.dumps({
