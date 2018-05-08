@@ -309,9 +309,21 @@ class FacultyBioController(TinkerController):
         form = FacultyBioForm()
 
         self.log_sentry('Faculty Bio Image: Form', form)
+        # todo: add in sentry error for submission (include form.image.data.filename)
         try:
             # an image was uploaded
             form.image.data.filename
+
+            # todo: this is for testing
+            ####################
+            import os
+            image_dict = {
+                'image_name': form.image.data.filename,
+                'current_user': session['username']
+            }
+            self.log_sentry('Faculty Bio Image TEST 1', image_dict)
+            ####################
+
         except AttributeError:
             # no image selected - make sure to keep the image url as is.
             return add_data.get('image_url')
@@ -320,14 +332,68 @@ class FacultyBioController(TinkerController):
         image_sub_path = '/academics/faculty/images'
         image_path = image_sub_path + '/' + image_name
         description = self.build_description(add_data)
-
         self.log_sentry('Faculty Bio Image: Name', image_name)
+
         form.image.data.save(app.config['UPLOAD_FOLDER'] + image_name)
+
+        # todo: this is for testing
+        ####################
+        import os
+        image_dict = {
+            'image_size': str(os.stat(app.config['UPLOAD_FOLDER'] + image_name).st_size/1000) + 'Mb',
+            'image_path': image_path,
+            'current_user': session['username']
+        }
+        self.log_sentry('Faculty Bio Image TEST 2', image_dict)
+        ####################
+
         image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
+
+        # todo: this is for testing
+        ####################
+        image_dict = {
+            'image_size': str(os.fstat(image_file.fileno()).st_size / 1000) + 'Mb',
+            'image_path': image_path,
+            'current_user': session['username']
+        }
+        self.log_sentry('Faculty Bio Image TEST 3', image_dict)
+        ###################
+
         stream = image_file.read()
+
+        # todo: this is for testing
+        ####################
+        image_dict = {
+            'image_size': stream,
+            'image_path': image_path,
+            'current_user': session['username']
+        }
+        self.log_sentry('Faculty Bio Image TEST 4', image_dict)
+        ####################
+
         encoded_stream = base64.b64encode(stream)
+        # todo: this is for testing
+        ####################
+        image_dict = {
+            'image_size': encoded_stream,
+            'image_path': image_path,
+            'current_user': session['username']
+        }
+        self.log_sentry('Faculty Bio Image TEST 5', image_dict)
+        ####################
 
         file_asset = self.read(image_path, 'file')
+
+        # todo: this is for testing
+        ####################
+        image_dict = {
+            'file_asset': file_asset,
+            'image_path': image_path,
+            'current_user': session['username']
+        }
+        self.log_sentry('Faculty Bio Image TEST 6', image_dict)
+        ####################
+
         # edit existing
         if file_asset['success'] == 'true':
             image_asset = file_asset['asset']
