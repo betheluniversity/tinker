@@ -2,6 +2,7 @@
 import base64
 import json
 import re
+import os
 
 # Packages
 from bu_cascade.asset_tools import find
@@ -314,16 +315,6 @@ class FacultyBioController(TinkerController):
             # an image was uploaded
             form.image.data.filename
 
-            # todo: this is for testing
-            ####################
-            import os
-            image_dict = {
-                'image_name': form.image.data.filename,
-                'current_user': session['username']
-            }
-            self.log_sentry('Faculty Bio Image TEST 1', image_dict)
-            ####################
-
         except AttributeError:
             # no image selected - make sure to keep the image url as is.
             return add_data.get('image_url')
@@ -336,107 +327,61 @@ class FacultyBioController(TinkerController):
 
         form.image.data.save(app.config['UPLOAD_FOLDER'] + image_name)
 
-        # todo: this is for testing
-        ####################
-        import os
-        image_dict = {
-            'image_size': str(os.stat(app.config['UPLOAD_FOLDER'] + image_name).st_size/1000) + 'Mb',
-            'image_path': image_path,
-            'current_user': session['username']
-        }
-        self.log_sentry('Faculty Bio Image TEST 2', image_dict)
-        ####################
-
         image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
 
-        # todo: this is for testing
-        ####################
-        image_dict = {
-            'image_size': str(os.fstat(image_file.fileno()).st_size / 1000) + 'Mb',
-            'image_path': image_path,
-            'current_user': session['username']
-        }
-        self.log_sentry('Faculty Bio Image TEST 3', image_dict)
-        ###################
-
-        stream = image_file.read()
-
-        # todo: this is for testing
-        ####################
-        image_dict = {
-            'image_size': stream,
-            'image_path': image_path,
-            'current_user': session['username']
-        }
-        self.log_sentry('Faculty Bio Image TEST 4', image_dict)
-        ####################
-
-        encoded_stream = base64.b64encode(stream)
-        # todo: this is for testing
-        ####################
-        image_dict = {
-            'image_size': encoded_stream,
-            'image_path': image_path,
-            'current_user': session['username']
-        }
-        self.log_sentry('Faculty Bio Image TEST 5', image_dict)
-        ####################
-
-        file_asset = self.read(image_path, 'file')
-
-        # todo: this is for testing
-        ####################
-        image_dict = {
-            'file_asset': file_asset,
-            'image_path': image_path,
-            'current_user': session['username']
-        }
-        self.log_sentry('Faculty Bio Image TEST 6', image_dict)
-        ####################
-
-        # edit existing
-        if file_asset['success'] == 'true':
-            image_asset = file_asset['asset']
-            # update data
-            new_values = {
-                'data': encoded_stream,
-                'metaDescription': description,
-            }
-
-            self.update_asset(image_asset, new_values)
-            resp = self.cascade_connector.edit(image_asset)
-            clear_resp = self.clear_image_cache(image_path)
-            self.log_sentry('Edited Faculty Bio Image', resp)
-
-        # create new from base_asset
+        # the image is 0 bytes
+        if os.fstat(image_file.fileno()).st_size <= 0:
+            return add_data.get('image_url')
         else:
-            try:
-                image_asset = self.read(app.config['IMAGE_WITH_DEFAULT_IMAGE_BASE_ASSET'], 'file')['asset']
-            except:
-                return None
+            stream = image_file.read()
+            encoded_stream = base64.b64encode(stream)
 
-            new_values = {
-                'createdBy': 'tinker',
-                'createdDate': None,
-                'data': encoded_stream,
-                'id': None,
-                'metaDescription': description,
-                'name': image_name,
-                'path': None,
-                'parentFolderId': None,
-                'parentFolderPath': image_sub_path
-            }
+            file_asset = self.read(image_path, 'file')
 
-            self.update_asset(image_asset, new_values)
-            resp = self.cascade_connector.create(image_asset)
-            self.log_sentry('Created Faculty Bio Image', resp)
+            # edit existing
+            if file_asset['success'] == 'true':
+                image_asset = file_asset['asset']
+                # update data
+                new_values = {
+                    'data': encoded_stream,
+                    'metaDescription': description,
+                }
 
-        # delete the old image, if their name is changed (since it would have created a new image anyway.
-        if add_data.get('image_url') and add_data.get('image_url') != image_path:
-            self.delete(add_data.get('image_url'), 'file')
+                self.update_asset(image_asset, new_values)
+                resp = self.cascade_connector.edit(image_asset)
+                clear_resp = self.clear_image_cache(image_path)
+                self.log_sentry('Edited Faculty Bio Image', resp)
 
-        self.publish(image_path, 'file')
-        return image_path
+            # create new from base_asset
+            else:
+                try:
+                    image_asset = self.read(app.config['IMAGE_WITH_DEFAULT_IMAGE_BASE_ASSET'], 'file')['asset']
+                except:
+                    return None
+
+                new_values = {
+                    'createdBy': 'tinker',
+                    'createdDate': None,
+                    'data': encoded_stream,
+                    'id': None,
+                    'metaDescription': description,
+                    'name': image_name,
+                    'path': None,
+                    'parentFolderId': None,
+                    'parentFolderPath': image_sub_path
+                }
+
+                self.update_asset(image_asset, new_values)
+                resp = self.cascade_connector.create(image_asset)
+                self.log_sentry('Created Faculty Bio Image', resp)
+
+            # delete the old image, if their name is changed (since it would have created a new image anyway.
+            if add_data.get('image_url') and add_data.get('image_url') != image_path:
+                self.delete(add_data.get('image_url'), 'file')
+
+            self.publish(image_path, 'file')
+            return image_path
+
 
     # this can be shortened, i hope
     def build_description(self, add_data):
