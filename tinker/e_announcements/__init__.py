@@ -42,14 +42,7 @@ class EAnnouncementsView(FlaskView):
                 3: 'Other E-Announcements'},
                 key=lambda t: t[0]
             )
-            # The below can be added inside of the dictionary as they are built out
-            # {4: 'College of Arts and Sciences'},
-            # {5: 'College of Adult and Professional Studies'},
-            # {6: 'Graduate School'},
-            # {7: 'Bethel Seminary'},
-            # {8: 'Administration with Faculty Status'},
-            # {9: 'Other'}
-        else:  # normal view
+        else:
             all_schools = OrderedDict({
                 2: 'User E-Announcements'}
             )

@@ -207,20 +207,18 @@ class EAnnouncementsController(TinkerController):
         # to_return will hold all of the events that match the search criteria
         to_return = []
 
+        both = title and date
         for annz in e_annz_to_iterate:
-            check_title = bool(title)
-            title_matches = check_title and title.lower() in annz['title'].lower()
-            check_date = bool(date)
+            title_matches = title and title.lower() in annz['title'].lower()
             format_date = datetime.strptime(annz['first_date'], "%A %B %d, %Y")
-            date_matches = check_date and (date == format_date)
+            date_matches = date and (date == format_date)
 
-            add_event = False
-            if check_title and title_matches:
-                add_event = True
-            elif check_date and date_matches:
-                add_event = True
+            # If title and date matches, add the announcement
+            if title_matches and date_matches:
+                to_return.append(annz)
 
-            if add_event:
+            # If title or date matches, add the announcement
+            if not both and (title_matches or date_matches):
                 to_return.append(annz)
 
         return to_return, forms_header
