@@ -189,12 +189,12 @@ class EAnnouncementsController(TinkerController):
 
     def get_search_results(self, selection, title, date):
         announcements = self.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
-        if selection and '-'.join(selection) == '1':
+        if selection and '-'.join(selection) == '2':
             e_annz_to_iterate = announcements
             forms_header = "All E-Announcements"
         else:
             user_e_annz, other_e_annz = self.split_user_e_annz(announcements)
-            if selection and '-'.join(selection) == '2':
+            if selection and '-'.join(selection) == '1':
                 e_annz_to_iterate = user_e_annz
                 forms_header = "My E-Announcements"
             else:

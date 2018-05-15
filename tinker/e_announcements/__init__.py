@@ -37,8 +37,8 @@ class EAnnouncementsView(FlaskView):
         if 'Tinker E-Announcements - CAS' in session['groups'] or 'E-Announcement Approver' in session['groups']:
             # The special admin view
             all_schools = OrderedDict({
-                1: 'All E-Announcements',
-                2: 'My E-Announcements',
+                1: 'My E-Announcements',
+                2: 'All E-Announcements',
                 3: 'Other E-Announcements'},
                 key=lambda t: t[0]
             )
