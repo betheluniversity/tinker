@@ -127,4 +127,7 @@ class RedirectsController(TinkerController):
                 self.db.session.commit()
                 changed.append({'to_url': redirect.to_url, 'response': response.url})
 
-        return render_template('admin/redirects/clear-redirects.html', **locals())
+        if changed or deleted:
+            return render_template('admin/redirects/clear-redirects.html', **locals())
+        else:
+            return False
