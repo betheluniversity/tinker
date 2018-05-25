@@ -130,4 +130,4 @@ class RedirectsController(TinkerController):
         if changed or deleted:
             return render_template('admin/redirects/clear-redirects.html', **locals())
         else:
-            return False
+            return "empty"
