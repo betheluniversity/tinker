@@ -18,7 +18,7 @@ Flask-Cors
 arrow
 feedformatter
 feedparser
-createsend
+createsend==4.2.1
 raven
 Flask-Classy
 bu-cascade
