@@ -83,6 +83,7 @@
             <div class="col-md-12">
                 {% if show_create %}
                     <a href="{{ url_for('FacultyBiosView:new') }}" class="btn btn-primary">Create New Bio</a>
+                    <a href="{{ url_for('FacultyBiosView:csv_test') }}" class="btn btn-primary">Export csv file</a>
                     <hr/>
                 {% endif %}
                 {% if show_special_admin_view %}

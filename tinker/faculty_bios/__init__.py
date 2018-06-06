@@ -14,6 +14,9 @@ from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from faculty_bio_controller import FacultyBioController
 
+# Figure out what to do with this
+import csv
+
 
 class FacultyBiosView(FlaskView):
     route_base = '/faculty-bios'
@@ -215,3 +218,22 @@ class FacultyBiosView(FlaskView):
         xml_url = app.config['FACULTY_BIOS_XML_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
+
+    @route('/csv-test')
+    def csv_test(self):
+        with open('faculty-info.csv', 'wb') as csvfile:
+            filewriter = csv.writer(csvfile, delimiter=',',
+                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            filewriter.writerow(['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
+                                 'Highlight text', 'Job Title 1', 'Email', 'Started at Bethel in', 'Degree 1','Degree 2',
+                                 'Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
+                                 'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
+                                 'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
+                                 'Professional website or blog'])
+        with open('faculty-info.csv', 'rb') as f:
+            reader = csv.reader(f)
+
+            string = ""
+            for row in reader:
+                string += row
+        return "This is a test page." + string
