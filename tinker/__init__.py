@@ -7,12 +7,12 @@ import platform
 import flask_profiler
 from bu_cascade.cascade_connector import Cascade
 from flask import Flask, make_response, redirect, session, url_for
-# Put in a condition to check version
-# if 2.6 use flask.ext.cache
-# else 2.7 use flask_caching
-from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
+if platform.python_version()[:3] == '2.6':
+    from flask.ext.cache import Cache
+else:
+    from flask_caching import Cache
 
 app = Flask(__name__)
 
