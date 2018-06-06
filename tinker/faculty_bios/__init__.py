@@ -5,7 +5,7 @@ from operator import itemgetter
 
 # Packages
 from bu_cascade.asset_tools import find, update
-from flask import abort, redirect, render_template, request, session
+from flask import abort, redirect, render_template, request, session, Response
 from flask import json as fjson
 from flask_classy import FlaskView, route
 
@@ -233,7 +233,20 @@ class FacultyBiosView(FlaskView):
         with open('faculty-info.csv', 'rb') as f:
             reader = csv.reader(f)
 
-            string = ""
             for row in reader:
-                string += row
-        return "This is a test page." + string
+                print row
+        return "jo"
+
+    @route("/faculty-bio-info-test")
+    def getFacultyBioTest(self):
+        csv = ['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
+                                 'Highlight text', 'Job Title 1', 'Email', 'Started at Bethel in', 'Degree 1','Degree 2',
+                                 'Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
+                                 'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
+                                 'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
+                                 'Professional website or blog']
+        return Response(
+            csv,
+            mimetype="text/csv",
+            headers={"Content-disposition":
+                         "attachment; filename=faculty-bio-info.csv"})
