@@ -239,14 +239,35 @@ class FacultyBiosView(FlaskView):
 
     @route("/faculty-bio-info-test")
     def getFacultyBioTest(self):
-        csv = ['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
+        with open('faculty-info.csv', 'wb') as csvfile:
+            filewriter = csv.writer(csvfile, delimiter=',',
+                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
+            filewriter.writerow(['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
                                  'Highlight text', 'Job Title 1', 'Email', 'Started at Bethel in', 'Degree 1','Degree 2',
                                  'Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
                                  'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
                                  'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
-                                 'Professional website or blog']
-        return Response(
-            csv,
-            mimetype="text/csv",
-            headers={"Content-disposition":
-                         "attachment; filename=faculty-bio-info.csv"})
+                                 'Professional website or blog'])
+        with open('faculty-info.csv', 'rb') as f:
+            return Response(
+                f.read(),
+                mimetype="text/csv",
+                headers={"Content-disposition":
+                            "attachment; filename=faculty-bio-info.csv"})
+
+
+
+
+
+        # csv = ['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
+        #                          'Highlight text', 'Job Title 1', 'Email', 'Started at Bethel in', 'Degree 1','Degree 2',
+        #                          'Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
+        #                          'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
+        #                          'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
+        #                          'Professional website or blog']
+        # myString = ", ".join(csv)
+        # return Response(
+        #     myString,
+        #     mimetype="text/csv",
+        #     headers={"Content-disposition":
+        #                  "attachment; filename=faculty-bio-info.csv"})
