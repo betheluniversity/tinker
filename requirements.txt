@@ -13,9 +13,8 @@ WTForms-Components
 flask-hmacauth
 suds
 simplejson
---allow-external WTForms
+WTForms
 requests
-sqlalchemy-migrate==0.11.0
 BeautifulSoup
 Flask-Cors
 arrow

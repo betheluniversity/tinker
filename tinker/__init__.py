@@ -7,7 +7,7 @@ import platform
 import flask_profiler
 from bu_cascade.cascade_connector import Cascade
 from flask import Flask, make_response, redirect, session, url_for
-from flask.ext.cache import Cache
+from flask_cache import Cache
 from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
 
