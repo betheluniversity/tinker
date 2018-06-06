@@ -210,8 +210,9 @@ class EAnnouncementsController(TinkerController):
         both = title and date
         for annz in e_annz_to_iterate:
             title_matches = title and title.lower() in annz['title'].lower()
-            format_date = datetime.strptime(annz['first_date'], "%A %B %d, %Y")
-            date_matches = date and (date == format_date)
+            format_first_date = datetime.strptime(annz['first_date'], "%A %B %d, %Y")
+            format_second_date = datetime.strptime(annz['second_date'], "%A %B %d, %Y")
+            date_matches = date and (date == format_first_date or date == format_second_date)
 
             # If title and date matches, add the announcement
             if title_matches and date_matches:
