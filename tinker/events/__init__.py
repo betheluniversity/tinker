@@ -34,19 +34,12 @@ class EventsView(FlaskView):
         if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
             # The special admin view
             all_schools = OrderedDict({
-                1: 'All Events',
-                2: 'My Events',
+                1: 'My Events',
+                2: 'All Events',
                 3: 'Other Events'},
                 key=lambda t: t[0]
             )
-            # The below can be added inside of the dictionary as they are built out
-            # {4: 'College of Arts and Sciences'},
-            # {5: 'College of Adult and Professional Studies'},
-            # {6: 'Graduate School'},
-            # {7: 'Bethel Seminary'},
-            # {8: 'Administration with Faculty Status'},
-            # {9: 'Other'}
-        else:  # normal view
+        else:
             all_schools = OrderedDict({
                 2: 'User Events'}
             )

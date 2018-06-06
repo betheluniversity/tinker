@@ -420,13 +420,13 @@ class EventsController(TinkerController):
         # Get the events and then split them into user events and other events for quicker searching
         events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'event')
         # Quick check with assignment
-        if selection and '-'.join(selection) == '1':
+        if selection and '-'.join(selection) == '2':
             events_to_iterate = events
             # default is for the automatic event population
             forms_header = "All Events"
         else:
             user_events, other_events = self.split_user_events(events)
-            if selection and '-'.join(selection) == '2':
+            if selection and '-'.join(selection) == '1':
                 events_to_iterate = user_events
                 forms_header = "My Events"
             else:
@@ -444,20 +444,18 @@ class EventsController(TinkerController):
             end += datetime.timedelta(days=1)
 
         for event in events_to_iterate:
-            check_title = bool(title)
-            title_matches = check_title and title.lower() in event['title'].lower()
+            title_matches = title and title.lower() in event['title'].lower()
             check_dates = (start != 0 or end != 0) and len(event['event-dates']) > 0
             dates_matched = check_dates and self.event_dates_in_date_range(event['event-dates'], start, end)
 
-            add_event = False
-            if check_title and title_matches and check_dates and dates_matched:
-                add_event = True
-            elif check_title and title_matches and not check_dates:
-                add_event = True
-            elif check_dates and dates_matched and not check_title:
-                add_event = True
-
-            if add_event:
+            # Title and date fields filled
+            if title_matches and check_dates and dates_matched:
+                to_return.append(event)
+            # Title but no dates
+            elif title_matches and not check_dates:
+                to_return.append(event)
+            # Dates but no title
+            elif check_dates and dates_matched and not title:
                 to_return.append(event)
 
         return to_return, forms_header
