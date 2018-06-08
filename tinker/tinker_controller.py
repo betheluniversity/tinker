@@ -372,20 +372,23 @@ class TinkerController(object):
         # interface method
         pass
 
-    def traverse_xml(self, xml_url, type_to_find, find_all=False):
+    def traverse_xml(self, xml_url, type_to_find, find_all=False, csv=False):
         response = requests.get(xml_url)
         form_xml = ET.fromstring(response.content)
 
         matches = []
 
         for child in form_xml.findall('.//' + type_to_find):
-            match = self.inspect_child(child, find_all)
+            match = self.inspect_child(child, find_all, csv)
             if match:
                 matches.append(match)
 
         # Todo: maybe add some parameter as a search?
         # sort by created-on date.
-        matches = sorted(matches, key=lambda k: k['created-on'])
+        if csv == False:
+            matches = sorted(matches, key=lambda k: k['created-on'])
+        else:
+            matches = sorted(matches, key=lambda k: k['last'])
 
         return matches
 

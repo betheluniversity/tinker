@@ -13,10 +13,10 @@ from flask_classy import FlaskView, route
 from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from faculty_bio_controller import FacultyBioController
-
 # Figure out what to do with this
 import csv
-
+from tinker.tinker_controller import EncodingDict
+from unidecode import unidecode
 
 class FacultyBiosView(FlaskView):
     route_base = '/faculty-bios'
@@ -219,35 +219,48 @@ class FacultyBiosView(FlaskView):
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 
-    @route('/csv-test')
-    def csv_test(self):
-        with open('faculty-info.csv', 'wb') as csvfile:
-            filewriter = csv.writer(csvfile, delimiter=',',
-                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
-            filewriter.writerow(['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
-                                 'Highlight text', 'Job Title 1', 'Email', 'Started at Bethel in', 'Degree 1','Degree 2',
-                                 'Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
-                                 'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
-                                 'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
-                                 'Professional website or blog'])
-        with open('faculty-info.csv', 'rb') as f:
-            reader = csv.reader(f)
-
-            for row in reader:
-                print row
-        return "jo"
-
     @route("/faculty-bio-info-test")
     def getFacultyBioTest(self):
-        with open('faculty-info.csv', 'wb') as csvfile:
-            filewriter = csv.writer(csvfile, delimiter=',',
-                                    quotechar='|', quoting=csv.QUOTE_MINIMAL)
+        test_form = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page', True, True)
+
+        # for data in test_form:
+        #     my_list = []
+        #     for key in data:
+        #         my_list.append(unidecode(data[key]))
+        #     print my_list
+
+        #648
+
+        # for data in test_form:
+        #     print([data['first'], data['last'], data['author'], data['location'], unidecode(data['highlight']),
+        #            "job title", data['email'], data['started-at-bethel'], "degree 1", "degree 2",
+        #            unidecode(data['biography']), 'courses'])
+
+        with open('faculty-info.csv', 'w') as csvfile:
+            filewriter = csv.writer(csvfile)
             filewriter.writerow(['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
                                  'Highlight text', 'Job Title 1', 'Email', 'Started at Bethel in', 'Degree 1','Degree 2',
                                  'Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
                                  'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
                                  'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
                                  'Professional website or blog'])
+
+            # for data in test_form:
+            #     my_list = []
+            #     for key in data:
+            #         my_list.append(unidecode(data[key]))
+            #     filewriter.writerow(my_list)
+
+            for data in test_form:
+                filewriter.writerow([unidecode(data['first']), unidecode(data['last']),
+                                     # unidecode(data['author']),
+                                     # unidecode(data['location']),
+                                     # unidecode(data['highlight']),
+                                     # "job title",
+                                     # unidecode(data['email']), unidecode(data['started-at-bethel']), "degree 1", "degree 2",
+                                     # unidecode(data['biography'])])
+                                    ])
+
         with open('faculty-info.csv', 'rb') as f:
             return Response(
                 f.read(),
@@ -256,18 +269,24 @@ class FacultyBiosView(FlaskView):
                             "attachment; filename=faculty-bio-info.csv"})
 
 
-
-
-
-        # csv = ['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
-        #                          'Highlight text', 'Job Title 1', 'Email', 'Started at Bethel in', 'Degree 1','Degree 2',
-        #                          'Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
-        #                          'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
-        #                          'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
-        #                          'Professional website or blog']
-        # myString = ", ".join(csv)
-        # return Response(
-        #     myString,
-        #     mimetype="text/csv",
-        #     headers={"Content-disposition":
-        #                  "attachment; filename=faculty-bio-info.csv"})
+# 'first': child.find('.//first').text,
+# 'last': child.find('.//last').text,
+# 'author': child.find('author').text,
+# 'location': child.find('.//faculty_location/value').text,
+# 'highlight': child.find('.//highlight').text or "",
+# 'job-titles': child.find('job-titles').text,
+# 'email': child.find('.//email').text,
+# 'started-at-bethel': child.find('.//started-at-bethel').text,
+# 'education': child.find('education'),
+# 'biography': child.find('biography'),
+# 'courses': child.find('courses'),
+# 'awards': child.find('awards'),
+# 'publications': child.find('publications'),
+# 'certificates': child.find('certificates'),
+# 'organizations': child.find('organizations'),
+# 'hobbies': child.find('hobbies'),
+# 'areas': child.find('areas'),
+# 'research-interests': child.find('research-interests'),
+# 'teaching-specialty': child.find('teaching-specialty'),
+# 'quote': child.find('quote'),
+# 'website': child.find('website')

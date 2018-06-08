@@ -44,7 +44,7 @@ class FacultyBioController(TinkerController):
         }
         return mapping
 
-    def inspect_child(self, child, find_all=False):
+    def inspect_child(self, child, find_all=False, csv=False):
         # Set up the variables that this method will use to determine whether or not it should iterate over this bio
         author = None
         try:
@@ -104,13 +104,13 @@ class FacultyBioController(TinkerController):
         to_return = None
         if iterate_bio:
             try:
-                to_return = self._iterate_child_xml(child, author)
+                to_return = self._iterate_child_xml(child, author, csv)
             except AttributeError:
                 pass
 
         return to_return
 
-    def _iterate_child_xml(self, child, author):
+    def _iterate_child_xml(self, child, author, csv=False):
 
         try:
             workflow_status = child.find('workflow').find('status').text
@@ -122,17 +122,68 @@ class FacultyBioController(TinkerController):
             school_array = []
             for school in child.findall('.//job-titles/school'):
                 school_array.append(school.text or 'Other')
-
-            page_values = {
-                'author': child.find('author') or None,
-                'id': child.attrib['id'] or "",
-                'title': child.find('title').text or None,
-                'created-on': child.find('created-on').text or None,
-                'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                'schools': school_array,
-                'last-name': child.find('.//last').text or None,
-                'deactivated': child.find('.//deactivate').text or None
+            if csv==False:
+                page_values = {
+                    'author': child.find('author') or None,
+                    'id': child.attrib['id'] or "",
+                    'title': child.find('title').text or None,
+                    'created-on': child.find('created-on').text or None,
+                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                    'schools': school_array,
+                    'last-name': child.find('.//last').text or None,
+                    'deactivated': child.find('.//deactivate').text or None
             }
+            else:
+                # from xml.etree.ElementTree import Element
+                # biography_stand_in = child.find('.//add-to-bio/biography/')
+                # print "yes"
+                # self.element_tree_to_html(biography_stand_in)
+                # print type(biography_stand_in)
+                # string_for_me = ""
+                # if isinstance(biography_stand_in, Element):
+                #     print vars(biography_stand_in)['tag']
+                #     stringy = str(vars(biography_stand_in)['tag'])
+                #     string_for_me = './/add-to-bio/biography/' + stringy
+                #     print string_for_me
+                # else:
+                #     string_for_me = './/add-to-bio/biography/'
+
+                print "-------top------"
+                print child
+                print "-----middle-----"
+                print self.element_tree_to_html(child)
+                # stuff = self.element_tree_to_html(child)
+                # print "----biography----"
+                # print "made it"
+                print "-----bottom-----"
+
+
+                page_values = {
+
+                    'first': child.find('.//first').text or "",
+                    'last': child.find('.//last').text or "",
+                    # 'author': child.find('author').text or "",
+                    # 'location': child.find('.//faculty_location/value').text or "",
+                    # 'highlight': child.find('.//highlight').text or "",
+                    # 'job-titles': child.find('job-titles').text,
+                    # 'email': child.find('.//email').text or "",
+                    # 'started-at-bethel': child.find('.//started-at-bethel').text or "",
+                    # 'education': child.find('education'),
+                    # 'biography': child.find(string_for_me).text or "",
+                    # 'biography': child.find('.//add-to-bio/biography/').text or "",
+                    # 'courses': child.find('.//add-to-bio/courses/').text or "",
+                    # 'awards': child.find('.//add-to-bio/awards/').text or "",
+                    # 'publications': child.find('.//add-to-bio/publications/').text or "",
+                    # 'certificates': child.find('.//add-to-bio/certificates/').text or "",
+                    # 'organizations': child.find('.//add-to-bio/organizations/').text or "",
+                    # 'hobbies': child.find('.//add-to-bio/hobbies/').text or "",
+                    # 'areas': child.find('.//add-to-bio/areas/').text or "",
+                    # 'research-interests': child.find('.//add-to-bio/research-interests/').text or "",
+                    # 'teaching-specialty': child.find('.//add-to-bio/teaching-specialty/').text or "",
+                    # 'quote': child.find('.//add-to-bio/quote/').text or "",
+                    # 'website': child.find('.//add-to-bio/website/').text or ""
+                }
+
             return page_values
         else:
             return None
