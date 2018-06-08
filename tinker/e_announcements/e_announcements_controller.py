@@ -131,7 +131,8 @@ class EAnnouncementsController(TinkerController):
         if e_announcement_id:
             add_data['id'] = e_announcement_id
 
-        # todo, revert this after 'name' in the Cascade data-def is changed so it doesn't conflict (then we don't have to call update_asset twice)
+        # todo, revert this after 'name' in the Cascade data-def is changed so it doesn't conflict
+        # todo, (then we don't have to call update_asset twice)
         # update asset
         self.update_asset(sdata, add_data)
         self.update_asset(e_announcement_data, add_data)
@@ -140,7 +141,8 @@ class EAnnouncementsController(TinkerController):
         # for some reason, title is not already set, so it must be set manually
         e_announcement_data['xhtmlDataDefinitionBlock']['metadata']['title'] = add_data['title']
 
-        # once all editing is done, move the asset is an edit. We do this in order to ensure the path and name are correct everytime.
+        # once all editing is done, move the asset is an edit.
+        # We do this in order to ensure the path and name are correct everytime.
         # We decided to leave this as a move instead of adding checks to see if it does or does not move.
         if e_announcement_id:
             self.move(e_announcement_id, add_data['parentFolderPath'], type='block')

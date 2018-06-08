@@ -10,7 +10,7 @@ from flask_classy import FlaskView, request, route
 from ordereddict import OrderedDict
 
 # Local
-from tinker import app
+from tinker import app, cache
 from tinker.tinker_controller import requires_auth
 from e_announcements_controller import EAnnouncementsController
 from campaign_controller import CampaignController
@@ -29,6 +29,7 @@ class EAnnouncementsView(FlaskView):
     def before_request(self, name, **kwargs):
         pass
 
+    @cache.memoize(timeout=600)
     def index(self):
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
 
