@@ -40,25 +40,22 @@
                     {% endif %}
                 {% endfor %}
             </select>
-            <p class="description">Click "Slide Down" button for additional search parameters.
-                Press "Slide Up" to hide selection</p>
-            <button class="s-up">Slide Up</button>
-            <button class="s-down">Slide Down</button>
-
-
-            <div id="additional-search-params" style="display: none;">
-                <p class="description"> The below are optional parameters to help in your search.</p>
-                <div></div>
-                <label for="e-annz-title">E-Announcement Title:</label>
-                <input id="e-annz-title" type="text" name="E-Annz-Title"><br/>
-
-                <label for="e-annz-date">E-Announcement Date</label>
-                <input id="e-annz-date" class='datepicker' size='11'/>
-            </div>
         </div>
 
         <div class="col-md-12">
-            <br id="search-space">
+            <button id="search-filters" class="no-show btn btn-primary">+ Add Search Filters</button>
+            <br>
+            <div id="additional-search-params" style="display: none;">
+                <div class="card">
+                    <div class="content">
+                        <label for="e-annz-title">E-Announcement Title:</label>
+                        <input id="e-annz-title" type="text" name="E-Annz-Title">
+                        <label for="e-annz-date">E-Announcement Date</label>
+                        <input id="e-annz-date" class='datepicker' size='11'/>
+                    </div>
+                </div>
+            </div>
+            <br>
             <a type="submit" id="e-annz-submit-btn" class="btn btn-primary search-e-annz">Search</a>
             {# spinner placeholder #}
             <div id="spinner" class="spinner" style="display:none;">
@@ -165,13 +162,18 @@
             });
         }
         $(document).ready(function () {
-            $(".s-up").click(function () {
-                $("#additional-search-params").slideUp();
-                $("#search-space").show();
-            });
-            $(".s-down").click(function () {
-                $("#additional-search-params").slideDown();
-                $("#search-space").hide();
+            $("#search-filters").click(function () {
+                if($("#search-filters").hasClass("show")) {
+                    $("#additional-search-params").slideUp();
+                    $("#search-filters").removeClass("show");
+                    $("#search-filters").addClass("no-show");
+                    $("#e-annz-title").val(""); // Clears values if hidden so not included in search
+                    $("#e-annz-date").val("");
+                }else{
+                    $("#additional-search-params").slideDown();
+                    $("#search-filters").removeClass("no-show");
+                    $("#search-filters").addClass("show");
+                }
             });
         });
         $("#e-annz-submit-btn").click(function () {

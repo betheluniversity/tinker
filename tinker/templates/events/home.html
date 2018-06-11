@@ -77,27 +77,28 @@
                                 {% endif %}
                             {% endfor %}
                         </select>
-                        <p class="description">Click "Slide Down" button for additional search parameters.
-                            Press "Slide Up" to hide selection</p>
-                        <button class="s-up">Slide Up</button>
-                        <button class="s-down">Slide Down</button>
+                        <br>
+                        <button id="search-filters" class="no-show btn btn-primary">+ Add Search Filters</button>
                         <div id="additional-search-params" style="display: none;">
-
-                            <p class="description"> The below are optional parameters to help in your search.</p>
-                            <div></div>
-                            <small>Used by entering in part of a name, for example "scho" will select events with
-                                words "scholar", "school", "scholastic" etc.
-                            </small>
-                            <label for="eventTitle">Event Title:</label>
-                            <input id="eventTitle" type="text" name="EventTitle"><br/>
-                            <small>The Start and End fields are to specify the date range where an event might fall,
-                                for example "New Years Eve" and "Christmas" would both show up if you started at
-                                December 25th and ended on December 31st
-                            </small>
-                            <label for="startDate">Start Date:</label>
-                            <input id="startDate" class='datepicker' size='11'/>
-                            <label for="endDate">End Date:</label>
-                            <input id="endDate" class='datepicker' size='11'/>
+                            <div class="card">
+                                <div class="content">
+                                    <p class="description"> The below are optional parameters to help in your search.</p>
+                                    <div></div>
+                                    <small>Used by entering in part of a name, for example "scho" will select events with
+                                        words "scholar", "school", "scholastic" etc.
+                                    </small>
+                                    <label for="event-title">Event Title:</label>
+                                    <input id="event-title" type="text" name="event-title"><br/>
+                                    <small>The Start and End fields are to specify the date range where an event might fall,
+                                        for example "New Years Eve" and "Christmas" would both show up if you started at
+                                        December 25th and ended on December 31st
+                                    </small>
+                                    <label for="start-date">Start Date:</label>
+                                    <input id="start-date" class='datepicker' size='11'/>
+                                    <label for="end-date">End Date:</label>
+                                    <input id="end-date" class='datepicker' size='11'/>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <br id="search-space">
@@ -170,23 +171,23 @@
                 maxDate: new Date('2040-12-31'),
                 yearRange: [2000, 2040],
                 disableDayFn: function (date) {
-                    var start_populated = $("#startDate").val();
-                    var end_populated = $("#endDate").val();
+                    var start_populated = $("#start-date").val();
+                    var end_populated = $("#end-date").val();
                     if (start_populated == "" && end_populated == "") {
                         return null;
-                    } else if (start_populated != "" && current_element.attr('id') == 'endDate') {
+                    } else if (start_populated != "" && current_element.attr('id') == 'end-date') {
                         if (new Date(start_populated) >= date) {
                             return date;
                         }
-                    } else if (end_populated != "" && current_element.attr('id') == 'startDate') {
+                    } else if (end_populated != "" && current_element.attr('id') == 'start-date') {
                         if (new Date(end_populated) <= date) {
                             return date;
                         }
                     }
                 }
             };
-            // if its the startDate, set default date to today
-            if ($(this).attr('id') == 'startDate') {
+            // if its the start-date, set default date to today
+            if ($(this).attr('id') == 'start-date') {
                 starting_values['defaultDate'] = new Date();
                 starting_values['setDefaultDate'] = true;
             }
@@ -198,9 +199,9 @@
             search_url = "{{ url_for('events.EventsView:search') }}";
             $('#spinner').show();
             inputs = {
-                "title": $("#eventTitle").val(),
-                "start": $("#startDate").val(),
-                "end": $("#endDate").val(),
+                "title": $("#event-title").val(),
+                "start": $("#start-date").val(),
+                "end": $("#end-date").val(),
                 "selection": $("#school-selector").val()
             };
             $.ajax({
@@ -216,13 +217,19 @@
             });
         }
         $(document).ready(function () {
-            $(".s-up").click(function () {
-                $("#additional-search-params").slideUp();
-                $("#search-space").show();
-            });
-            $(".s-down").click(function () {
-                $("#additional-search-params").slideDown();
-                $("#search-space").hide();
+            $("#search-filters").click(function () {
+                if($("#search-filters").hasClass("show")) {
+                    $("#additional-search-params").slideUp();
+                    $("#search-filters").removeClass("show");
+                    $("#search-filters").addClass("no-show");
+                    $("#event-title").val(""); // Clears values if hidden so not included in search
+                    $("#start-date").val("");
+                    $("#end-date").val("");
+                }else{
+                    $("#additional-search-params").slideDown();
+                    $("#search-filters").removeClass("no-show");
+                    $("#search-filters").addClass("show");
+                }
             });
         });
         $(".search-events").click(function () {
