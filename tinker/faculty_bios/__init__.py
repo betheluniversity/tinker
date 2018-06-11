@@ -253,12 +253,29 @@ class FacultyBiosView(FlaskView):
 
             for data in test_form:
                 filewriter.writerow([unidecode(data['first']), unidecode(data['last']),
-                                     # unidecode(data['author']),
-                                     # unidecode(data['location']),
-                                     # unidecode(data['highlight']),
+                                     unidecode(data['author']),
+                                     # "author",
+                                     unidecode(data['location']),
+                                     unidecode(data['highlight']),
+                                     unidecode(data['job-titles']),
                                      # "job title",
-                                     # unidecode(data['email']), unidecode(data['started-at-bethel']), "degree 1", "degree 2",
-                                     # unidecode(data['biography'])])
+                                     unidecode(data['email']),
+                                     # "email",
+                                     unidecode(data['started-at-bethel']),
+                                     unidecode(data['education']),
+                                     # "degree 1", "degree 2",
+                                     unidecode(data['biography']),
+                                     unidecode(data['courses']),
+                                     unidecode(data['awards']),
+                                     unidecode(data['publications']),
+                                     unidecode(data['certificates']),
+                                     unidecode(data['organizations']),
+                                     unidecode(data['hobbies']),
+                                     unidecode(data['areas']),
+                                     unidecode(data['research-interests']),
+                                     unidecode(data['teaching-specialty']),
+                                     unidecode(data['quote']),
+                                     unidecode(data['website'])
                                     ])
 
         with open('faculty-info.csv', 'rb') as f:
