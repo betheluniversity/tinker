@@ -32,7 +32,7 @@ from unidecode import unidecode
 from werkzeug.datastructures import ImmutableMultiDict
 
 # Local
-from tinker import app, cascade_connector, sentry
+from tinker import app, cascade_connector, sentry, cache
 
 
 class EncodingDict(object):
@@ -372,6 +372,7 @@ class TinkerController(object):
         # interface method
         pass
 
+    @cache.memoize(timeout=600)
     def traverse_xml(self, xml_url, type_to_find, find_all=False):
         response = requests.get(xml_url)
         form_xml = ET.fromstring(response.content)
