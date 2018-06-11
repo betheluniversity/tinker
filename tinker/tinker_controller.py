@@ -372,23 +372,29 @@ class TinkerController(object):
         # interface method
         pass
 
-    @cache.memoize(timeout=600)
     def traverse_xml(self, xml_url, type_to_find, find_all=False):
-        response = requests.get(xml_url)
-        form_xml = ET.fromstring(response.content)
+        username = session['username']
 
-        matches = []
+        # Username is used for caching purposes
+        @cache.memoize(timeout=600)
+        def traverse_xml_cache(username):
+            response = requests.get(xml_url)
+            form_xml = ET.fromstring(response.content)
 
-        for child in form_xml.findall('.//' + type_to_find):
-            match = self.inspect_child(child, find_all)
-            if match:
-                matches.append(match)
+            matches = []
 
-        # Todo: maybe add some parameter as a search?
-        # sort by created-on date.
-        matches = sorted(matches, key=lambda k: k['created-on'])
+            for child in form_xml.findall('.//' + type_to_find):
+                match = self.inspect_child(child, find_all)
+                if match:
+                    matches.append(match)
 
-        return matches
+            # Todo: maybe add some parameter as a search?
+            # sort by created-on date.
+            matches = sorted(matches, key=lambda k: k['created-on'])
+
+            return matches
+
+        return traverse_xml_cache(username)
 
     # this function is necessary because we don't have python2.7 on the server (we use python2.6)
     def search_for_key_in_dynamic_md(self, block, key_to_find):
