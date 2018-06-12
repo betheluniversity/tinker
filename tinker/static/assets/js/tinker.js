@@ -6,7 +6,6 @@ $(document).ready(function () {
             $("#additional-search-params").slideUp();
             $("#search-filters").removeClass("show");
             $("#search-filters").addClass("no-show");
-            $(".input-field").val(""); // Clears values if hidden so not included in search
         }else{
             $("#additional-search-params").slideDown();
             $("#search-filters").removeClass("no-show");
