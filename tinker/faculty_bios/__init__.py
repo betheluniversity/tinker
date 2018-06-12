@@ -219,51 +219,50 @@ class FacultyBiosView(FlaskView):
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
 
-    @route("/faculty-bio-info-test")
-    def getFacultyBioTest(self):
-        test_form = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page', True, True)
+    @route("/faculty-bio-csv")
+    def get_faculty_bio_csv(self):
 
-        # for data in test_form:
-        #     my_list = []
-        #     for key in data:
-        #         my_list.append(unidecode(data[key]))
-        #     print my_list
-
-        #648
-
-        # for data in test_form:
-        #     print([data['first'], data['last'], data['author'], data['location'], unidecode(data['highlight']),
-        #            "job title", data['email'], data['started-at-bethel'], "degree 1", "degree 2",
-        #            unidecode(data['biography']), 'courses'])
+        info_form = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page', True, True)
 
         with open('faculty-info.csv', 'w') as csvfile:
+
             filewriter = csv.writer(csvfile)
+
             filewriter.writerow(['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
-                                 'Highlight text', 'Job Title 1', 'Email', 'Started at Bethel in', 'Degree 1','Degree 2',
+                                 'Highlight text', 'Job Title 1', 'Email', 'Started at Bethel in', 'Degree 1',
                                  'Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
                                  'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
                                  'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
-                                 'Professional website or blog'])
+                                 'Professional website or blog', 'school9'])
 
-            # for data in test_form:
+            # for data in info_form:
             #     my_list = []
             #     for key in data:
-            #         my_list.append(unidecode(data[key]))
+            #         if not str(unidecode(data[key])).strip() or not str(unidecode(data[key])):
+            #             my_list.append("hello")
+            #         else:
+            #             my_list.append(unidecode(data[key]))
             #     filewriter.writerow(my_list)
 
-            for data in test_form:
+
+            for data in info_form:
+                # Make this a loop for both job-titles and education to check in range(0,9) or something
+                if 'school9' in data.keys():
+                    print "ffound"
+                else:
+                    print "not found"
+                # if not 'school9' in data.keys() and not str(unidecode(data['school9'])):
+                #     school9 = "no"
+                # else:
+                #     school9 = unidecode(data['school9'])
                 filewriter.writerow([unidecode(data['first']), unidecode(data['last']),
                                      unidecode(data['author']),
-                                     # "author",
                                      unidecode(data['location']),
                                      unidecode(data['highlight']),
                                      unidecode(data['job-titles']),
-                                     # "job title",
                                      unidecode(data['email']),
-                                     # "email",
                                      unidecode(data['started-at-bethel']),
                                      unidecode(data['education']),
-                                     # "degree 1", "degree 2",
                                      unidecode(data['biography']),
                                      unidecode(data['courses']),
                                      unidecode(data['awards']),
@@ -275,7 +274,8 @@ class FacultyBiosView(FlaskView):
                                      unidecode(data['research-interests']),
                                      unidecode(data['teaching-specialty']),
                                      unidecode(data['quote']),
-                                     unidecode(data['website'])
+                                     unidecode(data['website']),
+                                     # school9
                                     ])
 
         with open('faculty-info.csv', 'rb') as f:
@@ -284,26 +284,3 @@ class FacultyBiosView(FlaskView):
                 mimetype="text/csv",
                 headers={"Content-disposition":
                             "attachment; filename=faculty-bio-info.csv"})
-
-
-# 'first': child.find('.//first').text,
-# 'last': child.find('.//last').text,
-# 'author': child.find('author').text,
-# 'location': child.find('.//faculty_location/value').text,
-# 'highlight': child.find('.//highlight').text or "",
-# 'job-titles': child.find('job-titles').text,
-# 'email': child.find('.//email').text,
-# 'started-at-bethel': child.find('.//started-at-bethel').text,
-# 'education': child.find('education'),
-# 'biography': child.find('biography'),
-# 'courses': child.find('courses'),
-# 'awards': child.find('awards'),
-# 'publications': child.find('publications'),
-# 'certificates': child.find('certificates'),
-# 'organizations': child.find('organizations'),
-# 'hobbies': child.find('hobbies'),
-# 'areas': child.find('areas'),
-# 'research-interests': child.find('research-interests'),
-# 'teaching-specialty': child.find('teaching-specialty'),
-# 'quote': child.find('quote'),
-# 'website': child.find('website')
