@@ -28,7 +28,7 @@
                     <a href="{{ bio.path }}" class="small-link">{{ bio.path }}</a>{% endif %}
                 <br/>
                 <span id="activate-text-{{ bio.id }}" class="bio-status">
-                    {% if bio.deactivated == 'Yes' %}
+                    {% if bio['deactivated'] == 'Yes' %}
                         Deactivated
                     {% else %}
                         Activated
@@ -39,7 +39,7 @@
             <ul class="btn-group-horizontal">
                 {% if bio.path != '' %}
                     <li><a href="{{ bio.path }}" class="btn btn-primary">View</a></li>
-                    <li><a href="{{ url_for('faculty_bios.FacultyBiosView:edit', faculty_bio_id=bio.id) }}" class="btn btn-primary">Edit</a></li>
+                    <li><a href="{{ url_for('FacultyBiosView:edit', faculty_bio_id=bio.id) }}" class="btn btn-primary">Edit</a></li>
                 {% else %}
                     <li><a class="small button success">Not Approved</a></li>
                 {% endif %}
@@ -82,7 +82,7 @@
 
             <div class="col-md-12">
                 {% if show_create %}
-                    <a href="{{ url_for('faculty_bios.FacultyBiosView:new') }}" class="btn btn-primary">Create New Bio</a>
+                    <a href="{{ url_for('FacultyBiosView:new') }}" class="btn btn-primary">Create New Bio</a>
                     <hr/>
                 {% endif %}
                 {% if show_special_admin_view %}

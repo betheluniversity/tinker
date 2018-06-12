@@ -5,7 +5,7 @@ import time
 
 # Packages
 from bu_cascade.asset_tools import update
-from flask import Blueprint, redirect, session, render_template, request, url_for
+from flask import redirect, session, render_template, request, url_for
 from flask_classy import FlaskView, route
 # python 2.6 or earlier -- Todo: when we upgrade, use from collections import OrderedDict
 from ordereddict import OrderedDict
@@ -14,8 +14,6 @@ from ordereddict import OrderedDict
 from events_metadata import metadata_list
 from tinker import app, cache
 from tinker.events.events_controller import EventsController
-
-EventsBlueprint = Blueprint('events', __name__, template_folder='templates')
 
 
 class EventsView(FlaskView):
@@ -30,21 +28,28 @@ class EventsView(FlaskView):
         pass
 
     def index(self):
-        show_create = True
-        if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
-            # The special admin view
-            all_schools = OrderedDict({
-                1: 'My Events',
-                2: 'All Events',
-                3: 'Other Events'},
-                key=lambda t: t[0]
-            )
-        else:
-            all_schools = OrderedDict({
-                2: 'User Events'}
-            )
-        return render_template('events/home.html', show_create=show_create, all_schools=all_schools, list_of_events=None,
-                               formsHeader="All Events")
+        username = session['username']
+
+        @cache.memoize(timeout=600)
+        def index_cache(username):
+            show_create = True
+            if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
+                # The special admin view
+                all_schools = OrderedDict({
+                    1: 'All Events',
+                    2: 'My Events',
+                    3: 'Other Events'},
+                    key=lambda t: t[0]
+                )
+            else:
+                all_schools = OrderedDict({
+                    2: 'User Events'}
+                )
+
+            return render_template('events/home.html', show_create=show_create, all_schools=all_schools, list_of_events=None,
+                                   formsHeader="All Events")
+
+        return index_cache(username)
 
     def confirm(self):
         return render_template('events/submit-confirm.html', **locals())
@@ -52,6 +57,7 @@ class EventsView(FlaskView):
     def event_in_workflow(self):
         return render_template('events/in-workflow.html')
 
+    @cache.memoize(timeout=3600)
     def add(self):
         # import this here so we dont load all the content from cascade during homepage load
         from tinker.events.forms import EventForm
@@ -63,7 +69,7 @@ class EventsView(FlaskView):
     def edit(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         if self.base.asset_in_workflow(event_id, asset_type='page'):
-            return redirect(url_for('events.EventsView:event_in_workflow'), code=302)
+            return redirect(url_for('EventsView:event_in_workflow'), code=302)
 
         edit_data, dates, author = self.base.build_edit_form(event_id)
         # todo: fix this with the submit_all() functionality ASK CALEB
@@ -153,21 +159,14 @@ class EventsView(FlaskView):
         selection = data['selection']
         title = data['title']
         try:
-            # Try converting the start date times to seconds representation
             start = datetime.datetime.strptime(data['start'], "%a %b %d %Y")
-
         except:
-            # Set start and end to be falsey so that hasDates is set to false
             start = 0
         try:
-            # Try converting the end date times to seconds representation
             end = datetime.datetime.strptime(data['end'], "%a %b %d %Y")
         except:
-            # Set start and end to be falsey so that hasDates is set to false
             end = 0
+
         search_results, forms_header = self.base.get_search_results(selection, title, start, end)
         search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
         return render_template('events/search-results.html', list_of_events=search_results, formsHeader=forms_header)
-
-
-EventsView.register(EventsBlueprint)

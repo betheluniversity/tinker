@@ -4,19 +4,17 @@ import requests
 from datetime import datetime
 
 # Packages
-from flask import abort, Blueprint, render_template, request
+from flask import abort, render_template, request
 from flask_classy import FlaskView, route
 from xml.etree import ElementTree as ET
 
 # Local
-from tinker import app
+
+from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from sync_controller import SyncController
 from tinker.tinker_controller import admin_permissions, requires_auth
 from bu_cascade.asset_tools import update
-
-
-SyncBlueprint = Blueprint('sync', __name__, template_folder='templates')
 
 
 class SyncView(FlaskView):
@@ -28,6 +26,7 @@ class SyncView(FlaskView):
     def before_request(self, name, **kwargs):
         admin_permissions(self)
 
+    @cache.memoize(timeout=600)
     def index(self):
         # get the most recent code
         # todo: this will need to be added back in. but it currently breaks on xp (since its using a different branch)
@@ -41,8 +40,9 @@ class SyncView(FlaskView):
     @route("/all", methods=['post'])
     def all(self):
         # get the most recent code
-        # todo: this will need to be added back in. but it currently breaks on xp (since its using a different branch)
-        # self.base.git_pull()
+        # this currently breaks on xp (since its using a different branch)
+        # todo: check if on prod?
+        self.base.git_pull()
 
         data = data_to_add
         returned_keys = []
@@ -116,5 +116,3 @@ class SyncView(FlaskView):
         self.base.publish(app.config['PRAYER_AND_MEMORIAL_ID'])
 
         return 'success'
-
-SyncView.register(SyncBlueprint)

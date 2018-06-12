@@ -1,4 +1,5 @@
 # Global
+import json
 import re
 import requests
 import smtplib
@@ -7,15 +8,15 @@ from datetime import datetime
 
 # Packages
 from BeautifulSoup import BeautifulSoup
-from flask import Blueprint, render_template, request, abort, session, Response, stream_with_context
+from flask import render_template, request, abort, session, Response, stream_with_context
 from flask_classy import FlaskView, route
 
 # Local
-from tinker import app, db
+from tinker import app, db, cache
 from tinker.admin.redirects.redirects_controller import RedirectsController
 from tinker.tinker_controller import requires_auth
 from tinker.tinker_controller import admin_permissions
-RedirectsBlueprint = Blueprint('redirects', __name__, template_folder='templates')
+from tinker.admin.redirects.models import BethelRedirect
 
 
 class RedirectsView(FlaskView):
@@ -37,9 +38,9 @@ class RedirectsView(FlaskView):
     @route("/delete", methods=['post'])
     def delete_redirect(self):
         rform = self.base.dictionary_encoder.encode(request.form)
-        path = rform['from_path']
+        redirect_id = rform['redirect_id']
         try:
-            self.base.delete_row_from_db(path)
+            self.base.delete_row_from_db(redirect_id)
             resp = self.base.create_redirect_text_file()
         except:
             return "fail"
@@ -49,11 +50,9 @@ class RedirectsView(FlaskView):
     @route("/search", methods=['post'])
     def search(self):
         rform = self.base.dictionary_encoder.encode(request.form)
-        search_type = rform['type']
-        search_query = rform['search']
-        if search_query == "%" or search_type not in ['from_path', 'to_url'] or search_query is None:
-            return ""
-        redirects = self.base.search_db(search_type, search_query)
+        redirect_from_path = rform['from_path']
+        redirect_to_url = rform['to_url']
+        redirects = self.base.search_db(redirect_from_path, redirect_to_url)
         return render_template('admin/redirects/ajax.html', **locals())
 
     # Saves the new redirect created
@@ -70,24 +69,100 @@ class RedirectsView(FlaskView):
         else:
             expiration_date = None
 
+        if self.base.paths_are_valid(from_path, to_url):
+            if not from_path.startswith("/"):
+                from_path = "/%s" % from_path
+            try:
+                new_redirect = self.base.add_row_to_db(from_path, to_url, short_url, expiration_date)
+                # Update the file after every submit?
+                self.base.create_redirect_text_file()
+                return json.dumps({
+                    'type': 'success',
+                    'message': 'Your redirect is saved'
+                })
+
+            except:
+                # Currently we are unable to track down why multiple redirects are being created. This causes this error:
+                # (IntegrityError) column from_path is not unique u'INSERT INTO bethel_redirect (from_path, to_url,
+                # short_url, expiration_date)
+                # Our work around is to just ignore the issue.
+                # hopefully this will catch the error.
+                self.base.rollback()
+                return json.dumps({
+                    'type': 'danger',
+                    'message': 'Failed to add your redirect. A redirect with that from_path already exists.'
+                })
+        else:
+            return json.dumps({
+                'type': 'danger',
+                'message': 'Your redirect is invalid. Make sure the from_path is not "/" and the to_url exists'
+            })
+
+    # Saves the edits to an existing redirect
+    @route('/edit-redirect-submit', methods=['post'])
+    def edit_redirect_submit(self):
+        form = self.base.dictionary_encoder.encode(request.form)
+        id = form['edit-id']
+        from_path = form['edit-redirect-from']
+        to_url = form['edit-redirect-to']
+        short_url = form.get('edit-redirect-short-url') == 'true'
+        expiration_date = form.get('edit-expiration-date')
+        username = session["username"]
+        last_edited = datetime.now()
+
+        # There are potentially 3 different formats an expiration date can come in as
+        if expiration_date:
+            # No expiration date, will pass in String "None"
+            if expiration_date == 'None':
+                expiration_date = None
+            # If not changed, it will be in form YYYY-MM-DD
+            elif '-' in expiration_date:
+                expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d')
+            # If changed, it will be in form WEEKDAY MONTH DAY YEAR
+            else:
+                expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
+        # No expiration date
+        else:
+            expiration_date = None
+
         if from_path is None or to_url is None:
             return abort(400)
 
-        if not from_path.startswith("/"):
-            from_path = "/%s" % from_path
-        try:
-            new_redirect = self.base.add_row_to_db(from_path, to_url, short_url, expiration_date)
-            # Update the file after every submit?
-            self.base.create_redirect_text_file()
-            return str(new_redirect)
-        except:
-            # Currently we are unable to track down why multiple redirects are being created. This causes this error:
-            # (IntegrityError) column from_path is not unique u'INSERT INTO bethel_redirect (from_path, to_url,
-            # short_url, expiration_date)
-            # Our work around is to just ignore the issue.
-            # hopefully this will catch the error.
-            self.base.rollback()
-            return ""
+        if self.base.paths_are_valid(from_path, to_url):
+            if not from_path.startswith("/"):
+                from_path = "/%s" % from_path
+
+            try:
+                edit_dict = {
+                    'username': username,
+                    'from_path': from_path,
+                    'to_url': to_url,
+                    'short_url': short_url,
+                    'expiration_date': expiration_date,
+                    'last_edited': last_edited
+                }
+                edit_redirect = BethelRedirect.query.filter(BethelRedirect.id == id)
+                edit_redirect.update(edit_dict)
+                self.base.db.session.commit()
+
+                return json.dumps({
+                    'type': 'success',
+                    'message': 'Your redirect has been updated'
+                })
+
+            except:
+                self.base.rollback()
+                return json.dumps({
+                    'type': 'danger',
+                    'message': 'Failed to add your redirect. A redirect with that from_path already exists.'
+                })
+
+        else:
+            return json.dumps({
+                'type': 'danger',
+                'message': 'Your redirect is invalid. Make sure the from_path is not "/" and the to_url exists'
+            })
+        
 
     # Updates the redirect text file upon request
     def compile(self):
@@ -110,13 +185,15 @@ class RedirectsView(FlaskView):
                 from_url = row[0].split("bethel.edu")[1]
                 to_url = row[1]
 
-                try:
-                    self.base.add_row_to_db(from_url, to_url, None, None)
-                except Exception as e:
-                    # redirect already exists
-                    self.base.rollback()
-                    print e
-                    continue
+                if self.base.paths_are_valid(from_url, to_url):
+                    try:
+                        self.base.add_row_to_db(from_url, to_url, None, None, username="API-Marcel")
+                    except Exception as e:
+                        # redirect already exists
+                        self.base.rollback()
+                        print e
+                        continue
+
             done_cell = "C%s" % str(i + 1)
             worksheet.update_acell(done_cell, 'x')
             time.sleep(1)
@@ -171,7 +248,9 @@ class RedirectsView(FlaskView):
                     line = line.replace('redirect:', '').lstrip().rstrip()
                     from_url, to_url = line.split()
                     from_path = from_url.replace("www.bethel.edu", "").replace("http://", "").replace('https://', "")
-                    redirect = self.base.api_add_row(from_path, to_url)
+
+                    if self.base.paths_are_valid(from_path, to_url):
+                        redirect = self.base.api_add_row(from_path, to_url)
             except:
                 self.base.rollback()
 
@@ -194,8 +273,8 @@ class RedirectsView(FlaskView):
             lines = all_text.split("Asset expiration notice for Public:")
             from_path = "/" + lines[1].lstrip().rstrip()
             to_url = "https://www.bethel.edu/employment/openings/postings/job-closed"
-            redirect = self.base.api_add_row(from_path, to_url)
-
+            if not self.base.paths_are_valid(from_path, to_url):
+                redirect = self.base.api_add_row(from_path, to_url)
         except:
             message = "redirect from %s to %s already exists" % (from_path, to_url)
             sender = 'tinker@bethel.edu'
@@ -246,7 +325,4 @@ class RedirectsView(FlaskView):
     @requires_auth
     @route('/public/clear-redirects')
     def redirect_clear(self):
-        # return "Test"
         return self.base.redirect_change()
-
-RedirectsView.register(RedirectsBlueprint)

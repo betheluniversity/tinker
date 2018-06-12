@@ -9,7 +9,7 @@ def error_render_template(template_path, error, code=None):
     sentry.captureException()
 
     if code:  # Means that it's a handled error/exception
-        if code == 500:  # No need to log 403s, 404s, or 503s
+        if code in [500, 503]:  # No need to log 403s, 404s, or 503s
             if not app.config['UNIT_TESTING']:
                 app.logger.error("%s -- %s" % (session['username'], str(error)))
 

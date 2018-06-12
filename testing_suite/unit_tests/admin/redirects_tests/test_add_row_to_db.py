@@ -24,7 +24,7 @@ class AddRowToDBTestCase(RedirectsControllerBaseTestCase):
         response = self.controller.add_row_to_db(from_path, to_url, should_have_short_url, expiration_date)
         self.assertTrue(isinstance(response, BethelRedirect))
         self.assertEqual(str(response), '<Redirect %(0)s to %(1)s>' % {'0': from_path, '1': to_url})
-        query_results = self.controller.search_db('from_path', from_path)
+        query_results = self.controller.search_db(from_path, to_url)
         self.assertTrue(isinstance(query_results, list))
         self.assertEqual(len(query_results), 1)
         self.assertEqual(response, query_results[0])

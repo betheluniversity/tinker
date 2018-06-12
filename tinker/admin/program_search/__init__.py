@@ -3,7 +3,7 @@ import ast
 import json
 
 # Packages
-from flask import abort, Blueprint, render_template, request
+from flask import abort, render_template, request
 from flask_classy import FlaskView, route
 from sqlalchemy import or_, and_
 
@@ -13,9 +13,6 @@ from tinker import db
 from tinker.admin.program_search.models import ProgramTag
 from tinker.admin.program_search.program_search_controller import ProgramSearchController
 from tinker.tinker_controller import admin_permissions
-
-
-ProgramSearchBlueprint = Blueprint("program_search", __name__, template_folder='templates')
 
 
 class ProgramSearchView(FlaskView):
@@ -43,7 +40,7 @@ class ProgramSearchView(FlaskView):
             key = rform.get('key')
             tag = rform.get('tag')
 
-            if key == 'Any' or tag == '' or tag is None:
+            if key == 'Any' or key == '' or tag == '' or tag is None:
                 return render_template('admin/program-search/home.html', **locals())
 
             outcome = ast.literal_eval(rform.get('outcome'))
@@ -163,6 +160,3 @@ class ProgramSearchView(FlaskView):
         db.session.commit()
 
         return 'DONE'
-
-
-ProgramSearchView.register(ProgramSearchBlueprint)

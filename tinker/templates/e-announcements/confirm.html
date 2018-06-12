@@ -12,7 +12,7 @@
                     <input type="hidden" id="new_eaid" value="{{ new_eaid }}"/>
                     <p>
                         You've successfully created your E-Announcement. Once your E-Announcement has been approved, it
-                        will appear on your Tinker <a href="{{ url_for('e_announcements.EAnnouncementsView:index') }}">E-Announcement
+                        will appear on your Tinker <a href="{{ url_for('EAnnouncementsView:index') }}">E-Announcement
                         page</a> where you'll be able to view the announcement page or make changes to it.
                     </p>
                     <p>If you have any questions, please contact the Office of Communications and Marketing at <a
@@ -20,7 +20,7 @@
                 {% else %}
                     <p>
                         You've successfully edited your E-Announcement. Once your E-Announcement has been approved, it
-                        will appear on your Tinker <a href="{{ url_for('e_announcements.EAnnouncementsView:index') }}">E-Announcement
+                        will appear on your Tinker <a href="{{ url_for('EAnnouncementsView:index') }}">E-Announcement
                         page</a> where you'll be able to view the announcement page or make changes to it.
                     </p>
                     <p>If you have any questions, please contact the Office of Communications and Marketing at <a

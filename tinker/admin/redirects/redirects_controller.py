@@ -1,4 +1,3 @@
-
 # local
 from datetime import datetime
 import urllib
@@ -6,9 +5,10 @@ import requests
 
 # Packages
 from flask_sqlalchemy import SQLAlchemy
-from flask import render_template
+from flask import render_template, session
 from requests.exceptions import SSLError, ConnectionError
 from urllib3.exceptions import ProtocolError, MaxRetryError
+from sqlalchemy import and_
 
 # tinker
 from tinker import app
@@ -17,7 +17,6 @@ from tinker.tinker_controller import TinkerController
 
 
 class RedirectsController(TinkerController):
-
     def __init__(self, database):
         super(RedirectsController, self).__init__()
         if isinstance(database, SQLAlchemy):
@@ -37,33 +36,35 @@ class RedirectsController(TinkerController):
 
         return 'done'
 
-    def add_row_to_db(self, from_path, to_url, short_url, expiration_date):
+    def add_row_to_db(self, from_path, to_url, short_url, expiration_date, username=None):
         if from_path == '/':
             return False
 
+        if not username:
+            username = session["username"]
+
         new_redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url,
-                                      expiration_date=expiration_date)
+                                      expiration_date=expiration_date, username=username)
         self.db.session.add(new_redirect)
         self.db.session.commit()
         return new_redirect
 
     def api_add_row(self, from_path, to_url):
-        new_redirect = BethelRedirect(from_path=from_path, to_url=to_url)
+        new_redirect = BethelRedirect(username="API-Generated", from_path=from_path, to_url=to_url)
         self.db.session.add(new_redirect)
         self.db.session.commit()
         return new_redirect
 
-    def search_db(self, search_type, term):
-        term += "%"
-        if search_type == "from_path":  # Search by from_path
-            results = BethelRedirect.query.filter(BethelRedirect.from_path.like(term)).limit(100).all()
-        else:  # Search by to_url
-            results = BethelRedirect.query.filter(BethelRedirect.to_url.like(term)).limit(100).all()
+    def search_db(self, redirect_from_path, redirect_to_url):
+        if redirect_from_path == "" and redirect_to_url == "":
+            return ""
+        results = BethelRedirect.query.filter(and_(BethelRedirect.from_path.like(redirect_from_path + '%'),
+                                                   BethelRedirect.to_url.like('%' + redirect_to_url + '%'))).limit(100).all()
         results.sort()
         return results
 
-    def delete_row_from_db(self, from_path):
-        redirect_to_delete = BethelRedirect.query.get(from_path)
+    def delete_row_from_db(self, id):
+        redirect_to_delete = BethelRedirect.query.filter(BethelRedirect.id.like(id)).limit(1).one()
         self.db.session.delete(redirect_to_delete)
         self.db.session.commit()
 
@@ -80,21 +81,21 @@ class RedirectsController(TinkerController):
     def rollback(self):
         self.db.session.rollback()
 
+    def paths_are_valid(self, from_path, to_url):
+        if not from_path or from_path == '/' or not to_url:
+            return False
+        return True
+
     def redirect_change(self):
 
-        # loop_counter = 0
-
         redirects = BethelRedirect.query.all()
-
-        # today = datetime.now()
-        # today = today.strftime("%m/%d/%y %I:%M")
 
         changed = []
         deleted = []
 
         for redirect in redirects:
             try:
-                response = requests.get('https://www.bethel.edu' + redirect.from_path)
+                response = requests.get('https://www.bethel.edu' + redirect.from_path, verify=False)
                 redirect.to_url.replace('\n', '')
                 redirect.to_url.replace(' ', '')
 
@@ -118,44 +119,15 @@ class RedirectsController(TinkerController):
 
                 if 'auth' in response.url:  # if auth is in the response.url, its decoded
                     response.url = urllib.unquote(urllib.unquote(response.url))
-                    # creates a new redirect to replace the old one after deleting
-                    new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
-                                                  short_url=redirect.short_url,
-                                                  expiration_date=redirect.expiration_date)
-                    self.db.session.delete(redirect)
-                    self.db.session.add(new_redirect)
+                    redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
                     self.db.session.commit()
                     continue
 
-                # checks if the changes are redundant (adding '/' or changing 'http' > 'https')
-                if 'https' not in redirect.to_url:
-                    https_test = redirect.to_url.replace('http', 'https')
-                    if response.url == https_test:
-                        # Creates a new redirect to replace the old one after deleting
-                        new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
-                                                      short_url=redirect.short_url,
-                                                      expiration_date=redirect.expiration_date)
-                        self.db.session.delete(redirect)
-                        self.db.session.add(new_redirect)
-                        self.db.session.commit()
-                        continue
-                elif response.url == redirect.to_url + '/':
-                    # creates a new redirect to replace the old one after deleting
-                    new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
-                                                  short_url=redirect.short_url,
-                                                  expiration_date=redirect.expiration_date)
-                    self.db.session.delete(redirect)
-                    self.db.session.delete(redirect)
-                    self.db.session.add(new_redirect)
-                    self.db.session.commit()
-                    continue
-
-                new_redirect = BethelRedirect(from_path=redirect.from_path, to_url=response.url,
-                                              short_url=redirect.short_url,
-                                              expiration_date=redirect.expiration_date)
-                self.db.session.delete(redirect)
-                self.db.session.add(new_redirect)
+                redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
                 self.db.session.commit()
                 changed.append({'to_url': redirect.to_url, 'response': response.url})
 
-        return render_template('admin/redirects/clear-redirects.html', **locals())
+        if changed or deleted:
+            return render_template('admin/redirects/clear-redirects.html', **locals())
+        else:
+            return "empty"

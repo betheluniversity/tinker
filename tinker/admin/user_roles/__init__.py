@@ -1,17 +1,13 @@
-from flask import render_template, session, request, Blueprint
+from flask import render_template, session, request
 from flask_classy import FlaskView, route
 
 from tinker.tinker_controller import admin_permissions, EncodingDict
 
-from datetime import datetime
 # solution from here: https://stackoverflow.com/questions/1617078/ordereddict-for-older-versions-of-python
 try:
     from collections import OrderedDict
 except ImportError:
     from ordereddict import OrderedDict
-import copy
-
-UserRolesBlueprint = Blueprint('user_roles', __name__, template_folder='templates')
 
 
 # doesnt work locally, tinker not accepting local cookies
@@ -60,5 +56,3 @@ class UserRolesView(FlaskView):
         session.clear()
 
         return 'success'
-
-UserRolesView.register(UserRolesBlueprint)

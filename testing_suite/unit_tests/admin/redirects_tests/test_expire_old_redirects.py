@@ -38,5 +38,5 @@ class ExpireOldRedirectsTestCase(RedirectsControllerBaseTestCase):
         self.assertTrue(first_count > second_count)
 
         # 6. Assert that the added row is no longer in the DB since the expire method should have deleted it
-        query_results = self.controller.search_db('from_path', from_path)
+        query_results = self.controller.search_db(from_path, to_url)
         self.assertTrue(expired_row not in query_results)
