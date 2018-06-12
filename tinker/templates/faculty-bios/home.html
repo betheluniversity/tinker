@@ -28,7 +28,7 @@
                     <a href="{{ bio.path }}" class="small-link">{{ bio.path }}</a>{% endif %}
                 <br/>
                 <span id="activate-text-{{ bio.id }}" class="bio-status">
-                    {% if bio.deactivated == 'Yes' %}
+                    {% if bio['deactivated'] == 'Yes' %}
                         Deactivated
                     {% else %}
                         Activated
