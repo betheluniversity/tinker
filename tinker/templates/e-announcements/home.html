@@ -40,18 +40,16 @@
                     {% endif %}
                 {% endfor %}
             </select>
-        </div>
-
-        <div class="col-md-12">
+            <br>
             <button id="search-filters" class="no-show btn btn-primary">+ Add Search Filters</button>
             <br>
             <div id="additional-search-params" style="display: none;">
                 <div class="card">
                     <div class="content">
                         <label for="e-annz-title">E-Announcement Title:</label>
-                        <input id="e-annz-title" type="text" name="E-Annz-Title">
+                        <input id="e-annz-title" type="text" name="E-Annz-Title" class="input-field">
                         <label for="e-annz-date">E-Announcement Date</label>
-                        <input id="e-annz-date" class='datepicker' size='11'/>
+                        <input id="e-annz-date" class='datepicker input-field' size='11'>
                     </div>
                 </div>
             </div>
@@ -161,21 +159,6 @@
                 }
             });
         }
-        $(document).ready(function () {
-            $("#search-filters").click(function () {
-                if($("#search-filters").hasClass("show")) {
-                    $("#additional-search-params").slideUp();
-                    $("#search-filters").removeClass("show");
-                    $("#search-filters").addClass("no-show");
-                    $("#e-annz-title").val(""); // Clears values if hidden so not included in search
-                    $("#e-annz-date").val("");
-                }else{
-                    $("#additional-search-params").slideDown();
-                    $("#search-filters").removeClass("no-show");
-                    $("#search-filters").addClass("show");
-                }
-            });
-        });
         $("#e-annz-submit-btn").click(function () {
             search_e_annz();
         });

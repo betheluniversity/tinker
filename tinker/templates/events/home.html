@@ -82,21 +82,12 @@
                         <div id="additional-search-params" style="display: none;">
                             <div class="card">
                                 <div class="content">
-                                    <p class="description"> The below are optional parameters to help in your search.</p>
-                                    <div></div>
-                                    <small>Used by entering in part of a name, for example "scho" will select events with
-                                        words "scholar", "school", "scholastic" etc.
-                                    </small>
                                     <label for="event-title">Event Title:</label>
-                                    <input id="event-title" type="text" name="event-title"><br/>
-                                    <small>The Start and End fields are to specify the date range where an event might fall,
-                                        for example "New Years Eve" and "Christmas" would both show up if you started at
-                                        December 25th and ended on December 31st
-                                    </small>
+                                    <input id="event-title" type="text" name="event-title" class="input-field"><br/>
                                     <label for="start-date">Start Date:</label>
-                                    <input id="start-date" class='datepicker' size='11'/>
+                                    <input id="start-date" class='datepicker input-field' size='11'>
                                     <label for="end-date">End Date:</label>
-                                    <input id="end-date" class='datepicker' size='11'/>
+                                    <input id="end-date" class='datepicker input-field' size='11'>
                                 </div>
                             </div>
                         </div>
@@ -186,13 +177,6 @@
                     }
                 }
             };
-            // if its the start-date, set default date to today
-            if ($(this).attr('id') == 'start-date') {
-                starting_values['defaultDate'] = new Date();
-                starting_values['setDefaultDate'] = true;
-            }
-
-
             var picker = new Pikaday(starting_values);
         });
         function search_events() {
@@ -216,22 +200,6 @@
                 }
             });
         }
-        $(document).ready(function () {
-            $("#search-filters").click(function () {
-                if($("#search-filters").hasClass("show")) {
-                    $("#additional-search-params").slideUp();
-                    $("#search-filters").removeClass("show");
-                    $("#search-filters").addClass("no-show");
-                    $("#event-title").val(""); // Clears values if hidden so not included in search
-                    $("#start-date").val("");
-                    $("#end-date").val("");
-                }else{
-                    $("#additional-search-params").slideDown();
-                    $("#search-filters").removeClass("no-show");
-                    $("#search-filters").addClass("show");
-                }
-            });
-        });
         $(".search-events").click(function () {
             search_events();
         });
