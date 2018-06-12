@@ -160,85 +160,82 @@ class FacultyBioController(TinkerController):
                 from BeautifulSoup import BeautifulSoup
                 html_info = self.element_tree_to_html(child)
                 soup = BeautifulSoup(html_info)
-                biography_text = soup.find('biography').text
-                highlight_text = soup.find('highlight').text
-                job_title_text = soup.find('job-titles').text
-                location_text = soup.find('faculty_location').text
-                date = soup.find('started-at-bethel').text
-                education_text = soup.find('education').text
                 if not soup.find('author'):
                     author_text = " "
                 else:
                     author_text = soup.find('author').text
-                email_text = soup.find('email').text
-                courses_text = soup.find('courses').text
-                awards_text = soup.find('awards').text
-                publication_text = soup.find('publications').text
-                certificates_text = soup.find('certificates').text
-                organizations_text = soup.find('organizations').text
-                hobbies_text = soup.find('hobbies').text
-                areas_text = soup.find('areas').text
-                research_interests_text = soup.find('research-interests').text
-                teaching_specialty_text = soup.find('teaching-specialty').text
-                quote_text = soup.find('quote').text
-                website_text = soup.find('website').text
 
-                print "------------------------------------------------------------------------------"
-                print soup.find('school')
-                print soup.find('department')
-                print soup.find('adult-undergrad-program')
-                print soup.find('graduate-program')
-                print soup.find('seminary-program')
-                print soup.find('department-chair')
-                print soup.find('program-director')
-                print soup.find('lead-faculty')
-                print soup.find('job_title')
 
+                # 9 jobs max
+                # 7 education
+                # make a list of dictionaries
+                # append a count on the key ie school1, school2, etc
+                # output school, combine department, and combine/check for chair/director/lead faculty and combine
+                # if any chair/director/lead faculty output that, otherwise output job title
+
+                #
+                # Prints out every job and every job field
+                #
+
+                count = 0
+                my_list = []
+                my_dict = {}
+                # print soup.find('author').text
+                for jobs in soup.findAll('job-titles'):
+                    count += 1
+                    my_dict = {
+                        'school' + str(count): jobs.find('school').text,
+                        'department' + str(count): jobs.find('department').text,
+                        'adult-undergrad-program' + str(count): jobs.find('adult-undergrad-program').text,
+                        'graduate-program' + str(count): jobs.find('graduate-program').text,
+                        'seminary-program' + str(count): jobs.find('seminary-program').text,
+                        'department-chair' + str(count): jobs.find('department-chair').text,
+                        'program-director' + str(count): jobs.find('program-director').text,
+                        'lead-faculty' + str(count): jobs.find('lead-faculty').text,
+                        'job_title' + str(count): jobs.find('job_title').text
+                    }
+                    my_list.append(my_dict)
+
+
+                count = 0
+                my_dict = {}
+                # print soup.find('author').text
+                for edu in soup.findAll('education'):
+                    count += 1
+                    my_dict = {
+                        'school-edu' + str(count): edu.find('school').text,
+                        'degree-earned' + str(count): edu.find('degree-earned').text,
+                        'year' + str(count): edu.find('year').text,
+                    }
+                    my_list.append(my_dict)
 
 
                 page_values = {
 
                     'first': child.find('.//first').text or "",
                     'last': child.find('.//last').text or "",
-                    # 'author': child.find('author').text or "",
                     'author': author_text,
-                    # 'location': child.find('.//faculty_location/value').text or "",
-                    'location': location_text,
-                    # 'highlight': child.find('.//highlight').text or "",
-                    'highlight': highlight_text,
-                    # 'job-titles': child.find('job-titles').text,
-                    'job-titles': job_title_text,
-                    # 'email': child.find('.//email').text or "",
-                    'email': email_text,
-                    # 'started-at-bethel': child.find('.//started-at-bethel').text or "",
-                    'started-at-bethel': date,
-                    # 'education': child.find('education'),
-                    'education': education_text,
-                    # 'biography': child.find('.//add-to-bio/biography/').text or "",
-                    'biography': biography_text,
-                    # 'courses': child.find('.//add-to-bio/courses/').text or "",
-                    'courses': courses_text,
-                    # 'awards': child.find('.//add-to-bio/awards/').text or "",
-                    'awards': awards_text,
-                    # 'publications': child.find('.//add-to-bio/publications/').text or "",
-                    'publications': publication_text,
-                    # 'certificates': child.find('.//add-to-bio/certificates/').text or "",
-                    'certificates': certificates_text,
-                    # 'organizations': child.find('.//add-to-bio/organizations/').text or "",
-                    'organizations': organizations_text,
-                    # 'hobbies': child.find('.//add-to-bio/hobbies/').text or "",
-                    'hobbies': hobbies_text,
-                    # 'areas': child.find('.//add-to-bio/areas/').text or "",
-                    'areas': areas_text,
-                    # 'research-interests': child.find('.//add-to-bio/research-interests/').text or "",
-                    'research-interests': research_interests_text,
-                    # 'teaching-specialty': child.find('.//add-to-bio/teaching-specialty/').text or "",
-                    'teaching-specialty': teaching_specialty_text,
-                    # 'quote': child.find('.//add-to-bio/quote/').text or "",
-                    'quote': quote_text,
-                    # 'website': child.find('.//add-to-bio/website/').text or ""
-                    'website': website_text
+                    'location': soup.find('faculty_location').text,
+                    'highlight': soup.find('highlight').text,
+                    'job-titles': soup.find('job-titles').text,
+                    'email': soup.find('email').text,
+                    'started-at-bethel': soup.find('started-at-bethel').text,
+                    'education': soup.find('education').text,
+                    'biography': soup.find('biography').text,
+                    'courses': soup.find('courses').text,
+                    'awards': soup.find('awards').text,
+                    'publications': soup.find('publications').text,
+                    'certificates': soup.find('certificates').text,
+                    'organizations': soup.find('organizations').text,
+                    'hobbies': soup.find('hobbies').text,
+                    'areas': soup.find('areas').text,
+                    'research-interests': soup.find('research-interests').text,
+                    'teaching-specialty': soup.find('teaching-specialty').text,
+                    'quote': soup.find('quote').text,
+                    'website': soup.find('website').text
                 }
+                for dicts in my_list:
+                    page_values.update(dicts)
 
             return page_values
         else:
