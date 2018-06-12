@@ -45,9 +45,9 @@
 
 {% block main_content %}
     <div class="content">
-        <h2>{{ formsHeader }}</h2>
-        {% if list_of_annz is defined and list_of_annz | length > 0 %}
-            {% for form in list_of_annz %}
+        <h2>{{ forms_header }}</h2>
+        {% if search_results is defined and search_results | length > 0 %}
+            {% for form in search_results %}
                 <br/>
                 {{ form_card(form) }}
             {% endfor %}

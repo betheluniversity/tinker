@@ -474,20 +474,18 @@ class EventsController(TinkerController):
                 break
 
             if start != 0:
-                A = self.compare_datetimes(start, event_start) <= 0  # Search start is before event start
-                B = self.compare_datetimes(start, event_start) >= 0  # Search start is after event start
-                C = self.compare_datetimes(start, event_end) <= 0  # Search start is before event end
-                # D = self.compare_datetimes(start, event_end) >= 0  # Search start is after event end (auto-fail)
-                start_params = (A or B) and C
+                searchstart_before_eventstart = self.compare_datetimes(start, event_start) <= 0  # Search start is before event start
+                searchstart_after_eventstart = self.compare_datetimes(start, event_start) >= 0  # Search start is after event start
+                searchstart_before_eventend = self.compare_datetimes(start, event_end) <= 0  # Search start is before event end
+                start_params = (searchstart_before_eventstart or searchstart_after_eventstart) and searchstart_before_eventend
             else:
                 start_params = True
 
             if end != 0:
-                # E = self.compare_datetimes(end, event_start) <= 0  # Search end is before event start (auto-fail)
-                F = self.compare_datetimes(end, event_start) >= 0  # Search end is after event start
-                G = self.compare_datetimes(end, event_end) <= 0  # Search end is before event end
-                H = self.compare_datetimes(end, event_end) >= 0  # Search end is after event end
-                end_params = F and (G or H)
+                searchend_after_eventstart = self.compare_datetimes(end, event_start) >= 0  # Search end is after event start
+                searchend_before_eventend = self.compare_datetimes(end, event_end) <= 0  # Search end is before event end
+                searchend_after_eventend = self.compare_datetimes(end, event_end) >= 0  # Search end is after event end
+                end_params = searchend_after_eventstart and (searchend_before_eventend or searchend_after_eventend)
             else:
                 end_params = True
 

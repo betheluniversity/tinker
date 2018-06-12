@@ -376,7 +376,7 @@ class TinkerController(object):
         username = session['username']
 
         # Username is used for caching purposes
-        @cache.memoize(timeout=600)
+        @cache.memoize(timeout=300)
         def traverse_xml_cache(username, self, xml_url, type_to_find, find_all):
             response = requests.get(xml_url)
             form_xml = ET.fromstring(response.content)

@@ -22,10 +22,8 @@
                     {% endif %}
                     <br/>
                     {% if form.is_published %}
-                        {#                                            <small>#}
                         <p>{{ form.dates | safe }}</p>
                         <a class="small-link" href={{ form.path }}>{{ form.path }}</a>
-                        {#                                            </small>#}
                     {% endif %}
                 </p>
             </div>
@@ -60,7 +58,7 @@
 
                 <div>
                     {# create an event button #}
-                    <a href="add#page-title" id="event-create" class="btn btn-primary new-btn">
+                    <a href="{{ url_for('events.EventsView:add') }}" id="event-create" class="btn btn-primary new-btn">
                         Create New Event
                     </a>
                     {# in action add the url calling the post method for search#}

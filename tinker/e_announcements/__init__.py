@@ -33,7 +33,7 @@ class EAnnouncementsView(FlaskView):
         username = session['username']
 
         # Username is needed for caching purposes
-        @cache.memoize(timeout=600)
+        @cache.memoize(timeout=300)
         def index_cache(username):
             forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
 
@@ -348,13 +348,10 @@ class EAnnouncementsView(FlaskView):
         date = data['date']
         try:
             date = datetime.datetime.strptime(date, "%a %b %d %Y")
-
         except:
-            # Set start and end to be false so that hasDates is set to false
             date = 0
-
         search_results, forms_header = self.base.get_search_results(selection, title, date)
         search_results.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
-        return render_template('e-announcements/results.html', list_of_annz=search_results, formsHeader=forms_header)
+        return render_template('e-announcements/results.html', **locals())
 
 EAnnouncementsView.register(EAnnouncementsBlueprint)
