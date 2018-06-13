@@ -5,6 +5,7 @@ six
 Flask
 gunicorn
 Flask-Cache
+Flask-Caching
 Flask-Foundation
 Flask-Script
 Flask-WTF
