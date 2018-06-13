@@ -232,6 +232,9 @@ class FacultyBioController(TinkerController):
                 publications = ""
                 if soup.find('publications').text:
                     publications = self.strip_html_tags(unicode(soup.find('publications').renderContents('utf-8', True), "utf-8"))
+                presentations = ""
+                if soup.find('presentations').text:
+                    presentations = self.strip_html_tags(unicode(soup.find('publications').renderContents('utf-8', True), "utf-8"))
                 certificates = ""
                 if soup.find('certificates').text:
                     certificates = self.strip_html_tags(unicode(soup.find('certificates').renderContents('utf-8', True), "utf-8"))
@@ -258,6 +261,7 @@ class FacultyBioController(TinkerController):
                     'courses': courses,
                     'awards': awards,
                     'publications': publications,
+                    'presentations': presentations,
                     'certificates': certificates,
                     'organizations': organizations,
                     'hobbies': hobbies,
@@ -314,8 +318,6 @@ class FacultyBioController(TinkerController):
             text = text.replace(k, v)
 
         return text
-
-
 
     # if the department metadata is found return it, else return ''
     def check_web_author_groups(self, groups, program_elements):

@@ -257,10 +257,10 @@ class FacultyBiosView(FlaskView):
                 my_list.append('Degree-Year ' + str(j))
 
             # Adds the remaining column headers to the list
-            my_list.extend(['Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
-                            'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
-                            'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
-                            'Professional website or blog'])
+            my_list.extend(['Biography', 'Courses Taught', 'Awards', 'Publications', 'Presentations',
+                            'Certificates and licenses', 'Professional Organizations, Committees, and Boards',
+                            'Hobbies and interests', 'Areas of expertise', 'Research interests', 'Teaching specialty',
+                            'Quote', 'Professional website or blog'])
 
             # Writes the "header" of the csv file signify what data is held in that column
             filewriter.writerow(my_list)
@@ -297,8 +297,9 @@ class FacultyBiosView(FlaskView):
                     row_list.extend([degree_earned, edu_school, year])
 
                 row_list.extend([unidecode(data['biography']), unidecode(data['courses']), unidecode(data['awards']),
-                                 unidecode(data['publications']), unidecode(data['certificates']),
-                                 unidecode(data['organizations']), unidecode(data['hobbies']), unidecode(data['areas']),
+                                 unidecode(data['publications']), unidecode(data['presentations']),
+                                 unidecode(data['certificates']), unidecode(data['organizations']),
+                                 unidecode(data['hobbies']), unidecode(data['areas']),
                                  unidecode(data['research-interests']), unidecode(data['teaching-specialty']),
                                  unidecode(data['quote']), unidecode(data['website'])])
 
