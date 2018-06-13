@@ -122,7 +122,7 @@ class FacultyBioController(TinkerController):
             school_array = []
             for school in child.findall('.//job-titles/school'):
                 school_array.append(school.text or 'Other')
-            if csv==False:
+            if not csv:
                 page_values = {
                     'author': child.find('author') or None,
                     'id': child.attrib['id'] or "",
@@ -148,8 +148,6 @@ class FacultyBioController(TinkerController):
                 else:
                     author_text = soup.find('author').text
 
-                # print soup.find('lead-faculty').text
-
                 # max_jobs will hold the maximum number of jobs someone has
                 max_jobs = 0
                 # my_list is a list used to add both job and education dictionaries to
@@ -157,50 +155,53 @@ class FacultyBioController(TinkerController):
                 # Dictionary holds each job-titles subfield
                 my_dict = {}
 
+                # Logic used to group together department/program and department chair/lead faculty/program director/
+                # job_title
                 for jobs in soup.findAll('job-titles'):
                     max_jobs += 1
-                    school_job = jobs.find('school').text
-                    job_program = ""
-                    _job_title = ""
-                    if school_job == 'Bethel University':
-                        job_program = ""
-                        _job_title = jobs.find('job_title').text
-                    elif school_job == 'College of Arts and Sciences':
-                        job_program = jobs.find('department').text
+                    school = jobs.find('school').text
+                    department = ""
+                    title = ""
+                    if school == 'Bethel University':
+                        department = ""
+                        title = jobs.find('job_title').text
+                    elif school == 'College of Arts and Sciences':
+                        department = jobs.find('department').text
                         if jobs.find('department-chair').text == 'Yes':
-                            _job_title = 'Department Chair'
+                            title = 'Department Chair'
                         else:
-                            _job_title = jobs.find('job_title').text
-                    elif school_job == 'College of Adult and Professional Studies':
-                        job_program = jobs.find('adult-undergrad-program').text
+                            title = jobs.find('job_title').text
+                    elif school == 'College of Adult and Professional Studies':
+                        department = jobs.find('adult-undergrad-program').text
                         if jobs.find('program-director').text == 'Yes':
-                            _job_title = 'Program Director'
+                            title = 'Program Director'
                         else:
-                            _job_title = jobs.find('job_title').text
-                    elif school_job == 'Graduate School':
-                        job_program = jobs.find('graduate-program').text
+                            title = jobs.find('job_title').text
+                    elif school == 'Graduate School':
+                        department = jobs.find('graduate-program').text
                         if jobs.find('program-director').text == 'Yes':
-                            _job_title = 'Program Director'
+                            title = 'Program Director'
                         else:
-                            _job_title = jobs.find('job_title').text
-                    elif school_job == 'Bethel Seminary':
-                        job_program = jobs.find('seminary-program').text
+                            title = jobs.find('job_title').text
+                    elif school == 'Bethel Seminary':
+                        department = jobs.find('seminary-program').text
                         if jobs.find('lead-faculty').text == 'Other':
-                            _job_title = jobs.find('job_title').text
+                            title = jobs.find('job_title').text
                         elif jobs.find('program-director').text == "Yes":
-                            _job_title = "Program Director"
+                            title = "Program Director"
                         elif jobs.find('lead-faculty').text != "Other":
-                            _job_title = jobs.find('lead-faculty').text
+                            title = jobs.find('lead-faculty').text
                     else:
-                        school_job = ""
-                        job_program = ""
-                        _job_title = ""
-
+                        school = ""
+                        department = ""
+                        title = ""
+                    # Creates a dictionary with the relevant information
                     my_dict = {
-                        'school' + str(max_jobs): school_job,
-                        'program' + str(max_jobs): job_program,
-                        'job_title' + str(max_jobs): _job_title
+                        'school' + str(max_jobs): school,
+                        'department' + str(max_jobs): department,
+                        'job_title' + str(max_jobs): title
                     }
+                    # Adds the dictionary to the list
                     my_list.append(my_dict)
 
                 # max_edu will hold the maximum number of jobs someone has
@@ -216,10 +217,34 @@ class FacultyBioController(TinkerController):
                     }
                     my_list.append(my_dict)
 
+                # Creates a dictionary with number of jobs everyone has
                 max_dict = {
                     'max-jobs': max_jobs,
                     'max-edu': max_edu
                 }
+
+
+                biography = ""
+                if soup.find('biography').text:
+                    biography = unicode(soup.find('biography').renderContents('utf-8', True), "utf-8")
+                courses = ""
+                if soup.find('courses').text:
+                    courses = unicode(soup.find('courses').renderContents('utf-8', True), "utf-8")
+                awards = ""
+                if soup.find('awards').text:
+                    awards = unicode(soup.find('awards').renderContents('utf-8', True), "utf-8")
+                publications = ""
+                if soup.find('publications').text:
+                    publications = unicode(soup.find('publications').renderContents('utf-8', True), "utf-8")
+                certificates = ""
+                if soup.find('certificates').text:
+                    certificates = unicode(soup.find('certificates').renderContents('utf-8', True), "utf-8")
+                organizations = ""
+                if soup.find('organizations').text:
+                    organizations = unicode(soup.find('organizations').renderContents('utf-8', True), "utf-8")
+                hobbies = ""
+                if soup.find('hobbies').text:
+                    hobbies = unicode(soup.find('hobbies').renderContents('utf-8', True), "utf-8")
 
                 # This is the initial dictionary of what will be returned
                 page_values = {
@@ -233,13 +258,20 @@ class FacultyBioController(TinkerController):
                     'email': soup.find('email').text,
                     'started-at-bethel': soup.find('started-at-bethel').text,
                     'education': soup.find('education').text,
-                    'biography': soup.find('biography').text,
-                    'courses': soup.find('courses').text,
-                    'awards': soup.find('awards').text,
-                    'publications': soup.find('publications').text,
-                    'certificates': soup.find('certificates').text,
-                    'organizations': soup.find('organizations').text,
-                    'hobbies': soup.find('hobbies').text,
+                    # 'biography': soup.find('biography').text,
+                    'biography': biography,
+                    # 'courses': soup.find('courses').text,
+                    'courses': courses,
+                    # 'awards': soup.find('awards').text,
+                    'awards': awards,
+                    # 'publications': soup.find('publications').text,
+                    'publications': publications,
+                    # 'certificates': soup.find('certificates').text,
+                    'certificates': certificates,
+                    # 'organizations': soup.find('organizations').text,
+                    'organizations': organizations,
+                    # 'hobbies': soup.find('hobbies').text,
+                    'hobbies': hobbies,
                     'areas': soup.find('areas').text,
                     'research-interests': soup.find('research-interests').text,
                     'teaching-specialty': soup.find('teaching-specialty').text,

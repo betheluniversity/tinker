@@ -245,43 +245,41 @@ class FacultyBiosView(FlaskView):
 
             # Creates max_jobs spaces for jobs
             for i in range(1, max_jobs + 1):
-                my_list.append('school' + str(i))
-                my_list.append('program' + str(i))
-                my_list.append('job_title' + str(i))
+                my_list.append('Job Title ' + str(i))
+                my_list.append('Job Title ' + str(i) + ' School')
+                my_list.append('Job Title ' + str(i) + " Department")
 
             my_list.extend(['Email', 'Started at Bethel in'])
 
             # Creates max_edu spaces for educations
             for j in range(1, max_edu + 1):
-                my_list.append('school' + str(j))
-                my_list.append('degree-earned' + str(j))
-                my_list.append('year' + str(j))
+                my_list.append('Degree ' + str(j) + ' Earned')
+                my_list.append('Degree ' + str(j) + ' School')
+                my_list.append('Degree ' + str(j) + ' Year')
 
             my_list.extend(['Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
                             'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
                             'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
                             'Professional website or blog'])
 
+            # Writes the "header" of the csv file signify what data is held in that column
             filewriter.writerow(my_list)
-
-            row_list = []
 
             for data in info_form:
 
                 row_list = [unidecode(data['first']), unidecode(data['last']), unidecode(data['author']),
                             unidecode(data['location']), unidecode(data['highlight'])]
 
-
                 for i in range(1, max_jobs + 1):
                     if ('school' + str(i)) in data.keys():
-                        job_school = unidecode(data['school' + str(i)])
-                        program = unidecode(data['program' + str(i)])
                         job_title = unidecode(data['job_title' + str(i)])
+                        school = unidecode(data['school' + str(i)])
+                        department = unidecode(data['department' + str(i)])
                     else:
-                        job_school = ""
-                        program = ""
+                        school = ""
+                        department = ""
                         job_title = ""
-                    row_list.extend([job_school, program, job_title])
+                    row_list.extend([job_title, school, department])
 
                 row_list.extend([unidecode(data['email']), unidecode(data['started-at-bethel'])])
 
@@ -294,7 +292,7 @@ class FacultyBiosView(FlaskView):
                         edu_school = ""
                         degree_earned = ""
                         year = ""
-                    row_list.extend([edu_school, degree_earned, year])
+                    row_list.extend([degree_earned, edu_school, year])
 
                 row_list.extend([unidecode(data['biography']), unidecode(data['courses']), unidecode(data['awards']),
                                  unidecode(data['publications']), unidecode(data['certificates']),
@@ -302,6 +300,7 @@ class FacultyBiosView(FlaskView):
                                  unidecode(data['research-interests']), unidecode(data['teaching-specialty']),
                                  unidecode(data['quote']), unidecode(data['website'])])
 
+                # Writes each faculty a row of data
                 filewriter.writerow(row_list)
 
         # Opens the file and signifies that we will read it
