@@ -1,5 +1,4 @@
 config.py
-programs.csv
 *.pyc
 migrations/
 creds.json
@@ -34,3 +33,5 @@ config/.DS_Store
 flask_profiler.sql
 
 */placeholder.html
+
+programs.csv

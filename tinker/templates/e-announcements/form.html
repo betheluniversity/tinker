@@ -32,7 +32,7 @@
 {% block main_content %}
     <div class="content">
         <div class="container-fluid row">
-            <form id="eannouncementform" action="{{ url_for('e_announcements.EAnnouncementsView:submit') }}"
+            <form id="eannouncementform" action="{{ url_for('EAnnouncementsView:submit') }}"
                       method="post" enctype="multipart/form-data">
             {% if not new_form %}
                 <input type="hidden" name="e_announcement_id" id="e_announcement_id" value="{{ e_announcement_id }}"/>

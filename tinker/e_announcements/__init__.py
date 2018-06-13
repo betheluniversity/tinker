@@ -2,10 +2,9 @@
 import datetime
 import json
 
-# Packages
 from bu_cascade.asset_tools import find
 from createsend import Campaign, CreateSend
-from flask import abort, Blueprint, render_template, session
+from flask import abort, render_template, session
 from flask_classy import FlaskView, request, route
 from ordereddict import OrderedDict
 
@@ -14,9 +13,6 @@ from tinker import app, cache
 from tinker.tinker_controller import requires_auth
 from e_announcements_controller import EAnnouncementsController
 from campaign_controller import CampaignController
-
-
-EAnnouncementsBlueprint = Blueprint('e_announcements', __name__, template_folder='templates')
 
 
 class EAnnouncementsView(FlaskView):
@@ -52,14 +48,13 @@ class EAnnouncementsView(FlaskView):
                     1: 'User E-Announcements'}
                 )
             return render_template('e-announcements/home.html', **locals())
-
         return index_cache(username)
 
     @route("/delete/<e_announcement_id>", methods=['GET', 'POST'])
     def delete(self, e_announcement_id):
         # must have access to delete
         # if session['groups'] not in 'E-Announcement Approver':
-        #     return redirect(url_for('e_announcements.EAnnouncementsView:index'), code=302)
+        #     return redirect(url_for('EAnnouncementsView:index'), code=302)
 
         block = self.base.read_block(e_announcement_id)
         e_announcement_data, mdata, sdata = block.read_asset()
@@ -84,6 +79,7 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('e-announcements/view.html', **locals())
 
+    @cache.memoize(timeout=3600)
     def new(self):
         from forms import EAnnouncementsForm
         form = EAnnouncementsForm()
@@ -300,6 +296,7 @@ class EAnnouncementsView(FlaskView):
 
         return render_template("e-announcements/future.html")
 
+    @cache.memoize(timeout=3601)
     @route("/ea_future", methods=['POST'])
     def ea_future(self):
         if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
@@ -353,5 +350,3 @@ class EAnnouncementsView(FlaskView):
         search_results, forms_header = self.base.get_search_results(selection, title, date)
         search_results.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
         return render_template('e-announcements/results.html', **locals())
-
-EAnnouncementsView.register(EAnnouncementsBlueprint)

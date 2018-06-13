@@ -45,7 +45,7 @@
                 </div>
                 <div class="col-md-12">
                     <div id='submit-data-definition' class="btn btn-primary"
-                         onclick="postToURLWithSpinner('{{ url_for("sync.SyncView:datadefinition") }}', $('#data-definition').val())">
+                         onclick="postToURLWithSpinner('{{ url_for("SyncView:datadefinition") }}', $('#data-definition').val())">
                         Sync Data Definition
                     </div>
                 </div>
@@ -63,7 +63,7 @@
                 </div>
                 <div class="col-md-12">
                     <div id='submit-metadata-set' class="btn btn-primary"
-                         onclick="postToURLWithSpinner('{{ url_for("sync.SyncView:metadata") }}', $('#metadata-set').val())">
+                         onclick="postToURLWithSpinner('{{ url_for("SyncView:metadata") }}', $('#metadata-set').val())">
                         Sync Metadata
                     </div>
                 </div>
@@ -71,7 +71,7 @@
                 <hr/>
                 <div class="col-md-12">
                     <div id='sync-all' class="btn btn-primary"
-                         onclick="postToURLWithSpinner('{{ url_for("sync.SyncView:all") }}', 'un-used')">Sync All
+                         onclick="postToURLWithSpinner('{{ url_for("SyncView:all") }}', 'un-used')">Sync All
                     </div>
                 </div>
 

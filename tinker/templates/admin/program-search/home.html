@@ -13,7 +13,7 @@
     <div class="content">
         <div class="container-fluid">
             <div class="col-md-12">
-                <p>Go to the <a href="{{ url_for('program_search.ProgramSearchView:database_audit_0') }}">audit</a> to
+                <p>Go to the <a href="{{ url_for('ProgramSearchView:database_audit_0') }}">audit</a> to
                     check if Tinker and Cascade are matched up correctly.</p>
                 <hr/>
                 <form id='program_search_form' method="post">
@@ -145,7 +145,7 @@
         function loadTableForSearch() {
             {#            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');#}
 
-            var search_url = "{{ url_for('program_search.ProgramSearchView:search') }}";
+            var search_url = "{{ url_for('ProgramSearchView:search') }}";
             search_tag = $('#search-tag')[0].value;
             search_key = $('#search-key')[0].value;
 
@@ -175,7 +175,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "{{ url_for('program_search.ProgramSearchView:multi_delete')}}",
+                url: "{{ url_for('ProgramSearchView:multi_delete')}}",
                 data: JSON.stringify(checkboxes_to_delete),
                 contentType: 'application/json;charset=UTF-8',
                 success: function (result) {
@@ -205,7 +205,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "{{ url_for('program_search.ProgramSearchView:submit') }}",
+                url: "{{ url_for('ProgramSearchView:submit') }}",
                 data: JSON.stringify(formData),
                 contentType: 'application/json;charset=UTF-8',
                 success: function (result) {

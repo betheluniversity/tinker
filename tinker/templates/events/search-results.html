@@ -19,10 +19,10 @@
                 <ul class="btn-group-horizontal">
                     {% if form.is_published %}
                         <li><a href="{{ form.path }}" class="small btn btn-primary">View</a></li>
-                        <li><a href="{{ url_for('events.EventsView:edit', event_id=form.id) }}"
+                        <li><a href="{{ url_for('EventsView:edit', event_id=form.id) }}"
                                class="small btn btn-primary">Edit</a>
                         </li>
-                        <li><a href="{{ url_for('events.EventsView:duplicate', event_id=form.id) }}"
+                        <li><a href="{{ url_for('EventsView:duplicate', event_id=form.id) }}"
                                class="small btn btn-primary">Duplicate</a></li>
                     {% else %}
                         <li>This event is pending approval.</li>

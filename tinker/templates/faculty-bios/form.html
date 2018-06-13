@@ -25,7 +25,7 @@ to be in it's own card div, something to think about in the future -->
                 <h3 class="subtitle">Edit Your Bio</h3>
                 <hr/>
 
-                <form id="facultybioform" action="{{ url_for('faculty_bios.FacultyBiosView:submit') }}" method="post" enctype="multipart/form-data">
+                <form id="facultybioform" action="{{ url_for('FacultyBiosView:submit') }}" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="faculty_bio_id" id="faculty_bio_id" value="{{ faculty_bio_id }}"/>
 
                     {% if form.errors %}
@@ -292,13 +292,13 @@ to be in it's own card div, something to think about in the future -->
 
                 if( !department_chair)
                     department_chair = 'No';
-                var deptchairid = 'input[name="dept-chair' + id + '"][value=' + department_chair + ']';
+                var deptchairid = 'input[name="dept-chair' + id + '"][value="' + department_chair + '"]';
                 if( !program_director)
                     program_director = 'No';
-                var programdirectorid = 'input[name="program-director' + id + '"][value=' + program_director + ']';
+                var programdirectorid = 'input[name="program-director' + id + '"][value="' + program_director + '"]';
                 if( !lead_faculty)
                     lead_faculty = 'Other';
-                var leadfacultyid = 'input[name="lead-faculty' + id + '"][value=' + lead_faculty + ']';
+                var leadfacultyid = 'input[name="lead-faculty' + id + '"][value="' + lead_faculty + '"]';
 
                 var jobtitleid = '#new-job-title' + id;
 
@@ -398,7 +398,7 @@ to be in it's own card div, something to think about in the future -->
                                 var nextId = 'input[name="' + nextIdToDisplay + num + '"]';
                                 $(nextId).change();
 
-                                nextId = 'input[name=' + nextIdToDisplay + num + ']:checked';
+                                nextId = 'input[name="' + nextIdToDisplay + num + '"]:checked';
                                 if ($(nextId).val() == 'No' || $(nextId).val() == 'Other')
                                     $('#new-job-title-div' + num).show();
                                 else
