@@ -134,82 +134,63 @@ class FacultyBioController(TinkerController):
                     'deactivated': child.find('.//deactivate').text or None
             }
             else:
-                # from xml.etree.ElementTree import Element
-                # biography_stand_in = child.find('.//add-to-bio/biography/')
-                # print "yes"
-                # self.element_tree_to_html(biography_stand_in)
-                # print type(biography_stand_in)
-                # string_for_me = ""
-                # if isinstance(biography_stand_in, Element):
-                #     print vars(biography_stand_in)['tag']
-                #     stringy = str(vars(biography_stand_in)['tag'])
-                #     string_for_me = './/add-to-bio/biography/' + stringy
-                #     print string_for_me
-                # else:
-                #     string_for_me = './/add-to-bio/biography/'
 
-                # print "-------top------"
-                # print child
-                # print "-----middle-----"
-                # print self.element_tree_to_html(child)
-                # stuff = self.element_tree_to_html(child)
-                # print "----biography----"
-                # print "made it"
-                # print "-----bottom-----"
-
+                # Might need to move this up to the top
                 from BeautifulSoup import BeautifulSoup
+
+                # Creates the chunk of html from the xml snippet "child"
                 html_info = self.element_tree_to_html(child)
+                # Creates a BeautifulSoup object
                 soup = BeautifulSoup(html_info)
+                # Author isn't always filled out so we need to check if it is
                 if not soup.find('author'):
                     author_text = " "
                 else:
                     author_text = soup.find('author').text
 
-
-                # 9 jobs max
-                # 7 education
-                # make a list of dictionaries
-                # append a count on the key ie school1, school2, etc
-                # output school, combine department, and combine/check for chair/director/lead faculty and combine
-                # if any chair/director/lead faculty output that, otherwise output job title
-
-                #
-                # Prints out every job and every job field
-                #
-
-                count = 0
+                # max_jobs will hold the maximum number of jobs someone has
+                max_jobs = 0
+                # my_list is a list used to add both job and education dictionaries to
                 my_list = []
+                # Dictionary holds each job-titles subfield
                 my_dict = {}
-                # print soup.find('author').text
                 for jobs in soup.findAll('job-titles'):
-                    count += 1
+                    max_jobs += 1
                     my_dict = {
-                        'school' + str(count): jobs.find('school').text,
-                        'department' + str(count): jobs.find('department').text,
-                        'adult-undergrad-program' + str(count): jobs.find('adult-undergrad-program').text,
-                        'graduate-program' + str(count): jobs.find('graduate-program').text,
-                        'seminary-program' + str(count): jobs.find('seminary-program').text,
-                        'department-chair' + str(count): jobs.find('department-chair').text,
-                        'program-director' + str(count): jobs.find('program-director').text,
-                        'lead-faculty' + str(count): jobs.find('lead-faculty').text,
-                        'job_title' + str(count): jobs.find('job_title').text
+                        'school' + str(max_jobs): jobs.find('school').text,
+                        'department' + str(max_jobs): jobs.find('department').text,
+                        'adult-undergrad-program' + str(max_jobs): jobs.find('adult-undergrad-program').text,
+                        'graduate-program' + str(max_jobs): jobs.find('graduate-program').text,
+                        'seminary-program' + str(max_jobs): jobs.find('seminary-program').text,
+                        'department-chair' + str(max_jobs): jobs.find('department-chair').text,
+                        'program-director' + str(max_jobs): jobs.find('program-director').text,
+                        'lead-faculty' + str(max_jobs): jobs.find('lead-faculty').text,
+                        'job_title' + str(max_jobs): jobs.find('job_title').text
                     }
                     my_list.append(my_dict)
 
-
-                count = 0
+                # max_edu will hold the maximum number of jobs someone has
+                max_edu = 0
+                # Dictionary holds each education subfield
                 my_dict = {}
-                # print soup.find('author').text
                 for edu in soup.findAll('education'):
-                    count += 1
+                    max_edu += 1
                     my_dict = {
-                        'school-edu' + str(count): edu.find('school').text,
-                        'degree-earned' + str(count): edu.find('degree-earned').text,
-                        'year' + str(count): edu.find('year').text,
+                        'school-edu' + str(max_edu): edu.find('school').text,
+                        'degree-earned' + str(max_edu): edu.find('degree-earned').text,
+                        'year' + str(max_edu): edu.find('year').text,
                     }
                     my_list.append(my_dict)
 
+                max_dict = {
+                    'max-jobs': max_jobs,
+                    'max-edu': max_edu
+                }
 
+                # print soup.find('biography')
+                # print "----------------------------------------"
+
+                # This is the initial dictionary of what will be returned
                 page_values = {
 
                     'first': child.find('.//first').text or "",
@@ -234,8 +215,12 @@ class FacultyBioController(TinkerController):
                     'quote': soup.find('quote').text,
                     'website': soup.find('website').text
                 }
+                # Add all the job-titles and education dictionaries to the main dictionary being returned
                 for dicts in my_list:
                     page_values.update(dicts)
+                # Add the max_dict which holds both the maximum number of jobs and the maximum number of educations to
+                # the main dictionary
+                page_values.update(max_dict)
 
             return page_values
         else:

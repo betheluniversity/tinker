@@ -222,18 +222,54 @@ class FacultyBiosView(FlaskView):
     @route("/faculty-bio-csv")
     def get_faculty_bio_csv(self):
 
+        # Traverses the xml file
         info_form = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page', True, True)
 
+        # Opens the xml file and signifies that we will write to it
         with open('faculty-info.csv', 'w') as csvfile:
 
             filewriter = csv.writer(csvfile)
 
-            filewriter.writerow(['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
-                                 'Highlight text', 'Job Title 1', 'Email', 'Started at Bethel in', 'Degree 1',
-                                 'Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
+            # writes the row line of a the csv file
+            my_list = ['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
+                       'Highlight text']
+
+            max_jobs = 0
+            max_edu = 0
+            # Gets the maximum number of jobs and maximum number of educations out of everyone
+            for data in info_form:
+                if data['max-jobs'] > max_jobs:
+                    max_jobs = data['max-jobs']
+                if data['max-edu'] > max_edu:
+                    max_edu = data['max-edu']
+
+            # Creates max_jobs spaces for jobs
+            for i in range(1, max_jobs + 1):
+                my_list.append('school' + str(i))
+                my_list.append('department' + str(i))
+
+            my_list.extend(['Email', 'Started at Bethel in'])
+
+            # Creates max_edu spaces for educations
+            for j in range(1, max_edu + 1):
+                my_list.append('school' + str(j))
+                my_list.append('degree-earned' + str(j))
+                my_list.append('year' + str(j))
+
+            my_list.extend(['Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
                                  'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
                                  'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
-                                 'Professional website or blog', 'school9'])
+                                 'Professional website or blog'])
+
+            filewriter.writerow(my_list)
+
+            # filewriter.writerow(['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
+            #                      'Highlight text', 'This is where the jobs should go', 'Email', 'Started at Bethel in',
+            #                      'This is where degrees should go',
+            #                      'Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
+            #                      'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
+            #                      'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
+            #                      'Professional website or blog'])
 
             # for data in info_form:
             #     my_list = []
@@ -246,11 +282,14 @@ class FacultyBiosView(FlaskView):
 
 
             for data in info_form:
+                # print data['max-jobs']
                 # Make this a loop for both job-titles and education to check in range(0,9) or something
-                if 'school9' in data.keys():
-                    print "ffound"
-                else:
-                    print "not found"
+                # if 'school9' in data.keys():
+                #     print "ffound"
+                # else:
+                #     print "not found"
+                # for i in range(1, data['max-jobs'] + 1):
+                #     print i
                 # if not 'school9' in data.keys() and not str(unidecode(data['school9'])):
                 #     school9 = "no"
                 # else:
@@ -278,7 +317,9 @@ class FacultyBiosView(FlaskView):
                                      # school9
                                     ])
 
+        # Opens the file and signifies that we will read it
         with open('faculty-info.csv', 'rb') as f:
+            # returns a Response (so the file can be downloaded)
             return Response(
                 f.read(),
                 mimetype="text/csv",
