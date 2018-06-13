@@ -263,68 +263,43 @@ class FacultyBiosView(FlaskView):
 
             filewriter.writerow(my_list)
 
-            # for data in info_form:
-            #     my_list = []
-            #     for key in data:
-            #         if not str(unidecode(data[key])).strip() or not str(unidecode(data[key])):
-            #             my_list.append("hello")
-            #         else:
-            #             my_list.append(unidecode(data[key]))
-            #     filewriter.writerow(my_list)
-
-            new_list = []
+            row_list = []
 
             for data in info_form:
 
-                new_list = [unidecode(data['first']), unidecode(data['last']), unidecode(data['author']),
+                row_list = [unidecode(data['first']), unidecode(data['last']), unidecode(data['author']),
                             unidecode(data['location']), unidecode(data['highlight'])]
 
 
                 for i in range(1, max_jobs + 1):
                     if ('school' + str(i)) in data.keys():
                         job_school = unidecode(data['school' + str(i)])
+                        department = unidecode(data['department' + str(i)])
                     else:
                         job_school = ""
-                    new_list.append(job_school)
+                        department = ""
+                    row_list.extend([job_school, department])
 
-                new_list.extend([unidecode(data['email']), unidecode(data['started-at-bethel'])])
+                row_list.extend([unidecode(data['email']), unidecode(data['started-at-bethel'])])
 
                 for j in range(1, max_edu + 1):
                     if ('school-edu' + str(j)) in data.keys():
                         edu_school = unidecode(data['school-edu' + str(j)])
+                        degree_earned = unidecode(data['degree-earned' + str(j)])
+                        year = unidecode(data['year' + str(j)])
                     else:
                         edu_school = ""
-                    new_list.append(edu_school)
+                        degree_earned = ""
+                        year = ""
+                    row_list.extend([edu_school, degree_earned, year])
 
-                new_list.extend([unidecode(data['biography']), unidecode(data['courses']), unidecode(data['awards']),
+                row_list.extend([unidecode(data['biography']), unidecode(data['courses']), unidecode(data['awards']),
                                  unidecode(data['publications']), unidecode(data['certificates']),
                                  unidecode(data['organizations']), unidecode(data['hobbies']), unidecode(data['areas']),
                                  unidecode(data['research-interests']), unidecode(data['teaching-specialty']),
                                  unidecode(data['quote']), unidecode(data['website'])])
 
-                filewriter.writerow(new_list)
-
-                # filewriter.writerow([unidecode(data['first']), unidecode(data['last']),
-                #                      unidecode(data['author']),
-                #                      unidecode(data['location']),
-                #                      unidecode(data['highlight']),
-                #                      unidecode(data['job-titles']),
-                #                      unidecode(data['email']),
-                #                      unidecode(data['started-at-bethel']),
-                #                      unidecode(data['education']),
-                #                      unidecode(data['biography']),
-                #                      unidecode(data['courses']),
-                #                      unidecode(data['awards']),
-                #                      unidecode(data['publications']),
-                #                      unidecode(data['certificates']),
-                #                      unidecode(data['organizations']),
-                #                      unidecode(data['hobbies']),
-                #                      unidecode(data['areas']),
-                #                      unidecode(data['research-interests']),
-                #                      unidecode(data['teaching-specialty']),
-                #                      unidecode(data['quote']),
-                #                      unidecode(data['website'])
-                #                     ])
+                filewriter.writerow(row_list)
 
         # Opens the file and signifies that we will read it
         with open('faculty-info.csv', 'rb') as f:
