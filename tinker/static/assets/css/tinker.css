@@ -719,7 +719,11 @@ label.checkbox {
 }
 
 .admin-user-bar > p > a:hover {
-  color: #337ab7;
+  color: #337ab7; 
+}
+
+.date-range{
+    width: 160px;
 }
 
 .info-column{

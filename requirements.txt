@@ -4,7 +4,8 @@ SQLAlchemy-migrate
 six
 Flask
 gunicorn
-Flask-Cache # if python2.7 Flask-Caching
+Flask-Cache
+Flask-Caching
 Flask-Foundation
 Flask-Script
 Flask-WTF
@@ -20,7 +21,7 @@ Flask-Cors
 arrow
 feedformatter
 feedparser
-createsend==4.2.1
+createsend
 raven
 Flask-Classy
 bu-cascade

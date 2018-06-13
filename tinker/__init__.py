@@ -10,6 +10,10 @@ from flask import Flask, make_response, redirect, session, url_for
 from flask_cache import Cache
 from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
+if platform.python_version()[:3] == '2.6':
+    from flask.ext.cache import Cache
+else:
+    from flask_caching import Cache
 
 app = Flask(__name__)
 

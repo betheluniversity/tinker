@@ -10,106 +10,160 @@
 {% block page_title %}Bethel University Tinker{% endblock %}
 
 {% block main_content %}
-    <div class="content">
-        <div class="container-fluid">
-            <div class="col-md-12">
-                <p class="description">Below is the list of E-Announcements you have access to edit. These are sorted by
-                    the first date
-                    entered, newest dates first.
-                </p>
-                <hr/>
-                <a href="{{ url_for('EAnnouncementsView:new') }}" class="btn btn-primary new-btn">Submit
-                    New
-                    E-Announcement</a>
-                {% if 'E-Announcement Approver' in session['groups'].split(';') or 'Administrators' in session['groups'].split(';') %}
-                    <a href="{{  url_for('EAnnouncementsView:ea_upcoming') }}" class="btn btn-primary new-btn">
-                        Upcoming E-Announcements</a>
-                {% endif %}
+<div class="content">
+    <div class="container-fluid">
+        <div class="col-md-12">
+            <p class="description">Below is the list of E-Announcements you have access to edit. These are sorted by
+                the first date entered, newest dates first.
+            </p>
 
-                {% for form in forms %}
-                    <div class="card">
-                        <div class="content">
-                            <p>
-                                {% if form.path != '' %}
-                                    <a href={{ form.path }}>{{ form.title }}</a>
-                                {% else %}
-                                    {{ form.title }}
-                                {% endif %}
-                                <br/>
-                                <small>{{ form.first_date | safe }}</small>
-                                <br/>
-                                <small>{{ form.second_date | safe }}</small>
-                            </p>
-                            <div class="large-6 columns small-3">
-                                <ul class="btn-group-horizontal">
-                                    {% if form.workflow_status %}
-                                        <li>This announcement is pending approval.</li>
-                                    {% else %}
-                                        {% if not form.first_date_past and not form.second_date_past %}
-                                            <li>
-                                                <a href="{{ url_for('EAnnouncementsView:edit', e_announcement_id=form.id) }}"
-                                                   class="btn btn-primary">Edit</a></li>
-                                        {% else %}
-                                            <li>
-                                                <a href="{{ url_for('EAnnouncementsView:view', e_announcement_id=form.id) }}"
-                                                   class="btn btn-primary">View</a></li>
-                                        {% endif %}
-                                        <li>
-                                            <a href="{{ url_for('EAnnouncementsView:duplicate', e_announcement_id=form.id) }}"
-                                               class="btn btn-primary">Duplicate</a></li>
-                                        {% if not form.first_date_past %}
-                                            <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}"
-                                                   data-e-announcement-id="{{ form.id }}"
-                                                   class="small btn btn-primary btn-alert delete-press"
-                                                   data-toggle="modal" data-target="#myModal">Delete</a></li>
-                                        {% endif %}
-                                    {% endif %}
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                    <hr/>
+            <hr>
+
+            <a href="{{ url_for('EAnnouncementsView:new') }}" class="btn btn-primary new-btn">
+                Submit New E-Announcement</a>
+
+            {% if 'E-Announcement Approver' in session['groups'].split(';')
+                or 'Administrators' in session['groups'].split(';') %}
+                <a href="{{ url_for('EAnnouncementsView:ea_upcoming') }}"
+                   class="btn btn-primary new-btn">Upcoming E-Announcements</a>
+            {% endif %}
+
+            <br>
+
+            <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector" multiple>
+                {% for school_code, school in all_schools.items() %}
+                    {% if loop.first %}
+                        <option value="{{ school_code }}" selected="selected">{{ school }}</option>
+                    {% elif not loop.last %}
+                        <option value="{{ school_code }}">{{ school }}</option>
+                    {% endif %}
                 {% endfor %}
-
+            </select>
+            <br>
+            <button id="search-filters" class="no-show btn btn-primary">+ More Search Filters</button>
+            <br>
+            <div id="additional-search-params" style="display: none;">
+                <div class="card">
+                    <div class="content">
+                        <label for="e-annz-title">E-Announcement Title:</label>
+                        <input id="e-annz-title" type="text" name="E-Annz-Title" class="input-field">
+                        <label for="e-annz-date">E-Announcement Date</label>
+                        <input id="e-annz-date" class='datepicker input-field date-range' size='11'>
+                    </div>
+                </div>
             </div>
+            <br>
+            <a type="submit" id="e-annz-submit-btn" class="btn btn-primary search-e-annz">Search</a>
+            {# spinner placeholder #}
+            <div id="spinner" class="spinner" style="display:none;">
+                <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+            </div>
+            <br>
+            <div id="results"></div>
         </div>
     </div>
+</div>
 
 
 {% endblock %}
 
 {% block modalhtml %}
-<!-- Modal Core -->
-<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal"
-                        aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
-            </div>
-            <div class="modal-body">
-                Your E-Announcement will be removed.
-            </div>
-            <div class="modal-footer">
-                <a id="modal-confirm" href="/e-announcements/delete/formid" type="button"
-                   class="btn btn-primary btn-alert modal-confirm">Delete</a>
+    <!-- Modal Core -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">Are you sure you want to delete?</h4>
+                </div>
+                <div class="modal-body">
+                    Your E-Announcement will be removed.
+                </div>
+                <div class="modal-footer">
+                    <a id="modal-confirm" href="/e-announcements/delete/formid" type="button"
+                       class="btn btn-primary btn-alert modal-confirm">Delete</a>
+                </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+    <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
+    <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
 
     {#  Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/e-announcements/delete/" + $(this).data('e-announcement-id'));
         });
+        $('.datepicker').each(function () {
+            var current_element = $(this);
+            var starting_values = {
+                field: this,
+                format: 'MM DD, YYYY',
+                minDate: new Date('2000-01-01'),
+                maxDate: new Date('2040-12-31'),
+                yearRange: [2000, 2040],
+                disableDayFn: function (date) {
+                    var start_populated = $("#startDate").val();
+                    var end_populated = $("#endDate").val();
+                    if (start_populated == "" && end_populated == "") {
+                        return null;
+                    } else if (start_populated != "" && current_element.attr('id') == 'endDate') {
+                        if (new Date(start_populated) >= date) {
+                            return date;
+                        }
+                    } else if (end_populated != "" && current_element.attr('id') == 'startDate') {
+                        if (new Date(end_populated) <= date) {
+                            return date;
+                        }
+                    }
+                }
+            };
+            // if its the startDate, set default date to today
+            if ($(this).attr('id') == 'startDate') {
+                starting_values['defaultDate'] = new Date();
+                starting_values['setDefaultDate'] = true;
+            }
+
+
+            var picker = new Pikaday(starting_values);
+        });
+
+        {#   Search E-ANNZ   #}
+
+        function search_e_annz() {
+            search_url = "{{ url_for('EAnnouncementsView:search') }}";
+            $('#spinner').show();
+            inputs = {
+                "title": $("#e-annz-title").val(),
+                "date": $("#e-annz-date").val(),
+                "selection": $("#school-selector").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: search_url,
+                data: JSON.stringify(inputs),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    // window.location.replace(result);
+                    document.getElementById('results').innerHTML = result;
+                    $('#spinner').hide();
+                }
+            });
+        }
+        $("#e-annz-submit-btn").click(function () {
+            search_e_annz();
+        });
+        search_e_annz();
+
+
     </script>
 
 {% endblock %}
-
-
