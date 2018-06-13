@@ -246,7 +246,8 @@ class FacultyBiosView(FlaskView):
             # Creates max_jobs spaces for jobs
             for i in range(1, max_jobs + 1):
                 my_list.append('school' + str(i))
-                my_list.append('department' + str(i))
+                my_list.append('program' + str(i))
+                my_list.append('job_title' + str(i))
 
             my_list.extend(['Email', 'Started at Bethel in'])
 
@@ -274,11 +275,13 @@ class FacultyBiosView(FlaskView):
                 for i in range(1, max_jobs + 1):
                     if ('school' + str(i)) in data.keys():
                         job_school = unidecode(data['school' + str(i)])
-                        department = unidecode(data['department' + str(i)])
+                        program = unidecode(data['program' + str(i)])
+                        job_title = unidecode(data['job_title' + str(i)])
                     else:
                         job_school = ""
-                        department = ""
-                    row_list.extend([job_school, department])
+                        program = ""
+                        job_title = ""
+                    row_list.extend([job_school, program, job_title])
 
                 row_list.extend([unidecode(data['email']), unidecode(data['started-at-bethel'])])
 

@@ -148,24 +148,58 @@ class FacultyBioController(TinkerController):
                 else:
                     author_text = soup.find('author').text
 
+                # print soup.find('lead-faculty').text
+
                 # max_jobs will hold the maximum number of jobs someone has
                 max_jobs = 0
                 # my_list is a list used to add both job and education dictionaries to
                 my_list = []
                 # Dictionary holds each job-titles subfield
                 my_dict = {}
+
                 for jobs in soup.findAll('job-titles'):
                     max_jobs += 1
+                    school_job = jobs.find('school').text
+                    job_program = ""
+                    _job_title = ""
+                    if school_job == 'Bethel University':
+                        job_program = ""
+                        _job_title = jobs.find('job_title').text
+                    elif school_job == 'College of Arts and Sciences':
+                        job_program = jobs.find('department').text
+                        if jobs.find('department-chair').text == 'Yes':
+                            _job_title = 'Department Chair'
+                        else:
+                            _job_title = jobs.find('job_title').text
+                    elif school_job == 'College of Adult and Professional Studies':
+                        job_program = jobs.find('adult-undergrad-program').text
+                        if jobs.find('program-director').text == 'Yes':
+                            _job_title = 'Program Director'
+                        else:
+                            _job_title = jobs.find('job_title').text
+                    elif school_job == 'Graduate School':
+                        job_program = jobs.find('graduate-program').text
+                        if jobs.find('program-director').text == 'Yes':
+                            _job_title = 'Program Director'
+                        else:
+                            _job_title = jobs.find('job_title').text
+                    elif school_job == 'Bethel Seminary':
+                        job_program = jobs.find('seminary-program').text
+                        if jobs.find('lead-faculty').text == 'Other':
+                            _job_title = jobs.find('job_title').text
+                        elif jobs.find('program-director').text == "Yes":
+                            _job_title = "Program Director"
+                        elif jobs.find('lead-faculty').text != "Other":
+                            _job_title = jobs.find('lead-faculty').text
+                    else:
+                        school_job = ""
+                        job_program = ""
+                        _job_title = ""
+
                     my_dict = {
-                        'school' + str(max_jobs): jobs.find('school').text,
-                        'department' + str(max_jobs): jobs.find('department').text,
-                        'adult-undergrad-program' + str(max_jobs): jobs.find('adult-undergrad-program').text,
-                        'graduate-program' + str(max_jobs): jobs.find('graduate-program').text,
-                        'seminary-program' + str(max_jobs): jobs.find('seminary-program').text,
-                        'department-chair' + str(max_jobs): jobs.find('department-chair').text,
-                        'program-director' + str(max_jobs): jobs.find('program-director').text,
-                        'lead-faculty' + str(max_jobs): jobs.find('lead-faculty').text,
-                        'job_title' + str(max_jobs): jobs.find('job_title').text
+                        'school' + str(max_jobs): school_job,
+                        'program' + str(max_jobs): job_program,
+                        'job_title' + str(max_jobs): _job_title
                     }
                     my_list.append(my_dict)
 
@@ -186,9 +220,6 @@ class FacultyBioController(TinkerController):
                     'max-jobs': max_jobs,
                     'max-edu': max_edu
                 }
-
-                # print soup.find('biography')
-                # print "----------------------------------------"
 
                 # This is the initial dictionary of what will be returned
                 page_values = {
