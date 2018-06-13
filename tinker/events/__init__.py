@@ -36,14 +36,14 @@ class EventsView(FlaskView):
             if 'Tinker Events - CAS' in session['groups'] or 'Event Approver' in session['groups']:
                 # The special admin view
                 all_schools = OrderedDict({
-                    1: 'All Events',
-                    2: 'My Events',
+                    1: 'My Events',
+                    2: 'All Events',
                     3: 'Other Events'},
                     key=lambda t: t[0]
                 )
             else:
                 all_schools = OrderedDict({
-                    2: 'User Events'}
+                    1: 'User Events'}
                 )
 
             return render_template('events/home.html', show_create=show_create, all_schools=all_schools, list_of_events=None,

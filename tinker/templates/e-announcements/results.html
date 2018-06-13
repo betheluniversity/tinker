@@ -20,15 +20,15 @@
                     {% else %}
                         {% if not form.first_date_past and not form.second_date_past %}
                             <li>
-                                <a href="{{ url_for('e_announcements.EAnnouncementsView:edit', e_announcement_id=form.id) }}"
+                                <a href="{{ url_for('EAnnouncementsView:edit', e_announcement_id=form.id) }}"
                                    class="btn btn-primary">Edit</a></li>
                         {% else %}
                             <li>
-                                <a href="{{ url_for('e_announcements.EAnnouncementsView:view', e_announcement_id=form.id) }}"
+                                <a href="{{ url_for('EAnnouncementsView:view', e_announcement_id=form.id) }}"
                                    class="btn btn-primary">View</a></li>
                         {% endif %}
                         <li>
-                            <a href="{{ url_for('e_announcements.EAnnouncementsView:duplicate', e_announcement_id=form.id) }}"
+                            <a href="{{ url_for('EAnnouncementsView:duplicate', e_announcement_id=form.id) }}"
                                class="btn btn-primary">Duplicate</a></li>
                         {% if not form.first_date_past %}
                             <li><a href="#" data-reveal-id="confirmModal" id="{{ form.id }}"
