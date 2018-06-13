@@ -13,10 +13,9 @@ from flask_classy import FlaskView, route
 from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from faculty_bio_controller import FacultyBioController
-# Figure out what to do with this
 import csv
-from tinker.tinker_controller import EncodingDict
 from unidecode import unidecode
+
 
 class FacultyBiosView(FlaskView):
     route_base = '/faculty-bios'
@@ -230,7 +229,7 @@ class FacultyBiosView(FlaskView):
 
             filewriter = csv.writer(csvfile)
 
-            # writes the row line of a the csv file
+            # Adds column headers to the list
             my_list = ['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
                        'Highlight text']
 
@@ -243,20 +242,21 @@ class FacultyBiosView(FlaskView):
                 if data['max-edu'] > max_edu:
                     max_edu = data['max-edu']
 
-            # Creates max_jobs spaces for jobs
+            # Creates max_jobs spaces for jobs and adds them to the list
             for i in range(1, max_jobs + 1):
                 my_list.append('Job Title ' + str(i))
-                my_list.append('Job Title ' + str(i) + ' School')
-                my_list.append('Job Title ' + str(i) + " Department")
+                my_list.append('Job Title-School ' + str(i))
+                my_list.append('Job Title-Department ' + str(i))
 
             my_list.extend(['Email', 'Started at Bethel in'])
 
-            # Creates max_edu spaces for educations
+            # Creates max_edu spaces for educations and adds them to the list
             for j in range(1, max_edu + 1):
-                my_list.append('Degree ' + str(j) + ' Earned')
-                my_list.append('Degree ' + str(j) + ' School')
-                my_list.append('Degree ' + str(j) + ' Year')
+                my_list.append('Degree-Earned ' + str(j))
+                my_list.append('Degree-School ' + str(j))
+                my_list.append('Degree-Year ' + str(j))
 
+            # Adds the remaining column headers to the list
             my_list.extend(['Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
                             'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
                             'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
@@ -265,6 +265,8 @@ class FacultyBiosView(FlaskView):
             # Writes the "header" of the csv file signify what data is held in that column
             filewriter.writerow(my_list)
 
+            # Now we will iterate through all the faculty and make a row dedicated to each of them following the
+            # format specified by the header
             for data in info_form:
 
                 row_list = [unidecode(data['first']), unidecode(data['last']), unidecode(data['author']),
