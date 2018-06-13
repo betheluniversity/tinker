@@ -257,19 +257,11 @@ class FacultyBiosView(FlaskView):
                 my_list.append('year' + str(j))
 
             my_list.extend(['Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
-                                 'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
-                                 'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
-                                 'Professional website or blog'])
+                            'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
+                            'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
+                            'Professional website or blog'])
 
             filewriter.writerow(my_list)
-
-            # filewriter.writerow(['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
-            #                      'Highlight text', 'This is where the jobs should go', 'Email', 'Started at Bethel in',
-            #                      'This is where degrees should go',
-            #                      'Biography', 'Courses Taught', 'Awards', 'Publications', 'Certificates and licenses',
-            #                      'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
-            #                      'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
-            #                      'Professional website or blog'])
 
             # for data in info_form:
             #     my_list = []
@@ -280,42 +272,59 @@ class FacultyBiosView(FlaskView):
             #             my_list.append(unidecode(data[key]))
             #     filewriter.writerow(my_list)
 
+            new_list = []
 
             for data in info_form:
-                # print data['max-jobs']
-                # Make this a loop for both job-titles and education to check in range(0,9) or something
-                # if 'school9' in data.keys():
-                #     print "ffound"
-                # else:
-                #     print "not found"
-                # for i in range(1, data['max-jobs'] + 1):
-                #     print i
-                # if not 'school9' in data.keys() and not str(unidecode(data['school9'])):
-                #     school9 = "no"
-                # else:
-                #     school9 = unidecode(data['school9'])
-                filewriter.writerow([unidecode(data['first']), unidecode(data['last']),
-                                     unidecode(data['author']),
-                                     unidecode(data['location']),
-                                     unidecode(data['highlight']),
-                                     unidecode(data['job-titles']),
-                                     unidecode(data['email']),
-                                     unidecode(data['started-at-bethel']),
-                                     unidecode(data['education']),
-                                     unidecode(data['biography']),
-                                     unidecode(data['courses']),
-                                     unidecode(data['awards']),
-                                     unidecode(data['publications']),
-                                     unidecode(data['certificates']),
-                                     unidecode(data['organizations']),
-                                     unidecode(data['hobbies']),
-                                     unidecode(data['areas']),
-                                     unidecode(data['research-interests']),
-                                     unidecode(data['teaching-specialty']),
-                                     unidecode(data['quote']),
-                                     unidecode(data['website']),
-                                     # school9
-                                    ])
+
+                new_list = [unidecode(data['first']), unidecode(data['last']), unidecode(data['author']),
+                            unidecode(data['location']), unidecode(data['highlight'])]
+
+
+                for i in range(1, max_jobs + 1):
+                    if ('school' + str(i)) in data.keys():
+                        job_school = unidecode(data['school' + str(i)])
+                    else:
+                        job_school = ""
+                    new_list.append(job_school)
+
+                new_list.extend([unidecode(data['email']), unidecode(data['started-at-bethel'])])
+
+                for j in range(1, max_edu + 1):
+                    if ('school-edu' + str(j)) in data.keys():
+                        edu_school = unidecode(data['school-edu' + str(j)])
+                    else:
+                        edu_school = ""
+                    new_list.append(edu_school)
+
+                new_list.extend([unidecode(data['biography']), unidecode(data['courses']), unidecode(data['awards']),
+                                 unidecode(data['publications']), unidecode(data['certificates']),
+                                 unidecode(data['organizations']), unidecode(data['hobbies']), unidecode(data['areas']),
+                                 unidecode(data['research-interests']), unidecode(data['teaching-specialty']),
+                                 unidecode(data['quote']), unidecode(data['website'])])
+
+                filewriter.writerow(new_list)
+
+                # filewriter.writerow([unidecode(data['first']), unidecode(data['last']),
+                #                      unidecode(data['author']),
+                #                      unidecode(data['location']),
+                #                      unidecode(data['highlight']),
+                #                      unidecode(data['job-titles']),
+                #                      unidecode(data['email']),
+                #                      unidecode(data['started-at-bethel']),
+                #                      unidecode(data['education']),
+                #                      unidecode(data['biography']),
+                #                      unidecode(data['courses']),
+                #                      unidecode(data['awards']),
+                #                      unidecode(data['publications']),
+                #                      unidecode(data['certificates']),
+                #                      unidecode(data['organizations']),
+                #                      unidecode(data['hobbies']),
+                #                      unidecode(data['areas']),
+                #                      unidecode(data['research-interests']),
+                #                      unidecode(data['teaching-specialty']),
+                #                      unidecode(data['quote']),
+                #                      unidecode(data['website'])
+                #                     ])
 
         # Opens the file and signifies that we will read it
         with open('faculty-info.csv', 'rb') as f:
