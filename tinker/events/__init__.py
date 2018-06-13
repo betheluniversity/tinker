@@ -41,7 +41,7 @@ class EventsView(FlaskView):
             )
         else:
             all_schools = OrderedDict({
-                2: 'User Events'}
+                1: 'User Events'}
             )
         return render_template('events/home.html', show_create=show_create, all_schools=all_schools, list_of_events=None,
                                formsHeader="All Events")

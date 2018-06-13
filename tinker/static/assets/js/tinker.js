@@ -2,14 +2,16 @@
 
 $(document).ready(function () {
     $("#search-filters").click(function () {
-        if($("#search-filters").hasClass("show")) {
+        if($(this).hasClass("show")) {
             $("#additional-search-params").slideUp();
-            $("#search-filters").removeClass("show");
-            $("#search-filters").addClass("no-show");
+            $(this).removeClass("show");
+            $(this).addClass("no-show");
+            $(this).text("+ More Search Filters")
         }else{
             $("#additional-search-params").slideDown();
-            $("#search-filters").removeClass("no-show");
-            $("#search-filters").addClass("show");
+            $(this).removeClass("no-show");
+            $(this).addClass("show");
+            $(this).text("- Less Search Filters")
         }
     });
 });

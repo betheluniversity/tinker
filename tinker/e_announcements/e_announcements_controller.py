@@ -46,7 +46,9 @@ class EAnnouncementsController(TinkerController):
             author = child.find('author').text
             author = author.replace(' ', '').split(',')
         except AttributeError:
-            author = None
+            author = []
+        if author == []:
+            author = child.find('created-by').text
         username = session['username']
 
         if (author is not None and username in author) or 'E-Announcement Approver' in session['groups']:

@@ -21,7 +21,9 @@ class EventsController(TinkerController):
             author = child.find('author').text
             author = author.replace(' ', '').split(',')
         except AttributeError:
-            author = None
+            author = []
+        if author == []:
+            author = child.find('created-by').text
         username = session['username']
 
         sem_event = False

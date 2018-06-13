@@ -49,7 +49,7 @@ class EAnnouncementsView(FlaskView):
                 )
             else:
                 all_schools = OrderedDict({
-                    2: 'User E-Announcements'}
+                    1: 'User E-Announcements'}
                 )
             return render_template('e-announcements/home.html', **locals())
 
