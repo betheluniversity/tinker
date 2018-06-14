@@ -8,13 +8,13 @@ from bu_cascade.asset_tools import find, update
 from flask import abort, redirect, render_template, request, session, Response
 from flask import json as fjson
 from flask_classy import FlaskView, route
+import csv
+from unidecode import unidecode
 
 # Local
 from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from faculty_bio_controller import FacultyBioController
-import csv
-from unidecode import unidecode
 
 
 class FacultyBiosView(FlaskView):
