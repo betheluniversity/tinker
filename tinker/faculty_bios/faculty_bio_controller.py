@@ -166,35 +166,24 @@ class FacultyBioController(TinkerController):
         for jobs in soup.findAll('job-titles'):
             max_jobs += 1
             school = jobs.find('school').text
-            department = ""
-            title = ""
-            job_title = jobs.find('job_title').text
+            title = jobs.find('job_title').text
             if school == 'Bethel University':
                 department = ""
-                title = job_title
             elif school == 'College of Arts and Sciences':
                 department = jobs.find('department').text
                 if jobs.find('department-chair').text == 'Yes':
                     title = 'Department Chair'
-                else:
-                    title = job_title
             elif school == 'College of Adult and Professional Studies':
                 department = jobs.find('adult-undergrad-program').text
                 if jobs.find('program-director').text == 'Yes':
                     title = 'Program Director'
-                else:
-                    title = job_title
             elif school == 'Graduate School':
                 department = jobs.find('graduate-program').text
                 if jobs.find('program-director').text == 'Yes':
                     title = 'Program Director'
-                else:
-                    title = job_title
             elif school == 'Bethel Seminary':
                 department = jobs.find('seminary-program').text
-                if jobs.find('lead-faculty').text == 'Other':
-                    title = job_title
-                elif jobs.find('program-director').text == "Yes":
+                if jobs.find('program-director').text == "Yes":
                     title = "Program Director"
                 elif jobs.find('lead-faculty').text != "Other":
                     title = jobs.find('lead-faculty').text
@@ -266,7 +255,6 @@ class FacultyBioController(TinkerController):
             'first': child.find('.//first').text or "",
             'last': child.find('.//last').text or "",
             'author': author_text,
-            # 'author': soup.find('author').text,
             'location': soup.find('faculty_location').text,
             'highlight': soup.find('highlight').text,
             'job-titles': soup.find('job-titles').text,
@@ -293,6 +281,7 @@ class FacultyBioController(TinkerController):
         # Add the max_dict which holds both the maximum number of jobs and the maximum number of educations to
         # the main dictionary
         page_values.update(max_dict)
+
         return page_values
 
     def strip_html_tags(self, html):
