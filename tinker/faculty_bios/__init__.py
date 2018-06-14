@@ -221,6 +221,9 @@ class FacultyBiosView(FlaskView):
     @route("/faculty-bio-csv")
     def get_faculty_bio_csv(self):
 
+        if 'Administrators' not in session['groups'] or 'Tinker Faculty Bios - Admin' not in session['groups']:
+            abort(403)
+
         # Traverses the xml file
         info_form = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page', True, True)
 
