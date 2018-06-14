@@ -124,19 +124,7 @@ class FacultyBioController(TinkerController):
             school_array = []
             for school in child.findall('.//job-titles/school'):
                 school_array.append(school.text or 'Other')
-            if not csv:
-                page_values = {
-                    'author': child.find('author') or None,
-                    'id': child.attrib['id'] or "",
-                    'title': child.find('title').text or None,
-                    'created-on': child.find('created-on').text or None,
-                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                    'schools': school_array,
-                    'last-name': child.find('.//last').text or None,
-                    'deactivated': child.find('.//deactivate').text or None
-            }
-            else:
-
+            if csv:
                 # Creates a BeautifulSoup object
                 soup = BeautifulSoup(self.element_tree_to_html(child))
                 # Author isn't always filled out so we need to check if it is
@@ -277,6 +265,18 @@ class FacultyBioController(TinkerController):
                 # Add the max_dict which holds both the maximum number of jobs and the maximum number of educations to
                 # the main dictionary
                 page_values.update(max_dict)
+
+            else:
+                page_values = {
+                    'author': child.find('author') or None,
+                    'id': child.attrib['id'] or "",
+                    'title': child.find('title').text or None,
+                    'created-on': child.find('created-on').text or None,
+                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                    'schools': school_array,
+                    'last-name': child.find('.//last').text or None,
+                    'deactivated': child.find('.//deactivate').text or None
+                }
 
             # Returns the page_values
             return page_values
