@@ -8,12 +8,14 @@ from datetime import datetime
 
 # Packages
 from BeautifulSoup import BeautifulSoup
-from flask import render_template, request, abort, session, Response, stream_with_context
+from flask import render_template, request, abort, session, Response, stream_with_context, redirect, url_for
 from flask_classy import FlaskView, route
 
 # Local
 from tinker import app, db, cache
 from tinker.admin.redirects.redirects_controller import RedirectsController
+from tinker.admin.redirects.models import BethelRedirect
+from tinker.admin.redirects.redirect_domains import redirect_domains
 from tinker.tinker_controller import requires_auth
 from tinker.tinker_controller import admin_permissions
 from tinker.admin.redirects.models import BethelRedirect
@@ -32,7 +34,18 @@ class RedirectsView(FlaskView):
     # Redirects homepage
     def index(self):
         redirects = self.base.get_all_rows()
+        redirect_domain_list = redirect_domains
         return render_template('admin/redirects/home.html', **locals())
+
+    # Add domain page
+    def domain_homepage(self):
+        redirect_domain_list = redirect_domains
+        return render_template('admin/redirects/add_domain.html', **locals())
+
+    # Add domain to drop down menu
+    def add_domain_option(self):
+        self.base.git_pull()
+        return redirect(url_for("RedirectsView:index"))
 
     # Deletes the chosen redirect
     @route("/delete", methods=['post'])
@@ -59,6 +72,7 @@ class RedirectsView(FlaskView):
     @route("/new-redirect-submit", methods=['post'])
     def new_redirect_submit(self):
         form = self.base.dictionary_encoder.encode(request.form)
+        domain = form['new-redirect-domain']
         from_path = form['new-redirect-from']
         to_url = form['new-redirect-to']
         short_url = form.get('new-redirect-short-url') == 'true'
@@ -73,7 +87,7 @@ class RedirectsView(FlaskView):
             if not from_path.startswith("/"):
                 from_path = "/%s" % from_path
             try:
-                new_redirect = self.base.add_row_to_db(from_path, to_url, short_url, expiration_date)
+                new_redirect = self.base.add_row_to_db(from_path, to_url, short_url, expiration_date, domain=domain)
                 # Update the file after every submit?
                 self.base.create_redirect_text_file()
                 return json.dumps({
@@ -103,6 +117,7 @@ class RedirectsView(FlaskView):
     def edit_redirect_submit(self):
         form = self.base.dictionary_encoder.encode(request.form)
         id = form['edit-id']
+        domain = form['edit-domain']
         from_path = form['edit-redirect-from']
         to_url = form['edit-redirect-to']
         short_url = form.get('edit-redirect-short-url') == 'true'
@@ -135,6 +150,7 @@ class RedirectsView(FlaskView):
             try:
                 edit_dict = {
                     'username': username,
+                    'domain': domain,
                     'from_path': from_path,
                     'to_url': to_url,
                     'short_url': short_url,

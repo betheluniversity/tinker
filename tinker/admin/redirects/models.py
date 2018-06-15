@@ -4,6 +4,7 @@ from flask import session
 
 class BethelRedirect(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    domain = db.Column(db.String(50))
     from_path = db.Column(db.String(256), unique=True, default='no_path_provided')
     to_url = db.Column(db.String(256))
     short_url = db.Column(db.Boolean)
@@ -12,7 +13,8 @@ class BethelRedirect(db.Model):
     username = db.Column(db.String(20), default='n/a')
     last_edited = db.Column(db.Date, default=datetime.now())
 
-    def __init__(self, from_path, to_url, short_url=None, expiration_date=None, username=None):
+    def __init__(self, domain, from_path, to_url, short_url=None, expiration_date=None, username=None):
+        self.domain = domain
         self.from_path = from_path
         self.to_url = to_url
         self.short_url = short_url

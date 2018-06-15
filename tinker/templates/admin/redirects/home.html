@@ -14,6 +14,18 @@
                     <div class="content">
                         <form action="" id="new-redirect-form">
                             <div class="row less-left-margin">
+                                <div class="form-group col-sm-10">
+                                    Domain:
+                                    <select name="domain" id="new-redirect-domain">
+                                        {% for domain in redirect_domain_list %}
+                                            <option value="{{ domain }}">{{ domain }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <a id="add-domain" class="btn btn-primary"
+                                       href='{{ url_for("RedirectsView:domain_homepage") }}'>Add Domain</a>
+                                </div>
+                            </div>
+                            <div class="row less-left-margin">
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         From Path:
@@ -85,6 +97,7 @@
                 $(".info-column").on('click',function(){
                     // Sets info
                     $("#modal-id-display").text($(this).data('id'));
+                    $("#modal-domain-display").text($(this).data('domain'));
                     $("#modal-username-display").text($(this).data("username"));
                     $("#modal-date-display").text($(this).data("timestamp"));
                     $("#modal-exp-date-display").text($(this).data("exp-date"));
@@ -116,7 +129,8 @@
                     $("#modal-exp-date-edit").val($(this).data('exp-date'));
                     $("#modal-from-path-edit").val($(this).data('from-path'));
                     $("#modal-to-url-edit").val($(this).data('to-url'));
-                    $("#modal-last-edited-edit").val($(this).data("last-edited"));
+                    $("#modal-last-edited-edit").val($(this).data('last-edited'));
+                    $('#modal-domain-edit').val($(this).data('domain'));
                     // Hiding edit fields
                     $(".edit").hide()
                 });
@@ -174,6 +188,7 @@
 
                 $('#redirects-save').click(function () {
                     var data = {
+                        'new-redirect-domain': $('#new-redirect-domain :selected').text(),
                         'new-redirect-from': $('#new-redirect-from').val(),
                         'new-redirect-to': $('#new-redirect-to').val(),
                         'new-redirect-short-url': $('#new-redirect-short-url').parent().hasClass('checked'),
@@ -198,6 +213,8 @@
                     });
                 });
 
+{#                $('#add-domain')#}
+
                 $(".btn-alert").click(function () {
                     var redirect_data = {"redirect_id": $(this).attr('data-delete-id')};
                     var url = "{{ url_for('RedirectsView:delete_redirect') }}";
@@ -213,15 +230,13 @@
                     $(".display").hide();
                     // Showing edit fields
                     $(".edit").show();
-                    // Checkbox for short url
-                    $("#modal-short-url-info").hide();
-                    $("#modal-short-url-edit").show();
                 });
 
                 $(".submit-edits-btn").click(function(){
                     // Submit changes
                     var edits = {
                         'edit-id': $('#modal-id-edit').val(),
+                        'edit-domain': $('#modal-domain-edit :selected').text(),
                         'edit-redirect-from': $('#modal-from-path-edit').val(),
                         'edit-redirect-to': $('#modal-to-url-edit').val(),
                         'edit-redirect-short-url': $('#edit-redirect-short-url').parent().hasClass('checked'),
@@ -253,6 +268,7 @@
                 $('#expiration-date').val('');
                 $('#new-redirect-short-url').attr('checked', false);
                 $('#new-redirect-short-url').parent().removeClass('checked');
+                $('#new-redirect-domain').val("www.bethel.edu")
             }
 
         })
@@ -310,6 +326,17 @@
                             </td>
                         </tr>
                         <tr>
+                            <th>Domain:</th>
+                            <td>
+                                <span id="modal-domain-display" class="display">No domain was loaded</span>
+                                <select id="modal-domain-edit" class="edit">
+                                    {% for domain in redirect_domain_list %}
+                                        <option value="{{ domain }}">{{ domain }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
                             <th>From Path:</th>
                             <td>
                                 <span id="modal-from-path-display" class="display">No from path was loaded</span>
@@ -326,13 +353,13 @@
                         <tr>
                             <th>Short URL:</th>
                             <td>
-                                <label id="modal-short-url-info" class="checkbox">
+                                <label id="modal-short-url-info" class="checkbox display">
                                     <span class="icons">
                                         <span id="modal-unchecked" class="fa fa-square-o"></span>
                                         <span id="modal-checked" class="fa fa-check-square-o"></span>
                                     </span>
                                 </label>
-                                <label id="modal-short-url-edit" class="checkbox" for="edit-redirect-short-url">
+                                <label id="modal-short-url-edit" class="checkbox edit" for="edit-redirect-short-url">
                                     <span class="icons">
                                         <span class="first-icon fa fa-square-o"></span>
                                         <span class="second-icon fa fa-check-square-o"></span>

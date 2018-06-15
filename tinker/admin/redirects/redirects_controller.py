@@ -2,6 +2,7 @@
 from datetime import datetime
 import urllib
 import requests
+from redirect_domains import redirect_domains
 
 # Packages
 from flask_sqlalchemy import SQLAlchemy
@@ -26,24 +27,28 @@ class RedirectsController(TinkerController):
 
     # Creates a new redirect text file
     def create_redirect_text_file(self):
-        map_file = open(app.config['REDIRECTS_FILE_PATH'], 'w')
-        map_file_back = open(app.config['REDIRECTS_FILE_PATH'] + ".back", 'w')
+        redirect_domain_list = redirect_domains
+        files = {}
         redirects = BethelRedirect.query.all()
 
+        for domain in redirect_domain_list:
+            files[domain] = open(app.config['REDIRECTS_FOLDER_PATH'] + '/' + domain + '.txt', 'w')
+
         for item in redirects:
-            map_file.write("%s %s\n" % (item.from_path, item.to_url))
-            map_file_back.write("%s %s\n" % (item.from_path, item.to_url))
+            for domain in redirect_domain_list:
+                if domain == item.domain:
+                    files[domain].write("%s %s\n" % (item.from_path, item.to_url))
 
         return 'done'
 
-    def add_row_to_db(self, from_path, to_url, short_url, expiration_date, username=None):
+    def add_row_to_db(self, from_path, to_url, short_url, expiration_date, username=None, domain="www.bethel.edu"):
         if from_path == '/':
             return False
 
         if not username:
             username = session["username"]
 
-        new_redirect = BethelRedirect(from_path=from_path, to_url=to_url, short_url=short_url,
+        new_redirect = BethelRedirect(domain=domain, from_path=from_path, to_url=to_url, short_url=short_url,
                                       expiration_date=expiration_date, username=username)
         self.db.session.add(new_redirect)
         self.db.session.commit()
