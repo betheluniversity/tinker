@@ -147,178 +147,152 @@ class FacultyBioController(TinkerController):
 
     def csv_file(self, child):
 
-        # Creates a BeautifulSoup object
-        soup = BeautifulSoup(self.element_tree_to_html(child))
-        # Author isn't always filled out so we need to check if it is
-        if not soup.find('author'):
-            author_text = " "
-        else:
-            author_text = soup.find('author').text
+        #         #
+        #         # # This is the initial dictionary of what will be returned
+        #         # page_values = {
+        #         #
+        #         #     'first': child.find('.//first').text or "",
+        #         #     'last': child.find('.//last').text or "",
+        #         #     'author': author_text,
+        #         #     'location': soup.find('faculty_location').text,
+        #         #     'highlight': soup.find('highlight').text,
+        #         #     'job-titles': soup.find('job-titles').text,
+        #         #     'email': soup.find('email').text,
+        #         #     'started-at-bethel': soup.find('started-at-bethel').text,
+        #         #     'education': soup.find('education').text,
+        #         #     'biography': biography,
+        #         #     'courses': courses,
+        #         #     'awards': awards,
+        #         #     'publications': publications,
+        #         #     'presentations': presentations,
+        #         #     'certificates': certificates,
+        #         #     'organizations': organizations,
+        #         #     'hobbies': hobbies,
+        #         #     'areas': soup.find('areas').text,
+        #         #     'research-interests': soup.find('research-interests').text,
+        #         #     'teaching-specialty': soup.find('teaching-specialty').text,
+        #         #     'quote': soup.find('quote').text,
+        #         #     'website': soup.find('website').text
+        #         # }
+        #         # # Add all the job-titles and education dictionaries to the main dictionary being returned
+        #         # for dicts in my_list:
+        #         #     page_values.update(dicts)
+        #         # # Add the max_dict which holds both the maximum number of jobs and the maximum number of educations to
+        #         # # the main dictionary
+        #         # page_values.update(max_dict)
 
-        # max_jobs will hold the maximum number of jobs someone has
+        page_values = {
+            'first': child.find('.//first').text,
+            'last': child.find('.//last').text
+        }
+
         max_jobs = 0
-        # my_list is a list used to add both job and education dictionaries to
-        my_list = []
-        # Dictionary holds each job-titles subfield
-
-        # Logic used to group together department/program and department chair/lead faculty/program director/
-        # job_title
-        for jobs in soup.findAll('job-titles'):
+        for jobs in child.iterfind('.//job-titles'):
             max_jobs += 1
-            school = jobs.find('school').text
-            title = jobs.find('job_title').text
-            if school == 'Bethel University':
-                department = ""
-            elif school == 'College of Arts and Sciences':
-                department = jobs.find('department').text
-                if jobs.find('department-chair').text == 'Yes':
-                    title = 'Department Chair'
-            elif school == 'College of Adult and Professional Studies':
-                department = jobs.find('adult-undergrad-program').text
-                if jobs.find('program-director').text == 'Yes':
-                    title = 'Program Director'
-            elif school == 'Graduate School':
-                department = jobs.find('graduate-program').text
-                if jobs.find('program-director').text == 'Yes':
-                    title = 'Program Director'
-            elif school == 'Bethel Seminary':
-                department = jobs.find('seminary-program').text
-                if jobs.find('program-director').text == "Yes":
-                    title = "Program Director"
-                elif jobs.find('lead-faculty').text != "Other":
-                    title = jobs.find('lead-faculty').text
-            else:
+            if jobs.find('school').text == 'None':
                 school = ""
-                department = ""
-                title = ""
-            # Creates a dictionary with the relevant information
-            my_dict = {
-                'school' + str(max_jobs): school,
-                'department' + str(max_jobs): department,
-                'job_title' + str(max_jobs): title
-            }
-            # Adds the dictionary to the list
-            my_list.append(my_dict)
+            else:
+                school = jobs.find('school').text
+            if jobs.find('job_title').text == 'None':
+                job_title = ""
+            else:
+                job_title = jobs.find('job_title').text
+            department = ""
+            page_values['school' + str(max_jobs)] = school
+            page_values['job_title' + str(max_jobs)] = job_title
+            page_values['department' + str(max_jobs)] = department
+            if school == 'Bethel University':
+                page_values['department' + str(max_jobs)] = department
+            elif school == 'College of Arts and Sciences':
+                if jobs.find('department').text != 'None':
+                    page_values['department' + str(max_jobs)] = jobs.find('department').text
+                if jobs.find('department-chair') != "None" and jobs.find('department-chair').text == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Department Chair'
+            elif school == 'College of Adult and Professional Studies':
+                if jobs.find('adult-undergrad-program').text != 'None':
+                    page_values['department' + str(max_jobs)] = jobs.find('adult-undergrad-program').text
+                if jobs.find('program-director').text != 'None' and jobs.find('program-director').text == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Program Director'
+            elif school == 'Graduate School':
+                if jobs.find('graduate-program').text != 'None':
+                    page_values['department' + str(max_jobs)] = jobs.find('graduate-program').text
+                if jobs.find('program-director').text != 'None' and jobs.find('program-director').text == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Program Director'
+            elif school == 'Bethel Seminary':
+                if jobs.find('seminary-program').text != 'None':
+                    page_values['department' + str(max_jobs)] = jobs.find('seminary-program').text
+                if jobs.find('program-director').text != 'None':
+                    if jobs.find('program-director').text == "Yes":
+                        page_values['job_title' + str(max_jobs)] = 'Program Director'
+                    elif jobs.find('lead-faculty').text != 'None' and jobs.find('lead-faculty').text != "Other":
+                            page_values['job_title' + str(max_jobs)] = jobs.find('lead-faculty').text
+            else:
+                page_values['school' + str(max_jobs)] = ""
+                page_values['department' + str(max_jobs)] = ""
+                page_values['job_title' + str(max_jobs)] = ""
+
+        page_values['max-jobs'] = max_jobs
 
         # max_edu will hold the maximum number of jobs someone has
         max_edu = 0
-        for edu in soup.findAll('education'):
+        for edus in child.iterfind('.//education'):
+            print edus.text
             max_edu += 1
-            # Creates the dictionary with the relevant information
-            my_dict = {
-                'school-edu' + str(max_edu): edu.find('school').text,
-                'degree-earned' + str(max_edu): edu.find('degree-earned').text,
-                'year' + str(max_edu): edu.find('year').text,
-            }
-            # Adds the dictionary to the list
-            my_list.append(my_dict)
+            page_values['school-edu' + str(max_edu)] = edus.find('school').text
+            page_values['degree-earned' + str(max_edu)] = edus.find('degree-earned').text
+            page_values['year' + str(max_edu)] = edus.find('year').text
+            if edus.find('school').text == 'None':
+                page_values['school-edu' + str(max_edu)] = ""
+            if edus.find('degree-earned').text == 'None':
+                page_values['degree-earned' + str(max_edu)] = ""
+            if edus.find('year').text == 'None':
+                page_values['year' + str(max_edu)] = ""
 
-        # Creates a dictionary with number of jobs everyone has
-        max_dict = {
-            'max-jobs': max_jobs,
-            'max-edu': max_edu
-        }
+        page_values['max-edu'] = max_edu
 
-        # Formats these as wysiwyg's since staff/faculty can add formatting to these
-        biography = ""
-        if soup.find('biography').text:
-            biography = self.strip_html_tags(unicode(soup.find('biography').renderContents('utf-8', True), "utf-8"))
-        courses = ""
-        if soup.find('courses').text:
-            courses = self.strip_html_tags(unicode(soup.find('courses').renderContents('utf-8', True), "utf-8"))
-        awards = ""
-        if soup.find('awards').text:
-            awards = self.strip_html_tags(unicode(soup.find('awards').renderContents('utf-8', True), "utf-8"))
-        publications = ""
-        if soup.find('publications').text:
-            publications = self.strip_html_tags(
-                unicode(soup.find('publications').renderContents('utf-8', True), "utf-8"))
-        presentations = ""
-        if soup.find('presentations').text:
-            presentations = self.strip_html_tags(
-                unicode(soup.find('publications').renderContents('utf-8', True), "utf-8"))
-        certificates = ""
-        if soup.find('certificates').text:
-            certificates = self.strip_html_tags(
-                unicode(soup.find('certificates').renderContents('utf-8', True), "utf-8"))
-        organizations = ""
-        if soup.find('organizations').text:
-            organizations = self.strip_html_tags(
-                unicode(soup.find('organizations').renderContents('utf-8', True), "utf-8"))
-        hobbies = ""
-        if soup.find('hobbies').text:
-            hobbies = self.strip_html_tags(unicode(soup.find('hobbies').renderContents('utf-8', True), "utf-8"))
-
-        # This is the initial dictionary of what will be returned
-        page_values = {
-
-            'first': child.find('.//first').text or "",
-            'last': child.find('.//last').text or "",
-            'author': author_text,
-            'location': soup.find('faculty_location').text,
-            'highlight': soup.find('highlight').text,
-            'job-titles': soup.find('job-titles').text,
-            'email': soup.find('email').text,
-            'started-at-bethel': soup.find('started-at-bethel').text,
-            'education': soup.find('education').text,
-            'biography': biography,
-            'courses': courses,
-            'awards': awards,
-            'publications': publications,
-            'presentations': presentations,
-            'certificates': certificates,
-            'organizations': organizations,
-            'hobbies': hobbies,
-            'areas': soup.find('areas').text,
-            'research-interests': soup.find('research-interests').text,
-            'teaching-specialty': soup.find('teaching-specialty').text,
-            'quote': soup.find('quote').text,
-            'website': soup.find('website').text
-        }
-        # Add all the job-titles and education dictionaries to the main dictionary being returned
-        for dicts in my_list:
-            page_values.update(dicts)
-        # Add the max_dict which holds both the maximum number of jobs and the maximum number of educations to
-        # the main dictionary
-        page_values.update(max_dict)
+        if str(child.find('author')) == 'None':
+            page_values['author'] = ""
+        else:
+            page_values['author'] = child.find('author').text
+        if str(child.find('.//faculty_location/value')) == 'None':
+            page_values['location'] = ""
+        else:
+            location = ""
+            for sics in child.iterfind('.//faculty_location/value'):
+                location += sics.text + '\n'
+            page_values['location'] = location
+        if str(child.find('.//add-to-bio/biography/')) == 'None':
+            biography = ""
+        else:
+            biography = "something"
+            # biography = child.find('.//add-to-bio/biography//*')
+        # print "--"
+        # page_values = {
+        #     'first': child.find('.//first').text,
+        #     'last': child.find('.//last').text,
+        #     'author': author,
+        #     'location': location,
+        #     # 'highlight': child.find('.//highlight').text or "",
+        #     # 'job-titles': child.find('job-titles').text,
+        #     # 'email': child.find('.//email').text or "",
+        #     # 'started-at-bethel': child.find('.//started-at-bethel').text or "",
+        #     # 'education': child.find('education'),
+        #     # 'biography': biography,
+        #     # 'biography': child.find('.//add-to-bio/biography/').text or "",
+        #     # 'courses': child.find('.//add-to-bio/courses/').text or "",
+        #     # 'awards': child.find('.//add-to-bio/awards/').text or "",
+        #     # 'publications': child.find('.//add-to-bio/publications/').text or "",
+        #     # 'certificates': child.find('.//add-to-bio/certificates/').text or "",
+        #     # 'organizations': child.find('.//add-to-bio/organizations/').text or "",
+        #     # 'hobbies': child.find('.//add-to-bio/hobbies/').text or "",
+        #     # 'areas': child.find('.//add-to-bio/areas/').text or "",
+        #     # 'research-interests': child.find('.//add-to-bio/research-interests/').text or "",
+        #     # 'teaching-specialty': child.find('.//add-to-bio/teaching-specialty/').text or "",
+        #     # 'quote': child.find('.//add-to-bio/quote/').text or "",
+        #     # 'website': child.find('.//add-to-bio/website/').text or ""
+        #     }
 
         return page_values
-
-    def strip_html_tags(self, html):
-
-        # Strip HTML tags from any string and transforms special entities
-
-        text = html
-
-        # apply rules in given order!
-        rules = [
-            {r'>\s+': u'>'},  # remove spaces after a tag opens or closes
-            {r'\s+': u' '},  # replace consecutive spaces
-            {r'\s*<br\s*/?>\s*': u'\n'},  # newline after a <br>
-            {r'</(div)\s*>\s*': u'\n'},  # newline after </p> and </div> and <h1/>...
-            {r'\s*<li\s*/?>\s*': u'\n'},
-            {r'</(p|h\d)\s*>\s*': u'\n\n'},  # newline after </p> and </div> and <h1/>...
-            {r'<head>.*<\s*(/head|body)[^>]*>': u''},  # remove <head> to </head>
-            {r'<a\s+href="([^"]+)"[^>]*>.*</a>': r'\1'},  # show links instead of texts
-            {r'[ \t]*<[^<]*?/?>': u''},  # remove remaining tags
-            {r'^\s+': u''}  # remove spaces at the beginning
-        ]
-
-        for rule in rules:
-            for (k, v) in rule.items():
-                regex = re.compile(k)
-                text = regex.sub(v, text)
-
-        # replace special strings
-        special = {
-            '&nbsp;': ' ', '&amp;': '&', '&quot;': '"',
-            '&lt;': '<', '&gt;': '>'
-        }
-
-        for (k, v) in special.items():
-            text = text.replace(k, v)
-
-        return text
 
     # if the department metadata is found return it, else return ''
     def check_web_author_groups(self, groups, program_elements):

@@ -232,9 +232,10 @@ class FacultyBiosView(FlaskView):
 
             filewriter = csv.writer(csvfile)
 
-            # Adds column headers to the list
+            # # Adds column headers to the list
             my_list = ['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
-                       'Highlight text']
+            #            'Highlight text'
+                       ]
 
             max_jobs = 0
             max_edu = 0
@@ -250,22 +251,22 @@ class FacultyBiosView(FlaskView):
                 my_list.append('Job Title ' + str(i))
                 my_list.append('Job Title-School ' + str(i))
                 my_list.append('Job Title-Department ' + str(i))
-
-            my_list.extend(['Email', 'Started at Bethel in'])
-
+            #
+            # my_list.extend(['Email', 'Started at Bethel in'])
+            #
             # Creates max_edu spaces for educations and adds them to the list
             for j in range(1, max_edu + 1):
                 my_list.append('Degree-Earned ' + str(j))
                 my_list.append('Degree-School ' + str(j))
                 my_list.append('Degree-Year ' + str(j))
+            #
+            # # Adds the remaining column headers to the list
+            # my_list.extend(['Biography', 'Courses Taught', 'Awards', 'Publications', 'Presentations',
+            #                 'Certificates and licenses', 'Professional Organizations, Committees, and Boards',
+            #                 'Hobbies and interests', 'Areas of expertise', 'Research interests', 'Teaching specialty',
+            #                 'Quote', 'Professional website or blog'])
 
-            # Adds the remaining column headers to the list
-            my_list.extend(['Biography', 'Courses Taught', 'Awards', 'Publications', 'Presentations',
-                            'Certificates and licenses', 'Professional Organizations, Committees, and Boards',
-                            'Hobbies and interests', 'Areas of expertise', 'Research interests', 'Teaching specialty',
-                            'Quote', 'Professional website or blog'])
-
-            # Writes the "header" of the csv file signify what data is held in that column
+            # # Writes the "header" of the csv file signify what data is held in that column
             filewriter.writerow(my_list)
 
             # Now we will iterate through all the faculty and make a row dedicated to each of them following the
@@ -273,38 +274,41 @@ class FacultyBiosView(FlaskView):
             for data in info_form:
 
                 row_list = [unidecode(data['first']), unidecode(data['last']), unidecode(data['author']),
-                            unidecode(data['location']), unidecode(data['highlight'])]
+                            unidecode(data['location']),
+                            # unidecode(data['highlight'])
+                            ]
 
                 for i in range(1, max_jobs + 1):
                     if ('school' + str(i)) in data.keys():
-                        job_title = unidecode(data['job_title' + str(i)])
-                        school = unidecode(data['school' + str(i)])
-                        department = unidecode(data['department' + str(i)])
+                        job_title = unidecode(str(data['job_title' + str(i)]))
+                        school = unidecode(str(data['school' + str(i)]))
+                        department = unidecode(str(data['department' + str(i)]))
                     else:
                         school = ""
                         department = ""
                         job_title = ""
                     row_list.extend([job_title, school, department])
 
-                row_list.extend([unidecode(data['email']), unidecode(data['started-at-bethel'])])
+                # row_list.extend([unidecode(data['email']), unidecode(data['started-at-bethel'])])
 
                 for j in range(1, max_edu + 1):
                     if ('school-edu' + str(j)) in data.keys():
-                        edu_school = unidecode(data['school-edu' + str(j)])
-                        degree_earned = unidecode(data['degree-earned' + str(j)])
-                        year = unidecode(data['year' + str(j)])
+                        # edu_school = unidecode(str(data['school-edu' + str(j)]))
+                        edu_school = ""
+                        degree_earned = unidecode(str(data['degree-earned' + str(j)]))
+                        year = unidecode(str(data['year' + str(j)]))
                     else:
                         edu_school = ""
                         degree_earned = ""
                         year = ""
                     row_list.extend([degree_earned, edu_school, year])
-
-                row_list.extend([unidecode(data['biography']), unidecode(data['courses']), unidecode(data['awards']),
-                                 unidecode(data['publications']), unidecode(data['presentations']),
-                                 unidecode(data['certificates']), unidecode(data['organizations']),
-                                 unidecode(data['hobbies']), unidecode(data['areas']),
-                                 unidecode(data['research-interests']), unidecode(data['teaching-specialty']),
-                                 unidecode(data['quote']), unidecode(data['website'])])
+                #
+                # row_list.extend([unidecode(data['biography']), unidecode(data['courses']), unidecode(data['awards']),
+                #                  unidecode(data['publications']), unidecode(data['presentations']),
+                #                  unidecode(data['certificates']), unidecode(data['organizations']),
+                #                  unidecode(data['hobbies']), unidecode(data['areas']),
+                #                  unidecode(data['research-interests']), unidecode(data['teaching-specialty']),
+                #                  unidecode(data['quote']), unidecode(data['website'])])
 
                 # Writes each faculty a row of data
                 filewriter.writerow(row_list)
