@@ -147,28 +147,40 @@ class FacultyBioController(TinkerController):
 
     def csv_file(self, child):
 
+        # Initial dictionary values
         page_values = {
             'first': child.find('.//first').text,
             'last': child.find('.//last').text,
             'highlight': '',
             'email': '',
             'started-at-bethel': '',
-            'research-interests': 'research',
-            'areas': 'areas',
-            'teaching-specialty': 'teaching',
-            'quote': 'quote',
-            'website': 'website'
+            'research-interests': '',
+            'areas': '',
+            'teaching-specialty': '',
+            'quote': '',
+            'website': ''
         }
 
+        # Checks if there is data in each field, if not puts in an empty string
         if child.find('.//highlight').text is not None:
             page_values['highlight'] = child.find('.//highlight').text
         if child.find('.//email').text is not None:
             page_values['email'] = child.find('.//email').text
         if child.find('.//started-at-bethel').text is not None:
             page_values['started-at-bethel'] = child.find('.//started-at-bethel').text
+        if child.find('.//add-to-bio/research-interests').text is not None:
+            page_values['research-interests'] = child.find('.//add-to-bio/research-interests').text
+        if child.find('.//add-to-bio/areas').text is not None:
+            page_values['areas'] = child.find('.//add-to-bio/areas').text
+        if child.find('.//add-to-bio/teaching-specialty').text is not None:
+            page_values['teaching-specialty'] = child.find('.//add-to-bio/teaching-specialty').text
+        if child.find('.//add-to-bio/quote').text is not None:
+            page_values['quote'] = child.find('.//add-to-bio/quote').text
+        if child.find('.//add-to-bio/website').text is not None:
+            page_values['website'] = child.find('.//add-to-bio/website').text
 
+        # Iterates through all the job fields and adds it to the dictionary on the fly
         max_jobs = 0
-        # print child.find('author').text
         for jobs in child.iterfind('.//job-titles'):
             max_jobs += 1
             if str(jobs.find('school').text) == 'None':
@@ -215,7 +227,7 @@ class FacultyBioController(TinkerController):
 
         page_values['max-jobs'] = max_jobs
 
-        # max_edu will hold the maximum number of degrees someone has
+        # Iterates through all the education fields and adds it to the dictionary on the fly
         max_edu = 0
         for edu in child.iterfind('.//education'):
             max_edu += 1
