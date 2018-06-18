@@ -221,16 +221,9 @@ class FacultyBioController(TinkerController):
         max_edu = 0
         for edu in child.iterfind('.//education'):
             max_edu += 1
-            school = edu.find('school').text
-            page_values['degree-earned' + str(max_edu)] = edu.find('degree-earned').text
-            page_values['year' + str(max_edu)] = edu.find('year').text
-            if school is None:
-                school = ""
-            if str(edu.find('degree-earned').text) == 'None':
-                page_values['degree-earned' + str(max_edu)] = ""
-            if str(edu.find('year').text) == 'None':
-                page_values['year' + str(max_edu)] = ""
-            page_values['school-edu' + str(max_edu)] = unidecode(school)
+            page_values['school-edu' + str(max_edu)] = unidecode(self.get_faculty_data(edu, 'school'))
+            page_values['degree-earned' + str(max_edu)] = self.get_faculty_data(edu, 'degree-earned')
+            page_values['year' + str(max_edu)] = self.get_faculty_data(edu, 'year')
 
         page_values['max-edu'] = max_edu
 
@@ -249,15 +242,15 @@ class FacultyBioController(TinkerController):
             page_values['location'] = location.rstrip()
 
         # Call method to get all the inner text of the wysiwyg's and add them to the dictionary
-        page_values['biography'] = self.wysiwyg_inner_text(child, 'biography')
-        page_values['biography'] = self.wysiwyg_inner_text(child, 'biography')
-        page_values['courses'] = self.wysiwyg_inner_text(child, 'courses')
-        page_values['awards'] = self.wysiwyg_inner_text(child, 'awards')
-        page_values['publications'] = self.wysiwyg_inner_text(child, 'publications')
-        page_values['presentations'] = self.wysiwyg_inner_text(child, 'presentations')
-        page_values['certificates'] = self.wysiwyg_inner_text(child, 'certificates')
-        page_values['organizations'] = self.wysiwyg_inner_text(child, 'organizations')
-        page_values['hobbies'] = self.wysiwyg_inner_text(child, 'hobbies')
+        page_values['biography'] = self.wysiwyg_inner_text(child, 'add-to-bio/biography')
+        page_values['biography'] = self.wysiwyg_inner_text(child, 'add-to-bio/biography')
+        page_values['courses'] = self.wysiwyg_inner_text(child, 'add-to-bio/courses')
+        page_values['awards'] = self.wysiwyg_inner_text(child, 'add-to-bio/awards')
+        page_values['publications'] = self.wysiwyg_inner_text(child, 'add-to-bio/publications')
+        page_values['presentations'] = self.wysiwyg_inner_text(child, 'add-to-bio/presentations')
+        page_values['certificates'] = self.wysiwyg_inner_text(child, 'add-to-bio/certificates')
+        page_values['organizations'] = self.wysiwyg_inner_text(child, 'add-to-bio/organizations')
+        page_values['hobbies'] = self.wysiwyg_inner_text(child, 'add-to-bio/hobbies')
 
         # return the dictionary
         return page_values
@@ -265,7 +258,7 @@ class FacultyBioController(TinkerController):
     # A method used to extract all the inner text from the wysiwyg's
     def wysiwyg_inner_text(self, child, path_tail):
         string = ""
-        for information in child.find('.//add-to-bio/' + str(path_tail)).itertext():
+        for information in child.find('.//' + str(path_tail)).itertext():
             string += information
             string = string.rstrip()
             string += '\n'
