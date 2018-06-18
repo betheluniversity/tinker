@@ -301,15 +301,15 @@ class FacultyBiosView(FlaskView):
                         degree_earned = ""
                         year = ""
                     row_list.extend([degree_earned, edu_school, year])
-                #
-                # row_list.extend([unidecode(str(data['biography']))
-                # , unidecode(data['courses']), unidecode(data['awards']),
-                #                  unidecode(data['publications']), unidecode(data['presentations']),
-                #                  unidecode(data['certificates']), unidecode(data['organizations']),
-                #                  unidecode(data['hobbies']), unidecode(data['areas']),
+
+                row_list.extend([unidecode(data['biography']), unidecode(data['courses']), unidecode(data['awards']),
+                                 unidecode(data['publications']), unidecode(data['presentations']),
+                                 unidecode(data['certificates']), unidecode(data['organizations']),
+                                unidecode(data['hobbies']),
+                                 # unidecode(data['areas']),
                 #                  unidecode(data['research-interests']), unidecode(data['teaching-specialty']),
                 #                  unidecode(data['quote']), unidecode(data['website'])
-                #                  ])
+                                 ])
 
                 # Writes each faculty a row of data
                 filewriter.writerow(row_list)

@@ -147,7 +147,6 @@ class FacultyBioController(TinkerController):
 
     def csv_file(self, child):
 
-
         #         #
         #         # # This is the initial dictionary of what will be returned
         #         # page_values = {
@@ -208,30 +207,26 @@ class FacultyBioController(TinkerController):
             elif school == 'College of Arts and Sciences':
                 if str(jobs.find('department').text) != 'None':
                     page_values['department' + str(max_jobs)] = jobs.find('department').text
-                if str(jobs.find('department-chair').text) != "None":
-                    if jobs.find('department-chair').text == 'Yes':
-                        page_values['job_title' + str(max_jobs)] = 'Department Chair'
+                if str(jobs.find('department-chair').text) != "None" and jobs.find('department-chair').text == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Department Chair'
             elif school == 'College of Adult and Professional Studies':
                 if str(jobs.find('adult-undergrad-program').text) != 'None':
                     page_values['department' + str(max_jobs)] = jobs.find('adult-undergrad-program').text
-                if str(jobs.find('program-director').text) != 'None':
-                    if jobs.find('program-director').text == 'Yes':
-                        page_values['job_title' + str(max_jobs)] = 'Program Director'
+                if str(jobs.find('program-director').text) != 'None' and jobs.find('program-director').text == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Program Director'
             elif school == 'Graduate School':
                 if str(jobs.find('graduate-program').text) != 'None':
                     page_values['department' + str(max_jobs)] = jobs.find('graduate-program').text
-                if str(jobs.find('program-director').text) != 'None':
-                    if jobs.find('program-director').text == 'Yes':
-                        page_values['job_title' + str(max_jobs)] = 'Program Director'
+                if str(jobs.find('program-director').text) != 'None' and jobs.find('program-director').text == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Program Director'
             elif school == 'Bethel Seminary':
                 if str(jobs.find('seminary-program').text) != 'None':
                     page_values['department' + str(max_jobs)] = jobs.find('seminary-program').text
                 if str(jobs.find('program-director').text) != 'None':
                     if jobs.find('program-director').text == "Yes":
                         page_values['job_title' + str(max_jobs)] = 'Program Director'
-                    elif str(jobs.find('lead-faculty').text) != 'None':
-                        if jobs.find('lead-faculty').text != "Other":
-                            page_values['job_title' + str(max_jobs)] = jobs.find('lead-faculty').text
+                    elif str(jobs.find('lead-faculty').text) != 'None' and jobs.find('lead-faculty').text != "Other":
+                        page_values['job_title' + str(max_jobs)] = jobs.find('lead-faculty').text
             else:
                 page_values['school' + str(max_jobs)] = ""
                 page_values['department' + str(max_jobs)] = ""
@@ -239,15 +234,13 @@ class FacultyBioController(TinkerController):
 
         page_values['max-jobs'] = max_jobs
 
-        # max_edu will hold the maximum number of jobs someone has
+        # max_edu will hold the maximum number of degrees someone has
         max_edu = 0
         for edu in child.iterfind('.//education'):
             max_edu += 1
-            # still needs work
             school = edu.find('school').text
             page_values['degree-earned' + str(max_edu)] = edu.find('degree-earned').text
             page_values['year' + str(max_edu)] = edu.find('year').text
-            # print edu.find('school')
             if school is None:
                 school = ""
             if str(edu.find('degree-earned').text) == 'None':
@@ -269,10 +262,25 @@ class FacultyBioController(TinkerController):
             for sics in child.iterfind('.//faculty_location/value'):
                 location += sics.text + '\n'
             page_values['location'] = location
-        # if str(child.find('.//add-to-bio/biography//')) == 'None':
-        #     page_values['biography'] = ""
-        # else:
-        #     page_values['biography'] = unidecode(child.find('.//add-to-bio/biography//').text)
+
+        page_values['biography'] = self.xml_inner_text(child, 'biography')
+
+        page_values['biography'] = self.xml_inner_text(child, 'biography')
+
+        page_values['courses'] = self.xml_inner_text(child, 'courses')
+
+        page_values['awards'] = self.xml_inner_text(child, 'awards')
+
+        page_values['publications'] = self.xml_inner_text(child, 'publications')
+
+        page_values['presentations'] = self.xml_inner_text(child, 'presentations')
+
+        page_values['certificates'] = self.xml_inner_text(child, 'certificates')
+
+        page_values['organizations'] = self.xml_inner_text(child, 'organizations')
+
+        page_values['hobbies'] = self.xml_inner_text(child, 'hobbies')
+
         # print "--"
         # page_values = {
         #     'first': child.find('.//first').text,
@@ -300,6 +308,12 @@ class FacultyBioController(TinkerController):
         #     }
 
         return page_values
+
+    def xml_inner_text(self, child, path_tail):
+        string = ""
+        for information in child.find('.//add-to-bio/' + str(path_tail)).itertext():
+            string += information + "\n"
+        return string
 
     # if the department metadata is found return it, else return ''
     def check_web_author_groups(self, groups, program_elements):
