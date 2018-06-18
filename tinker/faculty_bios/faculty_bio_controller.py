@@ -275,8 +275,11 @@ class FacultyBioController(TinkerController):
     def wysiwyg_inner_text(self, child, path_tail):
         string = ""
         for information in child.find('.//add-to-bio/' + str(path_tail)).itertext():
-            string += information + "\n"
-        return string
+            string += information.rstrip()
+            string = string.rstrip()
+            string += '\n'
+        string = string.lstrip()
+        return string.rstrip()
 
     # if the department metadata is found return it, else return ''
     def check_web_author_groups(self, groups, program_elements):
