@@ -147,44 +147,25 @@ class FacultyBioController(TinkerController):
 
     def csv_file(self, child):
 
-        #         #
-        #         # # This is the initial dictionary of what will be returned
-        #         # page_values = {
-        #         #
-        #         #     'first': child.find('.//first').text or "",
-        #         #     'last': child.find('.//last').text or "",
-        #         #     'author': author_text,
-        #         #     'location': soup.find('faculty_location').text,
-        #         #     'highlight': soup.find('highlight').text,
-        #         #     'job-titles': soup.find('job-titles').text,
-        #         #     'email': soup.find('email').text,
-        #         #     'started-at-bethel': soup.find('started-at-bethel').text,
-        #         #     'education': soup.find('education').text,
-        #         #     'biography': biography,
-        #         #     'courses': courses,
-        #         #     'awards': awards,
-        #         #     'publications': publications,
-        #         #     'presentations': presentations,
-        #         #     'certificates': certificates,
-        #         #     'organizations': organizations,
-        #         #     'hobbies': hobbies,
-        #         #     'areas': soup.find('areas').text,
-        #         #     'research-interests': soup.find('research-interests').text,
-        #         #     'teaching-specialty': soup.find('teaching-specialty').text,
-        #         #     'quote': soup.find('quote').text,
-        #         #     'website': soup.find('website').text
-        #         # }
-        #         # # Add all the job-titles and education dictionaries to the main dictionary being returned
-        #         # for dicts in my_list:
-        #         #     page_values.update(dicts)
-        #         # # Add the max_dict which holds both the maximum number of jobs and the maximum number of educations to
-        #         # # the main dictionary
-        #         # page_values.update(max_dict)
-
         page_values = {
             'first': child.find('.//first').text,
-            'last': child.find('.//last').text
+            'last': child.find('.//last').text,
+            'highlight': '',
+            'email': '',
+            'started-at-bethel': '',
+            'research-interests': 'research',
+            'areas': 'areas',
+            'teaching-specialty': 'teaching',
+            'quote': 'quote',
+            'website': 'website'
         }
+
+        if child.find('.//highlight').text is not None:
+            page_values['highlight'] = child.find('.//highlight').text
+        if child.find('.//email').text is not None:
+            page_values['email'] = child.find('.//email').text
+        if child.find('.//started-at-bethel').text is not None:
+            page_values['started-at-bethel'] = child.find('.//started-at-bethel').text
 
         max_jobs = 0
         # print child.find('author').text
@@ -251,6 +232,7 @@ class FacultyBioController(TinkerController):
 
         page_values['max-edu'] = max_edu
 
+        # Checks to make sure there is data in each "path" else sets data to empty string so type is string and not None
         if str(child.find('author')) == 'None':
             page_values['author'] = ""
         else:
@@ -263,53 +245,22 @@ class FacultyBioController(TinkerController):
                 location += sics.text + '\n'
             page_values['location'] = location
 
-        page_values['biography'] = self.xml_inner_text(child, 'biography')
+        # Call method to get all the inner text of the wysiwyg's and add them to the dictionary
+        page_values['biography'] = self.wysiwyg_inner_text(child, 'biography')
+        page_values['biography'] = self.wysiwyg_inner_text(child, 'biography')
+        page_values['courses'] = self.wysiwyg_inner_text(child, 'courses')
+        page_values['awards'] = self.wysiwyg_inner_text(child, 'awards')
+        page_values['publications'] = self.wysiwyg_inner_text(child, 'publications')
+        page_values['presentations'] = self.wysiwyg_inner_text(child, 'presentations')
+        page_values['certificates'] = self.wysiwyg_inner_text(child, 'certificates')
+        page_values['organizations'] = self.wysiwyg_inner_text(child, 'organizations')
+        page_values['hobbies'] = self.wysiwyg_inner_text(child, 'hobbies')
 
-        page_values['biography'] = self.xml_inner_text(child, 'biography')
-
-        page_values['courses'] = self.xml_inner_text(child, 'courses')
-
-        page_values['awards'] = self.xml_inner_text(child, 'awards')
-
-        page_values['publications'] = self.xml_inner_text(child, 'publications')
-
-        page_values['presentations'] = self.xml_inner_text(child, 'presentations')
-
-        page_values['certificates'] = self.xml_inner_text(child, 'certificates')
-
-        page_values['organizations'] = self.xml_inner_text(child, 'organizations')
-
-        page_values['hobbies'] = self.xml_inner_text(child, 'hobbies')
-
-        # print "--"
-        # page_values = {
-        #     'first': child.find('.//first').text,
-        #     'last': child.find('.//last').text,
-        #     'author': author,
-        #     'location': location,
-        #     # 'highlight': child.find('.//highlight').text or "",
-        #     # 'job-titles': child.find('job-titles').text,
-        #     # 'email': child.find('.//email').text or "",
-        #     # 'started-at-bethel': child.find('.//started-at-bethel').text or "",
-        #     # 'education': child.find('education'),
-        #     # 'biography': biography,
-        #     # 'biography': child.find('.//add-to-bio/biography/').text or "",
-        #     # 'courses': child.find('.//add-to-bio/courses/').text or "",
-        #     # 'awards': child.find('.//add-to-bio/awards/').text or "",
-        #     # 'publications': child.find('.//add-to-bio/publications/').text or "",
-        #     # 'certificates': child.find('.//add-to-bio/certificates/').text or "",
-        #     # 'organizations': child.find('.//add-to-bio/organizations/').text or "",
-        #     # 'hobbies': child.find('.//add-to-bio/hobbies/').text or "",
-        #     # 'areas': child.find('.//add-to-bio/areas/').text or "",
-        #     # 'research-interests': child.find('.//add-to-bio/research-interests/').text or "",
-        #     # 'teaching-specialty': child.find('.//add-to-bio/teaching-specialty/').text or "",
-        #     # 'quote': child.find('.//add-to-bio/quote/').text or "",
-        #     # 'website': child.find('.//add-to-bio/website/').text or ""
-        #     }
-
+        # return the dictionary
         return page_values
 
-    def xml_inner_text(self, child, path_tail):
+    # A method used to extract all the inner text from the wysiwyg's
+    def wysiwyg_inner_text(self, child, path_tail):
         string = ""
         for information in child.find('.//add-to-bio/' + str(path_tail)).itertext():
             string += information + "\n"
