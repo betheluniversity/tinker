@@ -160,29 +160,14 @@ class FacultyBioController(TinkerController):
         }
 
         # Checks if there is data in each field, if not puts in an empty string
-        if child.find('.//highlight').text is not None:
-            page_values['highlight'] = child.find('.//highlight').text
-        if child.find('.//email').text is not None:
-            page_values['email'] = child.find('.//email').text
-        if child.find('.//started-at-bethel').text is not None:
-            page_values['started-at-bethel'] = child.find('.//started-at-bethel').text
-        if child.find('.//add-to-bio/research-interests').text is not None:
-            page_values['research-interests'] = child.find('.//add-to-bio/research-interests').text
-        if child.find('.//add-to-bio/areas').text is not None:
-            page_values['areas'] = child.find('.//add-to-bio/areas').text
-        if child.find('.//add-to-bio/teaching-specialty').text is not None:
-            page_values['teaching-specialty'] = child.find('.//add-to-bio/teaching-specialty').text
-        if child.find('.//add-to-bio/quote').text is not None:
-            page_values['quote'] = child.find('.//add-to-bio/quote').text
-        if child.find('.//add-to-bio/website').text is not None:
-            page_values['website'] = child.find('.//add-to-bio/website').text
-
-            # # Checks the location of each faculty and adds them to the same string if there are multiple locations
-            # if child.find('.//faculty_location/value') is not None:
-            #     location = ""
-            #     for values in child.iterfind('.//faculty_location/value'):
-            #         location += values.text + '\n'
-            #     page_values['location'] = location.rstrip()
+        page_values['highlight'] = self.get_faculty_data(child, 'highlight')
+        page_values['email'] = self.get_faculty_data(child, 'email')
+        page_values['started-at-bethel'] = self.get_faculty_data(child, 'started-at-bethel')
+        page_values['research-interests'] = self.get_faculty_data(child, 'add-to-bio/research-interests')
+        page_values['areas'] = self.get_faculty_data(child, 'add-to-bio/areas')
+        page_values['teaching-specialty'] = self.get_faculty_data(child, 'add-to-bio/teaching-specialty')
+        page_values['quote'] = self.get_faculty_data(child, 'add-to-bio/quote')
+        page_values['website'] = self.get_faculty_data(child, 'add-to-bio/website')
 
         # Iterates through all the job fields and adds it to the dictionary on the fly
         max_jobs = 0
@@ -261,7 +246,7 @@ class FacultyBioController(TinkerController):
             location = ""
             for values in child.iterfind('.//faculty_location/value'):
                 location += values.text + '\n'
-            page_values['location'] = location
+            page_values['location'] = location.rstrip()
 
         # Call method to get all the inner text of the wysiwyg's and add them to the dictionary
         page_values['biography'] = self.wysiwyg_inner_text(child, 'biography')
@@ -286,6 +271,13 @@ class FacultyBioController(TinkerController):
             string += '\n'
         string = string.lstrip()
         return string.rstrip()
+
+    def get_faculty_data(self, child, path_tail):
+        string = child.find('.//' + str(path_tail)).text
+        if string is None:
+            return ''
+        else:
+            return string
 
     # if the department metadata is found return it, else return ''
     def check_web_author_groups(self, groups, program_elements):
