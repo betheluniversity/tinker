@@ -147,6 +147,7 @@ class FacultyBioController(TinkerController):
 
     def csv_file(self, child):
 
+
         #         #
         #         # # This is the initial dictionary of what will be returned
         #         # page_values = {
@@ -187,13 +188,14 @@ class FacultyBioController(TinkerController):
         }
 
         max_jobs = 0
+        # print child.find('author').text
         for jobs in child.iterfind('.//job-titles'):
             max_jobs += 1
-            if jobs.find('school').text == 'None':
+            if str(jobs.find('school').text) == 'None':
                 school = ""
             else:
                 school = jobs.find('school').text
-            if jobs.find('job_title').text == 'None':
+            if str(jobs.find('job_title').text) == 'None':
                 job_title = ""
             else:
                 job_title = jobs.find('job_title').text
@@ -204,27 +206,31 @@ class FacultyBioController(TinkerController):
             if school == 'Bethel University':
                 page_values['department' + str(max_jobs)] = department
             elif school == 'College of Arts and Sciences':
-                if jobs.find('department').text != 'None':
+                if str(jobs.find('department').text) != 'None':
                     page_values['department' + str(max_jobs)] = jobs.find('department').text
-                if jobs.find('department-chair') != "None" and jobs.find('department-chair').text == 'Yes':
-                    page_values['job_title' + str(max_jobs)] = 'Department Chair'
+                if str(jobs.find('department-chair').text) != "None":
+                    if jobs.find('department-chair').text == 'Yes':
+                        page_values['job_title' + str(max_jobs)] = 'Department Chair'
             elif school == 'College of Adult and Professional Studies':
-                if jobs.find('adult-undergrad-program').text != 'None':
+                if str(jobs.find('adult-undergrad-program').text) != 'None':
                     page_values['department' + str(max_jobs)] = jobs.find('adult-undergrad-program').text
-                if jobs.find('program-director').text != 'None' and jobs.find('program-director').text == 'Yes':
-                    page_values['job_title' + str(max_jobs)] = 'Program Director'
+                if str(jobs.find('program-director').text) != 'None':
+                    if jobs.find('program-director').text == 'Yes':
+                        page_values['job_title' + str(max_jobs)] = 'Program Director'
             elif school == 'Graduate School':
-                if jobs.find('graduate-program').text != 'None':
+                if str(jobs.find('graduate-program').text) != 'None':
                     page_values['department' + str(max_jobs)] = jobs.find('graduate-program').text
-                if jobs.find('program-director').text != 'None' and jobs.find('program-director').text == 'Yes':
-                    page_values['job_title' + str(max_jobs)] = 'Program Director'
+                if str(jobs.find('program-director').text) != 'None':
+                    if jobs.find('program-director').text == 'Yes':
+                        page_values['job_title' + str(max_jobs)] = 'Program Director'
             elif school == 'Bethel Seminary':
-                if jobs.find('seminary-program').text != 'None':
+                if str(jobs.find('seminary-program').text) != 'None':
                     page_values['department' + str(max_jobs)] = jobs.find('seminary-program').text
-                if jobs.find('program-director').text != 'None':
+                if str(jobs.find('program-director').text) != 'None':
                     if jobs.find('program-director').text == "Yes":
                         page_values['job_title' + str(max_jobs)] = 'Program Director'
-                    elif jobs.find('lead-faculty').text != 'None' and jobs.find('lead-faculty').text != "Other":
+                    elif str(jobs.find('lead-faculty').text) != 'None':
+                        if jobs.find('lead-faculty').text != "Other":
                             page_values['job_title' + str(max_jobs)] = jobs.find('lead-faculty').text
             else:
                 page_values['school' + str(max_jobs)] = ""
@@ -235,18 +241,32 @@ class FacultyBioController(TinkerController):
 
         # max_edu will hold the maximum number of jobs someone has
         max_edu = 0
-        for edus in child.iterfind('.//education'):
-            print edus.text
+        for edu in child.iterfind('.//education'):
             max_edu += 1
-            page_values['school-edu' + str(max_edu)] = edus.find('school').text
-            page_values['degree-earned' + str(max_edu)] = edus.find('degree-earned').text
-            page_values['year' + str(max_edu)] = edus.find('year').text
-            if edus.find('school').text == 'None':
-                page_values['school-edu' + str(max_edu)] = ""
-            if edus.find('degree-earned').text == 'None':
+            print edu.find('school').text
+            page_values['school-edu' + str(max_edu)] = edu.find('school').text
+            page_values['degree-earned' + str(max_edu)] = edu.find('degree-earned').text
+            page_values['year' + str(max_edu)] = edu.find('year').text
+            # if edu.find('school').text == 'None':
+                # page_values['school-edu' + str(max_edu)] = ""
+            if str(edu.find('degree-earned').text) == 'None':
                 page_values['degree-earned' + str(max_edu)] = ""
-            if edus.find('year').text == 'None':
+            if str(edu.find('year').text) == 'None':
                 page_values['year' + str(max_edu)] = ""
+
+
+            # # print edu.find('school').text
+            # page_values['school-edu' + str(max_edu)] = edu.find('school').text.encode('utf8')
+            # page_values['degree-earned' + str(max_edu)] = edu.find('degree-earned').text.encode('utf8')
+            # page_values['year' + str(max_edu)] = edu.find('year').text.encode('utf8')
+            # if edu.find('school').text == 'None':
+            #     page_values['school-edu' + str(max_edu)] = ""
+            # if edu.find('degree-earned').text == 'None':
+            #     page_values['degree-earned' + str(max_edu)] = ""
+            # if edu.find('year').text == 'None':
+            #     page_values['year' + str(max_edu)] = ""
+            # print type(page_values['school-edu' + str(max_edu)])
+
 
         page_values['max-edu'] = max_edu
 

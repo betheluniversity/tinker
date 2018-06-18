@@ -253,18 +253,18 @@ class FacultyBiosView(FlaskView):
                 my_list.append('Job Title-Department ' + str(i))
             #
             # my_list.extend(['Email', 'Started at Bethel in'])
-            #
+
             # Creates max_edu spaces for educations and adds them to the list
             for j in range(1, max_edu + 1):
                 my_list.append('Degree-Earned ' + str(j))
                 my_list.append('Degree-School ' + str(j))
                 my_list.append('Degree-Year ' + str(j))
-            #
-            # # Adds the remaining column headers to the list
-            # my_list.extend(['Biography', 'Courses Taught', 'Awards', 'Publications', 'Presentations',
-            #                 'Certificates and licenses', 'Professional Organizations, Committees, and Boards',
-            #                 'Hobbies and interests', 'Areas of expertise', 'Research interests', 'Teaching specialty',
-            #                 'Quote', 'Professional website or blog'])
+
+            # Adds the remaining column headers to the list
+            my_list.extend(['Biography', 'Courses Taught', 'Awards', 'Publications', 'Presentations',
+                            'Certificates and licenses', 'Professional Organizations, Committees, and Boards',
+                            'Hobbies and interests', 'Areas of expertise', 'Research interests', 'Teaching specialty',
+                            'Quote', 'Professional website or blog'])
 
             # # Writes the "header" of the csv file signify what data is held in that column
             filewriter.writerow(my_list)
@@ -293,8 +293,7 @@ class FacultyBiosView(FlaskView):
 
                 for j in range(1, max_edu + 1):
                     if ('school-edu' + str(j)) in data.keys():
-                        # edu_school = unidecode(str(data['school-edu' + str(j)]))
-                        edu_school = ""
+                        edu_school = unidecode(str(data['school-edu' + str(j)]))
                         degree_earned = unidecode(str(data['degree-earned' + str(j)]))
                         year = unidecode(str(data['year' + str(j)]))
                     else:
