@@ -221,6 +221,7 @@ class FacultyBiosView(FlaskView):
     @route("/faculty-bio-csv")
     def get_faculty_bio_csv(self):
 
+        # Checks permissions to view/access route
         if 'Administrators' not in session['groups'] or 'Tinker Faculty Bios - Admin' not in session['groups']:
             abort(403)
 
@@ -304,8 +305,7 @@ class FacultyBiosView(FlaskView):
                                  unidecode(data['certificates']), unidecode(data['organizations']),
                                  unidecode(data['hobbies']), unidecode(data['areas']),
                                  unidecode(data['research-interests']), unidecode(data['teaching-specialty']),
-                                 unidecode(data['quote']), unidecode(data['website'])
-                                 ])
+                                 unidecode(data['quote']), unidecode(data['website'])])
 
                 # Writes each faculty a row of data
                 filewriter.writerow(row_list)
