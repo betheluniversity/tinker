@@ -125,9 +125,7 @@ class FacultyBioController(TinkerController):
             for school in child.findall('.//job-titles/school'):
                 school_array.append(school.text or 'Other')
             if csv:
-
                 return self.csv_file(child)
-
             else:
                 page_values = {
                     'author': child.find('author') or None,
@@ -179,18 +177,25 @@ class FacultyBioController(TinkerController):
         if child.find('.//add-to-bio/website').text is not None:
             page_values['website'] = child.find('.//add-to-bio/website').text
 
+            # # Checks the location of each faculty and adds them to the same string if there are multiple locations
+            # if child.find('.//faculty_location/value') is not None:
+            #     location = ""
+            #     for values in child.iterfind('.//faculty_location/value'):
+            #         location += values.text + '\n'
+            #     page_values['location'] = location.rstrip()
+
         # Iterates through all the job fields and adds it to the dictionary on the fly
         max_jobs = 0
         for jobs in child.iterfind('.//job-titles'):
             max_jobs += 1
-            if str(jobs.find('school').text) == 'None':
-                school = ""
+            if jobs.find('school').text is not None:
+                school = jobs.find('school').text
             else:
                 school = jobs.find('school').text
-            if str(jobs.find('job_title').text) == 'None':
-                job_title = ""
-            else:
+            if jobs.find('job_title').text is not None:
                 job_title = jobs.find('job_title').text
+            else:
+                job_title = ""
             department = ""
             page_values['school' + str(max_jobs)] = school
             page_values['job_title' + str(max_jobs)] = job_title
@@ -249,12 +254,13 @@ class FacultyBioController(TinkerController):
             page_values['author'] = ""
         else:
             page_values['author'] = child.find('author').text
+
         if str(child.find('.//faculty_location/value')) == 'None':
             page_values['location'] = ""
         else:
             location = ""
-            for sics in child.iterfind('.//faculty_location/value'):
-                location += sics.text + '\n'
+            for values in child.iterfind('.//faculty_location/value'):
+                location += values.text + '\n'
             page_values['location'] = location
 
         # Call method to get all the inner text of the wysiwyg's and add them to the dictionary
@@ -275,7 +281,7 @@ class FacultyBioController(TinkerController):
     def wysiwyg_inner_text(self, child, path_tail):
         string = ""
         for information in child.find('.//add-to-bio/' + str(path_tail)).itertext():
-            string += information.rstrip()
+            string += information
             string = string.rstrip()
             string += '\n'
         string = string.lstrip()

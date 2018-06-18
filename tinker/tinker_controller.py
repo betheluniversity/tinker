@@ -385,10 +385,10 @@ class TinkerController(object):
 
         # Todo: maybe add some parameter as a search?
         # sort by created-on date unless we are exporting csv, then sort by last name
-        if not csv:
-            matches = sorted(matches, key=lambda k: k['created-on'])
-        else:
+        if csv:
             matches = sorted(matches, key=lambda k: k['last'])
+        else:
+            matches = sorted(matches, key=lambda k: k['created-on'])
 
         return matches
 
