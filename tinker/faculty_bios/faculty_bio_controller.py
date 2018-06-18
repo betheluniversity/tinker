@@ -11,7 +11,7 @@ from flask import session
 # Local
 from tinker import app
 from tinker.tinker_controller import TinkerController
-from BeautifulSoup import BeautifulSoup
+from unidecode import unidecode
 import re
 
 
@@ -243,12 +243,11 @@ class FacultyBioController(TinkerController):
         max_edu = 0
         for edu in child.iterfind('.//education'):
             max_edu += 1
-            print edu.find('school').text
-            page_values['school-edu' + str(max_edu)] = edu.find('school').text
+            page_values['school-edu' + str(max_edu)] = unidecode(edu.find('school').text)
             page_values['degree-earned' + str(max_edu)] = edu.find('degree-earned').text
             page_values['year' + str(max_edu)] = edu.find('year').text
-            # if edu.find('school').text == 'None':
-                # page_values['school-edu' + str(max_edu)] = ""
+            if edu.find('school').text == 'None':
+                page_values['school-edu' + str(max_edu)] = ""
             if str(edu.find('degree-earned').text) == 'None':
                 page_values['degree-earned' + str(max_edu)] = ""
             if str(edu.find('year').text) == 'None':
@@ -266,7 +265,6 @@ class FacultyBioController(TinkerController):
             # if edu.find('year').text == 'None':
             #     page_values['year' + str(max_edu)] = ""
             # print type(page_values['school-edu' + str(max_edu)])
-
 
         page_values['max-edu'] = max_edu
 
