@@ -243,28 +243,18 @@ class FacultyBioController(TinkerController):
         max_edu = 0
         for edu in child.iterfind('.//education'):
             max_edu += 1
-            page_values['school-edu' + str(max_edu)] = unidecode(edu.find('school').text)
+            # still needs work
+            school = edu.find('school').text
             page_values['degree-earned' + str(max_edu)] = edu.find('degree-earned').text
             page_values['year' + str(max_edu)] = edu.find('year').text
-            if edu.find('school').text == 'None':
-                page_values['school-edu' + str(max_edu)] = ""
+            # print edu.find('school')
+            if school is None:
+                school = ""
             if str(edu.find('degree-earned').text) == 'None':
                 page_values['degree-earned' + str(max_edu)] = ""
             if str(edu.find('year').text) == 'None':
                 page_values['year' + str(max_edu)] = ""
-
-
-            # # print edu.find('school').text
-            # page_values['school-edu' + str(max_edu)] = edu.find('school').text.encode('utf8')
-            # page_values['degree-earned' + str(max_edu)] = edu.find('degree-earned').text.encode('utf8')
-            # page_values['year' + str(max_edu)] = edu.find('year').text.encode('utf8')
-            # if edu.find('school').text == 'None':
-            #     page_values['school-edu' + str(max_edu)] = ""
-            # if edu.find('degree-earned').text == 'None':
-            #     page_values['degree-earned' + str(max_edu)] = ""
-            # if edu.find('year').text == 'None':
-            #     page_values['year' + str(max_edu)] = ""
-            # print type(page_values['school-edu' + str(max_edu)])
+            page_values['school-edu' + str(max_edu)] = unidecode(school)
 
         page_values['max-edu'] = max_edu
 
@@ -279,11 +269,10 @@ class FacultyBioController(TinkerController):
             for sics in child.iterfind('.//faculty_location/value'):
                 location += sics.text + '\n'
             page_values['location'] = location
-        if str(child.find('.//add-to-bio/biography/')) == 'None':
-            biography = ""
-        else:
-            biography = "something"
-            # biography = child.find('.//add-to-bio/biography//*')
+        # if str(child.find('.//add-to-bio/biography//')) == 'None':
+        #     page_values['biography'] = ""
+        # else:
+        #     page_values['biography'] = unidecode(child.find('.//add-to-bio/biography//').text)
         # print "--"
         # page_values = {
         #     'first': child.find('.//first').text,
