@@ -145,8 +145,8 @@ class FacultyBioController(TinkerController):
     def csv_file(self, child):
         # Initial dictionary values
         page_values = {
-            'first': child.find('.//first').text,
-            'last': child.find('.//last').text,
+            'first': self.get_faculty_data(child, 'first'),
+            'last': self.get_faculty_data(child, 'last'),
             'highlight': self.get_faculty_data(child, 'highlight'),
             'email': self.get_faculty_data(child, 'email'),
             'started-at-bethel': self.get_faculty_data(child, 'started-at-bethel'),
@@ -172,6 +172,7 @@ class FacultyBioController(TinkerController):
         else:
             page_values['author'] = child.find('author').text
 
+        # Checks to see if there are multiple values for the faculty location field
         if str(child.find('.//faculty_location/value')) != 'None':
             location = ""
             for values in child.iterfind('.//faculty_location/value'):
