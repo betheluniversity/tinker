@@ -144,90 +144,21 @@ class FacultyBioController(TinkerController):
             return None
 
     def csv_file(self, child):
-
         # Initial dictionary values
         page_values = {
             'first': child.find('.//first').text,
             'last': child.find('.//last').text,
-            'highlight': '',
-            'email': '',
-            'started-at-bethel': '',
-            'research-interests': '',
-            'areas': '',
-            'teaching-specialty': '',
-            'quote': '',
-            'website': ''
+            'highlight': self.get_faculty_data(child, 'highlight'),
+            'email': self.get_faculty_data(child, 'email'),
+            'started-at-bethel': self.get_faculty_data(child, 'started-at-bethel'),
+            'research-interests': self.get_faculty_data(child, 'add-to-bio/research-interests'),
+            'areas': self.get_faculty_data(child, 'add-to-bio/areas'),
+            'teaching-specialty': self.get_faculty_data(child, 'add-to-bio/teaching-specialty'),
+            'quote': self.get_faculty_data(child, 'add-to-bio/quote'),
+            'website': self.get_faculty_data(child, 'add-to-bio/website')
         }
 
-        # Checks if there is data in each field, if not puts in an empty string
-        page_values['highlight'] = self.get_faculty_data(child, 'highlight')
-        page_values['email'] = self.get_faculty_data(child, 'email')
-        page_values['started-at-bethel'] = self.get_faculty_data(child, 'started-at-bethel')
-        page_values['research-interests'] = self.get_faculty_data(child, 'add-to-bio/research-interests')
-        page_values['areas'] = self.get_faculty_data(child, 'add-to-bio/areas')
-        page_values['teaching-specialty'] = self.get_faculty_data(child, 'add-to-bio/teaching-specialty')
-        page_values['quote'] = self.get_faculty_data(child, 'add-to-bio/quote')
-        page_values['website'] = self.get_faculty_data(child, 'add-to-bio/website')
-
-        # Iterates through all the job fields and adds it to the dictionary on the fly
-        max_jobs = 0
-        for jobs in child.iterfind('.//job-titles'):
-            max_jobs += 1
-            if jobs.find('school').text is not None:
-                school = jobs.find('school').text
-            else:
-                school = jobs.find('school').text
-            if jobs.find('job_title').text is not None:
-                job_title = jobs.find('job_title').text
-            else:
-                job_title = ""
-            department = ""
-            page_values['school' + str(max_jobs)] = school
-            page_values['job_title' + str(max_jobs)] = job_title
-            page_values['department' + str(max_jobs)] = department
-            if school == 'Bethel University':
-                page_values['department' + str(max_jobs)] = department
-            elif school == 'College of Arts and Sciences':
-                if str(jobs.find('department').text) != 'None':
-                    page_values['department' + str(max_jobs)] = jobs.find('department').text
-                if str(jobs.find('department-chair').text) != "None" and jobs.find('department-chair').text == 'Yes':
-                    page_values['job_title' + str(max_jobs)] = 'Department Chair'
-            elif school == 'College of Adult and Professional Studies':
-                if str(jobs.find('adult-undergrad-program').text) != 'None':
-                    page_values['department' + str(max_jobs)] = jobs.find('adult-undergrad-program').text
-                if str(jobs.find('program-director').text) != 'None' and jobs.find('program-director').text == 'Yes':
-                    page_values['job_title' + str(max_jobs)] = 'Program Director'
-            elif school == 'Graduate School':
-                if str(jobs.find('graduate-program').text) != 'None':
-                    page_values['department' + str(max_jobs)] = jobs.find('graduate-program').text
-                if str(jobs.find('program-director').text) != 'None' and jobs.find('program-director').text == 'Yes':
-                    page_values['job_title' + str(max_jobs)] = 'Program Director'
-            elif school == 'Bethel Seminary':
-                if str(jobs.find('seminary-program').text) != 'None':
-                    page_values['department' + str(max_jobs)] = jobs.find('seminary-program').text
-                if str(jobs.find('program-director').text) != 'None':
-                    if jobs.find('program-director').text == "Yes":
-                        page_values['job_title' + str(max_jobs)] = 'Program Director'
-                    elif str(jobs.find('lead-faculty').text) != 'None' and jobs.find('lead-faculty').text != "Other":
-                        page_values['job_title' + str(max_jobs)] = jobs.find('lead-faculty').text
-            else:
-                page_values['school' + str(max_jobs)] = ""
-                page_values['department' + str(max_jobs)] = ""
-                page_values['job_title' + str(max_jobs)] = ""
-
-        page_values['max-jobs'] = max_jobs
-
-        # Iterates through all the education fields and adds it to the dictionary on the fly
-        max_edu = 0
-        for edu in child.iterfind('.//education'):
-            max_edu += 1
-            page_values['school-edu' + str(max_edu)] = unidecode(self.get_faculty_data(edu, 'school'))
-            page_values['degree-earned' + str(max_edu)] = self.get_faculty_data(edu, 'degree-earned')
-            page_values['year' + str(max_edu)] = self.get_faculty_data(edu, 'year')
-
-        page_values['max-edu'] = max_edu
-
-        # Checks to make sure there is data in each "path" else sets data to empty string so type is string and not None
+        # Checks to make sure there is an author if not sets author to an empty string
         if str(child.find('author')) == 'None':
             page_values['author'] = ""
         else:
@@ -251,6 +182,52 @@ class FacultyBioController(TinkerController):
         page_values['certificates'] = self.wysiwyg_inner_text(child, 'add-to-bio/certificates')
         page_values['organizations'] = self.wysiwyg_inner_text(child, 'add-to-bio/organizations')
         page_values['hobbies'] = self.wysiwyg_inner_text(child, 'add-to-bio/hobbies')
+
+        # Iterates through all the job fields and adds it to the dictionary on the fly
+        max_jobs = 0
+        for jobs in child.iterfind('.//job-titles'):
+            max_jobs += 1
+            school = self.get_faculty_data(jobs, 'school')
+            page_values['school' + str(max_jobs)] = school
+            page_values['job_title' + str(max_jobs)] = self.get_faculty_data(jobs, 'job_title')
+            page_values['department' + str(max_jobs)] = ""
+            if school == 'College of Arts and Sciences':
+                page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'department')
+                if str(jobs.find('department-chair').text) != "None" and jobs.find('department-chair').text == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Department Chair'
+            elif school == 'College of Adult and Professional Studies':
+                page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'adult-undergrad-program')
+                if str(jobs.find('program-director').text) != 'None' and jobs.find('program-director').text == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Program Director'
+            elif school == 'Graduate School':
+                page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'graduate-program')
+                if str(jobs.find('program-director').text) != 'None' and jobs.find('program-director').text == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Program Director'
+            elif school == 'Bethel Seminary':
+                page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'seminary-program')
+                if str(jobs.find('program-director').text) != 'None':
+                    if jobs.find('program-director').text == "Yes":
+                        page_values['job_title' + str(max_jobs)] = 'Program Director'
+                    elif str(jobs.find('lead-faculty').text) != 'None' and jobs.find('lead-faculty').text != "Other":
+                        page_values['job_title' + str(max_jobs)] = jobs.find('lead-faculty').text
+            elif school == 'Bethel University':
+                pass
+            else:
+                page_values['school' + str(max_jobs)] = ""
+                page_values['job_title' + str(max_jobs)] = ""
+                page_values['department' + str(max_jobs)] = ""
+
+        page_values['max-jobs'] = max_jobs
+
+        # Iterates through all the education fields and adds it to the dictionary on the fly
+        max_edu = 0
+        for edu in child.iterfind('.//education'):
+            max_edu += 1
+            page_values['school-edu' + str(max_edu)] = unidecode(self.get_faculty_data(edu, 'school'))
+            page_values['degree-earned' + str(max_edu)] = self.get_faculty_data(edu, 'degree-earned')
+            page_values['year' + str(max_edu)] = self.get_faculty_data(edu, 'year')
+
+        page_values['max-edu'] = max_edu
 
         # return the dictionary
         return page_values
