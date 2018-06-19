@@ -12,7 +12,6 @@ from flask import session
 from tinker import app
 from tinker.tinker_controller import TinkerController
 from unidecode import unidecode
-import re
 
 
 class FacultyBioController(TinkerController):
