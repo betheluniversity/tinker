@@ -150,6 +150,15 @@ class FacultyBioController(TinkerController):
             'highlight': self.get_faculty_data(child, 'highlight'),
             'email': self.get_faculty_data(child, 'email'),
             'started-at-bethel': self.get_faculty_data(child, 'started-at-bethel'),
+            'location': '',
+            'biography': self.wysiwyg_inner_text(child, 'add-to-bio/biography'),
+            'courses': self.wysiwyg_inner_text(child, 'add-to-bio/courses'),
+            'awards': self.wysiwyg_inner_text(child, 'add-to-bio/awards'),
+            'publications': self.wysiwyg_inner_text(child, 'add-to-bio/publications'),
+            'presentations': self.wysiwyg_inner_text(child, 'add-to-bio/presentations'),
+            'certificates': self.wysiwyg_inner_text(child, 'add-to-bio/certificates'),
+            'organizations': self.wysiwyg_inner_text(child, 'add-to-bio/organizations'),
+            'hobbies': self.wysiwyg_inner_text(child, 'add-to-bio/hobbies'),
             'research-interests': self.get_faculty_data(child, 'add-to-bio/research-interests'),
             'areas': self.get_faculty_data(child, 'add-to-bio/areas'),
             'teaching-specialty': self.get_faculty_data(child, 'add-to-bio/teaching-specialty'),
@@ -163,24 +172,11 @@ class FacultyBioController(TinkerController):
         else:
             page_values['author'] = child.find('author').text
 
-        if str(child.find('.//faculty_location/value')) == 'None':
-            page_values['location'] = ""
-        else:
+        if str(child.find('.//faculty_location/value')) != 'None':
             location = ""
             for values in child.iterfind('.//faculty_location/value'):
                 location += values.text + '\n'
             page_values['location'] = location.rstrip()
-
-        # Call method to get all the inner text of the wysiwyg's and add them to the dictionary
-        page_values['biography'] = self.wysiwyg_inner_text(child, 'add-to-bio/biography')
-        page_values['biography'] = self.wysiwyg_inner_text(child, 'add-to-bio/biography')
-        page_values['courses'] = self.wysiwyg_inner_text(child, 'add-to-bio/courses')
-        page_values['awards'] = self.wysiwyg_inner_text(child, 'add-to-bio/awards')
-        page_values['publications'] = self.wysiwyg_inner_text(child, 'add-to-bio/publications')
-        page_values['presentations'] = self.wysiwyg_inner_text(child, 'add-to-bio/presentations')
-        page_values['certificates'] = self.wysiwyg_inner_text(child, 'add-to-bio/certificates')
-        page_values['organizations'] = self.wysiwyg_inner_text(child, 'add-to-bio/organizations')
-        page_values['hobbies'] = self.wysiwyg_inner_text(child, 'add-to-bio/hobbies')
 
         # Iterates through all the job fields and adds it to the dictionary on the fly
         max_jobs = 0
@@ -208,12 +204,6 @@ class FacultyBioController(TinkerController):
                     page_values['job_title' + str(max_jobs)] = 'Program Director'
                 elif self.get_faculty_data(jobs, 'lead-faculty') != "Other":
                     page_values['job_title' + str(max_jobs)] = jobs.find('lead-faculty').text
-            elif school == 'Bethel University':
-                pass
-            else:
-                page_values['school' + str(max_jobs)] = ""
-                page_values['job_title' + str(max_jobs)] = ""
-                page_values['department' + str(max_jobs)] = ""
 
         page_values['max-jobs'] = max_jobs
 
