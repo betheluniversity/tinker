@@ -193,23 +193,22 @@ class FacultyBioController(TinkerController):
             page_values['department' + str(max_jobs)] = ""
             if school == 'College of Arts and Sciences':
                 page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'department')
-                if str(jobs.find('department-chair').text) != "None" and jobs.find('department-chair').text == 'Yes':
+                if self.get_faculty_data(jobs, 'department-chair') == 'Yes':
                     page_values['job_title' + str(max_jobs)] = 'Department Chair'
             elif school == 'College of Adult and Professional Studies':
                 page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'adult-undergrad-program')
-                if str(jobs.find('program-director').text) != 'None' and jobs.find('program-director').text == 'Yes':
+                if self.get_faculty_data(jobs, 'program-director') == 'Yes':
                     page_values['job_title' + str(max_jobs)] = 'Program Director'
             elif school == 'Graduate School':
                 page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'graduate-program')
-                if str(jobs.find('program-director').text) != 'None' and jobs.find('program-director').text == 'Yes':
+                if self.get_faculty_data(jobs, 'program-director') == 'Yes':
                     page_values['job_title' + str(max_jobs)] = 'Program Director'
             elif school == 'Bethel Seminary':
                 page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'seminary-program')
-                if str(jobs.find('program-director').text) != 'None':
-                    if jobs.find('program-director').text == "Yes":
-                        page_values['job_title' + str(max_jobs)] = 'Program Director'
-                    elif str(jobs.find('lead-faculty').text) != 'None' and jobs.find('lead-faculty').text != "Other":
-                        page_values['job_title' + str(max_jobs)] = jobs.find('lead-faculty').text
+                if self.get_faculty_data(jobs, 'program-director') == "Yes":
+                    page_values['job_title' + str(max_jobs)] = 'Program Director'
+                elif self.get_faculty_data(jobs, 'lead-faculty') != "Other":
+                    page_values['job_title' + str(max_jobs)] = jobs.find('lead-faculty').text
             elif school == 'Bethel University':
                 pass
             else:
