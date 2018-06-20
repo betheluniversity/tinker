@@ -388,17 +388,19 @@ class TinkerController(object):
                 if match:
                     matches.append(match)
 
-        for child in form_xml.findall('.//' + type_to_find):
-            match = self.inspect_child(child, find_all, csv)
-            if match:
-                matches.append(match)
+            for child in form_xml.findall('.//' + type_to_find):
+                match = self.inspect_child(child, find_all, csv)
+                if match:
+                    matches.append(match)
 
-        # Todo: maybe add some parameter as a search?
-        # sort by created-on date unless we are exporting csv, then sort by last name
-        if csv:
-            matches = sorted(matches, key=lambda k: k['last'])
-        else:
-            matches = sorted(matches, key=lambda k: k['created-on'])
+            # Todo: maybe add some parameter as a search?
+            # sort by created-on date unless we are exporting csv, then sort by last name
+            if csv:
+                matches = sorted(matches, key=lambda k: k['last'])
+            else:
+                matches = sorted(matches, key=lambda k: k['created-on'])
+
+            return matches
 
         return traverse_xml_cache(self, username, xml_url, type_to_find, find_all, csv)
 
