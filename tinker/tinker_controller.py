@@ -368,7 +368,7 @@ class TinkerController(object):
         # more detailed message to debug text log
         app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
-    def inspect_child(self, child, find_all):
+    def inspect_child(self, child, find_all, csv):
         # interface method
         pass
 
