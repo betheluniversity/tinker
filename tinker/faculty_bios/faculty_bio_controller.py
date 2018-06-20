@@ -226,11 +226,17 @@ class FacultyBioController(TinkerController):
         string = ""
         for information in child.find('.//' + str(path_tail)).itertext():
             string += information
+            # strings the newline character from the end of the new string (including the new information)
             string = string.rstrip()
+            # Adds a newline character so that the string isn't just a continuing line of text without spaces between
+            # new information
             string += '\n'
+        # strips the newline character from before any of the information
         string = string.lstrip()
+        # strips the string again so that there isn't any white lines between information
         return string.rstrip()
 
+    # A method used to check if the field is empty or not, if empty returns empty string, else returns the data.
     def get_faculty_data(self, child, path_tail):
         string = child.find('.//' + str(path_tail)).text
         if string is None:
