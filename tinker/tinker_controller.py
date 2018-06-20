@@ -377,16 +377,11 @@ class TinkerController(object):
 
         # Username is used for caching purposes
         @cache.memoize(timeout=300)
-        def traverse_xml_cache(self, username, xml_url, type_to_find, find_all, csv=False):
+        def traverse_xml_cache(self, username, xml_url, type_to_find, find_all, csv):
             response = requests.get(xml_url)
             form_xml = ET.fromstring(response.content)
 
             matches = []
-
-            for child in form_xml.findall('.//' + type_to_find):
-                match = self.inspect_child(child, find_all)
-                if match:
-                    matches.append(match)
 
             for child in form_xml.findall('.//' + type_to_find):
                 match = self.inspect_child(child, find_all, csv)
