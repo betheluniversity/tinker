@@ -1,10 +1,12 @@
 # Global
 import datetime
+import json
 
 from bu_cascade.asset_tools import find
 from createsend import Campaign, CreateSend
 from flask import abort, render_template, session
 from flask_classy import FlaskView, request, route
+from ordereddict import OrderedDict
 
 # Local
 from tinker import app, cache
@@ -26,11 +28,25 @@ class EAnnouncementsView(FlaskView):
     def index(self):
         username = session['username']
 
-        @cache.memoize(timeout=600)
+        # Username is needed for caching purposes
+        @cache.memoize(timeout=300)
         def index_cache(username):
             forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
 
             forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+
+            if 'Tinker E-Announcements - CAS' in session['groups'] or 'E-Announcement Approver' in session['groups']:
+                # The special admin view
+                all_schools = OrderedDict({
+                    1: 'My E-Announcements',
+                    2: 'All E-Announcements',
+                    3: 'Other E-Announcements'},
+                    key=lambda t: t[0]
+                )
+            else:
+                all_schools = OrderedDict({
+                    1: 'User E-Announcements'}
+                )
             return render_template('e-announcements/home.html', **locals())
         return index_cache(username)
 
@@ -318,3 +334,19 @@ class EAnnouncementsView(FlaskView):
                     get_title_and_message(form)
 
         return render_template("e-announcements/future-ajax.html", **locals())
+
+    # TODO e-announcements by role (someday)
+
+    @route("/search", methods=['POST'])
+    def search(self):
+        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        selection = data['selection']
+        title = data['title']
+        date = data['date']
+        try:
+            date = datetime.datetime.strptime(date, "%a %b %d %Y")
+        except:
+            date = 0
+        search_results, forms_header = self.base.get_search_results(selection, title, date)
+        search_results.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+        return render_template('e-announcements/results.html', **locals())

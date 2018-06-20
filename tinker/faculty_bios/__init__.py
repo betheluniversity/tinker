@@ -39,7 +39,8 @@ class FacultyBiosView(FlaskView):
     def index(self):
         username = session['username']
 
-        @cache.memoize(timeout=600)
+        # I removed cacheing, because it was taking too long for people to see the "activate/deactivate" changes - caleb
+        # @cache.memoize(timeout=600)
         def index_cache(username):
             roles = session['roles']
 

@@ -46,7 +46,9 @@ class EAnnouncementsController(TinkerController):
             author = child.find('author').text
             author = author.replace(' ', '').split(',')
         except AttributeError:
-            author = None
+            author = []
+        if author == []:
+            author = child.find('created-by').text
         username = session['username']
 
         if (author is not None and username in author) or 'E-Announcement Approver' in session['groups']:
@@ -131,7 +133,8 @@ class EAnnouncementsController(TinkerController):
         if e_announcement_id:
             add_data['id'] = e_announcement_id
 
-        # todo, revert this after 'name' in the Cascade data-def is changed so it doesn't conflict (then we don't have to call update_asset twice)
+        # todo, revert this after 'name' in the Cascade data-def is changed so it doesn't conflict
+        # todo, (then we don't have to call update_asset twice)
         # update asset
         self.update_asset(sdata, add_data)
         self.update_asset(e_announcement_data, add_data)
@@ -140,7 +143,8 @@ class EAnnouncementsController(TinkerController):
         # for some reason, title is not already set, so it must be set manually
         e_announcement_data['xhtmlDataDefinitionBlock']['metadata']['title'] = add_data['title']
 
-        # once all editing is done, move the asset is an edit. We do this in order to ensure the path and name are correct everytime.
+        # once all editing is done, move the asset is an edit.
+        # We do this in order to ensure the path and name are correct everytime.
         # We decided to leave this as a move instead of adding checks to see if it does or does not move.
         if e_announcement_id:
             self.move(e_announcement_id, add_data['parentFolderPath'], type='block')
@@ -176,3 +180,52 @@ class EAnnouncementsController(TinkerController):
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
         pass
+
+    def split_user_e_annz(self, forms):
+        user_forms = []
+        other_forms = []
+        for form in forms:
+            if form['author'] is not None and session['username'] in form['author']:
+                user_forms.append(form)
+            else:
+                other_forms.append(form)
+        return user_forms, other_forms
+
+    def get_search_results(self, selection, title, date):
+        announcements = self.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block')
+        if selection and '-'.join(selection) == '2':
+            e_annz_to_iterate = announcements
+            forms_header = "All E-Announcements"
+        else:
+            user_e_annz, other_e_annz = self.split_user_e_annz(announcements)
+            if selection and '-'.join(selection) == '1':
+                e_annz_to_iterate = user_e_annz
+                forms_header = "My E-Announcements"
+            else:
+                e_annz_to_iterate = other_e_annz
+                forms_header = "Other Events"
+        # Early return if no parameters to check in the search
+        if not title and not date:
+            return e_annz_to_iterate, forms_header
+
+        # to_return will hold all of the events that match the search criteria
+        to_return = []
+
+        both = title and date
+        for annz in e_annz_to_iterate:
+            title_matches = title and title.lower() in annz['title'].lower()
+            format_first_date = datetime.strptime(annz['first_date'], "%A %B %d, %Y")
+            format_second_date = None
+            if annz['second_date']:
+                format_second_date = datetime.strptime(annz['second_date'], "%A %B %d, %Y")
+            date_matches = date and (date == format_first_date or date == format_second_date)
+
+            # If title and date matches, add the announcement
+            if title_matches and date_matches:
+                to_return.append(annz)
+
+            # If title or date matches, add the announcement
+            if not both and (title_matches or date_matches):
+                to_return.append(annz)
+
+        return to_return, forms_header

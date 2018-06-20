@@ -32,7 +32,7 @@ from unidecode import unidecode
 from werkzeug.datastructures import ImmutableMultiDict
 
 # Local
-from tinker import app, cascade_connector, sentry
+from tinker import app, cascade_connector, sentry, cache
 
 
 class EncodingDict(object):
@@ -373,10 +373,20 @@ class TinkerController(object):
         pass
 
     def traverse_xml(self, xml_url, type_to_find, find_all=False, csv=False):
-        response = requests.get(xml_url)
-        form_xml = ET.fromstring(response.content)
+        username = session['username']
 
-        matches = []
+        # Username is used for caching purposes
+        @cache.memoize(timeout=300)
+        def traverse_xml_cache(self, username, xml_url, type_to_find, find_all, csv=False):
+            response = requests.get(xml_url)
+            form_xml = ET.fromstring(response.content)
+
+            matches = []
+
+            for child in form_xml.findall('.//' + type_to_find):
+                match = self.inspect_child(child, find_all)
+                if match:
+                    matches.append(match)
 
         for child in form_xml.findall('.//' + type_to_find):
             match = self.inspect_child(child, find_all, csv)
@@ -390,7 +400,7 @@ class TinkerController(object):
         else:
             matches = sorted(matches, key=lambda k: k['created-on'])
 
-        return matches
+        return traverse_xml_cache(self, username, xml_url, type_to_find, find_all, csv)
 
     # this function is necessary because we don't have python2.7 on the server (we use python2.6)
     def search_for_key_in_dynamic_md(self, block, key_to_find):
