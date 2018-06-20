@@ -223,7 +223,7 @@ class FacultyBiosView(FlaskView):
     def get_faculty_bio_csv(self):
 
         # Checks permissions to view/access route
-        if 'Administrators' not in session['groups'] and 'Tinker Faculty Bios - Admin' not in session['groups']:
+        if 'Administrators' not in session['groups'] or 'Tinker Faculty Bios - Admin' not in session['groups']:
             abort(403)
 
         # Traverses the xml file
