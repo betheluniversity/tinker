@@ -229,10 +229,12 @@ class FacultyBiosView(FlaskView):
         # Traverses the xml file
         info_form = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page', True, True)
 
-        self.base.log_sentry("--Test1--", '')
+        self.base.log_sentry("--Test1--", len(info_form))
 
         # Opens the xml file and signifies that we will write to it
         with open(app.config['INSTALL_LOCATION'] + '/faculty-info.csv', 'w+') as csvfile:
+
+
 
             filewriter = csv.writer(csvfile)
 
@@ -256,6 +258,8 @@ class FacultyBiosView(FlaskView):
                 if data['max-edu'] > max_edu:
                     max_edu = data['max-edu']
 
+            self.base.log_sentry("--Test3--", str(my_list))
+
             # Creates max_jobs spaces for jobs and adds them to the list
             for i in range(1, max_jobs + 1):
                 my_list.append('Job Title ' + str(i))
@@ -268,7 +272,7 @@ class FacultyBiosView(FlaskView):
                 my_list.append('Degree-School ' + str(j))
                 my_list.append('Degree-Year ' + str(j))
 
-            self.base.log_sentry("--Test3--", str(my_list))
+
 
             # # Writes the "header" of the csv file signify what data is held in that column
             filewriter.writerow(my_list)
