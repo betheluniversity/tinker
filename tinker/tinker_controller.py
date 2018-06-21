@@ -377,20 +377,20 @@ class TinkerController(object):
 
         # Username is used for caching purposes
         @cache.memoize(timeout=300)
-        def traverse_xml_cache(username, xml_url, type_to_find, find_all, csv):
-            response = requests.get(xml_url)
+        def traverse_xml_cache(cache_username, cache_xml_url, cache_type_to_find, cache_find_all, cache_csv):
+            response = requests.get(cache_xml_url)
             form_xml = ET.fromstring(response.content)
 
             matches = []
 
-            for child in form_xml.findall('.//' + type_to_find):
-                match = self.inspect_child(child, find_all, csv)
+            for child in form_xml.findall('.//' + cache_type_to_find):
+                match = self.inspect_child(child, cache_find_all, cache_csv)
                 if match:
                     matches.append(match)
 
             # Todo: maybe add some parameter as a search?
             # sort by created-on date unless we are exporting csv, then sort by last name
-            if csv:
+            if cache_csv:
                 matches = sorted(matches, key=lambda k: k['last'])
             else:
                 matches = sorted(matches, key=lambda k: k['created-on'])

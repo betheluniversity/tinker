@@ -229,7 +229,7 @@ class FacultyBiosView(FlaskView):
         # Traverses the xml file
         info_form = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page', True, True)
 
-        self.base.log_sentry("--Test1--", len(info_form))
+        self.base.log_sentry("--Test1--", str(len(info_form)))
 
         # Opens the xml file and signifies that we will write to it
         with open(app.config['INSTALL_LOCATION'] + '/faculty-info.csv', 'w+') as csvfile:
