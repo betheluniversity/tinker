@@ -244,7 +244,7 @@ class FacultyBioController(TinkerController):
     def wysiwyg_inner_text_rec(self, data):
         string = ''
         for things in data:
-            if things.text is None:
+            if things.tail is None:
                 pass
             else:
                 string += things.text + self.wysiwyg_inner_text_rec(things.getchildren()) + things.tail
