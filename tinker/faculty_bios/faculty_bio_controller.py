@@ -222,6 +222,7 @@ class FacultyBioController(TinkerController):
         # return the dictionary
         return page_values
 
+    # TODO: Remove version checking (and wysiwyg_inner_text_rec method) when upgrading to python 2.7
     # A method used to extract all the inner text from the wysiwyg's
     def wysiwyg_inner_text(self, child, path_tail):
         if platform.python_version()[:3] == '2.6':
