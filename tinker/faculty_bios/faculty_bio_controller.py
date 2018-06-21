@@ -244,7 +244,19 @@ class FacultyBioController(TinkerController):
     def wysiwyg_inner_text_rec(self, data):
         string = ''
         for things in data:
-                string += things.text + self.wysiwyg_inner_text_rec(things.getchildren()) + things.tail
+            if things.text is None:
+                things_text = ''
+            else:
+                things_text = things.text
+            if things.tail is None:
+                things_tail = ''
+            else:
+                things_tail = things.tail
+            if things.getchildren() is None:
+                things_children = ''
+            else:
+                things_children = self.wysiwyg_inner_text_rec(things.getchildren())
+                string += things_text + things_children + things_tail
                 string = string.rstrip()
                 string += '\n'
         string = string.lstrip()
