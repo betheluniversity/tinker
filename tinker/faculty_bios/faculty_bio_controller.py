@@ -226,7 +226,7 @@ class FacultyBioController(TinkerController):
     def wysiwyg_inner_text(self, child, path_tail):
         if platform.python_version()[:3] == '2.6':
             data = child.find('.//' + str(path_tail)).getchildren()
-            self.wysiwyg_inner_text_rec(data)
+            return self.wysiwyg_inner_text_rec(data)
         else:
             string = ""
             for information in child.find('.//' + str(path_tail)).itertext():
@@ -244,9 +244,6 @@ class FacultyBioController(TinkerController):
     def wysiwyg_inner_text_rec(self, data):
         string = ''
         for things in data:
-            if things.tail is None or things.text is None:
-                pass
-            else:
                 string += things.text + self.wysiwyg_inner_text_rec(things.getchildren()) + things.tail
                 string = string.rstrip()
                 string += '\n'
