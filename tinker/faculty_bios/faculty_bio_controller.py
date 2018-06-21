@@ -176,13 +176,13 @@ class FacultyBioController(TinkerController):
         # Checks to see if there are multiple values for the faculty location field
         if str(child.find('.//faculty_location/value')) != 'None':
             location = ""
-            for values in child.iterfind('.//faculty_location/value'):
+            for values in child.findall('.//faculty_location/value'):
                 location += values.text + '\n'
             page_values['location'] = location.rstrip()
 
         # Iterates through all the job fields and adds it to the dictionary on the fly
         max_jobs = 0
-        for jobs in child.iterfind('.//job-titles'):
+        for jobs in child.findall('.//job-titles'):
             max_jobs += 1
             school = self.get_faculty_data(jobs, 'school')
             page_values['school' + str(max_jobs)] = school
@@ -211,7 +211,7 @@ class FacultyBioController(TinkerController):
 
         # Iterates through all the education fields and adds it to the dictionary on the fly
         max_edu = 0
-        for edu in child.iterfind('.//education'):
+        for edu in child.findall('.//education'):
             max_edu += 1
             page_values['school-edu' + str(max_edu)] = unidecode(self.get_faculty_data(edu, 'school'))
             page_values['degree-earned' + str(max_edu)] = self.get_faculty_data(edu, 'degree-earned')
