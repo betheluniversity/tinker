@@ -244,17 +244,14 @@ class FacultyBioController(TinkerController):
     def wysiwyg_inner_text_rec(self, data):
         string = ''
         for things in data:
-            string += things.text + self.wysiwyg_inner_text_rec(things.getchildren()) + things.tail
-            string = string.rstrip()
-            string += '\n'
+            if things.text is None or things.tail is None:
+                pass
+            else:
+                string += things.text + self.wysiwyg_inner_text_rec(things.getchildren()) + things.tail
+                string = string.rstrip()
+                string += '\n'
         string = string.lstrip()
         return string.rstrip()
-
-    def method(self, data):
-        if data.text is None or data.tail is None:
-            pass
-        else:
-            return data.text + self.method(list(data)) + data.tail
 
     # A method used to check if the field is empty or not, if empty returns empty string, else returns the data.
     def get_faculty_data(self, child, path_tail):
