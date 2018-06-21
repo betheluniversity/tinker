@@ -225,22 +225,22 @@ class FacultyBioController(TinkerController):
     # TODO: Remove version checking (and wysiwyg_inner_text_rec method) when upgrading to python 2.7
     # A method used to extract all the inner text from the wysiwyg's
     def wysiwyg_inner_text(self, child, path_tail):
-        # if platform.python_version()[:3] == '2.6':
+        if platform.python_version()[:3] == '2.6':
             data = child.find('.//' + str(path_tail)).getchildren()
             return self.wysiwyg_inner_text_rec(data)
-        # else:
-        #     string = ""
-        #     for information in child.find('.//' + str(path_tail)).itertext():
-        #         string += information
-        #         # strings the newline character from the end of the new string (including the new information)
-        #         string = string.rstrip()
-        #         # Adds a newline character so that the string isn't just a continuing line of text without spaces
-        #         # between new information
-        #         string += '\n'
-        #     # strips the newline character from before any of the information
-        #     string = string.lstrip()
-        #     # strips the string again so that there isn't any white lines between information
-        #     return string.rstrip()
+        else:
+            string = ""
+            for information in child.find('.//' + str(path_tail)).itertext():
+                string += information
+                # strings the newline character from the end of the new string (including the new information)
+                string = string.rstrip()
+                # Adds a newline character so that the string isn't just a continuing line of text without spaces
+                # between new information
+                string += '\n'
+            # strips the newline character from before any of the information
+            string = string.lstrip()
+            # strips the string again so that there isn't any white lines between information
+            return string.rstrip()
 
     def wysiwyg_inner_text_rec(self, data):
         string = ''
