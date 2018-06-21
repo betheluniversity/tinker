@@ -234,13 +234,16 @@ class FacultyBiosView(FlaskView):
 
             filewriter = csv.writer(csvfile)
 
+            my_list = []
             # # Adds column headers to the list
-            my_list = ['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
-                       'Highlight text', 'Email', 'Started at Bethel in', 'Biography', 'Courses Taught', 'Awards',
-                       'Publications', 'Presentations', 'Certificates and licenses',
-                       'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
-                       'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
-                       'Professional website or blog']
+            my_list.extend(['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
+                            'Highlight text', 'Email', 'Started at Bethel in', 'Biography', 'Courses Taught', 'Awards',
+                            'Publications', 'Presentations', 'Certificates and licenses',
+                            'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
+                            'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
+                            'Professional website or blog'])
+
+            self.base.log_sentry("--Test--", str(my_list))
 
             max_jobs = 0
             max_edu = 0
@@ -310,5 +313,4 @@ class FacultyBiosView(FlaskView):
             return Response(
                 f.read(),
                 mimetype="text/csv",
-                headers={"Content-disposition":
-                            "attachment; filename=/faculty-bio-info.csv"})
+                headers={"Content-disposition": "attachment; filename=faculty-info.csv"})
