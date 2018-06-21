@@ -16,7 +16,7 @@ from tinker.tinker_controller import TinkerController
 
 class EventsController(TinkerController):
     # find_all is currently unused for events (but used for the e-annz)
-    def inspect_child(self, child, find_all=False):
+    def inspect_child(self, child, find_all=False, csv=False):
         try:
             author = child.find('author').text
             author = author.replace(' ', '').split(',')

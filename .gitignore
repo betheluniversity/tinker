@@ -12,6 +12,7 @@ node_modules/
 tinker/static/bower_components
 tinker/static/scripts/js/
 tinker/.DS_Store
+.DS_Store
 
 .idea
 .idea/tinker.iml
@@ -35,3 +36,4 @@ flask_profiler.sql
 */placeholder.html
 
 programs.csv
+faculty-info.csv

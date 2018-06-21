@@ -368,33 +368,36 @@ class TinkerController(object):
         # more detailed message to debug text log
         app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
-    def inspect_child(self, child, find_all):
+    def inspect_child(self, child, find_all, csv):
         # interface method
         pass
 
-    def traverse_xml(self, xml_url, type_to_find, find_all=False):
+    def traverse_xml(self, xml_url, type_to_find, find_all=False, csv=False):
         username = session['username']
 
         # Username is used for caching purposes
         @cache.memoize(timeout=300)
-        def traverse_xml_cache(username, self, xml_url, type_to_find, find_all):
-            response = requests.get(xml_url)
+        def traverse_xml_cache(cache_username, cache_xml_url, cache_type_to_find, cache_find_all, cache_csv):
+            response = requests.get(cache_xml_url)
             form_xml = ET.fromstring(response.content)
 
             matches = []
 
-            for child in form_xml.findall('.//' + type_to_find):
-                match = self.inspect_child(child, find_all)
+            for child in form_xml.findall('.//' + cache_type_to_find):
+                match = self.inspect_child(child, cache_find_all, cache_csv)
                 if match:
                     matches.append(match)
 
             # Todo: maybe add some parameter as a search?
-            # sort by created-on date.
-            matches = sorted(matches, key=lambda k: k['created-on'])
+            # sort by created-on date unless we are exporting csv, then sort by last name
+            if cache_csv:
+                matches = sorted(matches, key=lambda k: k['last'])
+            else:
+                matches = sorted(matches, key=lambda k: k['created-on'])
 
             return matches
 
-        return traverse_xml_cache(username, self, xml_url, type_to_find, find_all)
+        return traverse_xml_cache(username, xml_url, type_to_find, find_all, csv)
 
     # this function is necessary because we don't have python2.7 on the server (we use python2.6)
     def search_for_key_in_dynamic_md(self, block, key_to_find):

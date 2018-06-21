@@ -3,6 +3,7 @@ import base64
 import json
 import re
 import os
+import platform
 
 # Packages
 from bu_cascade.asset_tools import find
@@ -11,6 +12,7 @@ from flask import session
 # Local
 from tinker import app
 from tinker.tinker_controller import TinkerController
+from unidecode import unidecode
 
 
 class FacultyBioController(TinkerController):
@@ -44,7 +46,7 @@ class FacultyBioController(TinkerController):
         }
         return mapping
 
-    def inspect_child(self, child, find_all=False):
+    def inspect_child(self, child, find_all=False, csv=False):
         # Set up the variables that this method will use to determine whether or not it should iterate over this bio
         author = None
         try:
@@ -104,13 +106,13 @@ class FacultyBioController(TinkerController):
         to_return = None
         if iterate_bio:
             try:
-                to_return = self._iterate_child_xml(child, author)
+                to_return = self._iterate_child_xml(child, author, csv)
             except AttributeError:
                 pass
 
         return to_return
 
-    def _iterate_child_xml(self, child, author):
+    def _iterate_child_xml(self, child, author, csv=False):
 
         try:
             workflow_status = child.find('workflow').find('status').text
@@ -122,20 +124,152 @@ class FacultyBioController(TinkerController):
             school_array = []
             for school in child.findall('.//job-titles/school'):
                 school_array.append(school.text or 'Other')
+            if csv:
+                return self.csv_file(child)
+            else:
+                page_values = {
+                    'author': child.find('author') or None,
+                    'id': child.attrib['id'] or "",
+                    'title': child.find('title').text or None,
+                    'created-on': child.find('created-on').text or None,
+                    'path': 'https://www.bethel.edu' + child.find('path').text or "",
+                    'schools': school_array,
+                    'last-name': child.find('.//last').text or None,
+                    'deactivated': child.find('.//deactivate').text or None
+                }
 
-            page_values = {
-                'author': child.find('author') or None,
-                'id': child.attrib['id'] or "",
-                'title': child.find('title').text or None,
-                'created-on': child.find('created-on').text or None,
-                'path': 'https://www.bethel.edu' + child.find('path').text or "",
-                'schools': school_array,
-                'last-name': child.find('.//last').text or None,
-                'deactivated': child.find('.//deactivate').text or None
-            }
+            # Returns the page_values
             return page_values
         else:
             return None
+
+    def csv_file(self, child):
+        # Initial dictionary values
+        page_values = {
+            'first': self.get_faculty_data(child, 'first'),
+            'last': self.get_faculty_data(child, 'last'),
+            'highlight': self.get_faculty_data(child, 'highlight'),
+            'email': self.get_faculty_data(child, 'email'),
+            'started-at-bethel': self.get_faculty_data(child, 'started-at-bethel'),
+            'location': '',
+            'biography': self.wysiwyg_inner_text(child, 'add-to-bio/biography'),
+            'courses': self.wysiwyg_inner_text(child, 'add-to-bio/courses'),
+            'awards': self.wysiwyg_inner_text(child, 'add-to-bio/awards'),
+            'publications': self.wysiwyg_inner_text(child, 'add-to-bio/publications'),
+            'presentations': self.wysiwyg_inner_text(child, 'add-to-bio/presentations'),
+            'certificates': self.wysiwyg_inner_text(child, 'add-to-bio/certificates'),
+            'organizations': self.wysiwyg_inner_text(child, 'add-to-bio/organizations'),
+            'hobbies': self.wysiwyg_inner_text(child, 'add-to-bio/hobbies'),
+            'research-interests': self.get_faculty_data(child, 'add-to-bio/research-interests'),
+            'areas': self.get_faculty_data(child, 'add-to-bio/areas'),
+            'teaching-specialty': self.get_faculty_data(child, 'add-to-bio/teaching-specialty'),
+            'quote': self.get_faculty_data(child, 'add-to-bio/quote'),
+            'website': self.get_faculty_data(child, 'add-to-bio/website')
+        }
+
+        # Checks to make sure there is an author if not sets author to an empty string
+        if str(child.find('author')) == 'None':
+            page_values['author'] = ""
+        else:
+            page_values['author'] = child.find('author').text
+
+        # Checks to see if there are multiple values for the faculty location field
+        if str(child.find('.//faculty_location/value')) != 'None':
+            location = ""
+            for values in child.findall('.//faculty_location/value'):
+                location += values.text + '\n'
+            page_values['location'] = location.rstrip()
+
+        # Iterates through all the job fields and adds it to the dictionary on the fly
+        max_jobs = 0
+        for jobs in child.findall('.//job-titles'):
+            max_jobs += 1
+            school = self.get_faculty_data(jobs, 'school')
+            page_values['school' + str(max_jobs)] = school
+            page_values['job_title' + str(max_jobs)] = self.get_faculty_data(jobs, 'job_title')
+            page_values['department' + str(max_jobs)] = ""
+            if school == 'College of Arts and Sciences':
+                page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'department')
+                if self.get_faculty_data(jobs, 'department-chair') == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Department Chair'
+            elif school == 'College of Adult and Professional Studies':
+                page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'adult-undergrad-program')
+                if self.get_faculty_data(jobs, 'program-director') == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Program Director'
+            elif school == 'Graduate School':
+                page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'graduate-program')
+                if self.get_faculty_data(jobs, 'program-director') == 'Yes':
+                    page_values['job_title' + str(max_jobs)] = 'Program Director'
+            elif school == 'Bethel Seminary':
+                page_values['department' + str(max_jobs)] = self.get_faculty_data(jobs, 'seminary-program')
+                if self.get_faculty_data(jobs, 'program-director') == "Yes":
+                    page_values['job_title' + str(max_jobs)] = 'Program Director'
+                elif self.get_faculty_data(jobs, 'lead-faculty') != "Other":
+                    page_values['job_title' + str(max_jobs)] = jobs.find('lead-faculty').text
+
+        page_values['max-jobs'] = max_jobs
+
+        # Iterates through all the education fields and adds it to the dictionary on the fly
+        max_edu = 0
+        for edu in child.findall('.//education'):
+            max_edu += 1
+            page_values['school-edu' + str(max_edu)] = unidecode(self.get_faculty_data(edu, 'school'))
+            page_values['degree-earned' + str(max_edu)] = self.get_faculty_data(edu, 'degree-earned')
+            page_values['year' + str(max_edu)] = self.get_faculty_data(edu, 'year')
+
+        page_values['max-edu'] = max_edu
+
+        # return the dictionary
+        return page_values
+
+    # TODO: Remove version checking (and wysiwyg_inner_text_rec method) when upgrading to python 2.7
+    # A method used to extract all the inner text from the wysiwyg's
+    def wysiwyg_inner_text(self, child, path_tail):
+        if platform.python_version()[:3] == '2.6':
+            data = child.find('.//' + str(path_tail)).getchildren()
+            return self.wysiwyg_inner_text_rec(data)
+        else:
+            string = ""
+            for information in child.find('.//' + str(path_tail)).itertext():
+                string += information
+                # strings the newline character from the end of the new string (including the new information)
+                string = string.rstrip()
+                # Adds a newline character so that the string isn't just a continuing line of text without spaces
+                # between new information
+                string += '\n'
+            # strips the newline character from before any of the information
+            string = string.lstrip()
+            # strips the string again so that there isn't any white lines between information
+            return string.rstrip()
+
+    def wysiwyg_inner_text_rec(self, data):
+        string = ''
+        for things in data:
+            if things.text is None:
+                things_text = ''
+            else:
+                things_text = things.text.rstrip()
+            if things.tail is None:
+                things_tail = ''
+            else:
+                things_tail = things.tail
+            if things.getchildren() is None:
+                things_children = ''
+            else:
+                things_children = self.wysiwyg_inner_text_rec(things.getchildren())
+            string += things_text + things_children + things_tail.rstrip()
+            string = string.rstrip()
+            if things.tag != 'strong' and things.tag != 'em':
+                string += '\n'
+        return string.rstrip()
+
+    # A method used to check if the field is empty or not, if empty returns empty string, else returns the data.
+    def get_faculty_data(self, child, path_tail):
+        string = child.find('.//' + str(path_tail)).text
+        if string is None:
+            return ''
+        else:
+            return string
 
     # if the department metadata is found return it, else return ''
     def check_web_author_groups(self, groups, program_elements):

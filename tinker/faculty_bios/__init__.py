@@ -5,9 +5,11 @@ from operator import itemgetter
 
 # Packages
 from bu_cascade.asset_tools import find, update
-from flask import abort, redirect, render_template, request, session
+from flask import abort, redirect, render_template, request, session, Response
 from flask import json as fjson
 from flask_classy import FlaskView, route
+import csv
+from unidecode import unidecode
 
 # Local
 from tinker import app, cache
@@ -216,3 +218,99 @@ class FacultyBiosView(FlaskView):
         xml_url = app.config['FACULTY_BIOS_XML_URL']
         self.base.edit_all(type_to_find, xml_url)
         return 'success'
+
+    @route("/faculty-bio-csv")
+    def get_faculty_bio_csv(self):
+
+        # Checks permissions to view/access route
+        if 'Administrators' not in session['groups'] and 'Tinker Faculty Bios - Admin' not in session['groups']:
+            abort(403)
+
+        # Traverses the xml file
+        info_form = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page', True, True)
+
+        # Opens the xml file and signifies that we will write to it
+        with open(app.config['INSTALL_LOCATION'] + '/faculty-info.csv', 'w+') as csvfile:
+
+            filewriter = csv.writer(csvfile)
+
+            my_list = []
+            # # Adds column headers to the list
+            my_list.extend(['Faculty first name', 'Faculty last name', 'Faculty member\'s username', 'Location',
+                            'Highlight text', 'Email', 'Started at Bethel in', 'Biography', 'Courses Taught', 'Awards',
+                            'Publications', 'Presentations', 'Certificates and licenses',
+                            'Professional Organizations, Committees, and Boards', 'Hobbies and interests',
+                            'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
+                            'Professional website or blog'])
+
+            max_jobs = 0
+            max_edu = 0
+            # Gets the maximum number of jobs and maximum number of educations out of everyone
+            for data in info_form:
+                if data['max-jobs'] > max_jobs:
+                    max_jobs = data['max-jobs']
+                if data['max-edu'] > max_edu:
+                    max_edu = data['max-edu']
+
+            # Creates max_jobs spaces for jobs and adds them to the list
+            for i in range(1, max_jobs + 1):
+                my_list.append('Job Title ' + str(i))
+                my_list.append('Job Title-School ' + str(i))
+                my_list.append('Job Title-Department ' + str(i))
+
+            # Creates max_edu spaces for educations and adds them to the list
+            for j in range(1, max_edu + 1):
+                my_list.append('Degree-Earned ' + str(j))
+                my_list.append('Degree-School ' + str(j))
+                my_list.append('Degree-Year ' + str(j))
+
+
+
+            # # Writes the "header" of the csv file signify what data is held in that column
+            filewriter.writerow(my_list)
+
+            # Now we will iterate through all the faculty and make a row dedicated to each of them following the
+            # format specified by the header
+            for data in info_form:
+
+                row_list = [unidecode(data['first']), unidecode(data['last']), unidecode(data['author']),
+                            unidecode(data['location']), unidecode(data['highlight']), unidecode(data['email']),
+                            unidecode(data['started-at-bethel']), unidecode(data['biography']),
+                            unidecode(data['courses']), unidecode(data['awards']), unidecode(data['publications']),
+                            unidecode(data['presentations']), unidecode(data['certificates']),
+                            unidecode(data['organizations']), unidecode(data['hobbies']), unidecode(data['areas']),
+                            unidecode(data['research-interests']), unidecode(data['teaching-specialty']),
+                            unidecode(data['quote']), unidecode(data['website'])]
+
+                for i in range(1, max_jobs + 1):
+                    if ('school' + str(i)) in data.keys():
+                        job_title = unidecode(str(data['job_title' + str(i)]))
+                        school = unidecode(str(data['school' + str(i)]))
+                        department = unidecode(str(data['department' + str(i)]))
+                    else:
+                        school = ""
+                        department = ""
+                        job_title = ""
+                    row_list.extend([job_title, school, department])
+
+                for j in range(1, max_edu + 1):
+                    if ('school-edu' + str(j)) in data.keys():
+                        edu_school = unidecode(str(data['school-edu' + str(j)]))
+                        degree_earned = unidecode(str(data['degree-earned' + str(j)]))
+                        year = unidecode(str(data['year' + str(j)]))
+                    else:
+                        edu_school = ""
+                        degree_earned = ""
+                        year = ""
+                    row_list.extend([degree_earned, edu_school, year])
+
+                # Writes each faculty a row of data
+                filewriter.writerow(row_list)
+
+        # Opens the file and signifies that we will read it
+        with open(app.config['INSTALL_LOCATION'] + '/faculty-info.csv', 'rb') as f:
+            # returns a Response (so the file can be downloaded)
+            return Response(
+                f.read(),
+                mimetype="text/csv",
+                headers={"Content-disposition": "attachment; filename=faculty-info.csv"})

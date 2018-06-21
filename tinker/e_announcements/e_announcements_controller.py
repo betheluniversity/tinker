@@ -33,7 +33,7 @@ class EAnnouncementsController(TinkerController):
             'San Diego'
         ]
 
-    def inspect_child(self, child, find_all=False):
+    def inspect_child(self, child, find_all=False, csv=False):
         # if find_all is true, then skip the check to see if you are allowed to see it.
         if find_all:
             try:
