@@ -57,15 +57,24 @@ class NewsController(TinkerController):
             path = find(article_asset, 'path', False)
             title = parser.unescape(find(article_asset, 'title', False).decode('utf-8'))
 
-            content = find(article_asset, 'main-content', False)  # get content
-            tree_content = BeautifulStoneSoup(content, convertEntities=BeautifulStoneSoup.ALL_ENTITIES)
-            self.fix_hrefs(tree_content)
-            content = self.get_first_paragraph(tree_content)
+            # todo: check DD type
+            news_flex_content = find(article_asset, 'email-teaser-paragraph', False)  # get content
+            news_content = find(article_asset, 'main-content', False)  # get content
+            if news_flex_content:
+                content = news_flex_content
+            else:
+                content = news_content
+                tree_content = BeautifulStoneSoup(content, convertEntities=BeautifulStoneSoup.ALL_ENTITIES)
+                self.fix_hrefs(tree_content)
+                content = self.get_first_paragraph(tree_content)
             content = parser.unescape(content.decode('utf-8'))
 
+            # todo: check DD type
             image_path = find(article_asset, 'image', False)['filePath']
+            image_path = find(article_asset, 'feed-image', False)['filePath']
         except:
             return ''
+        # todo: will definitely need to test this
         return render_template('news/article.html', **locals())
 
     def get_first_paragraph(self, tree_content):
