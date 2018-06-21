@@ -3,6 +3,7 @@ import base64
 import json
 import re
 import os
+import platform
 
 # Packages
 from bu_cascade.asset_tools import find
@@ -223,18 +224,37 @@ class FacultyBioController(TinkerController):
 
     # A method used to extract all the inner text from the wysiwyg's
     def wysiwyg_inner_text(self, child, path_tail):
-        string = ""
-        for information in child.find('.//' + str(path_tail)).itertext():
-            string += information
-            # strings the newline character from the end of the new string (including the new information)
+        if platform.python_version()[:3] == '2.6':
+            data = child.find('.//' + str(path_tail)).getchildren()
+            self.wysiwyg_inner_text_rec(data)
+        else:
+            string = ""
+            for information in child.find('.//' + str(path_tail)).itertext():
+                string += information
+                # strings the newline character from the end of the new string (including the new information)
+                string = string.rstrip()
+                # Adds a newline character so that the string isn't just a continuing line of text without spaces
+                # between new information
+                string += '\n'
+            # strips the newline character from before any of the information
+            string = string.lstrip()
+            # strips the string again so that there isn't any white lines between information
+            return string.rstrip()
+
+    def wysiwyg_inner_text_rec(self, data):
+        string = ''
+        for things in data:
+            string += things.text + self.wysiwyg_inner_text_rec(things.getchildren()) + things.tail
             string = string.rstrip()
-            # Adds a newline character so that the string isn't just a continuing line of text without spaces between
-            # new information
             string += '\n'
-        # strips the newline character from before any of the information
         string = string.lstrip()
-        # strips the string again so that there isn't any white lines between information
         return string.rstrip()
+
+    def method(self, data):
+        if data.text is None or data.tail is None:
+            pass
+        else:
+            return data.text + self.method(list(data)) + data.tail
 
     # A method used to check if the field is empty or not, if empty returns empty string, else returns the data.
     def get_faculty_data(self, child, path_tail):
