@@ -377,7 +377,7 @@ class TinkerController(object):
 
         # Username is used for caching purposes
         @cache.memoize(timeout=300)
-        def traverse_xml_cache(self, username, xml_url, type_to_find, find_all, csv):
+        def traverse_xml_cache(username, xml_url, type_to_find, find_all, csv):
             response = requests.get(xml_url)
             form_xml = ET.fromstring(response.content)
 
@@ -397,7 +397,7 @@ class TinkerController(object):
 
             return matches
 
-        return traverse_xml_cache(self, username, xml_url, type_to_find, find_all, csv)
+        return traverse_xml_cache(username, xml_url, type_to_find, find_all, csv)
 
     # this function is necessary because we don't have python2.7 on the server (we use python2.6)
     def search_for_key_in_dynamic_md(self, block, key_to_find):

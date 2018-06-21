@@ -16,7 +16,7 @@ class NewsController(TinkerController):
         return True
 
     # limit who can see this. Currently, everyone should be able to
-    def inspect_child(self, child, find_all=False, is_csv=False):
+    def inspect_child(self, child, find_all=False, csv=False):
         try:
             return self._iterate_child_xml(child)
         except AttributeError:
