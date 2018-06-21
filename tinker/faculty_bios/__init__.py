@@ -229,6 +229,8 @@ class FacultyBiosView(FlaskView):
         # Traverses the xml file
         info_form = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page', True, True)
 
+        self.base.log_sentry("--Test1--", '')
+
         # Opens the xml file and signifies that we will write to it
         with open(app.config['INSTALL_LOCATION'] + '/faculty-info.csv', 'w+') as csvfile:
 
@@ -243,7 +245,7 @@ class FacultyBiosView(FlaskView):
                             'Areas of expertise', 'Research interests', 'Teaching specialty', 'Quote',
                             'Professional website or blog'])
 
-            self.base.log_sentry("--Test--", str(my_list))
+            self.base.log_sentry("--Test2--", str(my_list))
 
             max_jobs = 0
             max_edu = 0
@@ -266,6 +268,8 @@ class FacultyBiosView(FlaskView):
                 my_list.append('Degree-School ' + str(j))
                 my_list.append('Degree-Year ' + str(j))
 
+            self.base.log_sentry("--Test3--", str(my_list))
+
             # # Writes the "header" of the csv file signify what data is held in that column
             filewriter.writerow(my_list)
 
@@ -282,6 +286,8 @@ class FacultyBiosView(FlaskView):
                             unidecode(data['research-interests']), unidecode(data['teaching-specialty']),
                             unidecode(data['quote']), unidecode(data['website'])]
 
+                self.base.log_sentry("--Test4--", str(row_list))
+
                 for i in range(1, max_jobs + 1):
                     if ('school' + str(i)) in data.keys():
                         job_title = unidecode(str(data['job_title' + str(i)]))
@@ -292,6 +298,8 @@ class FacultyBiosView(FlaskView):
                         department = ""
                         job_title = ""
                     row_list.extend([job_title, school, department])
+
+                    self.base.log_sentry("--Test5--", str(row_list))
 
                 for j in range(1, max_edu + 1):
                     if ('school-edu' + str(j)) in data.keys():
@@ -304,8 +312,12 @@ class FacultyBiosView(FlaskView):
                         year = ""
                     row_list.extend([degree_earned, edu_school, year])
 
+                    self.base.log_sentry("--Test6--", str(row_list))
+
                 # Writes each faculty a row of data
                 filewriter.writerow(row_list)
+
+                self.base.log_sentry("--Test7--", str(row_list))
 
         # Opens the file and signifies that we will read it
         with open(app.config['INSTALL_LOCATION'] + '/faculty-info.csv', 'rb') as f:
