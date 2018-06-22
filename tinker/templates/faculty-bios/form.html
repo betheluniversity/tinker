@@ -127,12 +127,24 @@ to be in it's own card div, something to think about in the future -->
             $("#degree-delete1").hide();
             addHandlerDegree(1);
 
+            $("#job-delete1").hide();
+            addHandlerJob(1);
+
             function checkNumDegrees() {
                 var degrees = $(".degree-fieldset");
                 if (degrees.length < 2)
                     $("#degree-delete1").hide();
                 else {
                     $("#degree-delete1").show();
+                }
+            };
+
+            function checkNumJobs() {
+                var jobs = $(".new-job-fieldset");
+                if (jobs.length < 2)
+                    $("#job-delete1").hide();
+                else {
+                    $("#job-delete1").show();
                 }
             };
 
@@ -145,9 +157,6 @@ to be in it's own card div, something to think about in the future -->
                 inner_node.append($("<legend>")
                         .append($('<i>').addClass('fa fa-times fa-delete').attr('id', 'degree-delete' + id).attr('data-id', id)).append("Degree " + id + ' ')
                         .append($('<small>').addClass('required').html("required")));
-               /*inner_node.append($("<legend>")
-                    .append($('<i>').addClass('fa fa-times fa-delete').attr('id', 'degree-delete' + id).attr('data-id', id)).append("Date " + id + ' ')
-                    .append($('<small>').addClass('required').html(' required'))); */
 
                 inner_node.append($("<label>").attr('for', school).html("School"));
                 inner_node.append($("<input type='text'>").attr('name', school).attr('id', school).addClass("no-border"));
@@ -163,8 +172,8 @@ to be in it's own card div, something to think about in the future -->
                 var title = 'new-job-title' + id;
                 var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Job Title " + id + " ").append(
-                        $('<small>').addClass('required').html('required'))
+                inner_node.append($("<legend>").append($('<i>').addClass('fa fa-times fa-delete').attr('id', 'job-delete' + id).attr('data-id', id)).append("Job Title " + id + ' ')
+                    .append($('<small>').addClass('required').html('required'))
                 );
 
                 inner_node.append($('<div>').attr('class', 'schools-div' + id).append(
@@ -264,6 +273,20 @@ to be in it's own card div, something to think about in the future -->
 
                     list.last().remove();
                     checkNumDegrees();
+                })
+            };
+
+            function addHandlerJob(id) {
+                $("#job-delete" + id).click(function () {
+                    id = $(this).data("id");
+                    var list = $(".new-job-fieldset");
+                    var length = list.length;
+                    for (i = id; i < length; i++) {
+                        $('#schools' + (i)).val($('#schools' + (i + 1)).val());
+                    }
+
+                    list.last().remove();
+                    checkNumJobs();
                 })
             };
 
@@ -484,6 +507,7 @@ to be in it's own card div, something to think about in the future -->
                         var last = $(".new-job-fieldset").last();
                         var new_job_title = newJobTitlesFieldset(id);
                         new_job_title.insertAfter(last);
+                        addHandlerJob(id);
                         $("#remove_new_job_button").show();
                     }
 
@@ -583,6 +607,8 @@ to be in it's own card div, something to think about in the future -->
                 var new_num = (parseInt(old_num) + 1);
                 var new_job = newJobTitlesFieldset(new_num);
                 new_job.insertAfter(last);
+                checkNumJobs();
+                addHandlerJob(new_num);
                 initializeJobTitles(new_num);
                 $("#remove_new_job_button").show();
             });
@@ -678,7 +704,10 @@ to be in it's own card div, something to think about in the future -->
     <fieldset class="new-job-fieldset">
         <div class="card">
             <div class="content">
-                <legend>Job Title 1 <small class="required">required</small></legend>
+                <legend>Job Title 1
+                    <small class="required">required</small>
+                <i class="fa fa-times fa-delete" id="job-delete1" data-id="1"></i>
+                </legend>
                 <div id="schools-div">
                     <label>School</label>
                     <select name='schools1' id='schools1'></select>
