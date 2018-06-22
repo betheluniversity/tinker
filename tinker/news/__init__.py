@@ -35,7 +35,8 @@ class NewsView(FlaskView):
             current_datetime = datetime.datetime.now()
             send_email_value = find(sd, 'send-email', False)
 
-            if news_article_datetime.strftime("%m-%d-%Y") != current_datetime.strftime("%m-%d-%Y") and send_email_value == 'Yes':
+            # ignore any that are on a different day, or in _testing
+            if news_article_datetime.strftime("%m-%d-%Y") != current_datetime.strftime("%m-%d-%Y") or '_testing/' in find(article_asset, 'path', False):
                 return "Don't need to send"
 
             # add news_article
