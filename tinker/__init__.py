@@ -7,9 +7,13 @@ import platform
 import flask_profiler
 from bu_cascade.cascade_connector import Cascade
 from flask import Flask, make_response, redirect, session, url_for
-from flask.ext.cache import Cache
 from flask_sqlalchemy import SQLAlchemy
 from raven.contrib.flask import Sentry
+# TODO: Remove version checking when upgrading to python 2.7
+if platform.python_version()[:3] == '2.6':
+    from flask.ext.cache import Cache
+else:
+    from flask_caching import Cache
 
 app = Flask(__name__)
 
