@@ -52,7 +52,7 @@ class GetJobTitlesTestCase(FacultyBiosControllerBaseTestCase):
             self.assertTrue('department' in job_title.keys())
             self.assertTrue('adult-undergrad-program' in job_title.keys())
             self.assertTrue('graduate-program' in job_title.keys())
-            self.assertTrue('seminary' in job_title.keys())
+            self.assertTrue('seminary-program' in job_title.keys())
             self.assertTrue('department-chair' in job_title.keys())
             self.assertTrue('program-director' in job_title.keys())
             self.assertTrue('lead-faculty' in job_title.keys())

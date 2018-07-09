@@ -654,7 +654,7 @@ class FacultyBioController(TinkerController):
                 'department': add_data.get('undergrad' + i, 'None'),
                 'adult-undergrad-program': add_data.get('adult-undergrad' + i, 'None'),
                 'graduate-program': add_data.get('graduate' + i, 'None'),
-                'seminary': add_data.get('seminary' + i, 'None'),
+                'seminary-program': add_data.get('seminary' + i, 'None'),
                 'department-chair': add_data.get('dept-chair' + i, 'No'),
                 'program-director': add_data.get('program-director' + i, 'No'),
                 'lead-faculty': add_data.get('lead-faculty' + i, 'Other'),
