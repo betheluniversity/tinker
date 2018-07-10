@@ -7,34 +7,45 @@
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
-            <div class="col-md-12">
-                <script type="text/javascript">
-                    function postToURLWithSpinner(url, value) {
-                        {# activate waiting gif #}
-                        $('#spinner').show();
-{#                        $.post(url, {'id': value}, function (data) {#}
-{#                            $("#output").html(data);#}
-{#                            $('#spinner').hide();#}
-{#                        });#}
-                        $.ajax({
-                            type: "POST",
-                            url: url,
-                            data: JSON.stringify({'id':value}),
-                            contentType: 'application/json;charset=UTF-8',
-                            success: function (data) {
-                                $('#output').html(data);
-                                $('#spinner').hide();
-                            }
-                        });
-                    }
-                </script>
-                <div class="col-md-12">
-                    <p>The sync data is contained in this <a target="_blank"
-                                                             href="https://github.com/betheluniversity/tinker/blob/master/tinker/admin/sync/sync_metadata.py">file</a>.
-                        You can sync a specific metadata set, data definition, or sync all.</p>
-                </div>
+            <script type="text/javascript">
+                function postToURLWithSpinner(url, values={}) {
+                    {# activate waiting gif #}
+                    $('#spinner').show();
+                    $.ajax({
+                        type: "POST",
+                        url: url,
+                        data: JSON.stringify(values),
+                        contentType: 'application/json;charset=UTF-8',
+                        success: function (data) {
+                            $('#output').html(data);
+                            $('#spinner').hide();
+                        }
+                    });
+                }
 
-                <div class="col-md-12">
+                function submitChangeMetadata(){
+                    change_metadata_mapping = $('#change-metadata-mapping').val();
+                    change_metadata_old_value = $('#change-metadata-old-value').val();
+                    change_metadata_new_value = $('#change-metadata-new-value').val();
+
+                    // Can't use url_for here, as we need to dynamically add in values
+                    url = "/admin/sync/find-and-replace/" + change_metadata_mapping + "/" + change_metadata_old_value + "/" + change_metadata_new_value;
+                    window.open(url);
+                }
+
+            </script>
+            <div class="col-md-12">
+                <h2>Data Definitions and Metadata Sets</h2>
+                <p>
+                    Use this to update the Data Definition and Metadata Set values in Cascade without having to
+                    update each individually. These are the options available in the list.
+                    <br/><br/>
+                    The sync data is contained in this <a target="_blank"
+                                                         href="https://github.com/betheluniversity/tinker/blob/master/tinker/admin/sync/sync_metadata.py">file</a>.
+                    You can sync a specific metadata set, data definition, or sync all.
+                </p>
+
+                <div>
                     <label>Data Definitions
                         <select id="data-definition">
                             {% for id, name in data_definition_mapping.iteritems() %}
@@ -42,17 +53,15 @@
                             {% endfor %}
                         </select>
                     </label>
-                </div>
-                <div class="col-md-12">
                     <div id='submit-data-definition' class="btn btn-primary"
-                         onclick="postToURLWithSpinner('{{ url_for("SyncView:datadefinition") }}', $('#data-definition').val())">
+                         onclick="postToURLWithSpinner('{{ url_for("SyncView:datadefinition") }}', {'id':$('#data-definition').val()})">
                         Sync Data Definition
                     </div>
                 </div>
 
                 <br/>
 
-                <div class="col-md-12">
+                <div>
                     <label>Metadata Sets
                         <select id="metadata-set">
                             {% for id, name in metadata_sets_mapping.iteritems() %}
@@ -60,29 +69,50 @@
                             {% endfor %}
                         </select>
                     </label>
-                </div>
-                <div class="col-md-12">
                     <div id='submit-metadata-set' class="btn btn-primary"
-                         onclick="postToURLWithSpinner('{{ url_for("SyncView:metadata") }}', $('#metadata-set').val())">
+                         onclick="postToURLWithSpinner('{{ url_for("SyncView:metadata") }}', {'id':$('#metadata-set').val()})">
                         Sync Metadata
                     </div>
                 </div>
 
-                <hr/>
-                <div class="col-md-12">
-                    <div id='sync-all' class="btn btn-primary"
-                         onclick="postToURLWithSpinner('{{ url_for("SyncView:all") }}', 'un-used')">Sync All
-                    </div>
+                <br/>
+                <div id='sync-all' class="btn btn-primary"
+                     onclick="postToURLWithSpinner('{{ url_for("SyncView:all") }}', 'un-used')">Sync All
                 </div>
-
-                {# todo: format the gif better? #}
-                {# spinner placeholder #}
-                <div id="spinner" class="spinner" style="display:none;">
-                    <img id="img-spinner" src="/get_image/waiting.gif" alt="Loading"/>
-                </div>
-                {# output results #}
-                <div id="output"></div>
             </div>
+
+            <hr/>
+
+            <div class="col-md-12">
+                <h2>Change Metadata Value</h2>
+                <p>Use this to find and replace the currently selected metadata values in Cascade with a new value.
+                After a program name change, you can use this to automatically retag the new values.
+                <br/><br/>
+                *Note: this will take some time to run
+                <br/>*Note: This can only be run by Web Development currently. Message us if you need to use it!
+                </p>
+
+                <label>Which value set?
+                    <select id="change-metadata-mapping">
+                        {% for key, value in mapping_key_values.items() %}
+                            <option value="{{ key }}">{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label>Old/Current Value<input type="text" id="change-metadata-old-value"/></label>
+                <label>New Value<input type="text" id="change-metadata-new-value" /></label>
+                <div class="btn btn-primary" data-reveal-id="confirmModal" data-toggle="modal" data-target="#sync_modal">
+                    Find and Replace
+                </div>
+            </div>
+
+            {# todo: format the gif better? #}
+            {# spinner placeholder #}
+            <div id="spinner" class="spinner" style="display:none;">
+                <img id="img-spinner" src="/get_image/waiting.gif" alt="Loading"/>
+            </div>
+            {# output results #}
+            <div id="output"></div>
         </div>
     </div>
 
@@ -123,4 +153,27 @@
             });
         });
     </script>
+{% endblock %}
+
+{% block modalhtml %}
+    <div class="modal fade" id="sync_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h3>WARNING!</h3>
+                    <h4 class="modal-title" id="myModalLabel">Are you sure you want to change these metadata values?</h4>
+                </div>
+                <div class="modal-body">
+                    This will change all occurrences of the metadata values with the new one. Be careful! This can mess
+                    values up if you do this wrong.
+                </div>
+                <div class="modal-footer">
+                    <div id="submit-change-metadata" data-dismiss="modal" class="btn btn-primary btn-alert" onclick="submitChangeMetadata()">Change Metadata Values</div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

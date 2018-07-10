@@ -126,3 +126,33 @@ class SyncController(TinkerController):
             import commands
             commands.getoutput(
                 "cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
+
+    def get_mapping_keys(self):
+        mapping_key_values = {
+            #  this is disabled due to rarely needing it, and also because we have assets with different uses
+            # 'school': 'School',
+            'department': 'CAS Program',
+            'adult-undergrad-program': 'CAPS Program',
+            'graduate-program': 'Graduate Program',
+            'seminary-program': 'Seminary Program',
+            'degree': 'Degree',
+            'location': 'Location',
+            'delivery_label': 'Delivery Label',
+            'delivery_subheading': 'Delivery Subheading'
+        }
+        return mapping_key_values
+
+    def get_all_mappings(self):
+        mapping = {
+            # this is disabled due to rarely needing it, and also because we have assets with different uses
+            # 'school': ['school'],
+            'department': ['department', 'cas-departments'],
+            'adult-undergrad-program': ['adult-undergrad-program'],
+            'graduate-program': ['graduate-program'],
+            'seminary-program': ['seminary-program'],
+            'degree': ['degree'],
+            'location': ['location'],
+            'delivery_label': ['delivery_label'],
+            'delivery_subheading': ['delivery_subheading']
+        }
+        return mapping
