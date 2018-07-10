@@ -244,9 +244,7 @@ class EventsController(TinkerController):
         dates = self.sanitize_dates(edit_data['event-dates'])
         dates = fjson.dumps(dates)
 
-        author = edit_data['author']
-
-        return edit_data, dates, author
+        return edit_data, dates
 
     def date_str_to_timestamp(self, date_string):
         try:
@@ -298,16 +296,16 @@ class EventsController(TinkerController):
         new_data['hide-site-nav'] = [hide_site_nav]
         new_data['tinker-edits'] = 1
 
-        # allows for multiple authors. If none set, default to username
-        if 'author' not in new_data or new_data['author'] == "":
+        if event_id:
+            new_data['id'] = event_id
+            # delete author, as we don't want it to change. But, it gets set in get_add_data()
+            new_data.pop('author', None)
+        else:
             new_data['author'] = username
 
         self.update_asset(event_data, new_data)
 
         self.add_workflow_to_asset(workflow, event_data)
-
-        if event_id:
-            new_data['id'] = event_id
 
         return event_data
 

@@ -131,7 +131,6 @@ class EventForm(Form):
     heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
     what = HeadingField(label="What is your event?")
-    author = HiddenField("Author")
     title = StringField('Event name', validators=[DataRequired()], description="This will be the title of your webpage")
     metaDescription = StringField('Teaser',
                                   description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.',

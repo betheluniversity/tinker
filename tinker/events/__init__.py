@@ -71,7 +71,7 @@ class EventsView(FlaskView):
         if self.base.asset_in_workflow(event_id, asset_type='page'):
             return redirect(url_for('EventsView:event_in_workflow'), code=302)
 
-        edit_data, dates, author = self.base.build_edit_form(event_id)
+        edit_data, dates = self.base.build_edit_form(event_id)
         # todo: fix this with the submit_all() functionality ASK CALEB
         # convert 'On/Off campus' to 'On/Off Campus' for all events
         from tinker.events.forms import EventForm
@@ -82,7 +82,7 @@ class EventsView(FlaskView):
         return render_template('events/form.html', **locals())
 
     def duplicate(self, event_id):
-        edit_data, dates, author = self.base.build_edit_form(event_id)
+        edit_data, dates = self.base.build_edit_form(event_id)
         from tinker.events.forms import EventForm
         form = EventForm(**edit_data)
         new_form = True
@@ -97,7 +97,7 @@ class EventsView(FlaskView):
         dates, num_dates = self.base.get_event_dates(rform)
         dates_str, dates_good = self.base.check_event_dates(dates)
         form, passed = self.base.validate_form(rform.internal_dictionary(), dates_good)
-        workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], rform['author'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
+        workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
         if not passed:
             if 'event_id' in rform.keys():
@@ -110,8 +110,6 @@ class EventsView(FlaskView):
             return render_template('events/form.html', **locals())
 
         add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates, num_dates, metadata_list, workflow)
-
-        add_data['author'] = rform['author']
 
         # todo: Test this
         if 'link' in add_data and add_data['link']:
