@@ -33,7 +33,6 @@ class NewsView(FlaskView):
 
             news_article_datetime = datetime.datetime.fromtimestamp(int(find(sd, 'publish-date', False))/1000)
             current_datetime = datetime.datetime.now()
-            send_email_value = find(sd, 'send-email', False)
 
             # ignore any that are on a different day, or in _testing
             if news_article_datetime.strftime("%m-%d-%Y") != current_datetime.strftime("%m-%d-%Y") or '_testing/' in find(article_asset, 'path', False):
@@ -65,7 +64,9 @@ class NewsView(FlaskView):
                     ]
                 }
 
-                if app.config['ENVIRON'] == 'prod':
+                send_email_value = find(sd, 'send-email', False)
+
+                if app.config['ENVIRON'] == 'prod' and send_email_value == 'Yes':
                     self.base_campaign.reset_send_email_value(page)
 
                     resp = new_campaign.create_from_template(client_id, subject, name, from_name, from_email, reply_to,
