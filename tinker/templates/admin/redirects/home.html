@@ -164,10 +164,33 @@
                     input.val("/" + value); // add in a slash
                     value = input.val();
                 }
+                if (value[0] == '/' && value[1] =='/'){
+                    input.val(input.val().replace('//','/')); // eliminates a lead double slash
+                }
                 delay(function () {
                     loadTableForSearch(value, $('#new-redirect-to').val());
                     $('#spinner').hide();
                 }, 300);
+            });
+
+            $('#modal-from-path-edit').keyup(function(){
+                var validRedirect = /(\/)[^\/\s][^\s]*/;
+                var input = $(this);
+                input.val(input.val().replace(/ /g, '')); // eliminates spaces
+                var value = input.val();
+                // check if the from path starts with a /
+                if (value[0] != '/' && value.length > 0) {
+                    input.val("/" + value); // add in a slash
+                    value = input.val();
+                }
+                if (value[0] == '/' && value[1] =='/'){
+                    input.val(input.val().replace('//','/')); // eliminates a lead double slash
+                }
+            });
+
+            $('#modal-to-url-edit').keyup(function(){
+               var input = $(this);
+               input.val(input.val().replace(/ /g, '')); // eliminates spaces
             });
 
             $(document).ready(function () {
