@@ -636,7 +636,8 @@ class TinkerController(object):
         resp = []
 
         for prefix in ['http://www.bethel.edu', 'https://www.bethel.edu',
-                       'http://staging.bethel.edu', 'https://staging.bethel.edu']:
+                       'http://staging.bethel.edu', 'https://staging.bethel.edu',
+                       'http://thumbor.bethel.edu', 'https://thumbor.bethel.edu']:
             path = prefix + image_path
             digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
             path = "%s/%s/%s" % (app.config['THUMBOR_STORAGE_LOCATION'].rstrip('/'), digest[:2], digest[2:])
