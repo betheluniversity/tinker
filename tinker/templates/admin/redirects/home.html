@@ -164,12 +164,17 @@
                     input.val("/" + value); // add in a slash
                     value = input.val();
                 }
-                input.val(input.val().replace(/\/\//g,'/')); // eliminates double slashes
+                input.val(input.val().replace(/\/\//g,'/')); // eliminates multiple slashes
 
                 delay(function () {
                     loadTableForSearch(value, $('#new-redirect-to').val());
                     $('#spinner').hide();
                 }, 300);
+            });
+
+            $('#new-redirect-from').keydown(function(){
+                var input = $(this);
+                input.val(input.val().replace(/\/\//g,'/')); // eliminates multiple slashes if key is held down
             });
 
             $('#modal-from-path-edit').keyup(function(){
@@ -181,7 +186,12 @@
                     input.val("/" + value); // add in a slash
                     value = input.val();
                 }
-                input.val(input.val().replace(/\/\//g,'/')); // eliminates double slashes
+                input.val(input.val().replace(/\/\//g,'/')); // eliminates multiple slashes
+            });
+
+            $('#modal-from-path-edit').keydown(function(){
+                var input = $(this);
+                input.val(input.val().replace(/\/\//g,'/')); // eliminates multiple slashes if key is held down
             });
 
             $('#modal-to-url-edit').keyup(function(){
