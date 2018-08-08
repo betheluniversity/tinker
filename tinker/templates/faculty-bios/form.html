@@ -80,7 +80,15 @@ to be in it's own card div, something to think about in the future -->
                                 {{ field(class="ckeditor") }}
 
                             {% elif field.type == 'RadioField' %}
-                                {{ field }}
+                                {% for subfield in field %}
+                                    <label style="width: 50px; float: left; margin: 0 20px 0 0;">
+                                    {% if subfield.label == courseleaf %}
+                                        <div class="radio checked">{{ subfield() }}{{ subfield.label }}</div>
+                                    {% else %}
+                                        <div class="radio">{{ subfield() }}{{ subfield.label }}</div>
+                                    {% endif %}
+                                    </label>
+                                {% endfor %}
 
                             {% elif field.name == "image" %}
                                 {# The image_url field is hidden. So get the image from this. #}
