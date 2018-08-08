@@ -79,6 +79,9 @@ to be in it's own card div, something to think about in the future -->
                             {% elif field.type == "CKEditorTextAreaField" %}
                                 {{ field(class="ckeditor") }}
 
+                            {% elif field.type == 'RadioField' %}
+                                {{ field }}
+
                             {% elif field.name == "image" %}
                                 {# The image_url field is hidden. So get the image from this. #}
                                 <p id="image-div">Is your image a perfect square? Don't forget to crop it at <a
