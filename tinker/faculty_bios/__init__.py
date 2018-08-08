@@ -126,6 +126,10 @@ class FacultyBiosView(FlaskView):
             edit_data['image_url'] = ''
         edit_image = self.base.should_be_able_to_edit_image()
 
+        courseleaf = find(sdata, 'courseleaf-user', False)
+        if not courseleaf:
+            courseleaf = 'Yes'
+
         # pull the add_to_bio data up one level
         for key, value in edit_data['add_to_bio'].iteritems():
             edit_data[key] = value

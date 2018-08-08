@@ -82,7 +82,7 @@ to be in it's own card div, something to think about in the future -->
                             {% elif field.type == 'RadioField' %}
                                 {% for subfield in field %}
                                     <label style="width: 50px; float: left; margin: 0 20px 0 0;">
-                                    {% if subfield.label == courseleaf %}
+                                    {% if (subfield.label).text == courseleaf %}
                                         <div class="radio checked">{{ subfield() }}{{ subfield.label }}</div>
                                     {% else %}
                                         <div class="radio">{{ subfield() }}{{ subfield.label }}</div>
