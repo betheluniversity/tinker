@@ -79,7 +79,7 @@ class FacultyBioForm(Form):
         first = StringField('Faculty first name')
         last = StringField('Faculty last name')
         author_faculty = StringField("Faculty member's username", description="Enter your Bethel username.")
-        courseleaf = RadioField('CourseLeaf', choices=[('Yes', 'Yes'), ('No', 'No')])
+        courseleaf = RadioField('CourseLeaf', default='Yes', choices=[('Yes', 'Yes'), ('No', 'No')])
 
         faculty_location = SelectMultipleField('Location', choices=[('St. Paul', 'St. Paul'), ('San Diego', 'San Diego'), ('Online', 'Online')], validators=[validators.DataRequired()])
         highlight = TextAreaField('Highlight text', description="This text will appear on faculty listing pages as a short snippet about you!")
