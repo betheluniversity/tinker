@@ -92,9 +92,6 @@ class RedirectsController(TinkerController):
 
         changed = []
         deleted = []
-        check = []
-
-        counter = 0
 
         for redirect in redirects:
             try:
