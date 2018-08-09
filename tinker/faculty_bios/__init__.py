@@ -85,13 +85,7 @@ class FacultyBiosView(FlaskView):
         return render_template('faculty-bios/delete-confirm.html')
 
     def new(self):
-        if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups'] \
-                or 'Tinker Faculty Bios - CAS' in session['groups'] \
-                or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
-                or 'Tinker Faculty Bios - SEM' in session['groups']:
-            show_special_admin_view = True
-        else:
-            show_special_admin_view = False
+
         # import this here so we dont load all the content
         # from cascade during homepage load
         from forms import FacultyBioForm
@@ -113,13 +107,6 @@ class FacultyBiosView(FlaskView):
         return render_template('faculty-bios/in-workflow.html')
 
     def edit(self, faculty_bio_id):
-        if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups'] \
-                or 'Tinker Faculty Bios - CAS' in session['groups'] \
-                or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
-                or 'Tinker Faculty Bios - SEM' in session['groups']:
-            show_special_admin_view = True
-        else:
-            show_special_admin_view = False
 
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         if self.base.asset_in_workflow(faculty_bio_id):

@@ -79,7 +79,12 @@ class FacultyBioForm(Form):
         first = StringField('Faculty first name')
         last = StringField('Faculty last name')
         author_faculty = StringField("Faculty member's username", description="Enter your Bethel username.")
-        courseleaf_user = RadioField('', default='Yes', choices=[('Yes', 'Yes'), ('No', 'No')])
+
+        if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups'] \
+                or 'Tinker Faculty Bios - CAS' in session['groups'] \
+                or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
+                or 'Tinker Faculty Bios - SEM' in session['groups']:
+            courseleaf_user = RadioField('Add this user to CourseLeaf (catalog.bethel.edu)', default='Yes', choices=[('Yes', 'Yes'), ('No', 'No')])
 
         faculty_location = SelectMultipleField('Location', choices=[('St. Paul', 'St. Paul'), ('San Diego', 'San Diego'), ('Online', 'Online')], validators=[validators.DataRequired()])
         highlight = TextAreaField('Highlight text', description="This text will appear on faculty listing pages as a short snippet about you!")
@@ -118,7 +123,12 @@ class FacultyBioForm(Form):
         last = StringField('Faculty last name', validators=[validators.DataRequired()])
         author_faculty = StringField("Faculty member's username", validators=[validators.DataRequired(), validate_username],
                              description="Enter your Bethel username.")
-        courseleaf = RadioField(choices=['Yes', 'No'])
+
+        if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups'] \
+                or 'Tinker Faculty Bios - CAS' in session['groups'] \
+                or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
+                or 'Tinker Faculty Bios - SEM' in session['groups']:
+            courseleaf_user = RadioField('Add this user to CourseLeaf (catalog.bethel.edu)', default='Yes', choices=[('Yes', 'Yes'), ('No', 'No')])
 
         faculty_location = SelectMultipleField('Location',
                                                choices=[('St. Paul', 'St. Paul'), ('San Diego', 'San Diego'),
