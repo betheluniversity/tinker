@@ -417,6 +417,7 @@ class FacultyBioController(TinkerController):
         add_data['started-at-bethel'] = add_data['started_at_bethel']
         add_data['teaching-specialty'] = add_data['teaching_specialty']
         add_data['research-interests'] = add_data['research_interests']
+        add_data['courseleaf-user'] = add_data['courseleaf_user']
 
         # todo: this is a temp fix to override the already set system-name
         new_system_name = add_data['last'].strip() + '-' + add_data['first'].strip()
@@ -434,6 +435,15 @@ class FacultyBioController(TinkerController):
             add_data['id'] = faculty_bio_id
         else:
             add_data['id'] = None
+
+        # Today's Date: (08/09/18)
+        # This hacky chunk of code is used to update the asset to include the courseleaf-user option.
+        # The courseleaf-user option is a new addition to the form and instead of having to edit and submit every single
+        # faculty bio to include it, we can instead use this chunk of code to add the default value of "Yes" to the
+        # asset for every faculty bio.
+        if not find(faculty_bio_data, 'courseleaf-user', False):
+            faculty_bio_data.get('page').get('structuredData').get('structuredDataNodes').get(
+                'structuredDataNode').append({'text': 'Yes', 'identifier': 'courseleaf-user', 'type': 'text'})
 
         self.update_asset(faculty_bio_data, add_data)
 
