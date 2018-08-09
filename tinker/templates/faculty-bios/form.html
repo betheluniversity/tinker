@@ -80,16 +80,18 @@ to be in it's own card div, something to think about in the future -->
                                 {{ field(class="ckeditor") }}
 
                             {% elif field.type == 'RadioField' %}
-                                {% for subfield in field %}
-                                    <label style="width: 50px; float: left; margin: 0 20px 0 0;">
-                                    {% if (subfield.label).text == courseleaf %}
-                                        <div class="radio checked">{{ subfield() }}{{ subfield.label }}</div>
-                                    {% else %}
-                                        <div class="radio">{{ subfield() }}{{ subfield.label }}</div>
-                                    {% endif %}
-                                    </label>
-                                {% endfor %}
-
+                                {% if show_special_admin_view %}
+                                    <label>Add this user to CourseLeaf (catalog.bethel.edu)</label>
+                                    {% for subfield in field %}
+                                        <label style="width: 50px; float: left; margin: 0 20px 0 0;">
+                                            {% if (subfield.label).text == field.data %}
+                                                <div class="radio checked">{{ subfield() }}{{ subfield.label }}</div>
+                                            {% else %}
+                                                <div class="radio">{{ subfield() }}{{ subfield.label }}</div>
+                                            {% endif %}
+                                        </label>
+                                    {% endfor %}
+                                {% endif %}
                             {% elif field.name == "image" %}
                                 {# The image_url field is hidden. So get the image from this. #}
                                 <p id="image-div">Is your image a perfect square? Don't forget to crop it at <a
