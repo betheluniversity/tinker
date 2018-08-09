@@ -92,8 +92,14 @@ class RedirectsController(TinkerController):
 
         changed = []
         deleted = []
+        check = []
+
+        counter = 0
 
         for redirect in redirects:
+            # counter += 1
+            # if counter > 2500:
+                # break
             try:
                 response = requests.get('https://www.bethel.edu' + redirect.from_path, verify=False)
                 redirect.to_url.replace('\n', '')
@@ -115,7 +121,7 @@ class RedirectsController(TinkerController):
             except:  # Needs to be here to catch the rest of the hiccups in the redirects
                 continue
 
-            if response.url != redirect.to_url:
+            if response.url != redirect.to_url:  # potentially adding an encode to utf-8
 
                 if 'auth' in response.url:  # if auth is in the response.url, its decoded
                     response.url = urllib.unquote(urllib.unquote(response.url))
@@ -123,9 +129,10 @@ class RedirectsController(TinkerController):
                     self.db.session.commit()
                     continue
 
+                changed.append({'to_url': redirect.to_url, 'response': response.url})
                 redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
                 self.db.session.commit()
-                changed.append({'to_url': redirect.to_url, 'response': response.url})
+
 
         if changed or deleted:
             return render_template('admin/redirects/clear-redirects.html', **locals())
