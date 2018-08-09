@@ -97,9 +97,6 @@ class RedirectsController(TinkerController):
         counter = 0
 
         for redirect in redirects:
-            # counter += 1
-            # if counter > 2500:
-                # break
             try:
                 response = requests.get('https://www.bethel.edu' + redirect.from_path, verify=False)
                 redirect.to_url.replace('\n', '')
@@ -121,7 +118,7 @@ class RedirectsController(TinkerController):
             except:  # Needs to be here to catch the rest of the hiccups in the redirects
                 continue
 
-            if response.url != redirect.to_url:  # potentially adding an encode to utf-8
+            if response.url != redirect.to_url:
 
                 if 'auth' in response.url:  # if auth is in the response.url, its decoded
                     response.url = urllib.unquote(urllib.unquote(response.url))
