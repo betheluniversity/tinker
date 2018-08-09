@@ -437,10 +437,13 @@ class FacultyBioController(TinkerController):
             add_data['id'] = None
 
         # Today's Date: (08/09/18)
-        # This hacky chunk of code is used to update the asset to include the courseleaf-user option.
-        # The courseleaf-user option is a new addition to the form and instead of having to edit and submit every single
-        # faculty bio to include it, we can instead use this chunk of code to add the default value of "Yes" to the
-        # asset for every faculty bio.
+        # This hacky chunk of code is used to add the "courseleaf-user" value to the faculty_bio_data. The value
+        # currently doesn't exist for most faculty bios since "courseleaf-user" was recently added to the faculty bio
+        # xml.
+        # Thus since the "courseleaf-user" value doesn't currently exist in the faculty_bio_data we either would have to
+        # edit and submit every faculty bio in Cascade (taking hours to do so) or do this. This code adds a default
+        # value of "Yes" to every faculty bio whose faculty_bio_data currently does not have the "courseleaf-user" key
+        # in the dictionary. This data then is added to the asset when update_asset is called on line ~451.
         if not find(faculty_bio_data, 'courseleaf-user', False):
             faculty_bio_data.get('page').get('structuredData').get('structuredDataNodes').get(
                 'structuredDataNode').append({'text': 'Yes', 'identifier': 'courseleaf-user', 'type': 'text'})
