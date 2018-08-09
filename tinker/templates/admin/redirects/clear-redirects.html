@@ -3,8 +3,8 @@
     There are no changes or deletions to worry about. Good work!<br>
 {% else %}
     {% if changed|length > 0 %}
-       These are the redirects being changed. You won't need to do anything with these, they already were updated and we are just informing you. If you notice anything weird, contact Web Development.<br>
-       To Url --> Response<br/>
+       These are the redirects being changed. You won't need to do anything with these, they already were updated and we are just informing you. On the left is the old to url, and the right is the new to url. If you notice anything weird, contact Web Development.<br>
+       Old To Url --> New To Url<br/>
         {% for changed_dict in changed %}
             {{ changed_dict['to_url'] }} --> {{ changed_dict['response'] }}<br>
         {% endfor %}
