@@ -85,6 +85,7 @@ class FacultyBiosView(FlaskView):
         return render_template('faculty-bios/delete-confirm.html')
 
     def new(self):
+
         # import this here so we dont load all the content
         # from cascade during homepage load
         from forms import FacultyBioForm
@@ -106,6 +107,7 @@ class FacultyBiosView(FlaskView):
         return render_template('faculty-bios/in-workflow.html')
 
     def edit(self, faculty_bio_id):
+
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
         if self.base.asset_in_workflow(faculty_bio_id):
             return redirect('/faculty-bios/in-workflow', code=302)
@@ -125,6 +127,10 @@ class FacultyBiosView(FlaskView):
         except:
             edit_data['image_url'] = ''
         edit_image = self.base.should_be_able_to_edit_image()
+
+        courseleaf = find(sdata, 'courseleaf-user', False)
+        if not courseleaf:
+            edit_data['courseleaf_user'] = 'Yes'
 
         # pull the add_to_bio data up one level
         for key, value in edit_data['add_to_bio'].iteritems():
