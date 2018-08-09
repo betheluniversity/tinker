@@ -130,7 +130,6 @@ class RedirectsController(TinkerController):
                 redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
                 self.db.session.commit()
 
-
         if changed or deleted:
             return render_template('admin/redirects/clear-redirects.html', **locals())
         else:
