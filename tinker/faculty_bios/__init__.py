@@ -106,7 +106,10 @@ class FacultyBiosView(FlaskView):
     def faculty_bio_in_workflow(self):
         return render_template('faculty-bios/in-workflow.html')
 
-    def cl(self, faculty_bio_id):
+    @route('/cl', methods=['post'])
+    def cl(self):
+        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        faculty_bio_id = data['id']
 
         page = self.base.read_page(faculty_bio_id)
         asset, md, sd = page.get_asset()

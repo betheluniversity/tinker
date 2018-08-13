@@ -29,16 +29,22 @@
                 <br/>
                 <span id="activate-text-{{ bio.id }}" class="bio-status">
                     {% if bio['deactivated'] == 'Yes' %}
+                        {% set text = 'Deactivated' %}
                         Deactivated
                     {% else %}
-                        Activated on www.bethel.edu <br>
-                        {% if bio['courseleaf-user'] == 'Yes' %}
-                            Added to catalog.bethel.edu (CourseLeaf)
-                        {% else %}
-                            Removed from catalog.bethel.edu (CourseLeaf)
-                        {% endif %}
+                        {% set text = 'Activated' %}
+                        Activated on www.bethel.edu<br>
                     {% endif %}
                 </span>
+                {% if text == 'Activated' %}
+                <span id="added-text-{{ bio.id }}" class="courseleaf-status">
+                    {% if bio['courseleaf-user'] == 'Yes' %}
+                        Added to catalog.bethel.edu (CourseLeaf)
+                    {% else %}
+                        Removed from catalog.bethel.edu (CourseLeaf)
+                    {% endif %}
+                </span>
+                {% endif %}
             </p>
 
             <ul class="btn-group-horizontal">
@@ -64,13 +70,13 @@
                 {% endif %}
                 {% if bio['courseleaf-user'] == 'Yes' %}
                     <li>
-                        <a href="{{ url_for('FacultyBiosView:cl', faculty_bio_id=bio.id) }}"
+                        <a id="{{ bio.id }}" data-method="No" data-faculty-bio-id="{{ bio.id }}"
                            class="small btn btn-primary btn-alert courseleaf-user-press">Remove from CourseLeaf
                         </a>
                     </li>
                 {% else %}
                     <li>
-                        <a href="{{ url_for('FacultyBiosView:cl', faculty_bio_id=bio.id) }}"
+                        <a id="{{ bio.id }}" data-method="Yes" data-faculty-bio-id="{{ bio.id }}"
                            class="small btn btn-primary btn-alert courseleaf-user-press">Add to CourseLeaf
                         </a>
                     </li>
@@ -240,6 +246,64 @@
                         $('#activate-text-' + id).text('Activated');
                     } else {
                         $('#activate-text-' + id).text('Deactivated');
+                    }
+                    current_element.removeClass('btn-alert');
+                    current_element.css('background-color', '#5F7615');
+                    current_element.css('border-color', '#5F7615');
+                    current_element.css('cursor', 'default');
+                    current_element.prop('onclick',null).off('click');
+                    $('#spinner').hide();
+                }
+            });
+        });
+
+
+        $(".courseleaf-user-press").click(function () {
+            $('#spinner').show();
+            var current_element = $(this);
+            var id = current_element.data('faculty-bio-id');
+            var inputs = {
+                "id": id,
+                "added": current_element.attr('data-method')
+            };
+            var url = '/faculty-bios/cl';
+
+            current_element.html('. . . Updating . . .');
+
+            if (current_element.attr('data-method') == 'Yes') {
+                $.notify({
+                    message: 'Adding to CourseLeaf'
+                }, {
+                    type: 'success',
+                    placement: {
+                        align: 'center'
+                    },
+
+                });
+            }
+
+            if (current_element.attr('data-method') == 'No') {
+                $.notify({
+                    message: 'Removing from CourseLeaf'
+                }, {
+                    type: 'success',
+                    placement: {
+                        align: 'center'
+                    },
+
+                });
+            }
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify(inputs),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    current_element.html('Success');
+                    if( current_element.attr('data-method') == 'Yes') {
+                        $('#added-text-' + id).text('Added to CourseLeaf');
+                    } else {
+                        $('#added-text-' + id).text('Removed from CourseLeaf');
                     }
                     current_element.removeClass('btn-alert');
                     current_element.css('background-color', '#5F7615');
