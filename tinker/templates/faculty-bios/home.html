@@ -68,18 +68,20 @@
                         </a>
                     </li>
                 {% endif %}
-                {% if bio['courseleaf-user'] == 'Yes' %}
-                    <li>
-                        <a id="{{ bio.id }}" data-method="No" data-faculty-bio-id="{{ bio.id }}"
-                           class="small btn btn-primary btn-alert courseleaf-user-press">Remove from CourseLeaf
-                        </a>
-                    </li>
-                {% else %}
-                    <li>
-                        <a id="{{ bio.id }}" data-method="Yes" data-faculty-bio-id="{{ bio.id }}"
-                           class="small btn btn-primary btn-alert courseleaf-user-press">Add to CourseLeaf
-                        </a>
-                    </li>
+                {% if show_courseleaf_button %}
+                    {% if bio['courseleaf-user'] == 'Yes' %}
+                        <li>
+                            <a id="{{ bio.id }}" data-method="No" data-faculty-bio-id="{{ bio.id }}"
+                               class="small btn btn-primary btn-alert courseleaf-user-press">Remove from Catalog
+                            </a>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a id="{{ bio.id }}" data-method="Yes" data-faculty-bio-id="{{ bio.id }}"
+                               class="small btn btn-primary btn-alert courseleaf-user-press">Add to Catalog
+                            </a>
+                        </li>
+                    {% endif %}
                 {% endif %}
                 {% if show_special_admin_view %}
                     <li><a href="#" data-reveal-id="confirmModal" id="{{ bio.id }}"
@@ -272,7 +274,7 @@
 
             if (current_element.attr('data-method') == 'Yes') {
                 $.notify({
-                    message: 'Adding to CourseLeaf'
+                    message: 'Adding to Catalog'
                 }, {
                     type: 'success',
                     placement: {
@@ -284,7 +286,7 @@
 
             if (current_element.attr('data-method') == 'No') {
                 $.notify({
-                    message: 'Removing from CourseLeaf'
+                    message: 'Removing from Catalog'
                 }, {
                     type: 'success',
                     placement: {
@@ -301,9 +303,9 @@
                 success: function (result) {
                     current_element.html('Success');
                     if( current_element.attr('data-method') == 'Yes') {
-                        $('#added-text-' + id).text('Added to CourseLeaf');
+                        $('#added-text-' + id).text('Added to Catalog');
                     } else {
-                        $('#added-text-' + id).text('Removed from CourseLeaf');
+                        $('#added-text-' + id).text('Removed from Catalog');
                     }
                     current_element.removeClass('btn-alert');
                     current_element.css('background-color', '#5F7615');

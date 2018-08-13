@@ -47,6 +47,14 @@ class FacultyBiosView(FlaskView):
             forms = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page')
             forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
 
+            if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups'] \
+                    or 'Tinker Faculty Bios - CAS' in session['groups'] \
+                    or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
+                    or 'Tinker Faculty Bios - SEM' in session['groups']:
+                show_courseleaf_button = True
+            else:
+                show_courseleaf_button = False
+
             # the faculty special admins should be able to see every bio, based on school.
             if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups']:
                 show_special_admin_view = True
