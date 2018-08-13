@@ -106,8 +106,9 @@ class FacultyBiosView(FlaskView):
     def faculty_bio_in_workflow(self):
         return render_template('faculty-bios/in-workflow.html')
 
-    @route('/cl', methods=['post'])
-    def cl(self):
+    # TODO CHANGE ROUTE
+    @route('/toggle-courseleaf-user', methods=['post'])
+    def toggle_courseleaf(self):
         data = self.base.dictionary_encoder.encode(json.loads(request.data))
         faculty_bio_id = data['id']
 
