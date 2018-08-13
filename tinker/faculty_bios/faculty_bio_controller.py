@@ -419,7 +419,7 @@ class FacultyBioController(TinkerController):
         add_data['research-interests'] = add_data['research_interests']
         try:
             add_data['courseleaf-user'] = add_data['courseleaf_user']
-        except:
+        except KeyError:
             pass
 
         # todo: this is a temp fix to override the already set system-name
