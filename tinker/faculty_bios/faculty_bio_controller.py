@@ -135,7 +135,8 @@ class FacultyBioController(TinkerController):
                     'path': 'https://www.bethel.edu' + child.find('path').text or "",
                     'schools': school_array,
                     'last-name': child.find('.//last').text or None,
-                    'deactivated': child.find('.//deactivate').text or None
+                    'deactivated': child.find('.//deactivate').text or None,
+                    'courseleaf-user': child.find('.//courseleaf-user').text or None
                 }
 
             # Returns the page_values

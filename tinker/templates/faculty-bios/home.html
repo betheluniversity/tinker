@@ -31,7 +31,12 @@
                     {% if bio['deactivated'] == 'Yes' %}
                         Deactivated
                     {% else %}
-                        Activated
+                        Activated on www.bethel.edu <br>
+                        {% if bio['courseleaf-user'] == 'Yes' %}
+                            Added to catalog.bethel.edu (CourseLeaf)
+                        {% else %}
+                            Removed from catalog.bethel.edu (CourseLeaf)
+                        {% endif %}
                     {% endif %}
                 </span>
             </p>
@@ -54,6 +59,19 @@
                     <li>
                         <a id="{{ bio.id }}" data-method='deactivate' data-faculty-bio-id="{{ bio.id }}"
                            class="small btn btn-primary btn-alert activate-press deactivate">Deactivate
+                        </a>
+                    </li>
+                {% endif %}
+                {% if bio['courseleaf-user'] == 'Yes' %}
+                    <li>
+                        <a
+                           class="small btn btn-primary btn-alert courseleaf-user-press">Add user to catalog.bethel.edu
+                        </a>
+                    </li>
+                {% else %}
+                    <li>
+                        <a
+                           class="small btn btn-primary btn-alert courseleaf-user-press">Remove user from catalog.bethel.edu
                         </a>
                     </li>
                 {% endif %}
