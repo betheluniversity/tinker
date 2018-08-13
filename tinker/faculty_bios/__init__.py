@@ -106,6 +106,27 @@ class FacultyBiosView(FlaskView):
     def faculty_bio_in_workflow(self):
         return render_template('faculty-bios/in-workflow.html')
 
+    def cl(self, faculty_bio_id):
+
+        page = self.base.read_page(faculty_bio_id)
+        asset, md, sd = page.get_asset()
+
+        # activate bio
+
+        added = find(sd, 'courseleaf-user', False)
+
+        if added == 'Yes':
+            update(sd, 'courseleaf-user', 'No')
+        else:
+            update(sd, 'courseleaf-user', 'Yes')
+        asset['page']['shouldBePublished'] = True
+        page.edit_asset(asset)
+        page.publish_asset()
+
+        self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
+
+        return 'Success'
+
     def edit(self, faculty_bio_id):
 
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.

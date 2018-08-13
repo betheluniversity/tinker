@@ -64,14 +64,14 @@
                 {% endif %}
                 {% if bio['courseleaf-user'] == 'Yes' %}
                     <li>
-                        <a
-                           class="small btn btn-primary btn-alert courseleaf-user-press">Add user to catalog.bethel.edu
+                        <a href="{{ url_for('FacultyBiosView:cl', faculty_bio_id=bio.id) }}"
+                           class="small btn btn-primary btn-alert courseleaf-user-press">Remove from CourseLeaf
                         </a>
                     </li>
                 {% else %}
                     <li>
-                        <a
-                           class="small btn btn-primary btn-alert courseleaf-user-press">Remove user from catalog.bethel.edu
+                        <a href="{{ url_for('FacultyBiosView:cl', faculty_bio_id=bio.id) }}"
+                           class="small btn btn-primary btn-alert courseleaf-user-press">Add to CourseLeaf
                         </a>
                     </li>
                 {% endif %}
