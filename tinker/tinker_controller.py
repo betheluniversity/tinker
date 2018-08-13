@@ -161,23 +161,6 @@ def requires_auth(f):
     return decorated
 
 
-# def can_user_access_asset( username, id, type):
-#     try:
-#         user = read(username, "user")
-#         allowed_groups = user.asset.user.groups
-#     except AttributeError:
-#        allowed_groups = ""
-#     user_groups = allowed_groups.split(";")
-#
-#     response = read_access_rights(id, type)['accessRightsInformation']['aclEntries']['aclEntry']
-#     response = [right['name'] for right in response]
-#
-#     if username in response or set(user_groups).intersection(set(response)):
-#         return True
-#     else:
-#         return False
-
-
 # checks the route base and uses the corresponding permissions to load the correct admin menu
 def admin_permissions(flask_view_class):
     # program search menu
