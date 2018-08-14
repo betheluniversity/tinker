@@ -122,8 +122,6 @@ class FacultyBiosView(FlaskView):
         page = self.base.read_page(faculty_bio_id)
         asset, md, sd = page.get_asset()
 
-        # activate bio
-
         courseleaf_value = find(sd, 'courseleaf-user', False)
 
         if courseleaf_value == 'Yes':
