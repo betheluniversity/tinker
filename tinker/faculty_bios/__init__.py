@@ -130,9 +130,6 @@ class FacultyBiosView(FlaskView):
             update(sd, 'courseleaf-user', 'No')
         else:
             update(sd, 'courseleaf-user', 'Yes')
-        asset['page']['shouldBePublished'] = True
-        page.edit_asset(asset)
-        page.publish_asset()
 
         self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
 
