@@ -69,19 +69,18 @@
                     </li>
                 {% endif %}
                 {% if show_courseleaf_button %}
+                    <li>
                     {% if bio['courseleaf-user'] == 'Yes' %}
-                        <li>
+
                             <a id="{{ bio.id }}" data-method="No" data-faculty-bio-id="{{ bio.id }}"
                                class="small btn btn-primary btn-alert courseleaf-user-click">Remove from Catalog
                             </a>
-                        </li>
                     {% else %}
-                        <li>
                             <a id="{{ bio.id }}" data-method="Yes" data-faculty-bio-id="{{ bio.id }}"
                                class="small btn btn-primary btn-alert courseleaf-user-click">Add to Catalog
                             </a>
-                        </li>
                     {% endif %}
+                    </li>
                 {% endif %}
                 {% if show_special_admin_view %}
                     <li><a href="#" data-reveal-id="confirmModal" id="{{ bio.id }}"
