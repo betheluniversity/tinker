@@ -124,9 +124,9 @@ class FacultyBiosView(FlaskView):
 
         # activate bio
 
-        added = find(sd, 'courseleaf-user', False)
+        courseleaf_value = find(sd, 'courseleaf-user', False)
 
-        if added == 'Yes':
+        if courseleaf_value == 'Yes':
             update(sd, 'courseleaf-user', 'No')
         else:
             update(sd, 'courseleaf-user', 'Yes')
