@@ -29,11 +29,22 @@
                 <br/>
                 <span id="activate-text-{{ bio.id }}" class="bio-status">
                     {% if bio['deactivated'] == 'Yes' %}
+                        {% set text = 'Deactivated' %}
                         Deactivated
                     {% else %}
-                        Activated
+                        {% set text = 'Activated' %}
+                        Activated on www.bethel.edu<br>
                     {% endif %}
                 </span>
+                {% if text == 'Activated' %}
+                <span id="added-text-{{ bio.id }}" class="bio-status">
+                    {% if bio['courseleaf-user'] == 'Yes' %}
+                        Added to catalog.bethel.edu (CourseLeaf)
+                    {% else %}
+                        Removed from catalog.bethel.edu (CourseLeaf)
+                    {% endif %}
+                </span>
+                {% endif %}
             </p>
 
             <ul class="btn-group-horizontal">
@@ -55,6 +66,20 @@
                         <a id="{{ bio.id }}" data-method='deactivate' data-faculty-bio-id="{{ bio.id }}"
                            class="small btn btn-primary btn-alert activate-press deactivate">Deactivate
                         </a>
+                    </li>
+                {% endif %}
+                {% if show_courseleaf_button %}
+                    <li>
+                    {% if bio['courseleaf-user'] == 'Yes' %}
+
+                            <a id="{{ bio.id }}" data-method="No" data-faculty-bio-id="{{ bio.id }}"
+                               class="small btn btn-primary btn-alert courseleaf-user-click">Remove from Catalog
+                            </a>
+                    {% else %}
+                            <a id="{{ bio.id }}" data-method="Yes" data-faculty-bio-id="{{ bio.id }}"
+                               class="small btn btn-primary btn-alert courseleaf-user-click">Add to Catalog
+                            </a>
+                    {% endif %}
                     </li>
                 {% endif %}
                 {% if show_special_admin_view %}
@@ -219,9 +244,67 @@
                 success: function (result) {
                     current_element.html('Success');
                     if( current_element.attr('data-method') == 'activate') {
-                        $('#activate-text-' + id).text('Activated');
+                        $('#activate-text-' + id).text('Activated on www.bethel.edu');
                     } else {
                         $('#activate-text-' + id).text('Deactivated');
+                    }
+                    current_element.removeClass('btn-alert');
+                    current_element.css('background-color', '#5F7615');
+                    current_element.css('border-color', '#5F7615');
+                    current_element.css('cursor', 'default');
+                    current_element.prop('onclick',null).off('click');
+                    $('#spinner').hide();
+                }
+            });
+        });
+
+
+        $(".courseleaf-user-click").click(function () {
+            $('#spinner').show();
+            var current_element = $(this);
+            var id = current_element.data('faculty-bio-id');
+            var inputs = {
+                "id": id,
+                "added": current_element.attr('data-method')
+            };
+            var url = '/faculty-bios/toggle-courseleaf-user';
+
+            current_element.html('. . . Updating . . .');
+
+            if (current_element.attr('data-method') == 'Yes') {
+                $.notify({
+                    message: 'Adding to Catalog'
+                }, {
+                    type: 'success',
+                    placement: {
+                        align: 'center'
+                    },
+
+                });
+            }
+
+            if (current_element.attr('data-method') == 'No') {
+                $.notify({
+                    message: 'Removing from Catalog'
+                }, {
+                    type: 'success',
+                    placement: {
+                        align: 'center'
+                    },
+
+                });
+            }
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: JSON.stringify(inputs),
+                contentType: 'application/json;charset=UTF-8',
+                success: function (result) {
+                    current_element.html('Success');
+                    if( current_element.attr('data-method') == 'Yes') {
+                        $('#added-text-' + id).text('Added to Catalog');
+                    } else {
+                        $('#added-text-' + id).text('Removed from Catalog');
                     }
                     current_element.removeClass('btn-alert');
                     current_element.css('background-color', '#5F7615');

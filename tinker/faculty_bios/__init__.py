@@ -47,6 +47,14 @@ class FacultyBiosView(FlaskView):
             forms = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page')
             forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
 
+            if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups'] \
+                    or 'Tinker Faculty Bios - CAS' in session['groups'] \
+                    or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
+                    or 'Tinker Faculty Bios - SEM' in session['groups']:
+                show_courseleaf_button = True
+            else:
+                show_courseleaf_button = False
+
             # the faculty special admins should be able to see every bio, based on school.
             if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups']:
                 show_special_admin_view = True
@@ -105,6 +113,26 @@ class FacultyBiosView(FlaskView):
     @route('/in-workflow', methods=['GET'])
     def faculty_bio_in_workflow(self):
         return render_template('faculty-bios/in-workflow.html')
+
+    @route('/toggle-courseleaf-user', methods=['post'])
+    def toggle_courseleaf(self):
+        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        faculty_bio_id = data['id']
+
+        page = self.base.read_page(faculty_bio_id)
+        asset, md, sd = page.get_asset()
+
+        courseleaf_value = find(sd, 'courseleaf-user', False)
+
+        if courseleaf_value == 'Yes':
+            update(sd, 'courseleaf-user', 'No')
+        else:
+            update(sd, 'courseleaf-user', 'Yes')
+        page.edit_asset(asset)
+
+        self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
+
+        return 'Success'
 
     def edit(self, faculty_bio_id):
 
