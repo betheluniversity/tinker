@@ -136,7 +136,7 @@ class FacultyBioController(TinkerController):
                     'schools': school_array,
                     'last-name': child.find('.//last').text or None,
                     'deactivated': child.find('.//deactivate').text or None,
-                    'courseleaf-user': child.find('.//courseleaf-user').text or None
+                    'courseleaf-user': child.find('.//courseleaf-user').text or "Yes"
                 }
 
             # Returns the page_values
