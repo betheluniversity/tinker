@@ -593,11 +593,6 @@ label.checkbox {
     font-size: 85%;
 }
 
-.courseleaf-status {
-    font-family: Muli, Helvetica Neue, sans-serif!important;
-    font-size: 85%;
-}
-
 /* Makes element have display of none */
 .display-none {
     display: none;
