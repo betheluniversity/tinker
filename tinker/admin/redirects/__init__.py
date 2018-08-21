@@ -216,7 +216,8 @@ class RedirectsView(FlaskView):
             if i > 0:
                 from_url = row[0].split("bethel.edu")[1]
                 from_url = 'https://www.bethel.edu%s' % from_url
-                r = requests.get(from_url, allow_redirects=False)
+                r = self.base.tinker_requests(from_url, allow_redirects=False)
+                # r = requests.get(from_url, allow_redirects=False)
                 if r.status_code != 301:
                     print "found bad line (%s): %s" % (i, from_url)
                     bad += 1

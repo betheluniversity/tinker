@@ -55,7 +55,8 @@ def validate_username(form, field):
     username = field.data
     host = "http://wsapi.bethel.edu"
     path = "/username/" + username + "/roles"
-    req = requests.get(host + path)
+    req = FacultyBioController.tinker_requests(host + path)
+    # req = requests.get(host + path)
 
     content = req.content
     if content == str({}):

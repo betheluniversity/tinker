@@ -160,7 +160,8 @@ class PublishView(FlaskView):
 
                 # prod
                 www_publish_date = 'N/A'
-                page3 = requests.get("https://www.bethel.edu/" + path + '.' + ext).content
+                page3 = self.base.tinker_requests("https://www.bethel.edu/" + path + '.' + ext).content
+                # page3 = requests.get("https://www.bethel.edu/" + path + '.' + ext).content
                 soup3 = BeautifulSoup(page3)
                 date = soup3.findAll(attrs={"name": "date"})
                 if date:
@@ -168,7 +169,8 @@ class PublishView(FlaskView):
 
                 # staging
                 staging_publish_date = 'N/A'
-                page3 = requests.get("https://staging.bethel.edu/" + path + '.' + ext).content
+                page3 = self.base.tinker_requests("https://staging.bethel.edu/" + path + '.' + ext).content
+                # page3 = requests.get("https://staging.bethel.edu/" + path + '.' + ext).content
                 soup3 = BeautifulSoup(page3)
                 date = soup3.findAll(attrs={"name": "date"})
                 if date:
