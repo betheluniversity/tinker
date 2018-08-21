@@ -270,7 +270,6 @@ class TinkerController(object):
                 username = session['username']
             url = current_app.config['API_URL'] + "/username/%s/names" % username
             r = self.tinker_requests(url)
-            # r = requests.get(url)
             try:
                 # In some cases, '0' will not be a valid key, throwing a KeyError
                 # If that happens, session['name'] should be an empty string so that checks in other locations will fail
@@ -311,7 +310,6 @@ class TinkerController(object):
                 username = session['username']
             url = current_app.config['API_URL'] + "/username/%s/roles" % username
             r = self.tinker_requests(url, auth=(current_app.config['API_USERNAME'], current_app.config['API_PASSWORD']))
-            # r = requests.get(url, auth=(current_app.config['API_USERNAME'], current_app.config['API_PASSWORD']))
             roles = fjson.loads(r.content)
             ret = []
             for key in roles.keys():
@@ -381,7 +379,6 @@ class TinkerController(object):
         @cache.memoize(timeout=300)
         def traverse_xml_cache(cache_username, cache_xml_url, cache_type_to_find, cache_find_all, cache_csv):
             response = self.tinker_requests(cache_xml_url)
-            # response = requests.get(cache_xml_url)
             form_xml = ET.fromstring(response.content)
 
             matches = []

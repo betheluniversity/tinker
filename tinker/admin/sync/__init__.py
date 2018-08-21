@@ -98,7 +98,6 @@ class SyncView(FlaskView):
     def sync_prayer_and_memorial(self):
         # read in xml
         resp = self.base.tinker_requests(app.config['PRAYER_AND_MEMORIAL_XML'])
-        # resp = requests.get(app.config['PRAYER_AND_MEMORIAL_XML'])
         xml = ET.fromstring(resp.content)
 
         for block in xml.findall('.//system-block'):

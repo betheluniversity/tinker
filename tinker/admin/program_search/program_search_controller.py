@@ -34,7 +34,6 @@ class ProgramSearchController(TinkerController):
             program_concentrations = []
 
         response = self.tinker_requests(app.config['PROGRAMS_XML'])
-        # response = requests.get(app.config['PROGRAMS_XML'])
         xml = ET.fromstring(response.content)
         program_blocks = xml.findall('.//system-block')
 

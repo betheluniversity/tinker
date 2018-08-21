@@ -53,10 +53,8 @@ class DummyField(TextAreaField):
 
 def validate_username(form, field):
     username = field.data
-    host = "http://wsapi.bethel.edu"
-    path = "/username/" + username + "/roles"
-    req = FacultyBioController.tinker_requests(host + path)
-    # req = requests.get(host + path)
+    url = "http://wsapi.bethel.edu/username/%s/roles" % username
+    req = FacultyBioController.tinker_requests(url)
 
     content = req.content
     if content == str({}):
