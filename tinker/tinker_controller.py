@@ -252,7 +252,7 @@ class TinkerController(object):
             if not username:
                 username = session['username']
             url = current_app.config['API_URL'] + "/username/%s/names" % username
-            r = requests.get(url)
+            r = self.tinker_requests(url)
             try:
                 # In some cases, '0' will not be a valid key, throwing a KeyError
                 # If that happens, session['name'] should be an empty string so that checks in other locations will fail
@@ -292,7 +292,7 @@ class TinkerController(object):
             if not username:
                 username = session['username']
             url = current_app.config['API_URL'] + "/username/%s/roles" % username
-            r = requests.get(url, auth=(current_app.config['API_USERNAME'], current_app.config['API_PASSWORD']))
+            r = self.tinker_requests(url, auth=(current_app.config['API_USERNAME'], current_app.config['API_PASSWORD']))
             roles = fjson.loads(r.content)
             ret = []
             for key in roles.keys():
@@ -361,7 +361,7 @@ class TinkerController(object):
         # Username is used for caching purposes
         @cache.memoize(timeout=300)
         def traverse_xml_cache(cache_username, cache_xml_url, cache_type_to_find, cache_find_all, cache_csv):
-            response = requests.get(cache_xml_url)
+            response = self.tinker_requests(cache_xml_url)
             form_xml = ET.fromstring(response.content)
 
             matches = []
@@ -809,3 +809,7 @@ class TinkerController(object):
             combined_string = combined_string.replace('12 p.m.', 'at noon')
 
         return combined_string
+
+    def tinker_requests(self, url, auth=None, allow_redirects=True, verify=True):
+        return requests.get(url, auth=auth, allow_redirects=allow_redirects, verify=verify,
+                            headers={'Cache-Control': 'no-cache'})
