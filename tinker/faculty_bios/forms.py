@@ -54,7 +54,7 @@ class DummyField(TextAreaField):
 def validate_username(form, field):
     username = field.data
     url = "http://wsapi.bethel.edu/username/%s/roles" % username
-    req = FacultyBioController.tinker_requests(url)
+    req = FacultyBioController().tinker_requests(url)
 
     content = req.content
     if content == str({}):
