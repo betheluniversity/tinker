@@ -347,17 +347,14 @@ to be in it's own card div, something to think about in the future -->
                 $('.hide-when-school-changes' + num).hide();
 
                 function giveSelectValues(identifier, metadata_values) {
-                    // add default -select- value
-                    var opt = document.createElement('option');
-                    opt.value = '-select-';
-                    opt.innerHTML = '-select-';
-                    $('#' + identifier + num).append(opt);
-
                     for (var i = 0; i < metadata_values.length; i++) {
                         opt = document.createElement('option');
                         var metadata_value = metadata_values[i];
                         if (identifier == 'schools') {
                             metadata_value = metadata_value.replace('&', 'and');
+                        }
+                        if ( metadata_value == 'None' ) {
+                            metadata_value = '-select-';
                         }
                         opt.value = metadata_value;
                         opt.innerHTML = metadata_value.replace('Bethel University', 'Administration with Faculty Status');
