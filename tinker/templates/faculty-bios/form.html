@@ -235,7 +235,7 @@ to be in it's own card div, something to think about in the future -->
                         )
                 );
 
-                inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'new-job-title-div' + id).append(
+                inner_node.append($('<div>').attr('id', 'new-job-title-div' + id).append(
                         $("<label>").html('Title').append(
                                 $("<input type='text'>").attr('id', 'new-job-title' + id).attr('name', 'new-job-title' + id).addClass('no-border')
                         )
@@ -700,7 +700,7 @@ to be in it's own card div, something to think about in the future -->
                     </label>
                 </div>
 
-                <div id="new-job-title-div1" class="hide-when-school-changes1"><label>
+                <div id="new-job-title-div1"><label>
                     Title
                     <input class="no-border" type="text" name="new-job-title1" id="new-job-title1"/>
                 </label></div>
