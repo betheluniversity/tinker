@@ -17,6 +17,7 @@ class PublishManagerController(TinkerController):
 
         return date_time
 
+    # TODO: If this is going to be implemented again, it needs a refactor. See "search_data_definitions"
     def search(self, name_search="", content_search="", metadata_search="", pages_search=False, blocks_search=False,
                files_search=False, folders_search=False):
 
@@ -36,9 +37,13 @@ class PublishManagerController(TinkerController):
 
     def search_data_definitions(self, name_search=""):
         search_information = {
-            'matchType': "match-all",
-            'assetName': name_search,
-            'searchBlocks': True,
+            'searchTerms': name_search,
+            'searchTypes': {
+                'searchType': ['block']
+            },
+            'searchFields': {
+                'searchField': ['name']
+            }
         }
         response = self.search_cascade(search_information)
         return response
