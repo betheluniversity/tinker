@@ -34,7 +34,7 @@ undergrad_programs = [
     "Psychology",
     "Social Work",
     "Sociology and Reconciliation Studies",
-    "Special Education"
+    "Special Education",
     "Theatre Arts",
     "World Languages and Cultures",
 ]
