@@ -53,6 +53,7 @@ adult_undergrad_programs = [
     "Nursing (RN to B.S.)",
     "Organizational Leadership (B.A.)",
     "Senior Care Leadership and Administration Certificate",
+    "Special Education",
 ]
 
 seminary_programs = [
