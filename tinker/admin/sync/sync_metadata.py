@@ -34,6 +34,7 @@ undergrad_programs = [
     "Psychology",
     "Social Work",
     "Sociology and Reconciliation Studies",
+    "Special Education"
     "Theatre Arts",
     "World Languages and Cultures",
 ]
@@ -53,7 +54,7 @@ adult_undergrad_programs = [
     "Nursing (RN to B.S.)",
     "Organizational Leadership (B.A.)",
     "Senior Care Leadership and Administration Certificate",
-    "Special Education",
+    "Special Education (B.A.)",
 ]
 
 seminary_programs = [
