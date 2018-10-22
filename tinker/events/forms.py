@@ -168,7 +168,8 @@ class EventForm(Form):
 
     other = HeadingField(label="Who should folks contact with questions?")
     questions = CKEditorTextAreaField('Questions',
-                                      description=u"Contact info for questions. (ex: Contact the Office of Church Relations at 651.638.6301 or church-relations@bethel.edu.)")
+                                      description=u"Contact info for questions. (ex: Contact the Office of Church Relations at 651.638.6301 or church-relations@bethel.edu.)",
+                                  validators=[DataRequired()])
 
     categories = HeadingField(label="Categories")
 
