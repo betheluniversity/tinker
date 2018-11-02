@@ -1,3 +1,9 @@
 REDIRECTS_FILE_PATH = ""
 SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(_basedir, 'app.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(_basedir, 'db_repository')
+
+SFTP_USERNAME = ''
+SFTP_SSH_KEY_PATH = ''  # Absolute path to the ssh.key file
+SFTP_SSH_KEY_PASSPHRASE = ''
+SFTP_REMOTE_HOST = ''
+SFTP_REMOTE_HOST_PUBLIC_KEY = ''
