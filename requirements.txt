@@ -24,7 +24,7 @@ feedparser
 createsend
 raven
 Flask-Classy
-bu-cascade
+bu-cascade==2.285
 blinker
 discover
 importlib
@@ -39,3 +39,4 @@ HTMLParser
 unidecode==0.4.21
 namedentities
 redis
+paramiko
