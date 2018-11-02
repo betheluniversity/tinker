@@ -4,7 +4,8 @@ import re
 import requests
 import smtplib
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
+from os.path import getmtime
 
 # Packages
 from BeautifulSoup import BeautifulSoup
@@ -326,3 +327,18 @@ class RedirectsView(FlaskView):
     @route('/public/clear-redirects')
     def redirect_clear(self):
         return self.base.redirect_change()
+
+    @requires_auth
+    @route('/public/sftp-publish')
+    def sftp_publish(self):
+        if app.config['ENVIRON'] == 'prod':
+            last_modified = datetime.now() - datetime.fromtimestamp(getmtime(app.config['REDIRECTS_FILE_PATH']))
+            cron_interval = timedelta(minutes=30)
+
+            if last_modified < cron_interval:
+                return self.base.write_redirects_to_sftp()
+            else:
+                return "Redirects file hasn't been updated since the last cron run"
+        else:
+            return 'Nothing to do'
+
