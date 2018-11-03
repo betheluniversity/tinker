@@ -79,7 +79,7 @@ class EAnnouncementsView(FlaskView):
 
         return render_template('e-announcements/view.html', **locals())
 
-    @cache.memoize(timeout=3600)
+    # CANT CACHE THIS
     def new(self):
         from forms import EAnnouncementsForm
         form = EAnnouncementsForm()
