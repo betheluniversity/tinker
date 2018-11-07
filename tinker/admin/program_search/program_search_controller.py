@@ -40,7 +40,7 @@ class ProgramSearchController(TinkerController):
         sftp = SFTPClient.from_transport(remote_server)
         local_redirects_file = app.config['PROGRAM_SEARCH_CSV']
         # Because of how SFTP is set up on wlp-fn2187, all these paths will be automatically prefixed with /var/www
-        remote_destination_path = 'cms.pub/code/program-search/csv/programs.csv'
+        remote_destination_path = 'cms.pub/programs.csv'
         sftp.put(local_redirects_file, remote_destination_path)
 
         print 'SFTP publish of programs.csv succeeded'
