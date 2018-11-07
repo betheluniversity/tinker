@@ -4,6 +4,8 @@ import csv
 # Packages
 import requests
 from xml.etree import ElementTree as ET
+from paramiko import RSAKey, SFTPClient, Transport
+from paramiko.hostkeys import HostKeyEntry
 
 # Local
 from tinker import app
@@ -24,6 +26,27 @@ class ProgramSearchController(TinkerController):
 
         outcsv.writerows(iter(rows))
         outfile.close()
+
+        # SFTP
+        try:
+            ssh_key_object = RSAKey(filename=app.config['SFTP_SSH_KEY_PATH'],
+                                    password=app.config['SFTP_SSH_KEY_PASSPHRASE'])
+
+            remote_server_public_key = HostKeyEntry.from_line(app.config['SFTP_REMOTE_HOST_PUBLIC_KEY']).key
+            # This will throw a warning, but the (string, int) tuple will automatically be parsed into a Socket object
+            remote_server = Transport((app.config['SFTP_REMOTE_HOST'], 22))
+            remote_server.connect(hostkey=remote_server_public_key, username=app.config['SFTP_USERNAME'], pkey=ssh_key_object)
+
+            sftp = SFTPClient.from_transport(remote_server)
+            local_redirects_file = app.config['PROGRAM_SEARCH_CSV']
+            # Because of how SFTP is set up on wlp-fn2187, all these paths will be automatically prefixed with /var/www
+            remote_destination_path = 'cms.pub/code/program-search/csv/programs.csv'
+            sftp.put(local_redirects_file, remote_destination_path)
+
+            return 'SFTP publish of programs.csv succeeded'
+        except:
+            return 'SFTP publish of programs.csv failed'
+
         return "<pre>%s</pre>" % str(rows)
 
     def get_programs_for_dropdown(self, return_dict_for_renaming=False):
