@@ -336,7 +336,8 @@ class RedirectsView(FlaskView):
             cron_interval = timedelta(minutes=30)
 
             if last_modified < cron_interval:
-                return self.base.write_redirects_to_sftp()
+                # SFTP
+                return self.base.write_redirects_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'])
             else:
                 return "Redirects file hasn't been updated since the last cron run"
         else:
