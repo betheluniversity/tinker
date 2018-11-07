@@ -27,6 +27,8 @@ from bu_cascade.asset_tools import find, update
 from flask import abort, current_app, render_template, request, Response, session
 from flask import json as fjson
 from namedentities import numeric_entities  # (namedentities)
+from paramiko import RSAKey, SFTPClient, Transport
+from paramiko.hostkeys import HostKeyEntry
 from requests.packages.urllib3.exceptions import SNIMissingWarning, InsecurePlatformWarning
 from unidecode import unidecode
 from werkzeug.datastructures import ImmutableMultiDict
@@ -813,3 +815,21 @@ class TinkerController(object):
     def tinker_requests(self, url, auth=None, allow_redirects=True, verify=True):
         return requests.get(url, auth=auth, allow_redirects=allow_redirects, verify=verify,
                             headers={'Cache-Control': 'no-cache'})
+
+    # Because of how SFTP is set up on wlp-fn2187, all these paths will be automatically prefixed with /var/www
+    def write_redirects_to_sftp(self, from_path, to_path):
+        try:
+            ssh_key_object = RSAKey(filename=app.config['SFTP_SSH_KEY_PATH'],
+                                    password=app.config['SFTP_SSH_KEY_PASSPHRASE'])
+
+            remote_server_public_key = HostKeyEntry.from_line(app.config['SFTP_REMOTE_HOST_PUBLIC_KEY']).key
+            # This will throw a warning, but the (string, int) tuple will automatically be parsed into a Socket object
+            remote_server = Transport((app.config['SFTP_REMOTE_HOST'], 22))
+            remote_server.connect(hostkey=remote_server_public_key, username=app.config['SFTP_USERNAME'], pkey=ssh_key_object)
+
+            sftp = SFTPClient.from_transport(remote_server)
+            sftp.put(from_path, to_path)
+
+            return 'SFTP publish from %s to %s succeeded' % (from_path, to_path)
+        except:
+            return 'SFTP publish from %s to %s failed' % (from_path, to_path)
