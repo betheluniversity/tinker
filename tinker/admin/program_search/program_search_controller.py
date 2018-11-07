@@ -43,9 +43,9 @@ class ProgramSearchController(TinkerController):
             remote_destination_path = 'cms.pub/code/program-search/csv/programs.csv'
             sftp.put(local_redirects_file, remote_destination_path)
 
-            return 'SFTP publish of programs.csv succeeded'
+            print 'SFTP publish of programs.csv succeeded'
         except:
-            return 'SFTP publish of programs.csv failed'
+            print 'SFTP publish of programs.csv failed'
 
         return "<pre>%s</pre>" % str(rows)
 
