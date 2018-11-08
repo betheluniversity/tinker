@@ -329,7 +329,7 @@ class RedirectsView(FlaskView):
         return self.base.redirect_change()
 
     @requires_auth
-    @route('/public/sftp-publish')
+    @route('/public/sftp-publish', methods=['post'])
     def sftp_publish(self):
         if app.config['ENVIRON'] == 'prod':
             last_modified = datetime.now() - datetime.fromtimestamp(getmtime(app.config['REDIRECTS_FILE_PATH']))

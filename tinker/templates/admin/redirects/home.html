@@ -48,10 +48,9 @@
                                 </div>
                             </div>
                             <div class="row">
-                                <a href="{{ url_for('RedirectsView:sftp_publish') }}" id="sftp-sync"
-                                        class="btn btn-primary redirect-btn">
+                                <div id="sftp-sync" class="btn btn-primary redirect-btn">
                                     SFTP Sync
-                                </a>
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -79,6 +78,20 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
+
+            $('#sftp-sync').click(function(){
+                var url = "{{ url_for('RedirectsView:sftp_publish') }}";
+                $.post(url, null, function(data){
+                    $.notify({
+                        message: data
+                    }, {
+                        type: 'success',
+                        placement: {
+                            align: 'center'
+                        },
+                    });
+                });
+            });
 
             function updateTable(data) {
                 $("#redirects-search-output").html(data);
