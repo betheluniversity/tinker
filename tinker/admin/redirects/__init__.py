@@ -342,4 +342,3 @@ class RedirectsView(FlaskView):
                 return "Redirects file hasn't been updated since the last cron run"
         else:
             return 'Nothing to do'
-

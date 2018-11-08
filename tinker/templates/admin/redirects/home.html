@@ -42,8 +42,16 @@
                                 <input type="checkbox" name="new-redirect-short-url" id="new-redirect-short-url">
                                 Short URL
                             </label>
-                            <div id="redirects-save" class="btn btn-primary">
-                                Save
+                            <div class="row">
+                                <div id="redirects-save" class="btn btn-primary redirect-btn">
+                                    Save
+                                </div>
+                            </div>
+                            <div class="row">
+                                <a href="{{ url_for('RedirectsView:sftp_publish') }}" id="sftp-sync"
+                                        class="btn btn-primary redirect-btn">
+                                    SFTP Sync
+                                </a>
                             </div>
                         </form>
                     </div>
