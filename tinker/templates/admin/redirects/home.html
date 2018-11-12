@@ -13,6 +13,15 @@
                 <div class="card">
                     <div class="content">
                         <form action="" id="new-redirect-form">
+                            <div class="row">
+                                <p>New or updated redirects become active automatically every 30 minutes.</p>
+                                <p>If you do not wish to wait for the next automatic update, click the button below:</p>
+                            </div>
+                            <div class="row">
+                                <div id="sftp-sync" class="btn btn-primary redirect-btn">
+                                    Update Redirects
+                                </div>
+                            </div>
                             <div class="row less-left-margin">
                                 <div class="col-sm-4">
                                     <div class="form-group">
@@ -47,11 +56,6 @@
                                     Save
                                 </div>
                             </div>
-                            <div class="row">
-                                <div id="sftp-sync" class="btn btn-primary redirect-btn">
-                                    SFTP Sync
-                                </div>
-                            </div>
                         </form>
                     </div>
                 </div>
@@ -80,7 +84,7 @@
         $(document).ready(function () {
 
             $('#sftp-sync').click(function(){
-                var url = "{{ url_for('RedirectsView:sftp_publish') }}";
+                var url = "{{ url_for('RedirectsView:manual_sftp_publish') }}";
                 $.post(url, null, function(data){
                     $.notify({
                         message: data

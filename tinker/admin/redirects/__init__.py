@@ -342,3 +342,10 @@ class RedirectsView(FlaskView):
                 return "Redirects file hasn't been updated since the last cron run"
         else:
             return 'Nothing to do'
+
+    @route('/public/manual_sftp_publish', methods=['post'])
+    def manual_sftp_publish(self):
+        if app.config['ENVIRON'] == 'prod':
+            return self.base.write_redirects_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'])
+        else:
+            return 'Test Environment: No updates were made'

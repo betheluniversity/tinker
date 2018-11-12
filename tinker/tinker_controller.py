@@ -830,6 +830,8 @@ class TinkerController(object):
             sftp = SFTPClient.from_transport(remote_server)
             sftp.put(from_path, to_path)
 
-            return 'SFTP publish from %s to %s succeeded' % (from_path, to_path)
+            app.logger.debug('SFTP publish from %s to %s succeeded' % (from_path, to_path))
+            return 'Redirect updates successful'
         except:
-            return 'SFTP publish from %s to %s failed' % (from_path, to_path)
+            app.logger.debug('SFTP publish from %s to %s failed' % (from_path, to_path))
+            return 'Redirect updates failed'
