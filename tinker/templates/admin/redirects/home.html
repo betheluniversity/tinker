@@ -13,6 +13,16 @@
                 <div class="card">
                     <div class="content">
                         <form action="" id="new-redirect-form">
+                            <div class="row">
+                                <p>New or updated redirects become active automatically every 30 minutes.</p>
+                                <p>If you do not wish to wait for the next automatic update, click the button below
+                                    to update now:</p>
+                            </div>
+                            <div class="row">
+                                <div id="sftp-sync" class="btn btn-primary redirect-btn">
+                                    Update Redirects
+                                </div>
+                            </div>
                             <div class="row less-left-margin">
                                 <div class="col-sm-4">
                                     <div class="form-group">
@@ -42,8 +52,10 @@
                                 <input type="checkbox" name="new-redirect-short-url" id="new-redirect-short-url">
                                 Short URL
                             </label>
-                            <div id="redirects-save" class="btn btn-primary">
-                                Save
+                            <div class="row">
+                                <div id="redirects-save" class="btn btn-primary redirect-btn">
+                                    Save
+                                </div>
                             </div>
                         </form>
                     </div>
@@ -71,6 +83,23 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
+
+            $('#sftp-sync').click(function(){
+                var url = "{{ url_for('RedirectsView:manual_sftp_publish') }}";
+                $.post(url, null, function(data){
+                    if(data) {
+                        data = JSON.parse(data);
+                        $.notify({
+                            message: data.message
+                        }, {
+                            type: data.type,
+                            placement: {
+                                align: 'center'
+                            },
+                        });
+                    }
+                });
+            });
 
             function updateTable(data) {
                 $("#redirects-search-output").html(data);

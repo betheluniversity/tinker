@@ -582,6 +582,10 @@ label {
     width: 40%;
 }
 
+.redirect-btn{
+    margin-bottom: 5px;
+}
+
 /* Checkbox inputs */
 
 label.checkbox {

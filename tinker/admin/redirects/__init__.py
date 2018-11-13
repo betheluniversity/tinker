@@ -329,17 +329,26 @@ class RedirectsView(FlaskView):
         return self.base.redirect_change()
 
     @requires_auth
-    @route('/public/sftp-publish')
-    def sftp_publish(self):
+    @route('/public/cron-sftp-publish')
+    def cron_sftp_publish(self):
         if app.config['ENVIRON'] == 'prod':
             last_modified = datetime.now() - datetime.fromtimestamp(getmtime(app.config['REDIRECTS_FILE_PATH']))
             cron_interval = timedelta(minutes=30)
 
             if last_modified < cron_interval:
                 # SFTP
-                return self.base.write_redirects_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'])
+                return self.base.write_redirects_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'], True)
             else:
                 return "Redirects file hasn't been updated since the last cron run"
         else:
             return 'Nothing to do'
 
+    @route('/public/manual-sftp-publish', methods=['post'])
+    def manual_sftp_publish(self):
+        if app.config['ENVIRON'] == 'prod':
+            return self.base.write_redirects_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'], False)
+        else:
+            return json.dumps({
+                'type': 'success',
+                'message': 'Test Environment: No updates were made'
+            })

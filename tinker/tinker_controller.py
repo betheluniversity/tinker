@@ -817,7 +817,7 @@ class TinkerController(object):
                             headers={'Cache-Control': 'no-cache'})
 
     # Because of how SFTP is set up on wlp-fn2187, all these paths will be automatically prefixed with /var/www
-    def write_redirects_to_sftp(self, from_path, to_path):
+    def write_redirects_to_sftp(self, from_path, to_path, cron):
         try:
             ssh_key_object = RSAKey(filename=app.config['SFTP_SSH_KEY_PATH'],
                                     password=app.config['SFTP_SSH_KEY_PASSPHRASE'])
@@ -829,7 +829,18 @@ class TinkerController(object):
 
             sftp = SFTPClient.from_transport(remote_server)
             sftp.put(from_path, to_path)
-
-            return 'SFTP publish from %s to %s succeeded' % (from_path, to_path)
+            if cron:
+                return 'SFTP publish from %s to %s succeeded' % (from_path, to_path)
+            else:
+                return fjson.dumps({
+                    'type': 'success',
+                    'message': 'Redirect updates successful'
+                })
         except:
-            return 'SFTP publish from %s to %s failed' % (from_path, to_path)
+            if cron:
+                return 'SFTP publish from %s to %s failed' % (from_path, to_path)
+            else:
+                return fjson.dumps({
+                    'type': 'danger',
+                    'message': 'Redirect updates failed'
+                })
