@@ -99,9 +99,9 @@
 
     {#  Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
-        $(".delete-press").click(function () {
-            $("#modal-confirm").attr("href", "/e-announcements/delete/" + $(this).data('e-announcement-id'));
-        });
+
+    $(document).ready(function(){
+
         $('.datepicker').each(function () {
             var current_element = $(this);
             var starting_values = {
@@ -162,6 +162,11 @@
             search_e_annz();
         });
         search_e_annz();
+
+        $(document).on('click', '.delete-press', function(){
+            $("#modal-confirm").attr("href", "/e-announcements/delete/" + $(this).data('e-announcement-id'));
+        });
+    });
 
 
     </script>
