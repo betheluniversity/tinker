@@ -661,8 +661,11 @@ class TinkerController(object):
         }
         return workflow
 
-    def element_tree_to_html(self, node):
+    def element_tree_to_html(self, node, first_time_through=True):
         return_string = ''
+        if first_time_through and node.text:
+            return_string = node.text
+
         for child in node:
             child_text = ''
             if child.text:
@@ -676,10 +679,10 @@ class TinkerController(object):
                     else:
                         child_href = '#'
                     return_string += '<%s href="%s">%s%s</%s>' % (
-                        child.tag, child_href, child_text, self.element_tree_to_html(child), child.tag)
+                        child.tag, child_href, child_text, self.element_tree_to_html(child, False), child.tag)
                 else:
                     return_string += '<%s>%s%s</%s>' % (
-                        child.tag, child_text, self.element_tree_to_html(child), child.tag)
+                        child.tag, child_text, self.element_tree_to_html(child, False), child.tag)
             except:
                 # gets the basic text
                 if child_text:
