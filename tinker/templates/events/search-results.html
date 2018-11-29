@@ -37,10 +37,35 @@
     <div class="content">
         <h2>{{ formsHeader }}</h2>
         {% if list_of_events is defined and list_of_events | length > 0 %}
-            {% for form in list_of_events %}
-                <br/>
-                {{ form_card(form) }}
-            {% endfor %}
+            <div id="loop" class="form-group col-md-12">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        <li id="previous-page">
+                            <a href="javascript:void(0)">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li style="list-style-type: none;">
+                            Limit
+                        </li>
+                        <li style="list-style-type: none;">
+                            <select id="selected-option">
+                                <option id="first" selected="selected" value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="All">All</option>
+                            </select>
+                        </li>
+                    </ul>
+                </nav>
+                {% for form in list_of_events %}
+                    <div class="list-group">
+                        {{ form_card(form) }}
+                    </div>
+                {% endfor %}
+            </div>
         {% else %}
             <p> Search completed: No Events meet the search criteria. </p>
         {% endif %}

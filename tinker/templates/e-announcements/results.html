@@ -44,13 +44,39 @@
 {%- endmacro %}
 
 {% block main_content %}
+
     <div class="content">
         <h2>{{ forms_header }}</h2>
         {% if search_results is defined and search_results | length > 0 %}
-            {% for form in search_results %}
-                <br/>
-                {{ form_card(form) }}
-            {% endfor %}
+            <div id="loop" class="form-group col-md-12">
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination">
+                        <li id="previous-page">
+                            <a href="javascript:void(0)">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <ul>
+                        <li style="list-style-type: none;">
+                            Limit
+                        </li>
+                        <li style="list-style-type: none;">
+                            <select id="selected-option">
+                                <option id="first" selected="selected" value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="All">All</option>
+                            </select>
+                        </li>
+                    </ul>
+                </nav>
+                {% for form in search_results %}
+                    <div class="list-group">
+                        {{ form_card(form) }}
+                    </div>
+                {% endfor %}
+            </div>
         {% else %}
             <p> Search completed: No E-Announcements meet the search criteria. </p>
         {% endif %}
