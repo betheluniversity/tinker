@@ -18,45 +18,50 @@ $(document).ready(function () {
 
 function pagination() {
     var numberOfItems = $(" #loop .list-group").length;
-    var limitPerPage = $("#first").val();
+    if (numberOfItems > 10) {
+        var limitPerPage = $("#selected-default").val();
 
-    $("#selected-option").change(function() {
-        var o = $(this).find("option:selected");
-        if (o.val() === "All") {
-            limitPerPage = numberOfItems;
-        } else {
-            limitPerPage = o.val()
-        }
+        $("#selected-option").change(function() {
+            var o = $(this).find("option:selected");
+            if (o.val() === "All") {
+                limitPerPage = numberOfItems;
+            } else {
+                limitPerPage = o.val()
+            }
 
-        $(".pagination").children("li.to-remove").remove();
+            $(".pagination").children("li.to-remove").remove();
+
+            var totalPages = Math.ceil(numberOfItems / limitPerPage);
+
+            createButtons(totalPages, limitPerPage);
+
+            // When a new limit is selected, we reset the current page to one, since if we have 10 pages, and then
+            // we changed to only having one page, we can't keep whatever page we were previously on (if it was greater
+            // than 1) so we instead just set it to 1.
+            var currentPage = 1;
+
+            var grandTotal = limitPerPage * currentPage;
+
+            for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
+                $("#loop .list-group:eq(" + i + ")").show();
+            }
+
+            switchPages(limitPerPage);
+
+            nextPage(totalPages, limitPerPage);
+
+        });
 
         var totalPages = Math.ceil(numberOfItems / limitPerPage);
 
         createButtons(totalPages, limitPerPage);
 
-        var currentPage = 1;
-
-        var grandTotal = limitPerPage * currentPage;
-
-        for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
-            $("#loop .list-group:eq(" + i + ")").show();
-        }
-
         switchPages(limitPerPage);
 
         nextPage(totalPages, limitPerPage);
 
-    });
-
-    var totalPages = Math.ceil(numberOfItems / limitPerPage);
-
-    createButtons(totalPages, limitPerPage);
-
-    switchPages(limitPerPage);
-
-    nextPage(totalPages, limitPerPage);
-
-    previousPage(totalPages, limitPerPage);
+        previousPage(totalPages, limitPerPage);
+    }
 }
 
 function nextPage(totalPages, limitPerPage) {
