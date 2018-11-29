@@ -19,15 +19,11 @@ $(document).ready(function () {
 function pagination() {
     var numberOfItems = $(" #loop .list-group").length;
     if (numberOfItems > 10) {
-        var limitPerPage = $("#selected-default").val();
+        var limitPerPage = $("#selected-option").children("option:selected").attr("value");
+        alert(limitPerPage);
 
         $("#selected-option").change(function() {
-            var o = $(this).find("option:selected");
-            if (o.val() === "All") {
-                limitPerPage = numberOfItems;
-            } else {
-                limitPerPage = o.val()
-            }
+            limitPerPage = $("#selected-option").children("option:selected").attr("value");
 
             $(".pagination").children("li.to-remove").remove();
 
