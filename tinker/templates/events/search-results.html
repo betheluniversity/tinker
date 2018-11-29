@@ -38,28 +38,30 @@
         <h2>{{ formsHeader }}</h2>
         {% if list_of_events is defined and list_of_events | length > 0 %}
             <div id="loop" class="form-group col-md-12">
-                <nav aria-label="Page navigation example">
-                    <ul class="pagination">
-                        <li id="previous-page">
-                            <a href="javascript:void(0)">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-                    </ul>
-                    <ul>
-                        <li style="list-style-type: none;">
-                            Limit
-                        </li>
-                        <li style="list-style-type: none;">
-                            <select id="selected-option">
-                                <option id="selected-default" selected="selected" value="10">10</option>
-                                <option value="20">20</option>
-                                <option value="50">50</option>
-                                <option value="All">All</option>
-                            </select>
-                        </li>
-                    </ul>
-                </nav>
+                {% if list_of_events|length > 10 %}
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination">
+                            <li id="previous-page">
+                                <a href="javascript:void(0)">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li style="list-style-type: none;">
+                                Limit
+                            </li>
+                            <li style="list-style-type: none;">
+                                <select id="selected-option">
+                                    <option value="10" selected="selected">10</option>
+                                    <option value="20">20</option>
+                                    <option value="50">50</option>
+                                    <option value="{{ list_of_events|length }}">All</option>
+                                </select>
+                            </li>
+                        </ul>
+                    </nav>
+                {% endif %}
                 {% for form in list_of_events %}
                     <div class="list-group">
                         {{ form_card(form) }}
