@@ -17,7 +17,6 @@ $(document).ready(function () {
 });
 
 function pagination() {
-
     var numberOfItems = $(" #loop .list-group").length;
     var limitPerPage = $("#first").val();
 
@@ -75,11 +74,8 @@ function nextPage(totalPages, limitPerPage) {
             for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
                 $("#loop .list-group:eq(" + i + ")").show();
             }
-
             $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass("active");
-
         }
-
     });
 }
 
@@ -98,7 +94,6 @@ function previousPage(totalPages, limitPerPage) {
              for (var i = grandTotal - limitPerPage; i < grandTotal; i++) {
                  $("#loop .list-group:eq(" + i + ")").show();
              }
-
              $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass('active');
          }
     });
@@ -131,6 +126,5 @@ function createButtons(totalPages, limitPerPage) {
     for (var i = 2; i <= totalPages; i++){
         $(".pagination").append("<li class='current-page to-remove'><a href='javascript:void(0)'>" + i + "</a></li>")
     }
-
     $(".pagination").append("<li id='next-page' class='to-remove'><a href='javascript:void(0)' aria-label='Next'><span aria-hidden='true'>&raquo;</span></a></li>");
 }
