@@ -288,46 +288,48 @@ to be in it's own card div, something to think about in the future -->
                     id = $(this).data("id");
                     var list = $(".new-job-fieldset");
                     for (var i = id; i < list.length; i++) {
-                        // todo: need to move the data
-                        // schools1
-                        $('#schools' + (i)).val($('#schools' + (i + 1)));
+                        // Schools
+                        $('#schools' + (i)).val($('#schools' + (i + 1)).val());
                         $('#schools' + (i)).change();
 
-                        // todo: move the value of everything. Then find the one that actually has a value and call .change()
-                        // todo: repeat with the next section
-
-                        // undergrad1
-                        // adult-undergrad1
-                        // graduate1
-                        // seminary1
-                        $('#undergrad' + (i)).val($('#undergrad' + (i + 1)));
-                        $('#adult-undergrad' + (i)).val($('#adult-undergrad' + (i + 1)));
-                        $('#graduate' + (i)).val($('#graduate' + (i + 1)));
-                        $('#seminary' + (i)).val($('#seminary' + (i + 1)));
-
+                        // Programs
                         var programs = ['#undergrad', '#adult-undergrad', '#graduate', '#seminary'];
-                        $.each(programs, function(program){
+                        $.each(programs, function(index, program){
+                            // move the value
+                            $(program + (i)).val($(program + (i + 1)).val());
+
+                            // check the value of the one being deleted, call .change() if necessary
                             program = $(program+i);
                             if( program.val() != '' && program.val() != '-select-' )
                                 program.change();
                         });
 
-                        // dept-chair1
-                        // program-director1
-                        // lead-faculty1
-                        $('#dept-chair' + (i)).val($('#dept-chair' + (i + 1)));
-                        $('#program-director' + (i)).val($('#program-director' + (i + 1)));
-                        $('#lead-faculty' + (i)).val($('#lead-faculty' + (i + 1)));
+                        // Program Directors
+                        $('#dept-chair' + (i)).val($('input[name=dept-chair' + (i+1) + ']:checked').val());
+                        $('#program-director' + (i)).val($('input[name=program-director' + (i+1) + ']:checked').val());
+                        $('#lead-faculty' + (i)).val($('input[name=lead-faculty' + (i+1) + ']:checked').val());
 
-                        var directors = ['#dept-chair', '#program-director', '#lead-faculty'];
-                        $.each(directors, function(director){
-                            director = $(director+i);
+                        var directors = ['dept-chair', 'program-director', 'lead-faculty'];
+                        $.each(directors, function(index, director){
+                            // remove all classes and checked values
+                            $('input[name=' + director + (i) + ']').parent().parent().parent().children().removeClass('checked');
+                            $('input[name=' + director + (i) + ']').prop('checked', false);
+
+                            // get the new value
+                            var new_director_value = $('input[name=' + director + (i+1) + ']:checked').val();
+
+                            // set the value from the future
+                            $('input[name=' + director + (i) + '][value="' + new_director_value + '"]').parent().parent().addClass('checked');
+                            $('input[name=' + director + (i) + '][value="' + new_director_value + '"]').prop('checked', true);
+
+                            // check the value of the one being deleted, call .change() if necessary
+                            director = $('input[name=' + director + i + ']:checked');
                             if( director.val() != '' )
                                 director.change();
                         });
 
                         // new-job-title1
-                        $('#new-job-title' + (i)).val($('#new-job-title' + (i + 1)));
+                        $('#new-job-title' + (i)).val($('#new-job-title' + (i + 1)).val());
                     }
                     list.last().remove();
                     checkNumJobTitles();
