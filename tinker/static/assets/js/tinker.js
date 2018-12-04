@@ -112,7 +112,7 @@ function createButtons(totalPages, limitPerPage) {
     $(".pagination").append("<li class='current-page active temp-button'><a href='javascript:void(0)'>" + 1 + "</a></li>");
 
     for (var i = 2; i <= totalPages; i++){
-        $(".pagination").append("<li class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>")
+        $(".pagination").append("<li class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
     }
     $(".pagination").append("<li id='next-page' class='temp-button'><a href='javascript:void(0)' aria-label='Next'><span aria-hidden='true'>&raquo;</span></a></li>");
 }
