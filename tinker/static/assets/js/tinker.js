@@ -17,15 +17,14 @@ $(document).ready(function () {
 });
 
 function pagination() {
-    var numberOfItems = $(" #loop .list-group").length;
+    var numberOfItems = $(" #loop .items-to-paginate").length;
     if (numberOfItems > 10) {
         var limitPerPage = $("#selected-option").children("option:selected").attr("value");
-        alert(limitPerPage);
 
         $("#selected-option").change(function() {
             limitPerPage = $("#selected-option").children("option:selected").attr("value");
 
-            $(".pagination").children("li.to-remove").remove();
+            $(".pagination").children("li.temp-button").remove();
 
             var totalPages = Math.ceil(numberOfItems / limitPerPage);
 
@@ -39,12 +38,12 @@ function pagination() {
             var grandTotal = limitPerPage * currentPage;
 
             for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
-                $("#loop .list-group:eq(" + i + ")").show();
+                $("#loop .items-to-paginate:eq(" + i + ")").show();
             }
 
             switchPages(limitPerPage);
 
-            nextPage(totalPages, limitPerPage);
+            nextOrPreviousPage(totalPages, limitPerPage, "next-page");
 
         });
 
@@ -54,49 +53,37 @@ function pagination() {
 
         switchPages(limitPerPage);
 
-        nextPage(totalPages, limitPerPage);
+        nextOrPreviousPage(totalPages, limitPerPage, "next-page");
 
-        previousPage(totalPages, limitPerPage);
+        nextOrPreviousPage(totalPages, limitPerPage, "previous-page");
     }
 }
 
-function nextPage(totalPages, limitPerPage) {
-    $("#next-page").on("click", function() {
+function nextOrPreviousPage(totalPages, limitPerPage, type) {
+    $("#" + type +" ").on("click", function() {
         var currentPage = $(".pagination li.active").index();
-        if (currentPage === totalPages) {
-            return false;
-        } else {
-            currentPage ++;
-            $(".pagination li").removeClass("active");
-            $("#loop .list-group").hide();
-
-            var grandTotal = limitPerPage * currentPage;
-
-            for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
-                $("#loop .list-group:eq(" + i + ")").show();
+        if (type === "next-page") {
+            if (currentPage === totalPages) {
+                return false;
+            } else {
+                currentPage ++;
             }
-            $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass("active");
+        } else if (type === "previous-page") {
+            if (currentPage === 1) {
+                return false;
+            } else {
+                currentPage --;
+            }
         }
-    });
-}
+        $(".pagination li").removeClass("active");
+        $("#loop .items-to-paginate").hide();
 
-function previousPage(totalPages, limitPerPage) {
-    $("#previous-page").on("click", function() {
-        var currentPage = $(".pagination li.active").index();
-        if (currentPage === 1) {
-             return false;
-        } else {
-             currentPage --;
-             $(".pagination li").removeClass('active');
-             $("#loop .list-group").hide();
+        var grandTotal = limitPerPage * currentPage;
 
-             var grandTotal = limitPerPage * currentPage;
-
-             for (var i = grandTotal - limitPerPage; i < grandTotal; i++) {
-                 $("#loop .list-group:eq(" + i + ")").show();
-             }
-             $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass('active');
-         }
+        for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
+            $("#loop .items-to-paginate:eq(" + i + ")").show();
+        }
+        $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass("active");
     });
 }
 
@@ -108,24 +95,24 @@ function switchPages(limitPerPage) {
             var currentPage = $(this).index();
             $(".pagination li").removeClass("active");
             $(this).addClass("active");
-            $("#loop .list-group").hide();
+            $("#loop .items-to-paginate").hide();
 
             var grandTotal = limitPerPage * currentPage;
 
             for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
-                $("#loop .list-group:eq(" + i + ")").show();
+                $("#loop .items-to-paginate:eq(" + i + ")").show();
             }
         }
     });
 }
 
 function createButtons(totalPages, limitPerPage) {
-    $(" #loop .list-group:gt(" + (limitPerPage - 1) + ")").hide();
+    $(" #loop .items-to-paginate:gt(" + (limitPerPage - 1) + ")").hide();
 
-    $(".pagination").append("<li class='current-page active to-remove'><a href='javascript:void(0)'>" + 1 + "</a></li>");
+    $(".pagination").append("<li class='current-page active temp-button'><a href='javascript:void(0)'>" + 1 + "</a></li>");
 
     for (var i = 2; i <= totalPages; i++){
-        $(".pagination").append("<li class='current-page to-remove'><a href='javascript:void(0)'>" + i + "</a></li>")
+        $(".pagination").append("<li class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>")
     }
-    $(".pagination").append("<li id='next-page' class='to-remove'><a href='javascript:void(0)' aria-label='Next'><span aria-hidden='true'>&raquo;</span></a></li>");
+    $(".pagination").append("<li id='next-page' class='temp-button'><a href='javascript:void(0)' aria-label='Next'><span aria-hidden='true'>&raquo;</span></a></li>");
 }

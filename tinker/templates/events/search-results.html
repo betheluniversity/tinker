@@ -40,7 +40,7 @@
             <div id="loop" class="form-group col-md-12">
                 {% if list_of_events|length > 10 %}
                     <nav aria-label="Page navigation example">
-                        <ul class="pagination">
+                        <ul class="pagination"> {# change class name to something more clear #}
                             <li id="previous-page">
                                 <a href="javascript:void(0)">
                                     <span aria-hidden="true">&laquo;</span>
@@ -63,7 +63,7 @@
                     </nav>
                 {% endif %}
                 {% for form in list_of_events %}
-                    <div class="list-group">
+                    <div class="items-to-paginate">
                         {{ form_card(form) }}
                     </div>
                 {% endfor %}
