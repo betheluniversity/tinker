@@ -4,7 +4,7 @@
         <div class="content">
             <p>
                 {% if form.path != '' %}
-                    <a href={{ form.path }}>{{ form.title }}</a>
+                    <a href="https://cms.bethel.edu/entity/open.act?id={{ form.id }}&type=block">{{ form.title }}</a>
                 {% else %}
                     {{ form.title }}
                 {% endif %}
