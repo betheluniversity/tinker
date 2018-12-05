@@ -17,6 +17,7 @@ undergrad_programs = [
     "Business & Economics",
     "Chemistry",
     "Communication Studies",
+    "Community Health",
     "Education",
     "English and Journalism",
     "Environmental Studies",
