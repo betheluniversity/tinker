@@ -52,28 +52,6 @@ function pagination(type) {
             limitPerPage = $("#selected-option").children("option:selected").attr("value");
             Cookies.set('e-announcement-cookie', limitPerPage, { expires: 30, path: '/' });
 
-            if (limitPerPage == 10) {
-                $("#selected-option").html("<option value=\"10\" selected='selected'>10</option>\n" +
-                    "<option value=\"20\">20</option>\n" +
-                    "<option value=\"50\">50</option>\n" +
-                    "<option value=\" " + numberOfItems + " \">All</option>");
-            }else if (limitPerPage == 20) {
-                $("#selected-option").html("<option value=\"10\">10</option>\n" +
-                        "<option value=\"20\" selected='selected'>20</option>\n" +
-                        "<option value=\"50\">50</option>\n" +
-                        "<option value=\" " + numberOfItems + " \">All</option>");
-            }else if (limitPerPage == 50) {
-                $("#selected-option").html("<option value=\"10\">10</option>\n" +
-                    "<option value=\"20\">20</option>\n" +
-                    "<option value=\"50\" selected='selected'>50</option>\n" +
-                    "<option value=\" " + numberOfItems + " \">All</option>");
-            }else {
-                $("#selected-option").html("<option value=\"10\">10</option>\n" +
-                    "<option value=\"20\">20</option>\n" +
-                    "<option value=\"50\">50</option>\n" +
-                    "<option value=\" " + numberOfItems + " \" selected='selected'>All</option>");
-            }
-
             $(".pagination").children("li.temp-button").remove();
 
             var totalPages = Math.ceil(numberOfItems / limitPerPage);
