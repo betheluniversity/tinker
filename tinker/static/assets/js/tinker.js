@@ -16,13 +16,63 @@ $(document).ready(function () {
     });
 });
 
-function pagination() {
+function pagination(type) {
     var numberOfItems = $(" #loop .items-to-paginate").length;
     if (numberOfItems > 10) {
-        var limitPerPage = $("#selected-option").children("option:selected").attr("value");
+        var limitPerPage = 10;
+        if (Cookies.get('e-announcement-cookie') != null) {
+            limitPerPage = Cookies.get('e-announcement-cookie');
+        } else {
+            Cookies.set('e-announcement-cookie', limitPerPage, { expires: 30, path: '/' });
+        }
+
+        if (limitPerPage == 10) {
+            $("#selected-option").html("<option value=\"10\" selected='selected'>10</option>\n" +
+                "<option value=\"20\">20</option>\n" +
+                "<option value=\"50\">50</option>\n" +
+                "<option value=\"{{ search_results|length }}\">All</option>");
+        }else if (limitPerPage == 20) {
+            $("#selected-option").html("<option value=\"10\">10</option>\n" +
+                    "<option value=\"20\" selected='selected'>20</option>\n" +
+                    "<option value=\"50\">50</option>\n" +
+                    "<option value=\"{{ search_results|length }}\">All</option>");
+        }else if (limitPerPage == 50) {
+            $("#selected-option").html("<option value=\"10\">10</option>\n" +
+                "<option value=\"20\">20</option>\n" +
+                "<option value=\"50\" selected='selected'>50</option>\n" +
+                "<option value=\"{{ search_results|length }}\">All</option>");
+        }else {
+            $("#selected-option").html("<option value=\"10\">10</option>\n" +
+                "<option value=\"20\">20</option>\n" +
+                "<option value=\"50\">50</option>\n" +
+                "<option value=\"{{ search_results|length }}\" selected='selected'>All</option>");
+        }
 
         $("#selected-option").change(function() {
             limitPerPage = $("#selected-option").children("option:selected").attr("value");
+            Cookies.set('e-announcement-cookie', limitPerPage, { expires: 30, path: '/' });
+
+            if (limitPerPage == 10) {
+                $("#selected-option").html("<option value=\"10\" selected='selected'>10</option>\n" +
+                    "<option value=\"20\">20</option>\n" +
+                    "<option value=\"50\">50</option>\n" +
+                    "<option value=\"{{ search_results|length }}\">All</option>");
+            }else if (limitPerPage == 20) {
+                $("#selected-option").html("<option value=\"10\">10</option>\n" +
+                        "<option value=\"20\" selected='selected'>20</option>\n" +
+                        "<option value=\"50\">50</option>\n" +
+                        "<option value=\"{{ search_results|length }}\">All</option>");
+            }else if (limitPerPage == 50) {
+                $("#selected-option").html("<option value=\"10\">10</option>\n" +
+                    "<option value=\"20\">20</option>\n" +
+                    "<option value=\"50\" selected='selected'>50</option>\n" +
+                    "<option value=\"{{ search_results|length }}\">All</option>");
+            }else if (limitPerPage == numberOfItems) {
+                $("#selected-option").html("<option value=\"10\">10</option>\n" +
+                    "<option value=\"20\">20</option>\n" +
+                    "<option value=\"50\">50</option>\n" +
+                    "<option value=\"{{ search_results|length }}\" selected='selected'>All</option>");
+            }
 
             $(".pagination").children("li.temp-button").remove();
 
