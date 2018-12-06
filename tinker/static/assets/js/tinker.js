@@ -30,22 +30,22 @@ function pagination(type) {
             $("#selected-option").html("<option value=\"10\" selected='selected'>10</option>\n" +
                 "<option value=\"20\">20</option>\n" +
                 "<option value=\"50\">50</option>\n" +
-                "<option value=\" " + limitPerPage + " \">All</option>");
+                "<option value=\" " + numberOfItems + " \">All</option>");
         }else if (limitPerPage == 20) {
             $("#selected-option").html("<option value=\"10\">10</option>\n" +
                     "<option value=\"20\" selected='selected'>20</option>\n" +
                     "<option value=\"50\">50</option>\n" +
-                    "<option value=\" " + limitPerPage + " \">All</option>");
+                    "<option value=\" " + numberOfItems + " \">All</option>");
         }else if (limitPerPage == 50) {
             $("#selected-option").html("<option value=\"10\">10</option>\n" +
                 "<option value=\"20\">20</option>\n" +
                 "<option value=\"50\" selected='selected'>50</option>\n" +
-                "<option value=\" " + limitPerPage + " \">All</option>");
+                "<option value=\" " + numberOfItems + " \">All</option>");
         }else {
             $("#selected-option").html("<option value=\"10\">10</option>\n" +
                 "<option value=\"20\">20</option>\n" +
                 "<option value=\"50\">50</option>\n" +
-                "<option value=\" " + limitPerPage + " \" selected='selected'>All</option>");
+                "<option value=\" " + numberOfItems + " \" selected='selected'>All</option>");
         }
 
         $("#selected-option").change(function() {
@@ -56,7 +56,7 @@ function pagination(type) {
                 $("#selected-option").html("<option value=\"10\" selected='selected'>10</option>\n" +
                     "<option value=\"20\">20</option>\n" +
                     "<option value=\"50\">50</option>\n" +
-                    "<option value=\" " + limitPerPage + " \">All</option>");
+                    "<option value=\" " + numberOfItems + " \">All</option>");
             }else if (limitPerPage == 20) {
                 $("#selected-option").html("<option value=\"10\">10</option>\n" +
                         "<option value=\"20\" selected='selected'>20</option>\n" +
