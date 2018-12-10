@@ -134,6 +134,29 @@ to be in it's own card div, something to think about in the future -->
     <script type="text/javascript">
 
         $(document).ready(function () {
+            $("#degree-delete1").hide();
+            addHandlerDegree(1);
+
+            $("#job-title-delete1").hide();
+            addHandlerJobTitle(1);
+
+            function checkNumDegrees() {
+                var degrees = $(".degree-fieldset");
+                if (degrees.length < 2)
+                    $("#degree-delete1").hide();
+                else {
+                    $("#degree-delete1").show();
+                }
+            };
+
+            function checkNumJobTitles() {
+                var jobs = $(".new-job-fieldset");
+                if (jobs.length < 2)
+                    $("#job-title-delete1").hide();
+                else {
+                    $("#job-title-delete1").show();
+                }
+            };
 
             function newDegreeTitleFieldset(id) {
                 var school = 'school' + id;
@@ -141,9 +164,9 @@ to be in it's own card div, something to think about in the future -->
                 var year = 'year' + id;
                 var fieldset_node = $('<fieldset>').addClass('degree-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Degree " + id + ' ').append(
-                        $('<small>').addClass('required').html(' required'))
-                );
+                inner_node.append($("<legend>")
+                    .append($('<i>').addClass('fa fa-times fa-delete').attr('id', 'degree-delete' + id).attr('data-id', id)).append("Degree " + id + ' ')
+                    .append($('<small>').addClass('required').html(' required')));
                 inner_node.append($("<label>").attr('for', school).html("School"));
                 inner_node.append($("<input type='text'>").attr('name', school).attr('id', school).addClass("no-border"));
                 inner_node.append($("<label>").attr('for', degree).html("Degree Earned"));
@@ -158,9 +181,9 @@ to be in it's own card div, something to think about in the future -->
                 var title = 'new-job-title' + id;
                 var fieldset_node = $('<fieldset>').addClass('new-job-fieldset');
                 var inner_node = $("<div>").addClass('content');
-                inner_node.append($("<legend>").html("Job Title " + id + " ").append(
-                        $('<small>').addClass('required').html('required'))
-                );
+                inner_node.append($("<legend>")
+                    .append($('<i>').addClass('fa fa-times fa-delete').attr('id', 'job-title-delete' + id).attr('data-id', id)).append("Job Title " + id + ' ')
+                    .append($('<small>').addClass('required').html(' required')));
 
                 inner_node.append($('<div>').attr('class', 'schools-div' + id).append(
                         $("<label>").html('School')).append(
@@ -245,6 +268,73 @@ to be in it's own card div, something to think about in the future -->
 
                 return fieldset_node;
             }
+
+            function addHandlerDegree(id) {
+                $("#degree-delete" + id).click(function () {
+                    id = $(this).data("id");
+                    var list = $(".degree-fieldset");
+                    for (var i = id; i < list.length; i++) {
+                        $('#school' + (i)).val($('#school' + (i + 1)).val());
+                        $('#degree-earned' + (i)).val($('#degree-earned' + (i + 1)).val());
+                        $('#year' + (i)).val($('#year' + (i + 1)).val());
+                    }
+                    list.last().remove();
+                    checkNumDegrees();
+                })
+            };
+
+            function addHandlerJobTitle(id) {
+                $("#job-title-delete" + id).click(function () {
+                    id = $(this).data("id");
+                    var list = $(".new-job-fieldset");
+                    for (var i = id; i < list.length; i++) {
+                        // Schools
+                        $('#schools' + (i)).val($('#schools' + (i + 1)).val());
+                        $('#schools' + (i)).change();
+
+                        // Programs
+                        var programs = ['#undergrad', '#adult-undergrad', '#graduate', '#seminary'];
+                        $.each(programs, function(index, program){
+                            // move the value
+                            $(program + (i)).val($(program + (i + 1)).val());
+
+                            // check the value of the one being deleted, call .change() if necessary
+                            program = $(program+i);
+                            if( program.val() != '' && program.val() != '-select-' )
+                                program.change();
+                        });
+
+                        // Program Directors
+                        $('#dept-chair' + (i)).val($('input[name=dept-chair' + (i+1) + ']:checked').val());
+                        $('#program-director' + (i)).val($('input[name=program-director' + (i+1) + ']:checked').val());
+                        $('#lead-faculty' + (i)).val($('input[name=lead-faculty' + (i+1) + ']:checked').val());
+
+                        var directors = ['dept-chair', 'program-director', 'lead-faculty'];
+                        $.each(directors, function(index, director){
+                            // remove all classes and checked values
+                            $('input[name=' + director + (i) + ']').parent().parent().parent().children().removeClass('checked');
+                            $('input[name=' + director + (i) + ']').prop('checked', false);
+
+                            // get the new value
+                            var new_director_value = $('input[name=' + director + (i+1) + ']:checked').val();
+
+                            // set the value from the future
+                            $('input[name=' + director + (i) + '][value="' + new_director_value + '"]').parent().parent().addClass('checked');
+                            $('input[name=' + director + (i) + '][value="' + new_director_value + '"]').prop('checked', true);
+
+                            // check the value of the one being deleted, call .change() if necessary
+                            director = $('input[name=' + director + i + ']:checked');
+                            if( director.val() != '' )
+                                director.change();
+                        });
+
+                        // new-job-title1
+                        $('#new-job-title' + (i)).val($('#new-job-title' + (i + 1)).val());
+                    }
+                    list.last().remove();
+                    checkNumJobTitles();
+                })
+            };
 
             function populateDegreeFieldset(id, school, degree, year) {
                 var schoolid = '#school' + id;
@@ -474,8 +564,8 @@ to be in it's own card div, something to think about in the future -->
 
                     //no infinite loops today
                     i++;
-
                 }
+                checkNumJobTitles();
             {% else %}
                 initializeJobTitles(1);
             {% endif %}
@@ -500,7 +590,7 @@ to be in it's own card div, something to think about in the future -->
                         var last = $(".degree-fieldset").last();
                         var new_degree = newDegreeTitleFieldset(id);
                         new_degree.insertAfter(last);
-                        $("#remove_degree_button").show();
+                        addHandlerDegree(id);
                     }
                     //Now populate the fieldset
                     var degree_earned = '';
@@ -511,8 +601,9 @@ to be in it's own card div, something to think about in the future -->
                     populateDegreeFieldset(id, degree['school'], degree_earned, degree['year']);
                     //no infinite loops today
                     i++;
-
                 }
+                // by default, go ahead and check the num degrees
+                checkNumDegrees();
 
             {% endif %}
 
@@ -532,7 +623,8 @@ to be in it's own card div, something to think about in the future -->
                 var new_num = (parseInt(old_num) + 1);
                 var new_degree = newDegreeTitleFieldset(new_num);
                 new_degree.insertAfter(last);
-                $("#remove_degree_button").show();
+                checkNumDegrees();
+                addHandlerDegree(new_num);
             });
 
             $("#remove_degree_button").click(function () {
@@ -553,7 +645,8 @@ to be in it's own card div, something to think about in the future -->
                 var new_job = newJobTitlesFieldset(new_num);
                 new_job.insertAfter(last);
                 initializeJobTitles(new_num);
-                $("#remove_new_job_button").show();
+                addHandlerJobTitle(new_num);
+                checkNumJobTitles();
             });
 
             $("#remove_new_job_button").click(function () {
@@ -620,7 +713,10 @@ to be in it's own card div, something to think about in the future -->
     <fieldset class="degree-fieldset">
         <div class="card">
             <div class="content">
-                <legend>Degree 1 <small class="required">required</small></legend>
+                <legend>Degree 1
+                    <small class="required">required</small>
+                    <i class="fa fa-times fa-delete" id="degree-delete1" data-id="1"></i>
+                </legend>
                 <label for="school1">School</label>
                 <input class="no-border" type="text" name="school1" id="school1"/>
 
@@ -643,7 +739,10 @@ to be in it's own card div, something to think about in the future -->
     <fieldset class="new-job-fieldset">
         <div class="card">
             <div class="content">
-                <legend>Job Title 1 <small class="required">required</small></legend>
+                <legend>Job Title 1
+                    <small class="required">required</small>
+                    <i class="fa fa-times fa-delete" id="job-title-delete1" data-id="1"></i>
+                </legend>
                 <div id="schools-div">
                     <label>School</label>
                     <select name='schools1' id='schools1'></select>
@@ -708,6 +807,4 @@ to be in it's own card div, something to think about in the future -->
         </div>
     </fieldset>
     <a href="javascript:void(0);" id="add_new_job_button" class="btn btn-primary">Add Another Job Title</a>
-    <a href="javascript:void(0);" id="remove_new_job_button" style="display:none"
-       class="btn btn-primary btn-alert">Remove Job Title</a>
 {%- endmacro %}
