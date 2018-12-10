@@ -23,3 +23,14 @@ CKEDITOR.editorConfig = function( config ) {
 		CKEDITOR.config.entities = false;
 };
 
+// CKEDITOR.replace( 'ckeditor', {
+//     on: {
+//         pluginsLoaded: function( evt ) {
+//             evt.editor.dataProcessor.dataFilter.addRules( {
+//                 comment: function() {
+//                     return false;
+//                 }
+//             } );
+//         }
+//     }
+// } );
