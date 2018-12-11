@@ -23,7 +23,6 @@ CKEDITOR.editorConfig = function( config ) {
 		CKEDITOR.config.entities = false;
 };
 
-
 // i am not sure this works, but it is difficult to actually test. In theory, this should prevent html comments
 // from being sent to cascade. I am taking a gamble in hoping this fixes the junk that gets sent - caleb
 CKEDITOR.replaceAll( 'ckeditor', {
