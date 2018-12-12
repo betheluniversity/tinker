@@ -23,10 +23,10 @@ class SetReadonlyValuesTestCase(EAnnouncementsControllerBaseTestCase):
         self.controller.set_readonly_values(test_edit_data)
 
         self.assertTrue('first_readonly' in test_edit_data.keys())
-        self.assertFalse(test_edit_data['first_readonly'])
+        self.assertEqual(test_edit_data['first_readonly'], 'Friday August 17, 2018')
 
         self.assertTrue('second_readonly' in test_edit_data.keys())
-        self.assertFalse(test_edit_data['second_readonly'])
+        self.assertEqual(test_edit_data['second_readonly'], 'Tuesday August 21, 2018')
 
         test_edit_data = {
             'first_date': datetime(2017, 6, 17),
