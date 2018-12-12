@@ -26,7 +26,7 @@ class ValidateFormTestCase(EventsControllerBaseTestCase):
             'main_content': u"This is an event created to make sure that Tinker's connection with Cascade via "
                             u"events continues working as we make changes",
             'image': u'',
-            'cas_departments': u'English',
+            'cas_departments': u'Chemistry',
             'off_campus_location': u'',
             'general': u'Athletics',
             'cost': u'$20',

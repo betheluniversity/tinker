@@ -21,6 +21,6 @@ class GetProgramsForDropdownTestCase(ProgramSearchControllerBaseTestCase):
         self.assertTrue('school' in top_major.keys())
         self.assertEqual(top_major['school'], 'College of Arts & Sciences')
         self.assertTrue('name' in top_major.keys())
-        self.assertEqual(top_major['name'], 'Accounting and Finance Major')
+        self.assertEqual(top_major['name'], '5 Year Ministry Dual Degree Program')
         self.assertTrue('value' in top_major.keys())
-        self.assertEqual(top_major['value'], 'accounting-finance-major-program')
+        self.assertEqual(top_major['value'], '5-year-ministry-major-program')

@@ -612,39 +612,6 @@ class TinkerController(object):
         if not app.config.get('UNIT_TESTING'):
             data['workflowConfiguration'] = workflow
 
-    def clear_image_cache(self, image_path):
-        # /academics/faculty/images/lundberg-kelsey.jpg"
-        # Make sure image path starts with a slash
-        if not image_path.startswith('/'):
-            image_path = '/%s' % image_path
-
-        resp = []
-
-        for prefix in ['http://www.bethel.edu', 'https://www.bethel.edu',
-                       'http://staging.bethel.edu', 'https://staging.bethel.edu',
-                       'http://thumbor.bethel.edu', 'https://thumbor.bethel.edu']:
-            path = prefix + image_path
-            digest = hashlib.sha1(path.encode('utf-8')).hexdigest()
-            path = "%s/%s/%s" % (app.config['THUMBOR_STORAGE_LOCATION'].rstrip('/'), digest[:2], digest[2:])
-            resp.append(path)
-            # remove the file at the path
-            # if config.ENVIRON == "prod":
-            if not app.config['UNIT_TESTING']:
-                call(['rm', path])
-
-        # now the result storage
-        file_name = image_path.split('/')[-1]
-        matches = []
-        for root, dirnames, filenames in os.walk(app.config['THUMBOR_RESULT_STORAGE_LOCATION']):
-            for filename in fnmatch.filter(filenames, file_name):
-                matches.append(os.path.join(root, filename))
-        for match in matches:
-            call(['rm', match])
-
-        matches.extend(resp)
-
-        return str(matches)
-
     def create_workflow(self, workflow_id, subtitle=None):
         if not workflow_id:
             return None

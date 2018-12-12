@@ -38,4 +38,4 @@ class GetSearchResultsTestCase(EventsControllerBaseTestCase):
                 for key in event.keys():
                     self.assertTrue(key in expected_keys)
             self.assertTrue(isinstance(response[1], str))
-            self.assertEqual(response[1], 'All Events')
+            self.assertEqual(response[1], 'My Events')
