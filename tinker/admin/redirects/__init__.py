@@ -332,6 +332,7 @@ class RedirectsView(FlaskView):
     @route('/public/cron-sftp-publish')
     def cron_sftp_publish(self):
         if app.config['ENVIRON'] == 'prod':
+            self.base.create_redirect_text_file()
             last_modified = datetime.now() - datetime.fromtimestamp(getmtime(app.config['REDIRECTS_FILE_PATH']))
             cron_interval = timedelta(minutes=30)
 
@@ -346,6 +347,7 @@ class RedirectsView(FlaskView):
     @route('/public/manual-sftp-publish', methods=['post'])
     def manual_sftp_publish(self):
         if app.config['ENVIRON'] == 'prod':
+            self.base.create_redirect_text_file()
             return self.base.write_redirects_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'], False)
         else:
             return json.dumps({
