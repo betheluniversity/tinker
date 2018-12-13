@@ -82,7 +82,7 @@ class RedirectsController(TinkerController):
         self.db.session.rollback()
 
     def paths_are_valid(self, from_path, to_url):
-        if not from_path or from_path == '/' or not to_url:
+        if not from_path or from_path == '/' or not to_url or '\t' in from_path or '\t' in to_url:
             return False
         return True
 
