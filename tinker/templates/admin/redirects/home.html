@@ -177,6 +177,7 @@
                 $('#spinner').show();
                 var input = $(this);
                 input.val(input.val().replace(/ /g, '')); // eliminates spaces
+                input.val(input.val().replace(/\t/g, '')); // eliminates tabs
                 delay(function () {
                     loadTableForSearch($('#new-redirect-from').val(), input.val());
                     $('#spinner').hide();
@@ -187,6 +188,7 @@
                 $('#spinner').show();
                 var input = $(this);
                 input.val(input.val().replace(/ /g, '')); // eliminates spaces
+                input.val(input.val().replace(/\t/g, '')); // eliminates tabs
                 var value = input.val();
                 // check if the from path starts with a /
                 if (value[0] != '/' && value.length > 0) {
@@ -209,6 +211,7 @@
             $('#modal-from-path-edit').keyup(function(){
                 var input = $(this);
                 input.val(input.val().replace(/ /g, '')); // eliminates spaces
+                input.val(input.val().replace(/\t/g, '')); // eliminates tabs
                 var value = input.val();
                 // check if the from path starts with a /
                 if (value[0] != '/' && value.length > 0) {
@@ -226,6 +229,7 @@
             $('#modal-to-url-edit').keyup(function(){
                var input = $(this);
                input.val(input.val().replace(/ /g, '')); // eliminates spaces
+                input.val(input.val().replace(/\t/g, '')); // eliminates tabs
             });
 
             $(document).ready(function () {
