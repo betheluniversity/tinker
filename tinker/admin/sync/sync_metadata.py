@@ -4,6 +4,7 @@ school = [
     'College of Adult & Professional Studies',
     'Graduate School',
     'Bethel Seminary',
+    'test',
 ]
 
 undergrad_programs = [
