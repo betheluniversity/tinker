@@ -344,7 +344,7 @@ class RedirectsView(FlaskView):
         else:
             return 'Nothing to do'
 
-    @route('/public/manual-sftp-publish', methods=['post'])
+    @route('/manual-sftp-publish', methods=['post'])
     def manual_sftp_publish(self):
         if app.config['ENVIRON'] == 'prod':
             self.base.create_redirect_text_file()
