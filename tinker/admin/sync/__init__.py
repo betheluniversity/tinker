@@ -27,10 +27,8 @@ class SyncView(FlaskView):
     def before_request(self, name, **kwargs):
         admin_permissions(self)
 
-    @cache.memoize(timeout=600)
     def index(self):
-        # get the most recent code
-        # todo: this will need to be added back in. but it currently breaks on xp (since its using a different branch)
+        # get the most recent code\
         self.base.git_pull()
 
         metadata_sets_mapping = self.base.get_metadata_sets_mapping()
@@ -41,9 +39,7 @@ class SyncView(FlaskView):
 
     @route("/all", methods=['post'])
     def all(self):
-        # get the most recent code
-        # this currently breaks on xp (since its using a different branch)
-        # todo: check if on prod?
+        # get the most recent code\
         self.base.git_pull()
 
         data = data_to_add
