@@ -124,8 +124,8 @@ class SyncController(TinkerController):
         # don't pull locally. It's just a bad idea.
         if 'User' not in app.config['INSTALL_LOCATION']:
             import commands
-            self.log_sentry('caleb test', commands.getoutput(
-                "cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master"))
+            commands.getoutput(
+                "cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
 
     def get_mapping_keys(self):
         mapping_key_values = {
