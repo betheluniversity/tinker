@@ -1,13 +1,18 @@
-language: python
+language:
+  - python
 
 python:
   - 2.7
 
 # command to install dependencies
-install: pip install -r requirements.txt
+install:
+  - pip install -r requirements.txt
 
 # command to run tests
-script: python travis_testing_script.py
+script:
+  - echo $INSTALL_LOCATION
+  - echo $SQLALCHEMY_DATABASE_URI
+  - python travis_testing_script.py
 
 after_failure:
   - sleep 10
