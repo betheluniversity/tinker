@@ -40,7 +40,7 @@ class IntegrationTestCase(BaseTestCase):
         for word in words_in_folder_name:
             flask_classy_name += word.capitalize()
         flask_classy_name += "View"
-        endpoint_path = local_folder_name + "." + flask_classy_name + ":" + method_name
+        endpoint_path = flask_classy_name + ":" + method_name
         return get_url_from_path(endpoint_path, **kwargs)
 
     def send_get(self, url, basic_auth=False):

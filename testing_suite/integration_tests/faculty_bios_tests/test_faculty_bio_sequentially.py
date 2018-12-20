@@ -20,11 +20,11 @@ class FacultyBioSequentialTestCase(IntegrationTestCase):
         return re.search('id="faculty_bio_id".*value="(.+)"', responseData).group(1)
 
     def create_form(self, first='Philip', last='Gibbens', author_faculty='phg49389', location='St. Paul',
-                    highlight="A great magazine for the dentist's office", schools='College of Arts and Sciences',
-                    undergrad='Math & Computer Science', dept_chair='No', adult_undergrad='None',
-                    program_director='No', graduate='None', lead_faculty='Other', seminary='None', job_title="Web Developer",
-                    email='phg49389@bethel.edu', started_at_bethel='2011', school='Bethel University',
-                    degree_earned='B.S. of Computer Science', year='2016', biography='<p>asdf1</p>\r\n',
+                    highlight='This is a testing Faculty Bio -- it should not be published.',
+                    schools='College of Arts and Sciences', undergrad='Music', dept_chair='No', adult_undergrad='-select-',
+                    graduate='-select-', seminary='-select-', job_title='Web Developer',
+                    email='p-gibbens@bethel.edu', started_at_bethel='2011', school='Bethel University',
+                    degree_earned='Jack of All Trades, M.N.', year='2016', biography='<p>asdf1</p>\r\n',
                     courses='<p>asdf2</p>\r\n', awards='<p>asdf3</p>\r\n', publications='<p>asdf4</p>\r\n',
                     presentations='<p>asdf5</p>\r\n', certificates='<p>asdf6</p>\r\n', organizations='<p>asdf7</p>\r\n',
                     hobbies='<p>asdf8</p>\r\n', areas='<p>asdf9</p>\r\n', research_interests='<p>asdf10</p>\r\n',
@@ -37,6 +37,7 @@ class FacultyBioSequentialTestCase(IntegrationTestCase):
             'first': first,
             'last': last,
             'author_faculty': author_faculty,
+            'courseleaf_user': 'No',
             'faculty_location': location,
             'highlight': highlight,
 
@@ -46,9 +47,7 @@ class FacultyBioSequentialTestCase(IntegrationTestCase):
             'undergrad1': undergrad,
             'dept-chair1': dept_chair,
             'adult-undergrad1': adult_undergrad,
-            'program-director1': program_director,
             'graduate1': graduate,
-            'lead-faculty1': lead_faculty,
             'seminary1': seminary,
             'new-job-title1': job_title,
 
@@ -111,63 +110,11 @@ class FacultyBioSequentialTestCase(IntegrationTestCase):
             bad_args = {required_vals[index]: ""}
             form = self.create_form(**bad_args)
             response = self.send_post(self.request, form)
-            try:
-                possible_id = self.get_faculty_bio_id(response.data)
-            except AttributeError:
-                possible_id = ""
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                             expected_response,
                                                             self.class_name + "/new_invalid_" + required_vals[index],
                                                             self.get_line_number())
             self.assertIn(expected_response, response.data, msg=failure_message)
-
-        # Check the 5 different job titles' validators
-        job_title_vals = ['schools', 'undergrad', 'dept_chair', 'adult_undergrad', 'graduate', 'lead_faculty' 'seminary',
-                          'new_job_title']
-
-        bad_args = {'schools': ''}
-
-        # Make sure they have chosen a school
-        bad_args = {
-            'schools': 'Bethel University',
-            'new_job_title': ''
-        }
-        # Check if they
-        bad_args = {
-            'schools': 'College of Arts and Sciences',
-            'undergrad': ''
-        }
-        bad_args = {
-            'schools': 'College of Arts and Sciences',
-            'dept_chair': ''
-        }
-        bad_args = {
-            'schools': 'College of Arts and Sciences',
-            'new_job_title': ''
-        }
-
-        bad_args = {
-            'schools': 'College of Adult and Professional Studies',
-            'adult_undergrad': ''
-        }
-        bad_args = {
-            'schools': 'College of Adult and Professional Studies',
-            'adult_undergrad': ''
-        }
-        bad_args = {
-            'schools': 'College of Adult and Professional Studies',
-            'adult_undergrad': ''
-        }
-
-
-        bad_args = {'schools': 'Graduate School'}
-
-
-        bad_args = {'schools': 'Bethel Seminary'}
-
-
-        # Check the degree validator
-        degree_vals = ['school', 'degree_earned', 'year']
 
     def get_edit_form(self):
         self.request_type = "GET"
