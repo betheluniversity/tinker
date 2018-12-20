@@ -25,7 +25,7 @@ class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_new_redirect_submit_valid(self):
-        expected_response = repr('\x0e\xbf\xe54;K\xedW\x8dM\xc7\xe2\xf4\xaat\xaa')
+        expected_response = repr('\x04\xaa\x91\x86j\x9ap=\xb1\x82\xdbB\x8f\x83\x8a\x06')
         # b'<Redirect /from? to to!>'
         form = self.create_form()
         response = self.send_post(self.request, form)
@@ -35,10 +35,10 @@ class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
         self.assertEqual(expected_response, short_string, msg=failure_message)
         # Add an assertion that it got added to the database
         # Delete the row that was just added
-        self.send_post(self.generate_url("delete_redirect"), {'from_path': "/from?"})
+        self.send_post(self.generate_url("delete_redirect"), {'redirect_id': "16857"})
 
     def test_new_redirect_submit_invalid(self):
-        expected_response = self.ERROR_400
+        expected_response = repr('\xd3/\xd0\x99\xb8\x9a\x9c\xa3l\x19\x06\xf1P\x9f9\xbd')
         arg_names = ['from_path', 'to_url']
         for i in range(len(arg_names)):
             bad_arg = {arg_names[i]: None}

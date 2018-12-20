@@ -23,7 +23,7 @@ class SearchTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_search_valid(self):
-        expected_response = repr(';\xa0O\x9b\xb7\xada\xde\x14\rT~\nKs\xf3')  # b'<span class="from_path">'
+        expected_response = repr('\x00\xb0\xd3H&0\x9b\xfd?s-\x99\x11Qa\xd7')  # b'<span class="from_path">'
         form = self.create_form()
         response = self.send_post(self.request, form)
         short_string = self.get_unique_short_string(response.data)
