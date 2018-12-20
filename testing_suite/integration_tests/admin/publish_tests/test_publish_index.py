@@ -17,7 +17,7 @@ class IndexTestCase(IntegrationTestCase):
     #######################
 
     def test_index(self):
-        expected_response = b'<p>Blocks that are published publish out each page in the relationships tab.</p>'
+        expected_response = b'These buttons allow you to do a group publish to either staging'
 
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,

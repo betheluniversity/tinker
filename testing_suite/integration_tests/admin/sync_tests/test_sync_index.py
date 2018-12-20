@@ -17,7 +17,7 @@ class IndexTestCase(IntegrationTestCase):
     #######################
 
     def test_index(self):
-        expected_response = b'You can sync a specific metadata set, data definition, or sync all.</p>'
+        expected_response = b'You can sync a specific metadata set, data definition, or sync all.'
         response = self.send_get(self.request)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,
                                                         expected_response, self.class_name, self.get_line_number())
