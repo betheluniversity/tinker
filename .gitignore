@@ -25,7 +25,6 @@ db_repository/versions/003_migration.py
 
 redirects.txt.back
 
-
 config/*.py
 
 tinker/.DS_Store
@@ -37,4 +36,3 @@ flask_profiler.sql
 
 programs.csv
 faculty-info.csv
-
