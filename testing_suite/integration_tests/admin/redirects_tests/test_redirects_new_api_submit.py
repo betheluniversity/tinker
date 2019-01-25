@@ -32,4 +32,4 @@ class NewApiSubmitTestCase(RedirectsBaseTestCase):
         self.assertEqual(expected_response, short_string, msg=failure_message)
         # Add an assertion that it got added to the database
         # Delete the row that was just added
-        self.send_post(self.generate_url("delete_redirect"), {'redirect_id': "16857"})
+        self.send_post(self.generate_url("delete_redirect"), {'redirect_id': "16928"})

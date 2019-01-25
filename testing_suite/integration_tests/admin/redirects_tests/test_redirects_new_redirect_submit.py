@@ -35,7 +35,7 @@ class NewRedirectSubmitTestCase(RedirectsBaseTestCase):
         self.assertEqual(expected_response, short_string, msg=failure_message)
         # Add an assertion that it got added to the database
         # Delete the row that was just added
-        self.send_post(self.generate_url("delete_redirect"), {'redirect_id': "16857"})
+        self.send_post(self.generate_url("delete_redirect"), {'redirect_id': "16928"})
 
     def test_new_redirect_submit_invalid(self):
         expected_response = repr('\xd3/\xd0\x99\xb8\x9a\x9c\xa3l\x19\x06\xf1P\x9f9\xbd')

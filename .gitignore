@@ -37,4 +37,4 @@ flask_profiler.sql
 
 programs.csv
 faculty-info.csv
-*.db
+
