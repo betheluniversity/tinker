@@ -12,7 +12,7 @@ class DeleteTestCase(RedirectsBaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("delete_redirect")
 
-    def create_form(self, redirect_id="16857"):
+    def create_form(self, redirect_id="16928"):
         return {
             'redirect_id': redirect_id
         }
@@ -26,11 +26,11 @@ class DeleteTestCase(RedirectsBaseTestCase):
         self.send_post(self.generate_url("new_redirect_submit"), {
             'new-redirect-from': "/from?",
             'new-redirect-to': "to!",
-            'short-url': "on",
+            'new-redirect-short-url': "true",
             'expiration-date': "Fri Jul 01 2016"
         })
         expected_response = repr("\xec\xb6\x18!|\x08Y\x05\xc6\x90'a?\xb4<\xfa")  # b'deleted done'
-        form_contents = self.create_form("16857")
+        form_contents = self.create_form("16928")
         response = self.send_post(self.request, form_contents)
         short_string = self.get_unique_short_string(response.data)
         failure_message = self.generate_failure_message(self.request_type, self.request, response.data,

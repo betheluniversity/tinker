@@ -163,7 +163,6 @@ class RedirectsView(FlaskView):
                 'type': 'danger',
                 'message': 'Your redirect is invalid. Make sure the from_path is not "/" and the to_url exists'
             })
-        
 
     # Updates the redirect text file upon request
     def compile(self):
