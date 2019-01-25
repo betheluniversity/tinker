@@ -52,7 +52,7 @@ else:
     app.config['_basedir'] = _basedir
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db')
     app.config['SQLALCHEMY_MIGRATE_REPO'] = os.path.join(_basedir, 'db_repository')
-    app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../programs.csv')
+    app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../testing_programs.csv')
     app.config['REDIRECTS_FILE_PATH'] = os.path.join(_basedir, '../redirects.txt')
 
 # create logging
