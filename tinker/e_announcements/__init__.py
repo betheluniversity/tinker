@@ -296,7 +296,6 @@ class EAnnouncementsView(FlaskView):
 
         return render_template("e-announcements/future.html")
 
-    @cache.memoize(timeout=3601)
     @route("/ea_future", methods=['POST'])
     def ea_future(self):
         if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
@@ -309,29 +308,7 @@ class EAnnouncementsView(FlaskView):
         forms = self.base.traverse_xml(app.config['E_ANNOUNCEMENTS_XML_URL'], 'system-block', True)
         forms.sort(key=lambda item: ['created_on'], reverse=True)
 
-        def get_title_and_message(form):
-            title = find(form, 'title', False)
-            message = find(form, 'message', False)
-            ea_id = find(form, 'id', False)
-            created = find(form, 'created-on', False)
-            ea_display.append({
-                'title': title,
-                'message': message,
-                'id': ea_id
-            })
-            # ea_display.append(message)
-
-        for form in forms:
-            first_ea_date = find(form, 'first_date', False)
-
-            if first_ea_date == str(date_id):
-                get_title_and_message(form)
-
-            # second date is not always present, the second date if statements are necessary
-            second_ea_date = find(form, 'second_date', False)
-            if second_ea_date != '':
-                if second_ea_date == str(date_id):
-                    get_title_and_message(form)
+        self.base.get_upcoming(forms, date_id, ea_display)
 
         return render_template("e-announcements/future-ajax.html", **locals())
 
