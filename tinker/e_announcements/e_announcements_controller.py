@@ -1,12 +1,13 @@
 # Global
 from datetime import datetime
+from bu_cascade.asset_tools import find
 
 # Packages
 from bu_cascade.asset_tools import update
 from flask import session
 
 # Local
-from tinker import app
+from tinker import app, cache
 from tinker.tinker_controller import TinkerController
 
 
@@ -229,3 +230,29 @@ class EAnnouncementsController(TinkerController):
                 to_return.append(annz)
 
         return to_return, forms_header
+
+    def get_title_and_message(self, form, ea_display):
+        title = find(form, 'title', False)
+        message = find(form, 'message', False)
+        ea_id = find(form, 'id', False)
+        created = find(form, 'created-on', False)
+        ea_display.append({
+            'title': title,
+            'message': message,
+            'id': ea_id
+        })
+
+    @cache.memoize(timeout=599)
+    def get_upcoming(self, forms, date_id, ea_display):
+        for form in forms:
+            first_ea_date = find(form, 'first_date', False)
+
+            if first_ea_date == str(date_id):
+                self.get_title_and_message(form, ea_display)
+
+            # second date is not always present, the second date if statements are necessary
+            second_ea_date = find(form, 'second_date', False)
+            if second_ea_date != '':
+                if second_ea_date == str(date_id):
+                    self.get_title_and_message(form, ea_display)
+        return ea_display
