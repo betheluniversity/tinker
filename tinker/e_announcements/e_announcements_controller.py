@@ -242,7 +242,7 @@ class EAnnouncementsController(TinkerController):
             'id': ea_id
         })
 
-    @cache.memoize(timeout=599)
+    @cache.memoize(timeout=600)
     def get_upcoming(self, forms, date_id, ea_display):
         for form in forms:
             first_ea_date = find(form, 'first_date', False)
