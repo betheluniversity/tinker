@@ -162,9 +162,10 @@ function nextOrPreviousPage(totalPages, limitPerPage, type) {
 function goToPage(limitPerPage, totalPages) {
     $("button#go-to-button").on("click", function() {
         var page = document.getElementById("go-to-input");
-        if (page.value > 0 && page.value < totalPages + 1) {
+        var value = Math.floor(page.value);
+        if (value > 0 && value < totalPages + 1) {
             $(".pagination li").removeClass("active");
-            var currentPage = parseInt(page.value);
+            var currentPage = value;
             if (currentPage < 2) {
                 currentPage = currentPage - 1;
             } else if (currentPage == totalPages) {
@@ -173,7 +174,7 @@ function goToPage(limitPerPage, totalPages) {
                 currentPage = currentPage + 1;
             }
             $(".pagination li.current-page:eq(" + (currentPage) + ")").addClass("active");
-            newMethod(limitPerPage, totalPages, page.value);
+            newMethod(limitPerPage, totalPages, Math.floor(page.value));
             page.value = "";
         } else {
             // TODO MAYBE THROW AN ERROR
