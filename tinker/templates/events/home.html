@@ -198,7 +198,6 @@
                 data: JSON.stringify(inputs),
                 contentType: 'application/json;charset=UTF-8',
                 success: function (result) {
-                    // window.location.replace(result);
                     document.getElementById('results').innerHTML = result;
                     $('#spinner').hide();
                     window.onLoad(pagination("event"));
