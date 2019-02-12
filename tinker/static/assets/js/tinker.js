@@ -77,9 +77,11 @@ function pagination(type) {
                 $("#loop .items-to-paginate:eq(" + i + ")").show();
             }
 
-            switchPages(limitPerPage);
+            switchPages(limitPerPage, totalPage, "");
 
             nextOrPreviousPage(totalPages, limitPerPage, "next-page");
+
+            goToPage(limitPerPage, totalPages);
 
         });
 
@@ -87,28 +89,42 @@ function pagination(type) {
 
         createButtons(totalPages, limitPerPage);
 
-        switchPages(limitPerPage);
+        switchPages(limitPerPage, totalPages, "");
 
         nextOrPreviousPage(totalPages, limitPerPage, "next-page");
 
         nextOrPreviousPage(totalPages, limitPerPage, "previous-page");
+
+        goToPage(limitPerPage, totalPages);
     }
 }
 
+//  TODO Maybe instead of this, just have the next/prev buttons call the switch page method with the new current page value
 function nextOrPreviousPage(totalPages, limitPerPage, type) {
-    $("#" + type +" ").on("click", function() {
+    $("#" + type + " ").on("click", function () {
         var currentPage = $(".pagination li.active").index();
+        // TODO THIS IS BAD CODE BETWEEN THE LINES ----------------------------
         if (type === "next-page") {
-            if (currentPage === totalPages) {
+            var x = (document.getElementsByClassName("temp-button")[currentPage]).id;
+        } else {
+            var x = (document.getElementsByClassName("temp-button")[currentPage - 2]).id;
+        }
+        var interval = 1;
+        if ((x.split("-")[0]) === "dot") {
+            interval = 2;
+        }
+        // TODO THIS IS BAD CODE BETWEEN THE LINES ----------------------------
+        if (type === "next-page") {
+            if (currentPage === totalPages + 3) {
                 return false;
             } else {
-                currentPage ++;
+                currentPage++;
             }
         } else if (type === "previous-page") {
             if (currentPage === 1) {
                 return false;
             } else {
-                currentPage --;
+                currentPage--;
             }
         }
         $(".pagination li").removeClass("active");
@@ -116,39 +132,158 @@ function nextOrPreviousPage(totalPages, limitPerPage, type) {
 
         var grandTotal = limitPerPage * currentPage;
 
-        for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
-            $("#loop .items-to-paginate:eq(" + i + ")").show();
+        if ((x.split('-')[0]) !== "dot") {
+            if (currentPage < 2) {
+                for (var i = grandTotal - limitPerPage; i < grandTotal; i++) {
+                    $("#loop .items-to-paginate:eq(" + i + ")").show();
+                }
+            } else if (currentPage > 2 && currentPage < 6) {
+                for (var i = grandTotal - limitPerPage - 10; i < grandTotal - 10; i++) {
+                    $("#loop .items-to-paginate:eq(" + i + ")").show();
+                }
+            } else if (currentPage > 6 && currentPage < 15) {
+                for (var i = grandTotal - limitPerPage - 20; i < grandTotal - 20; i++) {
+                    $("#loop .items-to-paginate:eq(" + i + ")").show();
+                }
+            } else {
+                for (var i = grandTotal - limitPerPage - 30; i < grandTotal - 30; i++) {
+                    $("#loop .items-to-paginate:eq(" + i + ")").show();
+                }
+            }
         }
+
         $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass("active");
+
+        updateButtons(currentPage, totalPages);
+
     });
 }
 
-function switchPages(limitPerPage) {
+function goToPage(limitPerPage, totalPages) {
+    $("button#go-to-button").on("click", function() {
+        var page = document.getElementById("go-to-input");
+        if (page.value > 0 && page.value < totalPages + 1) {
+            $(".pagination li").removeClass("active");
+            var currentPage = parseInt(page.value);
+            if (currentPage < 2) {
+                currentPage = currentPage - 1;
+            } else if (currentPage == totalPages) {
+                currentPage = currentPage + 2;
+            } else if (currentPage >= 5) {
+                currentPage = currentPage + 1;
+            }
+            $(".pagination li.current-page:eq(" + (currentPage) + ")").addClass("active");
+            newMethod(limitPerPage, totalPages, page.value);
+            page.value = "";
+        } else {
+            // TODO MAYBE THROW AN ERROR
+            return;
+        }
+    });
+}
+
+// This method switches the page when you click on a button
+// In order to add a "go-to page" button you would want to add a third argument to the function which is empty unless
+// a page is specified, then the currentPage variable uses that argument instead of the currentPage var set in the else
+function switchPages(limitPerPage, totalPages, newCurrentPage) {
     $(".pagination li.current-page").on("click", function() {
         if ($(this).hasClass("active")) {
             return false;
         } else {
-            var currentPage = $(this).index();
+            var currentPage = $(this).text();
             $(".pagination li").removeClass("active");
             $(this).addClass("active");
-            $("#loop .items-to-paginate").hide();
-
-            var grandTotal = limitPerPage * currentPage;
-
-            for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
-                $("#loop .items-to-paginate:eq(" + i + ")").show();
-            }
+            newMethod(limitPerPage, totalPages, currentPage)
         }
     });
 }
 
+function newMethod(limitPerPage, totalPages, currentPage) {
+
+    $("#loop .items-to-paginate").hide();
+    var grandTotal = limitPerPage * currentPage;
+
+    for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
+        $("#loop .items-to-paginate:eq(" + i + ")").show();
+    }
+    currentPage = parseInt(currentPage);
+    if (currentPage < 2) {
+        currentPage = currentPage;
+    } else if (currentPage >= 2 && currentPage < 5) {
+        currentPage = currentPage + 1;
+    } else if (currentPage >= 5 && currentPage < totalPages - 2) {
+        currentPage = currentPage + 2;
+    } else {
+        currentPage = currentPage + 3;
+    }
+    updateButtons(currentPage, totalPages);
+}
+
+function updateButtons(currentPage, totalPages) {
+    var x = (document.getElementsByClassName("temp-button")[currentPage - 1]).id;
+
+    if ((x.split('-')[1]) == 1 || currentPage < 5) {
+        for (var i = 1; i < totalPages; i++) {
+            display([i.toString()],[]);
+            if ((i > 0) && (i < 5)) {
+                display([], [i.toString()]);
+            }
+        }
+        display(["dot-1", "dot-3"], ["dot-2"]);
+    } else if ((x.split('-')[1]) == 4 || currentPage > totalPages - 1) {
+        for (var i = 2; i < totalPages; i++) {
+            display([i.toString()],[]);
+            if ((i > totalPages - 4)) {
+                display([], [i.toString()]);
+            }
+        }
+        display(["dot-1", "dot-3"], ["dot-2"]);
+    } else {
+        for (var i = 2; i < totalPages; i++) {
+            display([i.toString()],[]);
+            if ((i > (parseInt(x) - 2)) && (i < (parseInt(x) + 2))) {
+                display([], [i.toString()]);
+            }
+        }
+        display(["dot-2"], ["dot-1", "dot-3"]);
+    }
+}
+
+// This method takes a list of html elements that will either be displayed as none or inline,
+// iterates through the lists, and sets them to their desired display type
+function display(none, inline) {
+    if (none.length !== 0) {
+        for (var i = 0; i < none.length; i++) {
+            document.getElementById(none[i].toString()).style.display = "none";
+        }
+    }
+    if (inline.length !== 0) {
+        for (var i = 0; i < inline.length; i ++) {
+            document.getElementById(inline[i].toString()).style.display = "inline";
+        }
+    }
+}
+
+// This method creates all the initial buttons for pagination, along with the dots if
 function createButtons(totalPages, limitPerPage) {
     $(" #loop .items-to-paginate:gt(" + (limitPerPage - 1) + ")").hide();
 
-    $(".pagination").append("<li class='current-page active temp-button'><a href='javascript:void(0)'>" + 1 + "</a></li>");
+    $(".pagination").append("<li id='1' class='current-page active temp-button'><a href='javascript:void(0)'>" + 1 + "</a></li>");
+    $(".pagination").append("<li id='dot-1' style='display:none;' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
 
-    for (var i = 2; i <= totalPages; i++){
-        $(".pagination").append("<li class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
+    for (var i = 2; i <= totalPages; i++) {
+        if (i > 4 && i < (totalPages - 3)) {
+            if (i > 4 && i < 6 && totalPages > 6) {
+                $(".pagination").append("<li id='dot-2' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
+            }
+            $(".pagination").append("<li id='"+ i +"' style='display:none;' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
+        } else if (i < 5) {
+            $(".pagination").append("<li id='"+ i +"' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
+        } else if (i < totalPages) {
+            $(".pagination").append("<li id='"+ i +"' style='display:none;' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
+        }
     }
+    $(".pagination").append("<li id='dot-3' style='display:none;' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
+    $(".pagination").append("<li id='"+ totalPages +"' class='current-page temp-button'><a href='javascript:void(0)'>" + totalPages + "</a></li>");
     $(".pagination").append("<li id='next-page' class='temp-button'><a href='javascript:void(0)' aria-label='Next'><span aria-hidden='true'>&raquo;</span></a></li>");
 }

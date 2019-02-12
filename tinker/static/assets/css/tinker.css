@@ -764,3 +764,7 @@ label.checkbox {
     background-color: lightgrey;
     cursor: not-allowed;
 }
+
+.dot {
+    pointer-events: none;
+}
