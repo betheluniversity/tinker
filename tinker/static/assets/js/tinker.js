@@ -77,7 +77,7 @@ function pagination(type) {
                 $("#loop .items-to-paginate:eq(" + i + ")").show();
             }
 
-            switchPages(limitPerPage, totalPage, "");
+            switchPageClick(limitPerPage, totalPage, "");
 
             nextOrPreviousPage(totalPages, limitPerPage, "next-page");
 
@@ -89,7 +89,7 @@ function pagination(type) {
 
         createButtons(totalPages, limitPerPage);
 
-        switchPages(limitPerPage, totalPages, "");
+        switchPageClick(limitPerPage, totalPages, "");
 
         nextOrPreviousPage(totalPages, limitPerPage, "next-page");
 
@@ -99,7 +99,7 @@ function pagination(type) {
     }
 }
 
-//  TODO Maybe instead of this, just have the next/prev buttons call the switch page method with the new current page value
+// TODO Maybe instead of this, just have the next/prev buttons call the switch page method with the new current page value
 function nextOrPreviousPage(totalPages, limitPerPage, type) {
     $("#" + type + " ").on("click", function () {
         var currentPage = $(".pagination li.active").index();
@@ -154,11 +154,12 @@ function nextOrPreviousPage(totalPages, limitPerPage, type) {
 
         $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass("active");
 
-        updateButtons(currentPage, totalPages);
+        ShowHideButtons(currentPage, totalPages);
 
     });
 }
 
+// This method changes the page when you input a page number and click "Go"
 function goToPage(limitPerPage, totalPages) {
     $("button#go-to-button").on("click", function() {
         var page = document.getElementById("go-to-input");
@@ -174,7 +175,7 @@ function goToPage(limitPerPage, totalPages) {
                 currentPage = currentPage + 1;
             }
             $(".pagination li.current-page:eq(" + (currentPage) + ")").addClass("active");
-            newMethod(limitPerPage, totalPages, Math.floor(page.value));
+            switchPages(limitPerPage, totalPages, Math.floor(page.value));
             page.value = "";
         } else {
             // TODO MAYBE THROW AN ERROR
@@ -184,9 +185,7 @@ function goToPage(limitPerPage, totalPages) {
 }
 
 // This method switches the page when you click on a button
-// In order to add a "go-to page" button you would want to add a third argument to the function which is empty unless
-// a page is specified, then the currentPage variable uses that argument instead of the currentPage var set in the else
-function switchPages(limitPerPage, totalPages, newCurrentPage) {
+function switchPageClick(limitPerPage, totalPages, newCurrentPage) {
     $(".pagination li.current-page").on("click", function() {
         if ($(this).hasClass("active")) {
             return false;
@@ -194,12 +193,13 @@ function switchPages(limitPerPage, totalPages, newCurrentPage) {
             var currentPage = $(this).text();
             $(".pagination li").removeClass("active");
             $(this).addClass("active");
-            newMethod(limitPerPage, totalPages, currentPage)
+            switchPages(limitPerPage, totalPages, currentPage)
         }
     });
 }
 
-function newMethod(limitPerPage, totalPages, currentPage) {
+// This method hands off the current page to the ShowHideButtons function when a new button is either clicked or inputted
+function switchPages(limitPerPage, totalPages, currentPage) {
 
     $("#loop .items-to-paginate").hide();
     var grandTotal = limitPerPage * currentPage;
@@ -217,10 +217,11 @@ function newMethod(limitPerPage, totalPages, currentPage) {
     } else {
         currentPage = currentPage + 3;
     }
-    updateButtons(currentPage, totalPages);
+    ShowHideButtons(currentPage, totalPages);
 }
 
-function updateButtons(currentPage, totalPages) {
+// This method makes the correct buttons show when you select a new button
+function ShowHideButtons(currentPage, totalPages) {
     var x = (document.getElementsByClassName("temp-button")[currentPage - 1]).id;
 
     if ((x.split('-')[1]) == 1 || currentPage < 5) {
