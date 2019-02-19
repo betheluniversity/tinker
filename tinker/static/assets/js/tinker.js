@@ -16,6 +16,8 @@ $(document).ready(function () {
     });
 });
 
+
+var paginationRange = 10;
 function pagination(type) {
     var numberOfItems = $(" #loop .items-to-paginate").length;
     if (numberOfItems > 10) {
@@ -60,6 +62,8 @@ function pagination(type) {
                 Cookies.set('event-cookie', limitPerPage, { expires: 30, path: '/' });
             }
 
+            // window.location.reload(true);
+
             $(".pagination").children("li.temp-button").remove();
 
             var totalPages = Math.ceil(numberOfItems / limitPerPage);
@@ -77,7 +81,7 @@ function pagination(type) {
                 $("#loop .items-to-paginate:eq(" + i + ")").show();
             }
 
-            switchPageClick(limitPerPage, totalPage, "");
+            switchPageClick(limitPerPage, totalPages, "");
 
             nextOrPreviousPage(totalPages, limitPerPage, "next-page");
 
@@ -103,53 +107,79 @@ function nextOrPreviousPage(totalPages, limitPerPage, type) {
     $("#" + type + " ").on("click", function () {
         var currentPage = $(".pagination li.active").index();
 
-        // Increments or decrements the currentPage depending on which button was pressed
-        if (type === "next-page") {
-            if (currentPage === totalPages + 3) {
-                return false;
-            } else {
-                currentPage++;
+        if (totalPages > paginationRange + 1) {
+            // Increments or decrements the currentPage depending on which button was pressed
+            if (type === "next-page") {
+                if (currentPage === totalPages + 3) {
+                    return false;
+                } else {
+                    currentPage++;
+                }
+            } else if (type === "previous-page") {
+                if (currentPage === 1) {
+                    return false;
+                } else {
+                    currentPage--;
+                }
             }
-        } else if (type === "previous-page") {
-            if (currentPage === 1) {
-                return false;
-            } else {
-                currentPage--;
-            }
-        }
 
-        $(".pagination li").removeClass("active");
-        $("#loop .items-to-paginate").hide();
+            $(".pagination li").removeClass("active");
+            $("#loop .items-to-paginate").hide();
 
-        // This skips over the "..." li elements so they aren't set to active
-        if (type === "next-page") {
-            if (currentPage == 2) {
-                currentPage ++;
-            } else if (currentPage == 6) {
-                currentPage ++;
-            } else if (currentPage == totalPages + 2) {
-                currentPage ++;
+            // This skips over the "..." li elements so they aren't set to active
+            if (type === "next-page") {
+                if (currentPage == 2) {
+                    currentPage++;
+                } else if (currentPage == 6) {
+                    currentPage++;
+                } else if (currentPage == totalPages + 2) {
+                    currentPage++;
+                }
+            } else if (type === "previous-page") {
+                if (currentPage == 2) {
+                    currentPage--;
+                } else if (currentPage == 6) {
+                    currentPage--;
+                } else if (currentPage == totalPages + 2) {
+                    currentPage--;
+                }
             }
-        } else if (type === "previous-page") {
-            if (currentPage == 2) {
-                currentPage --;
-            } else if (currentPage == 6) {
-                currentPage --;
-            } else if (currentPage == totalPages + 2) {
-                currentPage --;
+            $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass("active");
+            switchPages(limitPerPage, totalPages, currentPage, type);
+        } else {
+            if (type === "next-page") {
+                if (currentPage === totalPages) {
+                    return false;
+                } else {
+                    currentPage ++;
+                }
+            } else if (type === "previous-page") {
+                if (currentPage === 1) {
+                    return false;
+                } else {
+                    currentPage --;
+                }
             }
+            $(".pagination li").removeClass("active");
+            $("#loop .items-to-paginate").hide();
+
+            var grandTotal = limitPerPage * currentPage;
+
+            for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
+                $("#loop .items-to-paginate:eq(" + i + ")").show();
+            }
+            $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass("active");
         }
-        $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass("active");
-        switchPages(limitPerPage, totalPages, currentPage, type);
     });
 }
 
+// TODO GOTTA FIX THIS METHOD SINCE IT WORKS WITH PREVIOUS VALUES WHEN CHANGING LIMIT
 // This method changes the page when you input a page number and click "Go"
 function goToPage(limitPerPage, totalPages) {
     $("button#go-to-button").on("click", function() {
         var page = document.getElementById("go-to-input");
         var value = Math.floor(page.value);
-        if (value > 0 && value < totalPages + 1) {
+        if (value > 0 && value < totalPages + 1 && totalPages > paginationRange) {
             $(".pagination li").removeClass("active");
             var currentPage = value;
             if (currentPage < 2) {
@@ -160,6 +190,11 @@ function goToPage(limitPerPage, totalPages) {
                 currentPage = currentPage + 1;
             }
             $(".pagination li.current-page:eq(" + (currentPage) + ")").addClass("active");
+            switchPages(limitPerPage, totalPages, Math.floor(page.value), "other");
+            page.value = "";
+        } else if (value > 0 && value < totalPages + 1 && totalPages < paginationRange + 1) {
+            $(".pagination li").removeClass("active");
+            $(".pagination li.current-page:eq(" + (value - 1) + ")").addClass("active");
             switchPages(limitPerPage, totalPages, Math.floor(page.value), "other");
             page.value = "";
         } else {
@@ -233,7 +268,9 @@ function switchPages(limitPerPage, totalPages, currentPage, type) {
             currentPage -= 2;
         }
     }
-    showHideButtons(currentPage, totalPages);
+    if (totalPages > paginationRange) {
+        showHideButtons(currentPage, totalPages);
+    }
 }
 
 // This method makes the correct buttons show when you select a new button
@@ -284,24 +321,33 @@ function display(none, inline) {
 
 // This method creates all the initial buttons for pagination, along with the dots
 function createButtons(totalPages, limitPerPage) {
+
     $(" #loop .items-to-paginate:gt(" + (limitPerPage - 1) + ")").hide();
 
     $(".pagination").append("<li id='1' class='current-page active temp-button'><a href='javascript:void(0)'>" + 1 + "</a></li>");
-    $(".pagination").append("<li id='dot-1' style='display:none;' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
 
-    for (var i = 2; i <= totalPages; i++) {
-        if (i > 4 && i < (totalPages - 3)) {
-            if (i > 4 && i < 6 && totalPages > 6) {
-                $(".pagination").append("<li id='dot-2' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
+    if (totalPages > paginationRange + 1) {
+        $(".pagination").append("<li id='dot-1' style='display:none;' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
+
+        for (var i = 2; i <= totalPages; i++) {
+            if (i > 4 && i < (totalPages - 3)) {
+                if (i > 4 && i < 6 && totalPages > 6) {
+                    $(".pagination").append("<li id='dot-2' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
+                }
+                $(".pagination").append("<li id='" + i + "' style='display:none;' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
+            } else if (i < 5) {
+                $(".pagination").append("<li id='" + i + "' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
+            } else if (i < totalPages) {
+                $(".pagination").append("<li id='" + i + "' style='display:none;' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
             }
-            $(".pagination").append("<li id='"+ i +"' style='display:none;' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
-        } else if (i < 5) {
-            $(".pagination").append("<li id='"+ i +"' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
-        } else if (i < totalPages) {
-            $(".pagination").append("<li id='"+ i +"' style='display:none;' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
+        }
+        $(".pagination").append("<li id='dot-3' style='display:none;' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
+        $(".pagination").append("<li id='" + totalPages + "' class='current-page temp-button'><a href='javascript:void(0)'>" + totalPages + "</a></li>");
+
+    } else {
+        for (var i = 2; i <= totalPages; i++) {
+             $(".pagination").append("<li id='" + i + "'  class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
         }
     }
-    $(".pagination").append("<li id='dot-3' style='display:none;' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
-    $(".pagination").append("<li id='"+ totalPages +"' class='current-page temp-button'><a href='javascript:void(0)'>" + totalPages + "</a></li>");
     $(".pagination").append("<li id='next-page' class='temp-button'><a href='javascript:void(0)' aria-label='Next'><span aria-hidden='true'>&raquo;</span></a></li>");
 }
