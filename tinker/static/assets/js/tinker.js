@@ -16,7 +16,7 @@ $(document).ready(function () {
     });
 });
 
-
+// This variable sets how many pages are necessary to make it paginate
 const paginationRange = 10;
 // maxPages is up here since it looks like a lot of variables were getting confused as to what the variable "totalPages"
 // was suppose to be set to since it always used the old version after the limit was changed. So in order to fix this
