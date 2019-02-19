@@ -58,6 +58,7 @@
                             </li>
                         </ul>
                         <ul>
+                            {% if list_of_events | length > 15 %}
                             <li style="list-style-type: none;">
                                 Go To Page
                             </li>
@@ -65,6 +66,7 @@
                                 <input value="" type="text" id="go-to-input" style="width: 45%;">
                                 <button style="width: 5%" id='go-to-button'>Go</button>
                             </li>
+                            {% endif %}
                             <li style="list-style-type: none;">
                                 Limit
                             </li>

@@ -98,22 +98,11 @@ function pagination(type) {
         goToPage(limitPerPage, totalPages);
     }
 }
-
-// TODO Maybe instead of this, just have the next/prev buttons call the switch page method with the new current page value
+// Sets the next or previous page depending on what button you pressed
 function nextOrPreviousPage(totalPages, limitPerPage, type) {
     $("#" + type + " ").on("click", function () {
         var currentPage = $(".pagination li.active").index();
-        // TODO THIS IS BAD CODE BETWEEN THE LINES ----------------------------
-        if (type === "next-page") {
-            var x = (document.getElementsByClassName("temp-button")[currentPage]).id;
-        } else {
-            var x = (document.getElementsByClassName("temp-button")[currentPage - 2]).id;
-        }
-        var interval = 1;
-        if ((x.split("-")[0]) === "dot") {
-            interval = 2;
-        }
-        // TODO THIS IS BAD CODE BETWEEN THE LINES ----------------------------
+
         if (type === "next-page") {
             if (currentPage === totalPages + 3) {
                 return false;
@@ -127,35 +116,28 @@ function nextOrPreviousPage(totalPages, limitPerPage, type) {
                 currentPage--;
             }
         }
+
         $(".pagination li").removeClass("active");
         $("#loop .items-to-paginate").hide();
-
-        var grandTotal = limitPerPage * currentPage;
-
-        if ((x.split('-')[0]) !== "dot") {
-            if (currentPage < 2) {
-                for (var i = grandTotal - limitPerPage; i < grandTotal; i++) {
-                    $("#loop .items-to-paginate:eq(" + i + ")").show();
-                }
-            } else if (currentPage > 2 && currentPage < 6) {
-                for (var i = grandTotal - limitPerPage - 10; i < grandTotal - 10; i++) {
-                    $("#loop .items-to-paginate:eq(" + i + ")").show();
-                }
-            } else if (currentPage > 6 && currentPage < 15) {
-                for (var i = grandTotal - limitPerPage - 20; i < grandTotal - 20; i++) {
-                    $("#loop .items-to-paginate:eq(" + i + ")").show();
-                }
-            } else {
-                for (var i = grandTotal - limitPerPage - 30; i < grandTotal - 30; i++) {
-                    $("#loop .items-to-paginate:eq(" + i + ")").show();
-                }
+        if (type === "next-page") {
+            if (currentPage == 2) {
+                currentPage ++;
+            } else if (currentPage == 6) {
+                currentPage ++;
+            } else if (currentPage == totalPages + 2) {
+                currentPage ++;
+            }
+        } else if (type === "previous-page") {
+            if (currentPage == 2) {
+                currentPage --;
+            } else if (currentPage == 6) {
+                currentPage --;
+            } else if (currentPage == totalPages + 2) {
+                currentPage --;
             }
         }
-
         $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass("active");
-
-        ShowHideButtons(currentPage, totalPages);
-
+        switchPages(limitPerPage, totalPages, currentPage, type);
     });
 }
 
@@ -175,7 +157,7 @@ function goToPage(limitPerPage, totalPages) {
                 currentPage = currentPage + 1;
             }
             $(".pagination li.current-page:eq(" + (currentPage) + ")").addClass("active");
-            switchPages(limitPerPage, totalPages, Math.floor(page.value));
+            switchPages(limitPerPage, totalPages, Math.floor(page.value), "other");
             page.value = "";
         } else {
             // TODO MAYBE THROW AN ERROR
@@ -193,20 +175,40 @@ function switchPageClick(limitPerPage, totalPages, newCurrentPage) {
             var currentPage = $(this).text();
             $(".pagination li").removeClass("active");
             $(this).addClass("active");
-            switchPages(limitPerPage, totalPages, currentPage)
+            switchPages(limitPerPage, totalPages, currentPage, "other")
         }
     });
 }
 
 // This method hands off the current page to the ShowHideButtons function when a new button is either clicked or inputted
-function switchPages(limitPerPage, totalPages, currentPage) {
+function switchPages(limitPerPage, totalPages, currentPage, type) {
 
     $("#loop .items-to-paginate").hide();
     var grandTotal = limitPerPage * currentPage;
-
-    for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
-        $("#loop .items-to-paginate:eq(" + i + ")").show();
+    if (type === "next-page" || type === "previous-page") {
+        if (currentPage < 2) {
+            for (var i = grandTotal - limitPerPage; i < grandTotal; i++) {
+                $("#loop .items-to-paginate:eq(" + i + ")").show();
+            }
+        } else if (currentPage > 2 && currentPage < 6) {
+            for (var i = grandTotal - limitPerPage - 10; i < grandTotal - 10; i++) {
+                $("#loop .items-to-paginate:eq(" + i + ")").show();
+            }
+        } else if (currentPage > 6 && currentPage < 15) {
+            for (var i = grandTotal - limitPerPage - 20; i < grandTotal - 20; i++) {
+                $("#loop .items-to-paginate:eq(" + i + ")").show();
+            }
+        } else {
+            for (var i = grandTotal - limitPerPage - 30; i < grandTotal - 30; i++) {
+                $("#loop .items-to-paginate:eq(" + i + ")").show();
+            }
+        }
+    } else {
+        for (var i = grandTotal - limitPerPage; i < grandTotal ; i ++) {
+            $("#loop .items-to-paginate:eq(" + i + ")").show();
+        }
     }
+
     currentPage = parseInt(currentPage);
     if (currentPage < 2) {
         currentPage = currentPage;
@@ -216,6 +218,14 @@ function switchPages(limitPerPage, totalPages, currentPage) {
         currentPage = currentPage + 2;
     } else {
         currentPage = currentPage + 3;
+    }
+    if (type === "next-page" || type === "previous-page") {
+        if (currentPage > totalPages && currentPage < totalPages + 3) {
+            currentPage -= 1;
+        }
+        if (currentPage > 3) {
+            currentPage -= 2;
+        }
     }
     ShowHideButtons(currentPage, totalPages);
 }
