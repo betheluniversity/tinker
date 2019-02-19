@@ -17,7 +17,7 @@ $(document).ready(function () {
 });
 
 function pagination(type) {
-    var numberOfItems = $(" #loop .items-to-paginate").length;
+    var numberOfItems = $(" #loop .items-to-paginate").length + 2000;
     if (numberOfItems > 10) {
         var limitPerPage = 10;
         if (type == 'e-announcement') {
