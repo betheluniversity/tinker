@@ -103,6 +103,7 @@ function nextOrPreviousPage(totalPages, limitPerPage, type) {
     $("#" + type + " ").on("click", function () {
         var currentPage = $(".pagination li.active").index();
 
+        // Increments or decrements the currentPage depending on which button was pressed
         if (type === "next-page") {
             if (currentPage === totalPages + 3) {
                 return false;
@@ -119,6 +120,8 @@ function nextOrPreviousPage(totalPages, limitPerPage, type) {
 
         $(".pagination li").removeClass("active");
         $("#loop .items-to-paginate").hide();
+
+        // This skips over the "..." li elements so they aren't set to active
         if (type === "next-page") {
             if (currentPage == 2) {
                 currentPage ++;
@@ -180,11 +183,13 @@ function switchPageClick(limitPerPage, totalPages, newCurrentPage) {
     });
 }
 
-// This method hands off the current page to the ShowHideButtons function when a new button is either clicked or inputted
+// This method hands off the current page to the showHideButtons function when a new button is either clicked or inputted
 function switchPages(limitPerPage, totalPages, currentPage, type) {
 
     $("#loop .items-to-paginate").hide();
     var grandTotal = limitPerPage * currentPage;
+
+    // If the next or previous button was pressed, this is how we make sure the "..." li elements aren't holding real data
     if (type === "next-page" || type === "previous-page") {
         if (currentPage < 2) {
             for (var i = grandTotal - limitPerPage; i < grandTotal; i++) {
@@ -209,6 +214,7 @@ function switchPages(limitPerPage, totalPages, currentPage, type) {
         }
     }
 
+    // This is how we make sure the right button will be show in the right space when passed into showHideButtons
     currentPage = parseInt(currentPage);
     if (currentPage < 2) {
         currentPage = currentPage;
@@ -227,11 +233,11 @@ function switchPages(limitPerPage, totalPages, currentPage, type) {
             currentPage -= 2;
         }
     }
-    ShowHideButtons(currentPage, totalPages);
+    showHideButtons(currentPage, totalPages);
 }
 
 // This method makes the correct buttons show when you select a new button
-function ShowHideButtons(currentPage, totalPages) {
+function showHideButtons(currentPage, totalPages) {
     var x = (document.getElementsByClassName("temp-button")[currentPage - 1]).id;
 
     if ((x.split('-')[1]) == 1 || currentPage < 5) {
@@ -276,7 +282,7 @@ function display(none, inline) {
     }
 }
 
-// This method creates all the initial buttons for pagination, along with the dots if
+// This method creates all the initial buttons for pagination, along with the dots
 function createButtons(totalPages, limitPerPage) {
     $(" #loop .items-to-paginate:gt(" + (limitPerPage - 1) + ")").hide();
 
