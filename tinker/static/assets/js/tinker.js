@@ -31,15 +31,13 @@ function pagination(type) {
         if (type == 'e-announcement') {
             if (Cookies.get('e-announcement-cookie') != null) {
                 limitPerPage = Cookies.get('e-announcement-cookie');
-            } else {
-                Cookies.set('e-announcement-cookie', limitPerPage, { expires: 30, path: '/' });
             }
+            Cookies.set('e-announcement-cookie', limitPerPage, { expires: 365, path: '/' });
         } else if (type == 'event') {
             if (Cookies.get('event-cookie') != null) {
                 limitPerPage = Cookies.get('event-cookie');
-            } else {
-                Cookies.set('event-cookie', limitPerPage, { expires: 30, path: '/' });
             }
+            Cookies.set('event-cookie', limitPerPage, { expires: 365, path: '/' });
         }
 
         let limitList = [10, 25, 50, numberOfItems]
