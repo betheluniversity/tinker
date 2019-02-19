@@ -55,13 +55,6 @@
                 {% endfor %}
                 {% if search_results|length > 10 %}
                     <nav aria-label="Page navigation example">
-                        <ul class="pagination left">
-                            <li id="previous-page">
-                                <a href="javascript:void(0)">
-                                    <span aria-hidden="true">&laquo;</span>
-                                </a>
-                            </li>
-                        </ul>
                         <ul class="left limit-ul">
                             <li style="margin-right: 10px;" class="limit-selector">
                                 <p style="margin: 0px; line-height: 35px;">Limit</p>
@@ -69,6 +62,13 @@
                             <li class="limit-selector">
                                 <select style="width: 100%; height: 100%" id="selected-option">
                                 </select>
+                            </li>
+                        </ul>
+                        <ul class="pagination left">
+                            <li id="previous-page">
+                                <a href="javascript:void(0)">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
                             </li>
                         </ul>
                     </nav>
