@@ -768,3 +768,20 @@ label.checkbox {
 .dot {
     pointer-events: none;
 }
+
+.limit-selector {
+    list-style-type: none;
+    display: inline;
+    float:left;
+    height: 100%;
+}
+
+.limit-ul {
+    margin: 20px 0px;
+    height: 34px;
+    padding-left: 20px;
+}
+
+ul.left {
+    float: left;
+}
