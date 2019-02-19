@@ -111,7 +111,7 @@ function nextOrPreviousPage(limitPerPage, type) {
         let currentPage = $(".pagination li.active").index();
         let totalPages = maxPages;
 
-        if (totalPages > paginationRange + 1) {
+        if (totalPages > paginationRange) {
             // Increments or decrements the currentPage depending on which button was pressed
             if (type === "next-page") {
                 if (currentPage === totalPages + 3) {
@@ -334,7 +334,7 @@ function createButtons(limitPerPage) {
 
     $(".pagination").append("<li id='1' class='current-page active temp-button'><a href='javascript:void(0)'>" + 1 + "</a></li>");
 
-    if (totalPages > paginationRange + 1) {
+    if (totalPages > paginationRange) {
         $(".pagination").append("<li id='dot-1' style='display:none;' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
 
         for (let i = 2; i <= totalPages; i++) {
