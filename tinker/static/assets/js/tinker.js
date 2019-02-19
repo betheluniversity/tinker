@@ -62,8 +62,6 @@ function pagination(type) {
                 Cookies.set('event-cookie', limitPerPage, { expires: 30, path: '/' });
             }
 
-            // window.location.reload(true);
-
             $(".pagination").children("li.temp-button").remove();
 
             var totalPages = Math.ceil(numberOfItems / limitPerPage);
@@ -81,19 +79,18 @@ function pagination(type) {
                 $("#loop .items-to-paginate:eq(" + i + ")").show();
             }
 
-            switchPageClick(limitPerPage, totalPages, "");
+            switchPageClick(limitPerPage, totalPages);
 
             nextOrPreviousPage(totalPages, limitPerPage, "next-page");
 
             goToPage(limitPerPage, totalPages);
-
         });
 
         var totalPages = Math.ceil(numberOfItems / limitPerPage);
 
         createButtons(totalPages, limitPerPage);
 
-        switchPageClick(limitPerPage, totalPages, "");
+        switchPageClick(limitPerPage, totalPages);
 
         nextOrPreviousPage(totalPages, limitPerPage, "next-page");
 
@@ -192,10 +189,9 @@ function goToPage(limitPerPage, totalPages) {
             $(".pagination li.current-page:eq(" + (currentPage) + ")").addClass("active");
             switchPages(limitPerPage, totalPages, Math.floor(page.value), "other");
             page.value = "";
-        } else if (value > 0 && value < totalPages + 1 && totalPages < paginationRange + 1) {
+        } else if (value > 0 && value < totalPages + 1) {
             $(".pagination li").removeClass("active");
             $(".pagination li.current-page:eq(" + (value - 1) + ")").addClass("active");
-            switchPages(limitPerPage, totalPages, Math.floor(page.value), "other");
             page.value = "";
         } else {
             // TODO MAYBE THROW AN ERROR
@@ -205,7 +201,7 @@ function goToPage(limitPerPage, totalPages) {
 }
 
 // This method switches the page when you click on a button
-function switchPageClick(limitPerPage, totalPages, newCurrentPage) {
+function switchPageClick(limitPerPage, totalPages) {
     $(".pagination li.current-page").on("click", function() {
         if ($(this).hasClass("active")) {
             return false;
