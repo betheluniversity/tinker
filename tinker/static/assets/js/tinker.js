@@ -100,6 +100,9 @@ function nextOrPreviousPage(limitPerPage, type) {
         if (totalPages > paginationRange) {
             // Increments or decrements the currentPage depending on which button was pressed
             if (type === "next-page") {
+                // This statement works just like the "if (currentPage === 1)" below since we don't want to go over
+                // the maximum number of valid pages, so we make it return false if we click next and already on the
+                // last valid page
                 if (currentPage === totalPages + 3) {
                     return false;
                 } else {
@@ -117,6 +120,9 @@ function nextOrPreviousPage(limitPerPage, type) {
             $("#loop .items-to-paginate").hide();
 
             // This skips over the "..." li elements so they aren't set to active
+            // if currentPage = 2 or 6 or totalPages + 2, then it means that those are ... buttons, and since we don't
+            // want to ever be on a ... button (since they are useless besides for organization) we use this if, else
+            // to skip over them instead of landing on them
             if (type === "next-page") {
                 if (currentPage == 2) {
                     currentPage++;
