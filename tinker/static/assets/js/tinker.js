@@ -143,6 +143,8 @@ function nextOrPreviousPage(limitPerPage, type) {
             $(".pagination li.current-page:eq(" + (currentPage - 1) + ")").addClass("active");
             switchPages(limitPerPage, currentPage, type);
         } else {
+            // if the totalPages < paginationRange, we don't have to worry about dealing with the ... buttons, so we can
+            // just do everything normally
             if (type === "next-page") {
                 if (currentPage === totalPages) {
                     return false;
