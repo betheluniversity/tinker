@@ -28,10 +28,10 @@ function pagination(type) {
     let numberOfItems = $(" #loop .items-to-paginate").length;
     if (numberOfItems > 10) {
         let limitPerPage = 10;
-        if (Cookies.get(type) != null) {
-            limitPerPage = Cookies.get(type);
+        if (Cookies.get(type + "-cookie") != null) {
+            limitPerPage = Cookies.get(type + "-cookie");
         }
-        Cookies.set(type, limitPerPage, { expires: 365, path: '/' });
+        Cookies.set(type + "-cookie", limitPerPage, { expires: 365, path: '/' });
 
         let limitList = [10, 25, 50, numberOfItems]
 
@@ -54,7 +54,7 @@ function pagination(type) {
 
         $("#selected-option").change(function() {
             limitPerPage = $("#selected-option").children("option:selected").attr("value");
-            Cookies.set(type, limitPerPage, { expires: 30, path: '/' });
+            Cookies.set(type + "-cookie", limitPerPage, { expires: 30, path: '/' });
 
             $(".pagination").children("li.temp-button").remove();
 
