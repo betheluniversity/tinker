@@ -28,19 +28,13 @@ function pagination(type) {
     let numberOfItems = $(" #loop .items-to-paginate").length;
     if (numberOfItems > 10) {
         let limitPerPage = 10;
-        if (type == 'e-announcement') {
-            if (Cookies.get('e-announcement-cookie') != null) {
-                limitPerPage = Cookies.get('e-announcement-cookie');
-            }
-            Cookies.set('e-announcement-cookie', limitPerPage, { expires: 365, path: '/' });
-        } else if (type == 'event') {
-            if (Cookies.get('event-cookie') != null) {
-                limitPerPage = Cookies.get('event-cookie');
-            }
-            Cookies.set('event-cookie', limitPerPage, { expires: 365, path: '/' });
+        if (Cookies.get(type) != null) {
+            limitPerPage = Cookies.get(type);
         }
+        Cookies.set(type, limitPerPage, { expires: 365, path: '/' });
 
         let limitList = [10, 25, 50, numberOfItems]
+
 
         for (let i = 0; i < limitList.length; i ++) {
             if (limitList[i] == limitPerPage) {
@@ -61,9 +55,9 @@ function pagination(type) {
         $("#selected-option").change(function() {
             limitPerPage = $("#selected-option").children("option:selected").attr("value");
             if (type == 'e-announcement') {
-                Cookies.set('e-announcement-cookie', limitPerPage, { expires: 30, path: '/' });
+                Cookies.set('e-announcement', limitPerPage, { expires: 30, path: '/' });
             } else if (type == 'event') {
-                Cookies.set('event-cookie', limitPerPage, { expires: 30, path: '/' });
+                Cookies.set('event', limitPerPage, { expires: 30, path: '/' });
             }
 
             $(".pagination").children("li.temp-button").remove();
