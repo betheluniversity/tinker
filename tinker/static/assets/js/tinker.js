@@ -54,11 +54,7 @@ function pagination(type) {
 
         $("#selected-option").change(function() {
             limitPerPage = $("#selected-option").children("option:selected").attr("value");
-            if (type == 'e-announcement') {
-                Cookies.set('e-announcement', limitPerPage, { expires: 30, path: '/' });
-            } else if (type == 'event') {
-                Cookies.set('event', limitPerPage, { expires: 30, path: '/' });
-            }
+            Cookies.set(type, limitPerPage, { expires: 30, path: '/' });
 
             $(".pagination").children("li.temp-button").remove();
 
