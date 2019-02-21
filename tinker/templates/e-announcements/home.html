@@ -44,7 +44,7 @@
             <br>
             <div id="additional-search-params" style="display: none;">
                 <div class="card">
-                    <div class="content">
+                    <div id="search-box" class="content">
                         <label for="e-annz-title">E-Announcement Title:</label>
                         <input id="e-annz-title" type="text" name="E-Annz-Title" class="input-field">
                         <label for="e-annz-date">E-Announcement Date</label>
@@ -141,6 +141,10 @@
         function search_e_annz() {
             search_url = "{{ url_for('EAnnouncementsView:search') }}";
             $('#spinner').show();
+
+            let inputsString = ($("#e-annz-title").val() + "-" + $("#e-annz-date").val());
+            searchCookie(inputsString, "e-announcement");
+
             inputs = {
                 "title": $("#e-annz-title").val(),
                 "date": $("#e-annz-date").val(),

@@ -79,12 +79,12 @@
                         <button id="search-filters" class="show btn btn-primary">- Less Search Filters</button>
                         <div id="additional-search-params">
                             <div class="card">
-                                <div class="content">
-                                    <label for="event-title">Event Title:</label>
-                                    <input id="event-title" type="text" name="event-title" class="input-field"><br/>
+                                <div id="search-box" class="content">
+                                    <label for=\"event-title\">Event Title:</label>
+                                    <input id="event-title" type="text" name="event-title"class="input-field"><br/>
                                     <label for="start-date">Date Range:<br />
                                         <span>
-                                            <input id="start-date" class="datepicker input-field date-range" size="11"> -
+                                            <input id="start-date" class="datepicker input-field date-range" size="11">
                                             <input id="end-date" class="datepicker input-field date-range" size="11">
                                         </span>
                                     </label>
@@ -177,15 +177,19 @@
                     }
                 }
             };
-            if ($(this).attr('id') == 'start-date'){
-                starting_values['defaultDate'] = new Date();
-                starting_values['setDefaultDate'] = true;
-            }
+            //if ($(this).attr('id') == 'start-date'){
+            //    starting_values['defaultDate'] = new Date();
+            //    starting_values['setDefaultDate'] = true;
+            //}
             var picker = new Pikaday(starting_values);
         });
         function search_events() {
             search_url = "{{ url_for('EventsView:search') }}";
             $('#spinner').show();
+
+            let inputsString = ($("#event-title").val() + "-" + $("#start-date").val() + "-" + $("#end-date").val())
+            searchCookie(inputsString, "event");
+
             inputs = {
                 "title": $("#event-title").val(),
                 "start": $("#start-date").val(),
