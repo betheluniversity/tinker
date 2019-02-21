@@ -35,7 +35,7 @@ function pagination(type) {
 
         let limitList = [10, 25, 50, numberOfItems]
 
-
+        // This loop here iterates through the list of limit values and sets the selected value
         for (let i = 0; i < limitList.length; i ++) {
             if (limitList[i] == limitPerPage) {
                 if (limitList[i] == numberOfItems) {
