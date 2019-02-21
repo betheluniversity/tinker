@@ -22,7 +22,7 @@ const paginationRange = 10;
 // was suppose to be set to since it always used the old version after the limit was changed. So in order to fix this
 // issue, I made this variable "maxPages" with overseeing scope and whenever "totalPages" changes I set "maxPages" equal
 // to it and just hand the functions that need "totalPages" the "maxPage" variable.
-// ~~~~~~~~~~~~~~~~ For a specific example look at the comments of the function goToPage(limitPerPage) ~~~~~~~~~~~~~~~~~
+// ~~~~~~~~~~~~~ For a specific example look at the comments of the function switchPageClick(limitPerPage) ~~~~~~~~~~~~~
 let maxPages = 0;
 function pagination(type) {
     let numberOfItems = $(" #loop .items-to-paginate").length;
@@ -77,8 +77,6 @@ function pagination(type) {
             switchPageClick(limitPerPage);
 
             nextOrPreviousPage(limitPerPage, "next-page");
-
-            goToPage(limitPerPage);
         });
 
         let totalPages = Math.ceil(numberOfItems / limitPerPage);
@@ -91,8 +89,6 @@ function pagination(type) {
         nextOrPreviousPage(limitPerPage, "next-page");
 
         nextOrPreviousPage(limitPerPage, "previous-page");
-
-        goToPage(limitPerPage);
     }
 }
 // Sets the next or previous page depending on what button you pressed
@@ -167,41 +163,12 @@ function nextOrPreviousPage(limitPerPage, type) {
     });
 }
 
-// This method changes the page when you input a page number and click "Go"
-// I had an error before when my function header was "goToPage(limitPerPage, totalPages)" that whenever the limit
+// This method switches the page when you click on a button
+// I had an error before when my function header was "switchPageClick(limitPerPage, totalPages)" that whenever the limit
 // was changed, the "totalPages" variable would still be set to the old one, thus making it possible to go to pages
 // that weren't valid for the new limit. I overcame this by creating a variable called "maxPages" which is at a overseeing
 // scope level over the pagination function and whenever the "totalPages" variable changes, "maxPages" is set to it and
 // then we can just use "maxPages" here in alternative to "totalPages"
-function goToPage(limitPerPage) {
-    $("button#go-to-button").on("click", function() {
-        let totalPages = maxPages;
-        let page = document.getElementById("go-to-input");
-        let value = Math.floor(page.value);
-        if (value > 0 && value < totalPages + 1 && totalPages > paginationRange) {
-            $(".pagination li").removeClass("active");
-            let currentPage = value;
-            if (currentPage < 2) {
-                currentPage = currentPage - 1;
-            } else if (currentPage == totalPages) {
-                currentPage = currentPage + 2;
-            } else if (currentPage >= 5) {
-                currentPage = currentPage + 1;
-            }
-            $(".pagination li.current-page:eq(" + (currentPage) + ")").addClass("active");
-            switchPages(limitPerPage, Math.floor(page.value), "other");
-            page.value = "";
-        } else if (value > 0 && value < totalPages + 1) {
-            $(".pagination li").removeClass("active");
-            $(".pagination li.current-page:eq(" + (value - 1) + ")").addClass("active");
-            page.value = "";
-        } else {
-            return ;
-        }
-    });
-}
-
-// This method switches the page when you click on a button
 function switchPageClick(limitPerPage) {
     $(".pagination li.current-page").on("click", function() {
         if ($(this).hasClass("active")) {
