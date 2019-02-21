@@ -288,31 +288,45 @@ function createButtons(limitPerPage) {
     let totalPages = maxPages;
 
     $(" #loop .items-to-paginate:gt(" + (limitPerPage - 1) + ")").hide();
-
+    // The code below display 1 as a button [1] and makes it visible since we always want it to be visible
     $(".pagination").append("<li id='1' class='current-page active temp-button'><a href='javascript:void(0)'>" + 1 + "</a></li>");
 
+    // The ... only occurs when there are more pages than the paginationRange, currently paginationRange is set to 10,
+    // but should be able to be changed by just changing what paginationRange is set to.
     if (totalPages > paginationRange) {
+        // This code adds in a ... right after 1 but it is currently invisible since we won't use it yet.
         $(".pagination").append("<li id='dot-1' style='display:none;' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
-
         for (let i = 2; i <= totalPages; i++) {
+            // We iterate through 2-totalPages since we need pages 2 - totalPages now
             if (i > 4 && i < (totalPages - 3)) {
-                if (i > 4 && i < 6 && totalPages > 6) {
+                if (i === 5) {
+                    // this adds the 2nd dot after 4 that is used for the ... portion when pages < 4
                     $(".pagination").append("<li id='dot-2' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
                 }
+                // this adds the button page = 5, but invisible since we don't need it yet
                 $(".pagination").append("<li id='" + i + "' style='display:none;' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
             } else if (i < 5) {
+                // if i is less than 5, meaning this is going to show pages 2-4, we want them to be visible, so that is
+                // why its in its own else if
                 $(".pagination").append("<li id='" + i + "' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
             } else if (i < totalPages) {
+                // and if we missed any pages, this method adds them and displays them as none since they aren't one of
+                // the pages we want visible to start
                 $(".pagination").append("<li id='" + i + "' style='display:none;' class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
             }
         }
+        // This adds [...][totalPages] to the select and makes the [...] invisible and the [totalPages] visible since
+        // we always want to see it
         $(".pagination").append("<li id='dot-3' style='display:none;' class='dot current-page temp-button'><a href='javascript:void(0)'>...</a></li>");
         $(".pagination").append("<li id='" + totalPages + "' class='current-page temp-button'><a href='javascript:void(0)'>" + totalPages + "</a></li>");
 
     } else {
+        // If totalPages is less than paginationRange, then we don't need to worry about adding dots, so we just add
+        // every button like normal
         for (let i = 2; i <= totalPages; i++) {
              $(".pagination").append("<li id='" + i + "'  class='current-page temp-button'><a href='javascript:void(0)'>" + i + "</a></li>");
         }
     }
+    // We finally add on the next button
     $(".pagination").append("<li id='next-page' class='temp-button'><a href='javascript:void(0)' aria-label='Next'><span aria-hidden='true'>&raquo;</span></a></li>");
 }
