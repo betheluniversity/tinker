@@ -131,8 +131,6 @@
                 starting_values['defaultDate'] = new Date();
                 starting_values['setDefaultDate'] = true;
             }
-
-
             var picker = new Pikaday(starting_values);
         });
 
@@ -142,8 +140,14 @@
             search_url = "{{ url_for('EAnnouncementsView:search') }}";
             $('#spinner').show();
 
-            let inputsString = ($("#e-annz-title").val() + "-" + $("#e-annz-date").val());
-            searchCookie(inputsString, "e-announcement");
+            let groupsString = '{{ session['groups'] }}';
+            let groups = [];
+            for (let i = 0; i < groupsString.split(";").length; i ++) {
+                groups.push(groupsString.split(";")[i]);
+            }
+
+            let inputsString = ($("#e-annz-title").val() + "-" + $("#e-annz-date").val() + "-" + $("#school-selector").val());
+            searchCookie(inputsString, "e-announcement", groups);
 
             inputs = {
                 "title": $("#e-annz-title").val(),
