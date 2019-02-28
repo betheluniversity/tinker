@@ -104,12 +104,24 @@
 
         $('.datepicker').each(function () {
             var current_element = $(this);
+            let maxDate = new Date();
+            let dd = maxDate.getDate();
+            let mm = maxDate.getMonth() + 1;
+            let yyyy = maxDate.getFullYear() + 2;
+            if (dd < 10) {
+              dd = '0' + dd;
+            }
+
+            if (mm < 10) {
+              mm = '0' + mm;
+            }
+            maxDate = yyyy + '-' + mm + '-' + dd;
             var starting_values = {
                 field: this,
                 format: 'MM DD, YYYY',
-                minDate: new Date('2000-01-01'),
-                maxDate: new Date('2040-12-31'),
-                yearRange: [2000, 2040],
+                minDate: new Date('2010-01-01'),
+                maxDate: new Date(maxDate),
+                yearRange: [2010, yyyy],
                 disableDayFn: function (date) {
                     var start_populated = $("#startDate").val();
                     var end_populated = $("#endDate").val();
