@@ -152,9 +152,9 @@
                 data: JSON.stringify(inputs),
                 contentType: 'application/json;charset=UTF-8',
                 success: function (result) {
-                    // window.location.replace(result);
                     document.getElementById('results').innerHTML = result;
                     $('#spinner').hide();
+                    window.onLoad(pagination("e-announcement"));
                 }
             });
         }
@@ -167,8 +167,6 @@
             $("#modal-confirm").attr("href", "/e-announcements/delete/" + $(this).data('e-announcement-id'));
         });
     });
-
-
     </script>
 
 {% endblock %}
