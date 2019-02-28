@@ -22,26 +22,18 @@ function searchCookie(prevInputs, type, groups) {
         inputs = Cookies.get(type + "-search-cookie");
     }
     Cookies.set(type + "-search-cookie", inputs, { expires: 1, path: '/' });
-
     let viewList = []
     if (type === "event") {
         viewList = ['My Events', 'All Events', 'Other Events', 'User Events'];
-        $("#search-box").empty();
-        $("#search-box").append("<label for=\"event-title\">Event Title:</label>\n" +
-            "<input id=\"event-title\" type=\"text\" name=\"event-title\"class=\"input-field\" value=\"" + inputs.split("-")[0] + "\"><br/>\n" +
-            "<label for=\"start-date\">Date Range:<br />\n" +
-            "<span>\n" +
-            "<input id=\"start-date\" class=\"datepicker input-field date-range\" size=\"11\" value=\"" + inputs.split("-")[1] +" \">\n" +
-            "<input id=\"end-date\" class=\"datepicker input-field date-range\" size=\"11\" value=\"" + inputs.split("-")[2] + " \">\n" +
-            "</span>\n" +
-            "</label>")
+
+        $("#event-title").val(inputs.split("-")[0]);
+        $("#start-date").val(inputs.split("-")[1]);
+        $("#end-date").val(inputs.split("-")[2]);
     } else if (type === "e-announcement") {
         viewList = ['My E-Announcements', 'All E-Announcements', 'Other E-Announcements', 'User E-Announcements'];
-        $("#search-box").empty();
-        $("#search-box").append("<label for=\"e-annz-title\">E-Announcement Title:</label>\n" +
-            "<input id=\"e-annz-title\" type=\"text\" name=\"E-Annz-Title\" class=\"input-field\" value=\"" + inputs.split("-")[0] + "\">\n" +
-            "<label for=\"e-annz-date\">E-Announcement Date</label>\n" +
-            "<input id=\"e-annz-date\" class='datepicker input-field date-range' size='11' value=\"" + inputs.split("-")[1] + "\">")
+        
+        $("#e-annz-title").val(inputs.split("-")[0]);
+        $("#e-annz-date").val(inputs.split("-")[1]);
     }
 
     let lastInput = inputs.split("-").length - 1;
@@ -65,46 +57,6 @@ function searchCookie(prevInputs, type, groups) {
             $("#school-selector").append("<option value=\""+ 1 +"\" selected='selected'>" + viewList[lastInput + 1] + "</option>");
         }
     }
-
-
-    $('.datepicker').each(function () {
-        var current_element = $(this);
-        let maxDate = new Date();
-        let dd = maxDate.getDate();
-        let mm = maxDate.getMonth() + 1;
-        let yyyy = maxDate.getFullYear() + 2;
-        if (dd < 10) {
-          dd = '0' + dd;
-        }
-
-        if (mm < 10) {
-          mm = '0' + mm;
-        }
-        maxDate = yyyy + '-' + mm + '-' + dd;
-        var starting_values = {
-            field: this,
-            format: 'MM DD YYYY',
-            minDate: new Date('2010-01-01'),
-            maxDate: new Date(maxDate),
-            yearRange: [2010, yyyy],
-            disableDayFn: function (date) {
-                var start_populated = $("#start-date").val();
-                var end_populated = $("#end-date").val();
-                if (start_populated == "" && end_populated == "") {
-                    return null;
-                } else if (start_populated != "" && current_element.attr('id') == 'end-date') {
-                    if (new Date(start_populated) >= date) {
-                        return date;
-                    }
-                } else if (end_populated != "" && current_element.attr('id') == 'start-date') {
-                    if (new Date(end_populated) <= date) {
-                        return date;
-                    }
-                }
-            }
-        };
-        var picker = new Pikaday(starting_values);
-    });
 
     $("#event-title").change(function(e) {
         let currentValue = $(this).val();
