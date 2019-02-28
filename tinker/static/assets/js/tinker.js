@@ -50,7 +50,7 @@ function searchCookie(prevInputs, type, groups) {
         selected = $("#school-selector").children("option:selected").attr("value");
     }
     $("#school-selector").empty();
-    if (groups.includes('Tinker Events - CAS') || groups.includes('Event Approver') || groups.includes('Tinker E-Announcements - CAS') || groups.includes('E-Announcement Approver')) {
+    if ((type === "event" && (groups.includes('Tinker Events - CAS') || groups.includes('Event Approver'))) || (type === "e-announcement" && (groups.includes('Tinker E-Announcements - CAS') || groups.includes('E-Announcement Approver')))) {
         for (let i = 0; i < viewList.length - 1; i ++) {
             if (inputs.split("-")[lastInput] - 1 == i || selected - 1 == i) {
                 $("#school-selector").append("<option value=\""+ (i + 1) +"\" selected='selected'>" + viewList[i] + "</option>");
@@ -94,45 +94,50 @@ function searchCookie(prevInputs, type, groups) {
         var picker = new Pikaday(starting_values);
     });
 
-    // TODO MAKE ALL THESE BELOW INTO ONE METHOD
-
     $("#event-title").change(function(e) {
-        var currentValue = $(this).val();
+        let currentValue = $(this).val();
         let newInputs = (currentValue + "-" + inputs.split("-")[1] + "-" + inputs.split("-")[2] + "-" + inputs.split("-")[3]);
+        inputs = newInputs;
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 
     $("#start-date").change(function(e) {
-        var currentValue = $(this).val();
+        let currentValue = $(this).val();
         let newInputs = (inputs.split("-")[0] + "-" + currentValue + "-" + inputs.split("-")[2] + "-" + inputs.split("-")[3]);
+        inputs = newInputs;
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 
     $("#end-date").change(function(e) {
-        var currentValue = $(this).val();
+        let currentValue = $(this).val();
         let newInputs = (inputs.split("-")[0] + "-" + inputs.split("-")[1] + "-" + currentValue + "-" + inputs.split("-")[3]);
+        inputs = newInputs;
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 
     $("#e-annz-title").change(function(e) {
-        var currentValue = $(this).val();
+        let currentValue = $(this).val();
         let newInputs = (currentValue + "-" + inputs.split("-")[1] + "-" + inputs.split("-")[2]);
+        inputs = newInputs;
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 
     $("#e-annz-date").change(function(e) {
-        var currentValue = $(this).val();
+        let currentValue = $(this).val();
         let newInputs = (inputs.split("-")[0] + "-" + currentValue + "-" + inputs.split("-")[2]);
+        inputs = newInputs;
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 
     $("#school-selector").change(function() {
         let selected = $("#school-selector").children("option:selected").attr("value");
-        let newInputs = ""
+        let newInputs = "";
         for (let i = 0; i < inputs.split("-").length - 1; i ++) {
             newInputs += inputs.split("-")[i] + "-";
         }
         newInputs += "" + selected;
+        inputs = newInputs;
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 }
+
