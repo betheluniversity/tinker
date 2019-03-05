@@ -31,7 +31,7 @@ function searchCookie(prevInputs, type, groups) {
         $("#end-date").val(inputs.split("-")[2]);
     } else if (type === "e-announcement") {
         viewList = ['My E-Announcements', 'All E-Announcements', 'Other E-Announcements', 'User E-Announcements'];
-        
+
         $("#e-annz-title").val(inputs.split("-")[0]);
         $("#e-annz-date").val(inputs.split("-")[1]);
     }
@@ -41,20 +41,14 @@ function searchCookie(prevInputs, type, groups) {
     if (!inputs.split("-")[lastInput]) {
         selected = $("#school-selector").children("option:selected").attr("value");
     }
-    $("#school-selector").empty();
     if ((type === "event" && (groups.includes('Tinker Events - CAS') || groups.includes('Event Approver'))) || (type === "e-announcement" && (groups.includes('Tinker E-Announcements - CAS') || groups.includes('E-Announcement Approver')))) {
         for (let i = 0; i < viewList.length - 1; i ++) {
+            let id = "#" + (i + 1);
+            $("#school-selector").children().removeAttr("selected");
             if (inputs.split("-")[lastInput] - 1 == i || selected - 1 == i) {
-                $("#school-selector").append("<option value=\""+ (i + 1) +"\" selected='selected'>" + viewList[i] + "</option>");
-            } else {
-                $("#school-selector").append("<option value=\""+ (i + 1) +"\">" + viewList[i] + "</option>");
+                $(id).prop("selected", true);
+                break;
             }
-        }
-    } else {
-        if (type === "event") {
-            $("#school-selector").append("<option value=\""+ 1 +"\" selected='selected'>" + viewList[lastInput] + "</option>");
-        } else {
-            $("#school-selector").append("<option value=\""+ 1 +"\" selected='selected'>" + viewList[lastInput + 1] + "</option>");
         }
     }
 
@@ -104,4 +98,3 @@ function searchCookie(prevInputs, type, groups) {
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 }
-

@@ -68,10 +68,10 @@
                                 multiple>
                             {% for school_code, school in all_schools.items() %}
                                 {% if loop.first %}
-                                    <option value="{{ school_code }}"
+                                    <option id="{{ school_code }}" value="{{ school_code }}"
                                             selected="selected">{{ school }}</option>
                                 {% elif not loop.last %}
-                                    <option value="{{ school_code }}">{{ school }}</option>
+                                    <option id="{{ school_code }}" value="{{ school_code }}">{{ school }}</option>
                                 {% endif %}
                             {% endfor %}
                         </select>
