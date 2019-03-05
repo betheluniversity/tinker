@@ -204,7 +204,7 @@ class EAnnouncementsController(TinkerController):
                 forms_header = "My E-Announcements"
             else:
                 e_annz_to_iterate = other_e_annz
-                forms_header = "Other Events"
+                forms_header = "Other E-Announcements"
         # Early return if no parameters to check in the search
         if not title and not date:
             return e_annz_to_iterate, forms_header

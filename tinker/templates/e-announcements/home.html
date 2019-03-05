@@ -33,9 +33,9 @@
             <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector" multiple>
                 {% for school_code, school in all_schools.items() %}
                     {% if loop.first %}
-                        <option value="{{ school_code }}" selected="selected">{{ school }}</option>
+                        <option id="{{ school_code }}" value="{{ school_code }}" selected="selected">{{ school }}</option>
                     {% elif not loop.last %}
-                        <option value="{{ school_code }}">{{ school }}</option>
+                        <option id="{{ school_code }}" value="{{ school_code }}">{{ school }}</option>
                     {% endif %}
                 {% endfor %}
             </select>
@@ -44,7 +44,7 @@
             <br>
             <div id="additional-search-params" style="display: none;">
                 <div class="card">
-                    <div class="content">
+                    <div id="search-box" class="content">
                         <label for="e-annz-title">E-Announcement Title:</label>
                         <input id="e-annz-title" type="text" name="E-Annz-Title" class="input-field">
                         <label for="e-annz-date">E-Announcement Date</label>
@@ -104,12 +104,24 @@
 
         $('.datepicker').each(function () {
             var current_element = $(this);
+            let maxDate = new Date();
+            let dd = maxDate.getDate();
+            let mm = maxDate.getMonth() + 1;
+            let yyyy = maxDate.getFullYear() + 2;
+            if (dd < 10) {
+              dd = '0' + dd;
+            }
+
+            if (mm < 10) {
+              mm = '0' + mm;
+            }
+            maxDate = yyyy + '-' + mm + '-' + dd;
             var starting_values = {
                 field: this,
                 format: 'MM DD, YYYY',
-                minDate: new Date('2000-01-01'),
-                maxDate: new Date('2040-12-31'),
-                yearRange: [2000, 2040],
+                minDate: new Date('2010-01-01'),
+                maxDate: new Date(maxDate),
+                yearRange: [2010, yyyy],
                 disableDayFn: function (date) {
                     var start_populated = $("#startDate").val();
                     var end_populated = $("#endDate").val();
@@ -131,8 +143,6 @@
                 starting_values['defaultDate'] = new Date();
                 starting_values['setDefaultDate'] = true;
             }
-
-
             var picker = new Pikaday(starting_values);
         });
 
@@ -141,6 +151,16 @@
         function search_e_annz() {
             search_url = "{{ url_for('EAnnouncementsView:search') }}";
             $('#spinner').show();
+
+            let groupsString = '{{ session['groups'] }}';
+            let groups = [];
+            for (let i = 0; i < groupsString.split(";").length; i ++) {
+                groups.push(groupsString.split(";")[i]);
+            }
+
+            let inputsString = ($("#e-annz-title").val() + "-" + $("#e-annz-date").val() + "-" + $("#school-selector").val());
+            searchCookie(inputsString, "e-announcement", groups);
+
             inputs = {
                 "title": $("#e-annz-title").val(),
                 "date": $("#e-annz-date").val(),
