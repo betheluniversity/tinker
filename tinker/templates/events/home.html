@@ -225,6 +225,7 @@
                 success: function (result) {
                     document.getElementById('results').innerHTML = result;
                     $('#spinner').hide();
+                    window.onLoad(pagination("event"));
                 }
             });
         }

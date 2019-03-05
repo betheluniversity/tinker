@@ -127,7 +127,6 @@
 							cookie = JSON.parse(cookie);
 						} catch (e) {}
 					}
-
 					jar[name] = cookie;
 
 					if (key === name) {
@@ -153,7 +152,6 @@
 		};
 
 		api.defaults = {};
-
 		api.withConverter = init;
 
 		return api;
