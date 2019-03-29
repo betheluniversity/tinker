@@ -1,4 +1,6 @@
 # local
+import calendar
+import math
 from datetime import datetime
 import urllib
 import requests
@@ -92,9 +94,26 @@ class RedirectsController(TinkerController):
 
         changed = []
         deleted = []
+        counter = 0  # counts the number of redirects done
+        total_redirects = redirects.len()  # total number of redirects
+        redirects_per_day = math.ceil(total_redirects / calendar.monthrange(datetime.year, datetime.month))  # number of redirects done per day
+
+        # logic to decide calculations for starting and endingpoints
+        if datetime.day == 1:  # if its the first day, we start at zero
+            starting_point = 0
+            ending_point = starting_point + redirects_per_day + 5
+        elif datetime.day == calendar.monthrange(datetime.year, datetime.month):  # if its the last day, end at total_redirects
+            starting_point = datetime.day * redirects_per_day - 5
+            ending_point = total_redirects
+        else:  # otherwise, start 5 before expected beginning and end 5 after the expected ending
+            starting_point = datetime.day * redirects_per_day - 5
+            ending_point = starting_point + redirects_per_day + 10
 
         for redirect in redirects:
+            if counter < starting_point or counter > ending_point:
+                break
             try:
+                counter += 1
                 response = self.tinker_requests('https://www.bethel.edu' + redirect.from_path, verify=False)
                 redirect.to_url.replace('\n', '')
                 redirect.to_url.replace(' ', '')
