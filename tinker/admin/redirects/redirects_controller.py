@@ -1,6 +1,7 @@
 # local
 import calendar
 import math
+import time
 from datetime import datetime
 import urllib
 import requests
@@ -95,58 +96,62 @@ class RedirectsController(TinkerController):
         changed = []
         deleted = []
         counter = 0  # counts the number of redirects done
-        total_redirects = redirects.len()  # total number of redirects
-        redirects_per_day = math.ceil(total_redirects / calendar.monthrange(datetime.year, datetime.month))  # number of redirects done per day
+        total_redirects = len(redirects)  # total number of redirects
+        date = datetime.utcnow()
+        redirects_per_day = math.ceil(total_redirects / calendar.monthrange(date.year, date.month)[1])  # number of redirects done per day
 
         # logic to decide calculations for starting and endingpoints
-        if datetime.day == 1:  # if its the first day, we start at zero
+        if date.day == 1:  # if its the first day, we start at zero
             starting_point = 0
             ending_point = starting_point + redirects_per_day + 5
-        elif datetime.day == calendar.monthrange(datetime.year, datetime.month):  # if its the last day, end at total_redirects
-            starting_point = datetime.day * redirects_per_day - 5
+        elif date.day == calendar.monthrange(datetime.year, datetime.month)[1]:  # if its the last day, end at total_redirects
+            starting_point = date.day * redirects_per_day - 5
             ending_point = total_redirects
         else:  # otherwise, start 5 before expected beginning and end 5 after the expected ending
-            starting_point = datetime.day * redirects_per_day - 5
+            starting_point = date.day * redirects_per_day - 5
             ending_point = starting_point + redirects_per_day + 10
 
         for redirect in redirects:
-            if counter < starting_point or counter > ending_point:
-                break
-            try:
+            time.sleep(1)
+            if starting_point <= counter < ending_point:
                 counter += 1
-                response = self.tinker_requests('https://www.bethel.edu' + redirect.from_path, verify=False)
-                redirect.to_url.replace('\n', '')
-                redirect.to_url.replace(' ', '')
+                try:
+                    response = self.tinker_requests('https://www.bethel.edu' + redirect.from_path, verify=False)
+                    redirect.to_url.replace('\n', '')
+                    redirect.to_url.replace(' ', '')
 
-            except SSLError as e:  # .SSLError and .CertificateError caught here
-                continue
-
-            except ConnectionError as e:  # MaxRetry and ProtocolError are being thrown here
-
-                if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
-
-                    deleted.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
+                except SSLError as e:  # .SSLError and .CertificateError caught here
                     continue
 
-                else:  # If it passes the other logic, its a protocol error
+                except ConnectionError as e:  # MaxRetry and ProtocolError are being thrown here
+
+                    if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
+
+                        deleted.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
+                        continue
+
+                    else:  # If it passes the other logic, its a protocol error
+                        continue
+
+                except:  # Needs to be here to catch the rest of the hiccups in the redirects
                     continue
 
-            except:  # Needs to be here to catch the rest of the hiccups in the redirects
-                continue
+                if response.url != redirect.to_url:
 
-            if response.url != redirect.to_url:
+                    if 'auth' in response.url:  # if auth is in the response.url, its decoded
+                        response.url = urllib.unquote(urllib.unquote(response.url))
+                        redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
+                        self.db.session.commit()
+                        continue
 
-                if 'auth' in response.url:  # if auth is in the response.url, its decoded
-                    response.url = urllib.unquote(urllib.unquote(response.url))
+                    changed.append({'to_url': redirect.to_url, 'response': response.url})
                     redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
                     self.db.session.commit()
-                    continue
+            else:
+                break
 
-                changed.append({'to_url': redirect.to_url, 'response': response.url})
-                redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
-                self.db.session.commit()
-
-        if changed or deleted:
-            return render_template('admin/redirects/clear-redirects.html', **locals())
-        else:
-            return "empty"
+        # if changed or deleted:
+        #     return render_template('admin/redirects/clear-redirects.html', **locals())
+        # else:
+        #     return "empty"
+        return render_template('admin/redirects/clear-redirects.html', **locals())
