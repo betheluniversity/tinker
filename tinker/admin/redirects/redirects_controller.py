@@ -104,7 +104,7 @@ class RedirectsController(TinkerController):
         if date.day == 1:  # if its the first day, we start at zero
             starting_point = 0
             ending_point = starting_point + redirects_per_day + 5
-        elif date.day == calendar.monthrange(datetime.year, datetime.month)[1]:  # if its the last day, end at total_redirects
+        elif date.day == calendar.monthrange(date.year, date.month)[1]:  # if its the last day, end at total_redirects
             starting_point = date.day * redirects_per_day - 5
             ending_point = total_redirects
         else:  # otherwise, start 5 before expected beginning and end 5 after the expected ending
@@ -112,10 +112,9 @@ class RedirectsController(TinkerController):
             ending_point = starting_point + redirects_per_day + 10
 
         for redirect in redirects:
-            time.sleep(1)
             if starting_point <= counter < ending_point:
-                counter += 1
                 try:
+                    time.sleep(1)
                     response = self.tinker_requests('https://www.bethel.edu' + redirect.from_path, verify=False)
                     redirect.to_url.replace('\n', '')
                     redirect.to_url.replace(' ', '')
@@ -147,8 +146,9 @@ class RedirectsController(TinkerController):
                     changed.append({'to_url': redirect.to_url, 'response': response.url})
                     redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
                     self.db.session.commit()
-            else:
+            elif counter > ending_point:
                 break
+            counter += 1
 
         # if changed or deleted:
         #     return render_template('admin/redirects/clear-redirects.html', **locals())
