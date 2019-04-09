@@ -59,7 +59,7 @@ class NewsController(TinkerController):
 
             content_type = find(article_asset, 'contentTypePath', False)
 
-            news_flex_content = find(article_asset, 'email-teaser-paragraph', False)  # get content
+            news_flex_content = find(article_asset, 'teaser', False)  # get content
             news_content = find(article_asset, 'main-content', False)  # get content
             if content_type == 'News Article - Flex':
                 content = news_flex_content
