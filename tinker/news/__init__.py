@@ -59,7 +59,7 @@ class NewsView(FlaskView):
                 template_content = {
                     "Singlelines": [
                         {
-                            "Content": news_article_text
+                            "Content": "<p>%s</p>" % news_article_text
                         }
                     ]
                 }
