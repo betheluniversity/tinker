@@ -5,7 +5,6 @@ import platform
 
 # Packages
 import flask_profiler
-from flask_mail import Mail, Message
 from bu_cascade.cascade_connector import Cascade
 from flask import Flask, make_response, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -17,7 +16,6 @@ else:
     from flask_caching import Cache
 
 app = Flask(__name__)
-mail = Mail(app)
 
 if "travis" not in platform.node():
     TRAVIS_TESTING = False

@@ -5,17 +5,18 @@ import time
 from datetime import datetime
 import urllib
 import requests
+import socket
 
 # Packages
 from flask_sqlalchemy import SQLAlchemy
 from flask import render_template, session
-from flask_mail import Message
+from flask_mail import Message, Mail
 from requests.exceptions import SSLError, ConnectionError
 from urllib3.exceptions import ProtocolError, MaxRetryError
 from sqlalchemy import and_
 
 # tinker
-from tinker import app, mail
+from tinker import app
 from tinker.admin.redirects.models import BethelRedirect
 from tinker.tinker_controller import TinkerController
 
@@ -93,6 +94,7 @@ class RedirectsController(TinkerController):
     def redirect_change(self):
 
         redirects = BethelRedirect.query.all()
+        mail = Mail(app)
 
         changed = []
         deleted = []
@@ -115,7 +117,7 @@ class RedirectsController(TinkerController):
         for redirect in redirects:
             if starting_point <= counter < ending_point:
                 try:
-                    # time.sleep(1)
+                    time.sleep(1)
                     response = self.tinker_requests('https://www.bethel.edu' + redirect.from_path, verify=False)
                     redirect.to_url.replace('\n', '')
                     redirect.to_url.replace(' ', '')
@@ -152,13 +154,12 @@ class RedirectsController(TinkerController):
             counter += 1
 
         if changed or deleted:
-            #     return render_template('admin/redirects/clear-redirects.html', **locals())
-            msg = Message('Redirects Changes',
-                          sender='bostonkj.bkj@gmail.com',
-                          recipients='bak45247@bethel.edu')
-            msg.body = "This is a test"
-            msg.html = render_template('admin/redirects/clear-redirects.html', **locals())
-            mail.send(msg)
-            return "empty"
-        else:
-            return "empty"
+            if app.config['ENVIRON'] != 'prod':
+                print render_template('admin/redirects/clear-redirects.html', **locals())
+            else:
+                msg = Message(subject='Redirects Changes',
+                              sender='bostonkj.bkj@gmail.com',
+                              recipients='bak45247@bethel.edu')
+                msg.html = render_template('admin/redirects/clear-redirects.html', **locals())
+                mail.send(msg)
+        return ""
