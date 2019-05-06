@@ -162,4 +162,10 @@ class RedirectsController(TinkerController):
                               recipients='bak45247@bethel.edu')
                 msg.html = render_template('admin/redirects/clear-redirects.html', **locals())
                 mail.send(msg)
+        else:
+            msg = Message(subject='Redirects Changes',
+                          sender='bostonkj.bkj@gmail.com',
+                          recipients='bak45247@bethel.edu')
+            msg.body = "Nothing to send"
+            mail.send(msg)
         return ""
