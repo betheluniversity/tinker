@@ -555,6 +555,7 @@ to be in it's own card div, something to think about in the future -->
                     initializeJobTitles(id);
                     // populate values
                     populateNewJobTitlesFieldset(id, job_title);
+                    addHandlerJobTitle(id);
 
                     if( (job_title['job-title'] == null || job_title['job-title'] == '') && (job_title['job_title'] == null || job_title['job_title'] == '') ) {
                         $('#new-job-title-div' + id).hide();
