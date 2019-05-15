@@ -548,6 +548,7 @@ to be in it's own card div, something to think about in the future -->
                         var last = $(".new-job-fieldset").last();
                         var new_job_title = newJobTitlesFieldset(id);
                         new_job_title.insertAfter(last);
+                        addHandlerJobTitle(id);
                         $("#remove_new_job_button").show();
                     }
 
@@ -555,7 +556,6 @@ to be in it's own card div, something to think about in the future -->
                     initializeJobTitles(id);
                     // populate values
                     populateNewJobTitlesFieldset(id, job_title);
-                    addHandlerJobTitle(id);
 
                     if( (job_title['job-title'] == null || job_title['job-title'] == '') && (job_title['job_title'] == null || job_title['job_title'] == '') ) {
                         $('#new-job-title-div' + id).hide();
