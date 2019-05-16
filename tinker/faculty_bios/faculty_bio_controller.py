@@ -596,11 +596,11 @@ class FacultyBioController(TinkerController):
             for key in add_data:
                 if key.startswith('schools'):
                     schools.append(add_data[key])
-            if "College of Arts and Sciences" in schools:
+            if 'College of Arts and Sciences' in schools:
                 return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
-            elif "Graduate School" in schools or "College of Adult and Professional Studies" in schools:
+            elif 'Graduate School' in schools or 'College of Adult and Professional Studies' in schools:
                 return app.config['FACULTY_BIOS_WORKFLOW_CAPSGS_ID']
-            elif "Bethel Seminary" in schools:
+            elif 'Bethel Seminary' in schools:
                 return app.config['FACULTY_BIOS_WORKFLOW_SEM_ID']
             else:
                 return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
