@@ -389,7 +389,7 @@ class FacultyBioController(TinkerController):
 
         return not failed_check, error_list, num_new_jobs
 
-    def update_structure(self, faculty_bio_data, sdata, rform, faculty_bio_id=None):
+    def update_structure(self, faculty_bio_data, sdata, rform, faculty_bio_id=None, submitter_groups=''):
         add_data = self.get_add_data(['faculty_location'], rform)
 
         add_data['last'] = add_data['last'].strip()
@@ -431,7 +431,7 @@ class FacultyBioController(TinkerController):
         # this needs to be done AFTER the system name is made.
         add_data['image'] = self.create_faculty_bio_image(add_data)
 
-        workflow_id = self.get_correct_workflow_id(add_data)
+        workflow_id = self.get_correct_workflow_id(add_data, submitter_groups)
         workflow = self.create_workflow(workflow_id, subtitle=add_data['title'])
         self.add_workflow_to_asset(workflow, faculty_bio_data)
 
@@ -533,7 +533,6 @@ class FacultyBioController(TinkerController):
             self.publish(image_path, 'file')
             return image_path
 
-
     # this can be shortened, i hope
     def build_description(self, add_data):
         description = "Meet " + add_data['first'] + " " + add_data['last']
@@ -581,19 +580,30 @@ class FacultyBioController(TinkerController):
 
         return description
 
-    def get_correct_workflow_id(self, add_data):
-        schools = []
-        for key in add_data:
-            if key.startswith('schools'):
-                schools.append(add_data[key])
-        if "College of Arts and Sciences" in schools:
+    def get_correct_workflow_id(self, add_data, groups):
+        # Check if the person making the edit is one of the designated FacBio approvers
+        # If they are, send the edit to their workflow so that they can always approve their own edits.
+        # Groups is a String of semicolon-separated Cascade Group names
+        if 'Faculty Approver - CAS' in groups:
             return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
-        elif "Graduate School" in schools or "College of Adult and Professional Studies" in schools:
+        elif 'Faculty Approver - CAPS GS' in groups:
             return app.config['FACULTY_BIOS_WORKFLOW_CAPSGS_ID']
-        elif "Bethel Seminary" in schools:
+        elif 'Faculty Approver - Seminary' in groups:
             return app.config['FACULTY_BIOS_WORKFLOW_SEM_ID']
         else:
-            return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
+            # If the submitter isn't one of the approvers, use the normal logic to assign a workflow
+            schools = []
+            for key in add_data:
+                if key.startswith('schools'):
+                    schools.append(add_data[key])
+            if 'College of Arts and Sciences' in schools:
+                return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
+            elif 'Graduate School' in schools or 'College of Adult and Professional Studies' in schools:
+                return app.config['FACULTY_BIOS_WORKFLOW_CAPSGS_ID']
+            elif 'Bethel Seminary' in schools:
+                return app.config['FACULTY_BIOS_WORKFLOW_SEM_ID']
+            else:
+                return app.config['FACULTY_BIOS_WORKFLOW_CAS_ID']
 
     def should_be_able_to_edit_image(self):
         roles = set(session['roles'])
@@ -723,7 +733,7 @@ class FacultyBioController(TinkerController):
         # update(asset_data, 'name', last_name.lower() + '-' + first_name.lower())
         # update(asset_data, 'title', first_name + ' ' + last_name)
 
-        # Todo: remove this code when the faculty bios have been successfully been transfered.
+        # Todo: remove this code when the faculty bios have been successfully been transferred.
         # # move areas of interest
         # expertise = find(asset_data, 'expertise', False)
         # heading = find(expertise, 'heading', False)
