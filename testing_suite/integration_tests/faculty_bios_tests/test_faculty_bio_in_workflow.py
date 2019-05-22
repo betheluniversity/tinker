@@ -17,7 +17,7 @@ class InWorkflowTestCase(IntegrationTestCase):
     #######################
 
     def test_in_workflow(self):
-        expected_response = repr('m3G\xf0\xae\x92\xc4\x7f\xdf\xcf\x8b\xa2\xd7\xa3\xaa\x9f')
+        expected_response = repr('u\xf4f@\xc4XJ\xb7\xba\x86F\xb6\x88\xf1\n\xd1')
         # b'<p>You recently made edits to your bio and are currently pending approval. Please wait until'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)

@@ -24,4 +24,5 @@ class APIAddRowTestCase(RedirectsControllerBaseTestCase):
         self.assertTrue(isinstance(query_results, list))
         self.assertEqual(len(query_results), 1)
         self.assertEqual(response, query_results[0])
-        self.controller.delete_row_from_db(from_path)
+        self.controller.delete_row_from_db(response.id)
+        pass

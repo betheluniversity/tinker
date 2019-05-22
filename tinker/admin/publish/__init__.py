@@ -70,38 +70,6 @@ class PublishView(FlaskView):
 
         return render_template('admin/publish/program-feeds-table.html', **locals())
 
-    # Finds all pages, blocks, files, and folders dependent on the
-    # name, content, or metadata entered by the user
-    @route('/search', methods=['post'])
-    def search(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
-        name = rform['name']
-        content = rform['content']
-        metadata = rform['metadata']
-        pages = rform['pages']
-        blocks = rform['blocks']
-        files = rform['files']
-        folders = rform['folders']
-
-        if name is None or content is None or metadata is None or pages is None \
-                or blocks is None or files is None or folders is None:
-            abort(400)
-
-        # test search info
-        results = self.base.search(name, content, metadata, pages, blocks, files, folders)
-        if results.matches is None or results.matches == "":
-            results = []
-        else:
-            results = results.matches.match
-
-        final_results = []
-        for result in results:
-            if result.path.siteName == "Public" and (not re.match("_", result.path.path) or re.match("_shared-content", result.path.path) or re.match("_homepages", result.path.path)):
-                final_results.append(result)
-
-        results = final_results
-        return render_template('admin/publish/table.html', **locals())
-
     # Publishes the block or page that user
     @route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
     def publish_publish(self, destination, type, id):
@@ -125,57 +93,3 @@ class PublishView(FlaskView):
             if 'success = "false"' in str(resp):
                 return resp['message']
         return "Publishing. . ."
-
-    # Displays info about the published block or page
-    # Displays examples on web page
-    @route("/more-info", methods=['post'])
-    def more_info(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
-        info_type = rform['type']
-        info_id = rform['id']
-
-        # page
-        if info_type == 'page':
-            try:
-                page = self.base.read_page(info_id)
-                asset, mdata, sdata = page.read_asset()
-                ext = 'php'
-            except:
-                return "Cannot find page."
-        # block
-        elif info_type == 'block':
-            try:
-                asset = self.base.read_block(info_id)
-            except:
-                return "Cannot find block."
-        # Todo: file
-        else:
-            return "Not a valid type. . ."
-
-        # name
-        if asset:
-            try:
-                path = find(asset, 'path', False)
-                title = find(asset, 'title', False)
-
-                # prod
-                www_publish_date = 'N/A'
-                page3 = self.base.tinker_requests("https://www.bethel.edu/" + path + '.' + ext).content
-                soup3 = BeautifulSoup(page3)
-                date = soup3.findAll(attrs={"name": "date"})
-                if date:
-                    www_publish_date = self.base.convert_meta_date(date)
-
-                # staging
-                staging_publish_date = 'N/A'
-                page3 = self.base.tinker_requests("https://staging.bethel.edu/" + path + '.' + ext).content
-                soup3 = BeautifulSoup(page3)
-                date = soup3.findAll(attrs={"name": "date"})
-                if date:
-                    staging_publish_date = self.base.convert_meta_date(date)
-
-            except:
-                www_publish_date = 'N/A'
-                staging_publish_date = 'N/A'
-
-        return render_template("admin/publish/more-info.html", **locals())

@@ -14,16 +14,16 @@ class EventsSequentialTestCase(IntegrationTestCase):
     def get_eid(self, responseData):
         return re.search('<input type="hidden" id="new_eid" value="(.+)"(/?)>', responseData).group(1)
 
-    def create_form(self, title="Test event", meta_description="This is an event created via unit testing",
-                    featuring="Testing things!", sponsors="Eric Jameson", main_content="This is an event created to make sure that Tinker's connection with Cascade via events continues working as we make changes",
-                    start="August 3rd 2017, 12:00 am", end="August 5th 2017, 12:00 am", location="On Campus",
-                    on_campus_location="Clauson Center (CC)", other_on_campus="No.",
-                    maps_directions="Don't drive; take a plane.", registration_heading="Registration",
-                    registration_details="Pay all the money.", wufoo_code="", cost="$20", cancellations="Full refund",
-                    questions="Why are you still reading this event? It's just a test!", general="Athletics",
-                    offices="Parents", cas_departments="English", adult_undergrad_program="None",
-                    seminary_program="None", graduate_program="None", internal="None", image="", off_campus_location="",
-                    ticketing_url="", timezone="", link="", author="", eid=None):
+    def create_form(self, title='Integration Test -- Delete if submitted', meta_description="This event should not be approved or published; it's supposed to be deleted automatically",
+                    featuring='Web Developers', sponsors='<p>Nike</p>\r\n', main_content='<p>Units will be tested, and then integrated. Or should I say: "anti-derived"</p>\r\n',
+                    start='October 11th 2019, 9:00 am', end='October 11th 2019, 6:00 pm', location="On Campus",
+                    on_campus_location='Anderson Center Community Room', other_on_campus='',
+                    maps_directions='<p>Forget that we ever met</p>\r\n', registration_heading="Registration",
+                    registration_details='<p>Register for learning</p>\r\n', wufoo_code="", cost='Knowledge is priceless',
+                    cancellations="You can't unlearn things.", questions='<p>If you see this event, please contact the ITS Help Desk.</p>\r\n',
+                    general='None', offices='None', cas_departments='None', adult_undergrad_program='None',
+                    seminary_program='None', graduate_program='None', internal='None', image="", off_campus_location="",
+                    ticketing_url="", timezone="", link='https://www.google.com', author="", eid=None):
         to_return = {
             'title': title,  # Event name
             'metaDescription': meta_description,  # Teaser
@@ -129,7 +129,7 @@ class EventsSequentialTestCase(IntegrationTestCase):
 
     def delete_testing_object(self):
         self.request = self.generate_url("delete", event_id=self.eid)
-        expected_response = repr('\xe6\x81\xbeZ7u\xcf\xf8qH"\xc4\x06\x9a\xfe\x8a')
+        expected_response = repr('2\xc7$\xf0\x96?ii\xec*\t\xa0B\xfc8"')
         # b'Your event has been deleted. It will be removed from your'
         response = self.send_get(self.request)
         short_string = self.get_unique_short_string(response.data)

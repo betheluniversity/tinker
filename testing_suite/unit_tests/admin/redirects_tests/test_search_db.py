@@ -15,9 +15,9 @@ class SearchDBTestCase(RedirectsControllerBaseTestCase):
     #######################
 
     def test_search_db_valid(self):
-        search_type = 'from_path'  # 'to_url'
-        search_term = ''
-        response = self.controller.search_db(search_type, search_term)
+        from_path = '/welcome-week'
+        to_url = ''
+        response = self.controller.search_db(from_path, to_url)
         self.assertTrue(isinstance(response, list))
         self.assertTrue(len(response) > 0)
         first_result = response[0]

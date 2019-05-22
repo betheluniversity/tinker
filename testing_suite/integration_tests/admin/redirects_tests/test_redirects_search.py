@@ -12,10 +12,10 @@ class SearchTestCase(RedirectsBaseTestCase):
         self.request_type = "POST"
         self.request = self.generate_url("search")
 
-    def create_form(self, search_type="from_path", search="/"):
+    def create_form(self, from_path='/about', to_url='https://www.bethel.edu/about/'):
         return {
-            'type': search_type,
-            'search': search
+            'from_path': from_path,
+            'to_url': to_url
         }
 
     #######################
@@ -23,7 +23,7 @@ class SearchTestCase(RedirectsBaseTestCase):
     #######################
 
     def test_search_valid(self):
-        expected_response = repr(';\xa0O\x9b\xb7\xada\xde\x14\rT~\nKs\xf3')  # b'<span class="from_path">'
+        expected_response = repr('\x00\xb0\xd3H&0\x9b\xfd?s-\x99\x11Qa\xd7')  # b'<span class="from_path">'
         form = self.create_form()
         response = self.send_post(self.request, form)
         short_string = self.get_unique_short_string(response.data)
@@ -33,9 +33,9 @@ class SearchTestCase(RedirectsBaseTestCase):
 
     def test_search_invalid(self):
         expected_response = ""
-        arg_names = ['search_type', 'search']
+        arg_names = ['from_path', 'to_url']
         for i in range(len(arg_names)):
-            bad_arg = {arg_names[i]: None}
+            bad_arg = {arg_names[i]: ''}
             form = self.create_form(**bad_arg)
             response = self.send_post(self.request, form)
             failure_message = self.generate_failure_message(self.request_type, self.request, response.data,

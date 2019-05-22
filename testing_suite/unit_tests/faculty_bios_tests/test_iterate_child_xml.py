@@ -25,8 +25,8 @@ class IterateChildXMLTestCase(FacultyBiosControllerBaseTestCase):
             'title': 'cat in hat',
             'created-on': 'an invisible jet',
             './/last': 'comes before middle',
-            './/deactivate': '007'
-
+            './/deactivate': '007',
+            './/courseleaf-user': 'Dr. No'
         })
         child.attrib['id'] = 'bondJamesBond'
         response = self.controller._iterate_child_xml(child, author='thing 2')

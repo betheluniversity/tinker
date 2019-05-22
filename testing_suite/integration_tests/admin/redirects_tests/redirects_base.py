@@ -12,7 +12,7 @@ class RedirectsBaseTestCase(IntegrationTestCase, FixturesMixin):
     tinker_app.debug = False
     tinker_app.config['ENVIRON'] = "test"
     base_uri = tinker_app.config['SQLALCHEMY_DATABASE_URI'].split("app.db")[0]
-    tinker_app.config['SQLALCHEMY_DATABASE_URI'] = base_uri + 'testing_db.db'
+    tinker_app.config['SQLALCHEMY_DATABASE_URI'] = base_uri + 'app_test.db'
     tinker_app.config['WTF_CSRF_ENABLED'] = False
     tinker_app.config['WTF_CSRF_METHODS'] = []
     db = SQLAlchemy(tinker_app)

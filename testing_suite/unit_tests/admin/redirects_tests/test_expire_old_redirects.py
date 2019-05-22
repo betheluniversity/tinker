@@ -1,6 +1,9 @@
 import datetime
 
+from flask import session
+
 from redirects_controller_base import RedirectsControllerBaseTestCase
+from tinker import app
 
 
 class ExpireOldRedirectsTestCase(RedirectsControllerBaseTestCase):
@@ -21,22 +24,26 @@ class ExpireOldRedirectsTestCase(RedirectsControllerBaseTestCase):
         to_url = 'to!'
         should_have_short_url = False
         expiration_date = datetime.datetime(2016, 7, 1, 0, 0)
-        expired_row = self.controller.add_row_to_db(from_path, to_url, should_have_short_url, expiration_date)
+        with app.test_request_context():
+            session['username'] = 'bwj69724'
+            session['groups'] = 'Administrators;Event Approver'
+            session['roles'] = [u'ALUMNI-CAS', u'ALUMNI', u'STAFF', u'CAMPUS-STP', u'STAFF-STP']
+            expired_row = self.controller.add_row_to_db(from_path, to_url, should_have_short_url, expiration_date)
 
-        # 2. Get a count of how many redirects are in the DB
-        query_results = self.controller.get_all_rows()
-        first_count = len(query_results)
+            # 2. Get a count of how many redirects are in the DB
+            query_results = self.controller.get_all_rows()
+            first_count = len(query_results)
 
-        # 3. Call the expire method, which deletes redirects that have expired
-        self.controller.expire_old_redirects()
+            # 3. Call the expire method, which deletes redirects that have expired
+            self.controller.expire_old_redirects()
 
-        # 4. Get a new count of how many redirects are in the DB
-        query_results = self.controller.get_all_rows()
-        second_count = len(query_results)
+            # 4. Get a new count of how many redirects are in the DB
+            query_results = self.controller.get_all_rows()
+            second_count = len(query_results)
 
-        # 5. Assert that the second count is fewer than the first count
-        self.assertTrue(first_count > second_count)
+            # 5. Assert that the second count is fewer than the first count
+            self.assertTrue(first_count > second_count)
 
-        # 6. Assert that the added row is no longer in the DB since the expire method should have deleted it
-        query_results = self.controller.search_db(from_path, to_url)
-        self.assertTrue(expired_row not in query_results)
+            # 6. Assert that the added row is no longer in the DB since the expire method should have deleted it
+            query_results = self.controller.search_db(from_path, to_url)
+            self.assertTrue(expired_row not in query_results)

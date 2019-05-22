@@ -2,6 +2,15 @@ import sys
 # import time
 import unittest
 
+# Travis CI install location: '/home/travis/build/betheluniversity/tinker/tinker'
+# INSTALL_LOCATION
+# PROGRAM_SEARCH_CSV
+# PROGRAM_SEARCH_CSV_LOCAL
+# REDIRECTS_FILE_PATH
+# REDIRECTS_TXT_LOCAL
+# SQLALCHEMY_DATABASE_URI
+# SQLALCHEMY_MIGRATE_REPO
+
 from testing_suite.utilities import get_tests_in_this_dir
 
 all_tests = get_tests_in_this_dir('testing_suite')
