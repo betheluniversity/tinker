@@ -7,34 +7,6 @@ from tinker.tinker_controller import TinkerController
 
 class PublishManagerController(TinkerController):
 
-    def convert_meta_date(self, date):
-        dates = date[0]['content'].encode('utf-8').split(" ")
-        dates.pop()
-        date = " ".join(dates)
-
-        dt = datetime.strptime(date, "%a, %d %b %Y %H:%M:%S")
-        date_time = dt.strftime("%B %e, %Y at %I:%M %p")
-
-        return date_time
-
-    # TODO: If this is going to be implemented again, it needs a refactor. See "search_data_definitions"
-    def search(self, name_search="", content_search="", metadata_search="", pages_search=False, blocks_search=False,
-               files_search=False, folders_search=False):
-
-        search_information = {
-            'matchType': "match-all",
-            'assetName': name_search,
-            'assetContent': content_search,
-            'assetMetadata': metadata_search,
-            'searchPages': pages_search,
-            'searchBlocks': blocks_search,
-            'searchFiles': files_search,
-            'searchFolders': folders_search,
-        }
-
-        response = self.search_cascade(search_information)
-        return response
-
     def search_data_definitions(self, name_search=""):
         search_information = {
             'searchTerms': name_search,
