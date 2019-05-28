@@ -246,7 +246,7 @@ class FacultyBiosView(FlaskView):
 
         self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
 
-        cache.clear()
+        cache.clear()  # clears the cache upon de/activation to load these changes immediately
 
         return 'Success'
 
