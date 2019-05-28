@@ -115,9 +115,9 @@ class RedirectsController(TinkerController):
             ending_point = starting_point + redirects_per_day + 10
 
         for redirect in redirects:
-            if starting_point <= counter < ending_point:
+            if starting_point <= counter < ending_point:  # until we reach the starting point, we don't need to check the redirects
                 try:
-                    time.sleep(1)
+                    time.sleep(1)  # sleeps for 1 second in between each request, giving the servers time to handle everything
                     response = self.tinker_requests('https://www.bethel.edu' + redirect.from_path, verify=False)
                     redirect.to_url.replace('\n', '')
                     redirect.to_url.replace(' ', '')
@@ -150,11 +150,11 @@ class RedirectsController(TinkerController):
                     redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
                     self.db.session.commit()
             elif counter > ending_point:
-                break
+                break  # when we surpass the end point, we dont need to check the loop anymore
             counter += 1
 
         if changed or deleted:
-            if app.config['ENVIRON'] != 'prod':
+            if app.config['ENVIRON'] != 'prod':  # emails can't be sent locally, so instead we'll just load the html the email would have in it
                 print render_template('admin/redirects/clear-redirects.html', **locals())
             else:
                 msg = Message(subject='Redirects Changes',
@@ -163,7 +163,7 @@ class RedirectsController(TinkerController):
                 msg.html = render_template('admin/redirects/clear-redirects.html', **locals())
                 try:
                     mail.send(msg)
-                except socket.error:
+                except socket.error:  # this is thrown if the email server refuses to connect with the app
                     return "failed to send message"
             return "message sent"
         else:
