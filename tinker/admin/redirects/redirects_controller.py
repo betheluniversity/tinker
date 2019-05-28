@@ -158,8 +158,8 @@ class RedirectsController(TinkerController):
                 print render_template('admin/redirects/clear-redirects.html', **locals())
             else:
                 msg = Message(subject='Redirects Changes',
-                              sender='sender email',  # TODO: add this email
-                              recipients=['recipient email'])  # TODO: Add this email
+                              sender='web-development@bethel.edu',
+                              recipients=['web-services@bethel.edu'])
                 msg.html = render_template('admin/redirects/clear-redirects.html', **locals())
                 try:
                     mail.send(msg)
