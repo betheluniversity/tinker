@@ -2,6 +2,7 @@
 import calendar
 import math
 import time
+import traceback
 from datetime import datetime
 import urllib
 import requests
@@ -98,6 +99,7 @@ class RedirectsController(TinkerController):
 
         changed = []
         deleted = []
+        recipient = ['bak45247@bethel.edu']
         counter = 0  # counts the number of redirects done
         total_redirects = len(redirects)  # total number of redirects
         date = datetime.utcnow()
@@ -173,5 +175,5 @@ class RedirectsController(TinkerController):
             try:
                 mail.send(msg)
             except:
-                return "failed to send message"
+                return traceback.print_exc()
         return ""
