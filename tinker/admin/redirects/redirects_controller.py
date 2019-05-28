@@ -166,9 +166,9 @@ class RedirectsController(TinkerController):
                 except socket.error:
                     return "failed to send message"
         else:
-            msg = Message(subject='Redirects Changes',
+            msg = Message(subject=['Redirects Changes'],
                           sender='bostonkj.bkj@gmail.com',
-                          recipients='bak45247@bethel.edu')
+                          recipients=['bak45247@bethel.edu'])
             msg.body = "Nothing to send"
             try:
                 mail.send(msg)
