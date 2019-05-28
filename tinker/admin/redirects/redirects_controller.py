@@ -2,7 +2,6 @@
 import calendar
 import math
 import time
-import traceback
 from datetime import datetime
 import urllib
 import requests
@@ -99,7 +98,6 @@ class RedirectsController(TinkerController):
 
         changed = []
         deleted = []
-        recipient = ['bak45247@bethel.edu']
         counter = 0  # counts the number of redirects done
         total_redirects = len(redirects)  # total number of redirects
         date = datetime.utcnow()
@@ -116,64 +114,57 @@ class RedirectsController(TinkerController):
             starting_point = date.day * redirects_per_day - 5
             ending_point = starting_point + redirects_per_day + 10
 
-        # for redirect in redirects:
-        #     if starting_point <= counter < ending_point:
-        #         try:
-        #             time.sleep(1)
-        #             response = self.tinker_requests('https://www.bethel.edu' + redirect.from_path, verify=False)
-        #             redirect.to_url.replace('\n', '')
-        #             redirect.to_url.replace(' ', '')
-        #
-        #         except SSLError as e:  # .SSLError and .CertificateError caught here
-        #             continue
-        #
-        #         except ConnectionError as e:  # MaxRetry and ProtocolError are being thrown here
-        #
-        #             if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
-        #
-        #                 deleted.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
-        #                 continue
-        #
-        #             else:  # If it passes the other logic, its a protocol error
-        #                 continue
-        #
-        #         except:  # Needs to be here to catch the rest of the hiccups in the redirects
-        #             continue
-        #
-        #         if response.url != redirect.to_url:
-        #
-        #             if 'auth' in response.url:  # if auth is in the response.url, its decoded
-        #                 response.url = urllib.unquote(urllib.unquote(response.url))
-        #                 redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
-        #                 self.db.session.commit()
-        #                 continue
-        #
-        #             changed.append({'to_url': redirect.to_url, 'response': response.url})
-        #             redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
-        #             self.db.session.commit()
-        #     elif counter > ending_point:
-        #         break
-        #     counter += 1
+        for redirect in redirects:
+            if starting_point <= counter < ending_point:
+                try:
+                    time.sleep(1)
+                    response = self.tinker_requests('https://www.bethel.edu' + redirect.from_path, verify=False)
+                    redirect.to_url.replace('\n', '')
+                    redirect.to_url.replace(' ', '')
+
+                except SSLError as e:  # .SSLError and .CertificateError caught here
+                    continue
+
+                except ConnectionError as e:  # MaxRetry and ProtocolError are being thrown here
+
+                    if 'Max retries exceeded' in e.args[0].args[0]:  # MaxRetryError caught here and marked for deletion
+
+                        deleted.append({'from_path': redirect.from_path, 'to_url': redirect.to_url})
+                        continue
+
+                    else:  # If it passes the other logic, its a protocol error
+                        continue
+
+                except:  # Needs to be here to catch the rest of the hiccups in the redirects
+                    continue
+
+                if response.url != redirect.to_url:
+
+                    if 'auth' in response.url:  # if auth is in the response.url, its decoded
+                        response.url = urllib.unquote(urllib.unquote(response.url))
+                        redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
+                        self.db.session.commit()
+                        continue
+
+                    changed.append({'to_url': redirect.to_url, 'response': response.url})
+                    redirect.query.filter_by(from_path=redirect.from_path).update(dict(to_url=response.url))
+                    self.db.session.commit()
+            elif counter > ending_point:
+                break
+            counter += 1
 
         if changed or deleted:
             if app.config['ENVIRON'] != 'prod':
                 print render_template('admin/redirects/clear-redirects.html', **locals())
             else:
                 msg = Message(subject='Redirects Changes',
-                              sender='noreply@bethel.edu',
-                              recipients='bak45247@bethel.edu')
+                              sender='sender email',  # TODO: add this email
+                              recipients=['recipient email'])  # TODO: Add this email
                 msg.html = render_template('admin/redirects/clear-redirects.html', **locals())
                 try:
                     mail.send(msg)
                 except socket.error:
                     return "failed to send message"
+            return "message sent"
         else:
-            msg = Message(subject=['Redirects Changes'],
-                          sender='bostonkj.bkj@gmail.com',
-                          recipients=['bak45247@bethel.edu'])
-            msg.body = "Nothing to send"
-            try:
-                mail.send(msg)
-            except:
-                return traceback.print_exc()
-        return ""
+            return "nothing to send"
