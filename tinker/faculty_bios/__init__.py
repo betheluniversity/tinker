@@ -39,8 +39,7 @@ class FacultyBiosView(FlaskView):
     def index(self):
         username = session['username']
 
-        # I removed cacheing, because it was taking too long for people to see the "activate/deactivate" changes - caleb
-        # @cache.memoize(timeout=600)
+        @cache.memoize(timeout=600)
         def index_cache(username):
             roles = session['roles']
 
@@ -246,6 +245,8 @@ class FacultyBiosView(FlaskView):
             page.edit_asset(asset)
 
         self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
+
+        cache.clear()
 
         return 'Success'
 
