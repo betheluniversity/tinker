@@ -80,10 +80,12 @@ class FacultyBiosView(FlaskView):
 
         return index_cache(username)
 
-    @route('delete/<faculty_bio_id>', methods=['GET'])
+    @route('delete/<faculty_bio_id>', methods=['GET'])  # this function is broken
     def delete(self, faculty_bio_id):
         self.base.delete(faculty_bio_id, "page")
         self.base.unpublish(faculty_bio_id, "page")
+
+        cache.delete_memoized('index_cache')
 
         return redirect('/faculty-bios/delete-confirm', code=302)
 
