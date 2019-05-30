@@ -15,6 +15,7 @@ from subprocess import call
 from xml.etree import ElementTree as ET
 
 # Packages
+import ldap
 import requests
 # from __future__ import print_function # Python 2/3 compatibiltiy (namedentities) - this might not be needed anymore
 from createsend import Client
@@ -234,6 +235,9 @@ class TinkerController(object):
             if 'groups' not in session.keys():
                 get_groups_for_user()
 
+            if 'iam_groups' not in session.keys():
+                get_iam_groups()
+
             if 'roles' not in session.keys():
                 get_roles()
 
@@ -294,6 +298,25 @@ class TinkerController(object):
             # print allowed_groups
             session['groups'] = allowed_groups
             return allowed_groups.split(";")
+
+        def get_iam_groups(username=None):
+            try:
+                con = ldap.initialize(app.config['LDAP_CONNECTION_INFO'])
+                con.simple_bind_s('BU\svc-tinker', app.config['LDAP_SVC_TINKER_PASSWORD'])
+
+                iam_groups = []
+
+                # code to get all users in a group
+                results = con.search_s('ou=Bethel Users,dc=bu,dc=ac,dc=bethel,dc=edu', ldap.SCOPE_SUBTREE,
+                                       "(|(&(sAMAccountName=%s)))" % username)
+
+                for result in results:
+                    for ldap_string in result[1]['memberOf']:
+                        iam_groups.append(re.search('CN=([^,]*)', ldap_string).group(1))
+
+                session['iam_groups'] = iam_groups
+            except:
+                session['iam_groups'] = []
 
         def get_roles(username=None):
             if not username:
