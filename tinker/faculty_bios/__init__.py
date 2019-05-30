@@ -38,54 +38,53 @@ class FacultyBiosView(FlaskView):
 
     def index(self):
         username = session['username']
+        return self.index_cache(username)
 
-        @cache.memoize(timeout=600)
-        def index_cache(username):
-            roles = session['roles']
+    @cache.memoize(timeout=600)
+    def index_cache(self, username):
+        roles = session['roles']
 
-            forms = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page')
-            forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
+        forms = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page')
+        forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
 
-            if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups'] \
-                    or 'Tinker Faculty Bios - CAS' in session['groups'] \
-                    or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
-                    or 'Tinker Faculty Bios - SEM' in session['groups']:
-                show_courseleaf_button = True
-            else:
-                show_courseleaf_button = False
+        if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups'] \
+                or 'Tinker Faculty Bios - CAS' in session['groups'] \
+                or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
+                or 'Tinker Faculty Bios - SEM' in session['groups']:
+            show_courseleaf_button = True
+        else:
+            show_courseleaf_button = False
 
-            # the faculty special admins should be able to see every bio, based on school.
-            if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups']:
-                show_special_admin_view = True
-                show_create = True
+        # the faculty special admins should be able to see every bio, based on school.
+        if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups']:
+            show_special_admin_view = True
+            show_create = True
 
-                # This nastiness is to maintain order and have the class value
-                all_schools = [
-                    {'cas': 'College of Arts and Sciences'},
-                    {'caps': 'College of Adult and Professional Studies'},
-                    {'gs': 'Graduate School'},
-                    {'sem': 'Bethel Seminary'},
-                    {'bu': 'Administration with Faculty Status'},
-                    {'other-category': 'Other'}
-                ]
-            else:  # normal view
-                show_special_admin_view = False
-                show_create = len(forms) == 0 \
-                              or 'Tinker Faculty Bios - CAS' in session['groups'] \
-                              or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
-                              or 'Tinker Faculty Bios - SEM' in session['groups'] \
-                              or self.base.is_user_in_web_author_groups()
+            # This nastiness is to maintain order and have the class value
+            all_schools = [
+                {'cas': 'College of Arts and Sciences'},
+                {'caps': 'College of Adult and Professional Studies'},
+                {'gs': 'Graduate School'},
+                {'sem': 'Bethel Seminary'},
+                {'bu': 'Administration with Faculty Status'},
+                {'other-category': 'Other'}
+            ]
+        else:  # normal view
+            show_special_admin_view = False
+            show_create = len(forms) == 0 \
+                          or 'Tinker Faculty Bios - CAS' in session['groups'] \
+                          or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
+                          or 'Tinker Faculty Bios - SEM' in session['groups'] \
+                          or self.base.is_user_in_web_author_groups()
 
-            return render_template('faculty-bios/home.html', **locals())
-
-        return index_cache(username)
+        return render_template('faculty-bios/home.html', **locals())
 
     @route('delete/<faculty_bio_id>', methods=['GET'])  # this function is broken
     def delete(self, faculty_bio_id):
         self.base.delete(faculty_bio_id, "page")
         self.base.unpublish(faculty_bio_id, "page")
 
-        cache.delete_memoized('index_cache')
+        cache.delete_memoized(self.index_cache)  # clears only the faculty bios cache upon deletion to load the changes immediately
 
         return redirect('/faculty-bios/delete-confirm', code=302)
 
@@ -248,7 +247,7 @@ class FacultyBiosView(FlaskView):
 
         self.base.publish(app.config['FACULTY_BIOS_XML_ID'])
 
-        cache.delete_memoized('index_cache')  # clears only the faculty bios cache upon de/activation to load these changes immediately
+        cache.delete_memoized(self.index_cache)  # clears only the faculty bios cache upon de/activation to load these changes immediately
 
         return 'Success'
 
