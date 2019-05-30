@@ -37,11 +37,14 @@ class FacultyBiosView(FlaskView):
             abort(403)
 
     def index(self):
+        # this method calls the index_cache method which runs the 'true' index method
         username = session['username']
         return self.index_cache(username)
 
     @cache.memoize(timeout=600)
     def index_cache(self, username):
+        """this method caches the faculty bios page based on username because not
+        everyone who visits this page will have access to the same bios to edit"""
         roles = session['roles']
 
         forms = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page')
