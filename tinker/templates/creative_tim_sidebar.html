@@ -49,7 +49,7 @@
 {#                </a>#}
 {#            </li>#}
 
-            {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
+            {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] or 'ITS - Help Desk Employees' in session['iam_groups'] %}
                 <li class="dropdown {% if 'admin/' in request.path %}active{% endif %}">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                         <i class="fa fa-lightbulb-o"></i>
@@ -69,6 +69,8 @@
                                     <p class="admin-list-item">Sync Metadata</p>
                                 </a>
                             </li>
+                        {% endif %}
+                        {% if 'ITS - Help Desk Employees' in session['iam_groups'] or 'Administrators' in session['groups'] %}
                             <li>
                                 <a href="{{ url_for('UserRolesView:index') }}">
                                     <i class="fa fa-user-secret" aria-hidden="true"></i>
@@ -77,6 +79,8 @@
                                     {# local session cookie not being stored #}
                                 </a>
                             </li>
+                        {% endif %}
+                        {% if 'Administrators' in session['groups'] %}
                             <li>
                                 <a href="{{ url_for('ProgramSearchView:index') }}">
                                     <i class="fa fa-search" aria-hidden="true"></i>
@@ -84,12 +88,14 @@
                                 </a>
                             </li>
                         {% endif %}
+                        {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
                         <li>
                             <a href="{{ url_for('RedirectsView:index') }}">
                                 <i class="fa fa-arrows-alt" aria-hidden="true"></i>
                                 <p class="admin-list-item">Redirects</p>
                             </a>
                         </li>
+                        {% endif %}
                     </ul>
                 </li>
             {% endif %}

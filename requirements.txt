@@ -40,4 +40,5 @@ unidecode==0.4.21
 namedentities
 redis
 paramiko
+python-ldap
 Flask-Mail
