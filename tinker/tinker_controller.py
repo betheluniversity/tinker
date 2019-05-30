@@ -191,9 +191,8 @@ def admin_permissions(flask_view_class):
         if 'Administrators' not in session['groups']:
             abort(403)
 
-    # TODO add in the user roles menu so help desk can see it
     elif flask_view_class.route_base == '/admin/user_roles':
-        if 'Administrators' not in session['groups'] and 'ITS' not in session['groups']:
+        if 'Administrators' not in session['groups'] and 'ITS - Help Desk Employees' not in session['iam_groups']:
             abort(403)
 
     # all other admin menus
