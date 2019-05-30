@@ -41,3 +41,4 @@ namedentities
 redis
 paramiko
 python-ldap
+Flask-Mail
