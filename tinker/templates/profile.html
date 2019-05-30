@@ -52,6 +52,15 @@
                             {% endfor %}
                         </td>
                     </tr>
+                    <tr>
+                        <th>Iam Groups</th>
+                        <td>
+                            {% for key in session['iam_groups'] %}
+                                {{ key }}
+                                <br/>
+                            {% endfor %}
+                        </td>
+                    </tr>
                 </table>
             </div>
         </div>
