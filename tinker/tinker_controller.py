@@ -236,7 +236,7 @@ class TinkerController(object):
                 get_groups_for_user()
 
             if 'iam_groups' not in session.keys():
-                get_iam_groups()
+                get_iam_groups(session['username'])
 
             if 'roles' not in session.keys():
                 get_roles()
