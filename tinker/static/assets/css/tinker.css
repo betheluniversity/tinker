@@ -180,6 +180,11 @@ a#remove_new_job_button {
     border-color: #f04124 !important;
 }
 
+.danger {
+    background-color: #f04124 !important;
+    border-color: #f04124 !important;
+}
+
 .modal-confirm {
     background-color: #f04124 !important;
     border-color: #f04124 !important;
