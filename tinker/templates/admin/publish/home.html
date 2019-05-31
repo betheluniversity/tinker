@@ -20,7 +20,7 @@
                     tells you what pages were published and where. This may take a minute.</p>
                 <br/>
                 <a href='{{ url_for('PublishView:publish_program_feeds_return', destination = "staging") }}' class="btn btn-alert">Publish to Staging</a>
-                <a href='{{ url_for('PublishView:publish_program_feeds_return', destination = "production") }}' class="btn danger">Publish to Production and Staging</a>
+                <a href='{{ url_for('PublishView:publish_program_feeds_return', destination = "production") }}' class="btn btn-danger">Publish to Production and Staging</a>
 {#                <h3 class="subtitle">Automated publishers</h3>#}
 {#                <hr/>#}
 {#                <a href='{{ url_for('PublishView:publish_program_feeds') }}' class="btn btn-primary">Program Feeds</a>#}
