@@ -165,12 +165,22 @@ a#remove_new_job_button {
     border-color: #489030 !important;
 }
 
+.activate {
+    background-color: #489030 !important;
+    border-color: #489030 !important;
+}
+
 .deactivate {
     background-color: #DE8626 !important;
     border-color: #DE8626 !important;
 }
 
 .delete-press {
+    background-color: #f04124 !important;
+    border-color: #f04124 !important;
+}
+
+.btn-danger {
     background-color: #f04124 !important;
     border-color: #f04124 !important;
 }
@@ -466,7 +476,7 @@ hr {
 
 .btn, .navbar .navbar-nav > li > a.btn {
     color: #fff !important;
-    background-color: #0069AA !important;
+    background-color: #0069AA;
     border-width: 0 !important;
     padding: 7px 18px 7px 14px;
 }
@@ -723,7 +733,7 @@ label.checkbox {
 }
 
 .admin-user-bar > p > a:hover {
-  color: #337ab7; 
+  color: #337ab7;
 }
 
 .date-range{
