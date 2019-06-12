@@ -500,7 +500,7 @@ class FacultyBioController(TinkerController):
 
                 self.update_asset(image_asset, new_values)
                 resp = self.cascade_connector.edit(image_asset)
-                clear_resp = self.clear_image_cache(image_path)
+                # clear_resp = self.clear_image_cache(image_path)
                 self.log_sentry('Edited Faculty Bio Image', resp)
 
             # create new from base_asset
