@@ -127,7 +127,10 @@ class FacultyBiosView(FlaskView):
 
         courseleaf_value = find(sd, 'courseleaf-user', False)
 
-        if courseleaf_value == 'Yes':
+        if not courseleaf_value:
+            sd.get('structuredDataNodes').get('structuredDataNode')\
+                .append({'text': 'No', 'identifier': 'courseleaf-user', 'type': 'text'})
+        elif courseleaf_value == 'Yes':
             update(sd, 'courseleaf-user', 'No')
         else:
             update(sd, 'courseleaf-user', 'Yes')
