@@ -501,6 +501,7 @@ class FacultyBioController(TinkerController):
                 self.update_asset(image_asset, new_values)
                 resp = self.cascade_connector.edit(image_asset)
                 # clear_resp = self.clear_image_cache(image_path)
+                #  this function doesn't actually exist, github issue#367 goes over whats necessary
                 self.log_sentry('Edited Faculty Bio Image', resp)
 
             # create new from base_asset
@@ -532,6 +533,22 @@ class FacultyBioController(TinkerController):
 
             self.publish(image_path, 'file')
             return image_path
+
+    def clear_image_cache(self, image_path):
+        # create/use a cache.bethel.edu to clear the image cache
+        # 0. Assemble data
+        url = https://cache.bethel.edu/thumbor/
+        path = requests.post(url, data = {
+            'image_path': image_path
+        })
+        # 1. get to cache.bethel.edu
+        # 2. fill out form
+        try:
+            with open('request_result.html', 'wb') as cache_site:
+                cache_site.write(path.content)
+                return True
+        except:
+            return False
 
     # this can be shortened, i hope
     def build_description(self, add_data):
