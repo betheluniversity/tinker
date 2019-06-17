@@ -4,6 +4,7 @@ import json
 import re
 import os
 import platform
+import requests
 
 # Packages
 from bu_cascade.asset_tools import find
@@ -537,7 +538,7 @@ class FacultyBioController(TinkerController):
     def clear_image_cache(self, image_path):
         # create/use a cache.bethel.edu to clear the image cache
         # 0. Assemble data
-        url = https://cache.bethel.edu/thumbor/
+        url = 'https://cache.bethel.edu/thumbor/'
         path = requests.post(url, data = {
             'image_path': image_path
         })
