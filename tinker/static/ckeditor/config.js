@@ -21,6 +21,7 @@ CKEDITOR.editorConfig = function( config ) {
 		];
 		CKEDITOR.config.removeButtons = 'Underline,Subscript,Superscript,Undo,Redo,Cut,Copy,Paste,PasteText,PasteFromWord,Scayt,Strike,RemoveFormat,Blockquote,Anchor,Image,Table,HorizontalRule,SpecialChar,Maximize,Source,Styles';
 		CKEDITOR.config.entities = false;
+		CKEDITOR.config.extraPlugins = 'bu_removecomments';
 };
 
 // i am not sure this works, but it is difficult to actually test. In theory, this should prevent html comments
