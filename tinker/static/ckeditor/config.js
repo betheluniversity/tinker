@@ -21,18 +21,5 @@ CKEDITOR.editorConfig = function( config ) {
 		];
 		CKEDITOR.config.removeButtons = 'Underline,Subscript,Superscript,Undo,Redo,Cut,Copy,Paste,PasteText,PasteFromWord,Scayt,Strike,RemoveFormat,Blockquote,Anchor,Image,Table,HorizontalRule,SpecialChar,Maximize,Source,Styles';
 		CKEDITOR.config.entities = false;
+		CKEDITOR.config.extraPlugins = 'bu_removecomments';
 };
-
-// i am not sure this works, but it is difficult to actually test. In theory, this should prevent html comments
-// from being sent to cascade. I am taking a gamble in hoping this fixes the junk that gets sent - caleb
-CKEDITOR.replaceAll( 'ckeditor', {
-    on: {
-        pluginsLoaded: function( evt ) {
-            evt.editor.dataProcessor.dataFilter.addRules( {
-                comment: function() {
-                    return false;
-                }
-            } );
-        }
-    }
-} );
