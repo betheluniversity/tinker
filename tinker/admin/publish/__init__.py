@@ -69,27 +69,3 @@ class PublishView(FlaskView):
                 final_results.append({'id': result.id, 'path': result.path.path, 'pages': pages_added})
 
         return render_template('admin/publish/program-feeds-table.html', **locals())
-
-    # Publishes the block or page that user
-    @route('/publish/<destination>/<type>/<id>', methods=['get', 'post'])
-    def publish_publish(self, destination, type, id):
-        if destination != "staging":
-            # Empty string destination will have it publish to all locations, not just staging
-            destination = ""
-        # todo create method for publishing blocks
-        if type == "block":
-            try:
-                relationships = self.base.list_relationships(id, type)
-                pages = relationships.subscribers.assetIdentifier
-                for page in pages:
-                    if page.type == "page":
-                        resp = self.base.publish(page.id, "page", destination)
-                if 'success = "false"' in str(resp):
-                    return resp['message']
-            except:
-                return "Failed"
-        else:
-            resp = self.base.publish(id, type, destination)
-            if 'success = "false"' in str(resp):
-                return resp['message']
-        return "Publishing. . ."
