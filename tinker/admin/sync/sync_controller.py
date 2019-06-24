@@ -1,3 +1,6 @@
+# python
+import sys
+
 # Packages
 from bu_cascade import asset_tools
 
@@ -126,7 +129,7 @@ class SyncController(TinkerController):
             import commands
             commands.getoutput(
                 "cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/add-reload-to-admin-sync")
-            reload(data_to_add)
+            reload(sys.modules['tinker.admin.sync.sync_metadata'])
 
     def get_mapping_keys(self):
         mapping_key_values = {
