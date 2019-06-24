@@ -125,7 +125,7 @@ class SyncController(TinkerController):
         if 'User' not in app.config['INSTALL_LOCATION']:
             import commands
             commands.getoutput(
-                "cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
+                "cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/add-reload-to-admin-sync")
             reload(data_to_add)
 
     def get_mapping_keys(self):
