@@ -27,6 +27,7 @@ undergrad_programs = [
     "Honors",
     "Math & Computer Science",
     "Music",
+    "Music and Theatre",
     "Nursing",
     "Philosophy",
     "Physics & Engineering",
