@@ -126,6 +126,7 @@ class SyncController(TinkerController):
             import commands
             commands.getoutput(
                 "cd " + app.config['INSTALL_LOCATION'] + "; git fetch --all; git reset --hard origin/master")
+            reload(data_to_add)
 
     def get_mapping_keys(self):
         mapping_key_values = {
