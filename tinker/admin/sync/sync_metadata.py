@@ -25,6 +25,7 @@ undergrad_programs = [
     "Health and Physical Education",
     "History",
     "Honors",
+    "Languages, Cultures, and Reconciliation Studies",
     "Math & Computer Science",
     "Music",
     "Music and Theatre",
