@@ -72,6 +72,7 @@ class FacultyBiosView(FlaskView):
             {'other-category': 'Other'}
         ]
 
+        # This is for the select on the bio homepage to check which schools to view
         class_list = []
         if 'Tinker Faculty Bios - CAS' in session['groups']:
             class_list.append('cas')
