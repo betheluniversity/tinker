@@ -109,57 +109,61 @@
                 {% if show_create %}
                     <a href="{{ url_for('FacultyBiosView:new') }}" class="btn btn-primary">Create New Bio</a>
                     {% if show_special_admin_view %}
-                     <a href="{{ url_for('FacultyBiosView:get_faculty_bio_csv') }}" class="btn btn-primary">Export csv file</a>
+                        <a href="{{ url_for('FacultyBiosView:get_faculty_bio_csv') }}" class="btn btn-primary">Export csv file</a>
                     {% endif %}
                     <hr/>
                 {% endif %}
-                {% if show_special_admin_view %}
-                    <div>
-                        <label><h3 class="first-subtitle">View:</h3>
-                            <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
-                                    multiple>
-                                {% for schools in all_schools %}
-                                    {% for class_name, school_name in schools.items() %}
-                                        <option value="{{ class_name }}"
-                                                selected="selected">{{ school_name }}</option>
-                                    {% endfor %}
+                <div>
+                    <label><h3 class="first-subtitle">View:</h3>
+                        <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
+                                multiple>
+                            {% for schools in all_schools %}
+                                {% for class_name, school_name in schools.items() %}
+                                    <option value="{{ class_name }}" {{ 'selected' if class_name in class_list or show_special_admin_view }}>{{ school_name }}</option>
                                 {% endfor %}
-                            </select>
-                        </label>
-                        <script type="text/javascript">
-                            $("#school-selector").change(function () {
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <script type="text/javascript">
+                        $(document).ready(function(){
+
+                            function show_bios(){
                                 $('.school-bios').hide();
                                 var array_of_values = $("#school-selector").val();
                                 for (i = 0; i < array_of_values.length; i++) {
                                     $('.' + array_of_values[i]).show();
                                 }
-                            });
-                        </script>
-                    </div>
-                    <hr/>
+                            }
 
-                    {# show all bios #}
-                    {% for schools in all_schools %}
-                        {% for class_name, school_name in schools.items() %}
-                            <div class="{{ class_name }} school-bios">
-                                <h3>{{ school_name }}</h3>
-                                <div>
-                                    {% for bio in forms %}
-                                        {% if school_name in bio.schools %}
-                                            {{ display_bio(bio) }}
-                                        {% elif 'Bethel University' in bio.schools and class_name == 'bu' %}
-                                            {{ display_bio(bio) }}
-                                        {% endif %}
-                                    {% endfor %}
-                                </div>
+                            // Call this right away to get initial bios to view
+                            show_bios();
+
+                            $("#school-selector").change(function () {
+                                show_bios();
+                            });
+
+                        });
+                    </script>
+                </div>
+                <hr/>
+
+                {# show all bios #}
+                {% for schools in all_schools %}
+                    {% for class_name, school_name in schools.items() %}
+                        <div class="{{ class_name }} school-bios">
+                            <h3>{{ school_name }}</h3>
+                            <div>
+                                {% for bio in forms %}
+                                    {% if school_name in bio.schools %}
+                                        {{ display_bio(bio) }}
+                                    {% elif 'Bethel University' in bio.schools and class_name == 'bu' %}
+                                        {{ display_bio(bio) }}
+                                    {% endif %}
+                                {% endfor %}
                             </div>
-                        {% endfor %}
+                        </div>
                     {% endfor %}
-                {% else %} {# basic view #}
-                    {% for bio in forms %}
-                        {{ display_bio(bio) }}
-                    {% endfor %}
-                {% endif %}
+                {% endfor %}
             </div>
             {# spinner placeholder #}
             <div id="spinner" class="spinner" style="display:none;">
