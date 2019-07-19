@@ -33,7 +33,7 @@ class PublishView(FlaskView):
         return render_template('admin/publish/program-feeds.html', **locals())
 
     # in puppet, we don't require CAS auth for this, so we can call it from cron and load it normally
-    @route("/program-feeds/api/<destination>")
+    @route("/program-feeds/public/<destination>")
     @route("/program-feeds/<destination>")
     def publish_program_feeds_return(self, destination=''):
         if destination != "production":
