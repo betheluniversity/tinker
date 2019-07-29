@@ -58,37 +58,27 @@ class FacultyBiosView(FlaskView):
         else:
             show_courseleaf_button = False
 
-        show_special_admin_view = False
+        # the faculty special admins should be able to see every bio, based on school.
         if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups']:
             show_special_admin_view = True
+            show_create = True
 
-        # This nastiness is to maintain order and have the class value
-        all_schools = [
-            {'cas': 'College of Arts and Sciences'},
-            {'caps': 'College of Adult and Professional Studies'},
-            {'gs': 'Graduate School'},
-            {'sem': 'Bethel Seminary'},
-            {'bu': 'Administration with Faculty Status'},
-            {'other-category': 'Other'}
-        ]
-
-        # This is for the select on the bio homepage to check which schools to view
-        class_list = []
-        if 'Tinker Faculty Bios - CAS' in session['groups']:
-            class_list.append('cas')
-        if 'Tinker Faculty Bios - CAPS and GS' in session['groups']:
-            class_list.append('caps')
-            class_list.append('gs')
-        if 'Tinker Faculty Bios - SEM' in session['groups']:
-            class_list.append('sem')
-
-        show_create = len(forms) == 0 \
-                      or 'Administrators' in session['groups'] \
-                      or 'Tinker Faculty Bios - Admin' in session['groups'] \
-                      or 'Tinker Faculty Bios - CAS' in session['groups'] \
-                      or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
-                      or 'Tinker Faculty Bios - SEM' in session['groups'] \
-                      or self.base.is_user_in_web_author_groups()
+            # This nastiness is to maintain order and have the class value
+            all_schools = [
+                {'cas': 'College of Arts and Sciences'},
+                {'caps': 'College of Adult and Professional Studies'},
+                {'gs': 'Graduate School'},
+                {'sem': 'Bethel Seminary'},
+                {'bu': 'Administration with Faculty Status'},
+                {'other-category': 'Other'}
+            ]
+        else:  # normal view
+            show_special_admin_view = False
+            show_create = len(forms) == 0 \
+                          or 'Tinker Faculty Bios - CAS' in session['groups'] \
+                          or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
+                          or 'Tinker Faculty Bios - SEM' in session['groups'] \
+                          or self.base.is_user_in_web_author_groups()
 
         return render_template('faculty-bios/home.html', **locals())
 
