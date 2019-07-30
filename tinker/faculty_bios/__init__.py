@@ -59,7 +59,11 @@ class FacultyBiosView(FlaskView):
             show_courseleaf_button = False
 
         # the faculty special admins should be able to see every bio, based on school.
-        if 'Tinker Faculty Bios - Admin' in session['groups'] or 'Administrators' in session['groups']:
+        if 'Tinker Faculty Bios - Admin' in session['groups'] \
+                or 'Administrators' in session['groups'] \
+                or 'Tinker Faculty Bios - CAS' in session['groups'] \
+                or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
+                or 'Tinker Faculty Bios - SEM' in session['groups']:
             show_special_admin_view = True
             show_create = True
 
@@ -72,13 +76,30 @@ class FacultyBiosView(FlaskView):
                 {'bu': 'Administration with Faculty Status'},
                 {'other-category': 'Other'}
             ]
+
+            # This is to help set the default view for the Bio Approvers by school.
+            user_schools = []
+            if 'Tinker Faculty Bios - Admin' in session['groups'] \
+                    or 'Administrators' in session['groups'] \
+                    or 'Tinker Faculty Bios - CAS' in session['groups']:
+                user_schools.append('cas')
+            if 'Tinker Faculty Bios - Admin' in session['groups'] \
+                    or 'Administrators' in session['groups'] \
+                    or 'Tinker Faculty Bios - CAPS and GS' in session['groups']:
+                user_schools.append('caps')
+                user_schools.append('gs')
+            if 'Tinker Faculty Bios - Admin' in session['groups'] \
+                    or 'Administrators' in session['groups'] \
+                    or 'Tinker Faculty Bios - SEM' in session['groups']:
+                user_schools.append('sem')
+            if 'Tinker Faculty Bios - Admin' in session['groups'] \
+                    or 'Administrators' in session['groups']:
+                user_schools.append('bu')
+                user_schools.append('other-category')
+
         else:  # normal view
             show_special_admin_view = False
-            show_create = len(forms) == 0 \
-                          or 'Tinker Faculty Bios - CAS' in session['groups'] \
-                          or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] \
-                          or 'Tinker Faculty Bios - SEM' in session['groups'] \
-                          or self.base.is_user_in_web_author_groups()
+            show_create = len(forms) == 0 or self.base.is_user_in_web_author_groups()
 
         return render_template('faculty-bios/home.html', **locals())
 
