@@ -121,18 +121,29 @@
                                 {% for schools in all_schools %}
                                     {% for class_name, school_name in schools.items() %}
                                         <option value="{{ class_name }}"
-                                                selected="selected">{{ school_name }}</option>
+                                                {{ 'selected' if class_name in user_schools }}>{{ school_name }}</option>
                                     {% endfor %}
                                 {% endfor %}
                             </select>
                         </label>
                         <script type="text/javascript">
-                            $("#school-selector").change(function () {
-                                $('.school-bios').hide();
-                                var array_of_values = $("#school-selector").val();
-                                for (i = 0; i < array_of_values.length; i++) {
-                                    $('.' + array_of_values[i]).show();
+                            $(document).ready(function(){
+
+                                function show_bios(){
+                                    $('.school-bios').hide();
+                                    var array_of_values = $("#school-selector").val();
+                                    for (i = 0; i < array_of_values.length; i++) {
+                                        $('.' + array_of_values[i]).show();
+                                    }
                                 }
+
+                                $("#school-selector").change(function () {
+                                    show_bios();
+                                });
+
+                                // Load default view for bios
+                                show_bios();
+
                             });
                         </script>
                     </div>
