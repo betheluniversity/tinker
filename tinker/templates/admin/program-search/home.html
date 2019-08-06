@@ -15,10 +15,15 @@
             <div class="col-md-12">
                 <p>Go to the <a href="{{ url_for('ProgramSearchView:database_audit_0') }}">audit</a> to
                     check if Tinker and Cascade are matched up correctly.</p>
+                <a data-reveal-id="confirmModal" id="create-new"
+                                           class="btn btn-primary" data-toggle="modal"
+                                           data-target="#addModal">Create New</a>
                 <hr/>
                 <form id='program_search_form' method="post">
                     <div class="card">
                         <div class="content">
+                            <label for="tag" style="color: #252422">Search by Tag:</label>
+                            <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
                             <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
                             {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
                             <select name="key" id="search-key" class="search-input">
@@ -33,46 +38,7 @@
                                     </optgroup>
                                 {% endfor %}
                             </select>
-                            <label for="tag" style="color: #252422">Search by Tag:</label>
-                            <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
                         </div>
-                        <div class="col-md-12">
-                            <p>These are for creating new Program Tags.</p>
-                        </div>
-                        <label>
-                            <div class="col-sm-4">
-                                Outcome:
-                                <div class="radio">
-                                    <label><input type="radio" name="outcome" value="True">Yes</label>
-                                </div>
-                                <div class="radio">
-                                    <label><input type="radio" name="outcome" value="False" checked>No</label>
-                                </div>
-                            </div>
-
-                            <div class="col-sm-4">
-                                Topic:
-                                <div class="radio">
-                                    <label><input type="radio" name="topic" value="True">Yes</label>
-                                </div>
-                                <div class="radio">
-                                    <label><input type="radio" name="topic" value="False" checked>No</label>
-                                </div>
-                            </div>
-
-                            <div class="col-sm-4">
-                                Other:
-                                <div class="radio">
-                                    <label><input type="radio" name="other" value="True">Yes</label>
-                                </div>
-                                <div class="radio">
-                                    <label><input type="radio" name="other" value="False" checked>No</label>
-                                </div>
-                            </div>
-                            <div class="content">
-                                <button id="program-submit" type="submit" class="btn btn-primary">Submit</button>
-                            </div>
-                        </label>
                     </div>
                 </form>
                 <div class="row">
@@ -130,16 +96,14 @@
             });
         });
 
-        $(".search-input").keyup(function () {
-            $('#spinner').show();
-            delay(function () {
-                loadTableForSearch();
-            }, 300);
-        }).change(function () {
-            $('#spinner').show();
-            delay(function () {
-                loadTableForSearch();
-            }, 300);
+        $(".search-input").keypress(function (event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                $('#spinner').show();
+                delay(function () {
+                    loadTableForSearch();
+                }, 300);
+            }
         });
 
         function loadTableForSearch() {
@@ -232,6 +196,70 @@
                     <div class="modal-footer">
                         <a id="modal-confirm" class="btn btn-primary btn-alert modal-confirm"
                            id="modal-confirm" data-dismiss="modal">Delete</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="addModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+             aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"
+                                aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="myModalLabel">Create New Program Tag</h4>
+                    </div>
+                    <div class="modal-body">
+                        <label for="tag" style="color: #252422">Tag Name:</label>
+                            <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
+                        <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
+                        {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
+                        <select name="key" id="search-key" class="search-input modal-search-input">
+                            <option value="">Any</option>
+                            {% for school_label in school_labels %}
+                                <optgroup label="{{ school_label }}">
+                                    {% for program_concentration in program_concentrations %}
+                                        {% if program_concentration.school == school_label %}
+                                            <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                        <label>
+                            <div class="col-sm-4">
+                                Outcome:
+                                <div class="radio">
+                                    <label><input type="radio" name="outcome" value="True">Yes</label>
+                                </div>
+                                <div class="radio">
+                                    <label><input type="radio" name="outcome" value="False" checked>No</label>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                Topic:
+                                <div class="radio">
+                                    <label><input type="radio" name="topic" value="True">Yes</label>
+                                </div>
+                                <div class="radio">
+                                    <label><input type="radio" name="topic" value="False" checked>No</label>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-4">
+                                Other:
+                                <div class="radio">
+                                    <label><input type="radio" name="other" value="True">Yes</label>
+                                </div>
+                                <div class="radio">
+                                    <label><input type="radio" name="other" value="False" checked>No</label>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                    <div class="modal-footer">
+                        <a class="btn btn-primary" data-dismiss="modal">Create</a>
                     </div>
                 </div>
             </div>

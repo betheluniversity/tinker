@@ -28,7 +28,7 @@
     {#  Script to update the modal submit to delete the correct form#}
     <script type="text/javascript">
         function loadTableForSearch() {
-            $('#tables').html('<td colspan="2" style="text-align:center">. . . searching . . .</td>');
+            $('#tables').html('<td colspan="2" style="text-align:center">searching...</td>');
             var search_url = "{{ url_for('ProgramSearchView:database_audit_table') }}";
             $.ajax({
                 type: "POST",

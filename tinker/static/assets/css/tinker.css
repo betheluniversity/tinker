@@ -795,3 +795,33 @@ label.checkbox {
 ul.left {
     float: left;
 }
+
+/* Program Search */
+
+.form-control {
+    background-color: #fdfdfd;
+    border: 1px #ccc solid;
+}
+
+select.search-input {
+    width: 100%;
+    margin-right: 25px;
+}
+
+select.search-input.modal-search-input {
+    width: 100%;
+}
+
+select#search-key {
+    background-color: #fff;
+}
+
+a#create-new {
+    float: right;
+    position: relative;
+    top: -38px;
+}
+
+hr {
+    width: 100%;
+}
