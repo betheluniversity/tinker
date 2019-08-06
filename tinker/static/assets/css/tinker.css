@@ -796,7 +796,7 @@ ul.left {
     float: left;
 }
 
-/* Program Search */
+/* Program Search -JT 8/6/19 */
 
 .form-control {
     background-color: #fdfdfd;
@@ -814,6 +814,7 @@ select.search-input.modal-search-input {
 
 select#search-key {
     background-color: #fff;
+    border: 1px #ccc solid;
 }
 
 a#create-new {
@@ -824,4 +825,13 @@ a#create-new {
 
 hr {
     width: 100%;
+}
+
+p.text-field-info {
+    font-size: 0.9em;
+    float: right;
+    color: #66615b;
+    position: absolute;
+    right: 20px;
+    top: 85px;
 }
