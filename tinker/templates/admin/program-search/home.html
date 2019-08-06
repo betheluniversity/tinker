@@ -19,28 +19,27 @@
                                            class="btn btn-primary" data-toggle="modal"
                                            data-target="#addModal">Create New</a>
                 <hr/>
-                <form id='program_search_form' method="post">
-                    <div class="card">
-                        <div class="content">
-                            <label for="tag" style="color: #252422">Search by Tag:</label>
-                            <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
-                            <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
-                            {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
-                            <select name="key" id="search-key" class="search-input">
-                                <option value="">Any</option>
-                                {% for school_label in school_labels %}
-                                    <optgroup label="{{ school_label }}">
-                                        {% for program_concentration in program_concentrations %}
-                                            {% if program_concentration.school == school_label %}
-                                                <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </optgroup>
-                                {% endfor %}
-                            </select>
-                        </div>
+                <div class="card">
+                    <div class="content">
+                        <label for="tag" style="color: #252422">Search by Tag:</label>
+                        <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
+                        <p class="text-field-info">Press Enter to Search ↵</p>
+                        <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
+                        {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
+                        <select name="key" id="search-key" class="search-input">
+                            <option value="">Any</option>
+                            {% for school_label in school_labels %}
+                                <optgroup label="{{ school_label }}">
+                                    {% for program_concentration in program_concentrations %}
+                                        {% if program_concentration.school == school_label %}
+                                            <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
                     </div>
-                </form>
+                </div>
                 <div class="row">
                     <div class="large-12 columns">
                         <table class="table">
@@ -166,6 +165,7 @@
                 'topic': $('input[name=topic]:checked').val(),
                 'other': $('input[name=other]:checked').val()
             };
+            console.log(formData);
 
             $.ajax({
                 type: "POST",
@@ -204,63 +204,65 @@
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal"
-                                aria-hidden="true">&times;</button>
-                        <h4 class="modal-title" id="myModalLabel">Create New Program Tag</h4>
-                    </div>
-                    <div class="modal-body">
-                        <label for="tag" style="color: #252422">Tag Name:</label>
-                            <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
-                        <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
-                        {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
-                        <select name="key" id="search-key" class="search-input modal-search-input">
-                            <option value="">Any</option>
-                            {% for school_label in school_labels %}
-                                <optgroup label="{{ school_label }}">
-                                    {% for program_concentration in program_concentrations %}
-                                        {% if program_concentration.school == school_label %}
-                                            <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
-                                        {% endif %}
-                                    {% endfor %}
-                                </optgroup>
-                            {% endfor %}
-                        </select>
-                        <label>
-                            <div class="col-sm-4">
-                                Outcome:
-                                <div class="radio">
-                                    <label><input type="radio" name="outcome" value="True">Yes</label>
+                    <form id='program_search_form' method="post">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal"
+                                    aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel">Create New Program Tag</h4>
+                        </div>
+                        <div class="modal-body">
+                            <label for="tag" style="color: #252422">Tag Name:</label>
+                                <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
+                            <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
+                            {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
+                            <select name="key" id="search-key" class="search-input modal-search-input">
+                                <option value="">Any</option>
+                                {% for school_label in school_labels %}
+                                    <optgroup label="{{ school_label }}">
+                                        {% for program_concentration in program_concentrations %}
+                                            {% if program_concentration.school == school_label %}
+                                                <option value="{{ program_concentration.value }}">{{ program_concentration.name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </optgroup>
+                                {% endfor %}
+                            </select>
+                            <label>
+                                <div class="col-sm-4">
+                                    Outcome:
+                                    <div class="radio">
+                                        <label><input type="radio" name="outcome" value="True">Yes</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" name="outcome" value="False" checked>No</label>
+                                    </div>
                                 </div>
-                                <div class="radio">
-                                    <label><input type="radio" name="outcome" value="False" checked>No</label>
-                                </div>
-                            </div>
 
-                            <div class="col-sm-4">
-                                Topic:
-                                <div class="radio">
-                                    <label><input type="radio" name="topic" value="True">Yes</label>
+                                <div class="col-sm-4">
+                                    Topic:
+                                    <div class="radio">
+                                        <label><input type="radio" name="topic" value="True">Yes</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" name="topic" value="False" checked>No</label>
+                                    </div>
                                 </div>
-                                <div class="radio">
-                                    <label><input type="radio" name="topic" value="False" checked>No</label>
-                                </div>
-                            </div>
 
-                            <div class="col-sm-4">
-                                Other:
-                                <div class="radio">
-                                    <label><input type="radio" name="other" value="True">Yes</label>
+                                <div class="col-sm-4">
+                                    Other:
+                                    <div class="radio">
+                                        <label><input type="radio" name="other" value="True">Yes</label>
+                                    </div>
+                                    <div class="radio">
+                                        <label><input type="radio" name="other" value="False" checked>No</label>
+                                    </div>
                                 </div>
-                                <div class="radio">
-                                    <label><input type="radio" name="other" value="False" checked>No</label>
-                                </div>
-                            </div>
-                        </label>
-                    </div>
-                    <div class="modal-footer">
-                        <button id="program-submit" type="submit" class="btn btn-primary" data-dismiss="modal">Create</button>
-                    </div>
+                            </label>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="program-submit" type="submit" class="btn btn-primary" data-dismiss="modal">Create</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
