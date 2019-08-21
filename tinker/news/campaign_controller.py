@@ -1,6 +1,7 @@
 # Global
 import datetime
 import HTMLParser
+import pytz
 
 # Packages
 from BeautifulSoup import BeautifulStoneSoup
@@ -93,3 +94,15 @@ class NewsController(TinkerController):
         asset, md, sd = page.get_asset()
         update(sd, 'send-email', 'No')
         page.edit_asset(asset)
+
+    def date_without_dst(self):
+        now = datetime.datetime.now()
+        tz = pytz.timezone('US/Central').localize(now).strftime('%z')
+
+        # this is super hacky. The issue is Campaign Monitor updates our date with respect to timezone. Since we can
+        # only pass a string, we need to do the timezone update ourselves. if '-0500' is in tz, then we need to subtract
+        # an hour to compensate.
+        if '-0500' in tz:
+            return now + datetime.timedelta(hours=-1)
+        else:
+            return now
