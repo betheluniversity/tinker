@@ -100,9 +100,9 @@ class NewsController(TinkerController):
         tz = pytz.timezone('US/Central').localize(now).strftime('%z')
 
         # this is super hacky. The issue is Campaign Monitor updates our date with respect to timezone. Since we can
-        # only pass a string, we need to do the timezone update ourselves. if '5' is in tz, then we need to subtract
+        # only pass a string, we need to do the timezone update ourselves. if '-0500' is in tz, then we need to subtract
         # an hour to compensate.
-        if '5' in tz:
+        if '-0500' in tz:
             return now + datetime.timedelta(hours=-1)
         else:
             return now
