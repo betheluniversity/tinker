@@ -73,7 +73,7 @@ class NewsView(FlaskView):
                                                              list_ids,
                                                              segment_ids, template_id, template_content)
 
-                    now = datetime.datetime.now()
+                    now = self.base_campaign.date_without_dst()
                     now_plus_10 = now + datetime.timedelta(minutes=10)
 
                     confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
