@@ -7,7 +7,8 @@
                     <p class="article-meta" style="margin-top:10px">{{ date }}</p>
                 </div>
                 <div style="Margin-left: 20px;Margin-right: 20px;">
-                    <img src="https://www.bethel.edu/{{ image_path }}" width="100%">
+                    {# 1000 pixels will cover the largest size that will appear in an email, since we restrict the width of the email content. #}
+                    <img src="https://cdn1.bethel.edu/resize/unsafe/1000x0/smart/https://https://www.bethel.edu/{{ image_path }}" width="100%">
                     {{ content|safe }}
                     <div style="text-align:center;padding-top:30px"><!--[if mso]>
                       <v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="https://www.bethel.edu/{{ path }}" style="height:40px;v-text-anchor:middle;width:200px;" arcsize="8%" strokecolor="#1e3650" fillcolor="#0069aa">
