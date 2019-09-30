@@ -8,7 +8,7 @@ import flask_profiler
 from bu_cascade.cascade_connector import Cascade
 from flask import Flask, make_response, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
-from raven.contrib.flask import Sentry
+import sentry_sdk
 # TODO: Remove version checking when upgrading to python 2.7
 if platform.python_version()[:3] == '2.6':
     from flask.ext.cache import Cache
@@ -105,7 +105,9 @@ db = SQLAlchemy(app)
 
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
 
-sentry = Sentry(app, dsn=app.config['SENTRY_URL'], logging=True, level=logging.INFO)
+if app.config['SENTRY_URL']:
+    from sentry_sdk.integrations.flask import FlaskIntegration
+    sentry_sdk.init(dsn=app.config['SENTRY_URL'], integrations=[FlaskIntegration()])
 
 from tinker import error
 from tinker_controller import TinkerController
