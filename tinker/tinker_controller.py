@@ -35,7 +35,8 @@ from unidecode import unidecode
 from werkzeug.datastructures import ImmutableMultiDict
 
 # Local
-from tinker import app, cascade_connector, sentry, cache
+from tinker import app, cascade_connector, sentry_sdk, cache
+from sentry_sdk import configure_scope
 
 
 class EncodingDict(object):
@@ -368,15 +369,14 @@ class TinkerController(object):
         log_time = time.strftime("%c")
         response = str(response)
 
-        sentry.client.extra_context({
-            'Time': log_time,
-            'Author': username,
-            'Response': response
-        })
+        with configure_scope() as scope:
+            scope.set_tag('time', log_time)
+            scope.set_tag('author', username)
+            scope.set_tag('response', response)
 
         # log generic message to Sentry for counting
         # app.logger.info(message)
-        sentry.captureMessage(message, level=logging.INFO)
+        sentry_sdk.capture_message(message, level=logging.INFO)
         # more detailed message to debug text log
         app.logger.debug("%s: %s: %s %s" % (log_time, message, username, response))
 
