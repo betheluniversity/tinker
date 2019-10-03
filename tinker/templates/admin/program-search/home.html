@@ -22,11 +22,10 @@
                 <div class="card">
                     <div class="content">
                         <label for="tag" style="color: #252422">Search by Tag:</label>
-                        <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
+                        <input type="text" id='search-tag' class='search-input form-control'/>
                         <p class="text-field-info">Press Enter to Search ↵</p>
                         <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
-                        {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
-                        <select name="key" id="search-key" class="search-input">
+                        <select id="search-key" class="search-input">
                             <option value="">Any</option>
                             {% for school_label in school_labels %}
                                 <optgroup label="{{ school_label }}">
@@ -53,7 +52,7 @@
                                 <th>
                                     <a data-reveal-id="confirmModal" id="delete-all"
                                        class="btn btn-primary btn-alert delete-press" data-toggle="modal"
-                                       data-target="#myModal">Delete</a>
+                                       data-target="#deleteModal">Delete</a>
                                 </th>
                             </tr>
                             </thead>
@@ -83,50 +82,48 @@
             };
         })();
 
-        $("#program-submit").click(function () {
-            $.notify({
-                message: 'You have successfully submitted your program'
-            }, {
-                type: 'success',
-                placement: {
-                    align: 'center'
-                },
+        {#$("#program-submit").click(function () {#}
+        {#    $.notify({#}
+        {#        message: 'You have successfully submitted your program'#}
+        {#    }, {#}
+        {#        type: 'success',#}
+        {#        placement: {#}
+        {#            align: 'center'#}
+        {#        },#}
+        {#    });#}
+        {# });#}
 
-            });
-        });
-
+        /* TODO: is there a better way to do this? */
         $(".search-input").keypress(function (event) {
             if (event.keyCode === 13) {
                 event.preventDefault();
-                $('#spinner').show();
-                delay(function () {
-                    loadTableForSearch();
-                }, 300);
+                loadTableForSearch();
             }
         });
 
         function loadTableForSearch() {
-            {#            $('#table-body').html('<td colspan="6" style="text-align:center">. . . searching . . .</td>');#}
+            var search_tag = $('#search-tag')[0].value;
 
-            var search_url = "{{ url_for('ProgramSearchView:search') }}";
-            search_tag = $('#search-tag')[0].value;
-            search_key = $('#search-key')[0].value;
+            if(search_tag !== '') {
+                $('#spinner').show();
+                var search_url = "{{ url_for('ProgramSearchView:search') }}";
+                var search_key = $('#search-key')[0].value;
+                var inputs = {
+                    'search_tag': search_tag,
+                    'search_key': search_key
+                };
 
-            var inputs = {
-                'search_tag': search_tag,
-                'search_key': search_key
-            };
-
-            $.ajax({
-                type: "POST",
-                url: search_url,
-                data: JSON.stringify(inputs),
-                contentType: 'application/json;charset=UTF-8',
-                success: function (result) {
-                    $('#table-body').html(result);
-                    $('#spinner').hide();
-                }
-            });
+                $.ajax({
+                    type: "POST",
+                    url: search_url,
+                    data: JSON.stringify(inputs),
+                    contentType: 'application/json;charset=UTF-8',
+                    success: function (result) {
+                        $('#table-body').html(result);
+                        $('#spinner').hide();
+                    }
+                });
+            }
         }
 
         $("#modal-confirm").click(function () {
@@ -142,22 +139,42 @@
                 data: JSON.stringify(checkboxes_to_delete),
                 contentType: 'application/json;charset=UTF-8',
                 success: function (result) {
+                    $.notify({
+                        message: 'You have successfully deleted the program tag'
+                    }, {
+                        type: 'success',
+                        placement: {
+                            align: 'center'
+                        }
+                    });
+                    loadTableForSearch();
+                },
+                error: function (result) {
+                    $.notify({
+                        message: 'Failed to delete program tag'
+                    }, {
+                        type: 'danger',
+                        placement: {
+                            align: 'center'
+                        }
+                    });
                     loadTableForSearch();
                 }
             });
         });
 
-        $(".delete-checkbox").click(function () {
-            var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");
-            if (checkbox_elements[0]) {
-                $("#delete-all").style.display = "inline";
-            }
-            else {
-                $("#delete-all").style.display = "none";
-            }
-        });
+        /* I don't think this is being used */
+        {#$(".delete-checkbox").click(function () {#}
+        {#    var checkbox_elements = $("input:checkbox[class=delete-checkbox]:checked");#}
+        {#    if (checkbox_elements[0]) {#}
+        {#        $("#delete-all").style.opacity = "1";#}
+        {#    }#}
+        {#    else {#}
+        {#        $("#delete-all").style.display = "0";#}
+        {#    }#}
+        {# });#}
 
-        $('#program_search_form').submit(function () {
+        $('#create-new-tag').click(function () {
             var formData = {
                 'key': $('select[name=key]').val(),
                 'tag': $('input[name=tag]').val(),
@@ -165,7 +182,6 @@
                 'topic': $('input[name=topic]:checked').val(),
                 'other': $('input[name=other]:checked').val()
             };
-            console.log(formData);
 
             $.ajax({
                 type: "POST",
@@ -173,15 +189,33 @@
                 data: JSON.stringify(formData),
                 contentType: 'application/json;charset=UTF-8',
                 success: function (result) {
+                    $.notify({
+                        message: 'You have successfully created the program tag'
+                    }, {
+                        type: 'success',
+                        placement: {
+                            align: 'center'
+                        }
+                    });
+                    loadTableForSearch();
+                 },
+                error: function (result) {
+                    $.notify({
+                        message: 'Error: Failed to create new program tag'
+                    }, {
+                        type: 'danger',
+                        placement: {
+                            align: 'center'
+                        }
+                    });
                     loadTableForSearch();
                 }
             });
-            return false;
         });
     </script>
 
     {% block modalhtml %}
-        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -194,8 +228,7 @@
                         Any programs you have checked will be deleted.
                     </div>
                     <div class="modal-footer">
-                        <a id="modal-confirm" class="btn btn-primary btn-alert modal-confirm"
-                           id="modal-confirm" data-dismiss="modal">Delete</a>
+                        <a id="modal-confirm" class="btn btn-primary btn-alert modal-confirm" data-dismiss="modal">Delete</a>
                     </div>
                 </div>
             </div>
@@ -204,7 +237,7 @@
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form id='program_search_form' method="post">
+                    <form id="program_search_form" method="post">
                         <div class="modal-header">
                             <button type="button" class="close" data-dismiss="modal"
                                     aria-hidden="true">&times;</button>
@@ -212,10 +245,10 @@
                         </div>
                         <div class="modal-body">
                             <label for="tag" style="color: #252422">Tag Name:</label>
-                                <input type="text" name="tag" id='search-tag' class='search-input form-control'/>
+                                <input type="text" name="tag" class='form-control'/>
                             <label for="key" style="color: #252422">Concentration Code or Program Name:</label>
                             {#                    <input type="text" name="key" id='search-key' class='search-input' placeholder="Filter Key" />#}
-                            <select name="key" id="search-key" class="search-input modal-search-input">
+                            <select name="key" class="modal-search-input">
                                 <option value="">Any</option>
                                 {% for school_label in school_labels %}
                                     <optgroup label="{{ school_label }}">
@@ -260,7 +293,7 @@
                             </label>
                         </div>
                         <div class="modal-footer">
-                            <button id="program-submit" type="submit" class="btn btn-primary" data-dismiss="modal">Create</button>
+                            <a id="create-new-tag" class="btn btn-primary modal-confirm" data-dismiss="modal">Create</a>
                         </div>
                     </form>
                 </div>

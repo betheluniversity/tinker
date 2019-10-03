@@ -16,7 +16,7 @@ from tinker.tinker_controller import TinkerController
 class ProgramSearchController(TinkerController):
 
     def create_new_csv_file(self):
-        outfile = open(app.config['PROGRAM_SEARCH_CSV'], 'wb')
+        outfile = open(app.config['PROGRAM_SEARCH_CSV_LOCAL'], 'wb')
         outcsv = csv.writer(outfile)
         rows = []
         records = ProgramTag.query.all()

@@ -812,6 +812,10 @@ select.search-input.modal-search-input {
     width: 100%;
 }
 
+#program_search_form select.modal-search-input {
+    width: 100%;
+}
+
 select#search-key {
     background-color: #fff;
     border: 1px #ccc solid;
