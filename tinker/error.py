@@ -2,11 +2,11 @@
 from flask import render_template, session
 
 # Local
-from tinker import app, sentry
+from tinker import app, sentry_sdk
 
 
 def error_render_template(template_path, error, code=None):
-    sentry.captureException()
+    sentry_sdk.capture_exception()
 
     if code:  # Means that it's a handled error/exception
         if code in [500, 503]:  # No need to log 403s, 404s, or 503s
@@ -18,8 +18,8 @@ def error_render_template(template_path, error, code=None):
         code = 500  # To make sure that the return statement doesn't break
 
     return render_template(template_path,
-                           sentry_event_id=sentry.last_event_id,
-                           public_dsn=sentry.client.get_public_dsn('https')), code
+                           sentry_event_id=sentry_sdk.last_event_id(),
+                           public_dsn=app.config['SENTRY_URL']), code
 
 
 @app.errorhandler(403)
