@@ -79,14 +79,14 @@ class FacultyBioController(TinkerController):
             # Because the user running this operation is in a group that's authorized to edit this bio
             iterate_bio = True
         else:
+            schools_to_check = []
             if 'Tinker Faculty Bios - CAS' in groups:
-                schools_to_check = ['College of Arts and Sciences']
-            elif 'Tinker Faculty Bios - CAPS and GS' in groups:
-                schools_to_check = ['College of Adult and Professional Studies', 'Graduate School']
-            elif 'Tinker Faculty Bios - SEM' in groups:
-                schools_to_check = ['Bethel Seminary']
-            else:
-                schools_to_check = []
+                schools_to_check.append('College of Arts and Sciences')
+            if 'Tinker Faculty Bios - CAPS and GS' in groups:
+                schools_to_check.append('College of Adult and Professional Studies')
+                schools_to_check.append('Graduate School')
+            if 'Tinker Faculty Bios - SEM' in groups:
+                schools_to_check.append('Bethel Seminary')
 
             if len(schools_to_check) > 0:
                 school_values = []
