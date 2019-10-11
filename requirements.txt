@@ -22,7 +22,7 @@ arrow
 feedformatter
 feedparser
 createsend
-raven
+sentry_sdk[flask]
 Flask-Classy
 bu-cascade==2.285
 blinker
@@ -42,3 +42,4 @@ redis
 paramiko
 python-ldap
 Flask-Mail
+pytz
