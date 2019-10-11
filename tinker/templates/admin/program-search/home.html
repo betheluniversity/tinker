@@ -148,6 +148,7 @@
                         }
                     });
                     loadTableForSearch();
+                    document.getElementById("program_search_form").reset();
                 },
                 error: function (result) {
                     $.notify({
@@ -228,7 +229,7 @@
                         Any programs you have checked will be deleted.
                     </div>
                     <div class="modal-footer">
-                        <a id="modal-confirm" class="btn btn-primary btn-alert modal-confirm" data-dismiss="modal">Delete</a>
+                        <a id="modal-confirm" class="btn btn-primary btn-alert" data-dismiss="modal">Delete</a>
                     </div>
                 </div>
             </div>
