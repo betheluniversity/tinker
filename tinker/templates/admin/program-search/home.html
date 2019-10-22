@@ -14,10 +14,12 @@
         <div class="container-fluid">
             <div class="col-md-12">
                 <p>Go to the <a href="{{ url_for('ProgramSearchView:database_audit_0') }}">audit</a> to
-                    check if Tinker and Cascade are matched up correctly.</p>
+                        check if Tinker and Cascade are matched up correctly.</p>
                 <a data-reveal-id="confirmModal" id="create-new"
                                            class="btn btn-primary" data-toggle="modal"
                                            data-target="#addModal">Create New</a>
+                <p>New or updated program tags become active automatically every 30 minutes. If you do not wish to wait for the next automatic update, click the button below to update now:</p>
+                <a id="updateTags" class="btn btn-primary" >Update Program Tags</a>
                 <hr/>
                 <div class="card">
                     <div class="content">
@@ -92,6 +94,23 @@
         {#        },#}
         {#    });#}
         {# });#}
+
+        $('#updateTags').click(function(){
+            var url = "{{ url_for('RedirectsView:manual_sftp_publish') }}";
+            $.post(url, null, function(data){
+                if(data) {
+                    data = JSON.parse(data);
+                    $.notify({
+                        message: data.message
+                    }, {
+                        type: data.type,
+                        placement: {
+                            align: 'center'
+                        },
+                    });
+                }
+            });
+        });
 
         /* TODO: is there a better way to do this? */
         $(".search-input").keypress(function (event) {

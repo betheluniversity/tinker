@@ -9,7 +9,7 @@ from sqlalchemy import or_, and_
 
 
 # Local
-from tinker import db
+from tinker import app, db
 from tinker.admin.program_search.models import ProgramTag
 from tinker.admin.program_search.program_search_controller import ProgramSearchController
 from tinker.tinker_controller import admin_permissions
@@ -76,6 +76,17 @@ class ProgramSearchView(FlaskView):
         db.session.commit()
         self.base.create_new_csv_file()
         return 'Deleted ids: ' + ', '.join(list_of_ids_to_delete)
+
+    @route('/manual-sftp-publish', methods=['post'])
+    def manual_sftp_publish(self):
+        if app.config['ENVIRON'] == 'prod':
+            self.base.create_new_csv_file()
+            return self.base.write_redirects_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'], False)
+        else:
+            return json.dumps({
+                'type': 'success',
+                'message': 'Test Environment: No updates were made'
+            })
 
     @route('/search', methods=['post'])
     def search(self):
