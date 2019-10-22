@@ -76,8 +76,8 @@ class CampaignController(TinkerController):
         # Labor Day - first monday in sept
         elif date.month == 9 and date.weekday() == 0 and math.ceil(date.day/7.0) == 1:
             return True
-        # Black Friday -- 4th friday in nov
-        elif date.month == 11 and math.ceil(date.day/7.0) == 4 and date.weekday() == 4:
+        # Black Friday -- the friday after the fourth thursday in nov
+        elif date.month == 11 and math.ceil((date.day-1)/7.0) == 4 and date.weekday() == 4:
             return True
         # Christmas Eve(observed) - christmas eve is on the weekend, we get the friday off (22nd or 23rd).
         elif date.month == 12 and date.weekday() == 4 and (date.day == 22 or date.day == 23):
