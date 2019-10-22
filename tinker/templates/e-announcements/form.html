@@ -210,7 +210,7 @@
                     else if( date.getMonth() == 8 && date.getDay() == 1 && Math.ceil(date.getDate()/7) == 1 )
                         return true;
                     // Thanksgiving and Black Friday -- 4th thursday in nov, 4th friday in nov
-                    else if( date.getMonth() == 10 && Math.ceil(date.getDate()/7) == 4 && (date.getDay() == 4 || date.getDay() == 5))
+                    else if( date.getMonth() == 10 && (Math.ceil(date.getDate()/7) == 4 && date.getDay() == 4) || (Math.ceil((date.getDate()-1)/7) == 4 && date.getDay() == 5) )
                         return true;
                     // Christmas Eve(observed) - christmas eve is on the weekend, we get the friday off (22nd or 23rd).
                     else if( date.getMonth() == 11 && date.getDay() == 5 && (date.getDate() == 22 || date.getDate() == 23) )
