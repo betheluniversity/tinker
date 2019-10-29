@@ -11,7 +11,7 @@ from xml.etree import ElementTree as ET
 # Local
 from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
-from sync_controller import SyncController
+from tinker.admin.sync.sync_controller import SyncController
 from tinker.admin.publish import PublishManagerController
 from tinker.tinker_controller import admin_permissions, requires_auth
 from bu_cascade.asset_tools import find, update

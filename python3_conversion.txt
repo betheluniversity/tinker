@@ -1,0 +1,40 @@
+e-annz
+    index
+    view e-annz
+    submit
+    search
+    upcoming e-annz
+    additional views
+events
+    index
+    view events
+    submit
+    search
+    upcoming events
+    additional views
+faculty bios
+    index
+    view faculty bios
+    submit
+    search
+    upcoming faculty bios
+    additional views
+√ publisher
+    √ submit
+sync metadata
+    submit
+user test roles (need to test on server)
+    change roles
+program search tags
+    √ view
+    search
+    submit
+    delete
+    delete multiple
+redirects
+    √ view
+    search
+    submit
+    delete
+    delete multiple
+    api stuff

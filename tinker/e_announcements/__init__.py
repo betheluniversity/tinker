@@ -6,13 +6,13 @@ from bu_cascade.asset_tools import find
 from createsend import Campaign, CreateSend
 from flask import abort, render_template, session
 from flask_classy import FlaskView, request, route
-from ordereddict import OrderedDict
+from collections import OrderedDict
 
 # Local
 from tinker import app, cache
 from tinker.tinker_controller import requires_auth
-from e_announcements_controller import EAnnouncementsController
-from campaign_controller import CampaignController
+from tinker.e_announcements.e_announcements_controller import EAnnouncementsController
+from tinker.e_announcements.campaign_controller import CampaignController
 
 
 class EAnnouncementsView(FlaskView):

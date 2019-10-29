@@ -155,7 +155,7 @@ class RedirectsController(TinkerController):
 
         if changed or deleted:
             if app.config['ENVIRON'] != 'prod':  # emails can't be sent locally, so instead we'll just load the html the email would have in it
-                print render_template('admin/redirects/clear-redirects.html', **locals())
+                print(render_template('admin/redirects/clear-redirects.html', **locals()))
             else:
                 msg = Message(subject='Redirects Changes',
                               sender='web-development@bethel.edu',

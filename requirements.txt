@@ -24,7 +24,7 @@ feedparser
 createsend
 sentry_sdk[flask]
 Flask-Classy
-bu-cascade==2.285
+bu-cascade
 blinker
 discover
 importlib
@@ -32,7 +32,6 @@ gspread
 oauth2client
 PyOpenSSL
 flask-profiler
-ordereddict
 chromedriver
 selenium==3.6.0
 HTMLParser

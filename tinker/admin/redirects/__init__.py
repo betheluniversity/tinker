@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from os.path import getmtime
 
 # Packages
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 from flask import render_template, request, abort, session, Response, stream_with_context
 from flask_classy import FlaskView, route
 
@@ -191,7 +191,7 @@ class RedirectsView(FlaskView):
                     except Exception as e:
                         # redirect already exists
                         self.base.rollback()
-                        print e
+                        print(e)
                         continue
 
             done_cell = "C%s" % str(i + 1)
@@ -218,7 +218,7 @@ class RedirectsView(FlaskView):
                 from_url = 'https://www.bethel.edu%s' % from_url
                 r = self.base.tinker_requests(from_url, allow_redirects=False)
                 if r.status_code != 301:
-                    print "found bad line (%s): %s" % (i, from_url)
+                    print("found bad line ({}): {}").format((i, from_url))
                     bad += 1
         return "done. Found %s bad lines" % bad
 
@@ -282,7 +282,7 @@ class RedirectsView(FlaskView):
 
             smtp_obj = smtplib.SMTP('localhost')
             smtp_obj.sendmail(sender, receivers, message)
-            print "Successfully sent email"
+            print("Successfully sent email")
             self.base.rollback()
             return "sent email notice"
 
@@ -306,12 +306,12 @@ class RedirectsView(FlaskView):
             app.logger.debug(": Correctly deleted if necessary")
         except:
             redirect = None
-            print "no deletion was made"
+            print("no deletion was made")
 
         # create the redirect
         try:
             redirect = self.base.api_add_row(from_path, to_url)
-            print "Successfully created a internal redirect"
+            print("Successfully created a internal redirect")
             app.logger.debug(": Correctly created a new one")
         except:
             self.base.rollback()

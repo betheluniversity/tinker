@@ -66,7 +66,7 @@ class ProgramSearchView(FlaskView):
     def multi_delete(self):
         list_of_ids_to_delete = json.loads(request.data)
         for id_to_delete in list_of_ids_to_delete:
-            if isinstance(id_to_delete, unicode):
+            if isinstance(id_to_delete, str):
                 id_to_delete = id_to_delete.encode('utf-8').strip()
 
             if isinstance(id_to_delete, str):

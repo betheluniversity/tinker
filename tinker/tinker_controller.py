@@ -10,8 +10,6 @@ import re
 import time
 import warnings
 from functools import wraps
-from HTMLParser import HTMLParser
-from subprocess import call
 from xml.etree import ElementTree as ET
 
 # Packages
@@ -71,9 +69,7 @@ class EncodingDict(object):
             return [self._recursively_encode(x) for x in item]
         elif isinstance(item, tuple):
             return (self._recursively_encode(x) for x in item)
-        elif isinstance(item, unicode):
-            return self._safely_encode_unicode_to_str(item)
-        elif isinstance(item, (str, bool, int, long, float)) or item is None:
+        elif isinstance(item, (str, bool, int, float)) or item is None:
             # All of these types of objects don't need to be encoded from unicode to String, so they can pass through.
             return item
         else:
@@ -99,7 +95,7 @@ class EncodingDict(object):
         if isinstance(self._failure, bool) and not self._failure:
             internal_get = self._dictionary.get(key, default_return)
             # return self._recursively_encode(internal_get)
-            if isinstance(internal_get, unicode):
+            if isinstance(internal_get, str):
                 internal_get = self._safely_encode_unicode_to_str(internal_get)
             return internal_get
         else:
@@ -115,7 +111,7 @@ class EncodingDict(object):
                 # return self._recursively_encode(internal_list_response)
                 to_return = []
                 for item in internal_list_response:
-                    if isinstance(item, unicode):
+                    if isinstance(item, str):
                         to_return.append(self._safely_encode_unicode_to_str(item))
                     else:
                         to_return.append(item)
@@ -295,7 +291,6 @@ class TinkerController(object):
                     allowed_groups = ""
             else:
                 allowed_groups = app.config['TEST_GROUPS']
-            # print allowed_groups
             session['groups'] = allowed_groups
             return allowed_groups.split(";")
 
@@ -630,7 +625,7 @@ class TinkerController(object):
         return old_asset
 
     def update_asset(self, asset, data):
-        for key, value in data.iteritems():
+        for key, value in data.items():
             update(asset, key, value)
 
         return True

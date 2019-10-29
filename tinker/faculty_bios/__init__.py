@@ -14,7 +14,7 @@ from unidecode import unidecode
 # Local
 from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
-from faculty_bio_controller import FacultyBioController
+from tinker.faculty_bios.faculty_bio_controller import FacultyBioController
 
 
 class FacultyBiosView(FlaskView):
@@ -188,7 +188,7 @@ class FacultyBiosView(FlaskView):
             edit_data['courseleaf_user'] = 'Yes'
 
         # pull the add_to_bio data up one level
-        for key, value in edit_data['add_to_bio'].iteritems():
+        for key, value in edit_data['add_to_bio'].items():
             edit_data[key] = value
 
         # Create an EventForm object with our data

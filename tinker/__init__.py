@@ -44,7 +44,7 @@ else:
             try:
                 value = ast.literal_eval(os.environ[kw])
             except SyntaxError:
-                print "Errored on " + kw + ": " + value
+                print("Errored on {}: {}".format(kw, value))
         app.config[kw] = value
 
     # These config vars require code operations, and aren't just values
@@ -110,7 +110,7 @@ if app.config['SENTRY_URL']:
     sentry_sdk.init(dsn=app.config['SENTRY_URL'], integrations=[FlaskIntegration()])
 
 from tinker import error
-from tinker_controller import TinkerController
+from tinker.tinker_controller import TinkerController
 
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import

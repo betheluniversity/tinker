@@ -1,6 +1,6 @@
 # Global
 import datetime
-import HTMLParser
+import html
 
 # Packages
 from bu_cascade.asset_tools import find
@@ -8,7 +8,7 @@ from createsend import Campaign, CreateSend
 from flask_classy import FlaskView, route
 
 # Local
-from campaign_controller import NewsController
+from tinker.news.campaign_controller import NewsController
 from tinker import app
 from tinker.tinker_controller import requires_auth
 
@@ -26,7 +26,6 @@ class NewsView(FlaskView):
     @route('/api/send-email/<article_id>', methods=['get', 'post'])
     def reset_send_email(self, article_id):
         try:
-            parser = HTMLParser.HTMLParser()
             resp = 'failed'
             page = self.base_campaign.read_page(article_id)
             article_asset, md, sd = page.get_asset()
@@ -40,7 +39,7 @@ class NewsView(FlaskView):
 
             # add news_article
             news_article_text = self.base_campaign.create_single_news_article(article_asset, news_article_datetime)
-            news_article_title = parser.unescape(find(md, 'title', False))
+            news_article_title = html.unescape(find(md, 'title', False))
 
             if news_article_text != '':
                 campaign_monitor_key = app.config['NEWS_CAMPAIGN_MONITOR_KEY']
