@@ -113,7 +113,7 @@
                     {% endif %}
                     <hr/>
                 {% endif %}
-{#                {% if show_special_admin_view %}#}
+                {% if show_special_admin_view %}
                     <div>
                         <label><h3 class="first-subtitle">View:</h3>
                             <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
@@ -166,11 +166,11 @@
                             </div>
                         {% endfor %}
                     {% endfor %}
-{#                {% else %} {# basic view #}
-{#                    {% for bio in forms %}#}
-{#                        {{ display_bio(bio) }}#}
-{#                    {% endfor %}#}
-{#                {% endif %}#}
+                {% else %} {# basic view #}
+                    {% for bio in forms %}
+                        {{ display_bio(bio) }}
+                    {% endfor %}
+                {% endif %}
             </div>
             {# spinner placeholder #}
             <div id="spinner" class="spinner" style="display:none;">
