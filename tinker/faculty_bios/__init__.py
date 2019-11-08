@@ -120,7 +120,7 @@ class FacultyBiosView(FlaskView):
 
         # import this here so we dont load all the content
         # from cascade during homepage load
-        from forms import FacultyBioForm
+        from tinker.faculty_bios.forms import FacultyBioForm
 
         form = FacultyBioForm()
         roles = session['roles']
@@ -167,7 +167,7 @@ class FacultyBiosView(FlaskView):
         if self.base.asset_in_workflow(faculty_bio_id):
             return redirect('/faculty-bios/in-workflow', code=302)
 
-        from forms import FacultyBioForm
+        from tinker.faculty_bios.forms import FacultyBioForm
         form = FacultyBioForm()
 
         roles = session['roles']

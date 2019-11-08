@@ -1,10 +1,9 @@
 # Global
 import json
-import requests
 from datetime import datetime
 
 # Packages
-from flask import abort, render_template, request, Response
+from flask import abort, render_template, request
 from flask_classy import FlaskView, route
 from xml.etree import ElementTree as ET
 
@@ -12,9 +11,8 @@ from xml.etree import ElementTree as ET
 from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from tinker.admin.sync.sync_controller import SyncController
-from tinker.admin.publish import PublishManagerController
 from tinker.tinker_controller import admin_permissions, requires_auth
-from bu_cascade.asset_tools import find, update
+from bu_cascade.asset_tools import update
 
 
 class SyncView(FlaskView):
@@ -22,13 +20,12 @@ class SyncView(FlaskView):
 
     def __init__(self):
         self.base = SyncController()
-        self.publish_controller = PublishManagerController()
 
     def before_request(self, name, **kwargs):
         admin_permissions(self)
 
     def index(self):
-        # get the most recent code\
+        # get the most recent code
         self.base.git_pull()
 
         metadata_sets_mapping = self.base.get_metadata_sets_mapping()

@@ -1,6 +1,6 @@
 # Global
 from datetime import datetime
-from bu_cascade.asset_tools import find
+from bu_cascade.asset_tools import find, convert_asset
 
 # Packages
 from bu_cascade.asset_tools import update
@@ -104,13 +104,16 @@ class EAnnouncementsController(TinkerController):
         return page_values
 
     def validate_form(self, rform):
-        from forms import EAnnouncementsForm
+        from tinker.e_announcements.forms import EAnnouncementsForm
 
         form = EAnnouncementsForm(rform)
 
         return form, form.validate_on_submit()
 
-    def update_structure(self, e_announcement_data, sdata, rform, e_announcement_id=None):
+    def update_structure(self, e_announcement_data, rform, e_announcement_id=None):
+        # clean up the bytes
+        e_announcement_data = convert_asset(e_announcement_data)
+
         add_data = self.get_add_data(['banner_roles'], rform)
 
         # create workflow
@@ -134,12 +137,10 @@ class EAnnouncementsController(TinkerController):
         if e_announcement_id:
             add_data['id'] = e_announcement_id
 
-        # todo, revert this after 'name' in the Cascade data-def is changed so it doesn't conflict
-        # todo, (then we don't have to call update_asset twice)
-        # update asset
-        self.update_asset(sdata, add_data)
+        # TODO: need to rename name to something else before this launches
+        add_data['name'] = session['name']
+
         self.update_asset(e_announcement_data, add_data)
-        update(sdata, 'name', session['name'])
 
         # for some reason, title is not already set, so it must be set manually
         e_announcement_data['xhtmlDataDefinitionBlock']['metadata']['title'] = add_data['title']

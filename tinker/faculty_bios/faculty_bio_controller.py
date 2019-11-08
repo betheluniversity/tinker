@@ -457,7 +457,7 @@ class FacultyBioController(TinkerController):
         return faculty_bio_data
 
     def create_faculty_bio_image(self, add_data):
-        from forms import FacultyBioForm
+        from tinker.faculty_bios.forms import FacultyBioForm
         form = FacultyBioForm()
 
         self.log_sentry('Faculty Bio Image: Form', form)
@@ -476,9 +476,10 @@ class FacultyBioController(TinkerController):
         description = self.build_description(add_data)
         self.log_sentry('Faculty Bio Image: Name', image_name)
 
+        # save the image locally.
         form.image.data.save(app.config['UPLOAD_FOLDER'] + image_name)
-
-        image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'r')
+        # then read the contents in
+        image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'rb')
 
         # the image is 0 bytes
         if os.fstat(image_file.fileno()).st_size <= 0:
@@ -500,7 +501,7 @@ class FacultyBioController(TinkerController):
 
                 self.update_asset(image_asset, new_values)
                 resp = self.cascade_connector.edit(image_asset)
-                # clear_resp = self.clear_image_cache(image_path)
+                # todo: might consider clearing the image cache. Wait on this, as we might not keep thumbor.
                 self.log_sentry('Edited Faculty Bio Image', resp)
 
             # create new from base_asset
@@ -525,10 +526,6 @@ class FacultyBioController(TinkerController):
                 self.update_asset(image_asset, new_values)
                 resp = self.cascade_connector.create(image_asset)
                 self.log_sentry('Created Faculty Bio Image', resp)
-
-            # delete the old image, if their name is changed (since it would have created a new image anyway.
-            if add_data.get('image_url') and add_data.get('image_url') != image_path:
-                self.delete(add_data.get('image_url'), 'file')
 
             self.publish(image_path, 'file')
             return image_path
@@ -617,7 +614,7 @@ class FacultyBioController(TinkerController):
         return bool(has_roles or has_groups)
 
     def validate_form(self, rform):
-        from forms import FacultyBioForm
+        from tinker.faculty_bios.forms import FacultyBioForm
         form = FacultyBioForm(rform)
 
         # todo: remove this code for jenny vang soon

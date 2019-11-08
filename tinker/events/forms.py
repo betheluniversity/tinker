@@ -3,7 +3,7 @@
 from datetime import datetime
 
 # Packages
-from bu_cascade.asset_tools import find
+from bu_cascade.asset_tools import find, convert_asset
 from flask import session
 from flask_wtf import Form
 from wtforms import DateTimeField, Field, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField
@@ -28,6 +28,8 @@ def get_event_choices():
             md[item['name']] = item['possibleValues']['possibleValue']
         except:
             continue
+
+    md = convert_asset(md)
 
     general = []
     for item in md['general']:
@@ -73,7 +75,7 @@ def get_event_choices():
 
 def get_buildings():
     labels = [("none", '-select-')]
-    block = tinker.read('04d538728c5865132abe9a84a6e0838d', type="block")
+    block = convert_asset(tinker.read('04d538728c5865132abe9a84a6e0838d', type="block"))
     buildings = find(block, 'buildings')
     for building in buildings:
         label = building['structuredDataNodes']['structuredDataNode'][0]['text']

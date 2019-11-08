@@ -35,7 +35,7 @@ class EAnnouncementsView(FlaskView):
 
             forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
 
-            if 'Tinker E-Announcements - CAS' in session['groups'] or 'E-Announcement Approver' in session['groups']:
+            if 'E-Announcement Approver' in session['groups']:
                 # The special admin view
                 all_schools = OrderedDict({
                     1: 'My E-Announcements',
@@ -81,7 +81,7 @@ class EAnnouncementsView(FlaskView):
 
     # CANT CACHE THIS
     def new(self):
-        from forms import EAnnouncementsForm
+        from tinker.e_announcements.forms import EAnnouncementsForm
         form = EAnnouncementsForm()
         new_form = True
 
@@ -160,14 +160,14 @@ class EAnnouncementsView(FlaskView):
             status = "new"
             bid = app.config['E_ANNOUNCEMENTS_BASE_ASSET']
             e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
-            asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
+            asset = self.base.update_structure(e_announcement_data, rform, e_announcement_id=eaid)
             resp = self.base.create_block(asset)
             new_eaid = resp.asset['xhtmlDataDefinitionBlock']['id']
             self.base.log_sentry('New e-announcement submission', resp)
         else:
             block = self.base.read_block(eaid)
             e_announcement_data, mdata, sdata = block.read_asset()
-            asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
+            asset = self.base.update_structure(e_announcement_data, rform, e_announcement_id=eaid)
             # TODO: maybe add cascade logger here? would like it in block.edit_asset, but that's in bu_cascade
             resp = str(block.edit_asset(asset))
             self.base.log_sentry("E-Announcement edit submission", resp)
@@ -274,7 +274,7 @@ class EAnnouncementsView(FlaskView):
             if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
                 # Send the announcements out to ALL users at 5:30 am.
                 confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
-                new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 05:30')
+                new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 5:30')
                 self.base.log_sentry("E-Announcement campaign was sent", resp)
 
             return str(resp)

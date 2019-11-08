@@ -4,7 +4,7 @@ import json
 import time
 
 # Packages
-from bu_cascade.asset_tools import update
+from bu_cascade.asset_tools import update, convert_asset
 from flask import redirect, session, render_template, request, url_for
 from flask_classy import FlaskView, route
 from collections import OrderedDict
@@ -165,5 +165,5 @@ class EventsView(FlaskView):
             end = 0
 
         search_results, forms_header = self.base.get_search_results(selection, title, start, end)
-        search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
+        search_results.sort(key=lambda event: event['event-dates'][0]['start'], reverse=False)
         return render_template('events/search-results.html', list_of_events=search_results, formsHeader=forms_header)

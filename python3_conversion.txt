@@ -1,46 +1,62 @@
 e-annz
-    index
-    view e-annz
-    submit
-    search
-    upcoming e-annz
-    additional views
+    √ index
+    √ view e-annz
+    √ submit new
+    √ submit edit
+    √ search
+    √ upcoming e-annz
+    √ campaign
+
+    TODOs: need to rename "name" to something more specific.
 
 events
-    index
-    view events
-    submit
-    search
-    upcoming events
-    additional views
+    √ index
+    √ view events
+    √ submit new
+    √ submit edit
+    √ duplicate
+    √ search
+    √ reset variables
 
 faculty bios
-    index
-    view faculty bios
-    submit
-    search
-    upcoming faculty bios
-    additional views
+    √ index
+    √ view faculty bios
+    √ submit new
+    √ submit new - images. We might have to find a different way to do it.
+    √ submit edit
+    √ activate/deactivate
+    √ remove from catalog
+    √ export csv file
 
 √ publisher
     √ submit
 
-sync metadata
-    submit
+√ sync metadata
+    √ sync
 
 user test roles (need to test on server)
     change roles
 
-program search tags
+√ program search tags
     √ view
-    search
-    submit
-    delete
-    delete multiple
-redirects
+    √ search
+    √ submit
+    √ delete
+    √ delete multiple
+    update sync - sftp
+
+√ redirects
     √ view
-    search
-    submit
-    delete
-    delete multiple
+    √ search
+    √ submit
+    √ delete
+    √ edit
+    √ update redirects sync - sftp
     api stuff
+
+√ news
+    √ campaign
+
+permissions - should be good?
+
+check if we even need encode/decode stuff

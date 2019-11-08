@@ -54,13 +54,13 @@ class NewsController(TinkerController):
         try:
             date = news_article_datetime.strftime('%A, %B %-d, %Y')
             path = find(article_asset, 'path', False)
-            title = html.unescape(find(article_asset, 'title', False).decode('utf-8'))
+            title = html.unescape(find(article_asset, 'title', False))
 
             content_type = find(article_asset, 'contentTypePath', False)
 
             news_flex_content = find(article_asset, 'teaser', False)  # get content
             image_path = find(article_asset, 'feed-image', False)['filePath']
-            content = html.unescape(news_flex_content.decode('utf-8'))
+            content = html.unescape(news_flex_content)
         except:
             return ''
 

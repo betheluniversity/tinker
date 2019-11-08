@@ -5,7 +5,7 @@ import re
 import time
 
 # Packages
-from bu_cascade.asset_tools import find
+from bu_cascade.asset_tools import find, convert_asset
 from flask import session
 from flask import json as fjson
 
@@ -230,7 +230,7 @@ class EventsController(TinkerController):
         return event_dates
 
     def validate_form(self, rform, dates_good):
-        from forms import EventForm
+        from tinker.events.forms import EventForm
         form = EventForm(rform)
 
         return form, form.validate_on_submit() and dates_good
@@ -244,7 +244,7 @@ class EventsController(TinkerController):
         dates = self.sanitize_dates(edit_data['event-dates'])
         dates = fjson.dumps(dates)
 
-        return edit_data, dates
+        return convert_asset(edit_data), dates
 
     def date_str_to_timestamp(self, date_string):
         try:

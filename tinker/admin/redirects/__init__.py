@@ -33,6 +33,7 @@ class RedirectsView(FlaskView):
     # Redirects homepage
     def index(self):
         redirects = self.base.get_all_rows()
+        self.base.create_redirect_text_file()
         return render_template('admin/redirects/home.html', **locals())
 
     # Deletes the chosen redirect

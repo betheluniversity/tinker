@@ -22,7 +22,7 @@ from bu_cascade.assets.block import Block
 from bu_cascade.assets.data_definition import DataDefinition
 from bu_cascade.assets.metadata_set import MetadataSet
 from bu_cascade.assets.page import Page
-from bu_cascade.asset_tools import find, update
+from bu_cascade.asset_tools import find, update, convert_asset
 from flask import abort, current_app, render_template, request, Response, session
 from flask import json as fjson
 from namedentities import numeric_entities  # (namedentities)
@@ -560,7 +560,7 @@ class TinkerController(object):
         return p
 
     def read(self, path_or_id, type):
-        return self.cascade_connector.read(path_or_id, type)
+        return convert_asset(self.cascade_connector.read(path_or_id, type))
 
     def read_block(self, path_or_id):
         b = Block(self.cascade_connector, path_or_id)
@@ -638,10 +638,11 @@ class TinkerController(object):
         if not workflow_id:
             return None
         asset = self.read(workflow_id, 'workflowdefinition')
+        asset = convert_asset(asset)
 
         workflow_name = find(asset, 'name', False)
         if subtitle:
-            workflow_name += ": " + subtitle
+            workflow_name = "{}: {}".format(workflow_name, subtitle)
 
         workflow = {
             "workflowName": workflow_name,
