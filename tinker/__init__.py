@@ -4,7 +4,6 @@ import os
 import platform
 
 # Packages
-import flask_profiler
 from bu_cascade.cascade_connector import Cascade
 from flask import Flask, make_response, redirect, session, url_for
 from flask_sqlalchemy import SQLAlchemy
@@ -166,7 +165,3 @@ def logout():
     resp.set_cookie('MOD_AUTH_CAS_S', '', expires=0)
     resp.set_cookie('MOD_AUTH_CAS', '', expires=0)
     return resp
-
-
-if not TRAVIS_TESTING:
-    flask_profiler.init_app(app)

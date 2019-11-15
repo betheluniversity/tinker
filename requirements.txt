@@ -31,7 +31,6 @@ importlib
 gspread
 oauth2client
 PyOpenSSL
-flask-profiler
 chromedriver
 selenium==3.6.0
 HTMLParser
