@@ -96,7 +96,7 @@
         {# });#}
 
         $('#updateTags').click(function(){
-            var url = "{{ url_for('RedirectsView:manual_sftp_publish') }}";
+            var url = "{{ url_for('ProgramSearchView:manual_sftp_publish') }}";
             $.post(url, null, function(data){
                 if(data) {
                     data = JSON.parse(data);

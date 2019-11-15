@@ -28,7 +28,7 @@ class ProgramSearchController(TinkerController):
         outfile.close()
 
         # SFTP
-        self.write_redirects_to_sftp(app.config['PROGRAM_SEARCH_CSV_LOCAL'], app.config['PROGRAM_SEARCH_CSV_SFTP'], False)
+        self.write_to_sftp(app.config['PROGRAM_SEARCH_CSV_LOCAL'], app.config['PROGRAM_SEARCH_CSV_SFTP'], False, True)
 
         return "<pre>%s</pre>" % str(rows)
 

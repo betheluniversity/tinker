@@ -3,8 +3,10 @@ import ast
 import json
 
 # Packages
+from datetime import datetime, timedelta
 from flask import abort, render_template, request
 from flask_classy import FlaskView, route
+from os.path import getmtime
 from sqlalchemy import or_, and_
 
 
@@ -12,7 +14,7 @@ from sqlalchemy import or_, and_
 from tinker import app, db
 from tinker.admin.program_search.models import ProgramTag
 from tinker.admin.program_search.program_search_controller import ProgramSearchController
-from tinker.tinker_controller import admin_permissions
+from tinker.tinker_controller import admin_permissions, requires_auth
 
 
 class ProgramSearchView(FlaskView):
@@ -81,12 +83,28 @@ class ProgramSearchView(FlaskView):
     def manual_sftp_publish(self):
         if app.config['ENVIRON'] == 'prod':
             self.base.create_new_csv_file()
-            return self.base.write_redirects_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'], False)
+            return self.base.write_to_sftp(app.config['PROGRAM_SEARCH_CSV_LOCAL'], app.config['PROGRAM_SEARCH_CSV_SFTP'], False, True)
         else:
             return json.dumps({
                 'type': 'success',
                 'message': 'Test Environment: No updates were made'
             })
+
+    @requires_auth
+    @route('/public/cron-sftp-publish')
+    def cron_sftp_publish(self):
+        if app.config['ENVIRON'] == 'prod':
+            self.base.create_new_csv_file()
+            last_modified = datetime.now() - datetime.fromtimestamp(getmtime(app.config['PROGRAM_SEARCH_CSV']))
+            cron_interval = timedelta(minutes=30)
+
+            if last_modified < cron_interval:
+                # SFTP
+                return self.base.write_to_sftp(app.config['PROGRAM_SEARCH_CSV_LOCAL'], app.config['PROGRAM_SEARCH_CSV_SFTP'], True)
+            else:
+                return "Program Search file hasn't been updated since the last cron run"
+        else:
+            return 'Nothing to do'
 
     @route('/search', methods=['post'])
     def search(self):
