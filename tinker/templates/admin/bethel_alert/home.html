@@ -1,0 +1,51 @@
+{% extends "tinker_base.html" %}
+
+{% set title = 'Bethel Alert' %}
+
+{% block title %}Program Search Tags{% endblock %}
+
+{% block styles %}
+{% endblock %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% block main_content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <p>Bethel Alerts are cached in news feeds in various places: www.bethel.edu, www.bethel.edu/news, www.bethel.edu/news/archive, and the mybethel news feeds.
+                    <br>
+                    <br>
+                    By clicking this button, you will ONLY clear the caches that the Bethel Alerts will appear on. Push this button AFTER a Bethel alert has been published AND the xml has finished publishing.
+                </p>
+                <a href="#" id="clear-cache" class="btn btn-primary">Clear News Caches</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript">
+        $("#clear-cache").click(function () {
+            $.ajax({
+                type: "POST",
+                url: "{{ url_for('BethelAlertView:clear_cache')}}",
+                contentType: 'application/json;charset=UTF-8',
+                success: function (data) {
+                    if(data) {
+                        data = JSON.parse(data);
+                        $.notify({
+                            message: data.message
+                        }, {
+                            type: data.type,
+                            placement: {
+                                align: 'center'
+                            },
+
+                        });
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
