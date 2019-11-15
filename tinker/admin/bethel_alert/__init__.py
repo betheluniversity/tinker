@@ -25,7 +25,7 @@ class BethelAlertView(FlaskView):
         # TODO: still need to clear MyBethel's feed as well!
         try:
             # this route clears the cache
-            status_code = requests.get('https://staging.bethel.edu/code/news/php/news_article_feed_clear_cache', auth=(app.config['CASCADE_LOGIN']['username'], app.config['CASCADE_LOGIN']['password'])).status_code
+            status_code = requests.get('https://www.bethel.edu/code/news/php/news_article_feed_clear_cache', auth=(app.config['CASCADE_LOGIN']['username'], app.config['CASCADE_LOGIN']['password'])).status_code
             if status_code == 200:
                 return json.dumps({
                     'type': 'success',
