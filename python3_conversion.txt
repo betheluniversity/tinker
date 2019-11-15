@@ -57,6 +57,8 @@ user test roles (need to test on server)
 √ news
     √ campaign
 
+√ bethel alert
+
 permissions - should be good?
 
-check if we even need encode/decode stuff
+√ check if we even need encode/decode stuff

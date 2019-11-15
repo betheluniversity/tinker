@@ -140,7 +140,7 @@ class FacultyBiosView(FlaskView):
 
     @route('/toggle-courseleaf-user', methods=['post'])
     def toggle_courseleaf(self):
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         faculty_bio_id = data['id']
 
         page = self.base.read_page(faculty_bio_id)
@@ -205,13 +205,13 @@ class FacultyBiosView(FlaskView):
 
     @route('/submit', methods=['POST'])
     def submit(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
+        rform = request.form
         username = session['username']
         groups = session['groups']
 
         faculty_bio_id = rform.get('faculty_bio_id')
 
-        validated_form = self.base.validate_form(rform.internal_dictionary())
+        validated_form = self.base.validate_form(rform)
         if bool(validated_form.errors):  # Evaluates to False if there are no entries in the dictionary of errors
             if 'faculty_bio_id' in request.form.keys():
                 faculty_bio_id = request.form['faculty_bio_id']
@@ -253,7 +253,7 @@ class FacultyBiosView(FlaskView):
 
     @route('/activate', methods=['post'])
     def activate(self):
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         faculty_bio_id = data['id']
         activate_page = data['activate']
 

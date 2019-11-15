@@ -143,10 +143,10 @@ class EAnnouncementsView(FlaskView):
 
     @route("/submit", methods=['post'])
     def submit(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
+        rform = request.form
         eaid = rform.get('e_announcement_id')
 
-        form, passed = self.base.validate_form(rform.internal_dictionary())
+        form, passed = self.base.validate_form(rform)
         if not passed:
             if 'e_announcement_id' in rform.keys():
                 e_announcement_id = rform['e_announcement_id']
@@ -301,7 +301,7 @@ class EAnnouncementsView(FlaskView):
         if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
             return abort(403)
 
-        pass_in = self.base.dictionary_encoder.encode(request.form)
+        pass_in = request.form
         date_id = pass_in.get('dateId', 'null')
         ea_display = []
 
@@ -316,7 +316,7 @@ class EAnnouncementsView(FlaskView):
 
     @route("/search", methods=['POST'])
     def search(self):
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         selection = data['selection']
         title = data['title']
         date = data['date']

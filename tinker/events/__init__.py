@@ -90,12 +90,12 @@ class EventsView(FlaskView):
 
     @route("/submit", methods=['post'])
     def submit(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
+        rform = request.form
         username = session['username']
         eid = rform.get('event_id')
         dates, num_dates = self.base.get_event_dates(rform)
         dates_str, dates_good = self.base.check_event_dates(dates)
-        form, passed = self.base.validate_form(rform.internal_dictionary(), dates_good)
+        form, passed = self.base.validate_form(rform, dates_good)
         workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
         if not passed:
@@ -152,7 +152,7 @@ class EventsView(FlaskView):
     @route("/search", methods=['POST'])
     def search(self):
         # Load the data, get the event type selection and title of the event the user is searching for
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         selection = data['selection']
         title = data['title']
         try:

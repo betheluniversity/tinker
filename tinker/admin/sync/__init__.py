@@ -54,7 +54,7 @@ class SyncView(FlaskView):
 
     @route("/metadata", methods=['post'])
     def metadata(self):
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         id = data['id']
         if not isinstance(id, str):
             return abort(400)
@@ -71,7 +71,7 @@ class SyncView(FlaskView):
 
     @route("/datadefinition", methods=['post'])
     def datadefinition(self):
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         id = data['id']
         if not isinstance(id, str):
             return abort(400)

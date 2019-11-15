@@ -37,104 +37,6 @@ from tinker import app, cascade_connector, sentry_sdk, cache
 from sentry_sdk import configure_scope
 
 
-class EncodingDict(object):
-    # This class was created because some of the unicode strings being passed to Cascade didn't properly encode to
-    # ASCII/UTF-8, and that caused problems. Rather than go through the whole project and write the same code over
-    # and over, I created this object to wrap request.form dictionaries and sanitize the values returned as they're
-    # requested via dictionary key lookups.
-    def __init__(self, dictionary):
-        self._failure = False
-        if isinstance(dictionary, (ImmutableMultiDict, dict)):
-            self._dictionary = dictionary
-        else:
-            self._failure = "EncodingDict was not passed an ImmutableMultiDict or dictionary"
-
-    # This method allows us to use the rform['key'] shortcut
-    def __getitem__(self, key):
-        return self.get(key)
-
-    # This method is written so that if we choose to, we can encode entire objects being returned by the dictionaries
-    # instead of just the unicode strings.
-    def _recursively_encode(self, item):
-        if isinstance(item, dict):
-            for key in item.keys():
-                item[key] = self._recursively_encode(item[key])
-            return item
-        elif isinstance(item, ImmutableMultiDict):
-            to_return = {}
-            for key in item.keys():
-                to_return[key] = self._recursively_encode(item[key])
-            return ImmutableMultiDict(to_return)
-        elif isinstance(item, list):
-            return [self._recursively_encode(x) for x in item]
-        elif isinstance(item, tuple):
-            return (self._recursively_encode(x) for x in item)
-        elif isinstance(item, (str, bool, int, float)) or item is None:
-            # All of these types of objects don't need to be encoded from unicode to String, so they can pass through.
-            return item
-        else:
-            # Anything else is unhandled
-            return 'EncodingDict failed to encode object type %s' % type(item)
-
-    # This method is what actually does the conversion from unicode to String
-    def _safely_encode_unicode_to_str(self, unsafe_unicode):
-        encoded_str = unidecode(unsafe_unicode)
-        # numeric_entities | https://pypi.python.org/pypi/namedentities/1.9.4
-        str_numeric_entities = numeric_entities(encoded_str)
-        ampersand_hotfix = str_numeric_entities.replace('&', '&amp;')
-        return ampersand_hotfix
-
-    # This method returns the dictionary being wrapped by this object (used in WTForm Validation; they seem to need an
-    # ImmutableMultiDict)
-    def internal_dictionary(self):
-        return self._dictionary
-
-    # This is the primary wrapping method; it asks for the value at its internal dictionary's key, and if it returns a
-    # unicode string, this method converts it to a String using the "correct" way.
-    def get(self, key, default_return=None):
-        if isinstance(self._failure, bool) and not self._failure:
-            internal_get = self._dictionary.get(key, default_return)
-            # return self._recursively_encode(internal_get)
-            if isinstance(internal_get, str):
-                internal_get = self._safely_encode_unicode_to_str(internal_get)
-            return internal_get
-        else:
-            return self._failure
-
-    # This method is written for ImmutableMultiDicts; they store data as a dictionary of dictionaries, allowing it to
-    # accept multiple values for a single key (think of an HTML MultipleSelect; returns many values to one id). Since we
-    # use this method in our code, I must "ape" the method and pass it on.
-    def getlist(self, key):
-        if isinstance(self._failure, bool) and not self._failure:
-            if isinstance(self._dictionary, ImmutableMultiDict):
-                internal_list_response = self._dictionary.getlist(key)
-                # return self._recursively_encode(internal_list_response)
-                to_return = []
-                for item in internal_list_response:
-                    if isinstance(item, str):
-                        to_return.append(self._safely_encode_unicode_to_str(item))
-                    else:
-                        to_return.append(item)
-                return to_return
-            else:
-                return "This EncodingDict does not have an ImmutableMultiDict stored internally, " \
-                       "so getlist is not a valid method to call."
-        else:
-            return self._failure
-
-    # Simple pass-along method
-    def keys(self):
-        if isinstance(self._failure, bool) and not self._failure:
-            return self._dictionary.keys()
-        else:
-            return self._failure
-
-
-class EncodingDictFactory(object):
-    def encode(self, dictionary_to_encode):
-        return EncodingDict(dictionary_to_encode)
-
-
 def check_auth(username, password):
     """This function is called to check if a username /
     password combination is valid.
@@ -205,7 +107,6 @@ class TinkerController(object):
         requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
         self.datetime_format = "%B %d %Y, %I:%M %p"
         self.cascade_connector = cascade_connector
-        self.dictionary_encoder = EncodingDictFactory()
 
     def before_request(self):
         def init_user():

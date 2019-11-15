@@ -39,7 +39,7 @@ class RedirectsView(FlaskView):
     # Deletes the chosen redirect
     @route("/delete", methods=['post'])
     def delete_redirect(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
+        rform = request.form
         redirect_id = rform['redirect_id']
         try:
             self.base.delete_row_from_db(redirect_id)
@@ -51,7 +51,7 @@ class RedirectsView(FlaskView):
     # Finds all redirects associated with the from path entered
     @route("/search", methods=['post'])
     def search(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
+        rform = request.form
         redirect_from_path = rform['from_path']
         redirect_to_url = rform['to_url']
         redirects = self.base.search_db(redirect_from_path, redirect_to_url)
@@ -60,7 +60,7 @@ class RedirectsView(FlaskView):
     # Saves the new redirect created
     @route("/new-redirect-submit", methods=['post'])
     def new_redirect_submit(self):
-        form = self.base.dictionary_encoder.encode(request.form)
+        form = request.form
         from_path = form['new-redirect-from']
         to_url = form['new-redirect-to']
         short_url = form.get('new-redirect-short-url') == 'true'
@@ -103,7 +103,7 @@ class RedirectsView(FlaskView):
     # Saves the edits to an existing redirect
     @route('/edit-redirect-submit', methods=['post'])
     def edit_redirect_submit(self):
-        form = self.base.dictionary_encoder.encode(request.form)
+        form = request.form
         id = form['edit-id']
         from_path = form['edit-redirect-from']
         to_url = form['edit-redirect-to']
@@ -235,7 +235,7 @@ class RedirectsView(FlaskView):
     @requires_auth
     @route('/public/api-submit', methods=['post'])  # ['get', 'post'])
     def new_api_submit(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
+        rform = request.form
         body = rform['body']
 
         soup = BeautifulSoup(body)
@@ -263,7 +263,7 @@ class RedirectsView(FlaskView):
     @requires_auth
     @route('/public/api-submit-asset-expiration', methods=['get', 'post'])
     def new_api_submit_asset_expiration(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
+        rform = request.form
         from_path = ''
         to_url = ''
         subject = rform['subject']
