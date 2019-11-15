@@ -123,6 +123,7 @@ def get_url_from_path(path, **kwargs):
 
 
 # New importing of routes and blueprints
+from tinker.admin.bethel_alert import BethelAlertView
 from tinker.admin.program_search import ProgramSearchView
 from tinker.admin.publish import PublishView
 from tinker.admin.redirects import RedirectsView
@@ -136,6 +137,7 @@ from tinker.office_hours import OfficeHoursView
 from tinker.views import View
 from tinker.unit_test_interface import UnitTestInterfaceView
 
+BethelAlertView.register(app)
 ProgramSearchView.register(app)
 PublishView.register(app)
 RedirectsView.register(app)
