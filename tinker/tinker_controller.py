@@ -844,14 +844,14 @@ class TinkerController(object):
                         'type': 'success',
                         'message': 'Redirect updates successful'
                     })
-        except:
+        except Exception as e:
             if cron:
                 return 'SFTP publish from %s to %s failed' % (from_path, to_path)
             else:
                 if program_search:
                     return fjson.dumps({
                         'type': 'danger',
-                        'message': message
+                        'message': str(e) + message
                     })
                 else:
                     return fjson.dumps({
