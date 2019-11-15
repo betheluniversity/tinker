@@ -11,4 +11,4 @@ exec(compile(open(activate_this).read(), activate_this, 'exec'), dict(__file__=a
 import logging
 logging.basicConfig(stream=sys.stderr)
 
-from app import app as application
+from tinker import app as application
