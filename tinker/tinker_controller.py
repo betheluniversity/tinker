@@ -824,8 +824,11 @@ class TinkerController(object):
             # This will throw a warning, but the (string, int) tuple will automatically be parsed into a Socket object
             message += "after public key, "
             remote_server = Transport((app.config['SFTP_REMOTE_HOST'], 22))
+            username = app.config['SFTP_USERNAME']
+            if program_search:
+                username = "apache"
             message += "after transport, "
-            remote_server.connect(hostkey=remote_server_public_key, username=app.config['SFTP_USERNAME'], pkey=ssh_key_object)
+            remote_server.connect(hostkey=remote_server_public_key, username=username, pkey=ssh_key_object)
             message += "after connect, "
             sftp = SFTPClient.from_transport(remote_server)
             message += "after sftpclient, "
