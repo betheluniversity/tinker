@@ -44,6 +44,14 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="row less-left-margin">
+                                <div class="col-sm-12">
+                                    <div class="form-group">
+                                        Notes:
+                                        <textarea id="new-notes" class="form-control no-margin-bottom"></textarea>
+                                    </div>
+                                </div>
+                            </div>
                             <label class="checkbox" for="new-redirect-short-url">
                                 <span class="icons">
                                     <span class="first-icon fa fa-square-o"></span>
@@ -120,6 +128,7 @@
                     $("#modal-from-path-display").text($(this).data("from-path"));
                     $("#modal-to-url-display").text($(this).data("to-url"));
                     $("#modal-last-edited-display").text($(this).data("last-edited"));
+                    $("#modal-edit-notes-display").text($(this).data("notes"));
                     // Shows info
                     $(".display").show();
                     // Checkbox for short url
@@ -146,6 +155,7 @@
                     $("#modal-from-path-edit").val($(this).data('from-path'));
                     $("#modal-to-url-edit").val($(this).data('to-url'));
                     $("#modal-last-edited-edit").val($(this).data("last-edited"));
+                    $("#modal-edit-notes").val($(this).data("notes"));
                     // Hiding edit fields
                     $(".edit").hide()
                 });
@@ -239,7 +249,8 @@
                         'new-redirect-from': $('#new-redirect-from').val(),
                         'new-redirect-to': $('#new-redirect-to').val(),
                         'new-redirect-short-url': $('#new-redirect-short-url').parent().hasClass('checked'),
-                        'expiration-date': $('#expiration-date').val()
+                        'expiration-date': $('#expiration-date').val(),
+                        'new-notes': $('#new-notes').val()
                     };
 
                     var url = "{{ url_for('RedirectsView:new_redirect_submit') }}";
@@ -287,7 +298,8 @@
                         'edit-redirect-from': $('#modal-from-path-edit').val(),
                         'edit-redirect-to': $('#modal-to-url-edit').val(),
                         'edit-redirect-short-url': $('#edit-redirect-short-url').parent().hasClass('checked'),
-                        'edit-expiration-date': $('#modal-exp-date-edit').val()
+                        'edit-expiration-date': $('#modal-exp-date-edit').val(),
+                        'edit-notes': $('#modal-edit-notes').val()
                     };
                     var url = "{{ url_for('RedirectsView:edit_redirect_submit') }}";
                     $.post(url, edits, function (edits) {
@@ -313,6 +325,7 @@
                 $('#new-redirect-to').val('');
                 $('#new-redirect-from').val('');
                 $('#expiration-date').val('');
+                $('#new-notes').val('');
                 $('#new-redirect-short-url').attr('checked', false);
                 $('#new-redirect-short-url').parent().removeClass('checked');
             }
@@ -422,6 +435,13 @@
                             <td>
                                 <span id="modal-last-edited-display" class="display">No timestamp was loaded</span>
                                 <input type="text" id="modal-last-edited-edit" class="uneditable edit" readonly/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Notes:</th>
+                            <td>
+                                <span id="modal-edit-notes-display" class="display">No notes were loaded</span>
+                                <input type="text" id="modal-edit-notes" class="edit"/>
                             </td>
                         </tr>
                     </table>

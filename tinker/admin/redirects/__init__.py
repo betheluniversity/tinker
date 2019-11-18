@@ -64,6 +64,7 @@ class RedirectsView(FlaskView):
         to_url = form['new-redirect-to']
         short_url = form.get('new-redirect-short-url') == 'true'
         expiration_date = form.get('expiration-date')
+        notes = form.get('new-notes')
 
         if expiration_date:
             expiration_date = datetime.strptime(expiration_date, "%a %b %d %Y")
@@ -74,7 +75,7 @@ class RedirectsView(FlaskView):
             if not from_path.startswith("/"):
                 from_path = "/%s" % from_path
             try:
-                new_redirect = self.base.add_row_to_db(from_path, to_url, short_url, expiration_date)
+                new_redirect = self.base.add_row_to_db(from_path, to_url, short_url, expiration_date, notes)
                 # Update the file after every submit?
                 self.base.create_redirect_text_file()
                 return json.dumps({
@@ -108,6 +109,7 @@ class RedirectsView(FlaskView):
         to_url = form['edit-redirect-to']
         short_url = form.get('edit-redirect-short-url') == 'true'
         expiration_date = form.get('edit-expiration-date')
+        notes = form.get('edit-notes')
         username = session["username"]
         last_edited = datetime.now()
 
@@ -140,7 +142,8 @@ class RedirectsView(FlaskView):
                     'to_url': to_url,
                     'short_url': short_url,
                     'expiration_date': expiration_date,
-                    'last_edited': last_edited
+                    'last_edited': last_edited,
+                    'notes': notes
                 }
                 edit_redirect = BethelRedirect.query.filter(BethelRedirect.id == id)
                 edit_redirect.update(edit_dict)
