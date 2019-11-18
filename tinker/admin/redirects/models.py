@@ -1,5 +1,5 @@
 from tinker import db
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask import session
 
 class BethelRedirect(db.Model):
@@ -7,7 +7,7 @@ class BethelRedirect(db.Model):
     from_path = db.Column(db.String(256), unique=True, default='no_path_provided')
     to_url = db.Column(db.String(256))
     short_url = db.Column(db.Boolean)
-    expiration_date = db.Column(db.Date)
+    expiration_date = db.Column(db.Date, default=(datetime.now() + timedelta(days=365*3)))
     timestamp = db.Column(db.Date, default=datetime.now())
     username = db.Column(db.String(20), default='n/a')
     last_edited = db.Column(db.Date, default=datetime.now())
