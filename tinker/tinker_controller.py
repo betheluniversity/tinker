@@ -826,8 +826,8 @@ class TinkerController(object):
             remote_server = Transport((app.config['SFTP_REMOTE_HOST'], 22))
             username = app.config['SFTP_USERNAME']
             if program_search:
-                username = "apache"
-            message += "after transport, "
+                username = 'apache'
+            message += "username=" + username + "; after transport, "
             remote_server.connect(hostkey=remote_server_public_key, username=username, pkey=ssh_key_object)
             message += "after connect, "
             sftp = SFTPClient.from_transport(remote_server)
