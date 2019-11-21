@@ -35,6 +35,7 @@ class FacultyBioController(TinkerController):
             'Human Kinetics & Applied Health Science':      'Human Kinetics',
             'Math & Computer Science':                      'Math CS',
             'Music':                                        'Music',
+            'Music and Theatre':                            'Music and Theatre',
             'Nursing':                                      'Nursing',
             'Philosophy':                                   'Philosophy',
             'Physics & Engineering':                        'Physics',

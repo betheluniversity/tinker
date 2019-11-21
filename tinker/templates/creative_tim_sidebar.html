@@ -58,6 +58,12 @@
                     <ul class="dropdown-menu">
                         {% if 'Administrators' in session['groups'] %}
                             <li>
+                                <a href="{{ url_for('BethelAlertView:index') }}">
+                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                    <p class="admin-list-item">Bethel Alert</p>
+                                </a>
+                            </li>
+                            <li>
                                 <a href="{{ url_for('PublishView:index') }}">
                                     <i class="fa fa-file" aria-hidden="true"></i>
                                     <p class="admin-list-item">Publisher</p>
