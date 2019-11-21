@@ -854,7 +854,7 @@ class TinkerController(object):
                 if program_search:
                     return fjson.dumps({
                         'type': 'danger',
-                        'message': str(e) + message
+                        'message': str(e) + message + str(remote_server.get_exception())
                     })
                 else:
                     return fjson.dumps({
