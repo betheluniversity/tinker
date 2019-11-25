@@ -844,7 +844,7 @@ class TinkerController(object):
                 if program_search:
                     return fjson.dumps({
                         'type': 'danger',
-                        'message': str(e) + message
+                        'message': 'Program Search updates failed'
                     })
                 else:
                     return fjson.dumps({
