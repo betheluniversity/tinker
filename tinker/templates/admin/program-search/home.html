@@ -84,17 +84,6 @@
             };
         })();
 
-        {#$("#program-submit").click(function () {#}
-        {#    $.notify({#}
-        {#        message: 'You have successfully submitted your program'#}
-        {#    }, {#}
-        {#        type: 'success',#}
-        {#        placement: {#}
-        {#            align: 'center'#}
-        {#        },#}
-        {#    });#}
-        {# });#}
-
         $('#updateTags').click(function(){
             var url = "{{ url_for('ProgramSearchView:manual_sftp_publish') }}";
             $.post(url, null, function(data){

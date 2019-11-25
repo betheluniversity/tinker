@@ -100,7 +100,7 @@ class ProgramSearchView(FlaskView):
 
             if last_modified < cron_interval:
                 # SFTP
-                return self.base.write_to_sftp(app.config['PROGRAM_SEARCH_CSV_LOCAL'], app.config['PROGRAM_SEARCH_CSV_SFTP'], True)
+                return self.base.write_to_sftp(app.config['PROGRAM_SEARCH_CSV_LOCAL'], app.config['PROGRAM_SEARCH_CSV_SFTP'], True, True)
             else:
                 return "Program Search file hasn't been updated since the last cron run"
         else:
