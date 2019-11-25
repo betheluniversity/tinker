@@ -795,3 +795,51 @@ label.checkbox {
 ul.left {
     float: left;
 }
+
+/* Program Search -JT 8/6/19 */
+
+.form-control {
+    background-color: #fdfdfd;
+    border: 1px #ccc solid;
+}
+
+select.search-input {
+    width: 100%;
+    margin-right: 25px;
+}
+
+select.search-input.modal-search-input {
+    width: 100%;
+}
+
+#program_search_form select.modal-search-input {
+    width: 100%;
+}
+
+select#search-key {
+    background-color: #fff;
+    border: 1px #ccc solid;
+}
+
+a#create-new {
+    float: right;
+    position: relative;
+    top: -38px;
+}
+
+hr {
+    width: 100%;
+}
+
+p.text-field-info {
+    font-size: 0.9em;
+    float: right;
+    color: #66615b;
+    position: absolute;
+    right: 20px;
+    top: 85px;
+}
+
+#updateTags {
+    margin-bottom: 10px;
+}

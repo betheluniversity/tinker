@@ -337,7 +337,7 @@ class RedirectsView(FlaskView):
 
             if last_modified < cron_interval:
                 # SFTP
-                return self.base.write_redirects_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'], True)
+                return self.base.write_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'], True)
             else:
                 return "Redirects file hasn't been updated since the last cron run"
         else:
@@ -347,7 +347,7 @@ class RedirectsView(FlaskView):
     def manual_sftp_publish(self):
         if app.config['ENVIRON'] == 'prod':
             self.base.create_redirect_text_file()
-            return self.base.write_redirects_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'], False)
+            return self.base.write_to_sftp(app.config['REDIRECTS_TXT_LOCAL'], app.config['REDIRECTS_TXT_SFTP'], False)
         else:
             return json.dumps({
                 'type': 'success',
