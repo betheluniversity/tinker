@@ -12,7 +12,7 @@ class BethelRedirect(db.Model):
     timestamp = db.Column(db.Date, default=datetime.now())
     username = db.Column(db.String(20), default='n/a')
     last_edited = db.Column(db.Date, default=datetime.now())
-    notes = db.Column(db.String(512), default="n/a")
+    notes = db.Column(db.String(256))
 
     def __init__(self, from_path, to_url, short_url=None, expiration_date=None, username=None, last_edited=None, notes=None):
         self.from_path = from_path
