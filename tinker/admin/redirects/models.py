@@ -7,7 +7,7 @@ class BethelRedirect(db.Model):
     from_path = db.Column(db.String(256), unique=True, default='no_path_provided')
     to_url = db.Column(db.String(256))
     short_url = db.Column(db.Boolean)
-    expiration_date = db.Column(db.Date, default=(datetime.now() + timedelta(days=365*3)))
+    expiration_date = db.Column(db.Date)
     timestamp = db.Column(db.Date, default=datetime.now())
     username = db.Column(db.String(20), default='n/a')
     last_edited = db.Column(db.Date, default=datetime.now())
