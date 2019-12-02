@@ -113,7 +113,9 @@
 
                 if (!$("#no-redirect-expiration-date").is(":checked")) {
                     $("#expiration-date").val("");
+                    $("#expiration-date").prop("disabled", true);
                 } else {
+                    $("#expiration-date").prop("disabled", false);
                     let date = new Date("{{ default_expiration_date }}");
                     let dateString = date.toString();
                     console.log(dateString);
