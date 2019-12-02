@@ -40,10 +40,18 @@
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         Expiration Date:
-                                        <input type="text" id="expiration-date" class="form-control no-margin-bottom"/>
+                                        <input type="text" id="expiration-date" value="{{ default_expiration_date }}" class="form-control no-margin-bottom"/>
                                     </div>
                                 </div>
                             </div>
+                            <label id="no-redirect-expiration-label" class="checkbox" for="no-redirect-expiration-date">
+                                <span class="icons">
+                                    <span class="first-icon fa fa-square-o"></span>
+                                    <span class="second-icon fa fa-check-square-o"></span>
+                                </span>
+                                <input type="checkbox" name="no-redirect-expiration-date" id="no-redirect-expiration-date">
+                                No expiration date
+                            </label>
                             <label class="checkbox" for="new-redirect-short-url">
                                 <span class="icons">
                                     <span class="first-icon fa fa-square-o"></span>
@@ -99,6 +107,19 @@
                         });
                     }
                 });
+            });
+
+            $("#no-redirect-expiration-label").click(function() {
+
+                if (!$("#no-redirect-expiration-date").is(":checked")) {
+                    $("#expiration-date").val("");
+                } else {
+                    let date = new Date("{{ default_expiration_date }}");
+                    let dateString = date.toString();
+                    console.log(dateString);
+                    date = dateString.split(" ")[0] + " " + dateString.split(" ")[1] + " " + dateString.split(" ")[2] + " " + dateString.split(" ")[3];
+                    $("#expiration-date").val(date);
+                }
             });
 
             function updateTable(data) {
