@@ -61,17 +61,6 @@ if not app.debug:
     app.logger.addHandler(file_handler)
     app.logger.setLevel(logging.DEBUG)
 
-app.config["flask_profiler"] = {
-    "enabled": True,
-    "storage": {
-        "engine": "sqlite",
-        "FILE": app.config['INSTALL_LOCATION'] + '/flask_profiler.sql'
-    },
-    "ignore": [
-        "/static/*"
-    ]
-}
-
 if app.config['ENVIRON'] != 'prod':
     cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 else:
@@ -91,14 +80,6 @@ else:
         # finicky and should have a prefix so that .clear() knows which values to remove.
         'CACHE_KEY_PREFIX': 'tinker-'
     })
-
-prod = app.config['ENVIRON'] == 'prod'
-if prod:
-    app.config["flask_profiler"]["basicAuth"] = {
-        "enabled": True,
-        "username": app.config['CASCADE_LOGIN']['username'],
-        "password": app.config['CASCADE_LOGIN']['password']
-    }
 
 db = SQLAlchemy(app)
 
