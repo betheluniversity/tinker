@@ -12,14 +12,13 @@ Flask-WTF
 Flask-Fixtures
 WTForms-Components
 flask-hmacauth
-suds
+suds-jurko
 simplejson
 WTForms
 requests
-BeautifulSoup
+beautifulsoup4
 Flask-Cors
 arrow
-feedformatter
 feedparser
 createsend
 sentry_sdk[flask]
@@ -27,7 +26,6 @@ Flask-Classy
 bu-cascade
 blinker
 discover
-importlib
 gspread
 oauth2client
 PyOpenSSL
