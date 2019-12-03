@@ -27,9 +27,9 @@ def permission_denied(e):
     return error_render_template('error/403.html', e, 403)
 
 
-@app.errorhandler(404)
-def page_not_found(e):
-    return error_render_template('error/404.html', e, 404)
+# @app.errorhandler(404)
+# def page_not_found(e):
+#     return error_render_template('error/404.html', e, 404)
 
 
 @app.errorhandler(500)
