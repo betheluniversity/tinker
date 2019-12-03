@@ -135,8 +135,9 @@ UnitTestInterfaceView.register(app)
 
 @app.before_request
 def before_request():
-    base = TinkerController()
-    base.before_request()
+    pass
+    # base = TinkerController()
+    # base.before_request()
 
 
 @app.route("/logout", methods=["GET"])
