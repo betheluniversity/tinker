@@ -89,8 +89,8 @@ if app.config['SENTRY_URL']:
     from sentry_sdk.integrations.flask import FlaskIntegration
     sentry_sdk.init(dsn=app.config['SENTRY_URL'], integrations=[FlaskIntegration()])
 
-from tinker import error
-from tinker.tinker_controller import TinkerController
+# from tinker import error
+# from tinker.tinker_controller import TinkerController
 
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
@@ -149,19 +149,19 @@ class View(FlaskView):
         return render_template('profile.html', **locals())
 
 
-BethelAlertView.register(app)
-ProgramSearchView.register(app)
-PublishView.register(app)
-RedirectsView.register(app)
-SyncView.register(app)
-UserRolesView.register(app)
-EAnnouncementsView.register(app)
-EventsView.register(app)
-FacultyBiosView.register(app)
-NewsView.register(app)
-OfficeHoursView.register(app)
+# BethelAlertView.register(app)
+# ProgramSearchView.register(app)
+# PublishView.register(app)
+# RedirectsView.register(app)
+# SyncView.register(app)
+# UserRolesView.register(app)
+# EAnnouncementsView.register(app)
+# EventsView.register(app)
+# FacultyBiosView.register(app)
+# NewsView.register(app)
+# OfficeHoursView.register(app)
 View.register(app)
-UnitTestInterfaceView.register(app)
+# UnitTestInterfaceView.register(app)
 
 
 
