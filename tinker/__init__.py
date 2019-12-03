@@ -103,50 +103,53 @@ def get_url_from_path(path, **kwargs):
 
 
 # New importing of routes and blueprints
-from tinker.admin.bethel_alert import BethelAlertView
-from tinker.admin.program_search import ProgramSearchView
-from tinker.admin.publish import PublishView
-from tinker.admin.redirects import RedirectsView
-from tinker.admin.sync import SyncView
-from tinker.admin.user_roles import UserRolesView
-from tinker.e_announcements import EAnnouncementsView
-from tinker.events import EventsView
-from tinker.faculty_bios import FacultyBiosView
-from tinker.news import NewsView
-from tinker.office_hours import OfficeHoursView
+# from tinker.admin.bethel_alert import BethelAlertView
+# from tinker.admin.program_search import ProgramSearchView
+# from tinker.admin.publish import PublishView
+# from tinker.admin.redirects import RedirectsView
+# from tinker.admin.sync import SyncView
+# from tinker.admin.user_roles import UserRolesView
+# from tinker.e_announcements import EAnnouncementsView
+# from tinker.events import EventsView
+# from tinker.faculty_bios import FacultyBiosView
+# from tinker.news import NewsView
+# from tinker.office_hours import OfficeHoursView
 # from tinker.views import View
-from tinker.unit_test_interface import UnitTestInterfaceView
+# from tinker.unit_test_interface import UnitTestInterfaceView
+
+
+
 
 # Global
 import os
-
 # Packages
 from flask import render_template, send_file, send_from_directory
 from flask_classy import FlaskView
-
 # Local
 from tinker import app
-
 
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/assets/img'), 'favicon.ico')
 
 
-class View(FlaskView):
+# class View(FlaskView):
 
-    def index(self):
-        # index page for adding events and things
-        return render_template('index.html', **locals())
+@app.route('/')
+def index():
+    # index page for adding events and things
+    return render_template('index.html', **locals())
 
-    def about(self):
-        return render_template('about-page.html', **locals())
+# def about(self):
+#     return render_template('about-page.html', **locals())
+#
+# def get_image(self, image_name):
+#     return send_file('images/' + image_name, mimetype='image/png')
+#
+# def profile(self):
+#     return render_template('profile.html', **locals())
 
-    def get_image(self, image_name):
-        return send_file('images/' + image_name, mimetype='image/png')
 
-    def profile(self):
-        return render_template('profile.html', **locals())
 
 
 # BethelAlertView.register(app)
@@ -160,9 +163,8 @@ class View(FlaskView):
 # FacultyBiosView.register(app)
 # NewsView.register(app)
 # OfficeHoursView.register(app)
-View.register(app)
+# View.register(app)
 # UnitTestInterfaceView.register(app)
-
 
 
 @app.before_request

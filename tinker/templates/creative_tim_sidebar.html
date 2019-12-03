@@ -1,110 +1,110 @@
 {% macro render() %}
 
-    <div id="sidebar" class="sidebar-wrapper">
-        <div class="logo">
-            <a href="/" class="simple-text">
-                <img src="{{ url_for('static', filename='assets/img/tinker_logo.png') }}" style="height:35px">
-            </a>
-        </div>
-        <ul class="nav">
-
-            <li class="{% if request.path == '/' %}active{% endif %}">
-                <a href="/">
-                    <i class="fa fa-home"></i>
-                    <p>Home</p>
-                </a>
-            </li>
-
-            <li class="{% if 'e-announcements/' in request.path %}active{% endif %}">
-                <a href="{{ url_for('EAnnouncementsView:index') }}">
-                    <i class="fa fa-envelope-o"></i>
-                    <p>E-Announcements</p>
-                </a>
-            </li>
-
-            <li class="{% if 'events/' in request.path %}active{% endif %}">
-                <a href="{{ url_for('EventsView:index') }}">
-                    <i class="fa fa-calendar"></i>
-                    <p>Events</p>
-                </a>
-            </li>
-
-            {% if 'FACULTY' in session['roles'] or 'RECENT-FACULTY' in session['roles'] or 'SPONSORED-FACULTY' in session['roles'] or 'Administrators' in session['groups']
-                or 'Tinker Faculty Bios - Admin' in session['groups']
-                or 'Tinker Faculty Bios - CAS' in session['groups']
-                or 'Tinker Faculty Bios - CAPS and GS' in session['groups']
-                or 'Tinker Faculty Bios - SEM' in session['groups'] %}
-                <li class="{% if 'faculty-bios/' in request.path %}active{% endif %}">
-                    <a href="{{ url_for('FacultyBiosView:index') }}">
-                        <i class="fa fa-user"></i>
-                        <p>Faculty Bios</p>
-                    </a>
-                </li>
-            {% endif %}
-
+{#    <div id="sidebar" class="sidebar-wrapper">#}
+{#        <div class="logo">#}
+{#            <a href="/" class="simple-text">#}
+{#                <img src="{{ url_for('static', filename='assets/img/tinker_logo.png') }}" style="height:35px">#}
+{#            </a>#}
+{#        </div>#}
+{#        <ul class="nav">#}
+{##}
+{#            <li class="{% if request.path == '/' %}active{% endif %}">#}
+{#                <a href="/">#}
+{#                    <i class="fa fa-home"></i>#}
+{#                    <p>Home</p>#}
+{#                </a>#}
+{#            </li>#}
+{##}
+{#            <li class="{% if 'e-announcements/' in request.path %}active{% endif %}">#}
+{#                <a href="{{ url_for('EAnnouncementsView:index') }}">#}
+{#                    <i class="fa fa-envelope-o"></i>#}
+{#                    <p>E-Announcements</p>#}
+{#                </a>#}
+{#            </li>#}
+{##}
+{#            <li class="{% if 'events/' in request.path %}active{% endif %}">#}
+{#                <a href="{{ url_for('EventsView:index') }}">#}
+{#                    <i class="fa fa-calendar"></i>#}
+{#                    <p>Events</p>#}
+{#                </a>#}
+{#            </li>#}
+{##}
+{#            {% if 'FACULTY' in session['roles'] or 'RECENT-FACULTY' in session['roles'] or 'SPONSORED-FACULTY' in session['roles'] or 'Administrators' in session['groups']#}
+{#                or 'Tinker Faculty Bios - Admin' in session['groups']#}
+{#                or 'Tinker Faculty Bios - CAS' in session['groups']#}
+{#                or 'Tinker Faculty Bios - CAPS and GS' in session['groups']#}
+{#                or 'Tinker Faculty Bios - SEM' in session['groups'] %}#}
+{#                <li class="{% if 'faculty-bios/' in request.path %}active{% endif %}">#}
+{#                    <a href="{{ url_for('FacultyBiosView:index') }}">#}
+{#                        <i class="fa fa-user"></i>#}
+{#                        <p>Faculty Bios</p>#}
+{#                    </a>#}
+{#                </li>#}
+{#            {% endif %}#}
+{##}
 {#            <li class="{% if 'office-hours/' in request.path %}active{% endif %}">#}
 {#                <a href="{{ url_for('OfficeHoursView:index') }}">#}
 {#                    <i class="fa fa-clock-o"></i>#}
 {#                    <p>Office Hours</p>#}
 {#                </a>#}
 {#            </li>#}
-
-            {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] or 'ITS - Help Desk Employees' in session['iam_groups'] %}
-                <li class="dropdown {% if 'admin/' in request.path %}active{% endif %}">
-                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                        <i class="fa fa-lightbulb-o"></i>
-                        <p>Admin Menu &raquo;</p>
-                    </a>
-                    <ul class="dropdown-menu">
-                        {% if 'Administrators' in session['groups'] %}
-                            <li>
-                                <a href="{{ url_for('BethelAlertView:index') }}">
-                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                                    <p class="admin-list-item">Bethel Alert</p>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ url_for('PublishView:index') }}">
-                                    <i class="fa fa-file" aria-hidden="true"></i>
-                                    <p class="admin-list-item">Publisher</p>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="{{ url_for('SyncView:index') }}">
-                                    <i class="fa fa-share-alt" aria-hidden="true"></i>
-                                    <p class="admin-list-item">Sync Metadata</p>
-                                </a>
-                            </li>
-                        {% endif %}
-                        {% if 'ITS - Help Desk Employees' in session['iam_groups'] or 'Administrators' in session['groups'] %}
-                            <li>
-                                <a href="{{ url_for('UserRolesView:index') }}">
-                                    <i class="fa fa-user-secret" aria-hidden="true"></i>
-                                    <p class="admin-list-item">User Test Roles</p>
+{##}
+{#            {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] or 'ITS - Help Desk Employees' in session['iam_groups'] %}#}
+{#                <li class="dropdown {% if 'admin/' in request.path %}active{% endif %}">#}
+{#                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">#}
+{#                        <i class="fa fa-lightbulb-o"></i>#}
+{#                        <p>Admin Menu &raquo;</p>#}
+{#                    </a>#}
+{#                    <ul class="dropdown-menu">#}
+{#                        {% if 'Administrators' in session['groups'] %}#}
+{#                            <li>#}
+{#                                <a href="{{ url_for('BethelAlertView:index') }}">#}
+{#                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>#}
+{#                                    <p class="admin-list-item">Bethel Alert</p>#}
+{#                                </a>#}
+{#                            </li>#}
+{#                            <li>#}
+{#                                <a href="{{ url_for('PublishView:index') }}">#}
+{#                                    <i class="fa fa-file" aria-hidden="true"></i>#}
+{#                                    <p class="admin-list-item">Publisher</p>#}
+{#                                </a>#}
+{#                            </li>#}
+{#                            <li>#}
+{#                                <a href="{{ url_for('SyncView:index') }}">#}
+{#                                    <i class="fa fa-share-alt" aria-hidden="true"></i>#}
+{#                                    <p class="admin-list-item">Sync Metadata</p>#}
+{#                                </a>#}
+{#                            </li>#}
+{#                        {% endif %}#}
+{#                        {% if 'ITS - Help Desk Employees' in session['iam_groups'] or 'Administrators' in session['groups'] %}#}
+{#                            <li>#}
+{#                                <a href="{{ url_for('UserRolesView:index') }}">#}
+{#                                    <i class="fa fa-user-secret" aria-hidden="true"></i>#}
+{#                                    <p class="admin-list-item">User Test Roles</p>#}
                                     {# doesnt work locally #}
                                     {# local session cookie not being stored #}
-                                </a>
-                            </li>
-                        {% endif %}
-                        {% if 'Administrators' in session['groups'] %}
-                            <li>
-                                <a href="{{ url_for('ProgramSearchView:index') }}">
-                                    <i class="fa fa-search" aria-hidden="true"></i>
-                                    <p class="admin-list-item">Program Search Tags</p>
-                                </a>
-                            </li>
-                        {% endif %}
-                        {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
-                        <li>
-                            <a href="{{ url_for('RedirectsView:index') }}">
-                                <i class="fa fa-arrows-alt" aria-hidden="true"></i>
-                                <p class="admin-list-item">Redirects</p>
-                            </a>
-                        </li>
-                        {% endif %}
-                    </ul>
-                </li>
-            {% endif %}
-        </ul>
-    </div>
+{#                                </a>#}
+{#                            </li>#}
+{#                        {% endif %}#}
+{#                        {% if 'Administrators' in session['groups'] %}#}
+{#                            <li>#}
+{#                                <a href="{{ url_for('ProgramSearchView:index') }}">#}
+{#                                    <i class="fa fa-search" aria-hidden="true"></i>#}
+{#                                    <p class="admin-list-item">Program Search Tags</p>#}
+{#                                </a>#}
+{#                            </li>#}
+{#                        {% endif %}#}
+{#                        {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}#}
+{#                        <li>#}
+{#                            <a href="{{ url_for('RedirectsView:index') }}">#}
+{#                                <i class="fa fa-arrows-alt" aria-hidden="true"></i>#}
+{#                                <p class="admin-list-item">Redirects</p>#}
+{#                            </a>#}
+{#                        </li>#}
+{#                        {% endif %}#}
+{#                    </ul>#}
+{#                </li>#}
+{#            {% endif %}#}
+{#        </ul>#}
+{#    </div>#}
 {% endmacro %}
