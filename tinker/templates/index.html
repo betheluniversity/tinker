@@ -5,69 +5,69 @@
 {% block main_content %}
     <div class="content">
         <div class="container-fluid">
-{#            <div class="col-sm-6">#}
-{#                <div class="card">#}
-{#                    <div class="header">#}
-{#                        <h4 class="title">Manage Events</h4>#}
-{#                    </div>#}
-{#                    <div class="content">#}
-{#                        <div class="icon-big icon-warning text-center">#}
-{#                            <a href="{{ url_for('EventsView:index') }}">#}
-{#                                <i class="fa fa-calendar fa-4x" aria-hidden="true" style='width:100%'></i>#}
-{#                            </a>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
-{#            <div class="col-sm-6">#}
-{#                <div class="card">#}
-{#                    <div class="header">#}
-{#                        <h4 class="title">Manage E-Announcements</h4>#}
-{#                    </div>#}
-{#                    <div class="content">#}
-{#                        <div class="icon-big icon-warning text-center">#}
-{#                            <a href="{{ url_for('EAnnouncementsView:index') }}">#}
-{#                                <i class="fa fa-envelope-o fa-4x" aria-hidden="true" style='width:100%'></i>#}
-{#                            </a>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
-{#            {% if 'FACULTY' in session['roles'] or 'RECENT-FACULTY' in session['roles'] or 'SPONSORED-FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups']#}
-{#                    or 'Tinker Faculty Bios - CAS' in session['groups'] or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] or 'Tinker Faculty Bios - SEM' in session['groups']#}
-{#                    or 'Tinker Faculty Bios - Admin' in session['groups'] %}#}
-{#                <div class="col-sm-6">#}
-{#                    <div class="card">#}
-{#                        <div class="header">#}
-{#                            <h4 class="title">Faculty Bios</h4>#}
-{#                        </div>#}
-{#                        <div class="content">#}
-{#                            <div class="icon-big icon-warning text-center">#}
-{#                                <a href="{{ url_for('FacultyBiosView:index') }}">#}
-{#                                    <i class="fa fa-user fa-4x" aria-hidden="true" style='width:100%'></i>#}
-{#                                </a>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
-{#            {% endif %}#}
-{##}
-{#            {% if 'Tinker Redirects' in session['groups'] or 'Administrators' in session['groups'] %}#}
-{#                <div class="col-sm-6">#}
-{#                    <div class="card">#}
-{#                        <div class="header">#}
-{#                            <h4 class="title">Manage Redirects</h4>#}
-{#                        </div>#}
-{#                        <div class="content">#}
-{#                            <div class="icon-big icon-warning text-center">#}
-{#                                <a href="{{ url_for('RedirectsView:index') }}">#}
-{#                                    <i class="fa fa-arrows-alt fa-4x" aria-hidden="true" style='width:100%'></i>#}
-{#                                </a>#}
-{#                            </div>#}
-{#                        </div>#}
-{#                    </div>#}
-{#                </div>#}
-{#            {% endif %}#}
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="header">
+                        <h4 class="title">Manage Events</h4>
+                    </div>
+                    <div class="content">
+                        <div class="icon-big icon-warning text-center">
+                            <a href="{{ url_for('EventsView:index') }}">
+                                <i class="fa fa-calendar fa-4x" aria-hidden="true" style='width:100%'></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="header">
+                        <h4 class="title">Manage E-Announcements</h4>
+                    </div>
+                    <div class="content">
+                        <div class="icon-big icon-warning text-center">
+                            <a href="{{ url_for('EAnnouncementsView:index') }}">
+                                <i class="fa fa-envelope-o fa-4x" aria-hidden="true" style='width:100%'></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% if 'FACULTY' in session['roles'] or 'RECENT-FACULTY' in session['roles'] or 'SPONSORED-FACULTY' in session['roles'] or 'Tinker Faculty Bios' in session['groups'] or 'Administrators' in session['groups']
+                    or 'Tinker Faculty Bios - CAS' in session['groups'] or 'Tinker Faculty Bios - CAPS and GS' in session['groups'] or 'Tinker Faculty Bios - SEM' in session['groups']
+                    or 'Tinker Faculty Bios - Admin' in session['groups'] %}
+                <div class="col-sm-6">
+                    <div class="card">
+                        <div class="header">
+                            <h4 class="title">Faculty Bios</h4>
+                        </div>
+                        <div class="content">
+                            <div class="icon-big icon-warning text-center">
+                                <a href="{{ url_for('FacultyBiosView:index') }}">
+                                    <i class="fa fa-user fa-4x" aria-hidden="true" style='width:100%'></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            {% if 'Tinker Redirects' in session['groups'] or 'Administrators' in session['groups'] %}
+                <div class="col-sm-6">
+                    <div class="card">
+                        <div class="header">
+                            <h4 class="title">Manage Redirects</h4>
+                        </div>
+                        <div class="content">
+                            <div class="icon-big icon-warning text-center">
+                                <a href="{{ url_for('RedirectsView:index') }}">
+                                    <i class="fa fa-arrows-alt fa-4x" aria-hidden="true" style='width:100%'></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
