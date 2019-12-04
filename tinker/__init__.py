@@ -89,8 +89,8 @@ if app.config['SENTRY_URL']:
     from sentry_sdk.integrations.flask import FlaskIntegration
     sentry_sdk.init(dsn=app.config['SENTRY_URL'], integrations=[FlaskIntegration()])
 
-# from tinker import error
-# from tinker.tinker_controller import TinkerController
+from tinker import error
+from tinker.tinker_controller import TinkerController
 
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
