@@ -86,7 +86,7 @@ if app.config['SENTRY_URL']:
     sentry_sdk.init(dsn=app.config['SENTRY_URL'], integrations=[FlaskIntegration()])
 
 # from tinker import error
-from tinker.tinker_controller import TinkerController
+# from tinker.tinker_controller import TinkerController
 
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
@@ -114,25 +114,25 @@ from tinker.views import View
 from tinker.unit_test_interface import UnitTestInterfaceView
 
 
-BethelAlertView.register(app)
-ProgramSearchView.register(app)
-PublishView.register(app)
-RedirectsView.register(app)
-SyncView.register(app)
-UserRolesView.register(app)
-EAnnouncementsView.register(app)
-EventsView.register(app)
-FacultyBiosView.register(app)
-NewsView.register(app)
-OfficeHoursView.register(app)
+# BethelAlertView.register(app)
+# ProgramSearchView.register(app)
+# PublishView.register(app)
+# RedirectsView.register(app)
+# SyncView.register(app)
+# UserRolesView.register(app)
+# EAnnouncementsView.register(app)
+# EventsView.register(app)
+# FacultyBiosView.register(app)
+# NewsView.register(app)
+# OfficeHoursView.register(app)
 View.register(app)
-UnitTestInterfaceView.register(app)
+# UnitTestInterfaceView.register(app)
 
 
-@app.before_request
-def before_request():
-    base = TinkerController()
-    base.before_request()
+# @app.before_request
+# def before_request():
+#     base = TinkerController()
+#     base.before_request()
 
 
 @app.route("/logout", methods=["GET"])
