@@ -6,13 +6,9 @@ import platform
 # Packages
 from bu_cascade.cascade_connector import Cascade
 from flask import Flask, make_response, redirect, session, url_for
+from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
 import sentry_sdk
-# TODO: Remove version checking when upgrading to python 2.7
-if platform.python_version()[:3] == '2.6':
-    from flask.ext.cache import Cache
-else:
-    from flask_caching import Cache
 
 app = Flask(__name__)
 
@@ -89,7 +85,7 @@ if app.config['SENTRY_URL']:
     from sentry_sdk.integrations.flask import FlaskIntegration
     sentry_sdk.init(dsn=app.config['SENTRY_URL'], integrations=[FlaskIntegration()])
 
-from tinker import error
+# from tinker import error
 from tinker.tinker_controller import TinkerController
 
 
