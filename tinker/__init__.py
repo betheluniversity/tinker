@@ -12,6 +12,10 @@ import sentry_sdk
 
 app = Flask(__name__)
 
+@app.route("/test", methods=["GET"])
+def test():
+    return 'TEST'
+
 if "travis" not in platform.node():
     TRAVIS_TESTING = False
     app.config.from_object('config.config')
@@ -90,12 +94,12 @@ if app.config['SENTRY_URL']:
 
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
-def get_url_from_path(path, **kwargs):
-    with app.app_context():
-        url_to_return = url_for(path, **kwargs)
-        if app.config['SERVER_NAME'] in url_to_return:
-            url_to_return = url_to_return.split(app.config['SERVER_NAME'])[1]
-        return url_to_return
+# def get_url_from_path(path, **kwargs):
+#     with app.app_context():
+#         url_to_return = url_for(path, **kwargs)
+#         if app.config['SERVER_NAME'] in url_to_return:
+#             url_to_return = url_to_return.split(app.config['SERVER_NAME'])[1]
+#         return url_to_return
 
 
 # New importing of routes and blueprints
@@ -133,10 +137,6 @@ def get_url_from_path(path, **kwargs):
 # def before_request():
 #     base = TinkerController()
 #     base.before_request()
-
-@app.route("/test", methods=["GET"])
-def test():
-    return 'TEST'
 
 @app.route("/logout", methods=["GET"])
 def logout():
