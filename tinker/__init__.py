@@ -99,19 +99,19 @@ def get_url_from_path(path, **kwargs):
 
 
 # New importing of routes and blueprints
-from tinker.admin.bethel_alert import BethelAlertView
-from tinker.admin.program_search import ProgramSearchView
-from tinker.admin.publish import PublishView
-from tinker.admin.redirects import RedirectsView
-from tinker.admin.sync import SyncView
-from tinker.admin.user_roles import UserRolesView
-from tinker.e_announcements import EAnnouncementsView
-from tinker.events import EventsView
-from tinker.faculty_bios import FacultyBiosView
-from tinker.news import NewsView
-from tinker.office_hours import OfficeHoursView
-from tinker.views import View
-from tinker.unit_test_interface import UnitTestInterfaceView
+# from tinker.admin.bethel_alert import BethelAlertView
+# from tinker.admin.program_search import ProgramSearchView
+# from tinker.admin.publish import PublishView
+# from tinker.admin.redirects import RedirectsView
+# from tinker.admin.sync import SyncView
+# from tinker.admin.user_roles import UserRolesView
+# from tinker.e_announcements import EAnnouncementsView
+# from tinker.events import EventsView
+# from tinker.faculty_bios import FacultyBiosView
+# from tinker.news import NewsView
+# from tinker.office_hours import OfficeHoursView
+# from tinker.views import View
+# from tinker.unit_test_interface import UnitTestInterfaceView
 
 
 # BethelAlertView.register(app)
@@ -125,7 +125,7 @@ from tinker.unit_test_interface import UnitTestInterfaceView
 # FacultyBiosView.register(app)
 # NewsView.register(app)
 # OfficeHoursView.register(app)
-View.register(app)
+# View.register(app)
 # UnitTestInterfaceView.register(app)
 
 
@@ -134,6 +134,9 @@ View.register(app)
 #     base = TinkerController()
 #     base.before_request()
 
+@app.route("/test", methods=["GET"])
+def test():
+    return 'TEST'
 
 @app.route("/logout", methods=["GET"])
 def logout():
