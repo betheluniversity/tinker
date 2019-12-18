@@ -95,12 +95,12 @@ from tinker.tinker_controller import TinkerController
 
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import
-def get_url_from_path(path, **kwargs):
-    with app.app_context():
-        url_to_return = url_for(path, **kwargs)
-        if app.config['SERVER_NAME'] in url_to_return:
-            url_to_return = url_to_return.split(app.config['SERVER_NAME'])[1]
-        return url_to_return
+# def get_url_from_path(path, **kwargs):
+#     with app.app_context():
+#         url_to_return = url_for(path, **kwargs)
+#         if app.config['SERVER_NAME'] in url_to_return:
+#             url_to_return = url_to_return.split(app.config['SERVER_NAME'])[1]
+#         return url_to_return
 
 
 # New importing of routes and blueprints
@@ -116,7 +116,7 @@ from tinker.faculty_bios import FacultyBiosView
 from tinker.news import NewsView
 from tinker.office_hours import OfficeHoursView
 from tinker.views import View
-from tinker.unit_test_interface import UnitTestInterfaceView
+# from tinker.unit_test_interface import UnitTestInterfaceView
 
 
 BethelAlertView.register(app)
@@ -131,7 +131,7 @@ FacultyBiosView.register(app)
 NewsView.register(app)
 OfficeHoursView.register(app)
 View.register(app)
-UnitTestInterfaceView.register(app)
+# UnitTestInterfaceView.register(app)
 
 
 @app.before_request
