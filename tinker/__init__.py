@@ -17,43 +17,43 @@ app = Flask(__name__)
 def test():
     return 'TEST'
 
-if "travis" not in platform.node():
-    TRAVIS_TESTING = False
-    app.config.from_object('config.config')
-else:
-    import ast
-    import glob
-    TRAVIS_TESTING = True
-    app.debug = True
-    keywords = []
-
-    dist_path = os.path.dirname(__file__) + "/../config/dist"
-    os.chdir(dist_path)
-    for file in glob.glob("*.dist"):
-        with open(dist_path + "/" + file) as f:
-            keyword_lines = f.readlines()
-            for line in keyword_lines:
-                possible_keyword = line.split(" = ")[0]
-                if possible_keyword.isupper():
-                    keywords.append(possible_keyword)
-    for kw in keywords:
-        if kw in ['_basedir', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_MIGRATE_REPO', 'PROGRAM_SEARCH_CSV', 'REDIRECTS_FILE_PATH']:
-            continue
-        value = os.environ[kw]
-        if "[" in value or "{" in value:
-            try:
-                value = ast.literal_eval(os.environ[kw])
-            except SyntaxError:
-                print("Errored on {}: {}".format(kw, value))
-        app.config[kw] = value
-
-    # These config vars require code operations, and aren't just values
-    _basedir = os.path.abspath(os.path.dirname(__file__))
-    app.config['_basedir'] = _basedir
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db')
-    app.config['SQLALCHEMY_MIGRATE_REPO'] = os.path.join(_basedir, 'db_repository')
-    app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../testing_programs.csv')
-    app.config['REDIRECTS_FILE_PATH'] = os.path.join(_basedir, '../redirects.txt')
+# if "travis" not in platform.node():
+TRAVIS_TESTING = False
+app.config.from_object('config.config')
+# else:
+#     import ast
+#     import glob
+#     TRAVIS_TESTING = True
+#     app.debug = True
+#     keywords = []
+#
+#     dist_path = os.path.dirname(__file__) + "/../config/dist"
+#     os.chdir(dist_path)
+#     for file in glob.glob("*.dist"):
+#         with open(dist_path + "/" + file) as f:
+#             keyword_lines = f.readlines()
+#             for line in keyword_lines:
+#                 possible_keyword = line.split(" = ")[0]
+#                 if possible_keyword.isupper():
+#                     keywords.append(possible_keyword)
+#     for kw in keywords:
+#         if kw in ['_basedir', 'SQLALCHEMY_DATABASE_URI', 'SQLALCHEMY_MIGRATE_REPO', 'PROGRAM_SEARCH_CSV', 'REDIRECTS_FILE_PATH']:
+#             continue
+#         value = os.environ[kw]
+#         if "[" in value or "{" in value:
+#             try:
+#                 value = ast.literal_eval(os.environ[kw])
+#             except SyntaxError:
+#                 print("Errored on {}: {}".format(kw, value))
+#         app.config[kw] = value
+#
+#     # These config vars require code operations, and aren't just values
+#     _basedir = os.path.abspath(os.path.dirname(__file__))
+#     app.config['_basedir'] = _basedir
+#     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(_basedir, '../config/app.db')
+#     app.config['SQLALCHEMY_MIGRATE_REPO'] = os.path.join(_basedir, 'db_repository')
+#     app.config['PROGRAM_SEARCH_CSV'] = os.path.join(_basedir, '../testing_programs.csv')
+#     app.config['REDIRECTS_FILE_PATH'] = os.path.join(_basedir, '../redirects.txt')
 
 # create logging
 if not app.debug:
@@ -104,34 +104,34 @@ def get_url_from_path(path, **kwargs):
 
 
 # New importing of routes and blueprints
-from tinker.admin.bethel_alert import BethelAlertView
-from tinker.admin.program_search import ProgramSearchView
-from tinker.admin.publish import PublishView
-from tinker.admin.redirects import RedirectsView
-from tinker.admin.sync import SyncView
-from tinker.admin.user_roles import UserRolesView
-from tinker.e_announcements import EAnnouncementsView
-from tinker.events import EventsView
-from tinker.faculty_bios import FacultyBiosView
-from tinker.news import NewsView
-from tinker.office_hours import OfficeHoursView
+# from tinker.admin.bethel_alert import BethelAlertView
+# from tinker.admin.program_search import ProgramSearchView
+# from tinker.admin.publish import PublishView
+# from tinker.admin.redirects import RedirectsView
+# from tinker.admin.sync import SyncView
+# from tinker.admin.user_roles import UserRolesView
+# from tinker.e_announcements import EAnnouncementsView
+# from tinker.events import EventsView
+# from tinker.faculty_bios import FacultyBiosView
+# from tinker.news import NewsView
+# from tinker.office_hours import OfficeHoursView
 from tinker.views import View
-from tinker.unit_test_interface import UnitTestInterfaceView
+# from tinker.unit_test_interface import UnitTestInterfaceView
 
 
-BethelAlertView.register(app)
-ProgramSearchView.register(app)
-PublishView.register(app)
-RedirectsView.register(app)
-SyncView.register(app)
-UserRolesView.register(app)
-EAnnouncementsView.register(app)
-EventsView.register(app)
-FacultyBiosView.register(app)
-NewsView.register(app)
-OfficeHoursView.register(app)
+# BethelAlertView.register(app)
+# ProgramSearchView.register(app)
+# PublishView.register(app)
+# RedirectsView.register(app)
+# SyncView.register(app)
+# UserRolesView.register(app)
+# EAnnouncementsView.register(app)
+# EventsView.register(app)
+# FacultyBiosView.register(app)
+# NewsView.register(app)
+# OfficeHoursView.register(app)
 View.register(app)
-UnitTestInterfaceView.register(app)
+# UnitTestInterfaceView.register(app)
 
 
 @app.before_request
