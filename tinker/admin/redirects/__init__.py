@@ -32,6 +32,7 @@ class RedirectsView(FlaskView):
 
     # Redirects homepage
     def index(self):
+        default_expiration_date = datetime.now() + timedelta(days=365*3)
         redirects = self.base.get_all_rows()
         return render_template('admin/redirects/home.html', **locals())
 
