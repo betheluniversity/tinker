@@ -15,13 +15,22 @@
             </p>
             <div class="large-6 columns small-3">
                 <ul class="btn-group-horizontal">
+                {% set first_date = form.first_date.split(" ") -%}
+
+                <p>{{ first_date }} {{ hour_today }} {{ tomorrow }}</p>
                     {% if form.workflow_status %}
                         <li>This announcement is pending approval.</li>
                     {% else %}
                         {% if not form.first_date_past and not form.second_date_past %}
                             <li>
-                                <a href="{{ url_for('EAnnouncementsView:edit', e_announcement_id=form.id) }}"
-                                   class="btn btn-primary">Edit</a></li>
+                                {% if (first_date[1] != tomorrow.month) or (first_date[1] == tomorrow.month and first_date[2] != tomorrow.day) %}
+                                    <a href="{{ url_for('EAnnouncementsView:edit', e_announcement_id=form.id) }}"
+                                       class="btn btn-primary">Edit</a>
+                                {% elif hour_today < 13 %}
+                                    <a href="{{ url_for('EAnnouncementsView:edit', e_announcement_id=form.id) }}"
+                                       class="btn btn-primary">Edit</a>
+                                {% endif %}
+                            </li>
                         {% else %}
                             <li>
                                 <a href="{{ url_for('EAnnouncementsView:view', e_announcement_id=form.id) }}"
