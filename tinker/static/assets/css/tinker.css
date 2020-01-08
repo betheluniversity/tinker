@@ -841,6 +841,11 @@ p.text-field-info {
     top: 85px;
 }
 
+#uneditable {
+    display:block;
+    margin-bottom: 1em;
+}
+
 #updateTags {
     margin-bottom: 10px;
 }

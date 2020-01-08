@@ -20,13 +20,16 @@
                         <li>This announcement is pending approval.</li>
                     {% else %}
                         {% if not form.first_date_past and not form.second_date_past %}
-                            <li>
-                                {% if (first_date[1] == tomorrow.month and first_date[2] == tomorrow.day and first_date[3] == tomorrow.year) and hour_today > 13 %}
+                                {% if (first_date[1] == tomorrow.month and first_date[2] != tomorrow.day and first_date[3] == tomorrow.year) and hour_today > 13 %}
+                                    <li id="uneditable">
+                                        You can't edit after 1pm the day before an e-announcement is sent
+                                    </li>
                                 {% else %}
-                                    <a href="{{ url_for('EAnnouncementsView:edit', e_announcement_id=form.id) }}"#}
-                                       class="btn btn-primary">Edit</a>
+                                    <li>
+                                        <a href="{{ url_for('EAnnouncementsView:edit', e_announcement_id=form.id) }}"#}
+                                           class="btn btn-primary">Edit</a>
+                                    </li>
                                 {% endif %}
-                            </li>
                         {% else %}
                             <li>
                                 <a href="{{ url_for('EAnnouncementsView:view', e_announcement_id=form.id) }}"
