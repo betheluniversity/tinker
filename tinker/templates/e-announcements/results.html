@@ -16,8 +16,6 @@
             <div class="large-6 columns small-3">
                 <ul class="btn-group-horizontal">
                 {% set first_date = form.first_date.split(" ") -%}
-
-                <p>{{ first_date }} {{ hour_today }} {{ tomorrow }}</p>
                     {% if form.workflow_status %}
                         <li>This announcement is pending approval.</li>
                     {% else %}
