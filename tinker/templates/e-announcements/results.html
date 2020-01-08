@@ -21,11 +21,9 @@
                     {% else %}
                         {% if not form.first_date_past and not form.second_date_past %}
                             <li>
-                                {% if (first_date[1] != tomorrow.month) or (first_date[1] == tomorrow.month and first_date[2] != tomorrow.day) %}
-                                    <a href="{{ url_for('EAnnouncementsView:edit', e_announcement_id=form.id) }}"
-                                       class="btn btn-primary">Edit</a>
-                                {% elif hour_today < 13 %}
-                                    <a href="{{ url_for('EAnnouncementsView:edit', e_announcement_id=form.id) }}"
+                                {% if (first_date[1] == tomorrow.month and first_date[2] == tomorrow.day and first_date[3] == tomorrow.year) and hour_today > 13 %}
+                                {% else %}
+                                    <a href="{{ url_for('EAnnouncementsView:edit', e_announcement_id=form.id) }}"#}
                                        class="btn btn-primary">Edit</a>
                                 {% endif %}
                             </li>
