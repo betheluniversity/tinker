@@ -344,21 +344,25 @@ class EAnnouncementsView(FlaskView):
                 first_date = datetime.datetime.strptime(result['first_date'].replace(',', ''), '%A %B %d %Y')
                 day_before = get_day_before(first_date)
 
-                while self.base.is_bethel_holiday(day_before):
-                    if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year:
+                while self.base.is_bethel_holiday(day_before): # while the day before is a holiday
+                    if today.month == day_before.month and today.day == day_before.day \
+                            and today.year == day_before.year: # if today is the same day as a holiday make un-editable
                         search_results[count]['editable'] = False
                         break
-                    day_before = get_day_before(day_before)
+                    day_before = get_day_before(day_before) # go one day backwards
 
+                # if today is weekend or today is the day before a holiday(s) starts and after 1pm make un-editable
                 if today.weekday() == 5 or today.weekday() == 6 or \
                         (today.month == day_before.month and today.day == day_before.day
                          and today.year == day_before.year and today.hour >= 13):
                     search_results[count]['editable'] = False
+                # else if posting day is monday and today is friday and after 1pm or tomorrow is posting date and time
+                # is after 1pm make un-editable
                 elif (first_date.weekday() == 0 and (today.weekday() == 4 and today.hour >= 13)) or \
                         (today.month == tomorrow.month and today.day == tomorrow.day and today.year == tomorrow.year
                          and today.hour >= 13):
                     search_results[count]['editable'] = False
-                else:
+                else: # else make editable
                     search_results[count]['editable'] = True
 
         return render_template('e-announcements/results.html', **locals())
