@@ -331,5 +331,34 @@ class EAnnouncementsView(FlaskView):
         today = datetime.datetime.today()
         tomorrow = datetime.datetime.today() + datetime.timedelta(days=1)
 
+        def get_day_before(dto):
+            day_before = dto - datetime.timedelta(days=1)
+
+            return day_before
+
+        count = 0
+        for result in search_results:
+            if not result['first_date_past']:
+                search_results[count]['editable'] = False
+            else:
+                first_date = datetime.datetime.strptime(result['first_date'].replace(',', ''), '%A %B %d %Y')
+                yester = get_day_before(first_date)
+
+                while self.base.is_bethel_holiday(yester):
+                    if today.month == yester.month and today.day == yester.day and today.year == yester.year:
+                        search_results[count]['editable'] = False
+                        break
+                    yester = get_day_before(first_date)
+
+                if today.weekday() == 5 or today.weekday() == 6 or \
+                        (today.month == yester.month and today.day == yester.day
+                         and today.year == yester.year and today.hour >= 13):
+                    search_results[count]['editable'] = False
+                elif (first_date.weekday() == 0 and (today.weekday() == 4 and today.hour >= 13)) or \
+                        (today.month == tomorrow.month and today.day == tomorrow.day and today.year == tomorrow.year
+                         and today.hour >= 13):
+                    search_results[count]['editable'] = False
+                else:
+                    search_results[count]['editable'] = True
 
         return render_template('e-announcements/results.html', **locals())
