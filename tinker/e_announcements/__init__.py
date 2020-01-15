@@ -332,9 +332,9 @@ class EAnnouncementsView(FlaskView):
         tomorrow = datetime.datetime.today() + datetime.timedelta(days=1)
 
         def get_day_before(dto):
-            day_before = dto - datetime.timedelta(days=1)
+            yester = dto - datetime.timedelta(days=1)
 
-            return day_before
+            return yester
 
         count = 0
         for result in search_results:
@@ -342,17 +342,17 @@ class EAnnouncementsView(FlaskView):
                 search_results[count]['editable'] = False
             else:
                 first_date = datetime.datetime.strptime(result['first_date'].replace(',', ''), '%A %B %d %Y')
-                yester = get_day_before(first_date)
+                day_before = get_day_before(first_date)
 
-                while self.base.is_bethel_holiday(yester):
-                    if today.month == yester.month and today.day == yester.day and today.year == yester.year:
+                while self.base.is_bethel_holiday(day_before):
+                    if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year:
                         search_results[count]['editable'] = False
                         break
                     yester = get_day_before(first_date)
 
                 if today.weekday() == 5 or today.weekday() == 6 or \
-                        (today.month == yester.month and today.day == yester.day
-                         and today.year == yester.year and today.hour >= 13):
+                        (today.month == day_before.month and today.day == day_before.day
+                         and today.year == day_before.year and today.hour >= 13):
                     search_results[count]['editable'] = False
                 elif (first_date.weekday() == 0 and (today.weekday() == 4 and today.hour >= 13)) or \
                         (today.month == tomorrow.month and today.day == tomorrow.day and today.year == tomorrow.year
