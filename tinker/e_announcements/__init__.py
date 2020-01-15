@@ -328,14 +328,8 @@ class EAnnouncementsView(FlaskView):
         search_results, forms_header = self.base.get_search_results(selection, title, date)
         search_results.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
 
-        tomorrow = {
-            "month": time_tomorrow.strftime("%B"),
-            "day": time_tomorrow.strftime("%d"),
-            "year": time_tomorrow.strftime("%Y"),
-        }
         today = datetime.datetime.today()
         tomorrow = datetime.datetime.today() + datetime.timedelta(days=1)
 
-        hour_today = time_tomorrow.strftime("%H")
 
         return render_template('e-announcements/results.html', **locals())
