@@ -348,7 +348,7 @@ class EAnnouncementsView(FlaskView):
                     if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year:
                         search_results[count]['editable'] = False
                         break
-                    yester = get_day_before(first_date)
+                    day_before = get_day_before(day_before)
 
                 if today.weekday() == 5 or today.weekday() == 6 or \
                         (today.month == day_before.month and today.day == day_before.day
