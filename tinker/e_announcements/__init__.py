@@ -367,4 +367,6 @@ class EAnnouncementsView(FlaskView):
                                                                                   == tomorrow.day and today.year == tomorrow.year
                                                                                   and today.hour >= 13):
                     search_results[count]['editable'] = False
+            count += 1
+
         return render_template('e-announcements/results.html', **locals())
