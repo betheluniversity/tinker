@@ -354,9 +354,10 @@ class EAnnouncementsView(FlaskView):
                     day_before = get_day_before(day_before)  # go one day backwards
 
                 if ((day_before.weekday() == 5 or day_before.weekday() == 6) and (today.month == day_before.month
-                    and today.day == day_before.day and today.year == day_before.year)) or \
-                        (today.month == day_before.month and today.day == day_before.day
-                         and today.year == day_before.year and today.hour >= 13):
+                                                                                    and today.day == day_before.day
+                                                                                    and today.year == day_before.year)) \
+                        or (today.month == day_before.month and today.day == day_before.day and today.year ==
+                            day_before.year and today.hour >= 13):  # if today is weekend or today is the day before a holiday(s) starts and after 1pm make un-editable
                     search_results[count]['editable'] = False
 
                 # if the posting day is monday and today is friday and after 1pm or tomorrow is posting date and time
