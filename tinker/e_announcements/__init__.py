@@ -338,7 +338,7 @@ class EAnnouncementsView(FlaskView):
 
         count = 0
         for result in search_results:
-            if not result['first_date_past']:
+            if result['first_date_past']:
                 search_results[count]['editable'] = False
             else:
                 first_date = datetime.datetime.strptime(result['first_date'].replace(',', ''), '%A %B %d %Y')
