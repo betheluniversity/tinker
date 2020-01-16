@@ -359,7 +359,8 @@ class EAnnouncementsView(FlaskView):
                         (today.month == day_before.month and today.day == day_before.day
                          and today.year == day_before.year and today.hour >= 13):
                     search_results[count]['editable'] = False
-                # else if posting day is monday and today is friday and after 1pm or tomorrow is posting date and time
+
+                # if the posting day is monday and today is friday and after 1pm or tomorrow is posting date and time
                 # is after 1pm make un-editable
                 if (first_date.weekday() == 0 and (today.weekday() == 6 or today.weekday() == 5 or today.weekday() == 4
                                                    and today.hour >= 13)) or (first_date.month == tomorrow.month and
