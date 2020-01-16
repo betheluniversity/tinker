@@ -341,15 +341,15 @@ class EAnnouncementsView(FlaskView):
             if result['first_date_past']:
                 search_results[count]['editable'] = False
             else:
+                search_results[count]['editable'] = True
+
                 first_date = datetime.datetime.strptime(result['first_date'].replace(',', ''), '%A %B %d %Y')
                 day_before = get_day_before(first_date)
 
-                editable = True
                 while self.base.is_bethel_holiday(day_before):  # while the day before is a holiday
                     if today.month == day_before.month and today.day == day_before.day \
                             and today.year == day_before.year:  # if today is the same day as a holiday make un-editable
                         search_results[count]['editable'] = False
-                        editable = False
                         break
                     day_before = get_day_before(day_before)  # go one day backwards
 
@@ -367,6 +367,4 @@ class EAnnouncementsView(FlaskView):
                                                                                   == tomorrow.day and today.year == tomorrow.year
                                                                                   and today.hour >= 13):
                     search_results[count]['editable'] = False
-                elif editable:  # else make editable
-                    search_results[count]['editable'] = True
         return render_template('e-announcements/results.html', **locals())
