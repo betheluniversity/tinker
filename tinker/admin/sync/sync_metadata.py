@@ -105,6 +105,7 @@ graduate_programs = [
     "MBA",
     "Nurse-Midwifery (M.S.)",
     "Physician Assistant (M.S.)",
+    "Play Therapy Certificate",
     "Special Education (M.A.)",
     "STEM in K-12 Education Certificate",
     "Strategic Leadership (M.A.)",
