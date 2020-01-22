@@ -353,15 +353,20 @@ class EAnnouncementsView(FlaskView):
                         break
                     day_before = get_day_before(day_before)  # go one day backwards
 
-                if ((day_before.weekday() == 5 or day_before.weekday() == 6) and (today.month == day_before.month
-                                                                                    and today.day == day_before.day
-                                                                                    and today.year == day_before.year)) \
-                        or (today.month == day_before.month and today.day == day_before.day and today.year ==
-                            day_before.year and today.hour >= 13):  # if today is weekend or today is the day before a holiday(s) starts and after 1pm make un-editable
+                if day_before.weekday() == 6:
+                    if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year:
+                        search_results[count]['editable'] = False
+                    else:
+                        day_before = get_day_before(day_before)
+                if day_before.weekday() == 5:
+                    if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year:
+                        search_results[count]['editable'] = False
+                    else:
+                        day_before = get_day_before(day_before)
+                if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year \
+                        and today.hour >= 13:
                     search_results[count]['editable'] = False
 
-                # if the posting day is monday and today is friday and after 1pm or tomorrow is posting date and time
-                # is after 1pm make un-editable
                 if (first_date.weekday() == 0 and (today.weekday() == 6 or today.weekday() == 5 or today.weekday() == 4
                                                    and today.hour >= 13)) or (first_date.month == tomorrow.month and
                                                                               first_date.day == tomorrow.day and
