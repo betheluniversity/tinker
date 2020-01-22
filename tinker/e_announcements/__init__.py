@@ -324,6 +324,66 @@ class EAnnouncementsView(FlaskView):
             date = datetime.datetime.strptime(date, "%a %b %d %Y")
         except:
             date = 0
+
         search_results, forms_header = self.base.get_search_results(selection, title, date)
         search_results.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+
+        today = datetime.datetime.today()
+        tomorrow = datetime.datetime.today() + datetime.timedelta(days=1)
+
+        def get_day_before(dto):
+            yester = dto - datetime.timedelta(days=1)
+
+            return yester
+
+        count = 0
+        for result in search_results:
+            if result['first_date_past']:
+                search_results[count]['editable'] = False
+            else:
+                search_results[count]['editable'] = True
+
+                first_date = datetime.datetime.strptime(result['first_date'].replace(',', ''), '%A %B %d %Y')
+                day_before = get_day_before(first_date)
+
+                while self.base.is_bethel_holiday(day_before):  # while the day before is a holiday
+                    if today.month == day_before.month and today.day == day_before.day \
+                            and today.year == day_before.year:  # if today is the same day as a holiday make un-editable
+                        search_results[count]['editable'] = False
+                        break
+                    day_before = get_day_before(day_before)  # go one day backwards
+
+                # If a holiday is Monday but Sunday isn't a holiday
+                if day_before.weekday() == 6:
+
+                    if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year:
+                        # Check if today is the same day as that day, if so make it uneditable
+                        search_results[count]['editable'] = False
+                    else:
+                        # If the today isn't the same day, go a day before
+                        day_before = get_day_before(day_before)
+                # If a holiday is Monday or Sunday, but Saturday isn't a holiday
+                if day_before.weekday() == 5:
+                    if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year:
+                        # Check if today is the same day as that day, if so make it uneditable
+                        search_results[count]['editable'] = False
+                    else:
+                        # If the today isn't the same day, go a day before
+                        day_before = get_day_before(day_before)
+                # If Monday, Sunday, or Saturday are holidays but Friday isn't a holiday and it is after 1pm, then
+                # make it uneditable
+                if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year \
+                        and today.hour >= 13:
+                    search_results[count]['editable'] = False
+
+                # If the post date isn't near a holiday then just check if annz post date is for tomorrow, if so and it
+                # is after 1pm, make uneditable
+                if (first_date.weekday() == 0 and (today.weekday() == 6 or today.weekday() == 5 or today.weekday() == 4
+                                                   and today.hour >= 13)) or (first_date.month == tomorrow.month and
+                                                                              first_date.day == tomorrow.day and
+                                                                              first_date.year == tomorrow.year
+                                                                              and today.hour >= 13):
+                    search_results[count]['editable'] = False
+            count += 1
+
         return render_template('e-announcements/results.html', **locals())
