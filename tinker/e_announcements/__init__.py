@@ -353,7 +353,9 @@ class EAnnouncementsView(FlaskView):
                         break
                     day_before = get_day_before(day_before)  # go one day backwards
 
+                # If a holiday is Monday but Sunday isn't a holiday
                 if day_before.weekday() == 6:
+
                     if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year:
                         # Check if today is the same day as that day, if so make it uneditable
                         search_results[count]['editable'] = False
