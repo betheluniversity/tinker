@@ -355,18 +355,27 @@ class EAnnouncementsView(FlaskView):
 
                 if day_before.weekday() == 6:
                     if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year:
+                        # Check if today is the same day as that day, if so make it uneditable
                         search_results[count]['editable'] = False
                     else:
+                        # If the today isn't the same day, go a day before
                         day_before = get_day_before(day_before)
+                # If a holiday is Monday or Sunday, but Saturday isn't a holiday
                 if day_before.weekday() == 5:
                     if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year:
+                        # Check if today is the same day as that day, if so make it uneditable
                         search_results[count]['editable'] = False
                     else:
+                        # If the today isn't the same day, go a day before
                         day_before = get_day_before(day_before)
+                # If Monday, Sunday, or Saturday are holidays but Friday isn't a holiday and it is after 1pm, then
+                # make it uneditable
                 if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year \
                         and today.hour >= 13:
                     search_results[count]['editable'] = False
 
+                # If the post date isn't near a holiday then just check if annz post date is for tomorrow, if so and it
+                # is after 1pm, make uneditable
                 if (first_date.weekday() == 0 and (today.weekday() == 6 or today.weekday() == 5 or today.weekday() == 4
                                                    and today.hour >= 13)) or (first_date.month == tomorrow.month and
                                                                               first_date.day == tomorrow.day and
