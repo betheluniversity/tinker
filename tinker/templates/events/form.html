@@ -81,9 +81,9 @@
                     at
                     651.638.6090.</p>
                 {% if new_form %}
-                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
+                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post" onsubmit="return (typeof submitted == 'undefined') ? (submitted = true) : !submitted">
                 {% else %}
-                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
+                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post" onsubmit="return (typeof submitted == 'undefined') ? (submitted = true) : !submitted">
                     <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
                 {% endif %}
                 {% if form.errors or not dates_good and num_dates %}
