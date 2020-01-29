@@ -348,7 +348,7 @@ class EAnnouncementsView(FlaskView):
 
                 while self.base.is_bethel_holiday(day_before):  # while the day before is a holiday
                     if today.month == day_before.month and today.day == day_before.day \
-                            and today.year == day_before.year:  # if today is the same day as a holiday make un-editable
+                            and today.year == day_before.year:  # if today is the same day as a holiday or weekend make un-editable
                         search_results[count]['editable'] = False
                         break
                     day_before = get_day_before(day_before)  # go one day backwards
@@ -372,6 +372,7 @@ class EAnnouncementsView(FlaskView):
                         day_before = get_day_before(day_before)
                 # If Monday, Sunday, or Saturday are holidays but Friday isn't a holiday and it is after 1pm, then
                 # make it uneditable
+                # If the today isn't a holiday or weekend, and it is after 1pm, make e-annz uneditable
                 if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year \
                         and today.hour >= 13:
                     search_results[count]['editable'] = False
