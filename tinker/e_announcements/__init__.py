@@ -346,7 +346,7 @@ class EAnnouncementsView(FlaskView):
                 first_date = datetime.datetime.strptime(result['first_date'].replace(',', ''), '%A %B %d %Y')
                 day_before = get_day_before(first_date)
 
-                while self.base.is_bethel_holiday(day_before):  # while the day before is a holiday
+                while self.base.is_bethel_holiday(day_before) or day_before.weekday() > 4:  # while the day before is a holiday
                     if today.month == day_before.month and today.day == day_before.day \
                             and today.year == day_before.year:  # if today is the same day as a holiday or weekend make un-editable
                         search_results[count]['editable'] = False
