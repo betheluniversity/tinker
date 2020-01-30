@@ -114,7 +114,7 @@ from tinker.e_announcements import EAnnouncementsView
 from tinker.events import EventsView
 from tinker.faculty_bios import FacultyBiosView
 from tinker.news import NewsView
-from tinker.office_hours import OfficeHoursView
+# from tinker.office_hours import OfficeHoursView
 from tinker.views import View
 # from tinker.unit_test_interface import UnitTestInterfaceView
 
@@ -129,7 +129,7 @@ EAnnouncementsView.register(app)
 EventsView.register(app)
 FacultyBiosView.register(app)
 NewsView.register(app)
-OfficeHoursView.register(app)
+# OfficeHoursView.register(app)
 View.register(app)
 # UnitTestInterfaceView.register(app)
 

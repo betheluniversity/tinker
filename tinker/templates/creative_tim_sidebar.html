@@ -42,12 +42,12 @@
                 </li>
             {% endif %}
 
-            <li class="{% if 'office-hours/' in request.path %}active{% endif %}">
-                <a href="{{ url_for('OfficeHoursView:index') }}">
-                    <i class="fa fa-clock-o"></i>
-                    <p>Office Hours</p>
-                </a>
-            </li>
+{#            <li class="{% if 'office-hours/' in request.path %}active{% endif %}">#}
+{#                <a href="{{ url_for('OfficeHoursView:index') }}">#}
+{#                    <i class="fa fa-clock-o"></i>#}
+{#                    <p>Office Hours</p>#}
+{#                </a>#}
+{#            </li>#}
 
             {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] or 'ITS - Help Desk Employees' in session['iam_groups'] %}
                 <li class="dropdown {% if 'admin/' in request.path %}active{% endif %}">
