@@ -54,7 +54,7 @@ adult_undergrad_programs = [
     "Finance (B.S.)",
     "Human Services (B.A.)",
     "Management Information Systems (B.S.)",
-    "Nursing (RN to B.S.)",
+    "Nursing (RN to B.S.N.)",
     "Organizational Leadership (B.A.)",
     "Post-Baccalaureate Nursing (B.S)",
     "Psychology (B.A.)",
