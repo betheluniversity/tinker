@@ -137,8 +137,7 @@ class EAnnouncementsController(TinkerController):
         if e_announcement_id:
             add_data['id'] = e_announcement_id
 
-        # TODO: need to rename name to something else before this launches
-        add_data['name'] = session['name']
+        add_data['submitter_name'] = session['name']
 
         self.update_asset(e_announcement_data, add_data)
 
