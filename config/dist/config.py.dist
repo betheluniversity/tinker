@@ -1,73 +1,144 @@
 import os
 _basedir = os.path.abspath(os.path.dirname(__file__))
 
-from e_announcements_config import *
-from events_config import *
-from redirects_config import *
-from sync_config import *
-from faculty_bio_config import *
-from office_hours_config import *
-from program_search_config import *
-from news_config import *
 
-# Foundation configs
-FOUNDATION_USE_MINIFIED = True
-FOUNDATION_USE_CDN = True
+class Config(object):
+    ###########################
+    # General Config
+    ###########################
+    SENTRY_URL = ''
+    ENVIRON = "test"
+    UNIT_TESTING = False
+    TEST_USER = ''
+    TEST_GROUPS = ''
+    ADMINS = ['']
 
-# emails
-ADMINS = []
 
-SENTRY_URL = ''
+    ###########################
+    # Flask
+    ###########################
+    SECRET_KEY = ''
+    PRESERVE_CONTEXT_ON_EXCEPTION = False
+    CACHE_DEFAULT_TIMEOUT = 300
 
-# Cascade / Events
-secret_key = ""
-SECRET_KEY = ""
 
-ENVIRON = "test"
-UNIT_TESTING = False
-TEST_USER = ''
-TEST_GROUPS = ''
+    ##########################
+    # SQLAlchemy
+    ##########################
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-CASCADE_MD_ROLES_ID = ''
-SITE_ID = ""
-STAGING_DESTINATION_ID = ''
+    INSTALL_LOCATION = ''
 
-CASCADE_LOGIN = {}
+    ###########################
+    # Cascade
+    ###########################
+    SITE_ID = ''
+    STAGING_DESTINATION_ID = ''
+    CASCADE_LOGIN = {'username': "", 'password': ""}
+    SOAP_URL = ''
 
-API_USERNAME = ''
-API_PASSWORD = ''
 
-BASE_URL = ""
-SOAP_URL = ""
-WSDL_URL = ''
-API_URL = ''
+    ###########################
+    # API
+    ###########################
+    API_URL = ''
+    API_USERNAME = ''
+    API_PASSWORD = ''
 
-CACHE_DEFAULT_TIMEOUT = 300
-SQLALCHEMY_TRACK_MODIFICATIONS = False
-PRESERVE_CONTEXT_ON_EXCEPTION = False
-SERVER_NAME = ''
 
-INSTALL_LOCATION = ''
+    ###########################
+    # E-announcements
+    ###########################
+    E_ANNOUNCEMENTS_WORKFLOW_ID = ''
+    E_ANNOUNCEMENTS_CAMPAIGN_MONITOR_KEY = ''
+    E_ANNOUNCEMENTS_LIST_KEY = ''
+    E_ANNOUNCEMENTS_CLIENT_ID = ''
+    E_ANNOUNCEMENTS_SEGMENT_ID = ''
+    E_ANNOUNCEMENTS_TEMPLATE_ID = ''
+    E_ANNOUNCEMENTS_XML_URL = ''
+    E_ANNOUNCEMENTS_XML_ID = ''
+    E_ANNOUNCEMENTS_BASE_ASSET = ''
+    BASE_ASSET_BASIC_FOLDER = ''
 
-WSAPI_SECRET = ''
 
-# Wufoo
-API_KEYS = []
-WUFOO_BASE_URL = ''
+    ###########################
+    # Events
+    ###########################
+    EVENTS_FOLDER_ID = ''
+    EVENTS_WORKFLOW_ID = ''
+    EVENTS_BASE_ASSET = ''
+    EVENTS_XML_URL = ''
+    BASE_ASSET_EVENT_FOLDER = ''
+    EVENT_XML_ID = ''
 
-UPLOAD_FOLDER = ''
-BASE_ASSET_BASIC_FOLDER = ''
 
-THUMBOR_STORAGE_LOCATION = ''
-THUMBOR_RESULT_STORAGE_LOCATION = ''
-THUMBOR_CALL_CMD = []
+    ###########################
+    # Faculty Bios
+    ###########################
+    FACULTY_BIOS_XML_URL = ''
+    FACULTY_BIOS_XML_ID = ''
+    FACULTY_BIOS_BASE_ASSET = ''
+    IMAGE_BASE_ASSET = ''
+    IMAGE_WITH_DEFAULT_IMAGE_BASE_ASSET = ''
+    FACULTY_BIOS_WORKFLOW_CAS_ID = ''
+    FACULTY_BIOS_WORKFLOW_CAPSGS_ID = ''
+    FACULTY_BIOS_WORKFLOW_SEM_ID = ''
+    UPLOAD_FOLDER = ''
 
-FACULTY_LISTING_CAPS_ID = ''
-FACULTY_LISTING_GS_ID = ''
-FACULTY_LISTING_SEM_ID = ''
-FACULTY_LISTING_CAS_ID = ''
 
-LOGOUT_URL = ""
+    ###########################
+    # News
+    ###########################
+    NEWS_CAMPAIGN_MONITOR_KEY = ''
+    NEWS_LIST_KEY = ''
+    NEWS_CLIENT_ID = ''
+    NEWS_SEGMENT_ID = ''
+    NEWS_TEMPLATE_ID = ''
+    NEWS_XML_URL = ''
 
-LDAP_SVC_TINKER_PASSWORD = ''
-LDAP_CONNECTION_INFO = ''
+
+    ###########################
+    # Office Hours (not launched)
+    ###########################
+    OFFICE_HOURS_XML_URL = ''
+    OFFICE_HOURS_STANDARD_BLOCK = ''
+    OFFICE_HOURS_EXTRA_ADMINS = []
+
+    # not currently used
+    LDAP_SVC_TINKER_PASSWORD = ''
+
+
+    ###########################
+    # Program Search
+    ###########################
+    PROGRAMS_XML = ''
+    PROGRAM_SEARCH_CSV = ''
+
+
+    ###########################
+    # Redirects
+    ###########################
+    REDIRECTS_FILE_PATH = ''
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(_basedir, 'app.db')
+    SQLALCHEMY_MIGRATE_REPO = os.path.join(_basedir, 'db_repository')
+    GSPREAD_CONFIG = ''
+
+
+    ###########################
+    # Sync
+    ###########################
+    METADATA_EVENT_ID = ''
+    METADATA_ROBUST_ID = ''
+    METADATA_JOB_POSTING_ID = ''
+    METADATA_PORTAL_ROLES_ID = ''
+    METADATA_OFFICES_ID = ''
+    DATA_DEF_FACULTY_BIO_ID = ''
+    DATA_DEF_PROGRAM_FEED_ID = ''
+    DATA_DEF_PROGRAM_BLOCK_ID = ''
+    DATA_DEF_PORTAL_CHANNEL_ID = ''
+    DATA_DEF_PORTAL_TAB_ID = ''
+    DATA_DEF_PROGRAM_SEARCH_ID = ''
+
+    # sync for prayer requests and memorial notices
+    PRAYER_AND_MEMORIAL_XML = ''
+    PRAYER_AND_MEMORIAL_ID = ''

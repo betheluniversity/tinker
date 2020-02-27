@@ -36,3 +36,13 @@ flask_profiler.sql
 
 programs.csv
 faculty-info.csv
+
+config_old/
+config_old/sync_config.py
+config_old/redirects_config.py
+config_old/program_search_config.py
+config_old/office_hours_config.py
+config_old/news_config.py
+config_old/faculty_bio_config.py
+config_old/events_config.py
+config_old/e_announcements_config.py

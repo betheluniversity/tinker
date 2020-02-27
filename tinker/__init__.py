@@ -19,7 +19,7 @@ def test():
 
 # if "travis" not in platform.node():
 TRAVIS_TESTING = False
-app.config.from_object('config.config')
+app.config.from_object('config.config.Config')
 # else:
 #     import ast
 #     import glob
