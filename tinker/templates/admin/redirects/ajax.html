@@ -23,7 +23,7 @@
             data-id="{{ redirect.id }}" data-username="{{ redirect.username }}"
             data-timestamp="{{ data_timestamp }}" data-exp-date="{{ redirect.expiration_date }}"
              data-from-path="{{ redirect.from_path }}" data-to-url="{{ redirect.to_url }}"
-             data-short-url="{{ redirect.short_url }}" data-last-edited="{{ data_last_edited }}">
+             data-short-url="{{ redirect.short_url }}" data-last-edited="{{ data_last_edited }}" data-notes="{{ redirect.notes }}">
                 <i class="fa fa-info-circle"></i>
             </div>
         </td>
@@ -39,6 +39,9 @@
 
         <!-- To URL -->
         <td class="to_url">{{ redirect.to_url }}</td>
+
+        <!-- Notes -->
+        <td class="notes">{% if redirect.notes %}{{ redirect.notes }}{% endif %}</td>
 
         <!-- Delete Column -->
         <td>

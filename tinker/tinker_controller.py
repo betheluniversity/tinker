@@ -711,30 +711,40 @@ class TinkerController(object):
                             headers={'Cache-Control': 'no-cache'})
 
     # Because of how SFTP is set up on wlp-fn2187, all these paths will be automatically prefixed with /var/www
-    def write_redirects_to_sftp(self, from_path, to_path, cron):
+    def write_to_sftp(self, from_path, to_path, cron, program_search=False):
         try:
             ssh_key_object = RSAKey(filename=app.config['SFTP_SSH_KEY_PATH'],
                                     password=app.config['SFTP_SSH_KEY_PASSPHRASE'])
-
             remote_server_public_key = HostKeyEntry.from_line(app.config['SFTP_REMOTE_HOST_PUBLIC_KEY']).key
             # This will throw a warning, but the (string, int) tuple will automatically be parsed into a Socket object
             remote_server = Transport((app.config['SFTP_REMOTE_HOST'], 22))
             remote_server.connect(hostkey=remote_server_public_key, username=app.config['SFTP_USERNAME'], pkey=ssh_key_object)
-
             sftp = SFTPClient.from_transport(remote_server)
             sftp.put(from_path, to_path)
             if cron:
                 return 'SFTP publish from %s to %s succeeded' % (from_path, to_path)
             else:
-                return fjson.dumps({
-                    'type': 'success',
-                    'message': 'Redirect updates successful'
-                })
-        except:
+                if program_search:
+                    return fjson.dumps({
+                        'type': 'success',
+                        'message': 'Program Search updates successful'
+                    })
+                else:
+                    return fjson.dumps({
+                        'type': 'success',
+                        'message': 'Redirect updates successful'
+                    })
+        except Exception as e:
             if cron:
                 return 'SFTP publish from %s to %s failed' % (from_path, to_path)
             else:
-                return fjson.dumps({
-                    'type': 'danger',
-                    'message': 'Redirect updates failed'
-                })
+                if program_search:
+                    return fjson.dumps({
+                        'type': 'danger',
+                        'message': 'Program Search updates failed'
+                    })
+                else:
+                    return fjson.dumps({
+                        'type': 'danger',
+                        'message': 'Redirect updates failed'
+                    })

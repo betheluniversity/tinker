@@ -324,6 +324,39 @@ class EAnnouncementsView(FlaskView):
             date = datetime.datetime.strptime(date, "%a %b %d %Y")
         except:
             date = 0
+
         search_results, forms_header = self.base.get_search_results(selection, title, date)
         search_results.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
+
+        today = datetime.datetime.today()
+        tomorrow = datetime.datetime.today() + datetime.timedelta(days=1)
+
+        def get_day_before(dto):
+            yester = dto - datetime.timedelta(days=1)
+
+            return yester
+
+        count = 0
+        for result in search_results:
+            if result['first_date_past']:
+                search_results[count]['editable'] = False
+            else:
+                search_results[count]['editable'] = True
+
+                first_date = datetime.datetime.strptime(result['first_date'].replace(',', ''), '%A %B %d %Y')
+                day_before = get_day_before(first_date)
+
+                while self.base.is_bethel_holiday(day_before) or day_before.weekday() > 4:  # while the day before is a holiday
+                    if today.month == day_before.month and today.day == day_before.day \
+                            and today.year == day_before.year:  # if today is the same day as a holiday or weekend make un-editable
+                        search_results[count]['editable'] = False
+                        break
+                    day_before = get_day_before(day_before)  # go one day backwards
+                # If the today isn't a holiday or weekend, and it is after 1pm, make e-annz uneditable
+                if today.month == day_before.month and today.day == day_before.day and today.year == day_before.year \
+                        and today.hour >= 13:
+                    search_results[count]['editable'] = False
+
+            count += 1
+
         return render_template('e-announcements/results.html', **locals())
