@@ -93,7 +93,7 @@ class OfficeHoursController(TinkerController):
     def update_structure(self, data, mdata, rform):
         add_data = self.get_add_data(mdata, rform)
         add_data['exceptions'] = self.get_exceptions(rform)
-        for key, value in add_data.iteritems():
+        for key, value in add_data.items():
             if not value:
                 continue
 

@@ -4,7 +4,7 @@ import calendar
 import json
 import re
 import unittest
-from cStringIO import StringIO
+from io import StringIO
 from datetime import datetime, timedelta
 
 # Packages

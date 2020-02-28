@@ -66,9 +66,9 @@ def pretty_print(obj, depth=0, console=True):
             to_return += tab + "'%s': " % key + pretty_print(obj[key], depth=depth + 1, console=console) \
                          + ',' + newline + indent
         to_return += '}'
-    elif isinstance(obj, (str, unicode)):
+    elif isinstance(obj, (str, str)):
         to_return += "'%s'" % obj
-    elif isinstance(obj, (int, long, float)):
+    elif isinstance(obj, (int, float)):
         to_return += str(obj)
     else:
         # This should be equivalent to str(obj) for most cases, but this is more robust in case anyone wrote a custom
@@ -95,4 +95,4 @@ def describe(object_to_describe):
         'vars': vars_dict_copy,
         'methods': dir(object_to_describe)
     }
-    print pretty_print(to_return)
+    print(pretty_print(to_return))

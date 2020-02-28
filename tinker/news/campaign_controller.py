@@ -1,10 +1,9 @@
 # Global
 import datetime
-import HTMLParser
+import html
 import pytz
 
 # Packages
-from BeautifulSoup import BeautifulStoneSoup
 from bu_cascade.asset_tools import find, update
 from flask import render_template
 
@@ -52,17 +51,16 @@ class NewsController(TinkerController):
         return page_values
 
     def create_single_news_article(self, article_asset, news_article_datetime):
-        parser = HTMLParser.HTMLParser()
         try:
             date = news_article_datetime.strftime('%A, %B %-d, %Y')
             path = find(article_asset, 'path', False)
-            title = parser.unescape(find(article_asset, 'title', False).decode('utf-8'))
+            title = html.unescape(find(article_asset, 'title', False))
 
             content_type = find(article_asset, 'contentTypePath', False)
 
             news_flex_content = find(article_asset, 'teaser', False)  # get content
             image_path = find(article_asset, 'feed-image', False)['filePath']
-            content = parser.unescape(news_flex_content.decode('utf-8'))
+            content = html.unescape(news_flex_content)
         except:
             return ''
 

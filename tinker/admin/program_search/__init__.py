@@ -38,7 +38,7 @@ class ProgramSearchView(FlaskView):
         program_concentrations = self.base.get_programs_for_dropdown()
 
         try:
-            rform = self.base.dictionary_encoder.encode(json.loads(request.data))
+            rform = json.loads(request.data)
             key = rform.get('key')
             tag = rform.get('tag')
 
@@ -68,10 +68,8 @@ class ProgramSearchView(FlaskView):
     def multi_delete(self):
         list_of_ids_to_delete = json.loads(request.data)
         for id_to_delete in list_of_ids_to_delete:
-            if isinstance(id_to_delete, unicode):
-                id_to_delete = id_to_delete.encode('utf-8').strip()
-
             if isinstance(id_to_delete, str):
+                id_to_delete = id_to_delete.strip()
                 ProgramTag.query.filter_by(id=id_to_delete).delete()
             else:
                 return "One of the ids given to this method was not a string"
@@ -109,7 +107,7 @@ class ProgramSearchView(FlaskView):
     @route('/search', methods=['post'])
     def search(self):
         try:
-            data = self.base.dictionary_encoder.encode(json.loads(request.data))
+            data = json.loads(request.data)
 
             search_tag = data['search_tag']
             if search_tag is None:
@@ -170,7 +168,7 @@ class ProgramSearchView(FlaskView):
 
     @route('/database-audit-update', methods=['post'])
     def database_audit_update(self):
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         old_key = data['old_key']
         new_key = data['new_key']
 
@@ -182,7 +180,7 @@ class ProgramSearchView(FlaskView):
 
     @route('/database-audit-delete', methods=['post'])
     def database_audit_delete(self):
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         old_key = data['old_key']
 
         search_results = ProgramTag.query.filter(ProgramTag.key == old_key).delete()

@@ -126,10 +126,13 @@ class SyncController(TinkerController):
     def git_pull(self):
         # don't pull locally. It's just a bad idea.
         if 'User' not in app.config['INSTALL_LOCATION']:
-            import commands
-            commands.getoutput(
-                "cd %s; git fetch --all; git reset --hard origin/master" % app.config['INSTALL_LOCATION'])
-            reload(sys.modules['tinker.admin.sync.sync_metadata'])
+            from subprocess import call
+            import importlib
+
+            # using "shell=True" is a security hazard. We need to make sure that we don't put anything outside of
+            # app.config['INSTALL_LOCATION'] in here. Even that is a bit risky.
+            call("cd %s; git fetch --all; git reset --hard origin/master" % app.config['INSTALL_LOCATION'], shell=True)
+            importlib.reload(sys.modules['tinker.admin.sync.sync_metadata'])
 
     def get_mapping_keys(self):
         mapping_key_values = {

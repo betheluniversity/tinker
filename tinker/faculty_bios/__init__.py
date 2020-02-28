@@ -14,7 +14,7 @@ from unidecode import unidecode
 # Local
 from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
-from faculty_bio_controller import FacultyBioController
+from tinker.faculty_bios.faculty_bio_controller import FacultyBioController
 
 
 class FacultyBiosView(FlaskView):
@@ -120,7 +120,7 @@ class FacultyBiosView(FlaskView):
 
         # import this here so we dont load all the content
         # from cascade during homepage load
-        from forms import FacultyBioForm
+        from tinker.faculty_bios.forms import FacultyBioForm
 
         form = FacultyBioForm()
         roles = session['roles']
@@ -140,7 +140,7 @@ class FacultyBiosView(FlaskView):
 
     @route('/toggle-courseleaf-user', methods=['post'])
     def toggle_courseleaf(self):
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         faculty_bio_id = data['id']
 
         page = self.base.read_page(faculty_bio_id)
@@ -167,7 +167,7 @@ class FacultyBiosView(FlaskView):
         if self.base.asset_in_workflow(faculty_bio_id):
             return redirect('/faculty-bios/in-workflow', code=302)
 
-        from forms import FacultyBioForm
+        from tinker.faculty_bios.forms import FacultyBioForm
         form = FacultyBioForm()
 
         roles = session['roles']
@@ -188,7 +188,7 @@ class FacultyBiosView(FlaskView):
             edit_data['courseleaf_user'] = 'Yes'
 
         # pull the add_to_bio data up one level
-        for key, value in edit_data['add_to_bio'].iteritems():
+        for key, value in edit_data['add_to_bio'].items():
             edit_data[key] = value
 
         # Create an EventForm object with our data
@@ -205,13 +205,13 @@ class FacultyBiosView(FlaskView):
 
     @route('/submit', methods=['POST'])
     def submit(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
+        rform = request.form
         username = session['username']
         groups = session['groups']
 
         faculty_bio_id = rform.get('faculty_bio_id')
 
-        validated_form = self.base.validate_form(rform.internal_dictionary())
+        validated_form = self.base.validate_form(rform)
         if bool(validated_form.errors):  # Evaluates to False if there are no entries in the dictionary of errors
             if 'faculty_bio_id' in request.form.keys():
                 faculty_bio_id = request.form['faculty_bio_id']
@@ -253,7 +253,7 @@ class FacultyBiosView(FlaskView):
 
     @route('/activate', methods=['post'])
     def activate(self):
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         faculty_bio_id = data['id']
         activate_page = data['activate']
 

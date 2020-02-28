@@ -4,14 +4,13 @@ import json
 import time
 
 # Packages
-from bu_cascade.asset_tools import update
+from bu_cascade.asset_tools import update, convert_asset
 from flask import redirect, session, render_template, request, url_for
 from flask_classy import FlaskView, route
-# python 2.6 or earlier -- Todo: when we upgrade, use from collections import OrderedDict
-from ordereddict import OrderedDict
+from collections import OrderedDict
 
 # Local
-from events_metadata import metadata_list
+from tinker.events.events_metadata import metadata_list
 from tinker import app, cache
 from tinker.events.events_controller import EventsController
 
@@ -91,12 +90,12 @@ class EventsView(FlaskView):
 
     @route("/submit", methods=['post'])
     def submit(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
+        rform = request.form
         username = session['username']
         eid = rform.get('event_id')
         dates, num_dates = self.base.get_event_dates(rform)
         dates_str, dates_good = self.base.check_event_dates(dates)
-        form, passed = self.base.validate_form(rform.internal_dictionary(), dates_good)
+        form, passed = self.base.validate_form(rform, dates_good)
         workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
         if not passed:
@@ -153,7 +152,7 @@ class EventsView(FlaskView):
     @route("/search", methods=['POST'])
     def search(self):
         # Load the data, get the event type selection and title of the event the user is searching for
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         selection = data['selection']
         title = data['title']
         try:
@@ -166,5 +165,5 @@ class EventsView(FlaskView):
             end = 0
 
         search_results, forms_header = self.base.get_search_results(selection, title, start, end)
-        search_results.sort(key=lambda event: event['event-dates'][0], reverse=False)
+        search_results.sort(key=lambda event: event['event-dates'][0]['start'], reverse=False)
         return render_template('events/search-results.html', list_of_events=search_results, formsHeader=forms_header)

@@ -42,6 +42,6 @@ def transport_error(e):
     return error_render_template('error/503.html', e, 503)
 
 
-# @app.errorhandler(Exception)
-# def unhandled_exception(e):
-#     return error_render_template('error/500.html', e)
+@app.errorhandler(Exception)
+def unhandled_exception(e):
+    return error_render_template('error/500.html', e)

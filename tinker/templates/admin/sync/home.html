@@ -41,7 +41,7 @@
                 <div>
                     <label>Data Definitions
                         <select id="data-definition">
-                            {% for id, name in data_definition_mapping.iteritems() %}
+                            {% for id, name in data_definition_mapping.items() %}
                                 <option value="{{ id }}">{{ name }}</option>
                             {% endfor %}
                         </select>
@@ -57,7 +57,7 @@
                 <div>
                     <label>Metadata Sets
                         <select id="metadata-set">
-                            {% for id, name in metadata_sets_mapping.iteritems() %}
+                            {% for id, name in metadata_sets_mapping.items() %}
                                 <option value="{{ id }}">{{ name }}</option>
                             {% endfor %}
                         </select>

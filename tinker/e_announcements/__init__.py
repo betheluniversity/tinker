@@ -6,13 +6,13 @@ from bu_cascade.asset_tools import find
 from createsend import Campaign, CreateSend
 from flask import abort, render_template, session
 from flask_classy import FlaskView, request, route
-from ordereddict import OrderedDict
+from collections import OrderedDict
 
 # Local
 from tinker import app, cache
 from tinker.tinker_controller import requires_auth
-from e_announcements_controller import EAnnouncementsController
-from campaign_controller import CampaignController
+from tinker.e_announcements.e_announcements_controller import EAnnouncementsController
+from tinker.e_announcements.campaign_controller import CampaignController
 
 
 class EAnnouncementsView(FlaskView):
@@ -35,7 +35,7 @@ class EAnnouncementsView(FlaskView):
 
             forms.sort(key=lambda item: datetime.datetime.strptime(item['first_date'], '%A %B %d, %Y'), reverse=True)
 
-            if 'Tinker E-Announcements - CAS' in session['groups'] or 'E-Announcement Approver' in session['groups']:
+            if 'E-Announcement Approver' in session['groups']:
                 # The special admin view
                 all_schools = OrderedDict({
                     1: 'My E-Announcements',
@@ -81,7 +81,7 @@ class EAnnouncementsView(FlaskView):
 
     # CANT CACHE THIS
     def new(self):
-        from forms import EAnnouncementsForm
+        from tinker.e_announcements.forms import EAnnouncementsForm
         form = EAnnouncementsForm()
         new_form = True
 
@@ -143,10 +143,10 @@ class EAnnouncementsView(FlaskView):
 
     @route("/submit", methods=['post'])
     def submit(self):
-        rform = self.base.dictionary_encoder.encode(request.form)
+        rform = request.form
         eaid = rform.get('e_announcement_id')
 
-        form, passed = self.base.validate_form(rform.internal_dictionary())
+        form, passed = self.base.validate_form(rform)
         if not passed:
             if 'e_announcement_id' in rform.keys():
                 e_announcement_id = rform['e_announcement_id']
@@ -160,14 +160,14 @@ class EAnnouncementsView(FlaskView):
             status = "new"
             bid = app.config['E_ANNOUNCEMENTS_BASE_ASSET']
             e_announcement_data, mdata, sdata = self.base.cascade_connector.load_base_asset_by_id(bid, 'block')
-            asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
+            asset = self.base.update_structure(e_announcement_data, rform, e_announcement_id=eaid)
             resp = self.base.create_block(asset)
             new_eaid = resp.asset['xhtmlDataDefinitionBlock']['id']
             self.base.log_sentry('New e-announcement submission', resp)
         else:
             block = self.base.read_block(eaid)
             e_announcement_data, mdata, sdata = block.read_asset()
-            asset = self.base.update_structure(e_announcement_data, sdata, rform, e_announcement_id=eaid)
+            asset = self.base.update_structure(e_announcement_data, rform, e_announcement_id=eaid)
             # TODO: maybe add cascade logger here? would like it in block.edit_asset, but that's in bu_cascade
             resp = str(block.edit_asset(asset))
             self.base.log_sentry("E-Announcement edit submission", resp)
@@ -274,7 +274,7 @@ class EAnnouncementsView(FlaskView):
             if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
                 # Send the announcements out to ALL users at 5:30 am.
                 confirmation_email_sent_to = ', '.join(app.config['ADMINS'])
-                new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 05:30')
+                new_campaign.send(confirmation_email_sent_to, str(date.strftime('%Y-%m-%d')) + ' 5:30')
                 self.base.log_sentry("E-Announcement campaign was sent", resp)
 
             return str(resp)
@@ -301,7 +301,7 @@ class EAnnouncementsView(FlaskView):
         if 'E-Announcement Approver' not in session['groups'].split(';') and 'Administrators' not in session['groups'].split(';'):
             return abort(403)
 
-        pass_in = self.base.dictionary_encoder.encode(request.form)
+        pass_in = request.form
         date_id = pass_in.get('dateId', 'null')
         ea_display = []
 
@@ -316,7 +316,7 @@ class EAnnouncementsView(FlaskView):
 
     @route("/search", methods=['POST'])
     def search(self):
-        data = self.base.dictionary_encoder.encode(json.loads(request.data))
+        data = json.loads(request.data)
         selection = data['selection']
         title = data['title']
         date = data['date']

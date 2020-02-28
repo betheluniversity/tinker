@@ -1,5 +1,5 @@
 # Packages
-from bu_cascade.asset_tools import find
+from bu_cascade.asset_tools import find, convert_asset
 from flask_wtf import Form
 from wtforms import DateField, Field, SelectMultipleField, StringField, TextAreaField, validators, widgets
 
@@ -12,7 +12,7 @@ def get_audience_choices():
 
     base = TinkerController()
     md = base.read('/Targeted', 'metadataset')
-    audience_list = find(md, 'banner-roles')['possibleValues']['possibleValue']
+    audience_list = find(convert_asset(md), 'banner-roles')['possibleValues']['possibleValue']
 
     for checkbox_input in audience_list:
         if checkbox_input['value'] != "":
@@ -39,7 +39,7 @@ def get_audience_choices():
     }
 
     # sort list
-    audience = sorted(audience, key=lambda x: banner_roles_sort_mapping[x])
+    audience = sorted(convert_asset(audience), key=lambda x: banner_roles_sort_mapping[x])
 
     # convert back to the tuple format
     audience = [(value, value) for value in audience]
