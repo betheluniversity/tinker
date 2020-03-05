@@ -144,6 +144,7 @@ class EAnnouncementsView(FlaskView):
     @route("/submit", methods=['post'])
     def submit(self):
         rform = request.form
+        app.logger.debug("E-Announcement Submit: {0} - {1}: {2}".format(session['username'], datetime.datetime.now(), rform))
         eaid = rform.get('e_announcement_id')
 
         form, passed = self.base.validate_form(rform)

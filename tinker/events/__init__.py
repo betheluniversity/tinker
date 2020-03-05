@@ -91,6 +91,7 @@ class EventsView(FlaskView):
     @route("/submit", methods=['post'])
     def submit(self):
         rform = request.form
+        app.logger.debug("Event Submit: {0} - {1}: {2}".format(session['username'], datetime.datetime.now(), rform))
         username = session['username']
         eid = rform.get('event_id')
         dates, num_dates = self.base.get_event_dates(rform)
@@ -103,7 +104,6 @@ class EventsView(FlaskView):
                 event_id = rform['event_id']
             else:
                 new_form = True
-            author = rform["author"]
             num_dates = int(rform['num_dates'])
 
             return render_template('events/form.html', **locals())
