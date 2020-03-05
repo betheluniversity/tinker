@@ -713,9 +713,9 @@ class TinkerController(object):
     # Because of how SFTP is set up on wlp-fn2187, all these paths will be automatically prefixed with /var/www
     def write_to_sftp(self, from_path, to_path, cron, program_search=False):
         try:
-            ssh_key_object = RSAKey(filename=app.config['SFTP_SSH_KEY_PATH'],
-                                    password=app.config['SFTP_SSH_KEY_PASSPHRASE'])
-            remote_server_public_key = HostKeyEntry.from_line(app.config['SFTP_REMOTE_HOST_PUBLIC_KEY']).key
+            ssh_key_object = RSAKey.from_private_key_file(filename=app.config['SFTP_SSH_KEY_PATH'], # private key - this is the private key of the server you are connecting FROM
+                                    password=app.config['SFTP_SSH_KEY_PASSPHRASE']) # ssh passphrase
+            remote_server_public_key = HostKeyEntry.from_line(app.config['SFTP_REMOTE_HOST_PUBLIC_KEY']).key # public key - this is the public key of the server you are connecting TO
             # This will throw a warning, but the (string, int) tuple will automatically be parsed into a Socket object
             remote_server = Transport((app.config['SFTP_REMOTE_HOST'], 22))
             remote_server.connect(hostkey=remote_server_public_key, username=app.config['SFTP_USERNAME'], pkey=ssh_key_object)
