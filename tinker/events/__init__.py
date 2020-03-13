@@ -100,6 +100,7 @@ class EventsView(FlaskView):
         workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
 
         if not passed:
+            date_message = None if dates_good else "A date is required"
             if 'event_id' in rform.keys():
                 event_id = rform['event_id']
             else:

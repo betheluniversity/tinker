@@ -182,12 +182,23 @@ class EventsController(TinkerController):
             if not (start_and_end and time_zone_check):
                 dates_good = False
 
+            if not self.num_check(event_dates[i]['start_date']):
+                dates_good = False
+
+            if not self.num_check(event_dates[i]['end_date']) and not start_and_end:
+                dates_good = False
+
             # Because events that don't need an end date don't have one, just set the end to be the same as the start to
             # appease the date parser later.
             if event_dates[i]['no_end_date'] == u'on' and not event_dates[i]['end_date']:
                 event_dates[i]['end_date'] = event_dates[i]['start_date']
 
         return json.dumps(event_dates), dates_good
+
+    # This method checks for numbers in a date - dummy check to see if user tried to pass something in like "Various"
+    # or "Many dates"
+    def num_check(self, date):
+        return any(char.isdigit() for char in date)
 
     def change_dates(self, event_dates):
         for i in range(len(event_dates)):

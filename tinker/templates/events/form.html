@@ -146,6 +146,15 @@
                         {{ field(class="ckeditor") }}
 
                     {% elif field.type == "DateTimeField" %}
+                        {# Custom date error message #}
+                        {% if date_message %}
+                            <div class="error-alert">
+                                <div data-alert class="red-alert">
+                                    {{ date_message }}
+                                </div>
+                            </div>
+                        {% endif %}
+
                         {# do the entire date field in here for now #}
                         {{ datetime_fieldset() }}
 
