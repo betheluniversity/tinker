@@ -1,6 +1,10 @@
 {% extends "tinker_base.html" %}
 
-{% set title = 'User Roles (Doesnt work Locally)' %}
+{% if 'xp' not in config['ENVIRON'] and 'prod' not in config['ENVIRON'] %}
+    {% set title = 'User Roles (Doesn\'t work Locally)' %}
+{% else %}
+    {% set title = 'User Roles' %}
+{% endif %}
 
 {% block page_title %}Bethel University Tinker{% endblock %}
 
