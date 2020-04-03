@@ -94,6 +94,7 @@ class EAnnouncementsController(TinkerController):
             'id': child.attrib['id'] or "",
             'title': child.find('title').text or None,
             'created-on': child.find('created-on').text or None,
+            'force-top': child.find('system-data-structure/force-top').text or "",
             'first_date': first_date,
             'second_date': second_date,
             'roles': roles,
