@@ -33,7 +33,7 @@ class CampaignController(TinkerController):
 
             return_value += '[endif]'
 
-        return return_value
+        return announcement['force-top'], return_value
 
     # builds the html
     def e_announcement_html(self, announcement):

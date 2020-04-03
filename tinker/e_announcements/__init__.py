@@ -186,7 +186,6 @@ class EAnnouncementsView(FlaskView):
             else:
                 date = datetime.datetime.strptime(date, "%m-%d-%Y")
 
-            # send a
             if 'create_and_send_campaign' in request.url_rule.rule and app.config['ENVIRON'] == 'prod':
                 self.base.log_sentry("E-Announcement create_and_send_campaign was called on production", date)
 
@@ -212,9 +211,14 @@ class EAnnouncementsView(FlaskView):
                     continue
 
                 # add announcement
-                announcement_text = self.base_campaign.create_single_announcement(announcement)
+                force_top, announcement_text = self.base_campaign.create_single_announcement(announcement)
                 if announcement_text != '':
-                    submitted_announcements.append({
+                    # announcements with "force_top" appear at the beginning of the list. If multiple, it depends on creation order
+                    if force_top == 'Yes':
+                        index_to_insert = 0
+                    else:
+                        index_to_insert = len(submitted_announcements)
+                    submitted_announcements.insert(index_to_insert,{
                         "Layout":
                             "announcements",
                         "Multilines": [
