@@ -115,7 +115,7 @@ class HeadingField(Field):
     def __html__(self):
         return None
 
-
+#Long words throw off formatting in Calendar
 def length_checker(Form, field):
     word_split = field.data.split(" ")
     for words in word_split:
