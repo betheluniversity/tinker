@@ -120,7 +120,7 @@ def length_checker(Form, field):
     word_split = field.data.split(" ")
     for words in word_split:
         if len(words) > 15:
-            raise ValidationError('Words in the Title must be less than 15 Characters')
+            raise ValidationError('Words in the title must be 15 characters or less')
 
 
 class EventForm(Form):
