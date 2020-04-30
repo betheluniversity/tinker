@@ -7,7 +7,7 @@ from bu_cascade.asset_tools import find, convert_asset
 from flask import session
 from flask_wtf import Form
 from wtforms import DateTimeField, Field, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, ValidationError
 
 # Local
 from tinker.tinker_controller import TinkerController
@@ -115,6 +115,13 @@ class HeadingField(Field):
     def __html__(self):
         return None
 
+# Long words throw off formatting in Calendar
+def length_checker(Form, field):
+    word_split = field.data.split(" ")
+    for word in word_split:
+        if len(word) > 15:
+            raise ValidationError('Words in the title must be 15 characters or less')
+
 
 class EventForm(Form):
     image = HiddenField("Image path")
@@ -133,7 +140,8 @@ class EventForm(Form):
     heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
     what = HeadingField(label="What is your event?")
-    title = StringField('Event name', validators=[DataRequired()], description="This will be the title of your webpage")
+    title = StringField('Event name', validators=[DataRequired() , length_checker], description="This will be the title of your webpage")
+
     metaDescription = StringField('Teaser',
                                   description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.',
                                   validators=[DataRequired()])
