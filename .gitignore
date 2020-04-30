@@ -38,5 +38,3 @@ flask_profiler.sql
 programs.csv
 faculty-info.csv
 config_old
-
-venv/*
