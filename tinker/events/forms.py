@@ -115,11 +115,11 @@ class HeadingField(Field):
     def __html__(self):
         return None
 
-#Long words throw off formatting in Calendar
+# Long words throw off formatting in Calendar
 def length_checker(Form, field):
     word_split = field.data.split(" ")
-    for words in word_split:
-        if len(words) > 15:
+    for word in word_split:
+        if len(word) > 15:
             raise ValidationError('Words in the title must be 15 characters or less')
 
 
@@ -196,6 +196,3 @@ class EventForm(Form):
                                            validators=[DataRequired()])
     internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices,
                                    validators=[DataRequired()])
-
-
-
