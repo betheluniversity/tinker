@@ -106,9 +106,9 @@ class EventsController(TinkerController):
         page_values = {
             'author': author,
             'id': child.find('id').text or None,
-            'title': child.find('title').text or None,
+            'title': child.find('title').text.replace(' - - ', '--') or None,
             'created-on': child.find('created-on').text or None,
-            'path': 'https://www.bethel.edu/' + child.find('path').text or None,
+            'path': 'https://www.bethel.edu/' + child.find('path').text.replace(' - - ', '--') or None,
             'is_published': is_published,
             'event-dates': dates_str,
             'html': '<br/>'.join(dates_html_array),
