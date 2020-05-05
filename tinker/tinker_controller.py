@@ -721,6 +721,7 @@ class TinkerController(object):
             remote_server.connect(hostkey=remote_server_public_key, username=app.config['SFTP_USERNAME'], pkey=ssh_key_object)
             sftp = SFTPClient.from_transport(remote_server)
             sftp.put(from_path, to_path)
+            sftp.close()
             if cron:
                 return 'SFTP publish from %s to %s succeeded' % (from_path, to_path)
             else:
