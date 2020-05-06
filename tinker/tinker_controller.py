@@ -712,6 +712,8 @@ class TinkerController(object):
 
     # Because of how SFTP is set up on wlp-fn2187, all these paths will be automatically prefixed with /var/www
     def write_to_sftp(self, from_path, to_path, cron, program_search=False):
+        remote_server = None
+        sftp = None
         try:
             ssh_key_object = RSAKey.from_private_key_file(filename=app.config['SFTP_SSH_KEY_PATH'], # private key - this is the private key of the server you are connecting FROM
                                     password=app.config['SFTP_SSH_KEY_PASSPHRASE']) # ssh passphrase
@@ -722,6 +724,7 @@ class TinkerController(object):
             sftp = SFTPClient.from_transport(remote_server)
             sftp.put(from_path, to_path)
             sftp.close()
+            remote_server.close()
             if cron:
                 return 'SFTP publish from %s to %s succeeded' % (from_path, to_path)
             else:
@@ -736,6 +739,12 @@ class TinkerController(object):
                         'message': 'Redirect updates successful'
                     })
         except Exception as e:
+            # Make sure we close the remote_server and sftp connection
+            if remote_server:
+                remote_server.close()
+            if sftp:
+                sftp.close()
+
             if cron:
                 return 'SFTP publish from %s to %s failed' % (from_path, to_path)
             else:
