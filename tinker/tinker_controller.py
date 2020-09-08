@@ -25,6 +25,7 @@ from bu_cascade.assets.page import Page
 from bu_cascade.asset_tools import find, update, convert_asset
 from flask import abort, current_app, render_template, request, Response, session
 from flask import json as fjson
+from flask import redirect
 from namedentities import numeric_entities  # (namedentities)
 from paramiko import RSAKey, SFTPClient, Transport
 from paramiko.hostkeys import HostKeyEntry
@@ -231,6 +232,12 @@ class TinkerController(object):
         def get_nav():
             html = render_template('nav.html', **locals())
             session['top_nav'] = html
+
+        # temp deal with ITS-216352
+        # if a request came to /e-announcments/new/ or /events/add/ directly, go to the homepage first to prevent
+        # the CAS issue. short term fix, todo find long term issue (probably with mod_auth_cas
+        if request.path.endswith('/new/') or request.path.endswith('/add/') and not request.referrer:
+            return redirect('/'.join(request.path.split('/')[:-2])+'/')
 
         if '/public/' not in request.path and '/api/' not in request.path:
             init_user()
