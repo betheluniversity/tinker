@@ -58,6 +58,13 @@ class EventsView(FlaskView):
 
     # CANT CACHE THIS
     def add(self):
+
+        # temp deal with ITS-216352
+        # if a request came to /e-announcments/new/ or /events/add/ directly, go to the homepage first to prevent
+        # the CAS issue. short term fix, todo find long term issue (probably with mod_auth_cas
+        if not session.get('username'):
+            return redirect(url_for('EventsView:index'))
+
         # import this here so we dont load all the content from cascade during homepage load
         from tinker.events.forms import EventForm
 

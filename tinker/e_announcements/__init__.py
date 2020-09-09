@@ -4,7 +4,7 @@ import json
 
 from bu_cascade.asset_tools import find
 from createsend import Campaign, CreateSend
-from flask import abort, render_template, session
+from flask import abort, render_template, session, redirect, url_for
 from flask_classy import FlaskView, request, route
 from collections import OrderedDict
 
@@ -81,6 +81,12 @@ class EAnnouncementsView(FlaskView):
 
     # CANT CACHE THIS
     def new(self):
+        # temp deal with ITS-216352
+        # if a request came to /e-announcments/new/ or /events/add/ directly, go to the homepage first to prevent
+        # the CAS issue. short term fix, todo find long term issue (probably with mod_auth_cas
+        if not session.get('username'):
+            return redirect(url_for('EAnnouncementsView:index'))
+
         from tinker.e_announcements.forms import EAnnouncementsForm
         form = EAnnouncementsForm()
         new_form = True
