@@ -110,7 +110,9 @@ class EventsView(FlaskView):
                 event_id = rform['event_id']
             else:
                 new_form = True
-            author = rform["author"]
+            # not sure why we have this?
+            # todo do we need to load/populate this here?
+            author = rform.get('author')
             num_dates = int(rform['num_dates'])
 
             return render_template('events/form.html', **locals())
