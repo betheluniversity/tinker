@@ -35,12 +35,12 @@ undergrad_programs = [
     "Political Science",
     "Preprofessional",
     "Psychology",
+    "Reconciliation Studies",
     "Social Work",
     "Sociology and Reconciliation Studies",
     "Special Education",
     "Theatre Arts",
     "World Languages and Cultures",
-    "Reconciliation Studies",
 ]
 
 adult_undergrad_programs = [
