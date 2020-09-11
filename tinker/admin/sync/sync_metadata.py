@@ -40,6 +40,7 @@ undergrad_programs = [
     "Special Education",
     "Theatre Arts",
     "World Languages and Cultures",
+    "Reconciliation Studies"
 ]
 
 adult_undergrad_programs = [
