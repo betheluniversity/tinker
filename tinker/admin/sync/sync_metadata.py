@@ -115,6 +115,7 @@ graduate_programs = [
     "Teacher Coordinator of Work-based Learning License",
     "Teachers of Computer, Keyboarding, and Related Technology Applications License",
     "Teaching License",
+    "Social Work (M.S.)",
 ]
 
 locations = [
