@@ -90,7 +90,7 @@ db = SQLAlchemy(app)
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
 
 if app.config['SENTRY_URL']:
-    sentry_sdk.init(dsn=app.config['SENTRY_URL'], integrations=[FlaskIntegration(), SqlalchemyIntegration(), RedisIntegration])
+    sentry_sdk.init(dsn=app.config['SENTRY_URL'], integrations=[FlaskIntegration(), SqlalchemyIntegration(), RedisIntegration()])
 
 from tinker import error
 from tinker.tinker_controller import TinkerController
