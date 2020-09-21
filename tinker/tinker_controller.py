@@ -256,7 +256,7 @@ class TinkerController(object):
         }
         self.log_sentry("Cascade call", resp)
 
-    def log_sentry(self, message, response):
+    def log_sentry(self, message, response, **kwargs):
 
         if app.config['UNIT_TESTING']:
             # Don't want to print out these log messages while unit testing
@@ -270,6 +270,8 @@ class TinkerController(object):
             scope.set_tag('time', log_time)
             scope.set_tag('author', username)
             scope.set_tag('response', response)
+            for key, value in kwargs.items():
+                scope.set_tag(key, value)
 
         # log generic message to Sentry for counting
         # app.logger.info(message)

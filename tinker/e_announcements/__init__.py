@@ -84,8 +84,26 @@ class EAnnouncementsView(FlaskView):
         # temp deal with ITS-216352
         # if a request came to /e-announcments/new/ or /events/add/ directly, go to the homepage first to prevent
         # the CAS issue. short term fix, todo find long term issue (probably with mod_auth_cas
+
+        # 9/21/20 update, adding some extra sentry logging to try and further debug. The redirect isn't always working.
         if not session.get('username'):
+            resp = None
+            kwargs = {
+                'referrer': request.referrer,
+                'request': request,
+                'username': session.get('username')
+            }
+            self.base.log_sentry('Loading E-Announcements without Username', resp, **kwargs)
             return redirect(url_for('EAnnouncementsView:index'))
+        else:
+            resp = None
+            kwargs = {
+                'referrer': request.referrer,
+                'request': request,
+                'username': session.get('username')
+            }
+            self.base.log_sentry('Loading E-Announcements with Username', resp, **kwargs)
+
 
         from tinker.e_announcements.forms import EAnnouncementsForm
         form = EAnnouncementsForm()
