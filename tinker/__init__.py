@@ -9,6 +9,9 @@ from flask import Flask, make_response, redirect, session, url_for
 from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
 import sentry_sdk
+from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
+from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 
 app = Flask(__name__)
 
@@ -87,8 +90,7 @@ db = SQLAlchemy(app)
 cascade_connector = Cascade(app.config['SOAP_URL'], app.config['CASCADE_LOGIN'], app.config['SITE_ID'], app.config['STAGING_DESTINATION_ID'])
 
 if app.config['SENTRY_URL']:
-    from sentry_sdk.integrations.flask import FlaskIntegration
-    sentry_sdk.init(dsn=app.config['SENTRY_URL'], integrations=[FlaskIntegration()])
+    sentry_sdk.init(dsn=app.config['SENTRY_URL'], integrations=[FlaskIntegration(), SqlalchemyIntegration(), RedisIntegration])
 
 from tinker import error
 from tinker.tinker_controller import TinkerController
