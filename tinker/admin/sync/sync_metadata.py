@@ -107,6 +107,7 @@ graduate_programs = [
     "Nurse-Midwifery (M.S.)",
     "Physician Assistant (M.S.)",
     "Play Therapy Certificate",
+    "Social Work (M.S.W.)",
     "Special Education (M.A.)",
     "STEM in K-12 Education Certificate",
     "Strategic Leadership (M.A.)",
@@ -115,7 +116,6 @@ graduate_programs = [
     "Teacher Coordinator of Work-based Learning License",
     "Teachers of Computer, Keyboarding, and Related Technology Applications License",
     "Teaching License",
-    "Social Work (M.S.W.)",
 ]
 
 locations = [
