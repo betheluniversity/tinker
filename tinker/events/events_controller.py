@@ -378,7 +378,7 @@ class EventsController(TinkerController):
         path = find(page_asset, 'path', False)
         # path = asset['asset']['page']['path']
         try:
-            year = re.search('events/(\d{4})/', path).group(1)
+            year = re.search('events/.*(\d{4})/', path).group(1)
             return int(year)
         except AttributeError:
             return None
