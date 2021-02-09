@@ -245,7 +245,7 @@ class FacultyBiosView(FlaskView):
             resp = self.base.create_page(asset)
             faculty_bio_id = resp.asset['page']['id']
             self.base.cascade_call_logger(locals())
-            self.base.log_sentry("Faculty bio new submission", resp)
+            self.base.log_sentry("Faculty bio new submission", "createdAssetId = " + faculty_bio_id)
             status = 'new'
 
         self.base.publish(app.config['FACULTY_BIOS_XML_ID'])

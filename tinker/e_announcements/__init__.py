@@ -187,7 +187,7 @@ class EAnnouncementsView(FlaskView):
             asset = self.base.update_structure(e_announcement_data, rform, e_announcement_id=eaid)
             resp = self.base.create_block(asset)
             new_eaid = resp.asset['xhtmlDataDefinitionBlock']['id']
-            self.base.log_sentry('New e-announcement submission', resp)
+            self.base.log_sentry('New e-announcement submission', "createdAssetId = " + new_eaid)
         else:
             block = self.base.read_block(eaid)
             e_announcement_data, mdata, sdata = block.read_asset()

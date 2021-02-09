@@ -133,7 +133,7 @@ class EventsController(TinkerController):
                                           workflow=workflow)
             resp = self.create_page(asset)
             eid = resp.asset['page']['id']
-            self.log_sentry("New event submission", resp)
+            self.log_sentry("New event submission", "createdAssetId = " + eid)
         else:
             page = self.read_page(eid)
             event_data, metadata, structured_data = page.get_asset()
