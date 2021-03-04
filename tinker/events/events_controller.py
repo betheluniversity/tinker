@@ -194,8 +194,8 @@ class EventsController(TinkerController):
             # Get rid of the fancy formatting so we just have normal numbers
             start = event_dates[i]['start_date'].split(' ')
             end = event_dates[i]['end_date'].split(' ')
-            start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
-            end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+            start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.' '')
+            end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
 
             start = " ".join(start)
             end = " ".join(end)
