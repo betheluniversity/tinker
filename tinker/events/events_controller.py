@@ -194,8 +194,8 @@ class EventsController(TinkerController):
             # Get rid of the fancy formatting so we just have normal numbers
             start = event_dates[i]['start_date'].split(' ')
             end = event_dates[i]['end_date'].split(' ')
-            start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
-            end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '')
+            start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.' '')
+            end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
 
             start = " ".join(start)
             end = " ".join(end)
@@ -389,10 +389,10 @@ class EventsController(TinkerController):
         max_year = 0
         for date in dates:
             date_str = self.timestamp_to_date_str(date['end-date'])
-            end_date = datetime.datetime.strptime(date_str, '%B %d %Y, %I:%M %p').date()
             try:
+                end_date = datetime.datetime.strptime(date_str, '%B %d %Y, %I:%M %p').date()
                 year = end_date.year
-            except AttributeError:
+            except Exception:
                 # if end_date is none and this fails, revert to current year.
                 year = datetime.date.today().year
             if year > max_year:
