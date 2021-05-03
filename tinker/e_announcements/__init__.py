@@ -265,8 +265,8 @@ class EAnnouncementsView(FlaskView):
             subject = 'Bethel E-Announcements | ' + str(date.strftime('%A, %B %-d, %Y'))
             name = 'Bethel E-Announcements | %s | %s' % (str(date.strftime('%A')), str(date.strftime('%m/%-d/%Y')))
             from_name = 'Bethel E-Announcements'
-            from_email = 'e-announcements@lists.bethel.edu'
-            reply_to = 'e-announcements@lists.bethel.edu'
+            from_email = 'e-announcements@bethel.edu'
+            reply_to = 'e-announcements@bethel.edu'
             list_ids = [app.config['E_ANNOUNCEMENTS_LIST_KEY']]
             segment_ids = [app.config['E_ANNOUNCEMENTS_SEGMENT_ID']]
             template_id = app.config['E_ANNOUNCEMENTS_TEMPLATE_ID']
