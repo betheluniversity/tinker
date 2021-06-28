@@ -394,7 +394,9 @@ class FacultyBioController(TinkerController):
         add_data = self.get_add_data(['faculty_location'], rform)
 
         add_data['last'] = add_data['last'].strip()
+        self.replace_html_entity(add_data, ['last'])
         add_data['first'] = add_data['first'].strip()
+        self.replace_html_entity(add_data, ['first'])
 
         add_data['education'] = self.get_degrees(add_data)
         # todo: these wysiwyg checkboxes aren't returning correctly for the wysiwygs
@@ -418,7 +420,9 @@ class FacultyBioController(TinkerController):
         # todo: eventually adjust the keys in cascade to work.
         add_data['started-at-bethel'] = add_data['started_at_bethel']
         add_data['teaching-specialty'] = add_data['teaching_specialty']
+        self.replace_html_entity(add_data, ['teaching_specialty'])
         add_data['research-interests'] = add_data['research_interests']
+        self.replace_html_entity(add_data, ['research_interests'])
         try:
             add_data['courseleaf-user'] = add_data['courseleaf_user']
         except KeyError:
@@ -643,9 +647,13 @@ class FacultyBioController(TinkerController):
         for i in range(1, 200):
             i = str(i)
             try:
+                self.replace_html_entity(add_data, ['school' + i])
                 school = add_data['school' + i]
+                self.replace_html_entity(add_data, ['degree-earned' + i])
                 degree = add_data['degree-earned' + i]
+                self.replace_html_entity(add_data, ['year' + i])
                 year = add_data['year' + i]
+
             except KeyError:
                 # This will break once we run out of degrees
                 break
@@ -675,15 +683,15 @@ class FacultyBioController(TinkerController):
                 break
 
             full_job_title = {
-                'school': add_data.get('schools' + i, ''),
-                'department': add_data.get('undergrad' + i, 'None'),
-                'adult-undergrad-program': add_data.get('adult-undergrad' + i, 'None'),
-                'graduate-program': add_data.get('graduate' + i, 'None'),
-                'seminary-program': add_data.get('seminary' + i, 'None'),
-                'department-chair': add_data.get('dept-chair' + i, 'No'),
-                'program-director': add_data.get('program-director' + i, 'No'),
-                'lead-faculty': add_data.get('lead-faculty' + i, 'Other'),
-                'job_title': add_data.get('new-job-title' + i, '')
+                'school': add_data.get('schools' + i, '').replace('&nbsp;', ' '),
+                'department': add_data.get('undergrad' + i, 'None').replace('&nbsp;', ' '),
+                'adult-undergrad-program': add_data.get('adult-undergrad' + i, 'None').replace('&nbsp;', ' '),
+                'graduate-program': add_data.get('graduate' + i, 'None').replace('&nbsp;', ' '),
+                'seminary-program': add_data.get('seminary' + i, 'None').replace('&nbsp;', ' '),
+                'department-chair': add_data.get('dept-chair' + i, 'No').replace('&nbsp;', ' '),
+                'program-director': add_data.get('program-director' + i, 'No').replace('&nbsp;', ' '),
+                'lead-faculty': add_data.get('lead-faculty' + i, 'Other').replace('&nbsp;', ' '),
+                'job_title': add_data.get('new-job-title' + i, '').replace('&nbsp;', ' ')
             }
 
             job_titles.append(full_job_title)
@@ -696,33 +704,50 @@ class FacultyBioController(TinkerController):
         options = []
 
         if add_data.get('biography', None):
+            self.replace_html_entity(add_data, 'biography')
             options.append("::CONTENT-XML-CHECKBOX::Biography")
         if add_data.get('awards', None):
+            self.replace_html_entity(add_data, 'awards')
             options.append("::CONTENT-XML-CHECKBOX::Awards")
         if add_data.get('courses', None):
+            self.replace_html_entity(add_data, 'courses')
             options.append("::CONTENT-XML-CHECKBOX::Courses Taught")
         if add_data.get('publications', None):
+            self.replace_html_entity(add_data, 'publications')
             options.append("::CONTENT-XML-CHECKBOX::Publications")
         if add_data.get('presentations', None):
+            self.replace_html_entity(add_data, 'presentations')
             options.append("::CONTENT-XML-CHECKBOX::Presentations")
         if add_data.get('certificates', None):
+            self.replace_html_entity(add_data, 'certificates')
             options.append("::CONTENT-XML-CHECKBOX::Certificates and Licenses")
         if add_data.get('courses', None):
+            self.replace_html_entity(add_data, 'courses')
             options.append("::CONTENT-XML-CHECKBOX::Professional Organizations, Committees, and Boards")
         if add_data.get('hobbies', None):
+            self.replace_html_entity(add_data, 'hobbies')
             options.append("::CONTENT-XML-CHECKBOX::Hobbies and Interests")
         if add_data.get('areas', None):
+            self.replace_html_entity(add_data, 'areas')
             options.append("::CONTENT-XML-CHECKBOX::Areas of expertise")
         if add_data.get('research_interests', None):
+            self.replace_html_entity(add_data, 'research_interests')
             options.append("::CONTENT-XML-CHECKBOX::Research interests")
         if add_data.get('teaching_specialty', None):
+            self.replace_html_entity(add_data, 'teaching_specialty')
             options.append("::CONTENT-XML-CHECKBOX::Teaching specialty")
         if add_data.get('quote', None):
+            self.replace_html_entity(add_data, 'quote')
             options.append("::CONTENT-XML-CHECKBOX::Quote")
         if add_data.get('website', None):
+            self.replace_html_entity(add_data, 'website')
             options.append("::CONTENT-XML-CHECKBOX::Website")
 
         return ''.join(options)
+
+    def replace_html_entity(self, data, key_list):
+        for key in key_list:
+            data[key] = data[key].replace('&nbsp;', ' ')
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
