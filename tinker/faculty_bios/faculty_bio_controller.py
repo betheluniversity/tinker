@@ -431,6 +431,7 @@ class FacultyBioController(TinkerController):
         # todo: this is a temp fix to override the already set system-name
         new_system_name = add_data['last'].strip() + '-' + add_data['first'].strip()
         new_system_name = new_system_name.lower().replace(' ', '-')
+        new_system_name = unidecode(new_system_name)
         add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', new_system_name)
 
         # this needs to be done AFTER the system name is made.

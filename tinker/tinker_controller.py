@@ -445,6 +445,7 @@ class TinkerController(object):
             add_data['title'] = title
             # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
             system_name = title.lower().replace(' ', '-')
+            system_name = unidecode(system_name)
             add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
             add_data['name'] = add_data['system_name']
 
