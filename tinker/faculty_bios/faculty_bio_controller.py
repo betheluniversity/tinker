@@ -394,9 +394,9 @@ class FacultyBioController(TinkerController):
         add_data = self.get_add_data(['faculty_location'], rform)
 
         add_data['last'] = add_data['last'].strip()
-        self.replace_html_entity(add_data, ['last'])
+        self.replace_html_entity(add_data, 'last')
         add_data['first'] = add_data['first'].strip()
-        self.replace_html_entity(add_data, ['first'])
+        self.replace_html_entity(add_data, 'first')
 
         add_data['education'] = self.get_degrees(add_data)
         # todo: these wysiwyg checkboxes aren't returning correctly for the wysiwygs
@@ -420,9 +420,9 @@ class FacultyBioController(TinkerController):
         # todo: eventually adjust the keys in cascade to work.
         add_data['started-at-bethel'] = add_data['started_at_bethel']
         add_data['teaching-specialty'] = add_data['teaching_specialty']
-        self.replace_html_entity(add_data, ['teaching_specialty'])
+        self.replace_html_entity(add_data, 'teaching_specialty')
         add_data['research-interests'] = add_data['research_interests']
-        self.replace_html_entity(add_data, ['research_interests'])
+        self.replace_html_entity(add_data, 'research_interests')
         try:
             add_data['courseleaf-user'] = add_data['courseleaf_user']
         except KeyError:
@@ -648,11 +648,11 @@ class FacultyBioController(TinkerController):
         for i in range(1, 200):
             i = str(i)
             try:
-                self.replace_html_entity(add_data, ['school' + i])
+                self.replace_html_entity(add_data, 'school' + i)
                 school = add_data['school' + i]
-                self.replace_html_entity(add_data, ['degree-earned' + i])
+                self.replace_html_entity(add_data, 'degree-earned' + i)
                 degree = add_data['degree-earned' + i]
-                self.replace_html_entity(add_data, ['year' + i])
+                self.replace_html_entity(add_data, 'year' + i)
                 year = add_data['year' + i]
 
             except KeyError:
@@ -746,9 +746,8 @@ class FacultyBioController(TinkerController):
 
         return ''.join(options)
 
-    def replace_html_entity(self, data, key_list):
-        for key in key_list:
-            data[key] = data[key].replace('&nbsp;', ' ')
+    def replace_html_entity(self, data, key):
+        data[key] = data[key].replace('&nbsp;', ' ')
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
