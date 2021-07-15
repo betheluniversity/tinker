@@ -158,6 +158,7 @@ degree = [
     'Master of Divinity',
     'Doctor of Ministry',
     'Doctor of Education',
+    'Doctor of Nursing Practice'
 ]
 
 e_announcement_roles = [
