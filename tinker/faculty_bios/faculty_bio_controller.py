@@ -4,6 +4,7 @@ import json
 import re
 import os
 import platform
+import html
 
 # Packages
 from bu_cascade.asset_tools import find
@@ -747,7 +748,7 @@ class FacultyBioController(TinkerController):
         return ''.join(options)
 
     def replace_html_entity(self, data, key):
-        data[key] = data[key].replace('&nbsp;', ' ')
+        data[key] = html.unescape(data[key])
 
     # this callback is used with the /edit_all endpoint. The primary use is to modify all assets
     def edit_all_callback(self, asset_data):
