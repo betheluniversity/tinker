@@ -104,6 +104,7 @@ graduate_programs = [
     "K-12 Principal License",
     "Leadership Foundations Certificate",
     "MBA",
+    "Medical Sciences (M.S.)",
     "Nurse-Midwifery (M.S.)",
     "Physician Assistant (M.S.)",
     "Play Therapy Certificate",
