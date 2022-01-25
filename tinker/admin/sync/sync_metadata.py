@@ -60,6 +60,7 @@ adult_undergrad_programs = [
     "Post-Baccalaureate Nursing (B.S)",
     "Psychology (B.A.)",
     "Senior Care Leadership and Administration Certificate",
+    "Social Work (B.A.)",
     "Special Education (B.A.)",
 ]
 
