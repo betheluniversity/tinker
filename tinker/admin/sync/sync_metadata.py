@@ -23,7 +23,6 @@ undergrad_programs = [
     "Environmental Studies",
     "General Education",
     "Health and Physical Education",
-    "History",
     "History, Philosophy, and Political Science",
     "Honors",
     "Languages, Cultures, and Reconciliation Studies",
@@ -31,9 +30,7 @@ undergrad_programs = [
     "Music",
     "Music and Theatre",
     "Nursing",
-    "Philosophy",
     "Physics & Engineering",
-    "Political Science",
     "Preprofessional",
     "Psychology",
     "Reconciliation Studies",
@@ -126,7 +123,6 @@ locations = [
     'Bloomington',
     'North Hennepin Community College',
     'Online',
-    'San Diego',
     'St. Paul',
 ]
 
