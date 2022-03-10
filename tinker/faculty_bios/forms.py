@@ -130,8 +130,7 @@ class FacultyBioForm(Form):
             courseleaf_user = RadioField('Add this user to CourseLeaf (catalog.bethel.edu)', default='Yes', choices=[('Yes', 'Yes'), ('No', 'No')])
 
         faculty_location = SelectMultipleField('Location',
-                                               choices=[('St. Paul', 'St. Paul'), ('San Diego', 'San Diego'),
-                                                        ('Online', 'Online')], validators=[validators.DataRequired()])
+                                               choices=[('St. Paul', 'St. Paul'), ('Online', 'Online')], validators=[validators.DataRequired()])
         highlight = TextAreaField('Highlight text',
                                   description="This text will appear on faculty listing pages as a short snippet about you!",
                                   validators=[validators.DataRequired()])
