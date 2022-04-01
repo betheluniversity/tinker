@@ -438,6 +438,11 @@ class FacultyBioController(TinkerController):
         # this needs to be done AFTER the system name is made.
         add_data['image'] = self.create_faculty_bio_image(add_data)
 
+        # Cascade doesn't play well with ampersands so they need to be formatted differently
+        for key, value in add_data.items():
+            if key in ('biography', 'courses', 'awards', 'publications', 'presentations', 'certificates', 'organizations', 'hobbies') and value.__contains__('&'):
+                add_data[key] = add_data[key].replace('&', '&amp;amp;')
+
         workflow_id = self.get_correct_workflow_id(add_data, submitter_groups)
         workflow = self.create_workflow(workflow_id, subtitle=add_data['title'])
         self.add_workflow_to_asset(workflow, faculty_bio_data)
@@ -723,8 +728,8 @@ class FacultyBioController(TinkerController):
         if add_data.get('certificates', None):
             self.replace_html_entity(add_data, 'certificates')
             options.append("::CONTENT-XML-CHECKBOX::Certificates and Licenses")
-        if add_data.get('courses', None):
-            self.replace_html_entity(add_data, 'courses')
+        if add_data.get('organizations', None):
+            self.replace_html_entity(add_data, 'organizations')
             options.append("::CONTENT-XML-CHECKBOX::Professional Organizations, Committees, and Boards")
         if add_data.get('hobbies', None):
             self.replace_html_entity(add_data, 'hobbies')
