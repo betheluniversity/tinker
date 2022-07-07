@@ -88,11 +88,6 @@ class NewsController(TinkerController):
             if anchor_tag['href'][0] == '/':
                 anchor_tag['href'] = 'https://www.bethel.edu' + anchor_tag['href']
 
-    def reset_send_email_value(self, page):
-        asset, md, sd = page.get_asset()
-        update(sd, 'send-email', 'No')
-        page.edit_asset(asset)
-
     def date_without_dst(self):
         now = datetime.datetime.now()
         tz = pytz.timezone('US/Central').localize(now).strftime('%z')
