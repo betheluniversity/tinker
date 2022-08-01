@@ -5,7 +5,7 @@ import platform
 
 # Packages
 from bu_cascade.cascade_connector import Cascade
-from flask import Flask, make_response, redirect, session, url_for
+from flask import Flask, make_response, redirect, session, url_for, abort
 from flask_caching import Cache
 from flask_sqlalchemy import SQLAlchemy
 import sentry_sdk
@@ -138,6 +138,8 @@ View.register(app)
 
 @app.before_request
 def before_request():
+    if app.config['SERVER_DOWN']:
+        abort(503)
     base = TinkerController()
     base.before_request()
 
