@@ -136,7 +136,7 @@ delivery_label = [
 delivery_subheading = [
     '',
     'Online with Intensives',
-    'Online with Occasional Saturdays',
+    'Mostly Online',
     'Fully Online',
     'Evening',
     'Daytime'
