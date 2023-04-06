@@ -69,6 +69,7 @@ seminary_programs = [
     "Biblical Studies Certificate",
     "Certificate in Church Planting",
     "Children's & Family Ministry (M.A.)",
+    "Children’s, Youth, and Family Ministry Certificate",
     "M.A. (Christian Thought)",
     "Doctor of Ministry",
     "Marital & Family Therapy (M.A.)",
