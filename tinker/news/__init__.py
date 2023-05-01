@@ -105,8 +105,8 @@ class NewsView(FlaskView):
                     # if this is a real campaign, send the emails
                     if actually_send_email and needs_sending == "Yes":
                         # Mark this page as having been sent already (bu_cascade)
-                        page.update_and_edit('sd', 'send-email', 'No')
-                        self.base_campaign.publish(article_id)
+                        # page.update_and_edit('sd', 'send-email', 'No')
+                        # self.base_campaign.publish(article_id)
 
                         # Send the emails (createsend)
                         new_campaign.send(confirmation_email_sent_to, str(now_plus_10.strftime('%Y-%m-%d %H:%M')))
