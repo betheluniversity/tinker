@@ -55,7 +55,7 @@ class NewsView(FlaskView):
             article_asset, md, sd = page.get_asset()
 
             news_article_datetime = datetime.datetime.fromtimestamp(int(find(sd, 'publish-date', False))/1000)
-            current_datetime = datetime.datetime.fromtimestamp(int(find(sd, 'publish-date', False))/1000)
+            current_datetime = datetime.date.today()
 
             # ignore any that are on a different day, or in _testing
             is_different_day = news_article_datetime.strftime("%m-%d-%Y") != current_datetime.strftime("%m-%d-%Y")
