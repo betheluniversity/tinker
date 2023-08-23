@@ -49,7 +49,7 @@ adult_undergrad_programs = [
     "Alcohol and Drug Counseling Certificate",
     "Associate of Arts (A.A.)",
     "Associate of Science (A.S.)",
-    "Business Management (B.A.)",
+    "Business Management (B.S.)",
     "Christian Ministries (B.A.)",
     "Finance (B.S.)",
     "Human Services (B.A.)",
