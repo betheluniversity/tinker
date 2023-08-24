@@ -1,0 +1,16 @@
+version: "3.7"
+
+services:
+
+  redis:
+    image: redis:7.0.5-alpine
+    container_name: redis
+    hostname: redis
+    restart: always
+  
+  tinker:
+    depends_on:
+      - redis
+    ports:
+      - "5678:5678"
+      - "5000:5000"
