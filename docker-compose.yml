@@ -1,34 +1,5 @@
 version: "3.7"
 
-# DEBUG PORTS IN USE: 5679-83
-
-# Add to build args for all Bethel flask apps
-x-common-build-args: &common-build-args
-  ENVIRON: ${ENVIRON:-dev}
-
-# Add to build args if app needs to connect to Oracle
-x-oracle-build-args: &oracle-build-args
-  ORACLE: true
-
-# Add to environment for services that connect to wsapi
-x-wsapi-environment: &wsapi-environment
-  WSAPI_URL: ${WSAPI_URL:-http://wsapi:5000}
-
-# Add to environment for services that use a redis cache
-x-redis-environment: &redis-environment
-  CACHE_REDIS_HOST: ${CACHE_REDIS_HOST:-redis}
-
-# Add to environment for all Bethel flask apps
-x-flask-environment: &flask-environment
-  DEBUG_PORT: 5678
-  FLASK_APP: app:app
-  INSTALL_LOCATION: ${INSTALL_LOCATION:-/srv/flask_app/logs}
-  SENTRY_URL: ${SENTRY_URL:-}
-  WAIT_FOR_CLIENT: ${WAIT_FOR_CLIENT:-false}
-  TEST_NAME: ${TEST_NAME:-'Test User'}
-  TEST_USERNAME: ${TEST_USERNAME:-testuser}
-  TEST_EMAIL: ${TEST_EMAIL:-testuser@bethel.edu}
-
 # Add to build for all Bethel flask apps
 x-flask-dockerfile: &flask-dockerfile
   dockerfile_inline: |
@@ -82,9 +53,9 @@ x-flask-dockerfile: &flask-dockerfile
     COPY <<-"START_SCRIPT" /srv/start.sh
     #!/bin/sh
 
-    # Run init.sh if needed
-    if [ -f "/srv/init.sh" ]; then
-        sh /srv/init.sh
+    # Run docker_init.sh if needed
+    if [ -f "docker_init.sh" ]; then
+        sh docker_init.sh
     fi
 
     # Set up the Apache conf if sites present
@@ -129,6 +100,40 @@ x-flask-dockerfile: &flask-dockerfile
 
     CMD ["sh", "/srv/start.sh"]
 
+# Add to environment for all Bethel flask apps
+x-flask-environment: &flask-environment
+  DEBUG_PORT: 5678
+  FLASK_APP: app:app
+  INSTALL_LOCATION: ${INSTALL_LOCATION:-/srv/flask_app/logs}
+  SENTRY_URL: ${SENTRY_URL:-}
+  WAIT_FOR_CLIENT: ${WAIT_FOR_CLIENT:-false}
+  TEST_NAME: ${TEST_NAME:-'Test User'}
+  TEST_USERNAME: ${TEST_USERNAME:-$USER}
+  TEST_EMAIL: ${TEST_EMAIL:-testuser@bethel.edu}
+
+# Add to flask apps that use the standard volumes
+x-flask-volumes: &flask-volumes
+  volumes:
+    - .:/srv/flask_app
+    - ${DATA_PATH:-./_data}/tmp:/tmp
+    - ${DATA_PATH:-./_data}/logs:/srv/flask_app/logs
+
+# Add to build args for all Bethel flask apps
+x-common-build-args: &common-build-args
+  ENVIRON: ${ENVIRON:-dev}
+
+# Add to build args if app needs to connect to Oracle
+x-oracle-build-args: &oracle-build-args
+  ORACLE: true
+
+# Add to environment for services that connect to wsapi
+x-wsapi-environment: &wsapi-environment
+  WSAPI_URL: ${WSAPI_URL:-https://wsapi.xp.bethel.edu}
+
+# Add to environment for services that use a redis cache
+x-redis-environment: &redis-environment
+  CACHE_REDIS_HOST: ${CACHE_REDIS_HOST:-redis}
+
 # Add to all services, unless another restart policy is desired
 x-restart-policy: &restart-policy
   restart: always
@@ -136,20 +141,22 @@ x-restart-policy: &restart-policy
 # Add to all services that are sciencelabs-python apps
 x-sciencelabs-python: &sciencelabs-python
   build: 
-    context: ./tutorlabs/sciencelabs-python
+    context: .
     <<: *flask-dockerfile
     args:
       <<: [*common-build-args]
-  depends_on:
-      - mysql
-      - wsapi
-      - apache
-  <<: [*restart-policy]
+  secrets:
+    - docker_ssh_key
+  <<: [*flask-volumes, *restart-policy]
 
 # Add to environment for all services that are sciencelabs-python apps
 x-sciencelabs-python-environment: &sciencelabs-python-environment
   <<: [*flask-environment, *wsapi-environment]
   FLASK_APP: sciencelabs:app
+  DEV_SSH_TUNNEL_SQL_SERVER: mysqldevdb.its.bethel.edu
+  DEV_SSH_TUNNEL_SQL_SERVER_PORT: 3306
+  DEV_SSH_TUNNEL_USER: ${USER}
+  DEV_SSH_TUNNEL_SERVER: tutorlabs.xp.bethel.edu
 
 services:
 
@@ -164,9 +171,4 @@ services:
     environment:
       <<: [*flask-environment, *wsapi-environment, *redis-environment]
       FLASK_APP: tinker:app
-    volumes:
-      - .:/srv/flask_app
-      - ${DATA_PATH:-./_data}/tinker/tmp:/tmp
-      - ${DATA_PATH:-./_data}/tinker/log:/srv/flask_app/logs
-      - ${DATA_PATH:-./_data}/apache/sites:/usr/local/apache2/conf/sites/
-    <<: [*restart-policy]
+    <<: [*flask-volumes, *restart-policy]

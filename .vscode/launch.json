@@ -1,0 +1,66 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "run",
+            "configurations": ["attach", "logs", "launch"],
+            "preLaunchTask": "docker-compose up",
+            "stopAll": true
+        },
+        {
+            "name": "build - run",
+            "configurations": ["attach", "logs", "launch"],
+            "preLaunchTask": "docker-compose up build",
+            "stopAll": true
+        }
+    ],
+    "configurations": [
+        {
+            "name": "attach",
+            "type": "python",
+            "request": "attach",
+            "presentation": {
+                "hidden": true,
+                "group": "",
+                "order": 1
+            },
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "pathMappings": [
+                {
+                    "localRoot": "${workspaceFolder}",
+                    "remoteRoot": "/srv/flask_app"
+                }
+            ],
+            "justMyCode": true
+        },
+        {
+            "name": "logs",
+            "command": "docker-compose logs --follow",
+            "request": "launch",
+            "type": "node-terminal",
+            "presentation": {
+                "hidden": true,
+                "group": "",
+                "order": 1
+            }
+        },
+        {
+            "name": "launch",
+            "type": "chrome",
+            "request": "launch",
+            "url": "http://localhost:5000",
+            "presentation": {
+                "hidden": true,
+                "group": "",
+                "order": 1
+            },
+            "postDebugTask": "docker-compose down"
+        }
+    ]
+}
