@@ -95,26 +95,40 @@ class SyncView(FlaskView):
         forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
         for bio in forms:
             if bio['id'] in app.config['FACULTY_BIOS_IDS']:
+                print(bio['title'])
                 page = self.base.read_page(bio['id'])
                 faculty_bio_data, mdata, sdata = page.read_asset()
                 for node in faculty_bio_data['page']['structuredData']['structuredDataNodes']['structuredDataNode']:
                     if node['identifier'] == 'job-titles':
-                        if 'text' in node['structuredDataNodes']['structuredDataNode'][7]:
+                        if 'text' not in node['structuredDataNodes']['structuredDataNode'][7]:
+                            print("changing adjunct...")
                             if 'Adjunct' in node['structuredDataNodes']['structuredDataNode'][11]['text']:
+                                print("Yes")
                                 node['structuredDataNodes']['structuredDataNode'][7]['text'] = 'Yes'
                                 node['structuredDataNodes']['structuredDataNode'][11]['text'] = node['structuredDataNodes']\
                                     ['structuredDataNode'][11]['text'].replace("Adjunct ", "")
-                        if 'text' in node['structuredDataNodes']['structuredDataNode'][9]:
+                            else:
+                                print("No")
+                                node['structuredDataNodes']['structuredDataNode'][7]['text'] = 'No'
+                        if 'text' not in node['structuredDataNodes']['structuredDataNode'][9]:
+                            print("changing emeritus...")
                             if ' Emeritus' in node['structuredDataNodes']['structuredDataNode'][11]['text']:
+                                print("Emeritus")
                                 node['structuredDataNodes']['structuredDataNode'][9]['text'] = 'Emeritus'
                                 node['structuredDataNodes']['structuredDataNode'][11]['text'] = node['structuredDataNodes']\
                                     ['structuredDataNode'][11]['text'].replace(" Emeritus ", "")
                             if 'Emerita' in node['structuredDataNodes']['structuredDataNode'][11]['text']:
+                                print("Emerita")
                                 node['structuredDataNodes']['structuredDataNode'][9]['text'] = 'Emerita'
                                 node['structuredDataNodes']['structuredDataNode'][11]['text'] = node['structuredDataNodes']\
                                     ['structuredDataNode'][11]['text'].replace(" Emerita", "")
+                            else:
+                                print("Neither")
+                                node['structuredDataNodes']['structuredDataNode'][9]['text'] = 'Neither'
                         node['structuredDataNodes']['structuredDataNode'][8]['text'] = 'Yes'
-                    resp.append(page.edit_asset(faculty_bio_data))
+                print("saving...\n")
+                resp.append(page.edit_asset(faculty_bio_data))
+        status = "Done"
         return render_template('faculty-bios/confirm.html', **locals())
 
     @requires_auth
