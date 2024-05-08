@@ -12,7 +12,7 @@ from tinker import app, cache
 from tinker.admin.sync.sync_metadata import data_to_add
 from tinker.admin.sync.sync_controller import SyncController
 from tinker.tinker_controller import admin_permissions, requires_auth
-from bu_cascade.asset_tools import update
+from bu_cascade.asset_tools import update, find
 
 
 class SyncView(FlaskView):
@@ -85,6 +85,37 @@ class SyncView(FlaskView):
         returned_keys = self.base.sync_data_definition(id)
 
         return render_template('admin/sync/data.html', **locals())
+
+    @route("/fix-faculty-bios", methods=['post'])
+    def fix_faculty_bios(self):
+        from operator import itemgetter
+
+        resp = []
+        forms = self.base.traverse_xml(app.config['FACULTY_BIOS_XML_URL'], 'system-page')
+        forms = sorted(forms, key=itemgetter('last-name'), reverse=False)
+        for bio in forms:
+            if bio['id'] in app.config['FACULTY_BIOS_IDS']:
+                page = self.base.read_page(bio['id'])
+                faculty_bio_data, mdata, sdata = page.read_asset()
+                for node in faculty_bio_data['page']['structuredData']['structuredDataNodes']['structuredDataNode']:
+                    if node['identifier'] == 'job-titles':
+                        if 'text' in node['structuredDataNodes']['structuredDataNode'][7]:
+                            if 'Adjunct' in node['structuredDataNodes']['structuredDataNode'][11]['text']:
+                                node['structuredDataNodes']['structuredDataNode'][7]['text'] = 'Yes'
+                                node['structuredDataNodes']['structuredDataNode'][11]['text'] = node['structuredDataNodes']\
+                                    ['structuredDataNode'][11]['text'].replace("Adjunct ", "")
+                        if 'text' in node['structuredDataNodes']['structuredDataNode'][9]:
+                            if ' Emeritus' in node['structuredDataNodes']['structuredDataNode'][11]['text']:
+                                node['structuredDataNodes']['structuredDataNode'][9]['text'] = 'Emeritus'
+                                node['structuredDataNodes']['structuredDataNode'][11]['text'] = node['structuredDataNodes']\
+                                    ['structuredDataNode'][11]['text'].replace(" Emeritus ", "")
+                            if 'Emerita' in node['structuredDataNodes']['structuredDataNode'][11]['text']:
+                                node['structuredDataNodes']['structuredDataNode'][9]['text'] = 'Emerita'
+                                node['structuredDataNodes']['structuredDataNode'][11]['text'] = node['structuredDataNodes']\
+                                    ['structuredDataNode'][11]['text'].replace(" Emerita", "")
+                        node['structuredDataNodes']['structuredDataNode'][8]['text'] = 'Yes'
+                    resp.append(page.edit_asset(faculty_bio_data))
+        return render_template('faculty-bios/confirm.html', **locals())
 
     @requires_auth
     @route("/public/sync-prayer-and-memorial", methods=['get'])

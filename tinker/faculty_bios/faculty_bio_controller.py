@@ -353,6 +353,9 @@ class FacultyBioController(TinkerController):
             gs_l = 'graduate' + i
             seminary_l = 'seminary' + i
             dept_chair_l = 'dept-chair' + i
+            fulltime_l = 'fulltime' + i
+            adjunct_l = 'adjunct' + i
+            emeritus_l = 'emeritus' + i
             program_director_l = 'program-director' + i
             lead_faculty_l = 'lead-faculty' + i
             job_title_l = 'new-job-title' + i
@@ -363,6 +366,9 @@ class FacultyBioController(TinkerController):
             gs = safe_get(gs_l, preferred_return=True)
             seminary = safe_get(seminary_l, preferred_return=True)
             dept_chair, d_c_value = safe_get(dept_chair_l, preferred_return=True), safe_get(dept_chair_l)
+            fulltime = safe_get(fulltime_l, preferred_return=True)
+            adjunct = safe_get(adjunct_l, preferred_return=True)
+            emeritus = safe_get(emeritus_l, preferred_return=True)
             program_director, p_d_value = safe_get(program_director_l, preferred_return=True), safe_get(program_director_l)
             lead_faculty, l_f_value = safe_get(lead_faculty_l, preferred_return=True), safe_get(lead_faculty_l)
             job_title = safe_get(job_title_l, preferred_return=True)
@@ -373,7 +379,8 @@ class FacultyBioController(TinkerController):
 
             staff_check = (school == 'Bethel University' and job_title)
             cas_check = (school == 'College of Arts and Sciences' and undergrad and dept_chair and
-                         ((d_c_value == 'Yes') or (d_c_value == 'No' and job_title)))
+                         ((d_c_value == 'Yes') or (d_c_value == 'No' and job_title)) and
+                         fulltime and adjunct and emeritus)
             caps_check = (school == 'College of Adult and Professional Studies' and caps and program_director and
                           ((p_d_value == 'Yes') or (p_d_value == 'No' and job_title)))
             gs_check = (school == 'Graduate School' and gs and program_director and
