@@ -238,6 +238,53 @@ to be in it's own card div, something to think about in the future -->
                                         .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'program-director' + id).attr('value', 'No'))))
                         )
                 );
+                inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'fulltime-div' + id)
+                        .append($('<label>').html('Are you a full-time Faculty member?')
+                                .append($('<div>').addClass('radio')
+                                        .append($('<span>').addClass('icons')
+                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
+                                        .append($('<label>').html('Yes').append($('<input type="radio">').attr('name', 'fulltime' + id).attr('value', 'Yes'))))
+                                .append($('<div>').addClass('radio')
+                                        .append($('<span>').addClass('icons')
+                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
+                                        .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'fulltime' + id).attr('value', 'No'))))
+                        )
+                );
+                inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'adjunct-div' + id)
+                        .append($('<label>').html('Are you an adjunct Faculty member?')
+                                .append($('<div>').addClass('radio')
+                                        .append($('<span>').addClass('icons')
+                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
+                                        .append($('<label>').html('Yes').append($('<input type="radio">').attr('name', 'adjunct' + id).attr('value', 'Yes'))))
+                                .append($('<div>').addClass('radio')
+                                        .append($('<span>').addClass('icons')
+                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
+                                        .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'adjunct' + id).attr('value', 'No'))))
+                        )
+                );
+                inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'emeritus-div' + id)
+                        .append($('<label>').html('Are you Emeritus/Emerita?')
+                                .append($('<div>').addClass('radio')
+                                        .append($('<span>').addClass('icons')
+                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
+                                        .append($('<label>').html('Emeritus').append($('<input type="radio">').attr('name', 'emeritus' + id).attr('value', 'Emeritus'))))
+                                .append($('<div>').addClass('radio')
+                                        .append($('<span>').addClass('icons')
+                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
+                                        .append($('<label>').html('Emerita').append($('<input type="radio">').attr('name', 'emeritus' + id).attr('value', 'Emerita'))))
+                            .append($('<div>').addClass('radio')
+                                        .append($('<span>').addClass('icons')
+                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
+                                        .append($('<label>').html('Neither').append($('<input type="radio">').attr('name', 'emeritus' + id).attr('value', 'Neither'))))
+                        )
+                );
                 inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'lead-faculty-div' + id)
                         .append($('<label>').html('For this program, I am the...')
                                 .append($('<div>').addClass('radio')
@@ -307,9 +354,12 @@ to be in it's own card div, something to think about in the future -->
                         // Program Directors
                         $('#dept-chair' + (i)).val($('input[name=dept-chair' + (i+1) + ']:checked').val());
                         $('#program-director' + (i)).val($('input[name=program-director' + (i+1) + ']:checked').val());
+                        $('#fulltime' + (i)).val($('input[name=fulltime' + (i+1) + ']:checked').val());
+                        $('#adjunct' + (i)).val($('input[name=adjunct' + (i+1) + ']:checked').val());
+                        $('#emeritus' + (i)).val($('input[name=emeritus' + (i+1) + ']:checked').val());
                         $('#lead-faculty' + (i)).val($('input[name=lead-faculty' + (i+1) + ']:checked').val());
 
-                        var directors = ['dept-chair', 'program-director', 'lead-faculty'];
+                        var directors = ['dept-chair', 'program-director', 'lead-faculty', 'emeritus', 'fulltime', 'adjunct'];
                         $.each(directors, function(index, director){
                             // remove all classes and checked values
                             $('input[name=' + director + (i) + ']').parent().parent().parent().children().removeClass('checked');
@@ -348,11 +398,26 @@ to be in it's own card div, something to think about in the future -->
             // todo: this whole method is awful. it has to be redone asap.
             function populateNewJobTitlesFieldset(id, job_title) {
                 var department_chair, program_director, lead_faculty, adult_undergrad_program, graduate_program,
-                        seminary_program, title;
+                        seminary_program, title, emeritus, fulltime, adjunct;
                 if( job_title['department_chair'])
                     department_chair = job_title['department_chair'];
                 else
                     department_chair = job_title['department-chair'];
+
+                if( job_title['fulltime'])
+                    fulltime = job_title['fulltime'];
+                else
+                    fulltime = job_title['fulltime'];
+
+                if( job_title['adjunct'])
+                    adjunct = job_title['adjunct'];
+                else
+                    adjunct = job_title['adjunct'];
+
+                if( job_title['emeritus'])
+                    emeritus = job_title['emeritus'];
+                else
+                    emeritus = job_title['emeritus'];
 
                 if( job_title['program_director'])
                     program_director = job_title['program_director'];
@@ -393,6 +458,15 @@ to be in it's own card div, something to think about in the future -->
                 if( !department_chair)
                     department_chair = 'No';
                 var deptchairid = 'input[name="dept-chair' + id + '"][value="' + department_chair + '"]';
+                if( !fulltime)
+                    fulltime = 'Yes';
+                var fulltimeid = 'input[name="fulltime' + id + '"][value="' + fulltime + '"]';
+                if( !adjunct)
+                    adjunct = 'No';
+                var adjunctid = 'input[name="adjunct' + id + '"][value="' + adjunct + '"]';
+                if( !emeritus)
+                    emeritus = 'Neither';
+                var emeritusid = 'input[name="emeritus' + id + '"][value="' + emeritus + '"]';
                 if( !program_director)
                     program_director = 'No';
                 var programdirectorid = 'input[name="program-director' + id + '"][value="' + program_director + '"]';
@@ -419,6 +493,15 @@ to be in it's own card div, something to think about in the future -->
 
                 $(deptchairid).parent().parent().addClass('checked');
                 $(deptchairid).attr('checked', true);
+
+                $(fulltimeid).parent().parent().addClass('checked');
+                $(fulltimeid).attr('checked', true);
+
+                $(adjunctid).parent().parent().addClass('checked');
+                $(adjunctid).attr('checked', true);
+
+                $(emeritusid).parent().parent().addClass('checked');
+                $(emeritusid).attr('checked', true);
 
                 $(programdirectorid).parent().parent().addClass('checked');
                 $(programdirectorid).attr('checked', true);
@@ -506,6 +589,9 @@ to be in it's own card div, something to think about in the future -->
                 }
 
                 addProgramLogic('undergrad', 'dept-chair-div', 'dept-chair');
+                addProgramLogic('undergrad', 'fulltime-div', 'fulltime');
+                addProgramLogic('undergrad', 'adjunct-div', 'adjunct');
+                addProgramLogic('undergrad', 'emeritus-div', 'emeritus');
                 addProgramLogic('adult-undergrad', 'program-director-div', 'program-director');
                 addProgramLogic('graduate', 'program-director-div', 'program-director');
                 addProgramLogic('seminary', 'lead-faculty-div', 'lead-faculty');
@@ -773,6 +859,39 @@ to be in it's own card div, something to think about in the future -->
                         </div>
                         <div class="radio">
                             <label><input type="radio" name="dept-chair1" value="No">No</label>
+                        </div>
+                    </label>
+                </div>
+                <div id="fulltime-div1" class="hide-when-school-changes1">
+                    <label>Is this position Full-Time?
+                        <div class="radio">
+                            <label><input type="radio" name="fulltime1" value="Yes">Yes</label>
+                        </div>
+                        <div class="radio">
+                            <label><input type="radio" name="fulltime1" value="No">No</label>
+                        </div>
+                    </label>
+                </div>
+                <div id="adjunct-div1" class="hide-when-school-changes1">
+                    <label>Are you an adjunct Faculty member?
+                        <div class="radio">
+                            <label><input type="radio" name="adjunct1" value="Yes">Yes</label>
+                        </div>
+                        <div class="radio">
+                            <label><input type="radio" name="adjunct1" value="No">No</label>
+                        </div>
+                    </label>
+                </div>
+                <div id="emeritus-div1" class="hide-when-school-changes1">
+                    <label>Are you an Emeritus/Emerita faculty member?
+                        <div class="radio">
+                            <label><input type="radio" name="emeritus1" value="Emeritus">Emeritus</label>
+                        </div>
+                        <div class="radio">
+                            <label><input type="radio" name="emeritus1" value="Emerita">Emerita</label>
+                        </div>
+                        <div class="radio">
+                            <label><input type="radio" name="emeritus1" value="Neither">Neither</label>
                         </div>
                     </label>
                 </div>
