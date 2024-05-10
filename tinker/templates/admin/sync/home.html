@@ -72,10 +72,10 @@
                 <div id='sync-all' class="btn btn-primary"
                      onclick="postToURLWithSpinner('{{ url_for("SyncView:all") }}', 'un-used')">Sync All
                 </div>
-                <hr>
-                <div id='sync-faculty' class="btn btn-primary"
-                     onclick="postToURLWithSpinner('{{ url_for("SyncView:fix_faculty_bios") }}', 'un-used')">Fix Faculty Bios
-                </div>
+{#                <hr>#}
+{#                <div id='sync-faculty' class="btn btn-primary"#}
+{#                     onclick="postToURLWithSpinner('{{ url_for("SyncView:fix_faculty_bios") }}', 'un-used')">Fix Faculty Bios#}
+{#                </div>#}
             </div>
 
             {# todo: format the gif better? #}
@@ -124,16 +124,16 @@
 
             });
         });
-        $("#sync-faculty").click(function () {
-            $.notify({
-                message: 'Fixing Faculty Bios'
-            }, {
-                type: 'success',
-                placement: {
-                    align: 'center'
-                },
-
-            });
-        });
+        {#$("#sync-faculty").click(function () {#}
+        {#    $.notify({#}
+        {#        message: 'Fixing Faculty Bios'#}
+        {#    }, {#}
+        {#        type: 'success',#}
+        {#        placement: {#}
+        {#            align: 'center'#}
+        {#        },#}
+        {##}
+        {#    });#}
+        {# });#}
     </script>
 {% endblock %}
