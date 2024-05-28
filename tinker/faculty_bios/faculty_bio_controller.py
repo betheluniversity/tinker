@@ -705,7 +705,10 @@ class FacultyBioController(TinkerController):
                 'department-chair': add_data.get('dept-chair' + i, 'No').replace('&nbsp;', ' '),
                 'program-director': add_data.get('program-director' + i, 'No').replace('&nbsp;', ' '),
                 'lead-faculty': add_data.get('lead-faculty' + i, 'Other').replace('&nbsp;', ' '),
-                'job_title': add_data.get('new-job-title' + i, '').replace('&nbsp;', ' ')
+                'job_title': add_data.get('new-job-title' + i, '').replace('&nbsp;', ' '),
+                'adjunct': add_data.get('adjunct' + i, 'No').replace('&nbsp;', ' '),
+                'fulltime': add_data.get('fulltime' + i, 'No').replace('&nbsp;', ' '),
+                'emeritus': add_data.get('emeritus' + i, 'No').replace('&nbsp;', ' ')
             }
 
             job_titles.append(full_job_title)
