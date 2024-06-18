@@ -36,7 +36,7 @@ to be in it's own card div, something to think about in the future -->
                             </div>
                         </div>
                     {% endif %}
-                    {{ form.hidden_tag() }}
+{#                    {{ form.hidden_tag() }}#}
                     {% for field in form %}
                         {% if field.widget.input_type != 'hidden' %}
                             {# Print any errors for this field#}
@@ -238,7 +238,7 @@ to be in it's own card div, something to think about in the future -->
                                         .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'program-director' + id).attr('value', 'No'))))
                         )
                 );
-                inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'fulltime-div' + id)
+                inner_node.append($('<div>').attr('id', 'fulltime-div' + id)
                         .append($('<label>').html('Are you a full-time Faculty member?')
                                 .append($('<div>').addClass('radio')
                                         .append($('<span>').addClass('icons')
@@ -252,7 +252,7 @@ to be in it's own card div, something to think about in the future -->
                                         .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'fulltime' + id).attr('value', 'No'))))
                         )
                 );
-                inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'adjunct-div' + id)
+                inner_node.append($('<div>').attr('id', 'adjunct-div' + id)
                         .append($('<label>').html('Are you an adjunct Faculty member?')
                                 .append($('<div>').addClass('radio')
                                         .append($('<span>').addClass('icons')
@@ -266,7 +266,7 @@ to be in it's own card div, something to think about in the future -->
                                         .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'adjunct' + id).attr('value', 'No'))))
                         )
                 );
-                inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'emeritus-div' + id)
+                inner_node.append($('<div>').attr('id', 'emeritus-div' + id)
                         .append($('<label>').html('Are you Emeritus/Emerita?')
                                 .append($('<div>').addClass('radio')
                                         .append($('<span>').addClass('icons')
@@ -862,7 +862,7 @@ to be in it's own card div, something to think about in the future -->
                         </div>
                     </label>
                 </div>
-                <div id="fulltime-div1" class="hide-when-school-changes1">
+                <div id="fulltime-div1">
                     <label>Is this position Full-Time?
                         <div class="radio">
                             <label><input type="radio" name="fulltime1" value="Yes">Yes</label>
@@ -872,7 +872,7 @@ to be in it's own card div, something to think about in the future -->
                         </div>
                     </label>
                 </div>
-                <div id="adjunct-div1" class="hide-when-school-changes1">
+                <div id="adjunct-div1">
                     <label>Are you an adjunct Faculty member?
                         <div class="radio">
                             <label><input type="radio" name="adjunct1" value="Yes">Yes</label>
@@ -882,7 +882,7 @@ to be in it's own card div, something to think about in the future -->
                         </div>
                     </label>
                 </div>
-                <div id="emeritus-div1" class="hide-when-school-changes1">
+                <div id="emeritus-div1">
                     <label>Are you an Emeritus/Emerita faculty member?
                         <div class="radio">
                             <label><input type="radio" name="emeritus1" value="Emeritus">Emeritus</label>
