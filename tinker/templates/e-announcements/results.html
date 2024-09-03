@@ -3,8 +3,12 @@
     <div class="card">
         <div class="content">
             <p>
-                {% if form.path != '' %}
-                    <a href="https://cms.bethel.edu/entity/open.act?id={{ form.id }}&type=block">{{ form.title }}</a>
+                {% if 'Administrators' in session['groups'] %}
+                    {% if form.path != '' %}
+                        <a href="https://cms.bethel.edu/entity/open.act?id={{ form.id }}&type=block">{{ form.title }}</a>
+                    {% else %}
+                        {{ form.title }}
+                    {% endif %}
                 {% else %}
                     {{ form.title }}
                 {% endif %}
