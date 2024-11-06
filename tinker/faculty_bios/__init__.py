@@ -28,6 +28,7 @@ class FacultyBiosView(FlaskView):
         if 'FACULTY' not in session['roles'] \
                 and 'RECENT-FACULTY' not in session['roles'] \
                 and 'SPONSORED-FACULTY' not in session['roles'] \
+                and 'STAFF' not in session['roles'] \
                 and 'Tinker Faculty Bios' not in session['groups'] \
                 and 'Tinker Faculty Bios - CAS' not in session['groups'] \
                 and 'Tinker Faculty Bios - CAPS and GS' not in session['groups'] \
