@@ -617,6 +617,7 @@ to be in it's own card div, something to think about in the future -->
                             $('#chief-nursing-dean-div' + num).show();
                         } else {
                             $('#chief-nursing-dean-div' + num).hide();
+                            $('input[name="chief-nursing-dean' + num + '"]').prop('checked', false).parent().parent().removeClass('checked');
                         }
                     });
                 }
