@@ -612,6 +612,12 @@ to be in it's own card div, something to think about in the future -->
                             }
                         }
                     });
+                    // Show chief-nursing-dean-div if "Nursing" is selected
+                    if ($(this).val() == 'Nursing') {
+                        $('#chief-nursing-dean-div' + num).show();
+                    } else {
+                        $('#chief-nursing-dean-div' + num).hide();
+                    }
                 }
 
                 addProgramLogic('undergrad', 'dept-chair-div', 'dept-chair');
