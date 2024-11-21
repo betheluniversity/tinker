@@ -599,6 +599,10 @@ to be in it's own card div, something to think about in the future -->
                         if ($('#schools' + num).val() && $('#schools' + num).val() != 'Bethel University') {
                             if (!$(this).val() || $(this).val() == 'None') {
                                 $('#' + idToShowHide + num).hide();
+                                $('#' + idToShowHide + num + ' input').prop('checked', false).parent().parent().removeClass('checked');
+                            } else if ( idToShowHide == 'chief-nursing-dean-div' && !$(this).val().includes('Nurs') ) {
+                                $('#' + idToShowHide + num).hide();
+                                $('#' + idToShowHide + num + ' input').prop('checked', false).parent().parent().removeClass('checked');
                             } else {
                                 $('#' + idToShowHide + num).show();
                                 var nextId = 'input[name="' + nextIdToDisplay + num + '"]';
@@ -611,41 +615,33 @@ to be in it's own card div, something to think about in the future -->
                                     $('#new-job-title-div' + num).hide();
                             }
                         }
-
-                        // Show chief-nursing-dean-div if "Nursing" is selected
-                        if ($(this).val() == 'Nursing') {
-                            $('#chief-nursing-dean-div' + num).show();
-                        } else {
-                            $('#chief-nursing-dean-div' + num).hide();
-                            $('input[name="chief-nursing-dean' + num + '"]').prop('checked', false).parent().parent().removeClass('checked');
-                        }
                     });
                 }
 
                 addProgramLogic('undergrad', 'dept-chair-div', 'dept-chair');
-                addProgramLogic('undergrad', 'chief-nursing-dean-div', 'chief-nursing-dean');
                 addProgramLogic('undergrad', 'fulltime-div', 'fulltime');
                 addProgramLogic('undergrad', 'adjunct-div', 'adjunct');
                 addProgramLogic('undergrad', 'emeritus-div', 'emeritus');
+                addProgramLogic('undergrad', 'chief-nursing-dean-div', 'chief-nursing-dean');
+                addProgramLogic('adult-undergrad', 'chief-nursing-dean-div', 'chief-nursing-dean');
+                addProgramLogic('graduate', 'chief-nursing-dean-div', 'chief-nursing-dean');
                 addProgramLogic('adult-undergrad', 'program-director-div', 'program-director');
                 addProgramLogic('graduate', 'program-director-div', 'program-director');
                 addProgramLogic('seminary', 'lead-faculty-div', 'lead-faculty');
 
-                function addLeadLogic(identifier) {
-                    $('input:radio[name="' + identifier + num + '"]').change(function () {
-                        if ($(this).val() == 'No' || $(this).val() == 'Other') {
-                            $('#new-job-title-div' + num).show();
-                        } else {
-                            $('#new-job-title-div' + num).hide();
-                        }
+                function addLeadLogic(identifiers) {
+                    $.each(identifiers, function(index, identifier){
+                        $('input:radio[name="' + identifier + num + '"]').change(function () {
+                            if ($(this).val() == 'No' || $(this).val() == 'Other') {
+                                $('#new-job-title-div' + num).show();
+                            } else {
+                                $('#new-job-title-div' + num).hide();
+                            }
+                        });
                     });
                 }
-
-                addLeadLogic('dept-chair');
-                addLeadLogic('chief-nursing-dean');
-                addLeadLogic('program-director');
-                addLeadLogic('lead-faculty');
-
+                //$('#new-job-title-div' + num).show();
+                addLeadLogic(['dept-chair', 'chief-nursing-dean', 'program-director', 'lead-faculty']);
             }
 
 
