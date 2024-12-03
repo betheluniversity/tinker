@@ -36,7 +36,6 @@ to be in it's own card div, something to think about in the future -->
                             </div>
                         </div>
                     {% endif %}
-                    {{ form.hidden_tag() }}
                     {% for field in form %}
                         {% if field.widget.input_type != 'hidden' %}
                             {# Print any errors for this field#}
@@ -224,6 +223,20 @@ to be in it's own card div, something to think about in the future -->
                                         .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'dept-chair' + id).attr('value', 'No'))))
                         )
                 );
+                inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'dean-of-nursing-div' + id)
+                        .append($('<label>').html('Are you the Dean of Nursing?')
+                                .append($('<div>').addClass('radio')
+                                        .append($('<span>').addClass('icons')
+                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
+                                        .append($('<label>').html('Yes').append($('<input type="radio">').attr('name', 'dean-of-nursing' + id).attr('value', 'Yes'))))
+                                .append($('<div>').addClass('radio')
+                                        .append($('<span>').addClass('icons')
+                                                .append($('<span>').addClass('first-icon').addClass('fa').addClass('fa-circle-o').addClass('fa-base'))
+                                                .append($('<span>').addClass('second-icon').addClass('fa').addClass('fa-dot-circle-o').addClass('fa-base')))
+                                        .append($('<label>').html('No').append($('<input type="radio">').attr('name', 'dean-of-nursing' + id).attr('value', 'No'))))
+                        )
+                );
                 inner_node.append($('<div>').attr('class', 'hide-when-school-changes' + id).attr('id', 'program-director-div' + id)
                         .append($('<label>').html('Are you the Program Director?')
                                 .append($('<div>').addClass('radio')
@@ -353,13 +366,14 @@ to be in it's own card div, something to think about in the future -->
 
                         // Program Directors
                         $('#dept-chair' + (i)).val($('input[name=dept-chair' + (i+1) + ']:checked').val());
+                        $('#dean-of-nursing' + (i)).val($('input[name=dean-of-nursing' + (i+1) + ']:checked').val());
                         $('#program-director' + (i)).val($('input[name=program-director' + (i+1) + ']:checked').val());
                         $('#fulltime' + (i)).val($('input[name=fulltime' + (i+1) + ']:checked').val());
                         $('#adjunct' + (i)).val($('input[name=adjunct' + (i+1) + ']:checked').val());
                         $('#emeritus' + (i)).val($('input[name=emeritus' + (i+1) + ']:checked').val());
                         $('#lead-faculty' + (i)).val($('input[name=lead-faculty' + (i+1) + ']:checked').val());
 
-                        var directors = ['dept-chair', 'program-director', 'lead-faculty', 'emeritus', 'fulltime', 'adjunct'];
+                        var directors = ['dept-chair', 'dean-of-nursing', 'program-director', 'lead-faculty', 'emeritus', 'fulltime', 'adjunct'];
                         $.each(directors, function(index, director){
                             // remove all classes and checked values
                             $('input[name=' + director + (i) + ']').parent().parent().parent().children().removeClass('checked');
@@ -397,12 +411,17 @@ to be in it's own card div, something to think about in the future -->
 
             // todo: this whole method is awful. it has to be redone asap.
             function populateNewJobTitlesFieldset(id, job_title) {
-                var department_chair, program_director, lead_faculty, adult_undergrad_program, graduate_program,
+                var department_chair, dean_of_nursing, program_director, lead_faculty, adult_undergrad_program, graduate_program,
                         seminary_program, title, emeritus, fulltime, adjunct;
                 if( job_title['department_chair'])
                     department_chair = job_title['department_chair'];
                 else
                     department_chair = job_title['department-chair'];
+
+                if( job_title['dean_of_nursing'])
+                    dean_of_nursing = job_title['dean_of_nursing'];
+                else
+                    dean_of_nursing = job_title['dean-of-nursing'];
 
                 if( job_title['fulltime'])
                     fulltime = job_title['fulltime'];
@@ -458,6 +477,9 @@ to be in it's own card div, something to think about in the future -->
                 if( !department_chair)
                     department_chair = 'No';
                 var deptchairid = 'input[name="dept-chair' + id + '"][value="' + department_chair + '"]';
+                if( !dean_of_nursing)
+                    dean_of_nursing = 'No';
+                var deanofnursingid = 'input[name="dean-of-nursing' + id + '"][value="' + dean_of_nursing + '"]';
                 if( !fulltime)
                     fulltime = 'Yes';
                 var fulltimeid = 'input[name="fulltime' + id + '"][value="' + fulltime + '"]';
@@ -493,6 +515,9 @@ to be in it's own card div, something to think about in the future -->
 
                 $(deptchairid).parent().parent().addClass('checked');
                 $(deptchairid).attr('checked', true);
+
+                $(deanofnursingid).parent().parent().addClass('checked');
+                $(deanofnursingid).attr('checked', true);
 
                 $(fulltimeid).parent().parent().addClass('checked');
                 $(fulltimeid).attr('checked', true);
@@ -573,6 +598,10 @@ to be in it's own card div, something to think about in the future -->
                         if ($('#schools' + num).val() && $('#schools' + num).val() != 'Bethel University') {
                             if (!$(this).val() || $(this).val() == 'None') {
                                 $('#' + idToShowHide + num).hide();
+                                $('#' + idToShowHide + num + ' input').prop('checked', false).parent().parent().removeClass('checked');
+                            } else if ( idToShowHide == 'dean-of-nursing-div' && !$(this).val().includes('Nurs') ) {
+                                $('#' + idToShowHide + num).hide();
+                                $('#' + idToShowHide + num + ' input').prop('checked', false).parent().parent().removeClass('checked');
                             } else {
                                 $('#' + idToShowHide + num).show();
                                 var nextId = 'input[name="' + nextIdToDisplay + num + '"]';
@@ -592,24 +621,26 @@ to be in it's own card div, something to think about in the future -->
                 addProgramLogic('undergrad', 'fulltime-div', 'fulltime');
                 addProgramLogic('undergrad', 'adjunct-div', 'adjunct');
                 addProgramLogic('undergrad', 'emeritus-div', 'emeritus');
+                addProgramLogic('undergrad', 'dean-of-nursing-div', 'dean-of-nursing');
+                addProgramLogic('adult-undergrad', 'dean-of-nursing-div', 'dean-of-nursing');
+                addProgramLogic('graduate', 'dean-of-nursing-div', 'dean-of-nursing');
                 addProgramLogic('adult-undergrad', 'program-director-div', 'program-director');
                 addProgramLogic('graduate', 'program-director-div', 'program-director');
                 addProgramLogic('seminary', 'lead-faculty-div', 'lead-faculty');
 
-                function addLeadLogic(identifier) {
-                    $('input:radio[name="' + identifier + num + '"]').change(function () {
-                        if ($(this).val() == 'No' || $(this).val() == 'Other') {
-                            $('#new-job-title-div' + num).show();
-                        } else {
-                            $('#new-job-title-div' + num).hide();
-                        }
+                function addLeadLogic(identifiers) {
+                    $.each(identifiers, function(index, identifier){
+                        $('input:radio[name="' + identifier + num + '"]').change(function () {
+                            if ($(this).val() == 'No' || $(this).val() == 'Other') {
+                                $('#new-job-title-div' + num).show();
+                            } else {
+                                $('#new-job-title-div' + num).hide();
+                            }
+                        });
                     });
                 }
-
-                addLeadLogic('dept-chair');
-                addLeadLogic('program-director');
-                addLeadLogic('lead-faculty');
-
+                //$('#new-job-title-div' + num).show();
+                addLeadLogic(['dept-chair', 'dean-of-nursing', 'program-director', 'lead-faculty']);
             }
 
 
@@ -859,6 +890,16 @@ to be in it's own card div, something to think about in the future -->
                         </div>
                         <div class="radio">
                             <label><input type="radio" name="dept-chair1" value="No">No</label>
+                        </div>
+                    </label>
+                </div>
+                <div id="dean-of-nursing-div1" class="hide-when-school-changes1">
+                    <label>Are you the Dean of Nursing?
+                        <div class="radio">
+                            <label><input type="radio" name="dean-of-nursing1" value="Yes">Yes</label>
+                        </div>
+                        <div class="radio">
+                            <label><input type="radio" name="dean-of-nursing1" value="No">No</label>
                         </div>
                     </label>
                 </div>
