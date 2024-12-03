@@ -353,7 +353,7 @@ class FacultyBioController(TinkerController):
             gs_l = 'graduate' + i
             seminary_l = 'seminary' + i
             dept_chair_l = 'dept-chair' + i
-            chief_nursing_dean_l = 'chief-nursing-dean' + i
+            dean_of_nursing_l = 'dean-of-nursing' + i
             fulltime_l = 'fulltime' + i
             adjunct_l = 'adjunct' + i
             emeritus_l = 'emeritus' + i
@@ -367,7 +367,7 @@ class FacultyBioController(TinkerController):
             gs = safe_get(gs_l, preferred_return=True)
             seminary = safe_get(seminary_l, preferred_return=True)
             dept_chair, d_c_value = safe_get(dept_chair_l, preferred_return=True), safe_get(dept_chair_l)
-            chief_nursing_dean, d_c_value = safe_get(chief_nursing_dean_l, preferred_return=True), safe_get(chief_nursing_dean_l)
+            dean_of_nursing, d_c_value = safe_get(dean_of_nursing_l, preferred_return=True), safe_get(dean_of_nursing_l)
             fulltime = safe_get(fulltime_l, preferred_return=True)
             adjunct = safe_get(adjunct_l, preferred_return=True)
             emeritus = safe_get(emeritus_l, preferred_return=True)
@@ -380,7 +380,7 @@ class FacultyBioController(TinkerController):
                 failed_check = True
 
             staff_check = (school == 'Bethel University' and job_title)
-            cas_check = (school == 'College of Arts and Sciences' and undergrad and dept_chair and chief_nursing_dean and
+            cas_check = (school == 'College of Arts and Sciences' and undergrad and dept_chair and dean_of_nursing and
                          ((d_c_value == 'Yes') or (d_c_value == 'No' and job_title)) and
                          fulltime and adjunct and emeritus)
             caps_check = (school == 'College of Adult and Professional Studies' and caps and program_director and
@@ -705,7 +705,7 @@ class FacultyBioController(TinkerController):
                 'graduate-program': add_data.get('graduate' + i, 'None').replace('&nbsp;', ' '),
                 'seminary-program': add_data.get('seminary' + i, 'None').replace('&nbsp;', ' '),
                 'department-chair': add_data.get('dept-chair' + i, 'No').replace('&nbsp;', ' '),
-                'chief-nursing-dean': add_data.get('chief-nursing-dean' + i, 'No').replace('&nbsp;', ' '),
+                'dean-of-nursing': add_data.get('dean-of-nursing' + i, 'No').replace('&nbsp;', ' '),
                 'program-director': add_data.get('program-director' + i, 'No').replace('&nbsp;', ' '),
                 'lead-faculty': add_data.get('lead-faculty' + i, 'Other').replace('&nbsp;', ' '),
                 'job_title': add_data.get('new-job-title' + i, '').replace('&nbsp;', ' '),
