@@ -30,6 +30,7 @@ undergrad_programs = [
     "Psychology",
     "Social Work",
     "Special Education",
+    "Speech-Language Pathology",
 ]
 
 adult_undergrad_programs = [
