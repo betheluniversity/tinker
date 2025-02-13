@@ -599,9 +599,11 @@ to be in it's own card div, something to think about in the future -->
                             if (!$(this).val() || $(this).val() == 'None') {
                                 $('#' + idToShowHide + num).hide();
                                 $('#' + idToShowHide + num + ' input').prop('checked', false).parent().parent().removeClass('checked');
-                            } else if ( idToShowHide == 'dean-of-nursing-div' && !$(this).val().includes('Nurs') ) {
+                            } else if (idToShowHide == 'dean-of-nursing-div' && !$(this).val().includes('Nurs')) {
+                                if ($('#' + idToShowHide + num).is(':visible')) {
+                                    $('#' + idToShowHide + num + ' input').prop('checked', false).parent().parent().removeClass('checked');
+                                }
                                 $('#' + idToShowHide + num).hide();
-                                $('#' + idToShowHide + num + ' input').prop('checked', false).parent().parent().removeClass('checked');
                             } else {
                                 $('#' + idToShowHide + num).show();
                                 var nextId = 'input[name="' + nextIdToDisplay + num + '"]';
