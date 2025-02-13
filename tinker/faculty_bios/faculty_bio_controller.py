@@ -367,7 +367,7 @@ class FacultyBioController(TinkerController):
             gs = safe_get(gs_l, preferred_return=True)
             seminary = safe_get(seminary_l, preferred_return=True)
             dept_chair, d_c_value = safe_get(dept_chair_l, preferred_return=True), safe_get(dept_chair_l)
-            dean_of_nursing, d_c_value = safe_get(dean_of_nursing_l, preferred_return=True), safe_get(dean_of_nursing_l)
+            dean_of_nursing, d_n_value = safe_get(dean_of_nursing_l, preferred_return=True), safe_get(dean_of_nursing_l)
             fulltime = safe_get(fulltime_l, preferred_return=True)
             adjunct = safe_get(adjunct_l, preferred_return=True)
             emeritus = safe_get(emeritus_l, preferred_return=True)
@@ -375,17 +375,27 @@ class FacultyBioController(TinkerController):
             lead_faculty, l_f_value = safe_get(lead_faculty_l, preferred_return=True), safe_get(lead_faculty_l)
             job_title = safe_get(job_title_l, preferred_return=True)
 
+            nursing_dept = False
+
             if school == "-select-":
                 error_list.append(u'You must select a school for Job Title #' + i)
                 failed_check = True
+            elif school == "College of Arts and Sciences" and 'Nursing' in form[undergrad_l]:
+                nursing_dept = True
+            elif school == "College of Adult and Professional Studies" and 'Nursing' in form[caps_l]:
+                nursing_dept = True
+            elif school == "Graduate School" and 'Nurse' in form[gs_l]:
+                nursing_dept = True
 
             staff_check = (school == 'Bethel University' and job_title)
-            cas_check = (school == 'College of Arts and Sciences' and undergrad and dept_chair and dean_of_nursing and
-                         ((d_c_value == 'Yes') or (d_c_value == 'No' and job_title)) and
-                         fulltime and adjunct and emeritus)
+            cas_check = (school == 'College of Arts and Sciences' and undergrad and dept_chair and
+                         (nursing_dept is False or (nursing_dept and dean_of_nursing)) and
+                         ((d_c_value == 'Yes') or (d_c_value == 'No' and job_title)) and fulltime and adjunct and emeritus)
             caps_check = (school == 'College of Adult and Professional Studies' and caps and program_director and
-                          ((p_d_value == 'Yes') or (p_d_value == 'No' and job_title)))
+                         (nursing_dept is False or (nursing_dept and dean_of_nursing)) and
+                         ((p_d_value == 'Yes') or (p_d_value == 'No' and job_title)))
             gs_check = (school == 'Graduate School' and gs and program_director and
+                        (nursing_dept is False or (nursing_dept and dean_of_nursing)) and
                         ((p_d_value == 'Yes') or (p_d_value == 'No' and job_title)))
             sem_check = (school == 'Bethel Seminary' and seminary and lead_faculty and
                          (((l_f_value == 'Lead Faculty' or l_f_value == 'Program Director')) or
