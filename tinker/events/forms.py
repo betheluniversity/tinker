@@ -5,7 +5,7 @@ from datetime import datetime
 # Packages
 from bu_cascade.asset_tools import find, convert_asset
 from flask import session
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import DateTimeField, Field, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField
 from wtforms.validators import DataRequired, ValidationError
 
@@ -89,32 +89,6 @@ def get_buildings():
 class CKEditorTextAreaField(TextAreaField):
     pass
 
-
-class HeadingField(Field):
-    def __init__(self, label=None, validators=None, filters=tuple(),
-                 description='', id=None, default=None, widget=None,
-                 _form=None, _name=None, _prefix='', _translations=None):
-        self.default = default
-        self.description = description
-        self.filters = filters
-        self.flags = None
-        self.name = _prefix + _name
-        self.short_name = _name
-        self.type = type(self).__name__
-        self.validators = validators or list(self.validators)
-
-        self.id = id or self.name
-        self.label = label
-
-    def __unicode__(self):
-        return None
-
-    def __str__(self):
-        return None
-
-    def __html__(self):
-        return None
-
 # Long words throw off formatting in Calendar
 def length_checker(Form, field):
     word_split = field.data.split(" ")
@@ -123,7 +97,7 @@ def length_checker(Form, field):
             raise ValidationError('Words in the title must be 15 characters or less')
 
 
-class EventForm(Form):
+class EventForm(FlaskForm):
     image = HiddenField("Image path")
 
     choices = get_event_choices()
@@ -139,7 +113,7 @@ class EventForm(Form):
     location_choices = (('On Campus', 'On Campus'), ('Other On Campus', 'Other On Campus'), ('Off Campus', 'Off Campus'), ('Online', 'Online'))
     heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
 
-    what = HeadingField(label="What is your event?")
+    what = StringField('label', description="What is your event?")
     title = StringField('Event name', validators=[DataRequired() , length_checker], description="This will be the title of your webpage")
 
     metaDescription = StringField('Teaser',
@@ -156,10 +130,10 @@ class EventForm(Form):
     sponsors = CKEditorTextAreaField('Sponsors')
     main_content = CKEditorTextAreaField('Event description')
 
-    when = HeadingField(label="When is your event?")
+    when = StringField('label', description="When is your event?")
     start = DateTimeField("", default=datetime.now)
 
-    where = HeadingField(label="Where is your event?")
+    where = StringField('label', description="Where is your event?")
     location = SelectField('Location', choices=location_choices)
     on_campus_location = SelectField('On campus location', choices=building_choices)
     other_on_campus = StringField('Other on campus location')
@@ -167,7 +141,7 @@ class EventForm(Form):
     maps_directions = CKEditorTextAreaField('Instructions for Guests',
                                             description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")
 
-    why = HeadingField(label="Does your event require registration or payment?")
+    why = StringField('label', description="Does your event require registration or payment?")
     registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices)
     registration_details = CKEditorTextAreaField('Registration/ticketing details',
                                                  description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
@@ -176,12 +150,12 @@ class EventForm(Form):
     cost = TextAreaField('Cost')
     cancellations = TextAreaField('Cancellations and refunds')
 
-    other = HeadingField(label="Who should folks contact with questions?")
+    other = StringField('label', description="Who should folks contact with questions?")
     questions = CKEditorTextAreaField('Questions',
                                       description=u"Contact info for questions. (ex: Contact the Office of Church Relations at 651.638.6301 or church-relations@bethel.edu.)",
                                   validators=[DataRequired()])
 
-    categories = HeadingField(label="Categories")
+    categories = StringField('label', description="Categories")
 
     general = SelectMultipleField('General categories', choices=general_choices, default=['None'],
                                   validators=[DataRequired()])

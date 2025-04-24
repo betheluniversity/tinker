@@ -106,6 +106,7 @@
                     {% endfor %}
 
                     {# print the label #}
+                    {% if field.label.text != "label" %}
                     {% if field.name not in ["off_campus_location", "on_campus_location", "other_on_campus"] %}
                         <label for="{{ field.name }}">
                             {{ field.label.text }}
@@ -115,13 +116,16 @@
                         </label>
                         <small class="extra-required">{{ field.description }}</small>
                     {% endif %}
+                    {% endif %}
 
                     {# Print the field #}
                     {% if field.type == "SelectMultipleField" %}
                         {{ field(size=10, class="large-select") }}
 
-                    {% elif field.type == "HeadingField" %}
-                        <h3 class="subtitle">{{ field.label }}</h3>
+                    {% elif field.label.text == "label" %}
+                        <p>
+                            <h3 class="subtitle">{{ field.description }}</h3>
+                        </p>
                         <hr/>
 
                     {% elif field.name == "off_campus_location" %}

@@ -80,7 +80,7 @@ class EventsView(FlaskView):
                 'request': request,
                 'username': session.get('username')
             }
-            self.base.log_sentry('Loading E-Announcements with Username', resp, **kwargs)
+            self.base.log_sentry('Loading Events with Username', resp, **kwargs)
 
         # import this here so we dont load all the content from cascade during homepage load
         from tinker.events.forms import EventForm
