@@ -426,11 +426,25 @@ class TinkerController(object):
         # A dict to populate with all the interesting data.
         add_data = {}
 
+        location = {}
+        off_campus = {}
         for key in form.keys():
             if key in lists:
                 add_data[key] = form.getlist(key)
             else:
-                add_data[key] = form[key]
+                if key == 'location':
+                    location['location-name'] = form[key]
+                elif key == 'on_campus_location':
+                    location['on-campus-location'] = form[key]
+                elif key == 'other_on_campus':
+                    location['other-on-campus'] = form[key]
+                elif 'off_campus_location' in key:
+                    oc_key = key.replace('off_campus_location-', '').replace('_', '-')
+                    off_campus[oc_key] = form[key]
+                else:
+                    add_data[key] = form[key]
+        location['off-campus-location'] = off_campus
+        add_data['location'] = location
 
         if 'title' in add_data:
             # strip() is called on the title to eliminate whitespace before and after the title

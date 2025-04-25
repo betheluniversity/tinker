@@ -129,8 +129,17 @@
                         <hr/>
 
                     {% elif field.name == "off_campus_location" %}
-                        <div id="off_location_wrap" style="display:none;">
-                            {{ field.label }}{{ field }}
+                        <div id="off_location_wrap" class="card" style="display:none;">
+                            <div class="content">
+                                {% for f in field if f.widget.input_type != 'hidden' %}
+                                <label for="{{ f.name }}">
+                                    {{ f.label.text }}
+                                    <small class="required">required</small>
+                                </label>
+                                <small class="extra-required">{{ f.description }}</small>
+                                {{ f }}
+                                {% endfor %}
+                            </div>
                         </div>
 
                     {% elif field.name == "on_campus_location" %}
@@ -350,16 +359,19 @@
                 var location = $("#location")[0];
                 var val = location.options[location.selectedIndex].innerHTML;
                 if (val == "Off Campus") {
+                    $("#off_location_wrap").find("input").prop("required", true);
                     $("#off_location_wrap").show();
                     $("#on_campus_wrap").hide();
                     $("#other_wrap").hide();
                 }
                 else if(val == "Other On Campus"){
+                    $("#off_location_wrap").find("input").prop("required", false);
                     $("#off_location_wrap").hide();
                     $("#on_campus_wrap").hide();
                     $("#other_wrap").show();
                 }
                 else { //val must == "On Campus"
+                    $("#off_location_wrap").find("input").prop("required", false);
                     $("#off_location_wrap").hide();
                     $("#on_campus_wrap").show();
                     $("#other_wrap").hide();
