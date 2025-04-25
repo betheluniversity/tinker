@@ -502,16 +502,16 @@ to be in it's own card div, something to think about in the future -->
                 $(schoolid).val(job_title['school']);
                 $(schoolid).change();
                 $(undergradid).val(job_title['department']);
-                if( job_title['department'] != 'None' && job_title['department'] != undefined)
+                if( job_title['department'] != '-select-' && job_title['department'] != undefined)
                     $(undergradid).change();
                 $(adultundergradid).val(adult_undergrad_program);
-                if (adult_undergrad_program != 'None' && adult_undergrad_program != undefined)
+                if (adult_undergrad_program != '-select-' && adult_undergrad_program != undefined)
                     $(adultundergradid).change();
                 $(graduateid).val(graduate_program);
-                if (graduate_program != 'None' && graduate_program != undefined)
+                if (graduate_program != '-select-' && graduate_program != undefined)
                     $(graduateid).change();
                 $(seminaryid).val(seminary_program);
-                if ( seminary_program != 'None' && seminary_program != undefined)
+                if ( seminary_program != '-select-' && seminary_program != undefined)
                     $(seminaryid).change();
 
                 $(deptchairid).parent().parent().addClass('checked');
@@ -600,11 +600,12 @@ to be in it's own card div, something to think about in the future -->
                             if (!$(this).val() || $(this).val() == 'None') {
                                 $('#' + idToShowHide + num).hide();
                                 $('#' + idToShowHide + num + ' input').prop('checked', false).parent().parent().removeClass('checked');
-                            } else if (idToShowHide == 'dean-of-nursing-div' + num && !$(this).val().includes('Nurs')) {
+                            } else if (idToShowHide == 'dean-of-nursing-div' && !$(this).val().includes('Nurs')) {
                                 if ($('#' + idToShowHide + num).is(':visible')) {
                                     $('#' + idToShowHide + num + ' input').prop('checked', false).parent().parent().removeClass('checked');
+                                    $('#' + idToShowHide + num).hide();
                                 }
-                                $('#' + idToShowHide + num).hide();
+
                             } else {
                                 $('#' + idToShowHide + num).show();
                                 var nextId = 'input[name="' + nextIdToDisplay + num + '"]';
