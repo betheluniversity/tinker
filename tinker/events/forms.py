@@ -5,8 +5,8 @@ from datetime import datetime
 # Packages
 from bu_cascade.asset_tools import find, convert_asset
 from flask import session
-from flask_wtf import Form, FlaskForm
-from wtforms import DateTimeField, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField, FormField
+from flask_wtf import FlaskForm
+from wtforms import DateTimeField, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField
 from wtforms.validators import DataRequired, ValidationError
 
 # Local
@@ -95,14 +95,6 @@ def length_checker(Form, field):
     for word in word_split:
         if len(word) > 15:
             raise ValidationError('Words in the title must be 15 characters or less')
-
-class OffCampusLocation(Form):
-    off_campus_name = StringField('Location Name', description="Name of the off campus location")
-    off_campus_address = StringField('Street Address', description="Street Address of the off campus location")
-    off_campus_city = StringField('City', description="City of the off campus location")
-    off_campus_state = StringField('State', description="State of the off campus location. Use two-letter state code (ex. MN)")
-    off_campus_zip = StringField('Zip Code', description="Zip Code of the off campus location")
-    
 class EventForm(FlaskForm):
     image = HiddenField("Image path")
 
@@ -144,7 +136,11 @@ class EventForm(FlaskForm):
     location = SelectField('Location', choices=location_choices)
     on_campus_location = SelectField('On campus location', choices=building_choices)
     other_on_campus = StringField('Other on campus location')
-    off_campus_location = FormField(OffCampusLocation)
+    off_campus_name = StringField('Location Name', description="Name of the off campus location")
+    off_campus_address = StringField('Street Address', description="Street Address of the off campus location")
+    off_campus_city = StringField('City', description="City of the off campus location")
+    off_campus_state = StringField('State', description="State of the off campus location. Use two-letter state code (ex. MN)")
+    off_campus_zip = StringField('Zip Code', description="Zip Code of the off campus location")
 
     maps_directions = CKEditorTextAreaField('Instructions for Guests',
                                             description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")

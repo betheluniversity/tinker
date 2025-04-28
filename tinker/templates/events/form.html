@@ -86,6 +86,7 @@
                     <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
                     <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
                 {% endif %}
+                {{ form.hidden_tag() }}
                 {% if form.errors or not dates_good and num_dates %}
                     <div class="error-alert">
                         <div data-alert class="red-alert">
@@ -93,7 +94,6 @@
                         </div>
                     </div>
                 {% endif %}
-                {{ form.hidden_tag() }}
                 {% for field in form if field.widget.input_type != 'hidden' %}
 
                     {# Print any errors for this field#}
@@ -107,7 +107,8 @@
 
                     {# print the label #}
                     {% if field.label.text != "label" %}
-                    {% if field.name not in ["off_campus_location", "on_campus_location", "other_on_campus"] %}
+                    {% if "off_campus" not in field.name %}
+                    {% if field.name not in ["on_campus_location", "other_on_campus"] %}
                         <label for="{{ field.name }}">
                             {{ field.label.text }}
                             {% if field.flags.required %}
@@ -115,6 +116,7 @@
                             {% endif %}
                         </label>
                         <small class="extra-required">{{ field.description }}</small>
+                    {% endif %}
                     {% endif %}
                     {% endif %}
 
@@ -128,19 +130,23 @@
                         </p>
                         <hr/>
 
-                    {% elif field.name == "off_campus_location" %}
+                    {% elif "off_campus" in field.name %}
+                        {% if field.name == "off_campus_name" %}
                         <div id="off_location_wrap" class="card" style="display:none;">
                             <div class="content">
-                                {% for f in field if f.widget.input_type != 'hidden' %}
+                                {% for f in form if f.widget.input_type != 'hidden' %}
+                                {% if "off_campus" in f.name %}
                                 <label for="{{ f.name }}">
                                     {{ f.label.text }}
                                     <small class="required">required</small>
                                 </label>
                                 <small class="extra-required">{{ f.description }}</small>
                                 {{ f }}
+                                {% endif %}
                                 {% endfor %}
                             </div>
                         </div>
+                        {% endif %}
 
                     {% elif field.name == "on_campus_location" %}
                         <div id="on_campus_wrap" style="display:none;">
