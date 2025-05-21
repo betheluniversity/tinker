@@ -7,7 +7,7 @@ from bu_cascade.asset_tools import find, convert_asset
 from flask import session
 from flask_wtf import FlaskForm
 from wtforms import DateTimeField, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField
-from wtforms.validators import DataRequired, ValidationError
+from wtforms.validators import DataRequired, ValidationError, InputRequired
 
 # Local
 from tinker.tinker_controller import TinkerController
@@ -95,6 +95,14 @@ def length_checker(Form, field):
     for word in word_split:
         if len(word) > 15:
             raise ValidationError('Words in the title must be 15 characters or less')
+        
+# Custom validator to ensure the cost is numeric
+def validate_numeric(form, field):
+    try:
+        float(field.data)  # Check if the value can be converted to a float
+    except ValueError:
+        raise ValidationError("Cost must be a numeric value.")
+    
 class EventForm(FlaskForm):
     image = HiddenField("Image path")
 
@@ -134,6 +142,7 @@ class EventForm(FlaskForm):
     where = StringField('label', description="Where is your event?")
 
     location = SelectField('Location', choices=location_choices)
+    online_url = StringField('Online URL', description="Enter full URL including 'https://'")
     on_campus_location = SelectField('On campus location', choices=building_choices)
     other_on_campus = StringField('Other on campus location')
     off_campus_name = StringField('Location Name', description="Name of the off campus location")
@@ -151,7 +160,7 @@ class EventForm(FlaskForm):
                                                  description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
     wufoo_code = StringField('Approved wufoo hash code')
     ticketing_url = StringField('Ticketing URL')
-    cost = TextAreaField('Cost')
+    cost = StringField('Cost', description="Please enter a number. If the event is Free, enter 0.", validators=[InputRequired(message="Cost is required."), validate_numeric])
     cancellations = TextAreaField('Cancellations and refunds')
 
     other = StringField('label', description="Who should folks contact with questions?")

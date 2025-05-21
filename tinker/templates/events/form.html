@@ -108,7 +108,7 @@
                     {# print the label #}
                     {% if field.label.text != "label" %}
                     {% if "off_campus" not in field.name %}
-                    {% if field.name not in ["on_campus_location", "other_on_campus"] %}
+                    {% if field.name not in ["on_campus_location", "other_on_campus", "online_url"] %}
                         <label for="{{ field.name }}">
                             {{ field.label.text }}
                             {% if field.flags.required %}
@@ -156,6 +156,18 @@
                     {% elif field.name == "other_on_campus" %}
                         <div id="other_wrap" style="display:none;">
                             {{ field.label }}{{ field }}
+                        </div>
+
+                    {% elif field.name == "online_url" %}
+                        <div id="online_wrap" style="display:none;">
+                            <label for="{{ field.name }}">
+                                {{ field.label.text }}
+                                {% if field.flags.required %}
+                                    <small class="required">required</small>
+                                {% endif %}
+                            </label>
+                            <small class="extra-required">{{ field.description }}</small>
+                            {{ field }}
                         </div>
 
                     {% elif field.type == "SelectField" %}
@@ -361,6 +373,7 @@
                     $("#off_campus_location").val('');
                     $("#on_campus_location").val('none');
                     $("#other_on_campus").val('');
+                    $("#online_url").val('');
                 }
                 var location = $("#location")[0];
                 var val = location.options[location.selectedIndex].innerHTML;
@@ -369,18 +382,28 @@
                     $("#off_location_wrap").show();
                     $("#on_campus_wrap").hide();
                     $("#other_wrap").hide();
+                    $("#online_wrap").hide();
                 }
                 else if(val == "Other On Campus"){
                     $("#off_location_wrap").find("input").prop("required", false);
                     $("#off_location_wrap").hide();
                     $("#on_campus_wrap").hide();
                     $("#other_wrap").show();
+                    $("#online_wrap").hide();
+                }
+                else if (val == "Online") {
+                    $("#off_location_wrap").find("input").prop("required", false);
+                    $("#off_location_wrap").hide();
+                    $("#on_campus_wrap").hide();
+                    $("#other_wrap").hide();
+                    $("#online_wrap").show();
                 }
                 else { //val must == "On Campus"
                     $("#off_location_wrap").find("input").prop("required", false);
                     $("#off_location_wrap").hide();
                     $("#on_campus_wrap").show();
                     $("#other_wrap").hide();
+                    $("#online_wrap").hide();
                 }
             }
 
