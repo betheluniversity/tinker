@@ -36,7 +36,7 @@ to be in it's own card div, something to think about in the future -->
                             </div>
                         </div>
                     {% endif %}
-                    {{ form.hidden_tag() }}
+{#                    {{ form.hidden_tag() }}#}
                     {% for field in form %}
                         {% if field.widget.input_type != 'hidden' %}
                             {# Print any errors for this field#}
@@ -412,62 +412,17 @@ to be in it's own card div, something to think about in the future -->
 
             // todo: this whole method is awful. it has to be redone asap.
             function populateNewJobTitlesFieldset(id, job_title) {
-                var department_chair, dean_of_nursing, program_director, lead_faculty, adult_undergrad_program, graduate_program,
-                        seminary_program, title, emeritus, fulltime, adjunct;
-                if( job_title['department_chair'])
-                    department_chair = job_title['department_chair'];
-                else
-                    department_chair = job_title['department-chair'];
-
-                if( job_title['dean_of_nursing'])
-                    dean_of_nursing = job_title['dean_of_nursing'];
-                else
-                    dean_of_nursing = job_title['dean-of-nursing'];
-
-                if( job_title['fulltime'])
-                    fulltime = job_title['fulltime'];
-                else
-                    fulltime = job_title['fulltime'];
-
-                if( job_title['adjunct'])
-                    adjunct = job_title['adjunct'];
-                else
-                    adjunct = job_title['adjunct'];
-
-                if( job_title['emeritus'])
-                    emeritus = job_title['emeritus'];
-                else
-                    emeritus = job_title['emeritus'];
-
-                if( job_title['program_director'])
-                    program_director = job_title['program_director'];
-                else
-                    program_director = job_title['program-director'];
-
-                if( job_title['lead_faculty'])
-                    lead_faculty = job_title['lead_faculty'];
-                else
-                    lead_faculty = job_title['lead-faculty'];
-
-                if( job_title['adult_undergrad_program'])
-                    adult_undergrad_program = job_title['adult_undergrad_program'];
-                else
-                    adult_undergrad_program = job_title['adult-undergrad-program'];
-
-                if( job_title['graduate_program'])
-                    graduate_program = job_title['graduate_program'];
-                else
-                    graduate_program = job_title['graduate-program'];
-
-                if( job_title['seminary_program'])
-                    seminary_program = job_title['seminary_program'];
-                else
-                    seminary_program = job_title['seminary-program'];
-
-                if( job_title['job_title'])
-                    title = job_title['job_title'];
-                else
-                    title = job_title['job-title'];
+                var department_chair = job_title['department_chair'];
+                var dean_of_nursing = job_title['dean_of_nursing'];
+                var fulltime = job_title['fulltime'];
+                var adjunct = job_title['adjunct'];
+                var emeritus = job_title['emeritus'];
+                var program_director = job_title['program_director'];
+                var lead_faculty = job_title['lead_faculty'];
+                var adult_undergrad_program = job_title['adult_undergrad_program'];
+                var graduate_program = job_title['graduate_program'];
+                var seminary_program = job_title['seminary_program'];
+                var title = job_title['job_title'];
 
                 var schoolid = '#schools' + id;
                 var undergradid = '#undergrad' + id;
@@ -477,41 +432,43 @@ to be in it's own card div, something to think about in the future -->
 
                 if( !department_chair)
                     department_chair = 'No';
-                var deptchairid = 'input[name="dept-chair' + id + '"][value="' + department_chair + '"]';
                 if( !dean_of_nursing)
                     dean_of_nursing = 'No';
-                var deanofnursingid = 'input[name="dean-of-nursing' + id + '"][value="' + dean_of_nursing + '"]';
                 if( !fulltime)
                     fulltime = 'Yes';
-                var fulltimeid = 'input[name="fulltime' + id + '"][value="' + fulltime + '"]';
                 if( !adjunct)
                     adjunct = 'No';
-                var adjunctid = 'input[name="adjunct' + id + '"][value="' + adjunct + '"]';
                 if( !emeritus)
                     emeritus = 'Neither';
-                var emeritusid = 'input[name="emeritus' + id + '"][value="' + emeritus + '"]';
                 if( !program_director)
                     program_director = 'No';
-                var programdirectorid = 'input[name="program-director' + id + '"][value="' + program_director + '"]';
                 if( !lead_faculty)
                     lead_faculty = 'Other';
-                var leadfacultyid = 'input[name="lead-faculty' + id + '"][value="' + lead_faculty + '"]';
 
+                var deptchairid = 'input[name="dept-chair' + id + '"][value="' + department_chair + '"]';
+                var deanofnursingid = 'input[name="dean-of-nursing' + id + '"][value="' + dean_of_nursing + '"]';
+                var fulltimeid = 'input[name="fulltime' + id + '"][value="' + fulltime + '"]';
+                var adjunctid = 'input[name="adjunct' + id + '"][value="' + adjunct + '"]';
+                var emeritusid = 'input[name="emeritus' + id + '"][value="' + emeritus + '"]';
+                var programdirectorid = 'input[name="program-director' + id + '"][value="' + program_director + '"]';
+                var leadfacultyid = 'input[name="lead-faculty' + id + '"][value="' + lead_faculty + '"]';
                 var jobtitleid = '#new-job-title' + id;
 
                 $(schoolid).val(job_title['school']);
                 $(schoolid).change();
+
                 $(undergradid).val(job_title['department']);
-                if( job_title['department'] != '-select-' && job_title['department'] != undefined)
-                    $(undergradid).change();
                 $(adultundergradid).val(adult_undergrad_program);
-                if (adult_undergrad_program != '-select-' && adult_undergrad_program != undefined)
-                    $(adultundergradid).change();
                 $(graduateid).val(graduate_program);
-                if (graduate_program != '-select-' && graduate_program != undefined)
-                    $(graduateid).change();
                 $(seminaryid).val(seminary_program);
-                if ( seminary_program != '-select-' && seminary_program != undefined)
+
+                if( job_title['department'] != 'None' && job_title['department'] != undefined)
+                    $(undergradid).change();
+                else if (adult_undergrad_program != 'None' && adult_undergrad_program != undefined)
+                    $(adultundergradid).change();
+                else if (graduate_program != 'None' && graduate_program != undefined)
+                    $(graduateid).change();
+                else if (seminary_program != 'None' && seminary_program != undefined)
                     $(seminaryid).change();
 
                 $(deptchairid).parent().parent().addClass('checked');
