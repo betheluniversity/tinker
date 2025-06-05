@@ -493,6 +493,15 @@ to be in it's own card div, something to think about in the future -->
                 $(leadfacultyid).attr('checked', true);
 
                 $(jobtitleid).val(title);
+
+                // TODO is there a better solution for this?
+                if (job_title['department'] && job_title['department'].includes('Nurs')) {
+                    $('#dean-of-nursing-div' + id).show();
+                } else if (job_title['adult_undergrad_program'] && job_title['adult_undergrad_program'].includes('Nurs')) {
+                    $('#dean-of-nursing-div' + id).show();
+                } else if (job_title['graduate_program'] && job_title['graduate_program'].includes('Nurs')) {
+                    $('#dean-of-nursing-div' + id).show();
+                }
             }
 
             //////////////////////////////
@@ -562,11 +571,10 @@ to be in it's own card div, something to think about in the future -->
                                     $('#' + idToShowHide + num + ' input').prop('checked', false).parent().parent().removeClass('checked');
                                     $('#' + idToShowHide + num).hide();
                                 }
-
                             } else {
                                 $('#' + idToShowHide + num).show();
                                 var nextId = 'input[name="' + nextIdToDisplay + num + '"]';
-                                $(nextId).change();
+                                $(nextId).change(); // show/hide title field based on leadlogic
 
                                 nextId = 'input[name="' + nextIdToDisplay + num + '"]:checked';
                                 if ($(nextId).val() == 'No' || $(nextId).val() == 'Other')
