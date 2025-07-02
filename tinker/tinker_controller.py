@@ -23,6 +23,12 @@ from bu_cascade.assets.data_definition import DataDefinition
 from bu_cascade.assets.metadata_set import MetadataSet
 from bu_cascade.assets.page import Page
 from bu_cascade.asset_tools import find, update, convert_asset
+# from tinker.bu_cascade.assets.block import Block
+# from tinker.bu_cascade.assets.data_definition import DataDefinition
+# from tinker.bu_cascade.assets.metadata_set import MetadataSet
+# from tinker.bu_cascade.assets.page import Page
+# from tinker.bu_cascade.asset_tools import find, update, convert_asset
+
 from flask import abort, current_app, render_template, request, Response, session
 from flask import json as fjson
 from flask import redirect
@@ -426,25 +432,24 @@ class TinkerController(object):
         # A dict to populate with all the interesting data.
         add_data = {}
 
-        location = {}
-        off_campus = {}
         for key in form.keys():
             if key in lists:
                 add_data[key] = form.getlist(key)
+            elif key.endswith('[]'):
+                # This is a fieldset, so we need to get the data from it
+                name_list = key.split('::')
+                fieldset_name = name_list[0].replace('_fieldset', '')
+                if fieldset_name not in add_data:
+                    add_data[fieldset_name] = []
+
+                fieldset_key = name_list[1].replace('[]', '')
+                fieldset_list = form.getlist(key)
+                for idx, value in enumerate(fieldset_list):
+                    if len(add_data[fieldset_name]) <= idx:
+                        add_data[fieldset_name].append({})
+                    add_data[fieldset_name][idx][fieldset_key] = value
             else:
-                if key == 'location':
-                    location['location-name'] = form[key]
-                elif key == 'on_campus_location':
-                    location['on-campus-location'] = form[key]
-                elif key == 'other_on_campus':
-                    location['other-on-campus'] = form[key]
-                elif 'off_campus_location' in key:
-                    oc_key = key.replace('off_campus_location-', '').replace('_', '-')
-                    off_campus[oc_key] = form[key]
-                else:
-                    add_data[key] = form[key]
-        location['off-campus-location'] = off_campus
-        add_data['location'] = location
+                add_data[key] = form[key]
 
         if 'title' in add_data:
             # strip() is called on the title to eliminate whitespace before and after the title
@@ -466,7 +471,34 @@ class TinkerController(object):
         # add author
         add_data['author'] = session['username']
 
-        return add_data
+        new_data = {}
+        # Convert all keys to use hyphens instead of underscores
+        # This is because Cascade uses hyphens in the XML, but the form uses underscores
+        for key in add_data:
+            try:
+                if isinstance(add_data[key], list):
+                    # Handle list of dicts
+                    new_data[key.replace('_', '-')] = []
+                    for item in add_data[key]:
+                        if isinstance(item, dict):
+                            new_item = {}
+                            for k, v in item.items():
+                                new_item[k.replace('_', '-')] = v
+                            new_data[key.replace('_', '-')].append(new_item)
+                        else:
+                            new_data[key.replace('_', '-')].append(item)
+                elif isinstance(add_data[key], dict):
+                    # Handle nested dict
+                    new_item = {}
+                    for k, v in add_data[key].items():
+                        new_item[k.replace('_', '-')] = v
+                    new_data[key.replace('_', '-')] = new_item
+                else:
+                    new_data[key.replace('_', '-')] = add_data[key]
+            except:
+                pass
+
+        return new_data
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)

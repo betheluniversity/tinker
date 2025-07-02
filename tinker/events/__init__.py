@@ -83,9 +83,9 @@ class EventsView(FlaskView):
             self.base.log_sentry('Loading Events with Username', resp, **kwargs)
 
         # import this here so we dont load all the content from cascade during homepage load
-        from tinker.events.forms import EventForm
+        from tinker.events.forms import get_event_form
 
-        form = EventForm()
+        form = get_event_form()
         new_form = True
         return render_template('events/form.html', **locals())
 
@@ -97,8 +97,8 @@ class EventsView(FlaskView):
         edit_data, dates = self.base.build_edit_form(event_id)
         # todo: fix this with the submit_all() functionality ASK CALEB
         # convert 'On/Off campus' to 'On/Off Campus' for all events
-        from tinker.events.forms import EventForm
-        form = EventForm(**edit_data)
+        from tinker.events.forms import get_event_form
+        form = get_event_form(**edit_data)
         if 'location' in edit_data and edit_data['location']:
             edit_data['location'].replace(' c', ' C')
 
@@ -106,8 +106,8 @@ class EventsView(FlaskView):
 
     def duplicate(self, event_id):
         edit_data, dates = self.base.build_edit_form(event_id)
-        from tinker.events.forms import EventForm
-        form = EventForm(**edit_data)
+        from tinker.events.forms import get_event_form
+        form = get_event_form(**edit_data)
         new_form = True
 
         return render_template('events/form.html', **locals())
@@ -117,10 +117,7 @@ class EventsView(FlaskView):
         rform = request.form
         username = session['username']
         eid = rform.get('event_id')
-        dates, num_dates = self.base.get_event_dates(rform)
-        dates_str, dates_good = self.base.check_event_dates(dates)
-        form, passed = self.base.validate_form(rform, dates_good)
-        workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
+        form, passed = self.base.validate_form(rform)
 
         if not passed:
             if 'event_id' in rform.keys():
@@ -134,7 +131,8 @@ class EventsView(FlaskView):
 
             return render_template('events/form.html', **locals())
 
-        add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates, num_dates, metadata_list, workflow)
+        #form = self.base.inject_fieldset_data(rform)
+        add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, metadata_list)
 
         # todo: Test this
         if 'link' in add_data and add_data['link']:

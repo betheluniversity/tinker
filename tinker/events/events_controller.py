@@ -122,23 +122,24 @@ class EventsController(TinkerController):
     Submitting a new or edited event form combined into one method
     """
 
-    def submit_new_or_edit(self, rform, username, eid, dates, num_dates, metadata_list, workflow):
+    def submit_new_or_edit(self, rform, username, eid, metadata_list):
         # Changes the dates to a timestamp, needs to occur after a failure is detected or not
         add_data = self.get_add_data(metadata_list, rform)
-        add_data['event-dates'] = self.change_dates(dates)
+
+        add_data['off-campus-location'] = add_data['off-campus-location'][0] if 'off-campus-location' in add_data else {}
+        add_data['event-dates'] = self.change_dates(add_data['event-dates']) if 'event-dates' in add_data else []
+
         if not eid:
-            bid = app.config['EVENTS_BASE_ASSET']
-            event_data, metadata, structured_data = self.cascade_connector.load_base_asset_by_id(bid, 'page')
-            asset = self.update_structure(event_data, metadata, structured_data, add_data, username, num_dates,
-                                          workflow=workflow)
+            asset = self.update_structure(add_data, username)
+
+            workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
+            self.add_workflow_to_asset(workflow, asset)
+            
             resp = self.create_page(asset)
             eid = resp.asset['page']['id']
             self.log_sentry("New event submission", "createdAssetId = " + eid)
         else:
-            page = self.read_page(eid)
-            event_data, metadata, structured_data = page.get_asset()
-            asset = self.update_structure(event_data, metadata, structured_data, add_data, username, num_dates,
-                                          workflow=workflow, event_id=eid)
+            asset = self.update_structure(add_data, username, event_id=eid)
 
             self.check_new_year_folder(eid, add_data, username)
             proxy_page = self.read_page(eid)
@@ -167,6 +168,35 @@ class EventsController(TinkerController):
 
         # convert event dates to JSON
         return event_dates, num_dates
+    
+    def inject_fieldset_data(self, rform):
+        form = rform.copy()
+        fieldset_data = {}
+        delete_keys = []
+        for name in form.keys():
+            if name.endswith('[]'):
+                # This is a fieldset, so we need to get the data from it
+                name_list = name.split('::')
+                fieldset_name = name_list[0].replace('_fieldset', '')
+                if fieldset_name not in fieldset_data:
+                    fieldset_data[fieldset_name] = []
+
+                fieldset_key = name_list[1].replace('[]', '')
+                fieldset_list = form.getlist(name)
+                for idx, value in enumerate(fieldset_list):
+                    if len(fieldset_data[fieldset_name]) <= idx:
+                        fieldset_data[fieldset_name].append({})
+                    fieldset_data[fieldset_name][idx][fieldset_key] = value
+                
+                delete_keys.append(name)  # Remove the fieldset from the main form data
+
+        for key, value in fieldset_data.items():
+            form[key] = value
+
+        for key in delete_keys:
+            del form[key]
+
+        return form
 
     def check_event_dates(self, event_dates):
         dates_good = True
@@ -192,48 +222,48 @@ class EventsController(TinkerController):
     def change_dates(self, event_dates):
         for i in range(len(event_dates)):
             # Get rid of the fancy formatting so we just have normal numbers
-            start = event_dates[i]['start_date'].split(' ')
-            end = event_dates[i]['end_date'].split(' ')
+            start = event_dates[i]['start-date'].split(' ')
+            end = event_dates[i]['end-date'].split(' ')
             start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
             end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
 
             start = " ".join(start)
             end = " ".join(end)
 
-            event_dates[i]['start_date'] = start
-            event_dates[i]['end_date'] = end
+            event_dates[i]['start-date'] = start
+            event_dates[i]['end-date'] = end
 
             # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
             # which use milliseconds instead of seconds
             try:
-                event_dates[i]['start_date'] = self.date_str_to_timestamp(event_dates[i]['start_date'])
+                event_dates[i]['start-date'] = self.date_str_to_timestamp(event_dates[i]['start-date'])
             except ValueError as e:
                 app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
-                event_dates[i]['start_date'] = None
+                event_dates[i]['start-date'] = None
             try:
-                event_dates[i]['end_date'] = self.date_str_to_timestamp(event_dates[i]['end_date'])
+                event_dates[i]['end-date'] = self.date_str_to_timestamp(event_dates[i]['end-date'])
             except ValueError as e:
                 app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
-                event_dates[i]['end_date'] = None
+                event_dates[i]['end-date'] = None
 
             # As long as the value for these checkboxes are NOT '' or 'False'
             # the value in event_dates will be set to 'Yes'
-            if event_dates[i]['all_day']:
-                event_dates[i]['all_day'] = 'Yes'
+            if event_dates[i].get('all-day'):
+                event_dates[i]['all-day'] = 'Yes'
             else:
-                event_dates[i]['all_day'] = 'No'
-            if event_dates[i]['outside_of_minnesota']:
-                event_dates[i]['outside_of_minnesota'] = 'Yes'
+                event_dates[i]['all-day'] = 'No'
+            if event_dates[i].get('outside-of-minnesota'):
+                event_dates[i]['outside-of-minnesota'] = 'Yes'
             else:
-                event_dates[i]['outside_of_minnesota'] = 'No'
+                event_dates[i]['outside-of-minnesota'] = 'No'
 
         return event_dates
 
-    def validate_form(self, rform, dates_good):
+    def validate_form(self, rform):
         from tinker.events.forms import EventForm
         form = EventForm(rform)
 
-        return form, form.validate_on_submit() and dates_good
+        return form, form.validate_on_submit()
 
     def build_edit_form(self, event_id):
         page = self.read_page(event_id)
@@ -258,54 +288,27 @@ class EventsController(TinkerController):
         except TypeError:
             return None
 
-    def update_structure(self, event_data, metadata, structured_data, add_data, username, num_dates, workflow=None,
-                         event_id=None):
-        """
-         Could this be cleaned up at all?
-        """
-        new_data = {}
-        for key in add_data:
-            try:
-                # Changes date's value names to be hyphens
-                if key == 'event-dates':
-                    new_data[key.replace('_', '-')] = add_data[key]
-                    for i in range(0, num_dates):
-                        # The temp dict is made to later replace new_data's dict
-                        temp_data = {
-                            'start-date': None,
-                            'end-date': None,
-                            'all-day': None,
-                            'outside-of-minnesota': None,
-                            'time-zone': None,
-                            'no-end-date': None
-                        }
-                        for val in add_data[key][i]:
-                            temp_data[val.replace('_', '-')] = add_data['event-dates'][i][val]
-                        new_data[key.replace('_', '-')][i] = temp_data
-                else:
-                    new_data[key.replace('_', '-')] = add_data[key]
-            except:
-                pass
+    def update_structure(self, add_data, username, event_id=None):
+        bid = app.config['EVENTS_BASE_ASSET']
+        event_data, metadata, structured_data = self.cascade_connector.load_base_asset_by_id(bid, 'page')
 
         # put it all into the final asset with the rest of the SOAP structure
-        hide_site_nav, parent_folder_path = self.get_event_folder_path(new_data)
+        hide_site_nav, parent_folder_path = self.get_event_folder_path(add_data)
 
-        new_data['parentFolderID'] = ''
-        new_data['parentFolderPath'] = parent_folder_path
+        add_data['parentFolderID'] = ''
+        add_data['parentFolderPath'] = parent_folder_path
 
-        new_data['hide-site-nav'] = [hide_site_nav]
-        new_data['tinker-edits'] = 1
+        add_data['hide-site-nav'] = [hide_site_nav]
+        add_data['tinker-edits'] = 1
 
         if event_id:
-            new_data['id'] = event_id
+            add_data['id'] = event_id
             # delete author, as we don't want it to change. But, it gets set in get_add_data()
-            new_data.pop('author', None)
+            add_data.pop('author', None)
         else:
-            new_data['author'] = username
+            add_data['author'] = username
 
-        self.update_asset(event_data, new_data)
-
-        self.add_workflow_to_asset(workflow, event_data)
+        self.update_asset(event_data, add_data)
 
         return event_data
 
