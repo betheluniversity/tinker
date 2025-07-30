@@ -281,14 +281,22 @@ function selectChanged(select) {
     });
 }
 
-function toggleFieldsetField(element, className, checkedAction) {
+function toggleFieldsetField(element, className, checkedAction, isInit) {
 
     wrap = $(element).closest('fieldset').find('.' + className + '_wrap');
     showField = $(element).hasClass('checked');
 
-    // Reverse the state if we are showing
-    if (checkedAction === 'show') {
-        showField = !showField;
+    if (isInit) {
+        if (checkedAction === 'show') {
+            showField = true; // Force show if initializing
+        } else {
+            showField = false; // Force hide if initializing
+        }
+    } else {
+        // Reverse the state if we are showing
+        if (checkedAction === 'show') {
+            showField = !showField;
+        }
     }
 
     if (showField) {
@@ -528,6 +536,29 @@ $(document).ready(function () {
         var onclickAction = input.attr('onclick');
         if (onclickAction) {
             $(this).attr('onclick', onclickAction);
+            var onclickStr = onclickAction.toString();
+
+            if ($(this).hasClass('checked')) {
+                var match = onclickStr.match(/toggleFieldsetField\(([^)]*)\)/);
+                if (match) {
+                    // Evaluate the arguments safely
+                    var args = match[1].split(',').map(function(arg) {
+                        arg = arg.trim();
+                        if (arg.startsWith("'") && arg.endsWith("'")) {
+                            return arg.slice(1, -1);
+                        } else if (arg.startsWith('"') && arg.endsWith('"')) {
+                            return arg.slice(1, -1);
+                        } else if (arg === "this") {
+                            return this;
+                        } else {
+                            return arg;
+                        }
+                    }.bind(this));
+                    console.log("Args for toggleFieldsetField:", args);
+                    toggleFieldsetField.apply(null, [...args, true]);
+                }
+            }
+
             input.removeAttr('onclick');
         }
     });
