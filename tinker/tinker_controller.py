@@ -334,12 +334,10 @@ class TinkerController(object):
             edit_data[m] = []
 
         for node in find(sdata, 'identifier'):
-            if node['identifier'] in multiple:
-                m = node['identifier']
-                edit_data[m].append(self.inspect_sdata_node(node))
-
+            node_identifier = node['identifier'].replace('-', '_')
+            if node_identifier in multiple:
+                edit_data[node_identifier].append(self.inspect_sdata_node(node))
             else:
-                node_identifier = node['identifier'].replace('-', '_')
                 edit_data[node_identifier] = self.inspect_sdata_node(node)
 
         dynamic_fields = find(mdata, 'dynamicField', False)

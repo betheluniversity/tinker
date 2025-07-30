@@ -99,8 +99,8 @@ class EventsView(FlaskView):
         # convert 'On/Off campus' to 'On/Off Campus' for all events
         from tinker.events.forms import get_event_form
         form = get_event_form(**edit_data)
-        if 'location' in edit_data and edit_data['location']:
-            edit_data['location'].replace(' c', ' C')
+        # if 'location' in edit_data and edit_data['location']:
+        #     edit_data['location'].replace(' c', ' C')
 
         return render_template('events/form.html', **locals())
 
@@ -115,9 +115,30 @@ class EventsView(FlaskView):
     @route("/submit", methods=['post'])
     def submit(self):
         rform = request.form
+
+        # A dict to populate with all the interesting data.
+        edit_data = {}
+
+        for key in rform.keys():
+            if key.endswith('[]'):
+                # This is a fieldset, so we need to get the data from it
+                name_list = key.split('::')
+                fieldset_name = name_list[0].replace('_fieldset', '')
+                if fieldset_name not in edit_data:
+                    edit_data[fieldset_name] = []
+
+                fieldset_key = name_list[1].replace('[]', '')
+                fieldset_list = rform.getlist(key)
+                for idx, value in enumerate(fieldset_list):
+                    if len(edit_data[fieldset_name]) <= idx:
+                        edit_data[fieldset_name].append({})
+                    edit_data[fieldset_name][idx][fieldset_key] = value
+            else:
+                edit_data[key] = rform[key]
+
         username = session['username']
         eid = rform.get('event_id')
-        form, passed = self.base.validate_form(rform)
+        form, passed = self.base.validate_form(edit_data)
 
         if not passed:
             if 'event_id' in rform.keys():
@@ -127,11 +148,10 @@ class EventsView(FlaskView):
             # not sure why we have this?
             # todo do we need to load/populate this here?
             author = rform.get('author')
-            num_dates = int(rform['num_dates'])
+            #num_dates = int(rform['num_dates'])
 
             return render_template('events/form.html', **locals())
 
-        #form = self.base.inject_fieldset_data(rform)
         add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, metadata_list)
 
         # todo: Test this

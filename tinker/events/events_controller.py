@@ -132,7 +132,7 @@ class EventsController(TinkerController):
         if not eid:
             asset = self.update_structure(add_data, username)
 
-            workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
+            workflow = self.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
             self.add_workflow_to_asset(workflow, asset)
             
             resp = self.create_page(asset)
@@ -168,35 +168,6 @@ class EventsController(TinkerController):
 
         # convert event dates to JSON
         return event_dates, num_dates
-    
-    def inject_fieldset_data(self, rform):
-        form = rform.copy()
-        fieldset_data = {}
-        delete_keys = []
-        for name in form.keys():
-            if name.endswith('[]'):
-                # This is a fieldset, so we need to get the data from it
-                name_list = name.split('::')
-                fieldset_name = name_list[0].replace('_fieldset', '')
-                if fieldset_name not in fieldset_data:
-                    fieldset_data[fieldset_name] = []
-
-                fieldset_key = name_list[1].replace('[]', '')
-                fieldset_list = form.getlist(name)
-                for idx, value in enumerate(fieldset_list):
-                    if len(fieldset_data[fieldset_name]) <= idx:
-                        fieldset_data[fieldset_name].append({})
-                    fieldset_data[fieldset_name][idx][fieldset_key] = value
-                
-                delete_keys.append(name)  # Remove the fieldset from the main form data
-
-        for key, value in fieldset_data.items():
-            form[key] = value
-
-        for key in delete_keys:
-            del form[key]
-
-        return form
 
     def check_event_dates(self, event_dates):
         dates_good = True
@@ -223,9 +194,13 @@ class EventsController(TinkerController):
         for i in range(len(event_dates)):
             # Get rid of the fancy formatting so we just have normal numbers
             start = event_dates[i]['start-date'].split(' ')
-            end = event_dates[i]['end-date'].split(' ')
             start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
-            end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
+
+            if event_dates[i]['end-date']:
+                end = event_dates[i]['end-date'].split(' ')
+                end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
+            else:
+                event_dates[i]['end-date'] = None
 
             start = " ".join(start)
             end = " ".join(end)
@@ -240,38 +215,45 @@ class EventsController(TinkerController):
             except ValueError as e:
                 app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
                 event_dates[i]['start-date'] = None
-            try:
-                event_dates[i]['end-date'] = self.date_str_to_timestamp(event_dates[i]['end-date'])
-            except ValueError as e:
-                app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
-                event_dates[i]['end-date'] = None
+
+            if event_dates[i]['end-date']:
+                try:
+                    event_dates[i]['end-date'] = self.date_str_to_timestamp(event_dates[i]['end-date'])
+                except ValueError as e:
+                    app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
+                    event_dates[i]['end-date'] = None
 
             # As long as the value for these checkboxes are NOT '' or 'False'
             # the value in event_dates will be set to 'Yes'
-            if event_dates[i].get('all-day'):
-                event_dates[i]['all-day'] = 'Yes'
-            else:
-                event_dates[i]['all-day'] = 'No'
-            if event_dates[i].get('outside-of-minnesota'):
-                event_dates[i]['outside-of-minnesota'] = 'Yes'
-            else:
-                event_dates[i]['outside-of-minnesota'] = 'No'
+            # if event_dates[i].get('all-day'):
+            #     event_dates[i]['all-day'] = 'Yes'
+            # else:
+            #     event_dates[i]['all-day'] = 'No'
+            # if event_dates[i].get('outside-of-minnesota'):
+            #     event_dates[i]['outside-of-minnesota'] = 'Yes'
+            # else:
+            #     event_dates[i]['outside-of-minnesota'] = 'No'
 
         return event_dates
 
     def validate_form(self, rform):
-        from tinker.events.forms import EventForm
-        form = EventForm(rform)
+        from tinker.events.forms import get_event_form
+        #form = EventForm(rform)
+        form = get_event_form(**rform)
+        valid = form.validate_on_submit()
+        if not valid:
+            errors = form.errors
+            print(errors)
 
-        return form, form.validate_on_submit()
+        return form, valid
 
     def build_edit_form(self, event_id):
         page = self.read_page(event_id)
-        multiple = ['event-dates']
+        multiple = ['event_dates', 'cost']
         edit_data = self.get_edit_data(page.get_structured_data(), page.get_metadata(), multiple)
         # set dates and return for use in form
         # convert dates to json so we can use Javascript to create custom DateTime fields on the form
-        dates = self.sanitize_dates(edit_data['event-dates'])
+        dates = self.sanitize_dates(edit_data['event_dates'])
         dates = fjson.dumps(dates)
 
         return convert_asset(edit_data), dates

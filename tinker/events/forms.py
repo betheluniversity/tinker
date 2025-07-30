@@ -117,11 +117,11 @@ class FieldsetField(Field):
         self.hidden = hidden
 
 def get_date_fields():
-    all_day = BooleanField("All Day", default=False)
+    all_day = BooleanField("All Day", default=False, render_kw={"onclick": "checkboxClicked(this)", "value": "Yes"})
     start_date = DateTimeField("Start Date", render_kw={"onchange": "fillEndDate(this)"}, validators=[InputRequired(message="Start date is required.")])
     end_date = DateTimeField("End Date", validators=[InputRequired(message="End date is required.")])
-    no_end = BooleanField("No End Date", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'end_date', 'hide')"})
-    outside_of_minnesota = BooleanField("Outside of Minnesota?", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'timezone', 'show')"})
+    no_end = BooleanField("No End Date", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'end_date', 'hide'); checkboxClicked(this)", "value": "Yes"})
+    outside_of_minnesota = BooleanField("Outside of Minnesota?", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'timezone', 'show'); checkboxClicked(this)", "value": "Yes"})
     timezone_choices = [
         ('Central Time', 'Central Time'),
         ('Eastern Time', 'Eastern Time'),
@@ -134,7 +134,7 @@ def get_date_fields():
         "Timezone",
         choices=timezone_choices,
         default='Central Time',
-        render_kw={"style": "display: none;", "class": "timezoneselect"}
+        render_kw={"class": "timezoneselect visually-hidden"}
     )
 
     fields = {

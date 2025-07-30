@@ -1,6 +1,8 @@
-{% macro render(field) -%}
+{% macro render(field, data) -%}
 <div class="{{ field.name }}_wrap">
-    {% if field.label.text == "heading" %}
+    {% if field is string %}
+        STRING: {{ field }}
+    {% elif field.label.text == "heading" %}
         {{ render_heading(field) }}
     {% elif field.type == "FieldsetField" %}
         {{ create_fieldset(field) }}
@@ -9,11 +11,11 @@
     {% elif field.type == "SelectMultipleField" %}
         {{ render_select_multiple(field) }}
     {% elif field.type == "BooleanField" %}
-        {{ render_checkbox(field) }}
+        {{ render_checkbox(field, data) }}
     {% elif field.type in ["DateField", "DateTimeField"] %}
-        {{ render_datepicker(field) }}
+        {{ render_datepicker(field, data) }}
     {% else %}
-        {{ render_field(field) }}
+        {{ render_field(field, data) }}
     {% endif %}
 </div>
 {%- endmacro %}
@@ -23,9 +25,13 @@
 <hr/>
 {%- endmacro %}
 
-{% macro render_field(field) -%}
+{% macro render_field(field, data) -%}
     {{ render_label(field) }}
-    {{ field }}
+    {% if field.name in data %}
+        {{ field(value=data[field.name]) }}
+    {% else %}
+        {{ field }}
+    {% endif %}
 {%- endmacro %}
 
 {% macro render_select_multiple(field) -%}
@@ -38,24 +44,50 @@
 {{ field(class="ckeditor") }}
 {%- endmacro %}
 
-{% macro render_datepicker(field) -%}
+{% macro render_datepicker(field, data) -%}
 {{ render_label(field) }}
-{{ field(value="", class="datepicker") }}
+{% if field.name in data %}
+    {{ field(value=data[field.name], class="datepicker") }}
+{% else %}
+    {{ field(value="", class="datepicker") }}
+{% endif %}
 {%- endmacro %}
 
-{% macro render_checkbox(field) -%}
-<label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox">
+{% macro render_checkbox(field, data) -%}
+{% if data %}
+    {% if field.name in data %}
+        {% if data[field.name] %}
+            {% if "Yes" in data[field.name] %}
+                <input type="hidden" name="{{ field.name }}" value="No" disabled />
+                <label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox checked">
+            {% else %}
+                <input type="hidden" name="{{ field.name }}" value="No" />
+                <label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox">
+            {% endif %}
+        {% else %}
+            <input type="hidden" name="{{ field.name }}" value="No" />
+            <label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox">
+        {% endif %}
+    {% else %}
+        <input type="hidden" name="{{ field.name }}" value="No" />
+        <label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox">
+    {% endif %}
+{% else %}
+    <input type="hidden" name="{{ field.name }}" value="No" />
+    <label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox">
+{% endif %}
     <span class="icons">
         <span class="first-icon fa fa-square-o"></span>
         <span class="second-icon fa fa-check-square-o"></span>
     </span>
+    
     {{ field.label.text }}
     {{ field }}
 </label>
 {%- endmacro %}
 
 {% macro render_label(field) -%}
-{% if field.render_kw and 'style' in field.render_kw and 'display: none' in field.render_kw['style'] %}
+{% if field.render_kw and 'class' in field.render_kw and 'visually-hidden' in field.render_kw['class'] %}
 <div id="{{ field.name }}_label" style="display: none;">
 {% else %}
 <div id="{{ field.name }}_label">
@@ -71,11 +103,35 @@
 {%- endmacro %}
 
 {% macro create_fieldset(field) -%}
+    {% if field.data %}
+        {% if field.fieldset_type == "multiple" %}
+            {% for data in field.data %}
+                <fieldset class="{{ field.name }}_fieldset fieldset" fieldset-id="{{ loop.index }}">
+                {{ continue_fieldset(field, loop.index, data) }}
+            {% endfor %}
+        {% else %}
+            <fieldset class="{{ field.name }}_fieldset fieldset" fieldset-id="1">
+            {{ continue_fieldset(field, 1, field.data) }}
+        {% endif %}
+    {% else %}
+        <fieldset class="{{ field.name }}_fieldset fieldset" fieldset-id="1">
+        {{ continue_fieldset(field, 1, {}) }}
+    {% endif %}
+    {% if field.fieldset_type == "multiple" %}
+    <a href="javascript:void(0);" id="add_{{ field.name }}_button" class="btn btn-primary" onclick="duplicateFieldset('{{ field.name }}')">Add Another {{ field.label.text }}</a><br /><br />
+    {% endif %}
+{%- endmacro %}
+
+{% macro create_fieldset_template(field) -%}
     <fieldset class="{{ field.name }}_fieldset fieldset_template" style="display: none;" fieldset-id="0">
+    {{ continue_fieldset(field, 0, {}) }}
+{%- endmacro %}
+
+{% macro continue_fieldset(field, fieldset_index, data) -%}
         <div class="card">
             <div class="content">
                 {% if field.fieldset_type == "multiple" %}
-                <legend>{{ field.label.text }} <span class="fieldset_number">1</span>
+                <legend>{{ field.label.text }} <span class="fieldset_number">{{ fieldset_index }}</span>
                 {% else %}
                 <legend>{{ field.label.text }}
                 {% endif %}
@@ -87,14 +143,11 @@
                     {% endif %}
                 </legend>
                 {% for f in field.fields %}
-                    {{ render(f) }}
+                    {{ render(f, data) }}
                 {% endfor %}
             </div>
         </div>
     </fieldset>
-    {% if field.fieldset_type == "multiple" %}
-    <a href="javascript:void(0);" id="add_{{ field.name }}_button" class="btn btn-primary" onclick="duplicateFieldset('{{ field.name }}')">Add Another {{ field.label.text }}</a><br /><br />
-    {% endif %}
 {%- endmacro %}
 
 {% extends "tinker_base.html" %}
@@ -116,6 +169,11 @@
                 <p>If you have any questions as you submit your event, please contact Conference and Event Services
                     at
                     651.638.6090.</p>
+                <div id="fieldset-templates" style="display: none;">
+                    {% for field in form if field.type == "FieldsetField" %}
+                        {{ create_fieldset_template(field) }}
+                    {% endfor %}
+                </div>
                 {% if new_form %}
                     <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
                 {% else %}
@@ -123,7 +181,7 @@
                     <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
                 {% endif %}
                 {{ form.hidden_tag() }}
-                {% if form.errors or not dates_good and num_dates %}
+                {% if (not dates_good and num_dates) or form.errors %}
                     <div class="error-alert">
                         <div data-alert class="red-alert">
                             There were errors with your form
@@ -131,6 +189,7 @@
                     </div>
                 {% endif %}
 
+                {# Render the fields #}
                 {% for field in form if field.widget.input_type != 'hidden' %}
 
                     {# Print any errors for this field#}
@@ -146,7 +205,7 @@
                     {{ render(field) }}
                     
                 {% endfor %}
-                <button type="button" formmethod="post" id="event-submit-btn" class="btn btn-primary" onclick="submitForm();">Submit</button>
+                <button type="submit" formmethod="post" id="event-submit-btn" class="btn btn-primary">Submit</button>
                 </form>
             </div>
         </div>
@@ -160,10 +219,36 @@
 <script src="{{ url_for('static', filename='ckeditor/ckeditor.js') }}"></script>
 
 <link rel="stylesheet" href="{{ url_for('static', filename='pikaday.css') }}">
+
+<style>
+    .visually-hidden {
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0,0,0,0) !important;
+        border: 0 !important;
+    }
+</style>
+
 <script src="{{ url_for('static', filename='pikaday.js') }}"></script>
 <script src="{{ url_for('static', filename='pikaday.jquery.js') }}"></script>
 
 <script type="text/javascript">
+
+function checkboxClicked(label) {
+    var $checkbox = $(label).find('input[type="checkbox"]');
+    var $card = $(label).closest('.card');
+    var name = $checkbox.attr('name');
+    var $hiddenInput = $card.find("input[type='hidden'][name='" + name + "']");
+    if ($checkbox.is(':checked')) {
+        $hiddenInput.prop('disabled', false);
+    } else {
+        $hiddenInput.prop('disabled', true);
+    }
+}
 
 function selectChanged(select) {
     var val = $(select).val();
@@ -182,14 +267,14 @@ function selectChanged(select) {
         }
         if (element.length === 0) return;
         if (option !== val) {
-            element.hide();
+            element.addClass('visually-hidden');
             clearValuesWithin(element);
         } else {
-            element.show();
+            element.removeClass('visually-hidden');
             element.find('*').each(function () {
                 // Show all elements within the wrap, except those with class 'fieldset_template'
                 if (!$(this).hasClass('fieldset_template')) {
-                    $(this).show();
+                    $(this).removeClass('visually-hidden');
                 }
             });
         }
@@ -207,9 +292,20 @@ function toggleFieldsetField(element, className, checkedAction) {
     }
 
     if (showField) {
-        wrap.find('*').show(); // Show all elements within the wrap
+        wrap.find('*').each(function () {
+            if ($(this).is('input, select, textarea')) {
+                var label = $(this).closest('.card').find("label[for='" + $(this).attr('name') + "']");
+                if (label.find('small.required').length > 0) {
+                    $(this).attr('required', 'required');
+                }
+            }
+            $(this).removeClass('visually-hidden');
+        });
     } else {
-        wrap.find('*').hide(); // Hide all elements within the wrap
+        wrap.find('*').each(function () {
+            $(this).removeAttr('required');
+            $(this).addClass('visually-hidden');
+        });
         clearValuesWithin(wrap); // Clear values within the wrap
     }
 }
@@ -228,7 +324,7 @@ function clearValuesWithin(element) {
         }
     });
     $(element).find("input:not([type='checkbox']):not([type='radio']):not([type='select'])").each(function () {
-        $(this).val('');
+        $(this).removeAttr('value');
     });
 }
 
@@ -266,12 +362,14 @@ function updateFieldsets(name) {
     });
 
     sets.each(function () {
-        $(this).find('.card input').each(function () {
+        $(this).find('.card').find('input, select').each(function () {
             $(this).removeAttr('id');
             var name = $(this).attr('name');
             if (name && !name.endsWith('[]')) {
                 var fieldClass = $(this).closest('.card').parent('fieldset').attr('class').split(' ')[0];
                 $(this).attr('name', fieldClass + '::' + name + '[]');
+                var inputId = $(this).attr('name');
+                $(this).closest('.card').find("label[for='" + name + "']").attr('for', inputId);
             }
         });
     });
@@ -317,104 +415,110 @@ function duplicateFieldset(name) {
 
     addDatePickers(newFieldset);
     newFieldset.insertAfter(lastFieldset);
+
+    // Remove the placeholder fieldset if it exists
+    // if (lastFieldset.hasClass("fieldset_placeholder")) {
+    //     lastFieldset.remove();
+    // }
+
     updateFieldsets(name);
 }
 
-function populateFieldset(id, allday, start, end, out, timezone, noenddate) {
-    var startid = '#start' + id;
-    var endid = '#end' + id;
-    var alldayid = '#allday' + id;
-    var alldaylabel = '#alldaylabel' + id;
-    var outid = '#outsideofminnesota' + id;
-    var timezoneid = '#timezone' + id;
-    var timezonelabel = '#outsideofminnesotalabel' + id;
-    var noendlabel = '#noendlabel' + id;
-    var noenddateid = '#noenddate' + id;
+// function populateFieldset(id, allday, start, end, out, timezone, noenddate) {
+//     var startid = '#start' + id;
+//     var endid = '#end' + id;
+//     var alldayid = '#allday' + id;
+//     var alldaylabel = '#alldaylabel' + id;
+//     var outid = '#outsideofminnesota' + id;
+//     var timezoneid = '#timezone' + id;
+//     var timezonelabel = '#outsideofminnesotalabel' + id;
+//     var noendlabel = '#noendlabel' + id;
+//     var noenddateid = '#noenddate' + id;
 
-    $(startid).val(start);
-    $(endid).val(end);
-    $(timezoneid).val(timezone);
+//     $(startid).val(start);
+//     $(endid).val(end);
+//     $(timezoneid).val(timezone);
 
-    //Checks if the no end date checkbox was previously checked
-    //Value is 'on' if checked and '' if not
-    if (noenddate) {
-        $(noenddateid).attr('checked', true);
-        $(noendlabel).addClass('checked');
-        checkNoEndDate("date" + id, false);
-    }
-    else if (start == end) {
-        $(noenddateid).attr('checked', true);
-        $(noendlabel).addClass('checked');
-        checkNoEndDate("date" + id, false);
-    }
-    //Checks if the all day checkbox was previously checked
-    //Value is 'Yes' if checked and 'No' if not
-    if (allday) {
-        $(alldayid).attr('checked', true);
-        $(alldaylabel).addClass('checked');
-    }
-    //Checks if the out of minnesota checkbox was previously checked
-    //Value is 'Yes' if checked and 'No' if not
-    if (out) {
-        $(outid).attr('checked', true);
-        $(timezonelabel).addClass('checked');
-        checkOutsideOfMinnesota(id, false);
-    }
-}
+//     //Checks if the no end date checkbox was previously checked
+//     //Value is 'on' if checked and '' if not
+//     if (noenddate) {
+//         $(noenddateid).attr('checked', true);
+//         $(noendlabel).addClass('checked');
+//         checkNoEndDate("date" + id, false);
+//     }
+//     else if (start == end) {
+//         $(noenddateid).attr('checked', true);
+//         $(noendlabel).addClass('checked');
+//         checkNoEndDate("date" + id, false);
+//     }
+//     //Checks if the all day checkbox was previously checked
+//     //Value is 'Yes' if checked and 'No' if not
+//     if (allday) {
+//         $(alldayid).attr('checked', true);
+//         $(alldaylabel).addClass('checked');
+//     }
+//     //Checks if the out of minnesota checkbox was previously checked
+//     //Value is 'Yes' if checked and 'No' if not
+//     if (out) {
+//         $(outid).attr('checked', true);
+//         $(timezonelabel).addClass('checked');
+//         checkOutsideOfMinnesota(id, false);
+//     }
+// }
 
-function submitForm() {
-    $(".fieldset_template").remove();
-    var form = document.getElementById('eventform');
-    if (form.checkValidity()) {
-        form.submit();
-    }
-    return true;
-}
+// function submitForm() {
+//     $(".fieldset_template").remove();
+//     var form = document.getElementById('eventform');
+//     if (form.checkValidity()) {
+//         form.submit();
+//     }
+//     return true;
+// }
 
-function processDates() {
-    {% if dates %}
-        var dates = {{ dates|safe }};
-        var i = 0;
-        while (i < 200) {
-            date = dates[i];
-            if (!date) {
-                break;
-            }
-            //Convert to correct value
-            id = i + 1;
-            //If this is not the first node, create it before we can populate it and insert after the last one.
-            //show the remove button
-            if (i != 0) {
-                var last = $(".date_fieldset").last();
-                var new_date = newDateFieldset(id);
-                new_date.insertAfter(last);
-                addDateHandler(id);
-            }
-            //Now populate the fieldset
-            var allday = date['all_day'];
-            if (allday == "Yes") {
-                allday = true;
-            }
+// function processDates() {
+//     {% if dates %}
+//         var dates = {{ dates|safe }};
+//         var i = 0;
+//         while (i < 200) {
+//             date = dates[i];
+//             if (!date) {
+//                 break;
+//             }
+//             //Convert to correct value
+//             id = i + 1;
+//             //If this is not the first node, create it before we can populate it and insert after the last one.
+//             //show the remove button
+//             if (i != 0) {
+//                 var last = $(".date_fieldset").last();
+//                 var new_date = newDateFieldset(id);
+//                 new_date.insertAfter(last);
+//                 addDateHandler(id);
+//             }
+//             //Now populate the fieldset
+//             var allday = date['all_day'];
+//             if (allday == "Yes") {
+//                 allday = true;
+//             }
 
-            var outsideofminnesota = date['outside_of_minnesota'];
-            if (outsideofminnesota == 'Yes') {
-                outsideofminnesota = true;
-            }
+//             var outsideofminnesota = date['outside_of_minnesota'];
+//             if (outsideofminnesota == 'Yes') {
+//                 outsideofminnesota = true;
+//             }
 
-            var noenddate = date['no_end_date'];
-            if (noenddate == 'on') {
-                noenddate = true;
-                checkNoEndDate("date" + id, false);
-            }
+//             var noenddate = date['no_end_date'];
+//             if (noenddate == 'on') {
+//                 noenddate = true;
+//                 checkNoEndDate("date" + id, false);
+//             }
 
-            populateFieldset(id, allday, date['start_date'], date['end_date'], outsideofminnesota, date['time_zone'], noenddate);
-            //no infinite loops today
-            i++;
+//             populateFieldset(id, allday, date['start_date'], date['end_date'], outsideofminnesota, date['time_zone'], noenddate);
+//             //no infinite loops today
+//             i++;
 
-        }
+//         }
 
-    {% endif %}
-}
+//     {% endif %}
+// }
 
 $(document).ready(function () {
 
@@ -438,7 +542,23 @@ $(document).ready(function () {
     });
 
     // Create the first fieldsets based on the templates
-    $('.fieldset_template').each(function () {
+    // $('.fieldset_template').each(function () {
+    //     var classes = $(this).attr('class').split(/\s+/);
+    //     var fieldsetName = null;
+    //     for (var i = 0; i < classes.length; i++) {
+    //         var match = classes[i].match(/^(.+)_fieldset$/);
+    //         if (match && match[1]) {
+    //             fieldsetName = match[1];
+    //             break;
+    //         }
+    //     }
+    //     if (fieldsetName) {
+    //         duplicateFieldset(fieldsetName);
+    //     }
+    // });
+
+    // Update all fieldsets to ensure they are correctly initialized
+    $('.fieldset').each(function () {
         var classes = $(this).attr('class').split(/\s+/);
         var fieldsetName = null;
         for (var i = 0; i < classes.length; i++) {
@@ -449,7 +569,7 @@ $(document).ready(function () {
             }
         }
         if (fieldsetName) {
-            duplicateFieldset(fieldsetName);
+            updateFieldsets(fieldsetName);
         }
     });
 
