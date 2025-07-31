@@ -7,7 +7,7 @@ from bu_cascade.asset_tools import find, convert_asset
 from flask import session
 from flask_wtf import FlaskForm
 from wtforms import DateTimeField, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField, BooleanField, Field
-from wtforms.validators import DataRequired, ValidationError, InputRequired
+from wtforms.validators import DataRequired, ValidationError
 
 # Local
 from tinker.tinker_controller import TinkerController
@@ -101,7 +101,7 @@ def validate_numeric(form, field):
     try:
         float(field.data)  # Check if the value can be converted to a float
     except ValueError:
-        raise ValidationError("Cost must be a numeric value.")
+        raise ValidationError("All Cost fields must be numeric values.")
 
 class FieldsetField(Field):
     """
@@ -117,11 +117,11 @@ class FieldsetField(Field):
         self.hidden = hidden
 
 def get_date_fields():
-    all_day = BooleanField("All Day", default=False, render_kw={"onclick": "checkboxClicked(this)", "value": "Yes"})
-    start_date = DateTimeField("Start Date", render_kw={"onchange": "fillEndDate(this)"}, validators=[InputRequired(message="Start date is required.")])
-    end_date = DateTimeField("End Date", validators=[InputRequired(message="End date is required.")])
-    no_end = BooleanField("No End Date", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'end_date', 'hide'); checkboxClicked(this)", "value": "Yes"})
-    outside_of_minnesota = BooleanField("Outside of Minnesota?", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'timezone', 'show'); checkboxClicked(this)", "value": "Yes"})
+    all_day = BooleanField("All Day", default=False, render_kw={"value": "Yes"})
+    start_date = DateTimeField("Start Date", render_kw={"onchange": "fillEndDate(this)"}, validators=[DataRequired(message="Start date is required.")])
+    end_date = DateTimeField("End Date", validators=[DataRequired(message="End date is required.")])
+    no_end = BooleanField("No End Date", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'end_date', 'hide');", "value": "Yes"})
+    outside_of_minnesota = BooleanField("Outside of Minnesota?", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'timezone', 'show');", "value": "Yes"})
     timezone_choices = [
         ('Central Time', 'Central Time'),
         ('Eastern Time', 'Eastern Time'),
@@ -149,7 +149,7 @@ def get_date_fields():
     return fields
 
 def get_cost_fields():
-    amount = StringField('Cost', description="Please enter a number. If the event is Free, enter 0.", validators=[InputRequired(message="Cost is required."), validate_numeric])
+    amount = StringField('Cost', description="Please enter a number. If the event is Free, enter 0.", validators=[DataRequired(message="Cost is required."), validate_numeric])
     description = StringField('Description', description="Ex. \"Senior Citizen (65+) and Group of 10 or more\"", validators=[DataRequired()])
 
     fields = {

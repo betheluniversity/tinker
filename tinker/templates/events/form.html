@@ -74,15 +74,16 @@
 
 {% macro render_checkbox(field, data) -%}
 {% set checked = data and field.name in data and data[field.name] and "Yes" in data[field.name] %}
+{% set field_onclick = 'checkboxClicked(this); ' ~ field.render_kw.get('onclick', '') %}
 <input type="hidden" name="{{ field.name }}" value="No" {{ 'disabled' if checked else '' }} />
-<label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox{{ ' checked' if checked else '' }}">
+<label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox{{ ' checked' if checked else '' }}" onclick="{{ field_onclick }}">
     <span class="icons">
         <span class="first-icon fa fa-square-o"></span>
         <span class="second-icon fa fa-check-square-o"></span>
     </span>
     
     {{ field.label.text }}
-    {{ field }}
+    <input name="{{ field.name }}" type="checkbox" value="Yes" {{ 'checked' if checked else '' }} />
 </label>
 {%- endmacro %}
 
@@ -103,6 +104,17 @@
     {% set fieldset_classes = field.name ~ '_fieldset fieldset_template' if template else field.name ~ '_fieldset fieldset' %}
     {% set fieldset_index = 0 if template else 1 %}
     {% if field.data and not template %}
+        {% if fieldset_errors %}
+            {% for f in field.fields %}
+                {% for error in fieldset_errors[f.name] %}
+                    <div class="error-alert">
+                        <div data-alert class="red-alert">
+                            {{ error }}
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
         {% if field.fieldset_type == "multiple" %}
             {% for data in field.data %}
                 <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ loop.index }}">
@@ -175,7 +187,7 @@
                     <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
                 {% endif %}
                 {{ form.hidden_tag() }}
-                {% if (not dates_good and num_dates) or form.errors %}
+                {% if (not dates_good and num_dates) or form.errors or fieldset_errors %}
                     <div class="error-alert">
                         <div data-alert class="red-alert">
                             There were errors with your form
@@ -232,6 +244,8 @@
 
 <script type="text/javascript">
 
+// Function to disable or enable hidden inputs based on checkbox state
+// Posts a "No" value when unchecked
 function checkboxClicked(label) {
     var $checkbox = $(label).find('input[type="checkbox"]');
     var $card = $(label).closest('.card');
@@ -375,14 +389,11 @@ function updateFieldsets(name) {
             }
         });
     });
-
-    // Update the value of the hidden num_ input to the total number of fieldsets
-    //$("input[name='num_" + name + "']").val(sets.length);
 };
 
 function fillEndDate(element) {
     // If the end date input is empty, set it to the value of the start date input
-    var endDateInput = $(element).closest('fieldset').find("input[name='date_end']");
+    var endDateInput = $(element).closest('fieldset').find("input[name='end_date']");
     if (endDateInput.length && !endDateInput.val()) {
         endDateInput.val($(element).val());
     }
@@ -436,12 +447,10 @@ function duplicateFieldset(name) {
 
 $(document).ready(function () {
 
-    // Apply all checkbox onclick actions to the label
+    // Run toggleFieldsetField for each checkbox label with the onclick action
     $('label.checkbox').each(function () {
-        var input = $(this).find('input[type="checkbox"]');
-        var onclickAction = input.attr('onclick');
+        var onclickAction = $(this).attr('onclick');
         if (onclickAction) {
-            $(this).attr('onclick', onclickAction);
             var onclickStr = onclickAction.toString();
 
             if ($(this).hasClass('checked')) {
@@ -463,8 +472,6 @@ $(document).ready(function () {
                     toggleFieldsetField.apply(null, [...args, true]);
                 }
             }
-
-            input.removeAttr('onclick');
         }
     });
 

@@ -240,12 +240,30 @@ class EventsController(TinkerController):
         from tinker.events.forms import get_event_form
         #form = EventForm(rform)
         form = get_event_form(**rform)
+        fieldset_errors = {}
+        for field in form:
+            if field.type == 'FieldsetField':
+                data = field.data
+                for f in field.fields:
+                    for obj in data:
+                        if f.name in obj:
+                            f.data = obj[f.name]
+                            for validator in f.validators:
+                                try:
+                                    class_name = getattr(validator, '__class__', None).__name__
+                                    if class_name == 'InputRequired':
+                                        continue
+                                    validator(form, f)
+                                except Exception as e:
+                                    if f.name not in fieldset_errors:
+                                        fieldset_errors[f.name] = []
+                                    fieldset_errors[f.name].append(str(e))
         valid = form.validate_on_submit()
         if not valid:
             errors = form.errors
             print(errors)
 
-        return form, valid
+        return form, fieldset_errors, valid
 
     def build_edit_form(self, event_id):
         page = self.read_page(event_id)

@@ -138,9 +138,9 @@ class EventsView(FlaskView):
 
         username = session['username']
         eid = rform.get('event_id')
-        form, passed = self.base.validate_form(edit_data)
+        form, fieldset_errors, passed = self.base.validate_form(edit_data)
 
-        if not passed:
+        if not passed or fieldset_errors:
             if 'event_id' in rform.keys():
                 event_id = rform['event_id']
             else:
