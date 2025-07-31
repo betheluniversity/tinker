@@ -130,7 +130,7 @@ def get_date_fields():
         ('Alaska Time', 'Alaska Time'),
         ('Hawaii-Aleutian Time', 'Hawaii-Aleutian Time'),
     ]
-    date_timezone = SelectField(
+    timezone = SelectField(
         "Timezone",
         choices=timezone_choices,
         default='Central Time',
@@ -143,7 +143,7 @@ def get_date_fields():
         'end_date': end_date,
         'no_end': no_end,
         'outside_of_minnesota': outside_of_minnesota,
-        'timezone': date_timezone
+        'timezone': timezone
     }
     
     return fields
@@ -243,9 +243,9 @@ class EventForm(FlaskForm):
     # The value is set to the field that should be displayed based on the location choice
     # This is used in the template to show/hide the correct fields
     location_choices = location_choices = [
-        ('on_campus_location', 'On Campus'),
-        ('other_on_campus', 'Other On Campus'),
-        ('off_campus_location', 'Off Campus'),
+        ('on_campus_location', 'On campus'),
+        ('other_on_campus', 'Other on campus'),
+        ('off_campus_location', 'Off campus'),
         ('online_url', 'Online'),
     ]
     location_name = SelectField('Location', choices=location_choices, render_kw={"onchange": "selectChanged(this)"})
