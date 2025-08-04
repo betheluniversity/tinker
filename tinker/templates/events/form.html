@@ -190,7 +190,7 @@
                 {% if (not dates_good and num_dates) or form.errors or fieldset_errors %}
                     <div class="error-alert">
                         <div data-alert class="red-alert">
-                            There were errors with your form
+                            Please correct any form errors below.
                         </div>
                     </div>
                 {% endif %}
@@ -276,14 +276,32 @@ function selectChanged(select) {
         if (element.length === 0) return;
         if (option !== val) {
             element.addClass('visually-hidden');
+            element.find('*').each(function () {
+                // Hide all elements within the wrap
+                if ($(this).is('input, select, textarea')) {
+                    $(this).attr('required', false);
+                    $(this).addClass('visually-hidden');
+                    $(this).attr('disabled', true);
+                }
+            });
             clearValuesWithin(element);
         } else {
             element.removeClass('visually-hidden');
             element.find('*').each(function () {
-                // Show all elements within the wrap, except those with class 'fieldset_template'
-                if (!$(this).hasClass('fieldset_template')) {
-                    $(this).removeClass('visually-hidden');
+                // Show all elements within the wrap
+                if ($(this).attr('name') && $(this).attr('name').indexOf('[]') === -1) {
+                    lookupClass = '.' + $(this).attr('name') + '_wrap';
+                } else {
+                    lookupClass = '.card';
                 }
+                if ($(this).is('input, select, textarea')) {
+                    var label = $(this).closest(lookupClass).find("label[for='" + $(this).attr('name') + "']");
+                    if (label.find('small.required').length > 0) {
+                        $(this).attr('required', true);
+                    }
+                }
+                $(this).removeClass('visually-hidden');
+                $(this).attr('disabled', false);
             });
         }
     });
@@ -312,15 +330,15 @@ function toggleFieldsetField(element, className, checkedAction, isInit) {
             if ($(this).is('input, select, textarea')) {
                 var label = $(this).closest('.card').find("label[for='" + $(this).attr('name') + "']");
                 if (label.find('small.required').length > 0) {
-                    $(this).attr('required', 'required');
+                    $(this).attr('required', true);
                 }
             }
             $(this).removeClass('visually-hidden');
         });
     } else {
         wrap.find('*').each(function () {
-            $(this).removeAttr('required');
             $(this).addClass('visually-hidden');
+            $(this).removeAttr('required');
         });
         clearValuesWithin(wrap); // Clear values within the wrap
     }
@@ -339,9 +357,17 @@ function clearValuesWithin(element) {
             $(this).trigger('click');
         }
     });
-    $(element).find("input:not([type='checkbox']):not([type='radio']):not([type='select'])").each(function () {
-        $(this).removeAttr('value');
+    $(element).find("input.datepicker").each(function () {
+        console.log("Clearing datepicker for element:", this);
+        syncDates(this, force=true);
     });
+    $(element).find("input:not([type='checkbox']):not([type='radio']):not([type='select']):not(input.datepicker)").each(function () {
+        $(this).attr('value', '');
+    });
+}
+
+function stripCostChars(input) {
+    input.value = input.value.replace(/[$,]/g, '');
 }
 
 function removeFieldset(element) {
@@ -391,11 +417,43 @@ function updateFieldsets(name) {
     });
 };
 
-function fillEndDate(element) {
-    // If the end date input is empty, set it to the value of the start date input
-    var endDateInput = $(element).closest('fieldset').find("input[name='end_date']");
-    if (endDateInput.length && !endDateInput.val()) {
-        endDateInput.val($(element).val());
+// Makes sure that the start date is always equal to or before the end date
+function syncDates(element, force=false) {
+    var $fieldset = $(element).closest('fieldset');
+    var $startDate = $fieldset.find('.start_date_wrap input.datepicker');
+    var $endDate = $fieldset.find('.end_date_wrap input.datepicker');
+    var format = 'MMMM Do YYYY, h:mm a';
+
+    var startMoment = moment($startDate.val(), format, true);
+    var endMoment = moment($endDate.val(), format, true);
+
+    // If only one date is set, copy it to the other
+    // If force is true, always copy the start date to end date
+    if (force || ($startDate.val() && !$endDate.val())) {
+        $endDate.val($startDate.val());
+        if ($endDate[0] && $endDate[0]._pikaday) {
+            $endDate[0]._pikaday.setDate(startMoment.toDate(),);
+        }
+    } else if (!$startDate.val() && $endDate.val()) {
+        $startDate.val($endDate.val());
+        if ($startDate[0] && $startDate[0]._pikaday) {
+            $startDate[0]._pikaday.setDate(endMoment.toDate());
+        }
+    } else if ($startDate.val() && $endDate.val()) {
+        // If user changed start date and it's after end date, update end date
+        if (element === $startDate[0] && startMoment.isAfter(endMoment)) {
+            $endDate.val($startDate.val());
+            if ($endDate[0] && $endDate[0]._pikaday) {
+                $endDate[0]._pikaday.setDate(startMoment.toDate());
+            }
+        }
+        // If user changed end date and it's before start date, update start date
+        else if (element === $endDate[0] && endMoment.isBefore(startMoment)) {
+            $startDate.val($endDate.val());
+            if ($startDate[0] && $startDate[0]._pikaday) {
+                $startDate[0]._pikaday.setDate(endMoment.toDate());
+            }
+        }
     }
 }
 

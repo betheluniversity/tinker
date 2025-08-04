@@ -238,26 +238,35 @@ class EventsController(TinkerController):
 
     def validate_form(self, rform):
         from tinker.events.forms import get_event_form
-        #form = EventForm(rform)
         form = get_event_form(**rform)
+
+        # Validate fieldset fields
         fieldset_errors = {}
         for field in form:
+            if not field.name in rform:
+                form[field.name].validators = []
             if field.type == 'FieldsetField':
                 data = field.data
                 for f in field.fields:
-                    for obj in data:
-                        if f.name in obj:
-                            f.data = obj[f.name]
-                            for validator in f.validators:
-                                try:
-                                    class_name = getattr(validator, '__class__', None).__name__
-                                    if class_name == 'InputRequired':
-                                        continue
-                                    validator(form, f)
-                                except Exception as e:
-                                    if f.name not in fieldset_errors:
-                                        fieldset_errors[f.name] = []
-                                    fieldset_errors[f.name].append(str(e))
+                    if data:
+                        for obj in data:
+                            if f.name in obj:
+                                f.data = obj[f.name]
+                                for validator in f.validators:
+                                    try:
+                                        class_name = getattr(validator, '__class__', None).__name__
+                                        if class_name == 'InputRequired':
+                                            continue
+                                        elif class_name == 'DataRequired':
+                                            if f.data is None or f.data == '':
+                                                raise ValueError(f"{f.label.text} is required.")
+                                        validator(form, f)
+                                    except Exception as e:
+                                        if f.name not in fieldset_errors:
+                                            fieldset_errors[f.name] = []
+                                        fieldset_errors[f.name].append(str(e))
+
+        # Validate the form as a whole
         valid = form.validate_on_submit()
         if not valid:
             errors = form.errors

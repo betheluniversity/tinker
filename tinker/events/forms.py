@@ -1,13 +1,12 @@
 # coding: utf-8
 # Global
-from datetime import datetime
 
 # Packages
 from bu_cascade.asset_tools import find, convert_asset
 from flask import session
 from flask_wtf import FlaskForm
 from wtforms import DateTimeField, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField, BooleanField, Field
-from wtforms.validators import DataRequired, ValidationError
+from wtforms.validators import DataRequired, ValidationError, URL
 
 # Local
 from tinker.tinker_controller import TinkerController
@@ -74,7 +73,7 @@ def get_event_choices():
 
 
 def get_buildings():
-    labels = [("none", '-select-')]
+    labels = [('', '-select-')]
     block = convert_asset(tinker.read('04d538728c5865132abe9a84a6e0838d', type="block"))
     buildings = find(block, 'buildings')
     for building in buildings:
@@ -118,8 +117,8 @@ class FieldsetField(Field):
 
 def get_date_fields():
     all_day = BooleanField("All Day", default=False, render_kw={"value": "Yes"})
-    start_date = DateTimeField("Start Date", render_kw={"onchange": "fillEndDate(this)"}, validators=[DataRequired(message="Start date is required.")])
-    end_date = DateTimeField("End Date", validators=[DataRequired(message="End date is required.")])
+    start_date = DateTimeField("Start Date", render_kw={"onchange": "syncDates(this)"}, validators=[DataRequired(message="Start date is required.")])
+    end_date = DateTimeField("End Date", render_kw={"onchange": "syncDates(this)"}, validators=[DataRequired(message="End date is required.")])
     no_end = BooleanField("No End Date", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'end_date', 'hide');", "value": "Yes"})
     outside_of_minnesota = BooleanField("Outside of Minnesota?", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'timezone', 'show');", "value": "Yes"})
     timezone_choices = [
@@ -149,7 +148,7 @@ def get_date_fields():
     return fields
 
 def get_cost_fields():
-    amount = StringField('Cost', description="Please enter a number. If the event is Free, enter 0.", validators=[DataRequired(message="Cost is required."), validate_numeric])
+    amount = StringField('Cost', description="Please enter a number. If the event is Free, enter 0.", render_kw={"onblur": "stripCostChars(this)"}, validators=[DataRequired(), validate_numeric])
     description = StringField('Description', description="Ex. \"Senior Citizen (65+) and Group of 10 or more\"", validators=[DataRequired()])
 
     fields = {
@@ -160,11 +159,11 @@ def get_cost_fields():
     return fields
 
 def get_off_campus_location_fields():
-    off_campus_name = StringField('Location Name', description="Name of the off campus location")
-    off_campus_address = StringField('Street Address', description="Street Address of the off campus location")
-    off_campus_city = StringField('City', description="City of the off campus location")
-    off_campus_state = StringField('State', description="State of the off campus location. Use two-letter state code (ex. MN)")
-    off_campus_zip = StringField('Zip Code', description="Zip Code of the off campus location")
+    off_campus_name = StringField('Location Name', description="Name of the off campus location", validators=[DataRequired()])
+    off_campus_address = StringField('Street Address', description="Street Address of the off campus location", validators=[DataRequired()])
+    off_campus_city = StringField('City', description="City of the off campus location", validators=[DataRequired()])
+    off_campus_state = StringField('State', description="State of the off campus location. Use two-letter state code (ex. MN)", validators=[DataRequired()])
+    off_campus_zip = StringField('Zip Code', description="Zip Code of the off campus location", validators=[DataRequired()])
 
     fields = {
         'off_campus_name': off_campus_name,
@@ -251,10 +250,10 @@ class EventForm(FlaskForm):
     location_name = SelectField('Location', choices=location_choices, render_kw={"onchange": "selectChanged(this)"})
 
     # Location fields are shown/hidden based on the location choice
-    online_url = StringField('Online URL', description="Enter full URL including 'https://'")
-    on_campus_location = SelectField('On campus location', choices=building_choices)
-    other_on_campus = StringField('Other on campus location')
-    off_campus_location = FieldsetField(label="Off Campus Location", fields=get_off_campus_location_fields, required=True, hidden=True, fieldset_type="single")
+    online_url = StringField('Online URL', description="Enter full URL including 'https://'", validators=[DataRequired(), URL(require_tld=True, message="Please enter a valid URL.")])
+    on_campus_location = SelectField('On campus location', choices=building_choices, default='', validators=[DataRequired()])
+    other_on_campus = StringField('Other on campus location', validators=[DataRequired()])
+    off_campus_location = FieldsetField(label="Off Campus Location", fields=get_off_campus_location_fields, hidden=True, fieldset_type="single", validators=[DataRequired()])
 
     maps_directions = CKEditorTextAreaField('Instructions for Guests',
                                             description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")
@@ -267,8 +266,8 @@ class EventForm(FlaskForm):
         ('ticketing_url', 'Ticketing')
     ]
     registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices, render_kw={"onchange": "selectChanged(this)"})
-    wufoo_code = StringField('Approved wufoo hash code')
-    ticketing_url = StringField('Ticketing URL')
+    wufoo_code = StringField('Approved wufoo hash code', validators=[DataRequired()])
+    ticketing_url = StringField('Ticketing URL', validators=[DataRequired(), URL(require_tld=True, message="Please enter a valid URL.")])
     registration_details = CKEditorTextAreaField('Registration/ticketing details',
                                                  description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
 
