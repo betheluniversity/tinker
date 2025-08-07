@@ -23,11 +23,6 @@ from bu_cascade.assets.data_definition import DataDefinition
 from bu_cascade.assets.metadata_set import MetadataSet
 from bu_cascade.assets.page import Page
 from bu_cascade.asset_tools import find, update, convert_asset
-# from tinker.bu_cascade.assets.block import Block
-# from tinker.bu_cascade.assets.data_definition import DataDefinition
-# from tinker.bu_cascade.assets.metadata_set import MetadataSet
-# from tinker.bu_cascade.assets.page import Page
-# from tinker.bu_cascade.asset_tools import find, update, convert_asset
 
 from flask import abort, current_app, render_template, request, Response, session
 from flask import json as fjson
