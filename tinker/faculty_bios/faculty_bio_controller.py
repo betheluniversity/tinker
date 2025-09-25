@@ -380,11 +380,11 @@ class FacultyBioController(TinkerController):
             if school == "-select-":
                 error_list.append(u'You must select a school for Job Title #' + i)
                 failed_check = True
-            elif school == "College of Arts and Sciences" and 'Nursing' in form[undergrad_l]:
+            elif school == "College of Arts and Sciences" and undergrad_l in form and 'Nursing' in form[undergrad_l]:
                 nursing_dept = True
-            elif school == "College of Adult and Professional Studies" and 'Nursing' in form[caps_l]:
+            elif school == "College of Adult and Professional Studies" and caps_l in form and 'Nursing' in form[caps_l]:
                 nursing_dept = True
-            elif school == "Graduate School" and 'Nurse' in form[gs_l]:
+            elif school == "Graduate School" and gs_l in form and 'Nurse' in form[gs_l]:
                 nursing_dept = True
 
             staff_check = (school == 'Bethel University' and job_title)
