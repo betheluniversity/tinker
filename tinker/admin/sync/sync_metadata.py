@@ -144,6 +144,7 @@ degree = [
     'Bachelor of Science',
     'Bachelor of Fine Arts',
     'Certificate',
+    'Post-baccalaureate Degree',
     'Post-grad Certificate',
     'License',
     'Master of Arts',
@@ -152,8 +153,7 @@ degree = [
     'Master of Social Work',
     'Master of Divinity',
     'Doctor of Ministry',
-    'Doctor of Education',
-    'Doctor of Nursing Practice'
+    'Doctor of Education'
 ]
 
 e_announcement_roles = [
