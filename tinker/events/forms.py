@@ -75,7 +75,7 @@ def get_event_choices():
 
 def get_buildings():
     labels = [("none", '-select-')]
-    block = convert_asset(tinker.read('04d538728c5865132abe9a84a6e0838d', type="block"))
+    block = convert_asset(tinker.read('951e3c9f8c5865fc76c04caaa5925bb6', type="block"))
     buildings = find(block, 'buildings')
     for building in buildings:
         label = building['structuredDataNodes']['structuredDataNode'][0]['text']
