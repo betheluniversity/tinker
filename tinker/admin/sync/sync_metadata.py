@@ -13,7 +13,6 @@ undergrad_programs = [
     "Biblical & Theological Studies",
     "Biological Sciences",
     "Business",
-    "Chemistry",
     "Chemistry and Biochemistry",
     "Communication Studies",
     "Community Health",
