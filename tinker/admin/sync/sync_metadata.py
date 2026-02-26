@@ -37,6 +37,7 @@ adult_undergrad_programs = [
     "Addiction Studies Certificate",
     "Alcohol and Drug Counseling Certificate",
     "Associate of Arts (A.A.)",
+    "Elementary Education K-6 (B.S.)",
     "Post-Baccalaureate Nursing (B.S)",
     "Special Education (B.A.)",
 ]
@@ -76,6 +77,8 @@ graduate_programs = [
     "Ed.D. in Higher Education Leadership",
     "Ed.D. in K-12 Administration",
     "Education K-12 (M.A.)",
+    "Elementary Education K-6 License",
+    "Elementary Education K-6 (M.A.)",
     "Emotional and Behavioral Disorders License",
     "ENVoY Classroom Management Strategies Certificate",
     "Gerontology Certificate",
