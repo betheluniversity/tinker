@@ -26,7 +26,7 @@ undergrad_programs = [
     "Music and Performing Arts",
     "Nursing",
     "Physics & Engineering",
-    "Psychology",
+    "Psychological Sciences",
     "Social Work",
     "Special Education",
     "Speech-Language Pathology",
