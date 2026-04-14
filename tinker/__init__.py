@@ -112,6 +112,7 @@ from tinker.admin.publish import PublishView
 from tinker.admin.redirects import RedirectsView
 from tinker.admin.sync import SyncView
 from tinker.admin.user_roles import UserRolesView
+from tinker.admin.xml import XMLView
 from tinker.e_announcements import EAnnouncementsView
 from tinker.events import EventsView
 from tinker.faculty_bios import FacultyBiosView
@@ -131,6 +132,7 @@ EAnnouncementsView.register(app)
 EventsView.register(app)
 FacultyBiosView.register(app)
 NewsView.register(app)
+XMLView.register(app)
 # OfficeHoursView.register(app)
 View.register(app)
 # UnitTestInterfaceView.register(app)

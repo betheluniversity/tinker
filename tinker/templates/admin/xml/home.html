@@ -1,0 +1,42 @@
+{% extends "tinker_base.html" %}
+
+{% block page_title %}Bethel University Tinker{% endblock %}
+
+{% set title = 'XML Downloader' %}
+
+{% block main_content %}
+    <div class="content">
+        <div class="container-fluid">
+            <div class="col-md-12">
+                <h3 class="subtitle">Download XMLs</h3>
+                <br/>
+                <p>These buttons allow you to download the XML files that cascade generates. These files are used by
+                    www.bethel.edu, catalog.bethel.edu, among others. This may take a minute.</p>
+                <br/>
+                <a href='{{ url_for('XMLView:download_proof_points') }}' class="btn btn-primary" id="proofPointsBtn">Download Proof Points CSV</a>
+                <a href='{{ url_for('XMLView:download_faculty_bios') }}' class="btn btn-primary" id="facultyBiosBtn">Download Faculty Bios CSV</a>
+            </div>
+            <div id="spinner" class="spinner" style="display:none;">
+                <img id="img-spinner" src="https://cdn1.bethel.edu/images/load.gif" alt="Loading"/>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+        <script>
+        // Add spinner functionality to the new buttons
+        document.getElementById('proofPointsBtn')?.addEventListener('click', function() {
+            document.getElementById('spinner').style.display = 'block';
+        });
+
+        document.getElementById('facultyBiosBtn')?.addEventListener('click', function() {
+            document.getElementById('spinner').style.display = 'block';
+        });
+
+        // Hide spinner when page is about to unload (download starts)
+        window.addEventListener('beforeunload', function() {
+            document.getElementById('spinner').style.display = 'block';
+        });
+    </script>
+{% endblock %}

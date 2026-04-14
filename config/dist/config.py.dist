@@ -14,6 +14,8 @@ from news_config import *
 FOUNDATION_USE_MINIFIED = True
 FOUNDATION_USE_CDN = True
 
+PROOF_POINT_XML =
+
 # emails
 ADMINS = []
 

@@ -97,6 +97,12 @@
                                     <p class="admin-list-item">Program Search Tags</p>
                                 </a>
                             </li>
+                            <li>
+                                <a href="{{ url_for('XMLView:index') }}">
+                                    <i class="fa fa-cloud-download" aria-hidden="true"></i>
+                                    <p class="admin-list-item">XML Downloader</p>
+                                </a>
+                            </li>
                         {% endif %}
                         {% if 'Administrators' in session['groups'] or 'Tinker Redirects' in session['groups'] %}
                         <li>
