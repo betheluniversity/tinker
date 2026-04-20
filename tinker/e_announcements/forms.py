@@ -1,6 +1,6 @@
 # Packages
 from bu_cascade.asset_tools import find, convert_asset
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import DateField, Field, SelectMultipleField, StringField, TextAreaField, validators, widgets
 
 # Local
@@ -60,13 +60,13 @@ class HeadingField(Field):
 
     def __init__(self, label=None, validators=None, filters=tuple(),
                  description='', id=None, default=None, widget=None,
-                 _form=None, _name=None, _prefix='', _translations=None):
+                 _form=None, _name=None, _prefix='', _translations=None, **kwargs):
 
         self.default = default
         self.description = description
         self.filters = filters
         self.flags = None
-        self.name = _prefix + _name
+        self.name = _prefix + (_name or '')
         self.short_name = _name
         self.type = type(self).__name__
         self.validators = validators or list(self.validators)
@@ -87,13 +87,13 @@ class InfoField(Field):
 
     def __init__(self, label=None, validators=None, filters=tuple(),
                  description='', id=None, default=None, widget=None,
-                 _form=None, _name=None, _prefix='', _translations=None):
+                 _form=None, _name=None, _prefix='', _translations=None, **kwargs):
 
         self.default = default
         self.description = description
         self.filters = filters
         self.flags = None
-        self.name = _prefix + _name
+        self.name = _prefix + (_name or '')
         self.short_name = _name
         self.type = type(self).__name__
         self.validators = validators or list(self.validators)
@@ -119,7 +119,7 @@ class DummyField(TextAreaField):
     pass
 
 
-class EAnnouncementsForm(Form):
+class EAnnouncementsForm(FlaskForm):
 
     announcement_information = HeadingField(label="Announcement Information")
     title = StringField('Title', description="Title is limited to 60 characters.",
@@ -137,7 +137,7 @@ class EAnnouncementsForm(Form):
     # Manually override validate, in order to check the dates
     def validate(self):
         result = True
-        if not Form.validate(self):
+        if not FlaskForm.validate(self):
             result = False
 
         if len(self.title.data) > 60:

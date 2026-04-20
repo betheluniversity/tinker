@@ -2,6 +2,8 @@
 from datetime import datetime
 from bu_cascade.asset_tools import find, convert_asset
 import math
+import re
+import unicodedata
 
 # Packages
 from bu_cascade.asset_tools import update
@@ -112,11 +114,64 @@ class EAnnouncementsController(TinkerController):
 
         return form, form.validate_on_submit()
 
+    @staticmethod
+    def fix_mojibake(text):
+        """Repair common UTF-8-read-as-Windows-1252 (cp1252) mojibake sequences."""
+        if not text:
+            return text
+        # Each UTF-8 multi-byte sequence, when misread as cp1252, produces a
+        # distinct 3-character sequence. Replace those sequences with the correct char.
+        # Pattern: â (U+00E2 = cp1252 0xE2) + € (U+20AC = cp1252 0x80) + <varies>
+        replacements = [
+            ('\u00e2\u20ac\u201d', '\u2014'),  # em dash —          (UTF-8: E2 80 94)
+            ('\u00e2\u20ac\u201c', '\u2013'),  # en dash –           (UTF-8: E2 80 93)
+            ('\u00e2\u20ac\u2122', '\u2019'),  # right single quote ' (UTF-8: E2 80 99)
+            ('\u00e2\u20ac\u02dc', '\u2018'),  # left single quote '  (UTF-8: E2 80 98)
+            ('\u00e2\u20ac\u0153', '\u201c'),  # left double quote "  (UTF-8: E2 80 9C)
+            ('\u00e2\u20ac\x9d',   '\u201d'),  # right double quote " (UTF-8: E2 80 9D)
+            ('\u00e2\u20ac\u00a6', '\u2026'),  # ellipsis …           (UTF-8: E2 80 A6)
+            ('\u00e2\u20ac\u00a2', '\u2022'),  # bullet •             (UTF-8: E2 80 A2)
+        ]
+        for wrong, correct in replacements:
+            text = text.replace(wrong, correct)
+        return text
+
+    @staticmethod
+    def strip_special_chars(text):
+        """Remove emojis and non-ASCII special characters from a string."""
+        if not text:
+            return text
+        # Replace common Unicode punctuation with ASCII equivalents before stripping
+        replacements = [
+            ('\u2014', '-'),   # em dash —
+            ('\u2013', '-'),   # en dash –
+            ('\u2018', "'"),   # left single curly quote '
+            ('\u2019', "'"),   # right single curly quote '
+            ('\u201c', '"'),   # left double curly quote "
+            ('\u201d', '"'),   # right double curly quote "
+            ('\u2026', '...'), # ellipsis …
+            ('\u00a0', ' '),   # non-breaking space
+        ]
+        for unicode_char, ascii_equiv in replacements:
+            text = text.replace(unicode_char, ascii_equiv)
+        # Normalize unicode (e.g. decompose accented chars) then encode to ASCII,
+        # dropping any characters that can't be represented (emojis, symbols, etc.)
+        normalized = unicodedata.normalize('NFKD', text)
+        ascii_only = normalized.encode('ascii', 'ignore').decode('ascii')
+        # Remove any remaining non-printable / control characters
+        return re.sub(r'[^\x20-\x7E\n\r\t]', '', ascii_only)
+
     def update_structure(self, e_announcement_data, rform, e_announcement_id=None):
         # clean up the bytes
         e_announcement_data = convert_asset(e_announcement_data)
 
         add_data = self.get_add_data(['banner_roles'], rform)
+
+        # Strip emojis and special characters from user-supplied text fields
+        if add_data.get('title'):
+            add_data['title'] = self.strip_special_chars(self.fix_mojibake(add_data['title']))
+        if add_data.get('message'):
+            add_data['message'] = self.strip_special_chars(self.fix_mojibake(add_data['message']))
 
         # create workflow
         workflow = self.create_workflow(app.config['E_ANNOUNCEMENTS_WORKFLOW_ID'], add_data['title'])
