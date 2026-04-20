@@ -39,5 +39,7 @@ programs.csv
 faculty-info.csv
 config_old
 
+bu_cascade
+
 # Docker
 _data
