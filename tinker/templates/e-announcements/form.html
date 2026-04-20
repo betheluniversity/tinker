@@ -253,6 +253,64 @@
                 maxWordCount: 150,
                 showParagraphs: false
             };
+
+            // Strip special characters and emojis on paste for all text inputs and textareas.
+            // Intercepts the clipboard data and inserts plain ASCII text instead.
+            function cleanPastedText(text) {
+                // Repair common Word/Outlook mojibake (UTF-8 read as cp1252)
+                var mojibake = [
+                    ['\u00e2\u20ac\u201d', '\u2014'],  // em dash
+                    ['\u00e2\u20ac\u201c', '\u2013'],  // en dash
+                    ['\u00e2\u20ac\u2122', '\u2019'],  // right single quote
+                    ['\u00e2\u20ac\u02dc', '\u2018'],  // left single quote
+                    ['\u00e2\u20ac\u0153', '\u201c'],  // left double quote
+                    ['\u00e2\u20ac\x9d',   '\u201d'],  // right double quote
+                    ['\u00e2\u20ac\u00a6', '\u2026'],  // ellipsis
+                    ['\u00e2\u20ac\u00a2', '\u2022'],  // bullet
+                ];
+                for (var i = 0; i < mojibake.length; i++) {
+                    text = text.split(mojibake[i][0]).join(mojibake[i][1]);
+                }
+                // Replace common Unicode punctuation with ASCII equivalents
+                text = text
+                    .replace(/\u2014/g, '-')    // em dash
+                    .replace(/\u2013/g, '-')    // en dash
+                    .replace(/\u2018/g, "'")    // left single quote
+                    .replace(/\u2019/g, "'")    // right single quote
+                    .replace(/\u201c/g, '"')    // left double quote
+                    .replace(/\u201d/g, '"')    // right double quote
+                    .replace(/\u2026/g, '...')  // ellipsis
+                    .replace(/\u00a0/g, ' ')    // non-breaking space
+                    .replace(/\u2022/g, '*');   // bullet
+                // Drop anything outside printable ASCII (emojis, symbols, etc.)
+                return text.replace(/[^\x20-\x7E\n\r\t]/g, '');
+            }
+
+            $('#eannouncementform input[type="text"], #eannouncementform textarea').on('paste', function (e) {
+                e.preventDefault();
+                var pastedText = (e.originalEvent.clipboardData || window.clipboardData).getData('text');
+                var cleaned = cleanPastedText(pastedText);
+                var el = e.target;
+                var start = el.selectionStart;
+                var end = el.selectionEnd;
+                var current = el.value;
+                el.value = current.substring(0, start) + cleaned + current.substring(end);
+                el.selectionStart = el.selectionEnd = start + cleaned.length;
+                $(el).trigger('input');
+            });
+
+            // CKEditor pastes through its own mechanism — hook into it after editor is ready
+            CKEDITOR.on('instanceReady', function (ev) {
+                ev.editor.on('paste', function (ev) {
+                    ev.data.dataValue = cleanPastedText(ev.data.dataValue
+                        .replace(/<[^>]+>/g, ' ')   // strip HTML tags to get plain text
+                        .replace(/&amp;/g, '&')
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&nbsp;/g, ' ')
+                    );
+                });
+            });
         });
 
     </script>
