@@ -328,12 +328,10 @@ class TinkerController(object):
             edit_data[m] = []
 
         for node in find(sdata, 'identifier'):
-            if node['identifier'] in multiple:
-                m = node['identifier']
-                edit_data[m].append(self.inspect_sdata_node(node))
-
+            node_identifier = node['identifier'].replace('-', '_')
+            if node_identifier in multiple:
+                edit_data[node_identifier].append(self.inspect_sdata_node(node))
             else:
-                node_identifier = node['identifier'].replace('-', '_')
                 edit_data[node_identifier] = self.inspect_sdata_node(node)
 
         dynamic_fields = find(mdata, 'dynamicField', False)
@@ -429,6 +427,19 @@ class TinkerController(object):
         for key in form.keys():
             if key in lists:
                 add_data[key] = form.getlist(key)
+            elif key.endswith('[]'):
+                # This is a fieldset, so we need to get the data from it
+                name_list = key.split('::')
+                fieldset_name = name_list[0].replace('_fieldset', '')
+                if fieldset_name not in add_data:
+                    add_data[fieldset_name] = []
+
+                fieldset_key = name_list[1].replace('[]', '')
+                fieldset_list = form.getlist(key)
+                for idx, value in enumerate(fieldset_list):
+                    if len(add_data[fieldset_name]) <= idx:
+                        add_data[fieldset_name].append({})
+                    add_data[fieldset_name][idx][fieldset_key] = value
             else:
                 add_data[key] = form[key]
 
@@ -452,7 +463,34 @@ class TinkerController(object):
         # add author
         add_data['author'] = session['username']
 
-        return add_data
+        new_data = {}
+        # Convert all keys to use hyphens instead of underscores
+        # This is because Cascade uses hyphens in the XML, but the form uses underscores
+        for key in add_data:
+            try:
+                if isinstance(add_data[key], list):
+                    # Handle list of dicts
+                    new_data[key.replace('_', '-')] = []
+                    for item in add_data[key]:
+                        if isinstance(item, dict):
+                            new_item = {}
+                            for k, v in item.items():
+                                new_item[k.replace('_', '-')] = v
+                            new_data[key.replace('_', '-')].append(new_item)
+                        else:
+                            new_data[key.replace('_', '-')].append(item)
+                elif isinstance(add_data[key], dict):
+                    # Handle nested dict
+                    new_item = {}
+                    for k, v in add_data[key].items():
+                        new_item[k.replace('_', '-')] = v
+                    new_data[key.replace('_', '-')] = new_item
+                else:
+                    new_data[key.replace('_', '-')] = add_data[key]
+            except:
+                pass
+
+        return new_data
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)

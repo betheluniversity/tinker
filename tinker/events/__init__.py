@@ -80,12 +80,12 @@ class EventsView(FlaskView):
                 'request': request,
                 'username': session.get('username')
             }
-            self.base.log_sentry('Loading E-Announcements with Username', resp, **kwargs)
+            self.base.log_sentry('Loading Events with Username', resp, **kwargs)
 
         # import this here so we dont load all the content from cascade during homepage load
-        from tinker.events.forms import EventForm
+        from tinker.events.forms import get_event_form
 
-        form = EventForm()
+        form = get_event_form()
         new_form = True
         return render_template('events/form.html', **locals())
 
@@ -97,17 +97,17 @@ class EventsView(FlaskView):
         edit_data, dates = self.base.build_edit_form(event_id)
         # todo: fix this with the submit_all() functionality ASK CALEB
         # convert 'On/Off campus' to 'On/Off Campus' for all events
-        from tinker.events.forms import EventForm
-        form = EventForm(**edit_data)
-        if 'location' in edit_data and edit_data['location']:
-            edit_data['location'].replace(' c', ' C')
+        from tinker.events.forms import get_event_form
+        form = get_event_form(**edit_data)
+        # if 'location' in edit_data and edit_data['location']:
+        #     edit_data['location'].replace(' c', ' C')
 
         return render_template('events/form.html', **locals())
 
     def duplicate(self, event_id):
         edit_data, dates = self.base.build_edit_form(event_id)
-        from tinker.events.forms import EventForm
-        form = EventForm(**edit_data)
+        from tinker.events.forms import get_event_form
+        form = get_event_form(**edit_data)
         new_form = True
 
         return render_template('events/form.html', **locals())
@@ -115,26 +115,40 @@ class EventsView(FlaskView):
     @route("/submit", methods=['post'])
     def submit(self):
         rform = request.form
+
+        # A dict to populate with all the interesting data.
+        edit_data = {}
+
+        for key in rform.keys():
+            if key.endswith('[]'):
+                # This is a fieldset, so we need to get the data from it
+                name_list = key.split('::')
+                fieldset_name = name_list[0].replace('_fieldset', '')
+                if fieldset_name not in edit_data:
+                    edit_data[fieldset_name] = []
+
+                fieldset_key = name_list[1].replace('[]', '')
+                fieldset_list = rform.getlist(key)
+                for idx, value in enumerate(fieldset_list):
+                    if len(edit_data[fieldset_name]) <= idx:
+                        edit_data[fieldset_name].append({})
+                    edit_data[fieldset_name][idx][fieldset_key] = value
+            else:
+                edit_data[key] = rform[key]
+
         username = session['username']
         eid = rform.get('event_id')
-        dates, num_dates = self.base.get_event_dates(rform)
-        dates_str, dates_good = self.base.check_event_dates(dates)
-        form, passed = self.base.validate_form(rform, dates_good)
-        workflow = self.base.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
+        form, fieldset_errors, passed = self.base.validate_form(edit_data)
 
-        if not passed:
+        if not passed or fieldset_errors:
             if 'event_id' in rform.keys():
                 event_id = rform['event_id']
             else:
                 new_form = True
-            # not sure why we have this?
-            # todo do we need to load/populate this here?
-            author = rform.get('author')
-            num_dates = int(rform['num_dates'])
 
             return render_template('events/form.html', **locals())
 
-        add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates, num_dates, metadata_list, workflow)
+        add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, metadata_list)
 
         # todo: Test this
         if 'link' in add_data and add_data['link']:

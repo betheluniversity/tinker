@@ -1,13 +1,12 @@
 # coding: utf-8
 # Global
-from datetime import datetime
 
 # Packages
 from bu_cascade.asset_tools import find, convert_asset
 from flask import session
-from flask_wtf import Form
-from wtforms import DateTimeField, Field, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField
-from wtforms.validators import DataRequired, ValidationError
+from flask_wtf import FlaskForm
+from wtforms import DateTimeField, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField, BooleanField, Field
+from wtforms.validators import DataRequired, ValidationError, URL
 
 # Local
 from tinker.tinker_controller import TinkerController
@@ -74,8 +73,8 @@ def get_event_choices():
 
 
 def get_buildings():
-    labels = [("none", '-select-')]
-    block = convert_asset(tinker.read('951e3c9f8c5865fc76c04caaa5925bb6', type="block"))
+    labels = [('', '-select-')]
+    block = convert_asset(tinker.read('04d538728c5865132abe9a84a6e0838d', type="block"))
     buildings = find(block, 'buildings')
     for building in buildings:
         label = building['structuredDataNodes']['structuredDataNode'][0]['text']
@@ -89,41 +88,122 @@ def get_buildings():
 class CKEditorTextAreaField(TextAreaField):
     pass
 
-
-class HeadingField(Field):
-    def __init__(self, label=None, validators=None, filters=tuple(),
-                 description='', id=None, default=None, widget=None,
-                 _form=None, _name=None, _prefix='', _translations=None):
-        self.default = default
-        self.description = description
-        self.filters = filters
-        self.flags = None
-        self.name = _prefix + _name
-        self.short_name = _name
-        self.type = type(self).__name__
-        self.validators = validators or list(self.validators)
-
-        self.id = id or self.name
-        self.label = label
-
-    def __unicode__(self):
-        return None
-
-    def __str__(self):
-        return None
-
-    def __html__(self):
-        return None
-
 # Long words throw off formatting in Calendar
 def length_checker(Form, field):
     word_split = field.data.split(" ")
     for word in word_split:
         if len(word) > 15:
             raise ValidationError('Words in the title must be 15 characters or less')
+        
+# Custom validator to ensure the cost is numeric
+def validate_numeric(form, field):
+    try:
+        float(field.data)  # Check if the value can be converted to a float
+    except ValueError:
+        raise ValidationError("All Cost fields must be numeric values.")
 
+class FieldsetField(Field):
+    """
+    Custom field to handle fieldsets.
+    """
 
-class EventForm(Form):
+    def __init__(self, label='', fields=None, required=False, hidden=False, fieldset_type="multiple", validators=None, **kwargs):
+        super(FieldsetField, self).__init__(label, validators, **kwargs)
+        self.label.text = label
+        self.fields = fields() if callable(fields) else (fields or [])
+        self.fieldset_type = fieldset_type
+        self.required = required
+        self.hidden = hidden
+
+def get_date_fields():
+    all_day = BooleanField("All Day", default=False, render_kw={"value": "Yes"})
+    start_date = DateTimeField("Start Date", render_kw={"onchange": "syncDates(this)"}, validators=[DataRequired(message="Start date is required.")])
+    end_date = DateTimeField("End Date", render_kw={"onchange": "syncDates(this)"}, validators=[DataRequired(message="End date is required.")])
+    no_end = BooleanField("No End Date", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'end_date', 'hide');", "value": "Yes"})
+    outside_of_minnesota = BooleanField("Outside of Minnesota?", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'timezone', 'show');", "value": "Yes"})
+    timezone_choices = [
+        ('Central Time', 'Central Time'),
+        ('Eastern Time', 'Eastern Time'),
+        ('Mountain Time', 'Mountain Time'),
+        ('Pacific Time', 'Pacific Time'),
+        ('Alaska Time', 'Alaska Time'),
+        ('Hawaii-Aleutian Time', 'Hawaii-Aleutian Time'),
+    ]
+    timezone = SelectField(
+        "Timezone",
+        choices=timezone_choices,
+        default='Central Time',
+        render_kw={"class": "timezoneselect visually-hidden"}
+    )
+
+    fields = {
+        'all_day': all_day,
+        'start_date': start_date,
+        'end_date': end_date,
+        'no_end': no_end,
+        'outside_of_minnesota': outside_of_minnesota,
+        'timezone': timezone
+    }
+    
+    return fields
+
+def get_cost_fields():
+    amount = StringField('Cost', description="Please enter a number. If the event is Free, enter 0.", render_kw={"onblur": "stripCostChars(this)"}, validators=[DataRequired(), validate_numeric])
+    description = StringField('Description', description="Ex. \"Senior Citizen (65+) and Group of 10 or more\"", validators=[DataRequired()])
+
+    fields = {
+        'amount': amount,
+        'description': description
+    }
+    
+    return fields
+
+def get_off_campus_location_fields():
+    off_campus_name = StringField('Location Name', description="Name of the off campus location", validators=[DataRequired()])
+    off_campus_address = StringField('Street Address', description="Street Address of the off campus location", validators=[DataRequired()])
+    off_campus_city = StringField('City', description="City of the off campus location", validators=[DataRequired()])
+    off_campus_state = StringField('State', description="State of the off campus location. Use two-letter state code (ex. MN)", validators=[DataRequired()])
+    off_campus_zip = StringField('Zip Code', description="Zip Code of the off campus location", validators=[DataRequired()])
+
+    fields = {
+        'off_campus_name': off_campus_name,
+        'off_campus_address': off_campus_address,
+        'off_campus_city': off_campus_city,
+        'off_campus_state': off_campus_state,
+        'off_campus_zip': off_campus_zip
+    }
+    
+    return fields
+
+def bind_fields(form, fields, attribute_name):
+    for name, field in fields.items():
+        bound_field = field.bind(form, name)
+        bound_field.data = None
+        fields[name] = bound_field
+
+    attribute = getattr(form, attribute_name, None)
+    if attribute is not None:
+        attribute.fields = list(fields.values())
+        setattr(form, attribute_name, attribute)
+
+def get_event_form(**edit_data):
+    """
+    Returns an instance of the EventForm with the necessary fields.
+    This is used to create a new event or edit an existing one.
+    """
+    if edit_data:
+        form = EventForm(**edit_data)
+    else:
+        form = EventForm()
+
+    for field in form:
+        if isinstance(field, FieldsetField):
+            # Bind the fields in the fieldset
+            bind_fields(form, field.fields, field.name)
+
+    return form
+    
+class EventForm(FlaskForm):
     image = HiddenField("Image path")
 
     choices = get_event_choices()
@@ -136,10 +216,7 @@ class EventForm(Form):
     seminary_program_choices = choices['seminary_program']
     building_choices = choices['buildings']
 
-    location_choices = (('On Campus', 'On Campus'), ('Other On Campus', 'Other On Campus'), ('Off Campus', 'Off Campus'), ('Online', 'Online'))
-    heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
-
-    what = HeadingField(label="What is your event?")
+    what = StringField('heading', description="What is your event?")
     title = StringField('Event name', validators=[DataRequired() , length_checker], description="This will be the title of your webpage")
 
     metaDescription = StringField('Teaser',
@@ -156,32 +233,55 @@ class EventForm(Form):
     sponsors = CKEditorTextAreaField('Sponsors')
     main_content = CKEditorTextAreaField('Event description')
 
-    when = HeadingField(label="When is your event?")
-    start = DateTimeField("", default=datetime.now)
+    when = StringField('heading', description="When is your event?")
 
-    where = HeadingField(label="Where is your event?")
-    location = SelectField('Location', choices=location_choices)
-    on_campus_location = SelectField('On campus location', choices=building_choices)
-    other_on_campus = StringField('Other on campus location')
-    off_campus_location = StringField("Off campus location")
+    event_dates = FieldsetField(label="Date and Time", fields=get_date_fields)
+
+    where = StringField('heading', description="Where is your event?")
+
+    # The value is set to the field that should be displayed based on the location choice
+    # This is used in the template to show/hide the correct fields
+    location_choices = location_choices = [
+        ('on_campus_location', 'On campus'),
+        ('other_on_campus', 'Other on campus'),
+        ('off_campus_location', 'Off campus'),
+        ('online_url', 'Online'),
+    ]
+    location_name = SelectField('Location', choices=location_choices, render_kw={"onchange": "selectChanged(this)"})
+
+    # Location fields are shown/hidden based on the location choice
+    online_url = StringField('Online URL', description="Enter full URL including 'https://'", validators=[DataRequired(), URL(require_tld=True, message="Please enter a valid URL.")])
+    on_campus_location = SelectField('On campus location', choices=building_choices, default='', validators=[DataRequired()])
+    other_on_campus = StringField('Other on campus location', validators=[DataRequired()])
+    off_campus_location = FieldsetField(label="Off Campus Location", fields=get_off_campus_location_fields, hidden=True, fieldset_type="single", validators=[DataRequired()])
+
     maps_directions = CKEditorTextAreaField('Instructions for Guests',
                                             description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")
 
-    why = HeadingField(label="Does your event require registration or payment?")
-    registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices)
+    # Registration and Ticketing fields
+    why = StringField('heading', description="Does your event require registration or payment?")
+    heading_choices = [
+        ('', '-select-'),
+        ('wufoo_code', 'Registration'),
+        ('ticketing_url', 'Ticketing')
+    ]
+    registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices, render_kw={"onchange": "selectChanged(this)"})
+    wufoo_code = StringField('Approved wufoo hash code', validators=[DataRequired()])
+    ticketing_url = StringField('Ticketing URL', validators=[DataRequired(), URL(require_tld=True, message="Please enter a valid URL.")])
     registration_details = CKEditorTextAreaField('Registration/ticketing details',
                                                  description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
-    wufoo_code = StringField('Approved wufoo hash code')
-    ticketing_url = StringField('Ticketing URL')
-    cost = TextAreaField('Cost')
+
+    pricing = StringField('heading', description="What is the cost for your event?")
+    cost = FieldsetField(label="Event Cost", fields=get_cost_fields)
+
     cancellations = TextAreaField('Cancellations and refunds')
 
-    other = HeadingField(label="Who should folks contact with questions?")
+    other = StringField('heading', description="Who should folks contact with questions?")
     questions = CKEditorTextAreaField('Questions',
                                       description=u"Contact info for questions. (ex: Contact the Office of Church Relations at 651.638.6301 or church-relations@bethel.edu.)",
                                   validators=[DataRequired()])
 
-    categories = HeadingField(label="Categories")
+    categories = StringField('heading', description="Categories")
 
     general = SelectMultipleField('General categories', choices=general_choices, default=['None'],
                                   validators=[DataRequired()])
