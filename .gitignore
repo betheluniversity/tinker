@@ -40,5 +40,6 @@ faculty-info.csv
 config_old
 
 tinker/bu_cascade
+tinker/events/velocity
 # Docker
 _data
