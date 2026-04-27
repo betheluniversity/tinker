@@ -1,117 +1,25 @@
-{% macro render(field, data={}, as_card=false, template=false) -%}
-{% if field.type == "FieldsetField" %}
-{% set wrapper_class = (field.render_kw.get('show_class') if field.render_kw else None) or (field.name + '_card') %}
-{% else %}
-{% set wrapper_class = field.render_kw.get('show_class', field.name) if field.render_kw else field.name %}
-{% endif %}
-<div class="{{ wrapper_class }}_wrap">
+{% macro render(field, data) -%}
+<div class="{{ field.name }}_wrap">
     {% if field is string %}
         {{ field }}
     {% elif field.label.text == "heading" %}
         {{ render_heading(field) }}
     {% elif field.type == "FieldsetField" %}
-        {{ create_fieldset(field, template=template, nested=true) }}
-    {% elif field.type == "FileField" %}
-        {% if as_card %}
-            {{ render_file_card(field, data) }}
-        {% else %}
-            {{ render_file(field, data) }}
-        {% endif %}
+        {{ create_fieldset(field) }}
     {% elif field.type == "CKEditorTextAreaField" %}
-        {% if as_card %}
-            {{ render_ckeditor_card(field) }}
-        {% else %}
-            {{ render_ckeditor(field) }}
-        {% endif %}
+        {{ render_ckeditor(field) }}
     {% elif field.type == "SelectField" %}
-        {% if as_card %}
-            {{ render_select_card(field, data) }}
-        {% else %}
-            {{ render_select(field, data) }}
-        {% endif %}
+        {{ render_select(field, data) }}
     {% elif field.type == "SelectMultipleField" %}
-        {% if field.render_kw and field.render_kw.get('_widget') == 'checkbox-group' %}
-            {% if as_card %}
-                {{ render_checkbox_group_card(field) }}
-            {% else %}
-                {{ render_checkbox_group(field) }}
-            {% endif %}
-        {% elif as_card %}
-            {{ render_select_multiple_card(field) }}
-        {% else %}
-            {{ render_select_multiple(field) }}
-        {% endif %}
+        {{ render_select_multiple(field) }}
     {% elif field.type == "BooleanField" %}
-        {% if as_card %}
-            {{ render_checkbox_card(field, data) }}
-        {% else %}
-            {{ render_checkbox(field, data) }}
-        {% endif %}
-    {% elif field.type == "RadioField" %}
-        {% if as_card %}
-            {{ render_radio_card(field) }}
-        {% else %}
-            {{ render_radio(field) }}
-        {% endif %}
+        {{ render_checkbox(field, data) }}
     {% elif field.type in ["DateField", "DateTimeField"] %}
-        {% if as_card %}
-            {{ render_datepicker_card(field, data) }}
-        {% else %}
-            {{ render_datepicker(field, data) }}
-        {% endif %}
+        {{ render_datepicker(field, data) }}
     {% else %}
-        {% if as_card %}
-            {{ render_field_card(field, data) }}
-        {% else %}
-            {{ render_field(field, data) }}
-        {% endif %}
+        {{ render_field(field, data) }}
     {% endif %}
 </div>
-{%- endmacro %}
-
-{% macro render_file(field, data) -%}
-    {{ render_label(field) }}
-    {% set current_path = data.get(field.name + '_path', '') if data else '' %}
-    {% if current_path %}
-        <p class="current-file-path">Current: <code>{{ current_path }}</code></p>
-    {% endif %}
-    {{ field() }}
-{%- endmacro %}
-
-{% macro render_ckeditor_card(field) -%}
-<fieldset class="{{ field.name }}_fieldset fieldset">
-    <div class="card">
-        <div class="content">
-            <legend>{{ field.label.text }}
-                {% if field.flags.required %}
-                <small class="required">required</small>
-                {% endif %}
-            </legend>
-            {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
-            {% endif %}
-            {{ field(class="ckeditor") }}
-        </div>
-    </div>
-</fieldset>
-{%- endmacro %}
-
-{% macro render_select_multiple_card(field) -%}
-<fieldset class="{{ field.name }}_fieldset fieldset">
-    <div class="card">
-        <div class="content">
-            <legend>{{ field.label.text }}
-                {% if field.flags.required %}
-                <small class="required">required</small>
-                {% endif %}
-            </legend>
-            {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
-            {% endif %}
-            {{ field(size=10, class="large-select") }}
-        </div>
-    </div>
-</fieldset>
 {%- endmacro %}
 
 {% macro render_heading(field) -%}
@@ -164,43 +72,9 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro render_radio_card(field) -%}
-<fieldset class="{{ field.name }}_fieldset fieldset">
-    <div class="card">
-        <div class="content">
-            <legend>{{ field.label.text }}
-                {% if field.flags.required %}
-                <small class="required">required</small>
-                {% endif %}
-            </legend>
-            {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
-            {% endif %}
-            {% for subfield in field %}
-            <div class="radio{{ ' checked' if subfield.data == field.data else '' }}">
-                {{ subfield() }}{{ subfield.label }}
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</fieldset>
-{%- endmacro %}
-
-{% macro render_radio(field) -%}
-{{ render_label(field) }}
-{% for subfield in field %}
-<div class="radio{{ ' checked' if subfield.data == field.data else '' }}">
-    {{ subfield() }}{{ subfield.label }}
-</div>
-{% endfor %}
-{%- endmacro %}
-
 {% macro render_checkbox(field, data) -%}
 {% set checked = data and field.name in data and data[field.name] and "Yes" in data[field.name] %}
 {% set field_onclick = 'checkboxClicked(this); ' ~ field.render_kw.get('onclick', '') %}
-{% if field.description %}
-<small class="extra-required">{{ field.description }}</small>
-{% endif %}
 <input type="hidden" name="{{ field.name }}" value="No" {{ 'disabled' if checked else '' }} />
 <label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox{{ ' checked' if checked else '' }}" onclick="{{ field_onclick }}">
     <span class="icons">
@@ -211,159 +85,6 @@
     {{ field.label.text }}
     <input name="{{ field.name }}" type="checkbox" value="Yes" {{ 'checked' if checked else '' }} />
 </label>
-{%- endmacro %}
-
-{% macro render_checkbox_group(field) -%}
-{{ render_label(field) }}
-{% for value, label in field.choices %}
-{% set is_checked = field.data and value in field.data %}
-<div class="checkbox{{ ' checked' if is_checked else '' }}">
-    <span class="icons">
-        <span class="first-icon fa fa-square-o fa-base"></span>
-        <span class="second-icon fa fa-check-square-o fa-base"></span>
-    </span>
-    <label>{{ label }}<input type="checkbox" name="{{ field.name }}" value="{{ value }}"{{ ' checked' if is_checked else '' }}></label>
-</div>
-{% endfor %}
-{%- endmacro %}
-
-{% macro render_checkbox_group_card(field) -%}
-<fieldset class="{{ field.name }}_fieldset fieldset">
-    <div class="card">
-        <div class="content">
-            <legend>{{ field.label.text }}
-                {% if field.flags.required %}
-                <small class="required">required</small>
-                {% endif %}
-            </legend>
-            <hr/>
-            {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
-            {% endif %}
-            {% for value, label in field.choices %}
-            {% set is_checked = field.data and value in field.data %}
-            <div class="checkbox{{ ' checked' if is_checked else '' }}">
-                <span class="icons">
-                    <span class="first-icon fa fa-square-o fa-base"></span>
-                    <span class="second-icon fa fa-check-square-o fa-base"></span>
-                </span>
-                <label>{{ label }}<input type="checkbox" name="{{ field.name }}" value="{{ value }}"{{ ' checked' if is_checked else '' }}></label>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</fieldset>
-{%- endmacro %}
-
-{% macro render_checkbox_card(field, data) -%}
-<fieldset class="{{ field.name }}_fieldset fieldset">
-    <div class="card">
-        <div class="content">
-            <legend>{{ field.label.text }}
-                {% if field.flags.required %}
-                <small class="required">required</small>
-                {% endif %}
-            </legend>
-            <hr/>
-            {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
-            {% endif %}
-            {{ render_checkbox(field, data) }}
-        </div>
-    </div>
-</fieldset>
-{%- endmacro %}
-
-{% macro render_field_card(field, data) -%}
-<fieldset class="{{ field.name }}_fieldset fieldset">
-    <div class="card">
-        <div class="content">
-            <legend>{{ field.label.text }}
-                {% if field.flags.required %}
-                <small class="required">required</small>
-                {% endif %}
-            </legend>
-            {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
-            {% endif %}
-            {% if data and field.name in data %}
-                {{ field(value=data[field.name]) }}
-            {% else %}
-                {{ field() }}
-            {% endif %}
-        </div>
-    </div>
-</fieldset>
-{%- endmacro %}
-
-{% macro render_select_card(field, data) -%}
-<fieldset class="{{ field.name }}_fieldset fieldset">
-    <div class="card">
-        <div class="content">
-            <legend>{{ field.label.text }}
-                {% if field.flags.required %}
-                <small class="required">required</small>
-                {% endif %}
-            </legend>
-            {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
-            {% endif %}
-            {% if data and field.name in data %}
-                <select class="{{ field.render_kw.class if field.render_kw and 'class' in field.render_kw else '' }}" name="{{ field.name }}">
-                {% for value, label in field.choices %}
-                    <option value="{{ value }}"{{ ' selected' if value == data[field.name] else '' }}>{{ label }}</option>
-                {% endfor %}
-                </select>
-            {% else %}
-                {{ field() }}
-            {% endif %}
-        </div>
-    </div>
-</fieldset>
-{%- endmacro %}
-
-{% macro render_datepicker_card(field, data) -%}
-<fieldset class="{{ field.name }}_fieldset fieldset">
-    <div class="card">
-        <div class="content">
-            <legend>{{ field.label.text }}
-                {% if field.flags.required %}
-                <small class="required">required</small>
-                {% endif %}
-            </legend>
-            {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
-            {% endif %}
-            {% if data and field.name in data %}
-                {{ field(value=data[field.name], class="datepicker") }}
-            {% else %}
-                {{ field(value="", class="datepicker") }}
-            {% endif %}
-        </div>
-    </div>
-</fieldset>
-{%- endmacro %}
-
-{% macro render_file_card(field, data) -%}
-<fieldset class="{{ field.name }}_fieldset fieldset">
-    <div class="card">
-        <div class="content">
-            <legend>{{ field.label.text }}
-                {% if field.flags.required %}
-                <small class="required">required</small>
-                {% endif %}
-            </legend>
-            {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
-            {% endif %}
-            {% set current_path = data.get(field.name + '_path', '') if data else '' %}
-            {% if current_path %}
-                <p class="current-file-path">Current: <code>{{ current_path }}</code></p>
-            {% endif %}
-            {{ field() }}
-        </div>
-    </div>
-</fieldset>
 {%- endmacro %}
 
 {% macro render_label(field) -%}
@@ -379,7 +100,7 @@
 </div>
 {%- endmacro %}
 
-{% macro create_fieldset(field, template=false, nested=false) -%}
+{% macro create_fieldset(field, template=false) -%}
     {% set fieldset_classes = field.name ~ '_fieldset fieldset_template' if template else field.name ~ '_fieldset fieldset' %}
     {% set fieldset_index = 0 if template else 1 %}
     {% if field.data and not template %}
@@ -396,24 +117,24 @@
         {% endif %}
         {% if field.fieldset_type == "multiple" %}
             {% for data in field.data %}
-                <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ loop.index }}" data-fieldset-type="{{ field.fieldset_type }}">
-                {{ continue_fieldset(field, loop.index, data, template) }}
+                <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ loop.index }}">
+                {{ continue_fieldset(field, loop.index, data) }}
             {% endfor %}
         {% else %}
-            <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ fieldset_index }}" data-fieldset-type="{{ field.fieldset_type }}">
-            {{ continue_fieldset(field, fieldset_index, field.data, template) }}
+            <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ fieldset_index }}">
+            {{ continue_fieldset(field, fieldset_index, field.data) }}
         {% endif %}
     {% else %}
-        <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ fieldset_index }}" data-fieldset-type="{{ field.fieldset_type }}">
-        {{ continue_fieldset(field, fieldset_index, {}, template) }}
+        <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ fieldset_index }}">
+        {{ continue_fieldset(field, fieldset_index, {}) }}
     {% endif %}
-    {% if field.fieldset_type == "multiple" and (not template or nested) %}
-    <a href="javascript:void(0);" id="add_{{ field.name }}_button" class="btn btn-primary" data-fieldset-name="{{ field.name }}" onclick="duplicateFieldset('{{ field.name }}', this)">Add Another {{ field.label.text }}</a><br /><br />
+    {% if field.fieldset_type == "multiple" and not template %}
+    <a href="javascript:void(0);" id="add_{{ field.name }}_button" class="btn btn-primary" onclick="duplicateFieldset('{{ field.name }}')">Add Another {{ field.label.text }}</a><br /><br />
     {% endif %}
 {%- endmacro %}
 
-{% macro continue_fieldset(field, fieldset_index, data, template=false) -%}
-        <div class="{{ 'card card--multiple' if field.fieldset_type == 'multiple' else 'card' }}">
+{% macro continue_fieldset(field, fieldset_index, data) -%}
+        <div class="card">
             <div class="content">
                 {% if field.fieldset_type == "multiple" %}
                 <legend>{{ field.label.text }} <span class="fieldset_number">{{ fieldset_index }}</span>
@@ -428,7 +149,7 @@
                     {% endif %}
                 </legend>
                 {% for f in field.fields %}
-                    {{ render(f, data, template=template) }}
+                    {{ render(f, data) }}
                 {% endfor %}
             </div>
         </div>
@@ -455,14 +176,14 @@
                     at
                     651.638.6090.</p>
                 <div id="fieldset-templates" style="display: none;">
-                    {% for field in form if field.type == "FieldsetField" and field.fieldset_type == "multiple" %}
+                    {% for field in form if field.type == "FieldsetField" %}
                         {{ create_fieldset(field, template=true) }}
                     {% endfor %}
                 </div>
                 {% if new_form %}
-                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post" enctype="multipart/form-data">
+                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
                 {% else %}
-                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post" enctype="multipart/form-data">
+                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
                     <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
                 {% endif %}
                 {{ form.hidden_tag() }}
@@ -475,7 +196,7 @@
                 {% endif %}
 
                 {# Render the fields #}
-                {% for field in form if field.widget.input_type != 'hidden' and not (field.render_kw and field.render_kw.get('_card_child_of')) %}
+                {% for field in form if field.widget.input_type != 'hidden' %}
 
                     {# Print any errors for this field#}
                     {% for error in form.errors[field.name] %}
@@ -487,7 +208,7 @@
                     {% endfor %}
 
                     {# Print the field #}
-                    {{ render(field, as_card=true) }}
+                    {{ render(field) }}
                     
                 {% endfor %}
                 <button type="submit" formmethod="post" id="event-submit-btn" class="btn btn-primary">Submit</button>
