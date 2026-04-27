@@ -1,25 +1,117 @@
-{% macro render(field, data) -%}
-<div class="{{ field.name }}_wrap">
+{% macro render(field, data={}, as_card=false, template=false) -%}
+{% if field.type == "FieldsetField" %}
+{% set wrapper_class = (field.render_kw.get('show_class') if field.render_kw else None) or (field.name + '_card') %}
+{% else %}
+{% set wrapper_class = field.render_kw.get('show_class', field.name) if field.render_kw else field.name %}
+{% endif %}
+<div class="{{ wrapper_class }}_wrap">
     {% if field is string %}
         {{ field }}
     {% elif field.label.text == "heading" %}
         {{ render_heading(field) }}
     {% elif field.type == "FieldsetField" %}
-        {{ create_fieldset(field) }}
+        {{ create_fieldset(field, template=template, nested=true) }}
+    {% elif field.type == "FileField" %}
+        {% if as_card %}
+            {{ render_file_card(field, data) }}
+        {% else %}
+            {{ render_file(field, data) }}
+        {% endif %}
     {% elif field.type == "CKEditorTextAreaField" %}
-        {{ render_ckeditor(field) }}
+        {% if as_card %}
+            {{ render_ckeditor_card(field) }}
+        {% else %}
+            {{ render_ckeditor(field) }}
+        {% endif %}
     {% elif field.type == "SelectField" %}
-        {{ render_select(field, data) }}
+        {% if as_card %}
+            {{ render_select_card(field, data) }}
+        {% else %}
+            {{ render_select(field, data) }}
+        {% endif %}
     {% elif field.type == "SelectMultipleField" %}
-        {{ render_select_multiple(field) }}
+        {% if field.render_kw and field.render_kw.get('_widget') == 'checkbox-group' %}
+            {% if as_card %}
+                {{ render_checkbox_group_card(field) }}
+            {% else %}
+                {{ render_checkbox_group(field) }}
+            {% endif %}
+        {% elif as_card %}
+            {{ render_select_multiple_card(field) }}
+        {% else %}
+            {{ render_select_multiple(field) }}
+        {% endif %}
     {% elif field.type == "BooleanField" %}
-        {{ render_checkbox(field, data) }}
+        {% if as_card %}
+            {{ render_checkbox_card(field, data) }}
+        {% else %}
+            {{ render_checkbox(field, data) }}
+        {% endif %}
+    {% elif field.type == "RadioField" %}
+        {% if as_card %}
+            {{ render_radio_card(field) }}
+        {% else %}
+            {{ render_radio(field) }}
+        {% endif %}
     {% elif field.type in ["DateField", "DateTimeField"] %}
-        {{ render_datepicker(field, data) }}
+        {% if as_card %}
+            {{ render_datepicker_card(field, data) }}
+        {% else %}
+            {{ render_datepicker(field, data) }}
+        {% endif %}
     {% else %}
-        {{ render_field(field, data) }}
+        {% if as_card %}
+            {{ render_field_card(field, data) }}
+        {% else %}
+            {{ render_field(field, data) }}
+        {% endif %}
     {% endif %}
 </div>
+{%- endmacro %}
+
+{% macro render_file(field, data) -%}
+    {{ render_label(field) }}
+    {% set current_path = data.get(field.name + '_path', '') if data else '' %}
+    {% if current_path %}
+        <p class="current-file-path">Current: <code>{{ current_path }}</code></p>
+    {% endif %}
+    {{ field() }}
+{%- endmacro %}
+
+{% macro render_ckeditor_card(field) -%}
+<fieldset class="{{ field.name }}_fieldset fieldset">
+    <div class="card">
+        <div class="content">
+            <legend>{{ field.label.text }}
+                {% if field.flags.required %}
+                <small class="required">required</small>
+                {% endif %}
+            </legend>
+            {% if field.description %}
+            <small class="extra-required">{{ field.description }}</small>
+            {% endif %}
+            {{ field(class="ckeditor") }}
+        </div>
+    </div>
+</fieldset>
+{%- endmacro %}
+
+{% macro render_select_multiple_card(field) -%}
+<fieldset class="{{ field.name }}_fieldset fieldset">
+    <div class="card">
+        <div class="content">
+            <legend>{{ field.label.text }}
+                {% if field.flags.required %}
+                <small class="required">required</small>
+                {% endif %}
+            </legend>
+            {% if field.description %}
+            <small class="extra-required">{{ field.description }}</small>
+            {% endif %}
+            {{ field(size=10, class="large-select") }}
+        </div>
+    </div>
+</fieldset>
 {%- endmacro %}
 
 {% macro render_heading(field) -%}
@@ -72,9 +164,43 @@
 {% endif %}
 {%- endmacro %}
 
+{% macro render_radio_card(field) -%}
+<fieldset class="{{ field.name }}_fieldset fieldset">
+    <div class="card">
+        <div class="content">
+            <legend>{{ field.label.text }}
+                {% if field.flags.required %}
+                <small class="required">required</small>
+                {% endif %}
+            </legend>
+            {% if field.description %}
+            <small class="extra-required">{{ field.description }}</small>
+            {% endif %}
+            {% for subfield in field %}
+            <div class="radio{{ ' checked' if subfield.data == field.data else '' }}">
+                {{ subfield() }}{{ subfield.label }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</fieldset>
+{%- endmacro %}
+
+{% macro render_radio(field) -%}
+{{ render_label(field) }}
+{% for subfield in field %}
+<div class="radio{{ ' checked' if subfield.data == field.data else '' }}">
+    {{ subfield() }}{{ subfield.label }}
+</div>
+{% endfor %}
+{%- endmacro %}
+
 {% macro render_checkbox(field, data) -%}
 {% set checked = data and field.name in data and data[field.name] and "Yes" in data[field.name] %}
 {% set field_onclick = 'checkboxClicked(this); ' ~ field.render_kw.get('onclick', '') %}
+{% if field.description %}
+<small class="extra-required">{{ field.description }}</small>
+{% endif %}
 <input type="hidden" name="{{ field.name }}" value="No" {{ 'disabled' if checked else '' }} />
 <label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox{{ ' checked' if checked else '' }}" onclick="{{ field_onclick }}">
     <span class="icons">
@@ -85,6 +211,159 @@
     {{ field.label.text }}
     <input name="{{ field.name }}" type="checkbox" value="Yes" {{ 'checked' if checked else '' }} />
 </label>
+{%- endmacro %}
+
+{% macro render_checkbox_group(field) -%}
+{{ render_label(field) }}
+{% for value, label in field.choices %}
+{% set is_checked = field.data and value in field.data %}
+<div class="checkbox{{ ' checked' if is_checked else '' }}">
+    <span class="icons">
+        <span class="first-icon fa fa-square-o fa-base"></span>
+        <span class="second-icon fa fa-check-square-o fa-base"></span>
+    </span>
+    <label>{{ label }}<input type="checkbox" name="{{ field.name }}" value="{{ value }}"{{ ' checked' if is_checked else '' }}></label>
+</div>
+{% endfor %}
+{%- endmacro %}
+
+{% macro render_checkbox_group_card(field) -%}
+<fieldset class="{{ field.name }}_fieldset fieldset">
+    <div class="card">
+        <div class="content">
+            <legend>{{ field.label.text }}
+                {% if field.flags.required %}
+                <small class="required">required</small>
+                {% endif %}
+            </legend>
+            <hr/>
+            {% if field.description %}
+            <small class="extra-required">{{ field.description }}</small>
+            {% endif %}
+            {% for value, label in field.choices %}
+            {% set is_checked = field.data and value in field.data %}
+            <div class="checkbox{{ ' checked' if is_checked else '' }}">
+                <span class="icons">
+                    <span class="first-icon fa fa-square-o fa-base"></span>
+                    <span class="second-icon fa fa-check-square-o fa-base"></span>
+                </span>
+                <label>{{ label }}<input type="checkbox" name="{{ field.name }}" value="{{ value }}"{{ ' checked' if is_checked else '' }}></label>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</fieldset>
+{%- endmacro %}
+
+{% macro render_checkbox_card(field, data) -%}
+<fieldset class="{{ field.name }}_fieldset fieldset">
+    <div class="card">
+        <div class="content">
+            <legend>{{ field.label.text }}
+                {% if field.flags.required %}
+                <small class="required">required</small>
+                {% endif %}
+            </legend>
+            <hr/>
+            {% if field.description %}
+            <small class="extra-required">{{ field.description }}</small>
+            {% endif %}
+            {{ render_checkbox(field, data) }}
+        </div>
+    </div>
+</fieldset>
+{%- endmacro %}
+
+{% macro render_field_card(field, data) -%}
+<fieldset class="{{ field.name }}_fieldset fieldset">
+    <div class="card">
+        <div class="content">
+            <legend>{{ field.label.text }}
+                {% if field.flags.required %}
+                <small class="required">required</small>
+                {% endif %}
+            </legend>
+            {% if field.description %}
+            <small class="extra-required">{{ field.description }}</small>
+            {% endif %}
+            {% if data and field.name in data %}
+                {{ field(value=data[field.name]) }}
+            {% else %}
+                {{ field() }}
+            {% endif %}
+        </div>
+    </div>
+</fieldset>
+{%- endmacro %}
+
+{% macro render_select_card(field, data) -%}
+<fieldset class="{{ field.name }}_fieldset fieldset">
+    <div class="card">
+        <div class="content">
+            <legend>{{ field.label.text }}
+                {% if field.flags.required %}
+                <small class="required">required</small>
+                {% endif %}
+            </legend>
+            {% if field.description %}
+            <small class="extra-required">{{ field.description }}</small>
+            {% endif %}
+            {% if data and field.name in data %}
+                <select class="{{ field.render_kw.class if field.render_kw and 'class' in field.render_kw else '' }}" name="{{ field.name }}">
+                {% for value, label in field.choices %}
+                    <option value="{{ value }}"{{ ' selected' if value == data[field.name] else '' }}>{{ label }}</option>
+                {% endfor %}
+                </select>
+            {% else %}
+                {{ field() }}
+            {% endif %}
+        </div>
+    </div>
+</fieldset>
+{%- endmacro %}
+
+{% macro render_datepicker_card(field, data) -%}
+<fieldset class="{{ field.name }}_fieldset fieldset">
+    <div class="card">
+        <div class="content">
+            <legend>{{ field.label.text }}
+                {% if field.flags.required %}
+                <small class="required">required</small>
+                {% endif %}
+            </legend>
+            {% if field.description %}
+            <small class="extra-required">{{ field.description }}</small>
+            {% endif %}
+            {% if data and field.name in data %}
+                {{ field(value=data[field.name], class="datepicker") }}
+            {% else %}
+                {{ field(value="", class="datepicker") }}
+            {% endif %}
+        </div>
+    </div>
+</fieldset>
+{%- endmacro %}
+
+{% macro render_file_card(field, data) -%}
+<fieldset class="{{ field.name }}_fieldset fieldset">
+    <div class="card">
+        <div class="content">
+            <legend>{{ field.label.text }}
+                {% if field.flags.required %}
+                <small class="required">required</small>
+                {% endif %}
+            </legend>
+            {% if field.description %}
+            <small class="extra-required">{{ field.description }}</small>
+            {% endif %}
+            {% set current_path = data.get(field.name + '_path', '') if data else '' %}
+            {% if current_path %}
+                <p class="current-file-path">Current: <code>{{ current_path }}</code></p>
+            {% endif %}
+            {{ field() }}
+        </div>
+    </div>
+</fieldset>
 {%- endmacro %}
 
 {% macro render_label(field) -%}
@@ -100,7 +379,7 @@
 </div>
 {%- endmacro %}
 
-{% macro create_fieldset(field, template=false) -%}
+{% macro create_fieldset(field, template=false, nested=false) -%}
     {% set fieldset_classes = field.name ~ '_fieldset fieldset_template' if template else field.name ~ '_fieldset fieldset' %}
     {% set fieldset_index = 0 if template else 1 %}
     {% if field.data and not template %}
@@ -117,24 +396,24 @@
         {% endif %}
         {% if field.fieldset_type == "multiple" %}
             {% for data in field.data %}
-                <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ loop.index }}">
-                {{ continue_fieldset(field, loop.index, data) }}
+                <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ loop.index }}" data-fieldset-type="{{ field.fieldset_type }}">
+                {{ continue_fieldset(field, loop.index, data, template) }}
             {% endfor %}
         {% else %}
-            <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ fieldset_index }}">
-            {{ continue_fieldset(field, fieldset_index, field.data) }}
+            <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ fieldset_index }}" data-fieldset-type="{{ field.fieldset_type }}">
+            {{ continue_fieldset(field, fieldset_index, field.data, template) }}
         {% endif %}
     {% else %}
-        <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ fieldset_index }}">
-        {{ continue_fieldset(field, fieldset_index, {}) }}
+        <fieldset class="{{ fieldset_classes }}" fieldset-id="{{ fieldset_index }}" data-fieldset-type="{{ field.fieldset_type }}">
+        {{ continue_fieldset(field, fieldset_index, {}, template) }}
     {% endif %}
-    {% if field.fieldset_type == "multiple" and not template %}
-    <a href="javascript:void(0);" id="add_{{ field.name }}_button" class="btn btn-primary" onclick="duplicateFieldset('{{ field.name }}')">Add Another {{ field.label.text }}</a><br /><br />
+    {% if field.fieldset_type == "multiple" and (not template or nested) %}
+    <a href="javascript:void(0);" id="add_{{ field.name }}_button" class="btn btn-primary" data-fieldset-name="{{ field.name }}" onclick="duplicateFieldset('{{ field.name }}', this)">Add Another {{ field.label.text }}</a><br /><br />
     {% endif %}
 {%- endmacro %}
 
-{% macro continue_fieldset(field, fieldset_index, data) -%}
-        <div class="card">
+{% macro continue_fieldset(field, fieldset_index, data, template=false) -%}
+        <div class="{{ 'card card--multiple' if field.fieldset_type == 'multiple' else 'card' }}">
             <div class="content">
                 {% if field.fieldset_type == "multiple" %}
                 <legend>{{ field.label.text }} <span class="fieldset_number">{{ fieldset_index }}</span>
@@ -149,7 +428,7 @@
                     {% endif %}
                 </legend>
                 {% for f in field.fields %}
-                    {{ render(f, data) }}
+                    {{ render(f, data, template=template) }}
                 {% endfor %}
             </div>
         </div>
@@ -176,14 +455,14 @@
                     at
                     651.638.6090.</p>
                 <div id="fieldset-templates" style="display: none;">
-                    {% for field in form if field.type == "FieldsetField" %}
+                    {% for field in form if field.type == "FieldsetField" and field.fieldset_type == "multiple" %}
                         {{ create_fieldset(field, template=true) }}
                     {% endfor %}
                 </div>
                 {% if new_form %}
-                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
+                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post" enctype="multipart/form-data">
                 {% else %}
-                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
+                    <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post" enctype="multipart/form-data">
                     <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
                 {% endif %}
                 {{ form.hidden_tag() }}
@@ -196,7 +475,7 @@
                 {% endif %}
 
                 {# Render the fields #}
-                {% for field in form if field.widget.input_type != 'hidden' %}
+                {% for field in form if field.widget.input_type != 'hidden' and not (field.render_kw and field.render_kw.get('_card_child_of')) %}
 
                     {# Print any errors for this field#}
                     {% for error in form.errors[field.name] %}
@@ -208,7 +487,7 @@
                     {% endfor %}
 
                     {# Print the field #}
-                    {{ render(field) }}
+                    {{ render(field, as_card=true) }}
                     
                 {% endfor %}
                 <button type="submit" formmethod="post" id="event-submit-btn" class="btn btn-primary">Submit</button>
@@ -236,6 +515,35 @@
         overflow: hidden !important;
         clip: rect(0,0,0,0) !important;
         border: 0 !important;
+    }
+    .card label, .card legend {
+        color: #444;
+    }
+    .card.card--multiple {
+        background-color: #d8d8d8;
+    }
+    .card.card--multiple label, .card.card--multiple legend {
+        color: #1a1a1a;
+    }
+    .card.card--multiple .card.card--multiple {
+        background-color: #c2c2c2;
+    }
+    .card.card--multiple .card.card--multiple label,
+    .card.card--multiple .card.card--multiple legend {
+        color: #0d0d0d;
+    }
+    .card.card--multiple .card.card--multiple .card.card--multiple {
+        background-color: #ababab;
+    }
+    .card.card--multiple .card.card--multiple .card.card--multiple label,
+    .card.card--multiple .card.card--multiple .card.card--multiple legend {
+        color: #000;
+    }
+    fieldset.fieldset_template {
+        display: none;
+    }
+    legend {
+        border-bottom-color: #999 !important;
     }
 </style>
 
@@ -358,8 +666,10 @@ function clearValuesWithin(element) {
         }
     });
     $(element).find("input.datepicker").each(function () {
-        console.log("Clearing datepicker for element:", this);
-        syncDates(this, force=true);
+        $(this).val('');
+        if (this._pikaday) {
+            this._pikaday.clear();
+        }
     });
     $(element).find("input:not([type='checkbox']):not([type='radio']):not([type='select']):not(input.datepicker)").each(function () {
         $(this).attr('value', '');
@@ -370,99 +680,201 @@ function stripCostChars(input) {
     input.value = input.value.replace(/[$,]/g, '');
 }
 
+function getTopmostAncestorFieldset(el) {
+    var $el = $(el).closest('.fieldset').not('.fieldset_template');
+    var $parent = $el.parent().closest('.fieldset').not('.fieldset_template');
+    while ($parent.length) {
+        $el = $parent;
+        $parent = $el.parent().closest('.fieldset').not('.fieldset_template');
+    }
+    return $el;
+}
+
 function removeFieldset(element) {
-    var fieldset = $(element).closest('fieldset');
-    if (fieldset.length) {
-        fieldsetName = getFieldsetName(fieldset);
-        fieldset.remove();
-        updateFieldsets(fieldsetName);
+    var $fieldset = $(element).closest('fieldset');
+    if ($fieldset.length) {
+        var $parent = $fieldset.parent().closest('.fieldset').not('.fieldset_template');
+        var fieldsetName = getFieldsetName($fieldset[0]);
+        $fieldset.remove();
+        if ($parent.length) {
+            var $topmost = getTopmostAncestorFieldset($parent[0]);
+            updateFieldsets(getFieldsetName($topmost[0]));
+        } else {
+            updateFieldsets(fieldsetName);
+        }
     }
 }
 
-function updateFieldsets(name) {
-    // Get all fieldsets with the specified fieldset name
-    var sets = $("." + name + "_fieldset").not(".fieldset_template");
+function updateFieldsets(name, scope, displayPrefix) {
+    displayPrefix = (displayPrefix !== undefined && displayPrefix !== null) ? String(displayPrefix) : '';
+    var $context = scope ? $(scope) : $(document);
+
+    var sets = $context.find('.' + name + '_fieldset.fieldset').not('.fieldset_template');
+    var count = sets.length;
     var id = 1;
-    // Hide the delete icon for the first fieldset if there is only one
-    if (sets.length < 2) {
-        sets.first().find(".fa-delete").addClass("visually-hidden");
-    } else {
-        sets.first().find(".fa-delete").removeClass("visually-hidden");
-    }
-
-    // Update the order of the ids
-    sets.first().attr("fieldset-id", id);
-    sets.first().find("span.fieldset_number").text(id);
-
-    // Show the delete icon for all other fieldsets
-    sets.slice(1).each(function () {
-        $(this).find(".fa-delete").removeClass("visually-hidden");
-        // Update the fieldset-id and number
-        id++;
-        $(this).attr("fieldset-id", id);
-        $(this).find("span.fieldset_number").text(id);
-    });
 
     sets.each(function () {
-        $(this).find('.card').find('input, select').each(function () {
+        var $this = $(this);
+        var isMultiple = $this.data('fieldset-type') === 'multiple';
+        var $legend = $this.find('> .card > .content > legend');
+        var displayNum = displayPrefix ? displayPrefix + '-' + id : String(id);
+        var childPrefix = isMultiple ? displayNum : displayPrefix;
+
+        $this.attr('fieldset-id', id);
+
+        if (isMultiple) {
+            $legend.find('> span.fieldset_number').text(displayNum);
+            if (count < 2) {
+                $legend.find('> .fa-delete').addClass('visually-hidden');
+            } else {
+                $legend.find('> .fa-delete').removeClass('visually-hidden');
+            }
+        }
+
+        // Recursively update nested multiple fieldsets, scoped to this card.
+        // Tag each nested fieldset element with the outer row index (data-parent-row)
+        // so that its inputs get row-aware key names like
+        //   scheduleDetails_timeDescription_fieldset_1::timeDescription_time[]
+        // instead of the ambiguous
+        //   scheduleDetails_timeDescription_fieldset::timeDescription_time[]
+        var thisEl = this;
+        $this.find('[data-fieldset-name]').filter(function () {
+            return $(this).closest('.fieldset').not('.fieldset_template')[0] === thisEl;
+        }).each(function () {
+            var innerName = $(this).data('fieldset-name');
+            // Mark inner fieldset elements before recursing so input renaming below picks up the row
+            $this.find('.' + innerName + '_fieldset.fieldset').not('.fieldset_template').each(function () {
+                $(this).attr('data-parent-row', id);
+            });
+            updateFieldsets(innerName, thisEl, childPrefix);
+        });
+
+        // Update input names within this card, but skip anything inside a
+        // nested fieldset_template (those are cloning templates — modifying
+        // their ids/names corrupts future duplications from that scope).
+        $this.find('.card input, .card select, .card textarea').filter(function () {
+            return $(this).closest('.fieldset_template').length === 0;
+        }).each(function () {
             $(this).removeAttr('id');
-            var name = $(this).attr('name');
-            if (name && !name.endsWith('[]')) {
-                var fieldClass = $(this).closest('.card').parent('fieldset').attr('class').split(' ')[0];
-                $(this).attr('name', fieldClass + '::' + name + '[]');
-                var inputId = $(this).attr('name');
-                $(this).closest('.card').find("label[for='" + name + "']").attr('for', inputId);
+            var inputName = $(this).attr('name');
+            if (inputName && !inputName.endsWith('[]')) {
+                var $parentFieldset = $(this).closest('.card').parent('fieldset');
+                var fieldClass = $parentFieldset.attr('class').split(' ')[0];
+                var parentRow = $parentFieldset.attr('data-parent-row');
+                var prefix = parentRow ? fieldClass + '_' + parentRow : fieldClass;
+                $(this).attr('name', prefix + '::' + inputName + '[]');
+                var inputId = prefix + '::' + inputName + '[]';
+                $(this).closest('.card').find("label[for='" + inputName + "']").attr('for', inputId);
             }
         });
-    });
-};
 
-// Makes sure that the start date is always equal to or before the end date
-function syncDates(element, force=false) {
-    var $fieldset = $(element).closest('fieldset');
-    var $startDate = $fieldset.find('.start_date_wrap input.datepicker');
-    var $endDate = $fieldset.find('.end_date_wrap input.datepicker');
+        id++;
+    });
+}
+
+// When "All-day event?" is checked, set both start and end times to midnight.
+function setAllDayTime(label) {
+    // checkboxClicked hasn't toggled the class yet at onclick time, so
+    // "will be checked" = currently does NOT have class 'checked'.
+    var willBeChecked = !$(label).hasClass('checked');
+    if (!willBeChecked) return;
+
+    var $fieldset = $(label).closest('fieldset');
+    var $startInput = $fieldset.find('.date_eventStart_wrap input.datepicker');
+    var $endInput   = $fieldset.find('.date_eventEnd_wrap input.datepicker');
     var format = 'MMMM Do YYYY, h:mm a';
 
-    var startMoment = moment($startDate.val(), format, true);
-    var endMoment = moment($endDate.val(), format, true);
+    function zeroTime($input) {
+        var val = $input.val();
+        if (!val) return;
+        var m = moment(val, format);
+        if (!m.isValid()) return;
+        m.startOf('day');  // sets time to 00:00:00
+        var newVal = m.format(format);
+        $input.val(newVal);
+        if ($input[0] && $input[0]._pikaday) {
+            $input[0]._pikaday.setDate(m.toDate(), true);
+        }
+    }
 
-    // If only one date is set, copy it to the other
-    // If force is true, always copy the start date to end date
-    if (force || ($startDate.val() && !$endDate.val())) {
-        $endDate.val($startDate.val());
-        if ($endDate[0] && $endDate[0]._pikaday) {
-            $endDate[0]._pikaday.setDate(startMoment.toDate(),);
+    zeroTime($startInput);
+    zeroTime($endInput);
+}
+
+// When "All-day event?" is checked, set both start and end times to midnight.
+function setAllDayTime(label) {
+    // checkboxClicked hasn't toggled the class yet at onclick time, so
+    // "will be checked" = currently does NOT have class 'checked'.
+    var willBeChecked = !$(label).hasClass('checked');
+    if (!willBeChecked) return;
+
+    var $fieldset = $(label).closest('fieldset');
+    var $startInput = $fieldset.find('.date_eventStart_wrap input.datepicker');
+    var $endInput   = $fieldset.find('.date_eventEnd_wrap input.datepicker');
+    var format = 'MMMM Do YYYY, h:mm a';
+
+    function zeroTime($input) {
+        var val = $input.val();
+        if (!val) return;
+        var m = moment(val, format);
+        if (!m.isValid()) return;
+        m.startOf('day');  // sets time to 00:00:00
+        $input.val(m.format(format));
+        if ($input[0] && $input[0]._pikaday) {
+            $input[0]._pikaday.setDate(m.toDate(), true);
         }
-    } else if (!$startDate.val() && $endDate.val()) {
-        $startDate.val($endDate.val());
-        if ($startDate[0] && $startDate[0]._pikaday) {
-            $startDate[0]._pikaday.setDate(endMoment.toDate());
+    }
+
+    zeroTime($startInput);
+    zeroTime($endInput);
+}
+
+// Ensures the event end date/time is never before the event start date/time.
+// If end < start, snaps end to equal start.
+function syncDates(element) {
+    var $fieldset = $(element).closest('fieldset');
+    var $startInput = $fieldset.find('.date_eventStart_wrap input.datepicker');
+    var $endInput = $fieldset.find('.date_eventEnd_wrap input.datepicker');
+    var format = 'MMMM Do YYYY, h:mm a';
+
+    var startVal = $startInput.val();
+    var endVal = $endInput.val();
+
+    // If start is set but end is empty, copy start to end
+    if (startVal && !endVal) {
+        $endInput.val(startVal);
+        if ($endInput[0] && $endInput[0]._pikaday) {
+            $endInput[0]._pikaday.setDate(moment(startVal, format).toDate(), true);
         }
-    } else if ($startDate.val() && $endDate.val()) {
-        // If user changed start date and it's after end date, update end date
-        if (element === $startDate[0] && startMoment.isAfter(endMoment)) {
-            $endDate.val($startDate.val());
-            if ($endDate[0] && $endDate[0]._pikaday) {
-                $endDate[0]._pikaday.setDate(startMoment.toDate());
-            }
-        }
-        // If user changed end date and it's before start date, update start date
-        else if (element === $endDate[0] && endMoment.isBefore(startMoment)) {
-            $startDate.val($endDate.val());
-            if ($startDate[0] && $startDate[0]._pikaday) {
-                $startDate[0]._pikaday.setDate(endMoment.toDate());
-            }
+        return;
+    }
+
+    if (!startVal || !endVal) return;
+
+    var startMoment = moment(startVal, format);
+    var endMoment = moment(endVal, format);
+
+    if (!startMoment.isValid() || !endMoment.isValid()) return;
+
+    // If end is before start, snap end to match start
+    if (endMoment.isBefore(startMoment)) {
+        $endInput.val(startMoment.format(format));
+        if ($endInput[0] && $endInput[0]._pikaday) {
+            $endInput[0]._pikaday.setDate(startMoment.toDate(), true);
         }
     }
 }
 
 function addDatePickers(element) {
-    $(element).find('.datepicker').each(function (index) {
-        var picker = new Pikaday({
+    $(element).find('.datepicker').each(function () {
+        var el = this;
+        this._pikaday = new Pikaday({
             field: this,
             format: 'MMMM Do YYYY, h:mm a',
-            showTime: true
+            showTime: true,
+            onSelect: function () {
+                syncDates(el);
+            }
         });
     });
 }
@@ -480,27 +892,76 @@ function getFieldsetName(element) {
     return fieldsetName;
 }
 
-function duplicateFieldset(name) {
-    // Get the incrementd id from the last fieldset of the specified name
-    var lastFieldset = $("." + name + "_fieldset").last();
-    var id = parseInt(lastFieldset.attr("fieldset-id")) + 1;
+// Global counter for unique CKEditor textarea IDs across all dynamically created fieldsets.
+var _ckIdCounter = 0;
 
-    // Clone the fieldset template
-    var newFieldset = $("." + name + "_fieldset.fieldset_template").first().clone();
-    newFieldset.attr("fieldset-id", id);
-    newFieldset.removeClass("fieldset_template");
-    newFieldset.addClass("fieldset");
+function duplicateFieldset(name, btn) {
+    var $parentScope = btn ? $(btn).closest('.fieldset').not('.fieldset_template') : null;
+    var $searchIn = $parentScope && $parentScope.length ? $parentScope : $(document);
 
-    // Update the legend
-    var fieldsetNumberSpan = newFieldset.find("span.fieldset_number");
-    if (fieldsetNumberSpan.length) {
-        fieldsetNumberSpan.text(id);
+    var lastFieldset = $searchIn.find('.' + name + '_fieldset.fieldset').not('.fieldset_template').last();
+    if (lastFieldset.length === 0) {
+        // No live nested fieldsets yet in this scope — insert after the nested template within scope
+        var $templateInScope = $searchIn.find('.' + name + '_fieldset.fieldset_template').first();
+        if ($templateInScope.length) {
+            lastFieldset = $templateInScope;
+        } else {
+            lastFieldset = $('.' + name + '_fieldset.fieldset').not('.fieldset_template').last();
+        }
     }
+    var id = parseInt(lastFieldset.attr('fieldset-id')) + 1;
+
+    var newFieldset = $searchIn.find('.' + name + '_fieldset.fieldset_template').first();
+    if (newFieldset.length === 0) {
+        newFieldset = $('#fieldset-templates .' + name + '_fieldset.fieldset_template').first();
+    }
+    newFieldset = newFieldset.clone();
+    newFieldset.attr('fieldset-id', id);
+    newFieldset.removeClass('fieldset_template');
+    newFieldset.addClass('fieldset');
+
+    // Strip cloned CKEditor wrappers (but not inside nested templates) and
+    // restore the underlying textareas so fresh instances can be initialized.
+    newFieldset.find('.cke').filter(function () {
+        return $(this).closest('.fieldset_template').length === 0;
+    }).remove();
+    newFieldset.find('textarea.ckeditor').filter(function () {
+        return $(this).closest('.fieldset_template').length === 0;
+    }).each(function () {
+        var $ta = $(this);
+        $ta.show();
+        // Strip any existing numeric suffix then append a globally unique counter
+        // so IDs never collide across different parent fieldset groups.
+        var baseId = $ta.attr('id').replace(/_ck\d+$/, '').replace(/_\d+$/, '');
+        $ta.attr('id', baseId + '_ck' + (++_ckIdCounter));
+    });
 
     addDatePickers(newFieldset);
     newFieldset.insertAfter(lastFieldset);
 
-    updateFieldsets(name);
+    // Auto-initialize any nested multiple fieldsets with their first live card.
+    // Must happen before CKEditor init so the auto-init can clone clean templates.
+    var newFieldsetEl = newFieldset[0];
+    newFieldset.find('[data-fieldset-name]').filter(function () {
+        return $(this).closest('.fieldset').not('.fieldset_template')[0] === newFieldsetEl;
+    }).each(function () {
+        duplicateFieldset($(this).data('fieldset-name'), this);
+    });
+
+    // Initialize CKEditor on any non-template textareas in the new fieldset
+    newFieldset.find('textarea.ckeditor').filter(function () {
+        return $(this).closest('.fieldset_template').length === 0;
+    }).each(function () {
+        CKEDITOR.replace(this.id);
+    });
+
+    // Renumber from topmost ancestor for correct hierarchical display numbers
+    if ($parentScope && $parentScope.length) {
+        var $topmost = getTopmostAncestorFieldset($parentScope[0]);
+        updateFieldsets(getFieldsetName($topmost[0]));
+    } else {
+        updateFieldsets(name);
+    }
 }
 
 $(document).ready(function () {
@@ -533,17 +994,23 @@ $(document).ready(function () {
         }
     });
 
-    // Create datepicker for starting date fields
-    $('.datepicker').each(function (index) {
-        var picker = new Pikaday({
+    // Create datepicker for date fields
+    $('.datepicker').each(function () {
+        var el = this;
+        this._pikaday = new Pikaday({
             field: this,
             format: 'MMMM Do YYYY, h:mm a',
-            showTime: true
+            showTime: true,
+            onSelect: function () {
+                syncDates(el);
+            }
         });
     });
 
-    // Update all fieldsets to ensure they are correctly initialized
-    $('.fieldset').each(function () {
+    // Update top-level fieldsets only; recursive calls handle nested ones
+    $('.fieldset').not('.fieldset_template').filter(function () {
+        return $(this).parent().closest('.fieldset').not('.fieldset_template').length === 0;
+    }).each(function () {
         var fieldsetName = getFieldsetName(this);
         if (fieldsetName) {
             updateFieldsets(fieldsetName);
@@ -554,6 +1021,54 @@ $(document).ready(function () {
     $('select').each(function() {
         selectChanged(this);
     });
+
+    // Client-side validation for required CKEditor fields.
+    // The browser's native `required` check can't fire on CKEditor textareas
+    // because CKEditor hides them (display:none).  Intercept submit and check
+    // any editor whose containing fieldset has a <small class="required"> label.
+    $('#eventform').on('submit', function (e) {
+        var invalid = [];
+
+        if (typeof CKEDITOR !== 'undefined') {
+            for (var name in CKEDITOR.instances) {
+                var instance = CKEDITOR.instances[name];
+                // instance.element.$ is the original (hidden) textarea DOM node
+                var $fieldset = $(instance.element.$).closest('fieldset');
+                if (!$fieldset.find('legend small.required').length) {
+                    continue;  // not a required editor
+                }
+                var html = instance.getData();
+                var text = html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
+                if (!text) {
+                    invalid.push($fieldset[0]);
+                }
+            }
+        }
+
+        if (invalid.length) {
+            e.preventDefault();
+            invalid.forEach(function (fieldset) {
+                if (!fieldset) { return; }
+                var $fieldset = $(fieldset);
+                if (!$fieldset.find('.ckeditor-required-error').length) {
+                    $fieldset.find('.card .content').append(
+                        '<p class="ckeditor-required-error" style="color:#c00;margin-top:4px">This field is required.</p>'
+                    );
+                }
+                $fieldset[0].scrollIntoView({behavior: 'smooth', block: 'center'});
+            });
+        }
+    });
+
+    // Remove inline error messages as soon as the user starts typing in a required editor
+    if (typeof CKEDITOR !== 'undefined') {
+        CKEDITOR.on('instanceReady', function (ev) {
+            ev.editor.on('change', function () {
+                var $fieldset = $(ev.editor.element.$.closest('fieldset'));
+                $fieldset.find('.ckeditor-required-error').remove();
+            });
+        });
+    }
 });
 
 </script>

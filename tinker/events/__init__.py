@@ -98,7 +98,7 @@ class EventsView(FlaskView):
         # todo: fix this with the submit_all() functionality ASK CALEB
         # convert 'On/Off campus' to 'On/Off Campus' for all events
         from tinker.events.forms import get_event_form
-        form = get_event_form(**edit_data)
+        form = get_event_form(cascade_data=edit_data)
         # if 'location' in edit_data and edit_data['location']:
         #     edit_data['location'].replace(' c', ' C')
 
@@ -107,40 +107,21 @@ class EventsView(FlaskView):
     def duplicate(self, event_id):
         edit_data, dates = self.base.build_edit_form(event_id)
         from tinker.events.forms import get_event_form
-        form = get_event_form(**edit_data)
+        form = get_event_form(cascade_data=edit_data)
         new_form = True
 
         return render_template('events/form.html', **locals())
 
     @route("/submit", methods=['post'])
     def submit(self):
+        
         rform = request.form
-
-        # A dict to populate with all the interesting data.
-        edit_data = {}
-
-        for key in rform.keys():
-            if key.endswith('[]'):
-                # This is a fieldset, so we need to get the data from it
-                name_list = key.split('::')
-                fieldset_name = name_list[0].replace('_fieldset', '')
-                if fieldset_name not in edit_data:
-                    edit_data[fieldset_name] = []
-
-                fieldset_key = name_list[1].replace('[]', '')
-                fieldset_list = rform.getlist(key)
-                for idx, value in enumerate(fieldset_list):
-                    if len(edit_data[fieldset_name]) <= idx:
-                        edit_data[fieldset_name].append({})
-                    edit_data[fieldset_name][idx][fieldset_key] = value
-            else:
-                edit_data[key] = rform[key]
+        eid = rform.get('event_id')
 
         username = session['username']
-        eid = rform.get('event_id')
-        form, fieldset_errors, passed = self.base.validate_form(edit_data)
+        form, passed = self.base.validate_form()
 
-        if not passed or fieldset_errors:
+        if not passed:
             if 'event_id' in rform.keys():
                 event_id = rform['event_id']
             else:

@@ -1,6 +1,8 @@
 # Global
+import base64
 import datetime
 import json
+import os
 import re
 import time
 
@@ -122,12 +124,230 @@ class EventsController(TinkerController):
     Submitting a new or edited event form combined into one method
     """
 
+    def _apply_v4_cascade_mapping(self, add_data):
+        """Translates form add_data keys to Cascade v4 data definition identifiers, in-place."""
+        # Featured Visual group
+        add_data['featuredVisual'] = {
+            'visualSelect': add_data.pop('featuredVisual-visualSelect', add_data.pop('visualSelect', add_data.pop('visual-select', ''))),
+            'image': add_data.pop('featuredVisual-image', add_data.pop('featured-image', '')),
+            'video': add_data.pop('featuredVisual-video', add_data.pop('featured-video', '')),
+        }
+        add_data.pop('featuredVisual-image-path', None)  # companion hidden field; consumed by submit_new_or_edit
+        # Date: flatten event-dates list into v4 top-level fields
+        event_dates = add_data.pop('event-dates', [])
+        if event_dates:
+            d = event_dates[0]  # v4 only has one date group
+            add_data['eventStart'] = d.get('start-date', '')
+            add_data['eventEnd'] = d.get('end-date', '')
+            add_data['hideTime'] = d.get('all-day', '')
+            add_data['timeZone'] = d.get('time-zone', 'central')
+        # Location group
+        add_data['locationSelect'] = add_data.pop('location-name', '')
+        add_data['onCampusLocation'] = {'location': add_data.pop('on-campus-location', '')}
+        off_campus = add_data.pop('off-campus-location', {})
+        if isinstance(off_campus, list):
+            off_campus = off_campus[0] if off_campus else {}
+        add_data['offCampusLocation'] = {
+            'name': off_campus.get('off-campus-name', ''),
+            'address': off_campus.get('off-campus-address', ''),
+            'city': off_campus.get('off-campus-city', ''),
+            'state': off_campus.get('off-campus-state', ''),
+            'zip': off_campus.get('off-campus-zip', ''),
+        }
+        add_data['online'] = {'url': add_data.pop('online-url', '')}
+        # Content fields
+        if 'maps-directions' in add_data:
+            add_data['guestInstructions'] = add_data.pop('maps-directions')
+        if 'main-content' in add_data:
+            add_data['longDescription'] = add_data.pop('main-content')
+        # Cost group (offer repeating, costDetails text)
+        offer_list = add_data.pop('cost', [])
+        add_data['cost'] = {
+            'offer': [{'price': d.get('price', '0'), 'audience': d.get('audience', '')} for d in offer_list]
+                      or [{'price': '0', 'audience': ''}],
+            'costDetails': add_data.pop('costDetails', ''),
+        }
+        # Registration group
+        reg_choice = add_data.pop('registration-heading', 'none')
+        add_data['registration'] = {
+            'registrationChoice': reg_choice,
+            'formhash': add_data.pop('wufoo-code', ''),
+            'ticketingURL': add_data.pop('ticketing-url', ''),
+        }
+        # Schedule group (scheduleDetails repeating)
+        schedule_entries = add_data.pop('schedule', [])
+        add_data['schedule'] = {
+            'scheduleDetails': [
+                {
+                    'date': d.get('schedule-date', ''),
+                    'timeDescription': [{'time': d.get('schedule-time', ''), 'description': d.get('schedule-description', '')}]
+                }
+                for d in schedule_entries
+            ] if schedule_entries else [],
+        }
+        # Featuring group (single)
+        featuring_entries = add_data.pop('featuring', [{}])
+        f = featuring_entries[0] if featuring_entries else {}
+        add_data['featuring'] = {
+            'image': f.get('featuring-image', ''),
+            'name': f.get('featuring-name', ''),
+            'credentials': f.get('featuring-credentials', ''),
+            'description': f.get('featuring-description', ''),
+        }
+
+    def _cascade_v4_to_form_data(self, edit_data):
+        """Translates Cascade v4 get_edit_data() output to form field names for pre-population."""
+        # Date group
+        date_data = edit_data.pop('date', {}) or {}
+        edit_data['event_dates'] = [{
+            'start_date': date_data.get('eventStart', ''),
+            'end_date': date_data.get('eventEnd', ''),
+            'all_day': date_data.get('hideTime', ''),
+            'time_zone': date_data.get('timeZone', 'central'),
+        }]
+        # Featured visual
+        fv = edit_data.pop('featuredVisual', {}) or {}
+        edit_data['visualSelect'] = fv.get('visualSelect', 'image')
+        edit_data['featured_image'] = fv.get('image', '')
+        edit_data['featured_video'] = fv.get('video', '')
+        # Location
+        loc = edit_data.pop('location', {}) or {}
+        edit_data['location_name'] = loc.get('locationSelect', '')
+        on_campus = loc.get('onCampusLocation', {}) or {}
+        edit_data['on_campus_location'] = on_campus.get('location', '') if isinstance(on_campus, dict) else ''
+        off_campus = loc.get('offCampusLocation', {}) or {}
+        if isinstance(off_campus, dict):
+            edit_data['off_campus_location'] = {
+                'off_campus_name': off_campus.get('name', ''),
+                'off_campus_address': off_campus.get('address', ''),
+                'off_campus_city': off_campus.get('city', ''),
+                'off_campus_state': off_campus.get('state', ''),
+                'off_campus_zip': off_campus.get('zip', ''),
+            }
+        online = loc.get('online', {}) or {}
+        edit_data['online_url'] = online.get('url', '') if isinstance(online, dict) else ''
+        # Content
+        if 'guestInstructions' in edit_data:
+            edit_data['maps_directions'] = edit_data.pop('guestInstructions')
+        if 'longDescription' in edit_data:
+            edit_data['main_content'] = edit_data.pop('longDescription')
+        # Cost
+        cost = edit_data.pop('cost', {}) or {}
+        if isinstance(cost, dict):
+            offer = cost.get('offer', [])
+            if isinstance(offer, dict):
+                offer = [offer]
+            edit_data['cost'] = [{'price': o.get('price', '0'), 'audience': o.get('audience', '')} for o in offer] or [{}]
+            edit_data['costDetails'] = cost.get('costDetails', '')
+        # Registration
+        reg = edit_data.pop('registration', {}) or {}
+        if isinstance(reg, dict):
+            edit_data['registration_heading'] = reg.get('registrationChoice', 'none')
+            edit_data['wufoo_code'] = reg.get('formhash', '')
+            edit_data['ticketing_url'] = reg.get('ticketingURL', '')
+        # Schedule
+        sched = edit_data.pop('schedule', {}) or {}
+        if isinstance(sched, dict):
+            details = sched.get('scheduleDetails', [])
+            if isinstance(details, dict):
+                details = [details]
+            schedule_list = []
+            for sd in details:
+                td = sd.get('timeDescription', [])
+                if isinstance(td, dict):
+                    td = [td]
+                time_val = td[0].get('time', '') if td else ''
+                desc_val = td[0].get('description', '') if td else ''
+                schedule_list.append({'schedule_date': sd.get('date', ''), 'schedule_time': time_val, 'schedule_description': desc_val})
+            edit_data['schedule'] = schedule_list or [{}]
+        # Featuring
+        feat = edit_data.pop('featuring', {}) or {}
+        if isinstance(feat, dict):
+            edit_data['featuring'] = [{
+                'featuring_image': feat.get('image', ''),
+                'featuring_name': feat.get('name', ''),
+                'featuring_credentials': feat.get('credentials', ''),
+                'featuring_description': feat.get('description', ''),
+            }]
+        return edit_data
+
+    def create_event_image(self, add_data):
+        """
+        Save the uploaded featuredVisual image to Cascade and return the
+        Cascade file path.  Returns None if no file was uploaded or the
+        file is empty, so the caller can fall back to the existing path.
+        """
+        from tinker.events.forms import get_event_form
+        form = get_event_form()
+
+        try:
+            form.featuredVisual_image.data.filename
+        except AttributeError:
+            return None
+
+        image_name = add_data.get('system-name', add_data.get('system_name', 'event')) + '.jpg'
+        image_sub_path = app.config.get('EVENTS_IMAGE_FOLDER', '/events/images')
+        image_path = image_sub_path + '/' + image_name
+
+        form.featuredVisual_image.data.save(app.config['UPLOAD_FOLDER'] + image_name)
+        image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'rb')
+
+        if os.fstat(image_file.fileno()).st_size <= 0:
+            return None
+
+        stream = image_file.read()
+        encoded_stream = base64.b64encode(stream)
+
+        file_asset = self.read(image_path, 'file')
+
+        if file_asset['success'] == 'true':
+            image_asset = file_asset['asset']
+            self.update_asset(image_asset, {'data': encoded_stream})
+            self.cascade_connector.edit(image_asset)
+        else:
+            try:
+                image_asset = self.read(
+                    app.config.get('EVENTS_IMAGE_BASE_ASSET_FILE',
+                                   app.config.get('IMAGE_WITH_DEFAULT_IMAGE_BASE_ASSET')),
+                    'file'
+                )['asset']
+            except Exception:
+                return None
+
+            new_values = {
+                'createdBy': 'tinker',
+                'createdDate': None,
+                'data': encoded_stream,
+                'id': None,
+                'name': image_name,
+                'path': None,
+                'parentFolderId': None,
+                'parentFolderPath': image_sub_path,
+            }
+            self.update_asset(image_asset, new_values)
+            self.cascade_connector.create(image_asset)
+
+        self.publish(image_path, 'file')
+        return image_path
+
     def submit_new_or_edit(self, rform, username, eid, metadata_list):
         # Changes the dates to a timestamp, needs to occur after a failure is detected or not
         add_data = self.get_add_data(metadata_list, rform)
 
-        add_data['off-campus-location'] = add_data['off-campus-location'][0] if 'off-campus-location' in add_data else {}
+        # Handle featured visual image upload.
+        # create_event_image returns the Cascade path on success, or None if no
+        # file was uploaded.  Fall back to the hidden "current path" field so
+        # existing images are preserved on edits.
+        image_path = self.create_event_image(add_data)
+        if not image_path:
+            image_path = add_data.get('featuredVisual-image-path', '')
+        add_data['featuredVisual-image'] = image_path or ''
+
+        # Process dates first (change_dates uses the pre-mapping keys)
         add_data['event-dates'] = self.change_dates(add_data['event-dates']) if 'event-dates' in add_data else []
+
+        # Translate form keys to Cascade v4 data definition identifiers
+        self._apply_v4_cascade_mapping(add_data)
 
         if not eid:
             asset = self.update_structure(add_data, username)
@@ -236,53 +456,76 @@ class EventsController(TinkerController):
 
         return event_dates
 
-    def validate_form(self, rform):
-        from tinker.events.forms import get_event_form
-        form = get_event_form(**rform)
+    def _clear_hidden_field_errors(self, form):
+        """
+        Dynamically suppress validation errors for fields that are currently
+        hidden by a selectChanged dropdown.
 
-        # Validate fieldset fields
-        fieldset_errors = {}
+        _apply_show_fields stamps every conditionally-visible field with
+        render_kw['show_class'] = <option_value> and every controlling
+        SelectField with render_kw['onchange'] = 'selectChanged(this)'.
+        A field is only visible when the controlling SelectField's current
+        value matches its show_class, so errors on all other sections are cleared.
+        """
+        from wtforms.fields import SelectField as _SelectField
+
+        # Build: css_class_value -> [field_names] for all conditionally-visible fields
+        show_class_map = {}
         for field in form:
-            if not field.name in rform:
-                form[field.name].validators = []
-            if field.type == 'FieldsetField':
-                data = field.data
-                for f in field.fields:
-                    if data:
-                        for obj in data:
-                            if f.name in obj:
-                                f.data = obj[f.name]
-                                for validator in f.validators:
-                                    try:
-                                        class_name = getattr(validator, '__class__', None).__name__
-                                        if class_name == 'InputRequired':
-                                            continue
-                                        elif class_name == 'DataRequired':
-                                            if f.data is None or f.data == '':
-                                                raise ValueError(f"{f.label.text} is required.")
-                                        validator(form, f)
-                                    except Exception as e:
-                                        if f.name not in fieldset_errors:
-                                            fieldset_errors[f.name] = []
-                                        fieldset_errors[f.name].append(str(e))
+            sc = (field.render_kw or {}).get('show_class')
+            if sc:
+                show_class_map.setdefault(sc, []).append(field.name)
 
-        # Validate the form as a whole
+        if not show_class_map:
+            return
+
+        changed = False
+        for field in form:
+            if not isinstance(field, _SelectField):
+                continue
+            if (field.render_kw or {}).get('onchange') != 'selectChanged(this)':
+                continue
+            active_value = field.data or ''
+            choice_values = {v for v, _ in (field.choices or [])}
+            for option_value, dep_names in show_class_map.items():
+                if option_value not in choice_values:
+                    continue  # this SelectField doesn't control this show_class
+                if option_value == active_value:
+                    continue  # section IS visible — keep its errors
+                for dep_name in dep_names:
+                    dep_field = form._fields.get(dep_name)
+                    if dep_field and dep_field.errors:
+                        dep_field.errors = []
+                        changed = True
+
+        if changed:
+            form._errors = None  # force re-computation on next access
+
+    def validate_form(self):
+        from tinker.events.forms import get_event_form
+        # Do not pass rform as cascade_data — that path builds form_kwargs from the
+        # lossy edit_data dict (rform[key] drops multi-select duplicates) and then
+        # Flask-WTF re-injects request.form as formdata, causing object_data/data
+        # mismatches for SelectMultipleField.  Calling with no args lets Flask-WTF
+        # read request.form directly via getlist(), which is lossless.
+        form = get_event_form()
+
         valid = form.validate_on_submit()
         if not valid:
-            errors = form.errors
-            print(errors)
+            # Strip errors for fields that are hidden based on the current
+            # state of their controlling SelectField.
+            self._clear_hidden_field_errors(form)
+            valid = not bool(form.errors)
+            if not valid:
+                print(form.errors)
 
-        return form, fieldset_errors, valid
+        return form, valid
 
     def build_edit_form(self, event_id):
         page = self.read_page(event_id)
-        multiple = ['event_dates', 'cost']
-        edit_data = self.get_edit_data(page.get_structured_data(), page.get_metadata(), multiple)
-        # set dates and return for use in form
-        # convert dates to json so we can use Javascript to create custom DateTime fields on the form
-        dates = self.sanitize_dates(edit_data['event_dates'])
-        dates = fjson.dumps(dates)
-
+        # Return raw Cascade data; forms.py flattens it against the live data definition.
+        edit_data = self.get_edit_data(page.get_structured_data(), page.get_metadata(), multiple=[])
+        dates = fjson.dumps([])
         return convert_asset(edit_data), dates
 
     def date_str_to_timestamp(self, date_string):

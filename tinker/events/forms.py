@@ -1,298 +1,378 @@
 # coding: utf-8
-# Global
+"""
+Event form — built dynamically from the Cascade data definition.
+
+The only fields that are NOT sourced from the data definition are Cascade page
+metadata fields (title, metaDescription, link, image) and the category
+SelectMultipleFields (from the /Event metadataset).  Every structured-data
+field is created by walking the parsed data definition tree.
+
+Field-naming conventions (must match bu_cascade get_add_data / get_edit_data):
+  - Top-level text/asset:   <identifier>          e.g. guestInstructions
+  - Group child (flat):     <group>_<child>        e.g. date_eventStart
+  - Repeating group child:  <group>_<child>[]      handled via FieldsetField
+  - Nested group:           <outer>_<inner>_<child>
+"""
 
 # Packages
-from bu_cascade.asset_tools import find, convert_asset
-from flask import session
+import json
+
+from flask import current_app, request, session
 from flask_wtf import FlaskForm
-from wtforms import DateTimeField, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField, BooleanField, Field
-from wtforms.validators import DataRequired, ValidationError, URL
+from wtforms import (HiddenField, StringField)
+from wtforms.validators import ValidationError, URL
+
+# Shared Cascade form helpers (classes / functions that are not event-specific)
+from tinker.cascade_form_helpers import (FieldsetField, _fields_from_def, bind_fields, _flatten_cascade_data,
+                                          get_metadata_fields, build_metadata_custom_fields,
+                                          get_structured_data_labels)
 
 # Local
 from tinker.tinker_controller import TinkerController
+from tinker import app
+from tinker.data_definition_parser import get_field_definitions
+
 
 tinker = TinkerController()
 
 
-def get_md(metadata_path):
-    md = tinker.read(metadata_path, 'metadataset')
-    return md['asset']['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
+# ---------------------------------------------------------------------------
+# Validators
+# ---------------------------------------------------------------------------
 
-def get_event_choices():
-    data = get_md("/Event")
-
-    md = {}
-    for item in data:
-        try:
-            md[item['name']] = item['possibleValues']['possibleValue']
-        except:
-            continue
-
-    md = convert_asset(md)
-
-    general = []
-    for item in md['general']:
-        general.append((item['value'], item['value']))
-
-    offices = []
-    for item in md['offices']:
-        offices.append((item['value'], item['value']))
-
-    internal = []
-    for item in md['internal']:
-        internal.append((item['value'], item['value']))
-
-    cas_departments = []
-    for item in md['cas-departments']:
-        cas_departments.append((item['value'], item['value']))
-
-    adult_undergrad_program = []
-    for item in md['adult-undergrad-program']:
-        adult_undergrad_program.append((item['value'], item['value']))
-
-    graduate_program = []
-    for item in md['graduate-program']:
-        graduate_program.append((item['value'], item['value']))
-
-    seminary_program = []
-    for item in md['seminary-program']:
-        seminary_program.append((item['value'], item['value']))
-
-    # Get the building choices from the block
-    building_choices = get_buildings()
-
-    return {'general': general,
-            'offices': offices,
-            'internal': internal,
-            'cas_departments': cas_departments,
-            'adult_undergrad_program': adult_undergrad_program,
-            'graduate_program': graduate_program,
-            'seminary_program': seminary_program,
-            'buildings': building_choices
-            }
-
-
-def get_buildings():
-    labels = [('', '-select-')]
-    block = convert_asset(tinker.read('04d538728c5865132abe9a84a6e0838d', type="block"))
-    buildings = find(block, 'buildings')
-    for building in buildings:
-        label = building['structuredDataNodes']['structuredDataNode'][0]['text']
-        labels.append((label, label))
-
-    return labels
-
-
-# Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
-# aside from be a marker label
-class CKEditorTextAreaField(TextAreaField):
-    pass
-
-# Long words throw off formatting in Calendar
-def length_checker(Form, field):
-    word_split = field.data.split(" ")
-    for word in word_split:
+def length_checker(form, field):
+    for word in field.data.split(' '):
         if len(word) > 15:
             raise ValidationError('Words in the title must be 15 characters or less')
-        
-# Custom validator to ensure the cost is numeric
+
+
 def validate_numeric(form, field):
+    if not field.data:
+        return
     try:
-        float(field.data)  # Check if the value can be converted to a float
+        float(field.data)
     except ValueError:
-        raise ValidationError("All Cost fields must be numeric values.")
+        raise ValidationError('All Cost fields must be numeric values.')
 
-class FieldsetField(Field):
+
+# ---------------------------------------------------------------------------
+# Event-specific field configuration
+# ---------------------------------------------------------------------------
+
+# Per-identifier extra config passed to _build_field / _fields_from_def.
+# Keys are bare identifiers (no group prefix).  This is the ONLY place
+# event-specific knowledge about individual fields lives.
+_FIELD_EXTRA = {
+    # Date sync — keeps eventEnd >= eventStart
+    'eventStart':      {'render_kw': {'onchange': 'syncDates(this)'}},
+    'eventEnd':        {'render_kw': {'onchange': 'syncDates(this)'}},
+    # All-day event — zeros out time on both date fields
+    'hideTime':        {'render_kw': {'onclick': 'setAllDayTime(this)'}},
+    # URL validators
+    'url':             {'extra_validators': [URL(require_tld=True,
+                                                 message='Please enter a valid URL.')]},
+    # Cost
+    'price':           {'extra_validators': [validate_numeric],
+                        'render_kw': {'onblur': 'stripCostChars(this)'}},
+    # Registration
+    'ticketingURL':    {'extra_validators': [URL(require_tld=True,
+                                                 message='Please enter a valid URL.')]},
+}
+
+
+# ---------------------------------------------------------------------------
+# Form factory
+# ---------------------------------------------------------------------------
+
+def _translate_fieldset_formdata():
     """
-    Custom field to handle fieldsets.
+    Translate fieldset-namespaced request.form/files keys to plain WTForms
+    field names so that field lookups succeed.
+
+    The template renders inputs as  'foo_fieldset::bar[]'  but WTForms calls
+    formdata.getlist('bar').  Strip the 'foo_fieldset::' prefix and trailing
+    '[]' so every field name resolves correctly.
+
+    Returns a CombinedMultiDict that also includes translated file keys so
+    that FileField instances receive their uploaded files.
     """
+    from werkzeug.datastructures import MultiDict, CombinedMultiDict
 
-    def __init__(self, label='', fields=None, required=False, hidden=False, fieldset_type="multiple", validators=None, **kwargs):
-        super(FieldsetField, self).__init__(label, validators, **kwargs)
-        self.label.text = label
-        self.fields = fields() if callable(fields) else (fields or [])
-        self.fieldset_type = fieldset_type
-        self.required = required
-        self.hidden = hidden
+    def _plain(key):
+        return key.split('::', 1)[1].rstrip('[]') if '::' in key else key
 
-def get_date_fields():
-    all_day = BooleanField("All Day", default=False, render_kw={"value": "Yes"})
-    start_date = DateTimeField("Start Date", render_kw={"onchange": "syncDates(this)"}, validators=[DataRequired(message="Start date is required.")])
-    end_date = DateTimeField("End Date", render_kw={"onchange": "syncDates(this)"}, validators=[DataRequired(message="End date is required.")])
-    no_end = BooleanField("No End Date", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'end_date', 'hide');", "value": "Yes"})
-    outside_of_minnesota = BooleanField("Outside of Minnesota?", default=False, render_kw={"onclick": "toggleFieldsetField(this, 'timezone', 'show');", "value": "Yes"})
-    timezone_choices = [
-        ('Central Time', 'Central Time'),
-        ('Eastern Time', 'Eastern Time'),
-        ('Mountain Time', 'Mountain Time'),
-        ('Pacific Time', 'Pacific Time'),
-        ('Alaska Time', 'Alaska Time'),
-        ('Hawaii-Aleutian Time', 'Hawaii-Aleutian Time'),
-    ]
-    timezone = SelectField(
-        "Timezone",
-        choices=timezone_choices,
-        default='Central Time',
-        render_kw={"class": "timezoneselect visually-hidden"}
-    )
+    form_md = MultiDict()
+    for key in request.form.keys():
+        for val in request.form.getlist(key):
+            form_md.add(_plain(key), val)
 
-    fields = {
-        'all_day': all_day,
-        'start_date': start_date,
-        'end_date': end_date,
-        'no_end': no_end,
-        'outside_of_minnesota': outside_of_minnesota,
-        'timezone': timezone
-    }
-    
-    return fields
+    files_md = MultiDict()
+    for key in request.files.keys():
+        for f in request.files.getlist(key):
+            files_md.add(_plain(key), f)
 
-def get_cost_fields():
-    amount = StringField('Cost', description="Please enter a number. If the event is Free, enter 0.", render_kw={"onblur": "stripCostChars(this)"}, validators=[DataRequired(), validate_numeric])
-    description = StringField('Description', description="Ex. \"Senior Citizen (65+) and Group of 10 or more\"", validators=[DataRequired()])
+    return CombinedMultiDict([files_md, form_md])
 
-    fields = {
-        'amount': amount,
-        'description': description
-    }
-    
-    return fields
 
-def get_off_campus_location_fields():
-    off_campus_name = StringField('Location Name', description="Name of the off campus location", validators=[DataRequired()])
-    off_campus_address = StringField('Street Address', description="Street Address of the off campus location", validators=[DataRequired()])
-    off_campus_city = StringField('City', description="City of the off campus location", validators=[DataRequired()])
-    off_campus_state = StringField('State', description="State of the off campus location. Use two-letter state code (ex. MN)", validators=[DataRequired()])
-    off_campus_zip = StringField('Zip Code', description="Zip Code of the off campus location", validators=[DataRequired()])
-
-    fields = {
-        'off_campus_name': off_campus_name,
-        'off_campus_address': off_campus_address,
-        'off_campus_city': off_campus_city,
-        'off_campus_state': off_campus_state,
-        'off_campus_zip': off_campus_zip
-    }
-    
-    return fields
-
-def bind_fields(form, fields, attribute_name):
-    for name, field in fields.items():
-        bound_field = field.bind(form, name)
-        bound_field.data = None
-        fields[name] = bound_field
-
-    attribute = getattr(form, attribute_name, None)
-    if attribute is not None:
-        attribute.fields = list(fields.values())
-        setattr(form, attribute_name, attribute)
-
-def get_event_form(**edit_data):
+def _assemble_repeating_fieldset_data(field):
     """
-    Returns an instance of the EventForm with the necessary fields.
-    This is used to create a new event or edit an existing one.
+    Reconstruct list-of-dicts data for a repeating FieldsetField from the
+    raw (un-translated) request.form.
+
+    Flat sub-fields are submitted as:
+        {field.name}_fieldset::{sub_field_name}[]  (one value per outer row)
+
+    Nested repeating sub-groups (e.g. timeDescription inside scheduleDetails)
+    are submitted with a row-indexed prefix set by the JS updateFieldsets:
+        {nested_field.name}_fieldset_{outer_row}::{inner_field_name}[]
+
+    Returns a list of dicts, e.g.:
+        [{'date': 'Day 1', 'timeDescription': [{'time': '9am', 'description': '...'}]}, ...]
+    or None if no submitted data is found for this group.
     """
-    if edit_data:
-        form = EventForm(**edit_data)
+    _FSF = FieldsetField
+
+    fieldset_prefix = field.name + '_fieldset'
+    sub_fields = field.fields if isinstance(field.fields, list) else list((field.fields or {}).values())
+
+    # Partition sub-fields: flat leaf fields vs. nested repeating groups
+    flat_fields = [sf for sf in sub_fields
+                   if hasattr(sf, 'name') and not (isinstance(sf, _FSF) and sf.fieldset_type == 'multiple')]
+    nested_multiple = [sf for sf in sub_fields
+                       if hasattr(sf, 'name') and isinstance(sf, _FSF) and sf.fieldset_type == 'multiple']
+
+
+    # Collect flat field values for each row, using row-indexed keys
+    # e.g. schedule_scheduleDetails_fieldset_1::scheduleDetails_date[]
+    #      schedule_scheduleDetails_fieldset_2::scheduleDetails_date[]
+    # If not found, fall back to old key (no row index)
+    #
+    # First, determine num_rows by scanning for keys with row indices
+    import re
+    # Find all row indices present for this fieldset
+    row_index_pattern = re.compile(r'^' + re.escape(fieldset_prefix) + r'_(\d+)::')
+    row_indices = set()
+    for k in request.form.keys():
+        m = row_index_pattern.match(k)
+        if m:
+            row_indices.add(int(m.group(1)))
+
+    # If no row-indexed keys, fallback to old logic
+    if not row_indices:
+        raw_map = {}
+        for sf in flat_fields:
+            raw_key = fieldset_prefix + '::' + sf.name + '[]'
+            vals = request.form.getlist(raw_key)
+            if vals:
+                raw_map[sf.name] = vals
+        num_rows = max((len(v) for v in raw_map.values()), default=0)
+        if num_rows == 0 and nested_multiple:
+            for nsf in nested_multiple:
+                row = 1
+                while any((nsf.name + '_fieldset_' + str(row) + '::') in k for k in request.form.keys()):
+                    row += 1
+                num_rows = max(num_rows, row - 1)
+        if num_rows == 0:
+            return None
+        rows = []
+        for i in range(num_rows):
+            row = {sf_name: raw_map[sf_name][i] if i < len(raw_map[sf_name]) else '' for sf_name in raw_map}
+            # Nested groups (legacy fallback)
+            for nsf in nested_multiple:
+                nested_prefix = nsf.name + '_fieldset_' + str(i + 1)
+                nsf_sub = nsf.fields if isinstance(nsf.fields, list) else list((nsf.fields or {}).values())
+                nested_raw = {}
+                for nf in nsf_sub:
+                    if not hasattr(nf, 'name') or isinstance(nf, _FSF):
+                        continue
+                    nkey = nested_prefix + '::' + nf.name + '[]'
+                    vals = request.form.getlist(nkey)
+                    if vals:
+                        nested_raw[nf.name] = vals
+                if nested_raw:
+                    nested_num = max(len(v) for v in nested_raw.values())
+                    row[nsf.name] = [
+                        {nf_name: nested_raw[nf_name][j] if j < len(nested_raw[nf_name]) else ''
+                         for nf_name in nested_raw}
+                        for j in range(nested_num)
+                    ]
+            rows.append(row)
+        return rows
+
+    # Otherwise, assemble rows by row index
+    row_indices = sorted(row_indices)
+    rows = []
+    for idx in row_indices:
+        row = {}
+        for sf in flat_fields:
+            row_key = f"{fieldset_prefix}_{idx}::{sf.name}[]"
+            vals = request.form.getlist(row_key)
+            # If multiple values, flatten to first (shouldn't happen for flat fields)
+            val = vals[0] if vals else ''
+            row[sf.name] = val
+
+        # Assemble nested repeating group data for this specific outer row
+        for nsf in nested_multiple:
+            nested_prefix = nsf.name + '_fieldset_' + str(idx)
+            nsf_sub = nsf.fields if isinstance(nsf.fields, list) else list((nsf.fields or {}).values())
+            nested_raw = {}
+            for nf in nsf_sub:
+                if not hasattr(nf, 'name') or isinstance(nf, _FSF):
+                    continue
+                nkey = nested_prefix + '::' + nf.name + '[]'
+                vals = request.form.getlist(nkey)
+                if vals:
+                    nested_raw[nf.name] = vals
+            if nested_raw:
+                nested_num = max(len(v) for v in nested_raw.values())
+                row[nsf.name] = [
+                    {nf_name: nested_raw[nf_name][j] if j < len(nested_raw[nf_name]) else ''
+                     for nf_name in nested_raw}
+                    for j in range(nested_num)
+                ]
+        rows.append(row)
+    return rows
+
+
+def get_event_form(cascade_data=None):
+    """
+    Build and return an EventForm, optionally pre-populated from raw Cascade
+    structured data (the dict returned by get_edit_data).
+
+    cascade_data -- dict from get_edit_data() containing structured-data and
+                    metadata fields.  Structured-data fields are flattened
+                    using the live data definition so that any data definition
+                    file works automatically.  Metadata / fixed fields (title,
+                    metaDescription, category lists, etc.) that are NOT
+                    identifiers in the data definition pass through unchanged.
+    """
+    form_kwargs = {}
+    if cascade_data:
+        field_defs = get_field_definitions(app.config.get('EVENTS_DATA_DEF_ID', ''))
+        dd_top_identifiers = {fd['identifier'] for fd in field_defs}
+        # Flatten structured-data fields using the data definition
+        form_kwargs = _flatten_cascade_data(cascade_data, field_defs)
+        # Pass through metadata / fixed fields not covered by the data def
+        for key, val in cascade_data.items():
+            if key not in dd_top_identifiers:
+                form_kwargs[key] = val
+        form = _build_event_form_class()(**form_kwargs)
     else:
-        form = EventForm()
+        # On POST, request.form keys are namespaced ('foo_fieldset::bar[]').
+        # Translate them to plain field names so WTForms lookups succeed.
+        if request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+            form = _build_event_form_class()(formdata=_translate_fieldset_formdata())
+        else:
+            form = _build_event_form_class()()
+
 
     for field in form:
         if isinstance(field, FieldsetField):
-            # Bind the fields in the fieldset
-            bind_fields(form, field.fields, field.name)
+            if field.child_names:
+                # Single card group: wire the already-bound child fields from the
+                # form into the card so the template can render them grouped.
+                field.fields = [form._fields[n] for n in field.child_names
+                                 if n in form._fields]
+                if form_kwargs:
+                    pfx = field.name + '_'
+                    field.data = {k: v for k, v in form_kwargs.items()
+                                  if k.startswith(pfx)}
+                elif request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+                    # Assemble any nested repeating groups (e.g. cost_offer inside cost)
+                    for child in field.fields:
+                        if (isinstance(child, FieldsetField)
+                                and child.fieldset_type == 'multiple'
+                                and not child.data):
+                            assembled = _assemble_repeating_fieldset_data(child)
+                            if assembled is not None:
+                                child.data = assembled
+            else:
+                # Repeating group: bind inner fields and restore pre-populated data.
+                bind_fields(form, field.fields, field.name)
+                if field.name in form_kwargs:
+                    field.data = form_kwargs[field.name]
+                elif request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+                    assembled = _assemble_repeating_fieldset_data(field)
+                    if assembled is not None:
+                        field.data = assembled
+
+    def _json_default(obj):
+        from werkzeug.datastructures import FileStorage
+        if isinstance(obj, FileStorage):
+            return obj.filename
+        return str(obj)
+    current_app.logger.debug('form.data: %s', json.dumps(form.data, default=_json_default))
 
     return form
-    
-class EventForm(FlaskForm):
-    image = HiddenField("Image path")
 
-    choices = get_event_choices()
-    general_choices = choices['general']
-    offices_choices = choices['offices']
-    internal_choices = choices['internal']
-    cas_departments_choices = choices['cas_departments']
-    adult_undergrad_program_choices = choices['adult_undergrad_program']
-    graduate_program = choices['graduate_program']
-    seminary_program_choices = choices['seminary_program']
-    building_choices = choices['buildings']
 
-    what = StringField('heading', description="What is your event?")
-    title = StringField('Event name', validators=[DataRequired() , length_checker], description="This will be the title of your webpage")
+# ---------------------------------------------------------------------------
+# EventForm
+#
+# Fields derived from the data definition are injected into the class dict
+# before the class is defined using type().  This means the class body only
+# contains the fixed Cascade metadata fields.
+# ---------------------------------------------------------------------------
 
-    metaDescription = StringField('Teaser',
-                                  description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.',
-                                  validators=[DataRequired()])
+def _build_event_form_class():
+    """
+    Build and return the EventForm class with all data-definition fields
+    injected alongside the fixed Cascade metadata fields.
+    """
+    all_fields = {}
 
-    if 'Event Approver' in session['groups']:
-        link = StringField("External Link",
-                           description="This field only seen by 'Event Approvers'. An external link will redirect this event to the external link url.")
+    built_in_fields, _raw_custom_fields = get_metadata_fields(tinker, '/Event-v4')
+    on_campus_locations = get_structured_data_labels(tinker, app.config.get('EVENTS_ON_CAMPUS_LOCATIONS_DD_ID', ''))
+
+    # Mark auto-generated top fields as card children of event_basics
+    for field in built_in_fields.values():
+        rk = dict(field.kwargs.get('render_kw', {}))
+        rk['_card_child_of'] = 'event_basics'
+        field.kwargs['render_kw'] = rk
+
+    # Ensure 'title' (if present) is the very first child field on the form.
+    # Also add the length checker to the title field
+    if 'title' in built_in_fields:
+        built_in_fields = {'title': built_in_fields.pop('title'), **built_in_fields}
+        built_in_fields['title'].kwargs['validators'].append(length_checker)
+
+    # These fields must be instantiated BEFORE _fields_from_def so their
+    # WTForms creation_counter is lower and they sort to the top of the form.
+    top_fields = {
+        'event_basics': FieldsetField(
+            label='Event basics',
+            fieldset_type='single',
+            child_names=list(built_in_fields.keys()),
+        ),
+    }
+    top_fields.update(built_in_fields)
+    all_fields.update(top_fields)
+
+    # Walk the full data definition tree
+    # Pass event-specific field config and choice overrides to the generic helper.
+    dd_fields = _fields_from_def(
+        get_field_definitions(app.config.get('EVENTS_DATA_DEF_ID', '')),
+        top_level=True,
+        field_extra=_FIELD_EXTRA,
+        override_choices={'location': on_campus_locations},
+    )
+    all_fields.update(dd_fields)
+
+    # Remove this?
+    # External Link field (only editable by Event Approvers; not in the metadataset)
+    if 'Event Approver' in session.get('groups', []):
+        link_field = StringField(
+            'External Link',
+            description="This field only seen by 'Event Approvers'. "
+                        "An external link will redirect this event to the external link url.",
+        )
     else:
-        link = HiddenField("External Link")
+        link_field = HiddenField('External Link')
+    all_fields['link'] = link_field
 
-    featuring = StringField('Featuring')
-    sponsors = CKEditorTextAreaField('Sponsors')
-    main_content = CKEditorTextAreaField('Event description')
+    # Finally, build custom fields from the metadata set
+    custom_fields = build_metadata_custom_fields(_raw_custom_fields)
+    all_fields.update(custom_fields)
 
-    when = StringField('heading', description="When is your event?")
-
-    event_dates = FieldsetField(label="Date and Time", fields=get_date_fields)
-
-    where = StringField('heading', description="Where is your event?")
-
-    # The value is set to the field that should be displayed based on the location choice
-    # This is used in the template to show/hide the correct fields
-    location_choices = location_choices = [
-        ('on_campus_location', 'On campus'),
-        ('other_on_campus', 'Other on campus'),
-        ('off_campus_location', 'Off campus'),
-        ('online_url', 'Online'),
-    ]
-    location_name = SelectField('Location', choices=location_choices, render_kw={"onchange": "selectChanged(this)"})
-
-    # Location fields are shown/hidden based on the location choice
-    online_url = StringField('Online URL', description="Enter full URL including 'https://'", validators=[DataRequired(), URL(require_tld=True, message="Please enter a valid URL.")])
-    on_campus_location = SelectField('On campus location', choices=building_choices, default='', validators=[DataRequired()])
-    other_on_campus = StringField('Other on campus location', validators=[DataRequired()])
-    off_campus_location = FieldsetField(label="Off Campus Location", fields=get_off_campus_location_fields, hidden=True, fieldset_type="single", validators=[DataRequired()])
-
-    maps_directions = CKEditorTextAreaField('Instructions for Guests',
-                                            description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")
-
-    # Registration and Ticketing fields
-    why = StringField('heading', description="Does your event require registration or payment?")
-    heading_choices = [
-        ('', '-select-'),
-        ('wufoo_code', 'Registration'),
-        ('ticketing_url', 'Ticketing')
-    ]
-    registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices, render_kw={"onchange": "selectChanged(this)"})
-    wufoo_code = StringField('Approved wufoo hash code', validators=[DataRequired()])
-    ticketing_url = StringField('Ticketing URL', validators=[DataRequired(), URL(require_tld=True, message="Please enter a valid URL.")])
-    registration_details = CKEditorTextAreaField('Registration/ticketing details',
-                                                 description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
-
-    pricing = StringField('heading', description="What is the cost for your event?")
-    cost = FieldsetField(label="Event Cost", fields=get_cost_fields)
-
-    cancellations = TextAreaField('Cancellations and refunds')
-
-    other = StringField('heading', description="Who should folks contact with questions?")
-    questions = CKEditorTextAreaField('Questions',
-                                      description=u"Contact info for questions. (ex: Contact the Office of Church Relations at 651.638.6301 or church-relations@bethel.edu.)",
-                                  validators=[DataRequired()])
-
-    categories = StringField('heading', description="Categories")
-
-    general = SelectMultipleField('General categories', choices=general_choices, default=['None'],
-                                  validators=[DataRequired()])
-    offices = SelectMultipleField('Offices', choices=offices_choices, default=['None'], validators=[DataRequired()])
-    cas_departments = SelectMultipleField('CAS academic department', default=['None'], choices=cas_departments_choices,
-                                          validators=[DataRequired()])
-    adult_undergrad_program = SelectMultipleField('CAPS programs', default=['None'],
-                                                  choices=adult_undergrad_program_choices, validators=[DataRequired()])
-    seminary_program = SelectMultipleField('Seminary programs', default=['None'], choices=seminary_program_choices,
-                                           validators=[DataRequired()])
-    graduate_program = SelectMultipleField('GS Programs', default=['None'], choices=graduate_program,
-                                           validators=[DataRequired()])
-    internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices,
-                                   validators=[DataRequired()])
+    # Build the class dynamically so WTForms metaclass processes all fields
+    return type('EventForm', (FlaskForm,), all_fields)
