@@ -116,7 +116,7 @@
 {%- endmacro %}
 {% macro create_card(field) -%}
 {% set data = data or {} %}
-<div class="card{% if field.render_kw and field.render_kw.show_class %} {{ field.render_kw.show_class }}{% endif %}">
+<div class="card">
     <div class="content">
         <legend>{{ field.label.text }}</legend>
         {% if field.required %}
