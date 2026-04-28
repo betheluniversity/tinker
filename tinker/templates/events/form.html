@@ -44,6 +44,8 @@
     {{ render_label(field) }}
     {% if field.name in data %}
         {{ field(value=data[field.name]) }}
+    {% elif field.default %}
+        {{ field(value=field.default) }}
     {% else %}
         {{ field }}
     {% endif %}
@@ -51,7 +53,7 @@
 
 {% macro render_select(field, data) -%}
 {{ render_label(field) }}
-{% set selected_value = (field.default if field.default else '') %}
+{% set selected_value = field.data if field.data else field.default %}
 <select class="{{ field.render_kw.class if field.render_kw and 'class' in field.render_kw else '' }}" name="{{ field.name }}">
     {% for value, label in field.choices %}
         {% if value == selected_value %}
@@ -65,7 +67,17 @@
 
 {% macro render_select_multiple(field) -%}
 {{ render_label(field) }}
-{{ field(size=10, class="large-select") }}
+{# Use field.data if exists, else field.default for selected values #}
+{% set selected_values = field.data if field.data else field.default %}
+<select name="{{ field.name }}" multiple size="10" class="large-select">
+    {% for value, label in field.choices %}
+        {% if selected_values and value in selected_values %}
+            <option value="{{ value }}" selected>{{ label }}</option>
+        {% else %}
+            <option value="{{ value }}">{{ label }}</option>
+        {% endif %}
+    {% endfor %}
+</select>
 {%- endmacro %}
 
 {% macro render_ckeditor(field, parent=None) -%}
@@ -119,8 +131,9 @@
 
 {% macro render_radio(field) -%}
 {{ render_label(field) }}
+{% set selected_value = field.data if field.data else field.default %}
 {% for subfield in field %}
-<div class="radio{{ ' checked' if subfield.data == field.data else '' }}">
+<div class="radio{{ ' checked' if subfield.data == selected_value else '' }}">
     {{ subfield() }}{{ subfield.label }}
 </div>
 {% endfor %}

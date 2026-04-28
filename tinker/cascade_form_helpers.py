@@ -119,13 +119,18 @@ def build_metadata_custom_fields(metadata_set):
         if isinstance(raw_vals, dict):
             raw_vals = [raw_vals]
         choices = [(v['value'], v['value']) for v in raw_vals if isinstance(v, dict)]
+
+        # Find all values with selectedByDefault true
+        default_values = [v['value'] for v in raw_vals if isinstance(v, dict) and v.get('selectedByDefault') in (True, 'true', 'True')]
         if field_type == 'multiselect':
             custom_fields[name] = SelectMultipleField(
-                label, choices=choices, default=['None'],
+                label, choices=choices, default=default_values or ['None'],
                 description=help_text, validators=validators or [DataRequired()])
         elif field_type == 'radio':
+            default_radio = default_values[0] if default_values else None
             custom_fields[name] = RadioField(
-                label, choices=choices, description=help_text, validators=validators)
+                label, choices=choices, default=default_radio,
+                description=help_text, validators=validators)
 
     return custom_fields
 
@@ -272,7 +277,7 @@ def _build_field(field_def, field_extra=None, override_choices=None):
 
     # 'text' or anything else → StringField
     return StringField(label, description=help_text,
-                       validators=validators, render_kw=kw)
+                       validators=validators, render_kw=kw, default=default)
 
 
 # ---------------------------------------------------------------------------
