@@ -54,7 +54,10 @@
 {% macro render_select(field, data) -%}
 {{ render_label(field) }}
 {% set selected_value = field.data if field.data else field.default %}
-<select class="{{ field.render_kw.class if field.render_kw and 'class' in field.render_kw else '' }}" name="{{ field.name }}">
+<select name="{{ field.name }}"
+    {% if field.render_kw and 'onchange' in field.render_kw %}onchange="{{ field.render_kw['onchange'] }}"{% endif %}
+    {% if field.render_kw and 'class' in field.render_kw %}class="{{ field.render_kw['class'] }}"{% endif %}
+>
     {% for value, label in field.choices %}
         {% if value == selected_value %}
             <option value="{{ value }}" selected>{{ label }}</option>
@@ -69,7 +72,10 @@
 {{ render_label(field) }}
 {# Use field.data if exists, else field.default for selected values #}
 {% set selected_values = field.data if field.data else field.default %}
-<select name="{{ field.name }}" multiple size="10" class="large-select">
+<select name="{{ field.name }}" multiple size="10" class="large-select"
+    {% if field.render_kw and 'onchange' in field.render_kw %}onchange="{{ field.render_kw['onchange'] }}"{% endif %}
+    {% if field.render_kw and 'class' in field.render_kw %}class="{{ field.render_kw['class'] }} large-select"{% endif %}
+>
     {% for value, label in field.choices %}
         {% if selected_values and value in selected_values %}
             <option value="{{ value }}" selected>{{ label }}</option>
