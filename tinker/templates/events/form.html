@@ -51,19 +51,16 @@
 
 {% macro render_select(field, data) -%}
 {{ render_label(field) }}
-{% if field.name in data %}
-    <select class="{{ field.render_kw.class if field.render_kw and 'class' in field.render_kw else '' }}" name="{{ field.name }}">
+{% set selected_value = (field.default if field.default else '') %}
+<select class="{{ field.render_kw.class if field.render_kw and 'class' in field.render_kw else '' }}" name="{{ field.name }}">
     {% for value, label in field.choices %}
-        {% if value == data[field.name] %}
+        {% if value == selected_value %}
             <option value="{{ value }}" selected>{{ label }}</option>
         {% else %}
             <option value="{{ value }}">{{ label }}</option>
         {% endif %}
     {% endfor %}
-    </select>
-{% else %}
-    {{ field }}
-{% endif %}
+</select>
 {%- endmacro %}
 
 {% macro render_select_multiple(field) -%}
@@ -550,7 +547,8 @@ function updateFieldsets(name, scope, displayPrefix) {
             var inputName = $(this).attr('name');
             if (inputName && !inputName.endsWith('[]')) {
                 var $parentFieldset = $(this).closest('.card').parent('fieldset');
-                var fieldClass = $parentFieldset.attr('class').split(' ')[0];
+                var classAttr = $parentFieldset.attr('class');
+                var fieldClass = classAttr ? classAttr.split(' ')[0] : '';
                 var parentRow = $parentFieldset.attr('data-parent-row');
                 var prefix = parentRow ? fieldClass + '_' + parentRow : fieldClass;
                 $(this).attr('name', prefix + '::' + inputName + '[]');
@@ -570,38 +568,9 @@ function setAllDayTime(label) {
     var willBeChecked = !$(label).hasClass('checked');
     if (!willBeChecked) return;
 
-    var $fieldset = $(label).closest('fieldset');
-    var $startInput = $fieldset.find('.date_eventStart_wrap input.datepicker');
-    var $endInput   = $fieldset.find('.date_eventEnd_wrap input.datepicker');
-    var format = 'MMMM Do YYYY, h:mm a';
-
-    function zeroTime($input) {
-        var val = $input.val();
-        if (!val) return;
-        var m = moment(val, format);
-        if (!m.isValid()) return;
-        m.startOf('day');  // sets time to 00:00:00
-        var newVal = m.format(format);
-        $input.val(newVal);
-        if ($input[0] && $input[0]._pikaday) {
-            $input[0]._pikaday.setDate(m.toDate(), true);
-        }
-    }
-
-    zeroTime($startInput);
-    zeroTime($endInput);
-}
-
-// When "All-day event?" is checked, set both start and end times to midnight.
-function setAllDayTime(label) {
-    // checkboxClicked hasn't toggled the class yet at onclick time, so
-    // "will be checked" = currently does NOT have class 'checked'.
-    var willBeChecked = !$(label).hasClass('checked');
-    if (!willBeChecked) return;
-
-    var $fieldset = $(label).closest('fieldset');
-    var $startInput = $fieldset.find('.date_eventStart_wrap input.datepicker');
-    var $endInput   = $fieldset.find('.date_eventEnd_wrap input.datepicker');
+    var $card = $(label).closest('.card');
+    var $startInput = $card.find('.date_eventStart_wrap input.datepicker');
+    var $endInput   = $card.find('.date_eventEnd_wrap input.datepicker');
     var format = 'MMMM Do YYYY, h:mm a';
 
     function zeroTime($input) {
@@ -623,9 +592,9 @@ function setAllDayTime(label) {
 // Ensures the event end date/time is never before the event start date/time.
 // If end < start, snaps end to equal start.
 function syncDates(element) {
-    var $fieldset = $(element).closest('fieldset');
-    var $startInput = $fieldset.find('.date_eventStart_wrap input.datepicker');
-    var $endInput = $fieldset.find('.date_eventEnd_wrap input.datepicker');
+    var $card = $(element).closest('.card');
+    var $startInput = $card.find('.date_eventStart_wrap input.datepicker');
+    var $endInput = $card.find('.date_eventEnd_wrap input.datepicker');
     var format = 'MMMM Do YYYY, h:mm a';
 
     var startVal = $startInput.val();
@@ -671,7 +640,8 @@ function addDatePickers(element) {
 }
 
 function getFieldsetName(element) {
-    var classes = $(element).attr('class').split(/\s+/);
+    var classAttr = $(element).attr('class');
+    var classes = classAttr ? classAttr.split(/\s+/) : [];
     var fieldsetName = null;
     for (var i = 0; i < classes.length; i++) {
         var match = classes[i].match(/^(.+)_fieldset$/);

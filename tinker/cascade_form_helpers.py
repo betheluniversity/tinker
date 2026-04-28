@@ -209,7 +209,8 @@ def _build_field(field_def, field_extra=None, override_choices=None):
     label      = field_def['label']
     help_text  = field_def.get('help_text', '')
     required   = field_def.get('required', False)
-    default    = field_def.get('default', '')
+    # Use default from data definition if present, else from field_extra
+    default = field_def.get('default') if field_def.get('default') is not None else extra.get('default', '')
 
     validators = [DataRequired()] if required else []
     validators.extend(extra.get('extra_validators', []))
