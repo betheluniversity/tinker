@@ -5,7 +5,11 @@
     {% elif field.label.text == "heading" %}
         {{ render_heading(field) }}
     {% elif field.type == "FieldsetField" %}
-        {{ create_fieldset(field) }}
+        {% if field.fieldset_type == "single" %}
+            {{ create_card(field) }}
+        {% else %}
+            {{ create_fieldset(field) }}
+        {% endif %}
     {% elif field.type == "CKEditorTextAreaField" %}
         {{ render_ckeditor(field) }}
     {% elif field.type == "SelectField" %}
@@ -14,6 +18,8 @@
         {{ render_select_multiple(field) }}
     {% elif field.type == "BooleanField" %}
         {{ render_checkbox(field, data) }}
+    {% elif field.type == "RadioField" %}
+        {{ render_radio(field) }}
     {% elif field.type in ["DateField", "DateTimeField"] %}
         {{ render_datepicker(field, data) }}
     {% else %}
@@ -87,6 +93,15 @@
 </label>
 {%- endmacro %}
 
+{% macro render_radio(field) -%}
+{{ render_label(field) }}
+{% for subfield in field %}
+<div class="radio{{ ' checked' if subfield.data == field.data else '' }}">
+    {{ subfield() }}{{ subfield.label }}
+</div>
+{% endfor %}
+{%- endmacro %}
+
 {% macro render_label(field) -%}
 {% set field_classes = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
 <div id="{{ field.name }}_label" class="{{ field_classes }}">
@@ -97,6 +112,20 @@
         {% endif %}
     </label>
     <small class="extra-required">{{ field.description }}</small>
+</div>
+{%- endmacro %}
+{% macro create_card(field) -%}
+{% set data = data or {} %}
+<div class="card{% if field.render_kw and field.render_kw.show_class %} {{ field.render_kw.show_class }}{% endif %}">
+    <div class="content">
+        <legend>{{ field.label.text }}</legend>
+        {% if field.required %}
+        <small class="required">required</small>
+        {% endif %}
+        {% for f in field.fields %}
+            {{ render(f, data) }}
+        {% endfor %}
+    </div>
 </div>
 {%- endmacro %}
 

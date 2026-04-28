@@ -261,40 +261,41 @@ def get_event_form(cascade_data=None):
         # On POST, request.form keys are namespaced ('foo_fieldset::bar[]').
         # Translate them to plain field names so WTForms lookups succeed.
         if request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
-            form = _build_event_form_class()(formdata=_translate_fieldset_formdata())
+            form_data = _translate_fieldset_formdata()
+            form = _build_event_form_class(validate=True)(formdata=form_data)
         else:
             form = _build_event_form_class()()
 
 
     for field in form:
         if isinstance(field, FieldsetField):
-            if field.child_names:
-                # Single card group: wire the already-bound child fields from the
-                # form into the card so the template can render them grouped.
-                field.fields = [form._fields[n] for n in field.child_names
-                                 if n in form._fields]
-                if form_kwargs:
-                    pfx = field.name + '_'
-                    field.data = {k: v for k, v in form_kwargs.items()
-                                  if k.startswith(pfx)}
-                elif request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
-                    # Assemble any nested repeating groups (e.g. cost_offer inside cost)
-                    for child in field.fields:
-                        if (isinstance(child, FieldsetField)
-                                and child.fieldset_type == 'multiple'
-                                and not child.data):
-                            assembled = _assemble_repeating_fieldset_data(child)
-                            if assembled is not None:
-                                child.data = assembled
-            else:
-                # Repeating group: bind inner fields and restore pre-populated data.
-                bind_fields(form, field.fields, field.name)
-                if field.name in form_kwargs:
-                    field.data = form_kwargs[field.name]
-                elif request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
-                    assembled = _assemble_repeating_fieldset_data(field)
-                    if assembled is not None:
-                        field.data = assembled
+            # if field.child_names:
+            #     # Single card group: wire the already-bound child fields from the
+            #     # form into the card so the template can render them grouped.
+            #     field.fields = [form._fields[n] for n in field.child_names
+            #                      if n in form._fields]
+            #     if form_kwargs:
+            #         pfx = field.name + '_'
+            #         field.data = {k: v for k, v in form_kwargs.items()
+            #                       if k.startswith(pfx)}
+            #     elif request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+            #         # Assemble any nested repeating groups (e.g. cost_offer inside cost)
+            #         for child in field.fields:
+            #             if (isinstance(child, FieldsetField)
+            #                     and child.fieldset_type == 'multiple'
+            #                     and not child.data):
+            #                 assembled = _assemble_repeating_fieldset_data(child)
+            #                 if assembled is not None:
+            #                     child.data = assembled
+            # else:
+            # Repeating group: bind inner fields and restore pre-populated data.
+            bind_fields(form, field.fields, field.name)
+            if field.name in form_kwargs:
+                field.data = form_kwargs[field.name]
+            elif request.method in ('POST', 'PUT', 'PATCH', 'DELETE'):
+                assembled = _assemble_repeating_fieldset_data(field)
+                if assembled is not None:
+                    field.data = assembled
 
     def _json_default(obj):
         from werkzeug.datastructures import FileStorage
@@ -314,11 +315,12 @@ def get_event_form(cascade_data=None):
 # contains the fixed Cascade metadata fields.
 # ---------------------------------------------------------------------------
 
-def _build_event_form_class():
+def _build_event_form_class(validate=False):
     """
     Build and return the EventForm class with all data-definition fields
     injected alongside the fixed Cascade metadata fields.
     """
+
     all_fields = {}
 
     built_in_fields, _raw_custom_fields = get_metadata_fields(tinker, '/Event-v4')
@@ -327,7 +329,6 @@ def _build_event_form_class():
     # Mark auto-generated top fields as card children of event_basics
     for field in built_in_fields.values():
         rk = dict(field.kwargs.get('render_kw', {}))
-        rk['_card_child_of'] = 'event_basics'
         field.kwargs['render_kw'] = rk
 
     # Ensure 'title' (if present) is the very first child field on the form.
@@ -336,23 +337,28 @@ def _build_event_form_class():
         built_in_fields = {'title': built_in_fields.pop('title'), **built_in_fields}
         built_in_fields['title'].kwargs['validators'].append(length_checker)
 
-    # These fields must be instantiated BEFORE _fields_from_def so their
-    # WTForms creation_counter is lower and they sort to the top of the form.
-    top_fields = {
-        'event_basics': FieldsetField(
-            label='Event basics',
-            fieldset_type='single',
-            child_names=list(built_in_fields.keys()),
-        ),
-    }
-    top_fields.update(built_in_fields)
+    # Add built_in_fields as visible children of the FieldsetField
+    if not validate:
+        top_fields = {
+            'event_basics': FieldsetField(
+                label='Event basics',
+                fieldset_type='single',
+                fields=built_in_fields,
+            ),
+        }
+    else:
+        top_fields = built_in_fields
     all_fields.update(top_fields)
+
+    # Add built_in_fields as individual HiddenFields (with same names, but hidden)
+    from wtforms import HiddenField
+    for name in built_in_fields:
+        all_fields[f'_hidden_{name}'] = HiddenField()
 
     # Walk the full data definition tree
     # Pass event-specific field config and choice overrides to the generic helper.
     dd_fields = _fields_from_def(
         get_field_definitions(app.config.get('EVENTS_DATA_DEF_ID', '')),
-        top_level=True,
         field_extra=_FIELD_EXTRA,
         override_choices={'location': on_campus_locations},
     )

@@ -29,6 +29,7 @@ Typical usage in a view's forms module::
     )
 """
 
+from flask import current_app
 from bu_cascade.asset_tools import convert_asset
 from flask_wtf.file import FileField
 import re
@@ -168,14 +169,14 @@ class CKEditorTextAreaField(TextAreaField):
 
 class FieldsetField(Field):
     def __init__(self, label='', fields=None, required=False, hidden=False,
-                 fieldset_type="multiple", validators=None, child_names=None, **kwargs):
+                 fieldset_type="multiple", validators=None, **kwargs):
         super(FieldsetField, self).__init__(label, validators, **kwargs)
         self.label.text = label
         self.fields = fields() if callable(fields) else (fields or [])
         self.fieldset_type = fieldset_type
         self.required = required
         self.hidden = hidden
-        self.child_names = child_names or []  # non-empty only for single-card groups
+        #self.child_names = child_names or []  # non-empty only for single-card groups
 
 
 # ---------------------------------------------------------------------------
@@ -303,54 +304,36 @@ def _fields_from_def(field_defs, prefix='', top_level=False,
         identifier = fd.get('identifier', '')
         name = (prefix + '_' + identifier) if prefix else identifier
 
+        # import json as _json
+        # try:
+        #     current_app.logger.debug("Processing field_def: %s", _json.dumps(fd, default=str, indent=2))
+        # except Exception as e:
+        #     current_app.logger.debug(f"Processing field_def (repr fallback): {fd!r} (error: {e})")
+
         if fd['type'] == 'group':
+            # if fd.get('multiple'):
+            # Repeating group → FieldsetField; capture fd/fe/oc in closure
+            _fd = fd
+            _fe = fe
+            _oc = oc
+            _pfx = identifier
+
+            def _make_factory(fdef, f_extra, o_choices, pfx):
+                def _factory():
+                    return _fields_from_def(fdef['children'], prefix=pfx,
+                                            field_extra=f_extra, override_choices=o_choices)
+                return _factory
+
             if fd.get('multiple'):
-                # Repeating group → FieldsetField; capture fd/fe/oc in closure
-                _fd = fd
-                _fe = fe
-                _oc = oc
-                _pfx = identifier
-
-                def _make_factory(fdef, f_extra, o_choices, pfx):
-                    def _factory():
-                        return _fields_from_def(fdef['children'], prefix=pfx,
-                                                field_extra=f_extra, override_choices=o_choices)
-                    return _factory
-
-                result[name] = FieldsetField(
-                    label=fd['label'],
-                    fields=_make_factory(_fd, _fe, _oc, _pfx),
-                    fieldset_type='multiple',
-                )
-            elif top_level:
-                # Top-level non-repeating group → single card FieldsetField.
-                # Children are also added as flat form fields so WTForms can
-                # validate them; they carry _card_child_of so the template
-                # skips them in the top-level render loop.
-                # HiddenField companions (_path fields) are excluded from
-                # child_names / _card_child_of — they render via form.hidden_tag().
-                child_fields = _fields_from_def(fd['children'], prefix=name,
-                                                field_extra=fe, override_choices=oc)
-                visible_child_names = []
-                for cf_name, cf in child_fields.items():
-                    if cf.field_class is HiddenField:
-                        continue
-                    existing_rk = dict(cf.kwargs.get('render_kw', {}))
-                    existing_rk['_card_child_of'] = name
-                    cf.kwargs['render_kw'] = existing_rk
-                    visible_child_names.append(cf_name)
-                result[name] = FieldsetField(
-                    label=fd['label'],
-                    fields=None,          # wired up in the form factory (get_*_form)
-                    fieldset_type='single',
-                    child_names=visible_child_names,
-                )
-                result.update(child_fields)
+                fs_type = 'multiple'
             else:
-                # Nested non-repeating group → inline expansion with prefix
-                child_fields = _fields_from_def(fd['children'], prefix=name,
-                                                field_extra=fe, override_choices=oc)
-                result.update(child_fields)
+                fs_type = 'single'
+
+            result[name] = FieldsetField(
+                label=fd['label'],
+                fields=_make_factory(_fd, _fe, _oc, _pfx),
+                fieldset_type=fs_type,
+            )
         else:
             field = _build_field(fd, field_extra=fe, override_choices=oc)
             if field is not None:
