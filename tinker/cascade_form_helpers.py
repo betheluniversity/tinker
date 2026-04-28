@@ -346,8 +346,9 @@ def _fields_from_def(field_defs, prefix='', top_level=False,
                     result[name + '_path'] = HiddenField(
                         fd['label'] + ' (path)', render_kw=path_rk)
 
-    if top_level:
-        _apply_show_fields(result, field_defs)
+
+    # Always apply show_fields logic so all dropdowns with show-fields get onchange, even nested
+    _apply_show_fields(result, field_defs)
 
     return result
 
@@ -390,12 +391,14 @@ def _apply_show_fields(result, field_defs, prefix=''):
             if not show_choices:
                 continue
 
-            # Auto-add onchange to the dropdown itself
-            if name in result:
-                rk = dict(result[name].kwargs.get('render_kw', {}))
-                if 'onchange' not in rk:
-                    rk['onchange'] = 'selectChanged(this)'
-                    result[name].kwargs['render_kw'] = rk
+            # Add onchange to the dropdown itself
+            suffix = '_' + identifier
+            for field_name, field in result.items():
+                if field_name.endswith(suffix) and hasattr(field, 'kwargs'):
+                    rk = dict(field.kwargs.get('render_kw', {}))
+                    if 'onchange' not in rk:
+                        rk['onchange'] = 'selectChanged(this)'
+                        field.kwargs['render_kw'] = rk
 
             # Apply show_class to each target field (or group of fields)
             for choice in show_choices:

@@ -1,31 +1,38 @@
 {% macro render(field, data) -%}
-<div class="{{ field.name }}_wrap">
-    {% if field is string %}
-        {{ field }}
-    {% elif field.label.text == "heading" %}
-        {{ render_heading(field) }}
-    {% elif field.type == "FieldsetField" %}
-        {% if field.fieldset_type == "single" %}
-            {{ create_card(field) }}
+{# Skip rendering HiddenField fields #}
+{% if field.type == "HiddenField" %}
+    {{ field }}
+{% else %}
+    {# Add show_class as a class to the wrapper div if present #}
+    {% set show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
+    <div class="{{ field.name }}_wrap{% if show_class %} {{ show_class }}_wrap{% endif %}">
+        {% if field is string %}
+            {{ field }}
+        {% elif field.label.text == "heading" %}
+            {{ render_heading(field) }}
+        {% elif field.type == "FieldsetField" %}
+            {% if field.fieldset_type == "single" %}
+                {{ create_card(field) }}
+            {% else %}
+                {{ create_fieldset(field) }}
+            {% endif %}
+        {% elif field.type == "CKEditorTextAreaField" %}
+            {{ render_ckeditor(field, parent=caller and caller.field if caller and caller.field is defined else None) }}
+        {% elif field.type == "SelectField" %}
+            {{ render_select(field, data) }}
+        {% elif field.type == "SelectMultipleField" %}
+            {{ render_select_multiple(field) }}
+        {% elif field.type == "BooleanField" %}
+            {{ render_checkbox(field, data) }}
+        {% elif field.type == "RadioField" %}
+            {{ render_radio(field) }}
+        {% elif field.type in ["DateField", "DateTimeField"] %}
+            {{ render_datepicker(field, data) }}
         {% else %}
-            {{ create_fieldset(field) }}
+            {{ render_field(field, data) }}
         {% endif %}
-    {% elif field.type == "CKEditorTextAreaField" %}
-        {{ render_ckeditor(field) }}
-    {% elif field.type == "SelectField" %}
-        {{ render_select(field, data) }}
-    {% elif field.type == "SelectMultipleField" %}
-        {{ render_select_multiple(field) }}
-    {% elif field.type == "BooleanField" %}
-        {{ render_checkbox(field, data) }}
-    {% elif field.type == "RadioField" %}
-        {{ render_radio(field) }}
-    {% elif field.type in ["DateField", "DateTimeField"] %}
-        {{ render_datepicker(field, data) }}
-    {% else %}
-        {{ render_field(field, data) }}
-    {% endif %}
-</div>
+    </div>
+{% endif %}
 {%- endmacro %}
 
 {% macro render_heading(field) -%}
@@ -64,9 +71,29 @@
 {{ field(size=10, class="large-select") }}
 {%- endmacro %}
 
-{% macro render_ckeditor(field) -%}
-{{ render_label(field) }}
-{{ field(class="ckeditor") }}
+{% macro render_ckeditor(field, parent=None) -%}
+    {# Heuristic: If the field has a 'parent' argument and it's a FieldsetField, it's inside a group. #}
+    {% set in_group = parent is not none and parent.type == 'FieldsetField' %}
+    {% if not in_group %}
+        <div class="card">
+            <div class="content">
+                {{ render_label(field, show_description=True) }}
+                {# Always add required attribute if field is required, for CKEditor JS validation #}
+                {% if field.flags.required %}
+                    {{ field(class="ckeditor", required=True) }}
+                {% else %}
+                    {{ field(class="ckeditor") }}
+                {% endif %}
+            </div>
+        </div>
+    {% else %}
+        {{ render_label(field, show_description=True) }}
+        {% if field.flags.required %}
+            {{ field(class="ckeditor", required=True) }}
+        {% else %}
+            {{ field(class="ckeditor") }}
+        {% endif %}
+    {% endif %}
 {%- endmacro %}
 
 {% macro render_datepicker(field, data) -%}
@@ -102,7 +129,7 @@
 {% endfor %}
 {%- endmacro %}
 
-{% macro render_label(field) -%}
+{% macro render_label(field, show_description=True) -%}
 {% set field_classes = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
 <div id="{{ field.name }}_label" class="{{ field_classes }}">
     <label for="{{ field.name }}">
@@ -111,9 +138,12 @@
         <small class="required">required</small>
         {% endif %}
     </label>
-    <small class="extra-required">{{ field.description }}</small>
+    {% if show_description and field.description %}
+        <small class="extra-required">{{ field.description }}</small>
+    {% endif %}
 </div>
 {%- endmacro %}
+
 {% macro create_card(field) -%}
 {% set data = data or {} %}
 <div class="card">
@@ -317,25 +347,41 @@ function checkboxClicked(label) {
 }
 
 function selectChanged(select) {
+    console.log("select changed: " + select.name);
     var val = $(select).val();
     var selectOptions = $(select).find("option").map(function () {
         return $(this).val();
     }).get();
     selectOptions.forEach(function(option) {
-        // Only proceed if the option is a valid class name
         if (!option) return;
         if (!/^[A-Za-z0-9_-]+$/.test(option)) return;
-
-        if (option.includes("_fieldset")) {
-            element = $("." + option);
-        } else {
-            element = $("." + option + "_wrap");
+        var element = $();
+        var parentCard = $(select).closest('.card, .content');
+        var candidates = parentCard.find('.' + option + '_wrap');
+        candidates.each(function() {
+            if ($(this).find(select).length === 0) {
+                element = element.add(this);
+            }
+        });
+        if (element.length === 0) {
+            parentCard.find('div[class$="_wrap"]').each(function() {
+                var classList = this.className.split(/\s+/);
+                for (var i = 0; i < classList.length; i++) {
+                    if (classList[i].endsWith('_wrap')) {
+                        var base = classList[i].slice(0, -5).toLowerCase();
+                        if (base.indexOf(option.toLowerCase()) !== -1 || option.toLowerCase().indexOf(base) !== -1) {
+                            if ($(this).find(select).length === 0) {
+                                element = element.add(this);
+                            }
+                        }
+                    }
+                }
+            });
         }
-        if (element.length === 0) return;
+        if (!element || element.length === 0) return;
         if (option !== val) {
             element.addClass('visually-hidden');
             element.find('*').each(function () {
-                // Hide all elements within the wrap
                 if ($(this).is('input, select, textarea')) {
                     $(this).attr('required', false);
                     $(this).addClass('visually-hidden');
@@ -346,7 +392,6 @@ function selectChanged(select) {
         } else {
             element.removeClass('visually-hidden');
             element.find('*').each(function () {
-                // Show all elements within the wrap
                 if ($(this).attr('name') && $(this).attr('name').indexOf('[]') === -1) {
                     lookupClass = '.' + $(this).attr('name') + '_wrap';
                 } else {
@@ -366,23 +411,19 @@ function selectChanged(select) {
 }
 
 function toggleFieldsetField(element, className, checkedAction, isInit) {
-
     wrap = $(element).closest('fieldset').find('.' + className + '_wrap');
     showField = $(element).hasClass('checked');
-
     if (isInit) {
         if (checkedAction === 'show') {
-            showField = true; // Force show if initializing
+            showField = true;
         } else {
-            showField = false; // Force hide if initializing
+            showField = false;
         }
     } else {
-        // Reverse the state if we are showing
         if (checkedAction === 'show') {
             showField = !showField;
         }
     }
-
     if (showField) {
         wrap.find('*').each(function () {
             if ($(this).is('input, select, textarea')) {
@@ -398,7 +439,7 @@ function toggleFieldsetField(element, className, checkedAction, isInit) {
             $(this).addClass('visually-hidden');
             $(this).removeAttr('required');
         });
-        clearValuesWithin(wrap); // Clear values within the wrap
+        clearValuesWithin(wrap);
     }
 }
 
@@ -716,6 +757,11 @@ function duplicateFieldset(name, btn) {
 
 $(document).ready(function () {
 
+    // On page load, trigger selectChanged for all selects with onchange=selectChanged(this)
+    $("select[onchange*='selectChanged']").each(function() {
+        selectChanged(this);
+    });
+
     // Run toggleFieldsetField for each checkbox label with the onclick action
     $('label.checkbox').each(function () {
         var onclickAction = $(this).attr('onclick');
@@ -767,46 +813,60 @@ $(document).ready(function () {
         }
     });
 
-    // Ensure visibility is set based on the dropdown values
-    $('select').each(function() {
-        selectChanged(this);
-    });
 
-    // Client-side validation for required CKEditor fields.
-    // The browser's native `required` check can't fire on CKEditor textareas
-    // because CKEditor hides them (display:none).  Intercept submit and check
-    // any editor whose containing fieldset has a <small class="required"> label.
+
+    // Improved client-side validation for required CKEditor fields.
+    // This checks for the 'required' attribute on the textarea (set by WTForms for required fields)
+    // and blocks submit if any required CKEditor field is empty.
     $('#eventform').on('submit', function (e) {
-        var invalid = [];
+        try {
+            alert('CKEditor required validation handler running');
+            var invalid = [];
+            var firstInvalidInstance = null;
+            var debugLog = [];
 
-        if (typeof CKEDITOR !== 'undefined') {
-            for (var name in CKEDITOR.instances) {
-                var instance = CKEDITOR.instances[name];
-                // instance.element.$ is the original (hidden) textarea DOM node
-                var $fieldset = $(instance.element.$).closest('fieldset');
-                if (!$fieldset.find('legend small.required').length) {
-                    continue;  // not a required editor
-                }
-                var html = instance.getData();
-                var text = html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
-                if (!text) {
-                    invalid.push($fieldset[0]);
+            if (typeof CKEDITOR !== 'undefined') {
+                for (var name in CKEDITOR.instances) {
+                    var instance = CKEDITOR.instances[name];
+                    var textarea = instance.element.$;
+                    debugLog.push('Checking CKEditor instance: ' + name + ', required=' + textarea.hasAttribute('required'));
+                    // Only validate if textarea has required attribute
+                    if (!textarea.hasAttribute('required')) continue;
+                    var html = instance.getData();
+                    var text = html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
+                    debugLog.push('  value: [' + text + ']');
+                    if (!text) {
+                        debugLog.push('  INVALID: empty required CKEditor: ' + name);
+                        // Find the closest .card .content for error placement
+                        var $container = $(textarea).closest('.card .content');
+                        if (!$container.find('.ckeditor-required-error').length) {
+                            $container.append('<p class="ckeditor-required-error" style="color:#c00;margin-top:4px">This field is required.</p>');
+                        }
+                        invalid.push($container[0]);
+                        if (!firstInvalidInstance) firstInvalidInstance = instance;
+                    }
                 }
             }
-        }
 
-        if (invalid.length) {
-            e.preventDefault();
-            invalid.forEach(function (fieldset) {
-                if (!fieldset) { return; }
-                var $fieldset = $(fieldset);
-                if (!$fieldset.find('.ckeditor-required-error').length) {
-                    $fieldset.find('.card .content').append(
-                        '<p class="ckeditor-required-error" style="color:#c00;margin-top:4px">This field is required.</p>'
-                    );
+            if (invalid.length) {
+                e.preventDefault();
+                // Focus the first invalid CKEditor instance
+                if (firstInvalidInstance) {
+                    firstInvalidInstance.focus();
                 }
-                $fieldset[0].scrollIntoView({behavior: 'smooth', block: 'center'});
-            });
+                // Scroll to the first invalid field
+                if (invalid[0]) {
+                    invalid[0].scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+            }
+            if (debugLog.length) {
+                var msg = '[CKEditor required validation]\n' + debugLog.join('\n');
+                try { console.log(msg); } catch (e) {}
+                alert(msg);
+            }
+        } catch (err) {
+            alert('CKEditor required validation JS error: ' + err);
+            throw err;
         }
     });
 
