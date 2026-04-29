@@ -1,35 +1,54 @@
-{% macro render(field, data) -%}
+{% macro render(field, data, parent=None) -%}
 {# Skip rendering HiddenField fields #}
 {% if field.type == "HiddenField" %}
     {{ field }}
+{% elif field is string %}
+            {{ field }}
+{% elif field.label.text == "heading" %}
+    {{ render_heading(field) }}
+{% elif field.type == "FieldsetField" %}
+    {# Add show_class as a class to the wrapper div if present #}
+    {% set show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
+    <div class="{{ field.name }}_wrap{% if show_class %} {{ show_class }}_wrap{% endif %}">
+        {% if field.fieldset_type == "single" %}
+            {{ create_card(field, data) }}
+        {% else %}
+            {{ create_fieldset(field, data) }}
+        {% endif %}
+    </div>
 {% else %}
     {# Add show_class as a class to the wrapper div if present #}
     {% set show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
     <div class="{{ field.name }}_wrap{% if show_class %} {{ show_class }}_wrap{% endif %}">
-        {% if field is string %}
-            {{ field }}
-        {% elif field.label.text == "heading" %}
-            {{ render_heading(field) }}
-        {% elif field.type == "FieldsetField" %}
-            {% if field.fieldset_type == "single" %}
-                {{ create_card(field) }}
-            {% else %}
-                {{ create_fieldset(field) }}
-            {% endif %}
-        {% elif field.type == "CKEditorTextAreaField" %}
-            {{ render_ckeditor(field, parent=caller and caller.field if caller and caller.field is defined else None) }}
+        {% if parent is none %}
+            <div class="card">
+                <div class="content">
+                    <legend>{{ field.label.text }}</legend>
+                    {% if field.required %}
+                    <small class="required">required</small>
+                    {% endif %}
+                    {% if field.description %}
+                        <small class="extra-required">{{ field.description }}</small>
+                    {% endif %}
+        {% endif %}
+        {% if field.type == "CKEditorTextAreaField" %}
+            {{ render_ckeditor(field, parent) }}
         {% elif field.type == "SelectField" %}
             {{ render_select(field, data) }}
         {% elif field.type == "SelectMultipleField" %}
-            {{ render_select_multiple(field) }}
+            {{ render_select_multiple(field, parent) }}
         {% elif field.type == "BooleanField" %}
             {{ render_checkbox(field, data) }}
         {% elif field.type == "RadioField" %}
-            {{ render_radio(field) }}
+            {{ render_radio(field, parent) }}
         {% elif field.type in ["DateField", "DateTimeField"] %}
             {{ render_datepicker(field, data) }}
         {% else %}
             {{ render_field(field, data) }}
+        {% endif %}
+        {% if parent is none %}
+                </div>
+            </div>
         {% endif %}
     </div>
 {% endif %}
@@ -68,8 +87,10 @@
 </select>
 {%- endmacro %}
 
-{% macro render_select_multiple(field) -%}
-{{ render_label(field) }}
+{% macro render_select_multiple(field, parent) -%}
+{% if parent is not none %}
+    {{ render_label(field) }}
+{% endif %}
 {# Use field.data if exists, else field.default for selected values #}
 {% set selected_values = field.data if field.data else field.default %}
 <select name="{{ field.name }}" multiple size="10" class="large-select"
@@ -86,29 +107,22 @@
 </select>
 {%- endmacro %}
 
-{% macro render_ckeditor(field, parent=None) -%}
-    {# Heuristic: If the field has a 'parent' argument and it's a FieldsetField, it's inside a group. #}
-    {% set in_group = parent is not none and parent.type == 'FieldsetField' %}
-    {% if not in_group %}
-        <div class="card">
-            <div class="content">
-                {{ render_label(field, show_description=True) }}
-                {# Always add required attribute if field is required, for CKEditor JS validation #}
-                {% if field.flags.required %}
-                    {{ field(class="ckeditor", required=True) }}
-                {% else %}
-                    {{ field(class="ckeditor") }}
-                {% endif %}
-            </div>
-        </div>
-    {% else %}
-        {{ render_label(field, show_description=True) }}
-        {% if field.flags.required %}
-            {{ field(class="ckeditor", required=True) }}
-        {% else %}
-            {{ field(class="ckeditor") }}
+{% macro render_ckeditor(field, parent) -%}
+    {% if parent is not none %}
+        <legend>{{ field.label.text }}</legend>
+        {% if field.required %}
+        <small class="required">required</small>
+        {% endif %}
+        {% if field.description %}
+            <small class="extra-required">{{ field.description }}</small>
         {% endif %}
     {% endif %}
+    {% if field.flags.required %}
+        {{ field(class="ckeditor", required=True) }}
+    {% else %}
+        {{ field(class="ckeditor") }}
+    {% endif %}
+    <br />
 {%- endmacro %}
 
 {% macro render_datepicker(field, data) -%}
@@ -135,8 +149,10 @@
 </label>
 {%- endmacro %}
 
-{% macro render_radio(field) -%}
-{{ render_label(field) }}
+{% macro render_radio(field, parent) -%}
+{% if parent is not none %}
+    {{ render_label(field) }}
+{% endif %}
 {% set selected_value = field.data if field.data else field.default %}
 {% for subfield in field %}
 <div class="radio{{ ' checked' if subfield.data == selected_value else '' }}">
@@ -160,7 +176,7 @@
 </div>
 {%- endmacro %}
 
-{% macro create_card(field) -%}
+{% macro create_card(field, data) -%}
 {% set data = data or {} %}
 <div class="card">
     <div class="content">
@@ -169,13 +185,13 @@
         <small class="required">required</small>
         {% endif %}
         {% for f in field.fields %}
-            {{ render(f, data) }}
+            {{ render(f, data, parent=field) }}
         {% endfor %}
     </div>
 </div>
 {%- endmacro %}
 
-{% macro create_fieldset(field, template=false) -%}
+{% macro create_fieldset(field, data, template=false) -%}
     {% set fieldset_classes = field.name ~ '_fieldset fieldset_template' if template else field.name ~ '_fieldset fieldset' %}
     {% set fieldset_index = 0 if template else 1 %}
     {% if field.data and not template %}
@@ -224,7 +240,7 @@
                     {% endif %}
                 </legend>
                 {% for f in field.fields %}
-                    {{ render(f, data) }}
+                    {{ render(f, data, parent=field) }}
                 {% endfor %}
             </div>
         </div>
@@ -252,7 +268,7 @@
                     651.638.6090.</p>
                 <div id="fieldset-templates" style="display: none;">
                     {% for field in form if field.type == "FieldsetField" %}
-                        {{ create_fieldset(field, template=true) }}
+                        {{ create_fieldset(field, data, template=true) }}
                     {% endfor %}
                 </div>
                 {% if new_form %}
@@ -283,7 +299,7 @@
                     {% endfor %}
 
                     {# Print the field #}
-                    {{ render(field) }}
+                    {{ render(field, data, parent=None) }}
                     
                 {% endfor %}
                 <button type="submit" formmethod="post" id="event-submit-btn" class="btn btn-primary">Submit</button>
