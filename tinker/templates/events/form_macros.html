@@ -1,5 +1,5 @@
 {# Macro to render all fields, grouping by group identifier and using group_label for legend #}
-{% macro render_form(form, data) -%}
+{% macro render_form(form) -%}
     {{ form.hidden_tag() }}
     {% if form.errors %}
         <div class="error-alert">
@@ -27,7 +27,7 @@
                                 </div>
                             </div>
                         {% endfor %}
-                        {{ render(f, data, group) }}
+                        {{ render(f, group) }}
                     {% endfor %}
                 </div>
             </div>
@@ -40,13 +40,13 @@
                     </div>
                 </div>
             {% endfor %}
-            {{ render(field, data) }}
+            {{ render(field) }}
         {% endif %}
     {% endfor %}
 {%- endmacro %}
 
 {# Macros for event form rendering. #}
-{% macro render(field, data, group=None) -%}
+{% macro render(field, group=None) -%}
 {% if field.type == "HiddenField" %}
     {{ field }}
 {% elif field is string %}
@@ -75,17 +75,17 @@
         {% if field.type == "CKEditorTextAreaField" %}
             {{ render_ckeditor(field, group) }}
         {% elif field.type == "SelectField" %}
-            {{ render_select(field, data) }}
+            {{ render_select(field) }}
         {% elif field.type == "SelectMultipleField" %}
             {{ render_select_multiple(field, group) }}
         {% elif field.type == "BooleanField" %}
-            {{ render_checkbox(field, data) }}
+            {{ render_checkbox(field) }}
         {% elif field.type == "RadioField" %}
             {{ render_radio(field, group) }}
         {% elif field.type in ["DateField", "DateTimeField"] %}
-            {{ render_datepicker(field, data) }}
+            {{ render_datepicker(field) }}
         {% else %}
-            {{ render_field(field, data) }}
+            {{ render_field(field) }}
         {% endif %}
         {% if group is none %}
                 </div>
@@ -100,18 +100,16 @@
 <hr/>
 {%- endmacro %}
 
-{% macro render_field(field, data) -%}
+{% macro render_field(field) -%}
     {{ render_label(field) }}
-    {% if field.name in data %}
-        {{ field(value=data[field.name]) }}
-    {% elif field.default %}
+    {% if (not field.data and field.default) %}
         {{ field(value=field.default) }}
     {% else %}
         {{ field }}
     {% endif %}
 {%- endmacro %}
 
-{% macro render_select(field, data) -%}
+{% macro render_select(field) -%}
 {{ render_label(field) }}
 {% set selected_value = field.data if field.data else field.default %}
 <select name="{{ field.name }}"
@@ -160,7 +158,7 @@
     <br />
 {%- endmacro %}
 
-{% macro render_datepicker(field, data) -%}
+{% macro render_datepicker(field) -%}
 {{ render_label(field) }}
 {% if field.name in data %}
     {{ field(value=data[field.name], class="datepicker") }}
@@ -169,8 +167,8 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro render_checkbox(field, data) -%}
-{% set checked = data and field.name in data and data[field.name] and "Yes" in data[field.name] %}
+{% macro render_checkbox(field) -%}
+{% set checked = field.data %}
 {% set field_onclick = 'checkboxClicked(this); ' ~ field.render_kw.get('onclick', '') %}
 <input type="hidden" name="{{ field.name }}" value="No" {{ 'disabled' if checked else '' }} />
 <label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox{{ ' checked' if checked else '' }}" onclick="{{ field_onclick }}">

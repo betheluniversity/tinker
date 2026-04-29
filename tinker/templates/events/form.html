@@ -24,7 +24,7 @@
                 <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
                 <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
                 {% endif %}
-                {{ form_macros.render_form(form, data) }}
+                {{ form_macros.render_form(form) }}
                 <button type="submit" formmethod="post" id="event-submit-btn" class="btn btn-primary">Submit</button>
                 </form>
             </div>
