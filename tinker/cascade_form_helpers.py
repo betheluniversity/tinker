@@ -4,18 +4,16 @@ Generic helpers for building WTForms-based forms from Cascade data definitions.
 
 Any view module can import these to get:
 
-  * FieldsetField        — custom Field for single/repeating card groups
   * CKEditorTextAreaField — marker so templates know to attach CKEditor
   * _build_field          — convert a parsed field-def dict → WTForms field
   * _fields_from_def      — walk a data-def tree → ordered {name: field} dict
   * _flatten_cascade_data — convert Cascade get_edit_data payload → form kwargs
-  * bind_fields           — bind a FieldsetField's inner fields to a form
   * _bind_nested_fieldset — recursive helper used by bind_fields
 
 Typical usage in a view's forms module::
 
     from tinker.cascade_form_helpers import (
-        CKEditorTextAreaField, FieldsetField,
+        CKEditorTextAreaField,
         _build_field, _fields_from_def,
         _flatten_cascade_data, bind_fields,
     )
@@ -169,22 +167,6 @@ class CKEditorTextAreaField(TextAreaField):
 
 
 # ---------------------------------------------------------------------------
-# Custom field for repeating / single fieldsets
-# ---------------------------------------------------------------------------
-
-class FieldsetField(Field):
-    def __init__(self, label='', fields=None, required=False, hidden=False,
-                 fieldset_type="multiple", validators=None, **kwargs):
-        super(FieldsetField, self).__init__(label, validators, **kwargs)
-        self.label.text = label
-        self.fields = fields() if callable(fields) else (fields or [])
-        self.fieldset_type = fieldset_type
-        self.required = required
-        self.hidden = hidden
-        #self.child_names = child_names or []  # non-empty only for single-card groups
-
-
-# ---------------------------------------------------------------------------
 # Data-definition → WTForms field converter
 # ---------------------------------------------------------------------------
 
@@ -290,14 +272,7 @@ def _fields_from_def(field_defs, prefix='', top_level=False,
     Walk a list of field-def dicts and return an ordered dict of
     {form_field_name: UnboundField}.
 
-    At the top level (top_level=True), non-repeating groups become a
-    FieldsetField(fieldset_type='single') card — their child fields are ALSO
-    added as flat form fields (marked with render_kw['_card_child_of']) so
-    WTForms can process/validate them normally.
-
     At nested levels, non-repeating groups continue to be expanded inline.
-
-    Groups with multiple=True become a FieldsetField(fieldset_type='multiple').
 
     field_extra      -- see _build_field
     override_choices -- see _build_field
@@ -305,6 +280,7 @@ def _fields_from_def(field_defs, prefix='', top_level=False,
     fe = field_extra or {}
     oc = override_choices or {}
     result = {}
+
 
     for fd in field_defs:
         identifier = fd.get('identifier', '')
@@ -317,29 +293,18 @@ def _fields_from_def(field_defs, prefix='', top_level=False,
         #     current_app.logger.debug(f"Processing field_def (repr fallback): {fd!r} (error: {e})")
 
         if fd['type'] == 'group':
-            # if fd.get('multiple'):
-            # Repeating group → FieldsetField; capture fd/fe/oc in closure
-            _fd = fd
-            _fe = fe
-            _oc = oc
-            _pfx = identifier
-
-            def _make_factory(fdef, f_extra, o_choices, pfx):
-                def _factory():
-                    return _fields_from_def(fdef['children'], prefix=pfx,
-                                            field_extra=f_extra, override_choices=o_choices)
-                return _factory
-
-            if fd.get('multiple'):
-                fs_type = 'multiple'
-            else:
-                fs_type = 'single'
-
-            result[name] = FieldsetField(
-                label=fd['label'],
-                fields=_make_factory(_fd, _fe, _oc, _pfx),
-                fieldset_type=fs_type,
-            )
+            # For group fields, recursively add all child fields as flat fields (do not create a field for the group itself)
+            children = fd.get('children', [])
+            child_fields = _fields_from_def(children, prefix=name, field_extra=fe, override_choices=oc)
+            # Add group identifier and label to render_kw for each child
+            group_label = fd.get('label', identifier)
+            for child_name, field in child_fields.items():
+                if hasattr(field, 'kwargs'):
+                    rk = dict(field.kwargs.get('render_kw', {}))
+                    rk['group'] = identifier
+                    rk['group_label'] = group_label
+                    field.kwargs['render_kw'] = rk
+                result[child_name] = field
         else:
             field = _build_field(fd, field_extra=fe, override_choices=oc)
             if field is not None:
@@ -361,16 +326,10 @@ def _fields_from_def(field_defs, prefix='', top_level=False,
 
 def _set_field_show_class(field, show_class):
     """Set show_class on an UnboundField without overwriting an existing value."""
-    if isinstance(field, FieldsetField):
-        rk = dict(field.render_kw or {})
-        if 'show_class' not in rk:
-            rk['show_class'] = show_class
-            field.render_kw = rk
-    else:
-        rk = dict(field.kwargs.get('render_kw', {}))
-        if 'show_class' not in rk:
-            rk['show_class'] = show_class
-            field.kwargs['render_kw'] = rk
+    rk = dict(field.kwargs.get('render_kw', {}))
+    if 'show_class' not in rk:
+        rk['show_class'] = show_class
+        field.kwargs['render_kw'] = rk
 
 
 def _apply_show_fields(result, field_defs, prefix=''):
@@ -418,93 +377,3 @@ def _apply_show_fields(result, field_defs, prefix=''):
                     for field_name, field in result.items():
                         if field_name.startswith(child_prefix):
                             _set_field_show_class(field, option_value)
-
-
-# ---------------------------------------------------------------------------
-# FieldsetField bind helpers
-# ---------------------------------------------------------------------------
-
-def _bind_nested_fieldset(form, fieldset_field):
-    """Recursively bind a FieldsetField whose .fields is still an unbound dict."""
-    nested = fieldset_field.fields
-    for field_name, field in nested.items():
-        bound = field.bind(form, field_name)
-        bound.data = None
-        nested[field_name] = bound
-    fieldset_field.fields = list(nested.values())
-    for bound_field in fieldset_field.fields:
-        if isinstance(bound_field, FieldsetField) and isinstance(bound_field.fields, dict):
-            _bind_nested_fieldset(form, bound_field)
-
-
-def bind_fields(form, fields, attribute_name):
-    """Bind a dict of UnboundFields to a form and attach them to a FieldsetField attribute."""
-    for field_name, field in fields.items():
-        bound = field.bind(form, field_name)
-        bound.data = None
-        fields[field_name] = bound
-    attr = getattr(form, attribute_name, None)
-    if attr is not None:
-        attr.fields = list(fields.values())
-        setattr(form, attribute_name, attr)
-        for bound_field in attr.fields:
-            if isinstance(bound_field, FieldsetField) and isinstance(bound_field.fields, dict):
-                _bind_nested_fieldset(form, bound_field)
-
-
-# ---------------------------------------------------------------------------
-# Cascade edit data → form field names  (driven by the data definition)
-# ---------------------------------------------------------------------------
-
-def _flatten_cascade_data(cascade_data, field_defs, prefix=''):
-    """
-    Recursively convert nested Cascade structured data (as returned by
-    get_edit_data) into a flat {form_field_name: value} dict that matches
-    the naming convention used by _fields_from_def():
-
-      top-level leaf             →  <identifier>
-      non-repeating group child  →  <group>_<child>   (recurse inline)
-      repeating group            →  <group>_<child>   where value is a list
-                                    of dicts keyed by <group>_<child2>
-
-    cascade_data -- dict (or sub-dict during recursion)
-    field_defs   -- list of parsed field-def dicts
-    prefix       -- accumulated group path; empty for the root call
-    """
-    result = {}
-    if not cascade_data or not isinstance(cascade_data, dict):
-        return result
-
-    for fd in field_defs:
-        identifier = fd.get('identifier', '')
-        name = (prefix + '_' + identifier) if prefix else identifier
-        value = cascade_data.get(identifier)
-
-        if fd['type'] == 'group':
-            if fd.get('multiple'):
-                # Repeating group → FieldsetField whose inner fields use
-                # the group's own identifier as prefix (matching _fields_from_def).
-                if isinstance(value, list):
-                    items = value
-                elif isinstance(value, dict):
-                    items = [value]
-                else:
-                    items = []
-                result[name] = [
-                    _flatten_cascade_data(item, fd['children'], prefix=identifier)
-                    for item in items
-                ]
-            else:
-                # Non-repeating group → expand children inline with prefix=name
-                child_data = value if isinstance(value, dict) else {}
-                result.update(_flatten_cascade_data(child_data, fd['children'], prefix=name))
-        else:
-            if value is not None:
-                if fd.get('type') == 'file':
-                    # Store the current Cascade path into the companion hidden
-                    # field so the FileField itself stays empty on pre-population.
-                    result[name + '_path'] = value
-                else:
-                    result[name] = value
-
-    return result
