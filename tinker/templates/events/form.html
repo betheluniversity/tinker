@@ -548,7 +548,7 @@ $(document).ready(function () {
     // and blocks submit if any required CKEditor field is empty.
     $('#eventform').on('submit', function (e) {
         try {
-            alert('CKEditor required validation handler running');
+            //alert('CKEditor required validation handler running');
             var invalid = [];
             var firstInvalidInstance = null;
             var debugLog = [];
@@ -590,10 +590,10 @@ $(document).ready(function () {
             if (debugLog.length) {
                 var msg = '[CKEditor required validation]\n' + debugLog.join('\n');
                 try { console.log(msg); } catch (e) {}
-                alert(msg);
+                //alert(msg);
             }
         } catch (err) {
-            alert('CKEditor required validation JS error: ' + err);
+            //alert('CKEditor required validation JS error: ' + err);
             throw err;
         }
     });

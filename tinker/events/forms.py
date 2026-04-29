@@ -58,8 +58,7 @@ def validate_numeric(form, field):
 # ---------------------------------------------------------------------------
 
 # Per-identifier extra config passed to _build_field / _fields_from_def.
-# Keys are bare identifiers (no group prefix).  This is the ONLY place
-# event-specific knowledge about individual fields lives.
+# This is the ONLY place event-specific knowledge about individual fields lives.
 _FIELD_EXTRA = {
     # Group built-in fields visually in the template as 'Event basics', and specify order
     'title': {'render_kw': {'group': 'event_basics', 'group_label': 'Event basics'}, 'order': 0, 'extra_validators': [length_checker]},
