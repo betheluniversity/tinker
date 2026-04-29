@@ -60,7 +60,7 @@
     {# Add show_class as a class to the wrapper div if present #}
     {% set show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
     <div class="{{ field.name }}_wrap{% if show_class %} {{ show_class }}_wrap{% endif %}">
-        {% if parent is none %}
+        {% if group is none %}
             <div class="card">
                 <div class="content">
                     <legend>{{ field.label.text }}</legend>
@@ -72,21 +72,21 @@
                     {% endif %}
         {% endif %}
         {% if field.type == "CKEditorTextAreaField" %}
-            {{ render_ckeditor(field, parent) }}
+            {{ render_ckeditor(field, group) }}
         {% elif field.type == "SelectField" %}
             {{ render_select(field, data) }}
         {% elif field.type == "SelectMultipleField" %}
-            {{ render_select_multiple(field, parent) }}
+            {{ render_select_multiple(field, group) }}
         {% elif field.type == "BooleanField" %}
             {{ render_checkbox(field, data) }}
         {% elif field.type == "RadioField" %}
-            {{ render_radio(field, parent) }}
+            {{ render_radio(field, group) }}
         {% elif field.type in ["DateField", "DateTimeField"] %}
             {{ render_datepicker(field, data) }}
         {% else %}
             {{ render_field(field, data) }}
         {% endif %}
-        {% if parent is none %}
+        {% if group is none %}
                 </div>
             </div>
         {% endif %}
@@ -127,8 +127,8 @@
 </select>
 {%- endmacro %}
 
-{% macro render_select_multiple(field, parent) -%}
-{% if parent is not none %}
+{% macro render_select_multiple(field, group) -%}
+{% if group is not none %}
     {{ render_label(field) }}
 {% endif %}
 {# Use field.data if exists, else field.default for selected values #}
@@ -147,15 +147,9 @@
 </select>
 {%- endmacro %}
 
-{% macro render_ckeditor(field, parent) -%}
-    {% if parent is not none %}
-        <legend>{{ field.label.text }}</legend>
-        {% if field.required %}
-        <small class="required">required</small>
-        {% endif %}
-        {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
-        {% endif %}
+{% macro render_ckeditor(field, group) -%}
+    {% if group is not none %}
+        {{ render_label(field) }}
     {% endif %}
     {% if field.flags.required %}
         {{ field(class="ckeditor", required=True) }}
@@ -189,8 +183,8 @@
 </label>
 {%- endmacro %}
 
-{% macro render_radio(field, parent) -%}
-{% if parent is not none %}
+{% macro render_radio(field, group) -%}
+{% if group is not none %}
     {{ render_label(field) }}
 {% endif %}
 {% set selected_value = field.data if field.data else field.default %}
@@ -225,7 +219,7 @@
         <small class="required">required</small>
         {% endif %}
         {% for f in field.fields %}
-            {{ render(f, data, parent=field) }}
+            {{ render(f, data, group=field) }}
         {% endfor %}
     </div>
 </div>
