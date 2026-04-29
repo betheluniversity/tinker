@@ -170,7 +170,6 @@
 {% macro render_checkbox(field) -%}
 {% set checked = field.data %}
 {% set field_onclick = 'checkboxClicked(this); ' ~ field.render_kw.get('onclick', '') %}
-<input type="hidden" name="{{ field.name }}" value="No" {{ 'disabled' if checked else '' }} />
 <label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox{{ ' checked' if checked else '' }}" onclick="{{ field_onclick }}">
     <span class="icons">
         <span class="first-icon fa fa-square-o"></span>
@@ -178,7 +177,7 @@
     </span>
     
     {{ field.label.text }}
-    <input name="{{ field.name }}" type="checkbox" value="Yes" {{ 'checked' if checked else '' }} />
+    <input name="{{ field.name }}" type="checkbox" {{ 'value="Yes"' if checked else 'value="No"' }} {{ 'checked' if checked else '' }} />
 </label>
 {%- endmacro %}
 
