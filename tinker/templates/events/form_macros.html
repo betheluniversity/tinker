@@ -55,7 +55,7 @@
     {{ render_heading(field) }}
 {% else %}
     <!-- <div>
-        DEBUG: Rendering field {{ field.name }} in group {{ group }} of type {{ field.type }} with label {{ field.label.text }} and data {{ data[field.name] if field.name in data else 'N/A' }}
+        DEBUG: Rendering field: {{ field.name }}, required {{ field.flags.required }}, in group {{ group }} of type {{ field.type }} with label {{ field.label.text }} and data {{ data[field.name] if field.name in data else 'N/A' }}
     </div> -->
     {# Add show_class as a class to the wrapper div if present #}
     {% set show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
@@ -63,10 +63,11 @@
         {% if group is none %}
             <div class="card">
                 <div class="content">
-                    <legend>{{ field.label.text }}</legend>
-                    {% if field.required %}
+                    <legend>{{ field.label.text }}
+                    {% if field.flags.required %}
                     <small class="required">required</small>
                     {% endif %}
+                    </legend>
                     {% if field.description %}
                         <small class="extra-required">{{ field.description }}</small>
                     {% endif %}
@@ -207,20 +208,5 @@
     {% if show_description and field.description %}
         <small class="extra-required">{{ field.description }}</small>
     {% endif %}
-</div>
-{%- endmacro %}
-
-{% macro create_card(field, data) -%}
-{% set data = data or {} %}
-<div class="card">
-    <div class="content">
-        <legend>{{ field.label.text }}</legend>
-        {% if field.required %}
-        <small class="required">required</small>
-        {% endif %}
-        {% for f in field.fields %}
-            {{ render(f, data, group=field) }}
-        {% endfor %}
-    </div>
 </div>
 {%- endmacro %}
