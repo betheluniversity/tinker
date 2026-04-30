@@ -1,4 +1,3 @@
-{# Macro to render all fields, grouping by group identifier and using group_label for legend #}
 {% macro render_form(form) -%}
     {{ form.hidden_tag() }}
     {% if form.errors %}
@@ -8,50 +7,51 @@
             </div>
         </div>
     {% endif %}
-    {% set rendered_groups = [] %}
-    {% for field in form %}
-        {% set groups = field.render_kw.groups if field.render_kw and 'groups' in field.render_kw else [] %}
-        {% set group_labels = field.render_kw.group_labels if field.render_kw and 'group_labels' in field.render_kw else [] %}
-        {% if groups %}
-            {% for group in groups %}
-                {% if group and group not in rendered_groups %}
-                    {% set group_label = group_labels[loop.index0] if group_labels else None %}
-                    {{ render_group(form, group, group_label) }}
-                    {% set _ = rendered_groups.append(group) %}
-                {% endif %}
-            {% endfor %}
-        {% else %}
-            {% for error in form.errors[field.name] %}
-                <div class="error-alert">
-                    <div data-alert class="red-alert">
-                        {{ error }}
-                    </div>
-                </div>
-            {% endfor %}
-            {{ render(field) }}
-        {% endif %}
-    {% endfor %}
+    {{ render_group_level(form, []) }}
 {%- endmacro %}
 
-{% macro render_group(form, group, group_label) -%}
-    <div class="card">
-        <div class="content">
-            <legend>{{ group_label or group|capitalize }}</legend>
-            {# Sort fields in this group by render_kw.order, defaulting to 999 #}
-            {% set group_fields = form|selectattr('render_kw.group', 'equalto', group)|list %}
-            {% set sorted_fields = group_fields|sort(attribute='render_kw.order') %}
-            {% for f in sorted_fields %}
-                {% for error in form.errors[f.name] %}
+{% macro render_group_level(form, group_path) -%}
+    {% set ns = namespace(rendered_subgroups=[]) %}
+    {% for field in form %}
+        {% set groups = field.render_kw.groups if field.render_kw and 'groups' in field.render_kw else [] %}
+        
+        {# Only process fields that start with the current group path #}
+        {% if groups[:group_path|length] == group_path %}
+            {% if groups|length == group_path|length %}
+                {# Leaf field at this level: render it now #}
+                {% for error in form.errors[field.name] %}
                     <div class="error-alert">
-                        <div data-alert class="red-alert">
-                            {{ error }}
-                        </div>
+                        <div data-alert class="red-alert">{{ error }}</div>
                     </div>
                 {% endfor %}
-                {{ render(f, group) }}
-            {% endfor %}
-        </div>
-    </div>
+                {{ render(field, group_path) }}
+            {% elif groups|length > group_path|length %}
+                {# Field belongs to a nested group: render the group card if not already done #}
+                {% set subgroup = groups[group_path|length] %}
+                {% if subgroup not in ns.rendered_subgroups %}
+                    {% set ns.rendered_subgroups = ns.rendered_subgroups + [subgroup] %}
+                    <div class="card">
+                        <div class="content">
+                            <legend>
+                                {% set label_ns = namespace(label=none) %}
+                                {% for f in form %}
+                                    {% set f_groups = f.render_kw.groups if f.render_kw and 'groups' in f.render_kw else [] %}
+                                    {% set f_labels = f.render_kw.group_labels if f.render_kw and 'group_labels' in f.render_kw else [] %}
+                                    {% if not label_ns.label 
+                                        and f_groups[:group_path|length + 1] == (group_path + [subgroup])
+                                        and f_labels|length > group_path|length %}
+                                        {% set label_ns.label = f_labels[group_path|length] %}
+                                    {% endif %}
+                                {% endfor %}
+                                {{ label_ns.label or subgroup|capitalize }}
+                            </legend>
+                            {{ render_group_level(form, group_path + [subgroup]) }}
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
 {%- endmacro %}
 
 {# Macros for event form rendering. #}
