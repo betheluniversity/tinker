@@ -277,45 +277,55 @@ def _fields_from_def(field_defs, prefix='', top_level=False,
     field_extra      -- see _build_field
     override_choices -- see _build_field
     """
+
     fe = field_extra or {}
     oc = override_choices or {}
     result = {}
 
+    def add_group_ancestry(field, parent_groups, parent_labels):
+        if hasattr(field, 'kwargs'):
+            rk = dict(field.kwargs.get('render_kw', {}))
+            # Immediate parent group/label (last in ancestry, if any)
+            rk['group'] = parent_groups[-1] if parent_groups else None
+            rk['group_label'] = parent_labels[-1] if parent_labels else None
+            rk['groups'] = parent_groups or []
+            rk['group_labels'] = parent_labels or []
+            field.kwargs['render_kw'] = rk
 
-    for fd in field_defs:
-        identifier = fd.get('identifier', '')
-        name = (prefix + '_' + identifier) if prefix else identifier
+    def _fields_from_def_inner(field_defs, prefix='', parent_groups=None, parent_labels=None):
+        res = {}
+        for fd in field_defs:
+            identifier = fd.get('identifier', '')
+            name = (prefix + '_' + identifier) if prefix else identifier
 
-        # import json as _json
-        # try:
-        #     current_app.logger.debug("Processing field_def: %s", _json.dumps(fd, default=str, indent=2))
-        # except Exception as e:
-        #     current_app.logger.debug(f"Processing field_def (repr fallback): {fd!r} (error: {e})")
+            if fd['type'] == 'group':
+                children = fd.get('children', [])
+                group_label = fd.get('label', identifier)
+                # Recursively pass down ancestry, including this group
+                new_parent_groups = (parent_groups or []) + [identifier]
+                new_parent_labels = (parent_labels or []) + [group_label]
+                child_fields = _fields_from_def_inner(
+                    children,
+                    prefix=name,
+                    parent_groups=new_parent_groups,
+                    parent_labels=new_parent_labels,
+                )
+                for child_name, field in child_fields.items():
+                    res[child_name] = field
+            else:
+                field = _build_field(fd, field_extra=fe, override_choices=oc)
+                if field is not None:
+                    # Set ancestry for leaf fields only
+                    add_group_ancestry(field, parent_groups, parent_labels)
+                    res[name] = field
+                    if fd.get('type') == 'file':
+                        existing_rk = dict(field.kwargs.get('render_kw', {}))
+                        path_rk = {k: v for k, v in existing_rk.items() if k != 'show_class'}
+                        res[name + '_path'] = HiddenField(
+                            fd['label'] + ' (path)', render_kw=path_rk)
+        return res
 
-        if fd['type'] == 'group':
-            # For group fields, recursively add all child fields as flat fields (do not create a field for the group itself)
-            children = fd.get('children', [])
-            child_fields = _fields_from_def(children, prefix=name, field_extra=fe, override_choices=oc)
-            # Add group identifier and label to render_kw for each child
-            group_label = fd.get('label', identifier)
-            for child_name, field in child_fields.items():
-                if hasattr(field, 'kwargs'):
-                    rk = dict(field.kwargs.get('render_kw', {}))
-                    rk['group'] = identifier
-                    rk['group_label'] = group_label
-                    field.kwargs['render_kw'] = rk
-                result[child_name] = field
-        else:
-            field = _build_field(fd, field_extra=fe, override_choices=oc)
-            if field is not None:
-                result[name] = field
-                if fd.get('type') == 'file':
-                    # Companion hidden field carries the current Cascade path on
-                    # edit pre-population (FileField itself cannot hold a string).
-                    existing_rk = dict(field.kwargs.get('render_kw', {}))
-                    path_rk = {k: v for k, v in existing_rk.items() if k != 'show_class'}
-                    result[name + '_path'] = HiddenField(
-                        fd['label'] + ' (path)', render_kw=path_rk)
+    result = _fields_from_def_inner(field_defs, prefix=prefix, parent_groups=[], parent_labels=[])
 
 
     # Always apply show_fields logic so all dropdowns with show-fields get onchange, even nested
