@@ -57,21 +57,44 @@
                                     {% endif %}
                                 {% endfor %}
                                 {{ label_ns.label or subgroup|capitalize }}
-                                {# If subgroup starts with [multiple] show a delete icon #}
+                                {# For [multiple] groups, hide delete icon on the first item in the series #}
                                 {% if subgroup.startswith('[multiple]') %}
-                                    <i class="fa fa-times fa-delete {{ card_class }}-delete" onclick="removeFieldset(this)"></i>
+                                    {% set prev_ns = namespace(has_previous_multiple=false, reached_current=false) %}
+                                    {% for rendered_subgroup in ns.rendered_subgroups %}
+                                        {% if not prev_ns.reached_current and rendered_subgroup == subgroup %}
+                                            {% set prev_ns.reached_current = true %}
+                                        {% elif not prev_ns.reached_current and rendered_subgroup.startswith('[multiple]') %}
+                                            {% set prev_ns.has_previous_multiple = true %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    {% if prev_ns.has_previous_multiple %}
+                                        <i class="fa fa-times fa-delete {{ card_class }}-delete" onclick="removeFieldset(this)"></i>
+                                    {% endif %}
                                 {% endif %}
                             </legend>
                             {{ render_group_level(form, group_path + [subgroup], depth + 1) }}
                         </div>
                     </div>
-                    {# If subgroup is defined and starts with [multiple], render an "Add Another" button #}
+                    {# For [multiple] groups, only show Add Another after the final subgroup in the series #}
                     {% if groups|length > group_path|length and subgroup.startswith('[multiple]') %}
-                    {% set button_label = (label_ns.label or subgroup|capitalize) %}
-                    {% if button_label.endswith(' 1') %}
-                        {% set button_label = button_label[:-2] %}
-                    {% endif %}
-                    <a href="javascript:void(0);" id="add_{{ card_class }}_button" class="btn btn-primary" onclick="addMultiple('{{ card_class }}')">Add Another {{ button_label }}</a><br /><br />
+                        {% set has_later_multiple = namespace(value=false) %}
+                        {% for f in form %}
+                            {% set f_groups = f.render_kw.groups if f.render_kw and 'groups' in f.render_kw else [] %}
+                            {% if f_groups[:group_path|length] == group_path and f_groups|length > group_path|length %}
+                                {% set candidate = f_groups[group_path|length] %}
+                                {% if candidate.startswith('[multiple]') and candidate not in ns.rendered_subgroups %}
+                                    {% set has_later_multiple.value = true %}
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        {% if not has_later_multiple.value %}
+                            {% set button_label = (label_ns.label or subgroup|capitalize) %}
+                            {% set label_parts = button_label.rsplit(' ', 1) %}
+                            {% if label_parts|length == 2 and label_parts[1].isdigit() %}
+                                {% set button_label = label_parts[0] %}
+                            {% endif %}
+                            <a href="javascript:void(0);" id="add_{{ card_class }}_button" class="btn btn-primary" onclick="addMultiple('{{ card_class }}')">Add Another {{ button_label }}</a><br /><br />
+                        {% endif %}
                     {% endif %}
                 {% endif %}
             {% endif %}
