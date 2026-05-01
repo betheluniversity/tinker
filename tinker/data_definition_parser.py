@@ -13,6 +13,7 @@ Typical usage::
     field_defs = get_field_definitions(app.config['MY_DATA_DEF_ID'])
     date_group = get_group_def(app.config['MY_DATA_DEF_ID'], 'date')
 """
+import json
 from xml.etree import ElementTree as ET
 
 from tinker import app, cache
@@ -238,7 +239,7 @@ def _parse_element(element):
 # Public API
 # ---------------------------------------------------------------------------
 
-def get_field_definitions(data_def_id):
+def get_field_definitions(data_def_id, multiples={}):
     """
     Return the full parsed data definition as a list of field-def dicts for
     the given *data_def_id*.  Returns an empty list if the definition is
@@ -248,11 +249,51 @@ def get_field_definitions(data_def_id):
         root = _fetch_data_def_xml_cached(data_def_id)
         if root is None:
             return []
-        return [
+        fields = [
             _parse_element(child)
             for child in root
             if child.tag in ('text', 'asset', 'group')
         ]
+        # Output fields as json
+        # app.logger.debug('get_field_definitions: parsed fields for id=%s: %s', data_def_id, json.dumps(fields))
+        
+        if multiples:
+            # example usage: multiples={'offer': 2} to request 2 sets of 'offer' group fields
+            # finds the group definition for each requested identifier with multiple="true" and duplicates its fields with indexed identifiers
+            def find_group_and_parent_children(defs, ident, parent_children_list_ref):
+                for idx, d in enumerate(defs):
+                    if d.get('identifier') == ident:
+                        return d, parent_children_list_ref, idx
+                    if d.get('type') == 'group':
+                        # Pass the current group's children list as the new parent_children_list_ref
+                        found, found_parent_children, found_idx = find_group_and_parent_children(d.get('children', []), ident, d.get('children', []))
+                        if found:
+                            return found, found_parent_children, found_idx
+                return None, None, None
+
+            for identifier, count in multiples.items():
+                # Initial call for top-level fields: parent_children_list_ref is the top-level 'fields' list
+                group_def, parent_children_list, group_idx = find_group_and_parent_children(fields, identifier, fields)
+
+                # Ensure the definition exists and is explicitly marked as a multiple group
+                if group_def and group_def.get('type') == 'group' and group_def.get('multiple'):
+                    if parent_children_list is not None and group_idx is not None:
+                        # Remove the original group
+                        parent_children_list.pop(group_idx)
+                        
+                        # Insert duplicated groups
+                        for i in range(1, count + 1):
+                            # Create a copy of the group definition and update its identifier and label
+                            duplicated_group = {
+                                **group_def,
+                                'identifier': f"[]{group_def['identifier']}_{i}",
+                                'label': f"{group_def['label']} {i}" # Update label for display in template
+                            }
+                            # The 'multiple' flag should be set to false for the duplicated groups
+                            # as they are now concrete instances, not templates for duplication.
+                            duplicated_group['multiple'] = False
+                            parent_children_list.insert(group_idx + i - 1, duplicated_group) # Insert at correct position
+        return fields
     except Exception:
         app.logger.exception(
             'data_definition_parser: failed to parse field definitions for id=%s',

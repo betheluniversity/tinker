@@ -85,7 +85,9 @@ class EventsView(FlaskView):
         # import this here so we dont load all the content from cascade during homepage load
         from tinker.events.forms import get_event_form
 
-        form = get_event_form()
+        #multiples={'offer': 2}
+        multiples = {}
+        form = get_event_form(multiples=multiples)
         new_form = True
         return render_template('events/form.html', **locals())
 
@@ -116,10 +118,22 @@ class EventsView(FlaskView):
     def submit(self):
         
         rform = request.form
+
+        # Build muptiples object by parsing field keys that contain []
+        # The key is the string between the [] and the _
+        # The value is the highest number found for that key. For example, if cost_[]offer_1 and cost_[]offer_2 are present, multiples will contain 'offer': 2
+        multiples = {}
+        for key in rform.keys():
+            if '[]' in key:
+                base_key = key.split('[]')[1].split('_')[0]
+                index = int(key.split('[]')[1].split('_')[1])
+                if base_key not in multiples or index > multiples[base_key]:
+                    multiples[base_key] = index
+
         eid = rform.get('event_id')
 
         username = session['username']
-        form, passed = self.base.validate_form()
+        form, passed = self.base.validate_form(multiples=multiples)
 
         if not passed:
             if 'event_id' in rform.keys():

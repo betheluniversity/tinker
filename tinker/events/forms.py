@@ -85,7 +85,7 @@ _FIELD_EXTRA = {
 # Form factory
 # ---------------------------------------------------------------------------
 
-def get_event_form():
+def get_event_form(multiples={}, cascade_data=None):
     """
     Build and return an EventForm, optionally pre-populated from raw Cascade
     structured data (the dict returned by get_edit_data).
@@ -97,7 +97,7 @@ def get_event_form():
                     metaDescription, category lists, etc.) that are NOT
                     identifiers in the data definition pass through unchanged.
     """
-    form = _build_event_form_class()()
+    form = _build_event_form_class(multiples=multiples)(**cascade_data if cascade_data else {})
 
     def _json_default(obj):
         from werkzeug.datastructures import FileStorage
@@ -117,7 +117,7 @@ def get_event_form():
 # contains the fixed Cascade metadata fields.
 # ---------------------------------------------------------------------------
 
-def _build_event_form_class():
+def _build_event_form_class(multiples={}):
     """
     Build and return the EventForm class with all data-definition fields
     injected alongside the fixed Cascade metadata fields.
@@ -132,7 +132,7 @@ def _build_event_form_class():
     # Pass event-specific field config and choice overrides to the generic helper.
     on_campus_locations = get_structured_data_labels(tinker, app.config.get('EVENTS_ON_CAMPUS_LOCATIONS_DD_ID', ''))
     dd_fields = _fields_from_def(
-        get_field_definitions(app.config.get('EVENTS_DATA_DEF_ID', '')),
+        get_field_definitions(app.config.get('EVENTS_DATA_DEF_ID', ''), multiples=multiples),
         field_extra=_FIELD_EXTRA,
         override_choices={'location': on_campus_locations},
     )

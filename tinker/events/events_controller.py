@@ -501,14 +501,14 @@ class EventsController(TinkerController):
         if changed:
             form._errors = None  # force re-computation on next access
 
-    def validate_form(self):
+    def validate_form(self, multiples={}):
         from tinker.events.forms import get_event_form
         # Do not pass rform as cascade_data — that path builds form_kwargs from the
         # lossy edit_data dict (rform[key] drops multi-select duplicates) and then
         # Flask-WTF re-injects request.form as formdata, causing object_data/data
         # mismatches for SelectMultipleField.  Calling with no args lets Flask-WTF
         # read request.form directly via getlist(), which is lossless.
-        form = get_event_form()
+        form = get_event_form(multiples=multiples)
 
         valid = form.validate_on_submit()
         if not valid:
