@@ -119,14 +119,15 @@ class EventsView(FlaskView):
         
         rform = request.form
 
-        # Build muptiples object by parsing field keys that contain []
-        # The key is the string between the [] and the _
-        # The value is the highest number found for that key. For example, if cost_[]offer_1 and cost_[]offer_2 are present, multiples will contain 'offer': 2
+        # Build muptiples object by parsing field keys that contain [multiple]
+        # The key is the string between the [multiple] and the _
+        # The value is the highest number found for that key. For example,
+        # if cost_[multiple]offer_1 and cost_[multiple]offer_2 are present, multiples will contain 'offer': 2
         multiples = {}
         for key in rform.keys():
-            if '[]' in key:
-                base_key = key.split('[]')[1].split('_')[0]
-                index = int(key.split('[]')[1].split('_')[1])
+            if '[multiple]' in key:
+                base_key = key.split('[multiple]')[1].split('_')[0]
+                index = int(key.split('[multiple]')[1].split('_')[1])
                 if base_key not in multiples or index > multiples[base_key]:
                     multiples[base_key] = index
 

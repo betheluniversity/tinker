@@ -286,7 +286,7 @@ def get_field_definitions(data_def_id, multiples={}):
                             # Create a copy of the group definition and update its identifier and label
                             duplicated_group = {
                                 **group_def,
-                                'identifier': f"[]{group_def['identifier']}_{i}",
+                                'identifier': f"[multiple]{group_def['identifier']}_{i}",
                                 'label': f"{group_def['label']} {i}" # Update label for display in template
                             }
                             # The 'multiple' flag should be set to false for the duplicated groups
