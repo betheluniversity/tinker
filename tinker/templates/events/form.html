@@ -18,13 +18,10 @@
                 <p>If you have any questions as you submit your event, please contact Conference and Event Services
                     at
                     651.638.6090.</p>
-                {% if new_form %}
                 <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
-                {% else %}
-                <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
-                <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
-                {% endif %}
-                {{ form_macros.render_form(form) }}
+                <div id="event-form-fields">
+                    {% include "events/form_fields.html" %}
+                </div>
                 <button type="submit" formmethod="post" id="event-submit-btn" class="btn btn-primary">Submit</button>
                 </form>
             </div>
@@ -247,29 +244,140 @@ function stripCostChars(input) {
     input.value = input.value.replace(/[$,]/g, '');
 }
 
-function getTopmostAncestorFieldset(el) {
-    var $el = $(el).closest('.fieldset').not('.fieldset_template');
-    var $parent = $el.parent().closest('.fieldset').not('.fieldset_template');
-    while ($parent.length) {
-        $el = $parent;
-        $parent = $el.parent().closest('.fieldset').not('.fieldset_template');
+function addMultiple(groupName, buttonEl) {
+    var $button = buttonEl ? $(buttonEl) : $();
+    var originalLabel = $button.length ? $button.text() : '';
+    var originalOpacity = $button.length ? $button.css('opacity') : '';
+    if ($button.length) {
+        $button
+            .attr('aria-disabled', 'true')
+            .css('pointer-events', 'none')
+            .css('opacity', '0.7')
+            .text('Adding...');
     }
-    return $el;
-}
 
-function removeFieldset(element) {
-    var $fieldset = $(element).closest('fieldset');
-    if ($fieldset.length) {
-        var $parent = $fieldset.parent().closest('.fieldset').not('.fieldset_template');
-        var fieldsetName = getFieldsetName($fieldset[0]);
-        $fieldset.remove();
-        if ($parent.length) {
-            var $topmost = getTopmostAncestorFieldset($parent[0]);
-            updateFieldsets(getFieldsetName($topmost[0]));
-        } else {
-            updateFieldsets(fieldsetName);
+    if (typeof CKEDITOR !== 'undefined') {
+        for (var instanceName in CKEDITOR.instances) {
+            if (Object.prototype.hasOwnProperty.call(CKEDITOR.instances, instanceName)) {
+                CKEDITOR.instances[instanceName].updateElement();
+            }
         }
     }
+
+    var payload = $('#eventform').serializeArray();
+    payload.push({ name: 'group_name', value: groupName });
+
+    $.ajax({
+        url: "{{ url_for('EventsView:add_multiple') }}",
+        method: 'POST',
+        data: payload,
+        success: function(response) {
+            if (!response || typeof response.html !== 'string') {
+                return;
+            }
+
+            if (typeof CKEDITOR !== 'undefined') {
+                for (var instanceName in CKEDITOR.instances) {
+                    if (Object.prototype.hasOwnProperty.call(CKEDITOR.instances, instanceName)) {
+                        CKEDITOR.instances[instanceName].destroy(true);
+                    }
+                }
+            }
+
+            $('#event-form-fields').html(response.html);
+            initializeDynamicFormUi();
+
+            if (typeof CKEDITOR !== 'undefined' && CKEDITOR.replaceAll) {
+                CKEDITOR.replaceAll('ckeditor');
+            }
+        },
+        error: function() {
+            console.error('Unable to add another item for group:', groupName);
+        },
+        complete: function() {
+            if ($button.length && document.body.contains($button[0])) {
+                $button
+                    .removeAttr('aria-disabled')
+                    .css('pointer-events', '')
+                    .css('opacity', originalOpacity)
+                    .text(originalLabel);
+            }
+        }
+    });
+}
+
+function removeMultiple(groupName, buttonEl) {
+    var $button = buttonEl ? $(buttonEl) : $();
+    var originalLabel = $button.length ? $button.text() : '';
+    var originalOpacity = $button.length ? $button.css('opacity') : '';
+    var originalClass = $button.length ? ($button.attr('class') || '') : '';
+
+    if ($button.length) {
+        $button
+            .attr('aria-disabled', 'true')
+            .css('pointer-events', 'none')
+            .css('opacity', '0.7');
+
+        if ($button.is('i')) {
+            $button.removeClass('fa-times').addClass('fa-spinner fa-spin');
+        } else {
+            $button.text('Removing...');
+        }
+    }
+
+    if (typeof CKEDITOR !== 'undefined') {
+        for (var instanceName in CKEDITOR.instances) {
+            if (Object.prototype.hasOwnProperty.call(CKEDITOR.instances, instanceName)) {
+                CKEDITOR.instances[instanceName].updateElement();
+            }
+        }
+    }
+
+    var payload = $('#eventform').serializeArray();
+    payload.push({ name: 'group_name', value: groupName });
+
+    $.ajax({
+        url: "{{ url_for('EventsView:remove_multiple') }}",
+        method: 'POST',
+        data: payload,
+        success: function(response) {
+            if (!response || typeof response.html !== 'string') {
+                return;
+            }
+
+            if (typeof CKEDITOR !== 'undefined') {
+                for (var instanceName in CKEDITOR.instances) {
+                    if (Object.prototype.hasOwnProperty.call(CKEDITOR.instances, instanceName)) {
+                        CKEDITOR.instances[instanceName].destroy(true);
+                    }
+                }
+            }
+
+            $('#event-form-fields').html(response.html);
+            initializeDynamicFormUi();
+
+            if (typeof CKEDITOR !== 'undefined' && CKEDITOR.replaceAll) {
+                CKEDITOR.replaceAll('ckeditor');
+            }
+        },
+        error: function() {
+            console.error('Unable to remove item for group:', groupName);
+        },
+        complete: function() {
+            if ($button.length && document.body.contains($button[0])) {
+                $button
+                    .removeAttr('aria-disabled')
+                    .css('pointer-events', '')
+                    .css('opacity', originalOpacity);
+
+                if ($button.is('i')) {
+                    $button.attr('class', originalClass);
+                } else {
+                    $button.text(originalLabel);
+                }
+            }
+        }
+    });
 }
 
 function updateFieldsets(name, scope, displayPrefix) {
@@ -340,6 +448,62 @@ function updateFieldsets(name, scope, displayPrefix) {
     });
 }
 
+function initializeDynamicFormUi() {
+    $("select[onchange*='selectChanged']").each(function() {
+        selectChanged(this);
+    });
+
+    $('label.checkbox').each(function () {
+        var onclickAction = $(this).attr('onclick');
+        if (onclickAction) {
+            var onclickStr = onclickAction.toString();
+
+            if ($(this).hasClass('checked')) {
+                var match = onclickStr.match(/toggleFieldsetField\(([^)]*)\)/);
+                if (match) {
+                    var args = match[1].split(',').map(function(arg) {
+                        arg = arg.trim();
+                        if (arg.startsWith("'") && arg.endsWith("'")) {
+                            return arg.slice(1, -1);
+                        } else if (arg.startsWith('"') && arg.endsWith('"')) {
+                            return arg.slice(1, -1);
+                        } else if (arg === "this") {
+                            return this;
+                        } else {
+                            return arg;
+                        }
+                    }.bind(this));
+                    toggleFieldsetField.apply(null, [...args, true]);
+                }
+            }
+        }
+    });
+
+    $('.datepicker').each(function () {
+        var el = this;
+        if (this._pikaday) {
+            this._pikaday.destroy();
+        }
+        this._pikaday = new Pikaday({
+            field: this,
+            format: 'MMMM Do YYYY, h:mm a',
+            showTime: true,
+            onSelect: function () {
+                syncDates(el);
+            }
+        });
+    });
+
+    $('.fieldset').not('.fieldset_template').filter(function () {
+        return $(this).parent().closest('.fieldset').not('.fieldset_template').length === 0;
+    }).each(function () {
+        var fieldsetName = getFieldsetName(this);
+        if (fieldsetName) {
+            updateFieldsets(fieldsetName);
+        }
+    });
+}
+
 // When "All-day event?" is checked, set both start and end times to midnight.
 function setAllDayTime(label) {
     // checkboxClicked hasn't toggled the class yet at onclick time, so
@@ -404,20 +568,6 @@ function syncDates(element) {
     }
 }
 
-function addDatePickers(element) {
-    $(element).find('.datepicker').each(function () {
-        var el = this;
-        this._pikaday = new Pikaday({
-            field: this,
-            format: 'MMMM Do YYYY, h:mm a',
-            showTime: true,
-            onSelect: function () {
-                syncDates(el);
-            }
-        });
-    });
-}
-
 function getFieldsetName(element) {
     var classAttr = $(element).attr('class');
     var classes = classAttr ? classAttr.split(/\s+/) : [];
@@ -435,132 +585,8 @@ function getFieldsetName(element) {
 // Global counter for unique CKEditor textarea IDs across all dynamically created fieldsets.
 var _ckIdCounter = 0;
 
-function duplicateFieldset(name, btn) {
-    var $parentScope = btn ? $(btn).closest('.fieldset').not('.fieldset_template') : null;
-    var $searchIn = $parentScope && $parentScope.length ? $parentScope : $(document);
-
-    var lastFieldset = $searchIn.find('.' + name + '_fieldset.fieldset').not('.fieldset_template').last();
-    if (lastFieldset.length === 0) {
-        // No live nested fieldsets yet in this scope — insert after the nested template within scope
-        var $templateInScope = $searchIn.find('.' + name + '_fieldset.fieldset_template').first();
-        if ($templateInScope.length) {
-            lastFieldset = $templateInScope;
-        } else {
-            lastFieldset = $('.' + name + '_fieldset.fieldset').not('.fieldset_template').last();
-        }
-    }
-    var id = parseInt(lastFieldset.attr('fieldset-id')) + 1;
-
-    var newFieldset = $searchIn.find('.' + name + '_fieldset.fieldset_template').first();
-    if (newFieldset.length === 0) {
-        newFieldset = $('#fieldset-templates .' + name + '_fieldset.fieldset_template').first();
-    }
-    newFieldset = newFieldset.clone();
-    newFieldset.attr('fieldset-id', id);
-    newFieldset.removeClass('fieldset_template');
-    newFieldset.addClass('fieldset');
-
-    // Strip cloned CKEditor wrappers (but not inside nested templates) and
-    // restore the underlying textareas so fresh instances can be initialized.
-    newFieldset.find('.cke').filter(function () {
-        return $(this).closest('.fieldset_template').length === 0;
-    }).remove();
-    newFieldset.find('textarea.ckeditor').filter(function () {
-        return $(this).closest('.fieldset_template').length === 0;
-    }).each(function () {
-        var $ta = $(this);
-        $ta.show();
-        // Strip any existing numeric suffix then append a globally unique counter
-        // so IDs never collide across different parent fieldset groups.
-        var baseId = $ta.attr('id').replace(/_ck\d+$/, '').replace(/_\d+$/, '');
-        $ta.attr('id', baseId + '_ck' + (++_ckIdCounter));
-    });
-
-    addDatePickers(newFieldset);
-    newFieldset.insertAfter(lastFieldset);
-
-    // Auto-initialize any nested multiple fieldsets with their first live card.
-    // Must happen before CKEditor init so the auto-init can clone clean templates.
-    var newFieldsetEl = newFieldset[0];
-    newFieldset.find('[data-fieldset-name]').filter(function () {
-        return $(this).closest('.fieldset').not('.fieldset_template')[0] === newFieldsetEl;
-    }).each(function () {
-        duplicateFieldset($(this).data('fieldset-name'), this);
-    });
-
-    // Initialize CKEditor on any non-template textareas in the new fieldset
-    newFieldset.find('textarea.ckeditor').filter(function () {
-        return $(this).closest('.fieldset_template').length === 0;
-    }).each(function () {
-        CKEDITOR.replace(this.id);
-    });
-
-    // Renumber from topmost ancestor for correct hierarchical display numbers
-    if ($parentScope && $parentScope.length) {
-        var $topmost = getTopmostAncestorFieldset($parentScope[0]);
-        updateFieldsets(getFieldsetName($topmost[0]));
-    } else {
-        updateFieldsets(name);
-    }
-}
-
 $(document).ready(function () {
-
-    // On page load, trigger selectChanged for all selects with onchange=selectChanged(this)
-    $("select[onchange*='selectChanged']").each(function() {
-        selectChanged(this);
-    });
-
-    // Run toggleFieldsetField for each checkbox label with the onclick action
-    $('label.checkbox').each(function () {
-        var onclickAction = $(this).attr('onclick');
-        if (onclickAction) {
-            var onclickStr = onclickAction.toString();
-
-            if ($(this).hasClass('checked')) {
-                var match = onclickStr.match(/toggleFieldsetField\(([^)]*)\)/);
-                if (match) {
-                    // Evaluate the arguments safely
-                    var args = match[1].split(',').map(function(arg) {
-                        arg = arg.trim();
-                        if (arg.startsWith("'") && arg.endsWith("'")) {
-                            return arg.slice(1, -1);
-                        } else if (arg.startsWith('"') && arg.endsWith('"')) {
-                            return arg.slice(1, -1);
-                        } else if (arg === "this") {
-                            return this;
-                        } else {
-                            return arg;
-                        }
-                    }.bind(this));
-                    toggleFieldsetField.apply(null, [...args, true]);
-                }
-            }
-        }
-    });
-
-    // Create datepicker for date fields
-    $('.datepicker').each(function () {
-        var el = this;
-        this._pikaday = new Pikaday({
-            field: this,
-            format: 'MMMM Do YYYY, h:mm a',
-            showTime: true,
-            onSelect: function () {
-                syncDates(el);
-            }
-        });
-    });
-
-    // Update top-level fieldsets only; recursive calls handle nested ones
-    $('.fieldset').not('.fieldset_template').filter(function () {
-        return $(this).parent().closest('.fieldset').not('.fieldset_template').length === 0;
-    }).each(function () {
-        var fieldsetName = getFieldsetName(this);
-        if (fieldsetName) {
-            updateFieldsets(fieldsetName);
-        }
-    });
+    initializeDynamicFormUi();
 
 
 

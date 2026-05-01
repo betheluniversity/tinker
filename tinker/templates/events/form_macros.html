@@ -57,18 +57,20 @@
                                     {% endif %}
                                 {% endfor %}
                                 {{ label_ns.label or subgroup|capitalize }}
-                                {# For [multiple] groups, hide delete icon on the first item in the series #}
+                                {# For [multiple] groups, show delete icon when series has more than one item #}
                                 {% if subgroup.startswith('[multiple]') %}
-                                    {% set prev_ns = namespace(has_previous_multiple=false, reached_current=false) %}
-                                    {% for rendered_subgroup in ns.rendered_subgroups %}
-                                        {% if not prev_ns.reached_current and rendered_subgroup == subgroup %}
-                                            {% set prev_ns.reached_current = true %}
-                                        {% elif not prev_ns.reached_current and rendered_subgroup.startswith('[multiple]') %}
-                                            {% set prev_ns.has_previous_multiple = true %}
+                                    {% set series_ns = namespace(items=[]) %}
+                                    {% for f in form %}
+                                        {% set f_groups = f.render_kw.groups if f.render_kw and 'groups' in f.render_kw else [] %}
+                                        {% if f_groups[:group_path|length] == group_path and f_groups|length > group_path|length %}
+                                            {% set candidate = f_groups[group_path|length] %}
+                                            {% if candidate.startswith('[multiple]') and candidate not in series_ns.items %}
+                                                {% set series_ns.items = series_ns.items + [candidate] %}
+                                            {% endif %}
                                         {% endif %}
                                     {% endfor %}
-                                    {% if prev_ns.has_previous_multiple %}
-                                        <i class="fa fa-times fa-delete {{ card_class }}-delete" onclick="removeFieldset(this)"></i>
+                                    {% if series_ns.items|length > 1 %}
+                                        <i class="fa fa-times fa-delete {{ card_class }}-delete" onclick="removeMultiple('{{ subgroup }}', this)"></i>
                                     {% endif %}
                                 {% endif %}
                             </legend>
@@ -93,7 +95,7 @@
                             {% if label_parts|length == 2 and label_parts[1].isdigit() %}
                                 {% set button_label = label_parts[0] %}
                             {% endif %}
-                            <a href="javascript:void(0);" id="add_{{ card_class }}_button" class="btn btn-primary" onclick="addMultiple('{{ card_class }}')">Add Another {{ button_label }}</a><br /><br />
+                            <a href="javascript:void(0);" id="add_{{ card_class }}_button" class="btn btn-primary" onclick="addMultiple('{{ card_class }}', this)">Add Another {{ button_label }}</a><br /><br />
                         {% endif %}
                     {% endif %}
                 {% endif %}

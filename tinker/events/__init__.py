@@ -1,13 +1,15 @@
 # Global
 import datetime
 import json
+import re
 import time
 
 # Packages
 from bu_cascade.asset_tools import update, convert_asset
-from flask import redirect, session, render_template, request, url_for
+from flask import redirect, session, render_template, request, url_for, jsonify
 from flask_classy import FlaskView, route
 from collections import OrderedDict
+from werkzeug.datastructures import MultiDict
 
 # Local
 from tinker.events.events_metadata import metadata_list
@@ -56,6 +58,51 @@ class EventsView(FlaskView):
     def event_in_workflow(self):
         return render_template('events/in-workflow.html')
 
+    def _build_multiples_from_form(self, rform):
+        multiples = {}
+        for key in rform.keys():
+            match = re.search(r'\[multiple\]([^_]+)_(\d+)', key)
+            if not match:
+                continue
+            base_key = match.group(1)
+            index = int(match.group(2))
+            if base_key not in multiples or index > multiples[base_key]:
+                multiples[base_key] = index
+        return multiples
+
+    def _remove_multiple_from_form(self, rform, group_name):
+        match = re.search(r'\[multiple\]([^_]+)_(\d+)', group_name or '')
+        if not match:
+            return MultiDict(rform)
+
+        base_key = match.group(1)
+        remove_index = int(match.group(2))
+        key_pattern = re.compile(r'(\[multiple\]' + re.escape(base_key) + r'_)(\d+)')
+
+        updated_form = MultiDict()
+        for key in rform.keys():
+            values = rform.getlist(key)
+            should_skip = False
+
+            def _reindex(matched):
+                nonlocal should_skip
+                idx = int(matched.group(2))
+                if idx == remove_index:
+                    should_skip = True
+                    return matched.group(0)
+                if idx > remove_index:
+                    return matched.group(1) + str(idx - 1)
+                return matched.group(0)
+
+            new_key = key_pattern.sub(_reindex, key)
+            if should_skip:
+                continue
+
+            for value in values:
+                updated_form.add(new_key, value)
+
+        return updated_form
+
     # CANT CACHE THIS
     def add(self):
 
@@ -85,11 +132,8 @@ class EventsView(FlaskView):
         # import this here so we dont load all the content from cascade during homepage load
         from tinker.events.forms import get_event_form
 
-        #multiples={'offer': 2}
-        multiples = {}
-        form = get_event_form(multiples=multiples)
-        new_form = True
-        return render_template('events/form.html', **locals())
+        form = get_event_form()
+        return render_template('events/form.html', form=form, new_form=True)
 
     def edit(self, event_id):
         # if the event is in a workflow currently, don't allow them to edit. Instead, redirect them.
@@ -114,6 +158,40 @@ class EventsView(FlaskView):
 
         return render_template('events/form.html', **locals())
 
+    @route("/api/add-multiple", methods=['POST'])
+    def add_multiple(self):
+        from tinker.events.forms import get_event_form
+
+        rform = request.form
+        multiples = self._build_multiples_from_form(rform)
+
+        group_name = rform.get('group_name', '')
+        group_match = re.search(r'\[multiple\]([^_]+)', group_name)
+        if group_match:
+            base_key = group_match.group(1)
+            multiples[base_key] = multiples.get(base_key, 1) + 1
+
+        form = get_event_form(multiples=multiples)
+        form.process(formdata=rform)
+
+        event_id = rform.get('event_id')
+        html = render_template('events/form_fields.html', form=form, event_id=event_id)
+        return jsonify({'html': html})
+
+    @route("/api/remove-multiple", methods=['POST'])
+    def remove_multiple(self):
+        from tinker.events.forms import get_event_form
+
+        rform = self._remove_multiple_from_form(request.form, request.form.get('group_name', ''))
+        multiples = self._build_multiples_from_form(rform)
+
+        form = get_event_form(multiples=multiples)
+        form.process(formdata=rform)
+
+        event_id = rform.get('event_id')
+        html = render_template('events/form_fields.html', form=form, event_id=event_id)
+        return jsonify({'html': html})
+
     @route("/submit", methods=['post'])
     def submit(self):
         
@@ -123,13 +201,7 @@ class EventsView(FlaskView):
         # The key is the string between the [multiple] and the _
         # The value is the highest number found for that key. For example,
         # if cost_[multiple]offer_1 and cost_[multiple]offer_2 are present, multiples will contain 'offer': 2
-        multiples = {}
-        for key in rform.keys():
-            if '[multiple]' in key:
-                base_key = key.split('[multiple]')[1].split('_')[0]
-                index = int(key.split('[multiple]')[1].split('_')[1])
-                if base_key not in multiples or index > multiples[base_key]:
-                    multiples[base_key] = index
+        multiples = self._build_multiples_from_form(rform)
 
         eid = rform.get('event_id')
 
