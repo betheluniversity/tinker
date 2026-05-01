@@ -7,30 +7,42 @@
             </div>
         </div>
     {% endif %}
-    {{ render_group_level(form, []) }}
+    {{ render_group_level(form, [], 1) }}
 {%- endmacro %}
 
-{% macro render_group_level(form, group_path) -%}
+{% macro render_group_level(form, group_path, depth) -%}
     {% set ns = namespace(rendered_subgroups=[]) %}
-    {% for field in form %}
+    {% for field in form|sort(attribute='render_kw.order') %}
         {% set groups = field.render_kw.groups if field.render_kw and 'groups' in field.render_kw else [] %}
-        
         {# Only process fields that start with the current group path #}
         {% if groups[:group_path|length] == group_path %}
+            {# Add show_class as a class to the wrapper div if present #}
+            {% set show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
+            <div class="{{ field.name }}_wrap{% if show_class %} {{ show_class }}_wrap{% endif %}">
             {% if groups|length == group_path|length %}
-                {# Leaf field at this level: render it now #}
-                {% for error in form.errors[field.name] %}
-                    <div class="error-alert">
-                        <div data-alert class="red-alert">{{ error }}</div>
-                    </div>
-                {% endfor %}
+                {% if depth == 1 %}
+                    <div class="card">
+                        <div class="content">
+                            <legend>{{ field.label.text }}
+                            {% if field.flags.required %}
+                            <small class="required">required</small>
+                            {% endif %}
+                            </legend>
+                            {% if field.description %}
+                                <small class="extra-required">{{ field.description }}</small>
+                            {% endif %}
+                {% endif %}
                 {{ render(field, group_path) }}
+                {% if depth == 1 %}
+                        </div>
+                    </div>
+                {% endif %}
             {% elif groups|length > group_path|length %}
                 {# Field belongs to a nested group: render the group card if not already done #}
                 {% set subgroup = groups[group_path|length] %}
                 {% if subgroup not in ns.rendered_subgroups %}
                     {% set ns.rendered_subgroups = ns.rendered_subgroups + [subgroup] %}
-                    <div class="card">
+                    <div class="card card-depth-{{ depth }}">
                         <div class="content">
                             <legend>
                                 {% set label_ns = namespace(label=none) %}
@@ -45,17 +57,18 @@
                                 {% endfor %}
                                 {{ label_ns.label or subgroup|capitalize }}
                             </legend>
-                            {{ render_group_level(form, group_path + [subgroup]) }}
+                            {{ render_group_level(form, group_path + [subgroup], depth + 1) }}
                         </div>
                     </div>
                 {% endif %}
             {% endif %}
+            </div>
         {% endif %}
     {% endfor %}
 {%- endmacro %}
 
-{# Macros for event form rendering. #}
-{% macro render(field, group=None) -%}
+{# Macros for field rendering. #}
+{% macro render(field, group) -%}
 {% if field.type == "HiddenField" %}
     {{ field }}
 {% elif field is string %}
@@ -66,41 +79,37 @@
     <!-- <div>
         DEBUG: Rendering field: {{ field.name }}, required {{ field.flags.required }}, in group {{ group }} of type {{ field.type }} with label {{ field.label.text }} and data {{ data[field.name] if field.name in data else 'N/A' }}
     </div> -->
-    {# Add show_class as a class to the wrapper div if present #}
-    {% set show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
-    <div class="{{ field.name }}_wrap{% if show_class %} {{ show_class }}_wrap{% endif %}">
-        {% if group is none %}
-            <div class="card">
-                <div class="content">
-                    <legend>{{ field.label.text }}
-                    {% if field.flags.required %}
-                    <small class="required">required</small>
-                    {% endif %}
-                    </legend>
-                    {% if field.description %}
-                        <small class="extra-required">{{ field.description }}</small>
-                    {% endif %}
-        {% endif %}
-        {% if field.type == "CKEditorTextAreaField" %}
-            {{ render_ckeditor(field, group) }}
-        {% elif field.type == "SelectField" %}
-            {{ render_select(field) }}
-        {% elif field.type == "SelectMultipleField" %}
-            {{ render_select_multiple(field, group) }}
-        {% elif field.type == "BooleanField" %}
-            {{ render_checkbox(field) }}
-        {% elif field.type == "RadioField" %}
-            {{ render_radio(field, group) }}
-        {% elif field.type in ["DateField", "DateTimeField"] %}
-            {{ render_datepicker(field) }}
-        {% else %}
-            {{ render_field(field) }}
-        {% endif %}
-        {% if group is none %}
-                </div>
+    {% if group is none %}
+        <div class="card">
+            <div class="content">
+                <legend>{{ field.label.text }}
+                {% if field.flags.required %}
+                <small class="required">required</small>
+                {% endif %}
+                </legend>
+                {% if field.description %}
+                    <small class="extra-required">{{ field.description }}</small>
+                {% endif %}
+    {% endif %}
+    {% if field.type == "CKEditorTextAreaField" %}
+        {{ render_ckeditor(field, group) }}
+    {% elif field.type == "SelectField" %}
+        {{ render_select(field) }}
+    {% elif field.type == "SelectMultipleField" %}
+        {{ render_select_multiple(field, group) }}
+    {% elif field.type == "BooleanField" %}
+        {{ render_checkbox(field) }}
+    {% elif field.type == "RadioField" %}
+        {{ render_radio(field, group) }}
+    {% elif field.type in ["DateField", "DateTimeField"] %}
+        {{ render_datepicker(field) }}
+    {% else %}
+        {{ render_field(field) }}
+    {% endif %}
+    {% if group is none %}
             </div>
-        {% endif %}
-    </div>
+        </div>
+    {% endif %}
 {% endif %}
 {%- endmacro %}
 
@@ -136,7 +145,7 @@
 {%- endmacro %}
 
 {% macro render_select_multiple(field, group) -%}
-{% if group is not none %}
+{% if group|length > 0 %}
     {{ render_label(field) }}
 {% endif %}
 {# Use field.data if exists, else field.default for selected values #}
@@ -156,7 +165,7 @@
 {%- endmacro %}
 
 {% macro render_ckeditor(field, group) -%}
-    {% if group is not none %}
+    {% if group|length > 0 %}
         {{ render_label(field) }}
     {% endif %}
     {% if field.flags.required %}
@@ -191,7 +200,7 @@
 {%- endmacro %}
 
 {% macro render_radio(field, group) -%}
-{% if group is not none %}
+{% if group|length > 0 %}
     {{ render_label(field) }}
 {% endif %}
 {% set selected_value = field.data if field.data else field.default %}

@@ -60,9 +60,10 @@ def validate_numeric(form, field):
 # Per-identifier extra config passed to _build_field / _fields_from_def.
 # This is the ONLY place event-specific knowledge about individual fields lives.
 _FIELD_EXTRA = {
-    # Group built-in fields visually in the template as 'Event basics', and specify order
-    'title': {'render_kw': {'group': 'event_basics', 'group_label': 'Event basics'}, 'order': 0, 'extra_validators': [length_checker]},
-    'teaser': {'render_kw': {'group': 'event_basics', 'group_label': 'Event basics'}, 'order': 1},
+    # Group built-in fields visually in the template as 'Event basics', and specify order.
+    # We use lists for 'groups' and 'group_labels' to support the recursive card rendering logic.
+    'title': {'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']}, 'order': 0, 'extra_validators': [length_checker]},
+    'teaser': {'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']}, 'order': 1},
     # Date sync — keeps eventEnd >= eventStart
     'eventStart':      {'render_kw': {'onchange': 'syncDates(this)'}},
     'eventEnd':        {'render_kw': {'onchange': 'syncDates(this)'}},
@@ -125,21 +126,6 @@ def _build_event_form_class():
     all_fields = {}
     built_in_fields, _raw_custom_fields = get_metadata_fields(tinker, '/Event-v4')
 
-    # Apply _FIELD_EXTRA to built_in_fields (render_kw, extra_validators, and order)
-    for name, field in built_in_fields.items():
-        extra = _FIELD_EXTRA.get(name, {})
-        # Merge render_kw
-        rk = dict(field.kwargs.get('render_kw', {}))
-        if 'render_kw' in extra:
-            rk.update(extra['render_kw'])
-        # Add order to render_kw if present in _FIELD_EXTRA
-        if 'order' in extra:
-            rk['order'] = extra['order']
-        field.kwargs['render_kw'] = rk
-        # Add extra_validators
-        if 'extra_validators' in extra:
-            field.kwargs.setdefault('validators', []).extend(extra['extra_validators'])
-
     all_fields.update(built_in_fields)
 
     # Walk the full data definition tree
@@ -167,6 +153,23 @@ def _build_event_form_class():
     # Finally, build custom fields from the metadata set
     custom_fields = build_metadata_custom_fields(_raw_custom_fields)
     all_fields.update(custom_fields)
+
+    # Apply _FIELD_EXTRA and ensure 'order' exists for all fields to support template sorting.
+    for name, field in all_fields.items():
+        extra = _FIELD_EXTRA.get(name, {})
+        rk = dict(field.kwargs.get('render_kw', {}) or {})
+
+        if 'render_kw' in extra:
+            rk.update(extra['render_kw'])
+
+        # Ensure 'order' is always present in render_kw for the Jinja sort filter.
+        # Priority: _FIELD_EXTRA['order'] > existing field.render_kw['order'] > default 999.
+        rk['order'] = extra.get('order', rk.get('order', 999))
+        field.kwargs['render_kw'] = rk
+
+        # Add extra_validators
+        if 'extra_validators' in extra:
+            field.kwargs.setdefault('validators', []).extend(extra['extra_validators'])
 
     # Build the class dynamically so WTForms metaclass processes all fields
     return type('EventForm', (FlaskForm,), all_fields)
