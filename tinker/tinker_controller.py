@@ -420,77 +420,57 @@ class TinkerController(object):
                 else:
                     return ''
 
-    def get_add_data(self, lists, form):
-        # A dict to populate with all the interesting data.
-        add_data = {}
+    def get_add_data(self, data):
 
-        for key in form.keys():
-            if key in lists:
-                add_data[key] = form.getlist(key)
-            elif key.endswith('[]'):
-                # This is a fieldset, so we need to get the data from it
-                name_list = key.split('::')
-                fieldset_name = name_list[0].replace('_fieldset', '')
-                if fieldset_name not in add_data:
-                    add_data[fieldset_name] = []
-
-                fieldset_key = name_list[1].replace('[]', '')
-                fieldset_list = form.getlist(key)
-                for idx, value in enumerate(fieldset_list):
-                    if len(add_data[fieldset_name]) <= idx:
-                        add_data[fieldset_name].append({})
-                    add_data[fieldset_name][idx][fieldset_key] = value
-            else:
-                add_data[key] = form[key]
-
-        if 'title' in add_data:
+        if 'title' in data:
             # strip() is called on the title to eliminate whitespace before and after the title
-            title = add_data['title'].strip()
-        elif 'first' in add_data and 'last' in add_data:
+            title = data['title'].strip()
+        elif 'first' in data and 'last' in data:
             # strip() is called on the title to eliminate whitespace before and after the title
-            title = add_data['first'].strip() + ' ' + add_data['last'].strip()
+            title = data['first'].strip() + ' ' + data['last'].strip()
         else:
             title = None
 
         if title:
-            add_data['title'] = title
+            data['title'] = title
             # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
             system_name = title.lower().replace(' ', '-')
             system_name = unidecode(system_name)
-            add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
-            add_data['name'] = add_data['system_name']
+            data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+            data['name'] = data['system_name']
 
         # add author
-        add_data['author'] = session['username']
+        data['author'] = session['username']
 
-        new_data = {}
-        # Convert all keys to use hyphens instead of underscores
-        # This is because Cascade uses hyphens in the XML, but the form uses underscores
-        for key in add_data:
-            try:
-                if isinstance(add_data[key], list):
-                    # Handle list of dicts
-                    new_data[key.replace('_', '-')] = []
-                    for item in add_data[key]:
-                        if isinstance(item, dict):
-                            new_item = {}
-                            for k, v in item.items():
-                                new_item[k.replace('_', '-')] = v
-                            new_data[key.replace('_', '-')].append(new_item)
-                        else:
-                            new_data[key.replace('_', '-')].append(item)
-                elif isinstance(add_data[key], dict):
-                    # Handle nested dict
-                    new_item = {}
-                    for k, v in add_data[key].items():
-                        new_item[k.replace('_', '-')] = v
-                    new_data[key.replace('_', '-')] = new_item
-                else:
-                    new_data[key.replace('_', '-')] = add_data[key]
-            except:
-                pass
+        # new_data = {}
+        # # Convert all keys to use hyphens instead of underscores
+        # # This is because Cascade uses hyphens in the XML, but the form uses underscores
+        # for key in data:
+        #     try:
+        #         if isinstance(data[key], list):
+        #             # Handle list of dicts
+        #             new_data[key.replace('_', '-')] = []
+        #             for item in data[key]:
+        #                 if isinstance(item, dict):
+        #                     new_item = {}
+        #                     for k, v in item.items():
+        #                         new_item[k.replace('_', '-')] = v
+        #                     new_data[key.replace('_', '-')].append(new_item)
+        #                 else:
+        #                     new_data[key.replace('_', '-')].append(item)
+        #         elif isinstance(data[key], dict):
+        #             # Handle nested dict
+        #             new_item = {}
+        #             for k, v in data[key].items():
+        #                 new_item[k.replace('_', '-')] = v
+        #             new_data[key.replace('_', '-')] = new_item
+        #         else:
+        #             new_data[key.replace('_', '-')] = data[key]
+        #     except:
+        #         pass
 
-        return new_data
+        # return new_data
+        return data
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)

@@ -193,31 +193,23 @@ class EventsView(FlaskView):
 
     @route("/submit", methods=['post'])
     def submit(self):
-        
+
         rform = request.form
-
-        dates = self.base.get_event_dates(rform)
-
-        # Build muptiples object by parsing field keys that contain [multiple]
-        # The key is the string between the [multiple] and the _
-        # The value is the highest number found for that key. For example,
-        # if cost_[multiple]offer_1 and cost_[multiple]offer_2 are present, multiples will contain 'offer': 2
-        multiples = self._build_multiples_from_form(rform)
-
         eid = rform.get('event_id')
 
-        username = session['username']
-        form, passed = self.base.validate_form(rform, multiples=multiples)
+        multiples = self._build_multiples_from_form(rform)
+        form, passed = self.base.validate_form(multiples=multiples)
 
         if not passed:
-            if 'event_id' in rform.keys():
-                event_id = rform['event_id']
+            if eid:
+                form.data['event_id'] = eid
+                event_id = eid
             else:
                 new_form = True
 
             return render_template('events/form.html', **locals())
 
-        add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates)
+        add_data, asset, eid = self.base.submit_new_or_edit(form)
 
         # todo: Test this
         if 'link' in add_data and add_data['link']:

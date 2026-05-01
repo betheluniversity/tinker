@@ -330,45 +330,47 @@ class EventsController(TinkerController):
         self.publish(image_path, 'file')
         return image_path
 
-    def submit_new_or_edit(self, rform, username, eid, dates):
+    def submit_new_or_edit(self, rform):
+
+        data = rform.data
+        eid = data.get('event_id')
+
         # Changes the dates to a timestamp, needs to occur after a failure is detected or not
-        add_data = self.get_add_data(metadata_list, rform)
+        add_data = self.get_add_data(data)
 
         # Handle featured visual image upload.
         # create_event_image returns the Cascade path on success, or None if no
         # file was uploaded.  Fall back to the hidden "current path" field so
         # existing images are preserved on edits.
-        image_path = self.create_event_image(add_data)
-        if not image_path:
-            image_path = add_data.get('featuredVisual-image-path', '')
-        add_data['featuredVisual-image'] = image_path or ''
-
-        # Process dates first (change_dates uses the pre-mapping keys)
-        add_data['event-dates'] = self.change_dates(add_data['event-dates']) if 'event-dates' in add_data else []
+        # image_path = self.create_event_image(add_data)
+        # if not image_path:
+        #     image_path = add_data.get('featuredVisual-image-path', '')
+        # add_data['featuredVisual-image'] = image_path or ''
 
         # Translate form keys to Cascade v4 data definition identifiers
         self._apply_v4_cascade_mapping(add_data)
+        dates = self.get_event_dates(data)
+        add_data['event-dates'] = self.change_dates(dates)
 
-        if not eid:
-            asset = self.update_structure(add_data, username)
-
-            workflow = self.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + rform['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
-            self.add_workflow_to_asset(workflow, asset)
-            
-            resp = self.create_page(asset)
-            eid = resp.asset['page']['id']
-            self.log_sentry("New event submission", "createdAssetId = " + eid)
-        else:
-            asset = self.update_structure(add_data, username, event_id=eid)
+        username = session['username']
+        #workflow = self.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + data['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
+        workflow = None
+        if eid:
+            asset = self.update_structure(add_data, username, workflow=workflow, event_id=eid)
 
             self.check_new_year_folder(eid, add_data, username)
             proxy_page = self.read_page(eid)
             resp = proxy_page.edit_asset(asset)
             self.log_sentry("Event edit submission", resp)
+        else:
+            asset = self.update_structure(add_data, username, workflow=workflow)
+            resp = self.create_page(asset)
+            eid = resp.asset['page']['id']
+            self.log_sentry("New event submission", "createdAssetId = " + eid)
 
         self.cascade_call_logger(locals())
         return add_data, asset, eid
-
+    
     def get_event_dates(self, form):
         new_date = {}
         for key, value in form.items():
@@ -399,50 +401,34 @@ class EventsController(TinkerController):
         return json.dumps(event_dates), dates_good
 
     def change_dates(self, event_dates):
-        for i in range(len(event_dates)):
-            # Get rid of the fancy formatting so we just have normal numbers
-            start = event_dates[i]['start-date'].split(' ')
-            start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
+        new_dates = []
+        for date in event_dates:
+            new_date = {}
+            for key in date:
+                if 'start' in key.lower() and date[key]:
+                    start = date[key].split(' ')
+                    start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
+                    new_start = " ".join(start)
+                elif 'end' in key.lower() and date[key]:
+                    end = date[key].split(' ')
+                    end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
+                    new_end = " ".join(end)
 
-            if event_dates[i]['end-date']:
-                end = event_dates[i]['end-date'].split(' ')
-                end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
-            else:
-                event_dates[i]['end-date'] = None
-
-            start = " ".join(start)
-            end = " ".join(end)
-
-            event_dates[i]['start-date'] = start
-            event_dates[i]['end-date'] = end
-
-            # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
-            # which use milliseconds instead of seconds
-            try:
-                event_dates[i]['start-date'] = self.date_str_to_timestamp(event_dates[i]['start-date'])
-            except ValueError as e:
-                app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
-                event_dates[i]['start-date'] = None
-
-            if event_dates[i]['end-date']:
+            if new_start:
                 try:
-                    event_dates[i]['end-date'] = self.date_str_to_timestamp(event_dates[i]['end-date'])
+                    new_date['start-date'] = self.date_str_to_timestamp(new_start)
+                except ValueError as e:
+                    app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
+                    new_date['start-date'] = None
+            if new_end:
+                try:
+                    new_date['end-date'] = self.date_str_to_timestamp(new_end)
                 except ValueError as e:
                     app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
-                    event_dates[i]['end-date'] = None
-
-            # As long as the value for these checkboxes are NOT '' or 'False'
-            # the value in event_dates will be set to 'Yes'
-            # if event_dates[i].get('all-day'):
-            #     event_dates[i]['all-day'] = 'Yes'
-            # else:
-            #     event_dates[i]['all-day'] = 'No'
-            # if event_dates[i].get('outside-of-minnesota'):
-            #     event_dates[i]['outside-of-minnesota'] = 'Yes'
-            # else:
-            #     event_dates[i]['outside-of-minnesota'] = 'No'
-
-        return event_dates
+                    new_date['end-date'] = None
+            new_dates.append(new_date)
+        return new_dates
+    
 
     def _clear_hidden_field_errors(self, form):
         """
@@ -528,9 +514,14 @@ class EventsController(TinkerController):
         except TypeError:
             return None
 
-    def update_structure(self, add_data, username, event_id=None):
+    def update_structure(self, add_data, username, workflow=None, event_id=None):
         bid = app.config['EVENTS_BASE_ASSET']
-        event_data, metadata, structured_data = self.cascade_connector.load_base_asset_by_id(bid, 'page')
+
+        if not event_id:
+            event_data, metadata, structured_data = self.cascade_connector.load_base_asset_by_id(bid, 'page')
+        else:
+            page = self.read_page(event_id)
+            event_data, metadata, structured_data = page.get_asset()
 
         # put it all into the final asset with the rest of the SOAP structure
         hide_site_nav, parent_folder_path = self.get_event_folder_path(add_data)
@@ -549,8 +540,10 @@ class EventsController(TinkerController):
             add_data['author'] = username
 
         self.update_asset(event_data, add_data)
+        self.add_workflow_to_asset(workflow, event_data)
 
         return event_data
+    
 
     # Returns (content/config path, parent path)
     def get_event_folder_path(self, data):
