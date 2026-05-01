@@ -18,7 +18,18 @@
         {% if groups[:group_path|length] == group_path %}
             {# Add show_class as a class to the wrapper div if present #}
             {% set show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
-            <div class="{{ field.name }}_wrap{% if show_class %} {{ show_class }}_wrap{% endif %}">
+            {# Only create a wrapper when this field/subgroup will actually render content #}
+            {% set should_render_wrap = groups|length == group_path|length %}
+            {% set wrap_base = field.name %}
+            {% if not should_render_wrap and groups|length > group_path|length %}
+                {% set subgroup = groups[group_path|length] %}
+                {% set should_render_wrap = subgroup not in ns.rendered_subgroups %}
+                {% if should_render_wrap %}
+                    {% set wrap_base = (group_path[0] + '_' + subgroup) if group_path|length > 0 else subgroup %}
+                {% endif %}
+            {% endif %}
+            {% if should_render_wrap %}
+            <div class="{{ wrap_base }}_wrap{% if show_class and show_class != wrap_base %} {{ show_class }}_wrap{% endif %}">
             {% if groups|length == group_path|length %}
                 {% if depth == 1 %}
                     <div class="card">
@@ -101,6 +112,7 @@
                 {% endif %}
             {% endif %}
             </div>
+            {% endif %}
         {% endif %}
     {% endfor %}
 {%- endmacro %}
