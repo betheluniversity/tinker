@@ -105,6 +105,38 @@
 
 <script type="text/javascript">
 
+function setMultiSelectInlineError(selectEl, message) {
+    var $select = $(selectEl);
+    var $container = $select.closest('.card .content');
+    var $error = $container.find('.multiselect-required-error').first();
+
+    if (message) {
+        if (!$error.length) {
+            $container.append('<p class="multiselect-required-error" style="color:#c00;margin-top:4px"></p>');
+            $error = $container.find('.multiselect-required-error').first();
+        }
+        $error.text(message);
+    } else if ($error.length) {
+        $error.remove();
+    }
+}
+
+function setCkeditorInlineError(textareaEl, message) {
+    var $textarea = $(textareaEl);
+    var $container = $textarea.closest('.card .content');
+    var $error = $container.find('.ckeditor-required-error').first();
+
+    if (message) {
+        if (!$error.length) {
+            $container.append('<p class="ckeditor-required-error" style="color:#c00;margin-top:4px"></p>');
+            $error = $container.find('.ckeditor-required-error').first();
+        }
+        $error.text(message);
+    } else if ($error.length) {
+        $error.remove();
+    }
+}
+
 // Function to disable or enable hidden inputs based on checkbox state
 // Posts a "No" value when unchecked
 function checkboxClicked(label) {
@@ -585,72 +617,107 @@ function getFieldsetName(element) {
 // Global counter for unique CKEditor textarea IDs across all dynamically created fieldsets.
 var _ckIdCounter = 0;
 
+function validateRequiredRichFields($form) {
+    var firstInvalidElement = null;
+    var firstInvalidEditor = null;
+
+    // Keep textarea values in sync before any validity checks.
+    if (typeof CKEDITOR !== 'undefined') {
+        for (var editorName in CKEDITOR.instances) {
+            if (Object.prototype.hasOwnProperty.call(CKEDITOR.instances, editorName)) {
+                CKEDITOR.instances[editorName].updateElement();
+            }
+        }
+    }
+
+    // Required multi-selects rendered manually in Jinja should still participate
+    // in native HTML validity checks.
+    $form.find('select[multiple]').each(function () {
+        this.setCustomValidity('');
+        setMultiSelectInlineError(this, '');
+        if (!this.hasAttribute('required') || this.disabled) return;
+        if ($(this).val() && $(this).val().length > 0) return;
+        var msg = 'Please select at least one option.';
+        this.setCustomValidity(msg);
+        setMultiSelectInlineError(this, msg);
+        if (!firstInvalidElement) firstInvalidElement = this;
+    });
+
+    // Required CKEditor fields are validated from editor content.
+    if (typeof CKEDITOR !== 'undefined') {
+        for (var instanceName in CKEDITOR.instances) {
+            if (!Object.prototype.hasOwnProperty.call(CKEDITOR.instances, instanceName)) continue;
+            var instance = CKEDITOR.instances[instanceName];
+            var textarea = instance.element && instance.element.$;
+            if (!textarea) continue;
+
+            textarea.setCustomValidity('');
+            setCkeditorInlineError(textarea, '');
+            var isRequiredEditor = textarea.hasAttribute('required') ||
+                textarea.getAttribute('data-required-ckeditor') === '1' ||
+                $(textarea).closest('.card .content').find('legend small.required, label small.required').length > 0;
+            if (!isRequiredEditor || textarea.disabled) continue;
+
+            var html = instance.getData();
+            var text = html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
+            if (text) continue;
+
+            var ckMsg = 'This field is required.';
+            textarea.setCustomValidity(ckMsg);
+            setCkeditorInlineError(textarea, ckMsg);
+            if (!firstInvalidElement) firstInvalidElement = textarea;
+            if (!firstInvalidEditor) firstInvalidEditor = instance;
+        }
+    }
+
+    if (!firstInvalidElement) return true;
+
+    if (firstInvalidEditor) {
+        firstInvalidEditor.focus();
+        var editorFieldset = firstInvalidEditor.element && firstInvalidEditor.element.$
+            ? $(firstInvalidEditor.element.$).closest('.card .content')[0]
+            : null;
+        if (editorFieldset) {
+            editorFieldset.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    } else {
+        firstInvalidElement.focus();
+        if (typeof firstInvalidElement.reportValidity === 'function') {
+            firstInvalidElement.reportValidity();
+        }
+    }
+
+    return false;
+}
+
 $(document).ready(function () {
     initializeDynamicFormUi();
-
-
-
-    // Improved client-side validation for required CKEditor fields.
-    // This checks for the 'required' attribute on the textarea (set by WTForms for required fields)
-    // and blocks submit if any required CKEditor field is empty.
     $('#eventform').on('submit', function (e) {
-        try {
-            //alert('CKEditor required validation handler running');
-            var invalid = [];
-            var firstInvalidInstance = null;
-            var debugLog = [];
-
-            if (typeof CKEDITOR !== 'undefined') {
-                for (var name in CKEDITOR.instances) {
-                    var instance = CKEDITOR.instances[name];
-                    var textarea = instance.element.$;
-                    debugLog.push('Checking CKEditor instance: ' + name + ', required=' + textarea.hasAttribute('required'));
-                    // Only validate if textarea has required attribute
-                    if (!textarea.hasAttribute('required')) continue;
-                    var html = instance.getData();
-                    var text = html.replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim();
-                    debugLog.push('  value: [' + text + ']');
-                    if (!text) {
-                        debugLog.push('  INVALID: empty required CKEditor: ' + name);
-                        // Find the closest .card .content for error placement
-                        var $container = $(textarea).closest('.card .content');
-                        if (!$container.find('.ckeditor-required-error').length) {
-                            $container.append('<p class="ckeditor-required-error" style="color:#c00;margin-top:4px">This field is required.</p>');
-                        }
-                        invalid.push($container[0]);
-                        if (!firstInvalidInstance) firstInvalidInstance = instance;
-                    }
-                }
-            }
-
-            if (invalid.length) {
-                e.preventDefault();
-                // Focus the first invalid CKEditor instance
-                if (firstInvalidInstance) {
-                    firstInvalidInstance.focus();
-                }
-                // Scroll to the first invalid field
-                if (invalid[0]) {
-                    invalid[0].scrollIntoView({behavior: 'smooth', block: 'center'});
-                }
-            }
-            if (debugLog.length) {
-                var msg = '[CKEditor required validation]\n' + debugLog.join('\n');
-                try { console.log(msg); } catch (e) {}
-                //alert(msg);
-            }
-        } catch (err) {
-            //alert('CKEditor required validation JS error: ' + err);
-            throw err;
+        if (!validateRequiredRichFields($(this))) {
+            e.preventDefault();
         }
     });
 
-    // Remove inline error messages as soon as the user starts typing in a required editor
+    // Clear multiselect inline errors as soon as selection becomes valid.
+    $(document).on('change', '#eventform select[multiple]', function () {
+        this.setCustomValidity('');
+        if (!this.hasAttribute('required') || this.disabled) {
+            setMultiSelectInlineError(this, '');
+            return;
+        }
+        if ($(this).val() && $(this).val().length > 0) {
+            setMultiSelectInlineError(this, '');
+        }
+    });
+
+    // Clear custom validity for required editors when users type.
     if (typeof CKEDITOR !== 'undefined') {
         CKEDITOR.on('instanceReady', function (ev) {
             ev.editor.on('change', function () {
-                var $fieldset = $(ev.editor.element.$.closest('fieldset'));
-                $fieldset.find('.ckeditor-required-error').remove();
+                if (ev.editor.element && ev.editor.element.$) {
+                    ev.editor.element.$.setCustomValidity('');
+                    setCkeditorInlineError(ev.editor.element.$, '');
+                }
             });
         });
     }
