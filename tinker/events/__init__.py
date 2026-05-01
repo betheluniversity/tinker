@@ -197,6 +197,8 @@ class EventsView(FlaskView):
         
         rform = request.form
 
+        dates = self.base.get_event_dates(rform)
+
         # Build muptiples object by parsing field keys that contain [multiple]
         # The key is the string between the [multiple] and the _
         # The value is the highest number found for that key. For example,
@@ -206,7 +208,7 @@ class EventsView(FlaskView):
         eid = rform.get('event_id')
 
         username = session['username']
-        form, passed = self.base.validate_form(multiples=multiples)
+        form, passed = self.base.validate_form(rform, multiples=multiples)
 
         if not passed:
             if 'event_id' in rform.keys():

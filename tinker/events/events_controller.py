@@ -370,24 +370,12 @@ class EventsController(TinkerController):
         return add_data, asset, eid
 
     def get_event_dates(self, form):
-        event_dates = []
-
-        num_dates = int(form['num_dates'])
-        for i in range(1, num_dates + 1):  # the page doesn't use 0-based indexing
-            i = str(i)
-            new_date = {
-                'start_date': form.get('start' + i, ''),
-                'end_date': form.get('end' + i, ''),
-                'all_day': form.get('allday' + i, ''),
-                'outside_of_minnesota': form.get('outsideofminnesota' + i, ''),
-                'time_zone': form.get('timezone' + i, ''),
-                'no_end_date': form.get('noenddate' + i, '')
-            }
-
-            event_dates.append(new_date)
-
-        # convert event dates to JSON
-        return event_dates, num_dates
+        new_date = {}
+        for key, value in form.items():
+            if key.startswith('date_'):
+                i = key.split('_')[1]
+                new_date[i] = value
+        return [new_date] if new_date else []
 
     def check_event_dates(self, event_dates):
         dates_good = True
