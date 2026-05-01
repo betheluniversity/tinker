@@ -330,7 +330,7 @@ class EventsController(TinkerController):
         self.publish(image_path, 'file')
         return image_path
 
-    def submit_new_or_edit(self, rform, username, eid, metadata_list):
+    def submit_new_or_edit(self, rform, username, eid, dates):
         # Changes the dates to a timestamp, needs to occur after a failure is detected or not
         add_data = self.get_add_data(metadata_list, rform)
 

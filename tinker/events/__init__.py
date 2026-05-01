@@ -12,7 +12,6 @@ from collections import OrderedDict
 from werkzeug.datastructures import MultiDict
 
 # Local
-from tinker.events.events_metadata import metadata_list
 from tinker import app, cache
 from tinker.events.events_controller import EventsController
 
@@ -218,7 +217,7 @@ class EventsView(FlaskView):
 
             return render_template('events/form.html', **locals())
 
-        add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, metadata_list)
+        add_data, asset, eid = self.base.submit_new_or_edit(rform, username, eid, dates)
 
         # todo: Test this
         if 'link' in add_data and add_data['link']:
