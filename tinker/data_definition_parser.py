@@ -42,8 +42,14 @@ def _fetch_data_def_xml(data_def_id):
     return ET.fromstring(xml_str)
 
 
-#@cache.memoize(timeout=3600)
+@cache.memoize(timeout=3600)
+def _fetch_data_def_xml_memoized(data_def_id):
+    return _fetch_data_def_xml(data_def_id)
+
+
 def _fetch_data_def_xml_cached(data_def_id):
+    if app.config.get('ENVIRON') == 'prod':
+        return _fetch_data_def_xml_memoized(data_def_id)
     return _fetch_data_def_xml(data_def_id)
 
 
