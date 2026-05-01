@@ -78,6 +78,10 @@ _FIELD_EXTRA = {
     # Registration
     'ticketingURL':    {'extra_validators': [URL(require_tld=True,
                                                  message='Please enter a valid URL.')]},
+    # Specify metadata fields that should be hidden fields
+    'hide_from_calendar': {'render_kw': {'type': 'hidden'}},
+    'hide_from_nav': {'render_kw': {'type': 'hidden'}},
+    'hide_site_nav': {'render_kw': {'type': 'hidden'}},
 }
 
 

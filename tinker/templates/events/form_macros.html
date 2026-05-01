@@ -10,12 +10,27 @@
     {{ render_group_level(form, [], 1) }}
 {%- endmacro %}
 
+{% macro render_hidden_value(field) -%}
+    {% set hidden_value = field.data if field.data is not none else field.default %}
+    {% if hidden_value is sequence and hidden_value is not string %}
+        {% for item in hidden_value %}
+            <input type="hidden" name="{{ field.name }}" value="{{ item }}">
+        {% endfor %}
+    {% else %}
+        <input type="hidden" name="{{ field.name }}" value="{{ hidden_value if hidden_value is not none else '' }}">
+    {% endif %}
+{%- endmacro %}
+
 {% macro render_group_level(form, group_path, depth) -%}
     {% set ns = namespace(rendered_subgroups=[]) %}
     {% for field in form|sort(attribute='render_kw.order') %}
         {% set groups = field.render_kw.groups if field.render_kw and 'groups' in field.render_kw else [] %}
+        {% set is_render_hidden = field.type == "HiddenField" or (field.render_kw and field.render_kw.get('type') == 'hidden') %}
         {# Only process fields that start with the current group path #}
         {% if groups[:group_path|length] == group_path %}
+            {% if is_render_hidden %}
+                {{ render_hidden_value(field) }}
+            {% else %}
             {# Add show_class as a class to the wrapper div if present #}
             {% set show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
             {# Only create a wrapper when this field/subgroup will actually render content #}
@@ -113,14 +128,16 @@
             {% endif %}
             </div>
             {% endif %}
+            {% endif %}
         {% endif %}
     {% endfor %}
 {%- endmacro %}
 
 {# Macros for field rendering. #}
 {% macro render(field, group) -%}
-{% if field.type == "HiddenField" %}
-    {{ field }}
+{% set is_render_hidden = field.type == "HiddenField" or (field.render_kw and field.render_kw.get('type') == 'hidden') %}
+{% if is_render_hidden %}
+    {{ render_hidden_value(field) }}
 {% elif field is string %}
     {{ field }}
 {% elif field.label.text == "heading" %}
@@ -201,6 +218,7 @@
 {# Use field.data if exists, else field.default for selected values #}
 {% set selected_values = field.data if field.data else field.default %}
 <select name="{{ field.name }}" multiple size="10" class="large-select"
+    {% if field.flags.required %}required{% endif %}
     {% if field.render_kw and 'onchange' in field.render_kw %}onchange="{{ field.render_kw['onchange'] }}"{% endif %}
     {% if field.render_kw and 'class' in field.render_kw %}class="{{ field.render_kw['class'] }} large-select"{% endif %}
 >
@@ -219,7 +237,7 @@
         {{ render_label(field) }}
     {% endif %}
     {% if field.flags.required %}
-        {{ field(class="ckeditor", required=True) }}
+        {{ field(class="ckeditor", required="required", data_required_ckeditor="1") }}
     {% else %}
         {{ field(class="ckeditor") }}
     {% endif %}
