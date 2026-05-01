@@ -42,7 +42,8 @@
                 {% set subgroup = groups[group_path|length] %}
                 {% if subgroup not in ns.rendered_subgroups %}
                     {% set ns.rendered_subgroups = ns.rendered_subgroups + [subgroup] %}
-                    <div class="card card-depth-{{ depth }}">
+                    {% set card_class = group_path[0] + '_' + subgroup if group_path|length > 0 else subgroup %}
+                    <div class="card card-depth-{{ depth }} {{ card_class }}">
                         <div class="content">
                             <legend>
                                 {% set label_ns = namespace(label=none) %}
@@ -56,10 +57,22 @@
                                     {% endif %}
                                 {% endfor %}
                                 {{ label_ns.label or subgroup|capitalize }}
+                                {# If subgroup starts with [multiple] show a delete icon #}
+                                {% if subgroup.startswith('[multiple]') %}
+                                    <i class="fa fa-times fa-delete {{ card_class }}-delete" onclick="removeFieldset(this)"></i>
+                                {% endif %}
                             </legend>
                             {{ render_group_level(form, group_path + [subgroup], depth + 1) }}
                         </div>
                     </div>
+                    {# If subgroup is defined and starts with [multiple], render an "Add Another" button #}
+                    {% if groups|length > group_path|length and subgroup.startswith('[multiple]') %}
+                    {% set button_label = (label_ns.label or subgroup|capitalize) %}
+                    {% if button_label.endswith(' 1') %}
+                        {% set button_label = button_label[:-2] %}
+                    {% endif %}
+                    <a href="javascript:void(0);" id="add_{{ card_class }}_button" class="btn btn-primary" onclick="addMultiple('{{ card_class }}')">Add Another {{ button_label }}</a><br /><br />
+                    {% endif %}
                 {% endif %}
             {% endif %}
             </div>

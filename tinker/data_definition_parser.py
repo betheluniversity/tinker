@@ -257,6 +257,24 @@ def get_field_definitions(data_def_id, multiples={}):
         # Output fields as json
         # app.logger.debug('get_field_definitions: parsed fields for id=%s: %s', data_def_id, json.dumps(fields))
         
+        # Build a multiples object by parsing fields and child fields and finding any of type group with multiple="true".
+        initial_multiples = {}
+        def find_multiples(defs):
+            for d in defs:
+                if d.get('type') == 'group':
+                    if d.get('multiple'):
+                        initial_multiples[d['identifier']] = 1
+                    find_multiples(d.get('children', []))
+        find_multiples(fields)
+
+        if initial_multiples and multiples:
+            # Update initial_multiples with any values from the multiples argument, which may specify counts for some identifiers.
+            for ident, count in multiples.items():
+                if ident in initial_multiples:
+                    initial_multiples[ident] = count
+
+        multiples = initial_multiples
+
         if multiples:
             # example usage: multiples={'offer': 2} to request 2 sets of 'offer' group fields
             # finds the group definition for each requested identifier with multiple="true" and duplicates its fields with indexed identifiers
