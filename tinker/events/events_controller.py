@@ -123,77 +123,52 @@ class EventsController(TinkerController):
     """
     Submitting a new or edited event form combined into one method
     """
-
     def _apply_v4_cascade_mapping(self, add_data):
         """Translates form add_data keys to Cascade v4 data definition identifiers, in-place."""
-        # Featured Visual group
-        add_data['featuredVisual'] = {
-            'visualSelect': add_data.pop('featuredVisual-visualSelect', add_data.pop('visualSelect', add_data.pop('visual-select', ''))),
-            'image': add_data.pop('featuredVisual-image', add_data.pop('featured-image', '')),
-            'video': add_data.pop('featuredVisual-video', add_data.pop('featured-video', '')),
-        }
-        add_data.pop('featuredVisual-image-path', None)  # companion hidden field; consumed by submit_new_or_edit
-        # Date: flatten event-dates list into v4 top-level fields
-        event_dates = add_data.pop('event-dates', [])
-        if event_dates:
-            d = event_dates[0]  # v4 only has one date group
-            add_data['eventStart'] = d.get('start-date', '')
-            add_data['eventEnd'] = d.get('end-date', '')
-            add_data['hideTime'] = d.get('all-day', '')
-            add_data['timeZone'] = d.get('time-zone', 'central')
-        # Location group
-        add_data['locationSelect'] = add_data.pop('location-name', '')
-        add_data['onCampusLocation'] = {'location': add_data.pop('on-campus-location', '')}
-        off_campus = add_data.pop('off-campus-location', {})
-        if isinstance(off_campus, list):
-            off_campus = off_campus[0] if off_campus else {}
-        add_data['offCampusLocation'] = {
-            'name': off_campus.get('off-campus-name', ''),
-            'address': off_campus.get('off-campus-address', ''),
-            'city': off_campus.get('off-campus-city', ''),
-            'state': off_campus.get('off-campus-state', ''),
-            'zip': off_campus.get('off-campus-zip', ''),
-        }
-        add_data['online'] = {'url': add_data.pop('online-url', '')}
-        # Content fields
-        if 'maps-directions' in add_data:
-            add_data['guestInstructions'] = add_data.pop('maps-directions')
-        if 'main-content' in add_data:
-            add_data['longDescription'] = add_data.pop('main-content')
-        # Cost group (offer repeating, costDetails text)
-        offer_list = add_data.pop('cost', [])
-        add_data['cost'] = {
-            'offer': [{'price': d.get('price', '0'), 'audience': d.get('audience', '')} for d in offer_list]
-                      or [{'price': '0', 'audience': ''}],
-            'costDetails': add_data.pop('costDetails', ''),
-        }
-        # Registration group
-        reg_choice = add_data.pop('registration-heading', 'none')
-        add_data['registration'] = {
-            'registrationChoice': reg_choice,
-            'formhash': add_data.pop('wufoo-code', ''),
-            'ticketingURL': add_data.pop('ticketing-url', ''),
-        }
-        # Schedule group (scheduleDetails repeating)
-        schedule_entries = add_data.pop('schedule', [])
-        add_data['schedule'] = {
-            'scheduleDetails': [
-                {
-                    'date': d.get('schedule-date', ''),
-                    'timeDescription': [{'time': d.get('schedule-time', ''), 'description': d.get('schedule-description', '')}]
-                }
-                for d in schedule_entries
-            ] if schedule_entries else [],
-        }
-        # Featuring group (single)
-        featuring_entries = add_data.pop('featuring', [{}])
-        f = featuring_entries[0] if featuring_entries else {}
-        add_data['featuring'] = {
-            'image': f.get('featuring-image', ''),
-            'name': f.get('featuring-name', ''),
-            'credentials': f.get('featuring-credentials', ''),
-            'description': f.get('featuring-description', ''),
-        }
+        # Translate add_data['location__onCampusLocation__location'] = value
+        # to data['location']['onCampusLocation']['location'] = value
+        # or add_data['title'] = value to data['title'] = value, etc.
+        # No hard-coded field names
+        for key in list(add_data.keys()):
+            if '__' in key:
+                parts = key.split('__')
+                value = add_data.pop(key)
+                target = add_data
+                for i, part in enumerate(parts):
+                    if i == len(parts) - 1:
+                        # Convert boolean to 'Yes'/'No' for Cascade v4 checkbox fields
+                        if isinstance(value, bool):
+                            value = 'Yes' if value else 'No'
+                        target[part] = value
+                    else:
+                        # Convert add_data['cost__[multiple]offer_1__price'] = value to data['cost']['offer'][0]['price'] = value, etc.
+                        # Convert add_data['cost__[multiple]offer_2__price'] = value to data['cost']['offer'][1]['price'] = value, etc.
+                        if part.startswith('[multiple]'):
+                            part_name = part[len('[multiple]'):]
+                            index = int(part_name.split('_')[-1]) - 1  # offer_1 -> 0, offer_2 -> 1, etc.
+                            part = part_name.rsplit('_', 1)[0]  # offer_1 -> offer, offer_2 -> offer, etc.
+                            target = target.setdefault(part, [])
+                            while len(target) <= index:
+                                target.append({})
+                            target = target[index]
+                        else:
+                            target = target.setdefault(part, {})
+            else:
+                # No nesting — just move the value
+                add_data[key] = add_data.pop(key)
+
+        if add_data.get('date'):
+            # Single date from the form, convert to list for the data definition
+            add_data['date'] = self.change_dates(add_data['date'])
+
+        new_data = {}
+        for key, value in add_data.items():
+            if '_' in key:
+                new_data[key.replace('_', '-')] = value
+            else:
+                new_data[key] = value
+
+        return new_data
 
     def _cascade_v4_to_form_data(self, edit_data):
         """Translates Cascade v4 get_edit_data() output to form field names for pre-population."""
@@ -348,9 +323,7 @@ class EventsController(TinkerController):
         # add_data['featuredVisual-image'] = image_path or ''
 
         # Translate form keys to Cascade v4 data definition identifiers
-        self._apply_v4_cascade_mapping(add_data)
-        dates = self.get_event_dates(data)
-        add_data['event-dates'] = self.change_dates(dates)
+        add_data = self._apply_v4_cascade_mapping(add_data)
 
         username = session['username']
         #workflow = self.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + data['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
@@ -371,13 +344,6 @@ class EventsController(TinkerController):
         self.cascade_call_logger(locals())
         return add_data, asset, eid
     
-    def get_event_dates(self, form):
-        new_date = {}
-        for key, value in form.items():
-            if key.startswith('date_'):
-                i = key.split('_')[1]
-                new_date[i] = value
-        return [new_date] if new_date else []
 
     def check_event_dates(self, event_dates):
         dates_good = True
@@ -400,34 +366,30 @@ class EventsController(TinkerController):
 
         return json.dumps(event_dates), dates_good
 
-    def change_dates(self, event_dates):
-        new_dates = []
-        for date in event_dates:
-            new_date = {}
-            for key in date:
-                if 'start' in key.lower() and date[key]:
-                    start = date[key].split(' ')
-                    start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
-                    new_start = " ".join(start)
-                elif 'end' in key.lower() and date[key]:
-                    end = date[key].split(' ')
-                    end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
-                    new_end = " ".join(end)
+    def change_dates(self, date):
+        for key in date:
+            if 'start' in key.lower() and date[key]:
+                start = date[key].split(' ')
+                start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
+                new_start = " ".join(start)
 
-            if new_start:
                 try:
-                    new_date['start-date'] = self.date_str_to_timestamp(new_start)
+                    date[key] = self.date_str_to_timestamp(new_start)
                 except ValueError as e:
                     app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
-                    new_date['start-date'] = None
-            if new_end:
+                    date[key] = None
+            elif 'end' in key.lower() and date[key]:
+                end = date[key].split(' ')
+                end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
+                new_end = " ".join(end)
+
                 try:
-                    new_date['end-date'] = self.date_str_to_timestamp(new_end)
+                    date[key] = self.date_str_to_timestamp(new_end)
                 except ValueError as e:
                     app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
-                    new_date['end-date'] = None
-            new_dates.append(new_date)
-        return new_dates
+                    date[key] = None
+            
+        return date
     
 
     def _clear_hidden_field_errors(self, form):
@@ -620,19 +582,29 @@ class EventsController(TinkerController):
             return None
 
     def get_year_folder_value(self, data):
-        dates = data['event-dates']
+        date = data.get('date', {})
+
+        if not date:
+            return None
+        
+        end_date = None
+        for key in date:
+            if 'end' in key.lower() and date[key]:
+                end_date = date[key]
+                break
+        else:
+            return None
 
         max_year = 0
-        for date in dates:
-            date_str = self.timestamp_to_date_str(date['end-date'])
-            try:
-                end_date = datetime.datetime.strptime(date_str, '%B %d %Y, %I:%M %p').date()
-                year = end_date.year
-            except Exception:
-                # if end_date is none and this fails, revert to current year.
-                year = datetime.date.today().year
-            if year > max_year:
-                max_year = year
+        date_str = self.timestamp_to_date_str(end_date)
+        try:
+            end_date = datetime.datetime.strptime(date_str, '%B %d %Y, %I:%M %p').date()
+            year = end_date.year
+        except Exception:
+            # if end_date is none and this fails, revert to current year.
+            year = datetime.date.today().year
+        if year > max_year:
+            max_year = year
 
         return max_year
 

@@ -544,8 +544,8 @@ function setAllDayTime(label) {
     if (!willBeChecked) return;
 
     var $card = $(label).closest('.card');
-    var $startInput = $card.find('.date_eventStart_wrap input.datepicker');
-    var $endInput   = $card.find('.date_eventEnd_wrap input.datepicker');
+    var $startInput = $card.find('.date__eventStart_wrap input.datepicker');
+    var $endInput   = $card.find('.date__eventEnd_wrap input.datepicker');
     var format = 'MMMM Do YYYY, h:mm a';
 
     function zeroTime($input) {
@@ -568,8 +568,8 @@ function setAllDayTime(label) {
 // If end < start, snaps end to equal start.
 function syncDates(element) {
     var $card = $(element).closest('.card');
-    var $startInput = $card.find('.date_eventStart_wrap input.datepicker');
-    var $endInput = $card.find('.date_eventEnd_wrap input.datepicker');
+    var $startInput = $card.find('.date__eventStart_wrap input.datepicker');
+    var $endInput = $card.find('.date__eventEnd_wrap input.datepicker');
     var format = 'MMMM Do YYYY, h:mm a';
 
     var startVal = $startInput.val();
