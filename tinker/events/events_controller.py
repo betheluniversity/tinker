@@ -1,6 +1,7 @@
 # Global
 import base64
 import datetime
+import pytz
 import json
 import os
 import re
@@ -141,8 +142,7 @@ class EventsController(TinkerController):
                             value = 'Yes' if value else 'No'
                         target[part] = value
                     else:
-                        # Convert add_data['cost__[multiple]offer_1__price'] = value to data['cost']['offer'][0]['price'] = value, etc.
-                        # Convert add_data['cost__[multiple]offer_2__price'] = value to data['cost']['offer'][1]['price'] = value, etc.
+                        # Create nested dicts/lists as needed
                         if part.startswith('[multiple]'):
                             part_name = part[len('[multiple]'):]
                             index = int(part_name.split('_')[-1]) - 1  # offer_1 -> 0, offer_2 -> 1, etc.
@@ -367,6 +367,18 @@ class EventsController(TinkerController):
         return json.dumps(event_dates), dates_good
 
     def change_dates(self, date):
+
+        if 'timeZone' in date:
+            timezone = date['timeZone']
+            if timezone == 'central':
+                timezone = 'America/Chicago'
+            elif timezone == 'eastern':
+                timezone = 'America/New_York'
+            elif timezone == 'mountain':
+                timezone = 'America/Denver'
+        else:
+            timezone = 'America/Chicago'  # default to central if somehow missing
+
         for key in date:
             if 'start' in key.lower() and date[key]:
                 start = date[key].split(' ')
@@ -374,7 +386,7 @@ class EventsController(TinkerController):
                 new_start = " ".join(start)
 
                 try:
-                    date[key] = self.date_str_to_timestamp(new_start)
+                    date[key] = self.date_str_to_timestamp(new_start, timezone)
                 except ValueError as e:
                     app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
                     date[key] = None
@@ -384,7 +396,7 @@ class EventsController(TinkerController):
                 new_end = " ".join(end)
 
                 try:
-                    date[key] = self.date_str_to_timestamp(new_end)
+                    date[key] = self.date_str_to_timestamp(new_end, timezone)
                 except ValueError as e:
                     app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
                     date[key] = None
@@ -464,15 +476,21 @@ class EventsController(TinkerController):
         dates = fjson.dumps([])
         return convert_asset(edit_data), dates
 
-    def date_str_to_timestamp(self, date_string):
+    def date_str_to_timestamp(self, date_string, timezone='America/Chicago'):
         try:
-            return int(datetime.datetime.strptime(date_string, '%B %d %Y, %I:%M %p').strftime("%s")) * 1000
+            dt = datetime.datetime.strptime(date_string, '%B %d %Y, %I:%M %p')
+            p_timezone = pytz.timezone(timezone)
+            dt_zoned = p_timezone.localize(dt)
+            timestamp_ms = int(dt_zoned.timestamp()) * 1000
+            return timestamp_ms
         except TypeError:
             return None
 
-    def timestamp_to_date_str(self, timestamp_date):
+    def timestamp_to_date_str(self, timestamp_date, timezone='America/Chicago'):
         try:
-            return datetime.datetime.fromtimestamp(int(timestamp_date) / 1000).strftime('%B %d %Y, %I:%M %p')
+            p_timezone = pytz.timezone(timezone)
+            dt = datetime.datetime.fromtimestamp(int(timestamp_date) / 1000, tz=p_timezone)
+            return dt.strftime('%B %d %Y, %I:%M %p')
         except TypeError:
             return None
 
@@ -500,6 +518,11 @@ class EventsController(TinkerController):
             add_data.pop('author', None)
         else:
             add_data['author'] = username
+
+        # Add 'teaser' to metadata for new event compatibility
+        if event_data and 'page' in event_data:
+            if 'metadata' in event_data['page']:
+                event_data['page']['metadata']['teaser'] = ''
 
         self.update_asset(event_data, add_data)
         self.add_workflow_to_asset(workflow, event_data)
