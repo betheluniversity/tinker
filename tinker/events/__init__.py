@@ -209,6 +209,7 @@ class EventsView(FlaskView):
 
             return render_template('events/form.html', **locals())
 
+        form.process(formdata=rform, data=None, obj=None, **request.files)
         add_data, asset, eid = self.base.submit_new_or_edit(form)
 
         # todo: Test this

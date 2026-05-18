@@ -18,7 +18,7 @@
                 <p>If you have any questions as you submit your event, please contact Conference and Event Services
                     at
                     651.638.6090.</p>
-                <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post">
+                <form id="eventform" action="{{ url_for('EventsView:submit') }}" method="post" enctype="multipart/form-data">
                 <div id="event-form-fields">
                     {% include "events/form_fields.html" %}
                 </div>

@@ -6,6 +6,9 @@ import json
 import os
 import re
 import time
+import tempfile
+import shutil
+import uuid
 
 # Packages
 from bu_cascade.asset_tools import find, convert_asset
@@ -246,88 +249,96 @@ class EventsController(TinkerController):
             }]
         return edit_data
 
-    def create_event_image(self, add_data):
-        """
-        Save the uploaded featuredVisual image to Cascade and return the
-        Cascade file path.  Returns None if no file was uploaded or the
-        file is empty, so the caller can fall back to the existing path.
-        """
-        from tinker.events.forms import get_event_form
-        form = get_event_form()
+    def _upload_event_file(self, file_storage):
+        """Upload a single file to Cascade and return its file path."""
+        original_filename = getattr(file_storage, 'filename', '') or ''
+        file_ext = os.path.splitext(original_filename)[1].lower() or '.jpg'
+        file_name = '{}{}'.format(uuid.uuid4().hex, file_ext)
+        file_sub_path = app.config.get('EVENTS_IMAGE_FOLDER')
+        file_path = file_sub_path + '/' + file_name
+
+        temp_dir = tempfile.mkdtemp(prefix='tinker_upload_')
+        temp_file_path = os.path.join(temp_dir, file_name)
 
         try:
-            form.featuredVisual_image.data.filename
-        except AttributeError:
-            return None
+            file_storage.save(temp_file_path)
+            with open(temp_file_path, 'rb') as tmp_file:
+                if os.fstat(tmp_file.fileno()).st_size <= 0:
+                    return None
+                encoded_stream = base64.b64encode(tmp_file.read())
 
-        image_name = add_data.get('system-name', add_data.get('system_name', 'event')) + '.jpg'
-        image_sub_path = app.config.get('EVENTS_IMAGE_FOLDER', '/events/images')
-        image_path = image_sub_path + '/' + image_name
+            file_asset = self.read(file_path, 'file')
+            if file_asset['success'] == 'true':
+                image_asset = file_asset['asset']
+                self.update_asset(image_asset, {'data': encoded_stream})
+                self.cascade_connector.edit(image_asset)
+            else:
+                try:
+                    image_asset = self.read(
+                        app.config.get('EVENTS_IMAGE_BASE_ASSET_FILE',
+                                       app.config.get('IMAGE_WITH_DEFAULT_IMAGE_BASE_ASSET')),
+                        'file'
+                    )['asset']
+                except Exception:
+                    return None
 
-        form.featuredVisual_image.data.save(app.config['UPLOAD_FOLDER'] + image_name)
-        image_file = open(app.config['UPLOAD_FOLDER'] + image_name, 'rb')
+                new_values = {
+                    'createdBy': 'tinker',
+                    'createdDate': None,
+                    'data': encoded_stream,
+                    'id': None,
+                    'name': file_name,
+                    'path': None,
+                    'parentFolderId': None,
+                    'parentFolderPath': file_sub_path,
+                }
+                self.update_asset(image_asset, new_values)
+                self.cascade_connector.create(image_asset)
 
-        if os.fstat(image_file.fileno()).st_size <= 0:
-            return None
+            self.publish(file_path, 'file')
+            return file_path
+        finally:
+            shutil.rmtree(temp_dir)
 
-        stream = image_file.read()
-        encoded_stream = base64.b64encode(stream)
+    def upload_event_images(self, form, add_data):
+        """
+        Iterate through form fields, upload files for all FileField fields,
+        and update add_data with resulting file paths.
+        """
+        from flask_wtf.file import FileField as _FileField
 
-        file_asset = self.read(image_path, 'file')
+        for field in form:
+            if not isinstance(field, _FileField):
+                continue
 
-        if file_asset['success'] == 'true':
-            image_asset = file_asset['asset']
-            self.update_asset(image_asset, {'data': encoded_stream})
-            self.cascade_connector.edit(image_asset)
-        else:
-            try:
-                image_asset = self.read(
-                    app.config.get('EVENTS_IMAGE_BASE_ASSET_FILE',
-                                   app.config.get('IMAGE_WITH_DEFAULT_IMAGE_BASE_ASSET')),
-                    'file'
-                )['asset']
-            except Exception:
-                return None
+            filename = getattr(field.data, 'filename', '') if field.data else ''
+            if filename:
+                uploaded_path = self._upload_event_file(field.data)
+                if uploaded_path:
+                    add_data[field.name] = uploaded_path
+                    continue
 
-            new_values = {
-                'createdBy': 'tinker',
-                'createdDate': None,
-                'data': encoded_stream,
-                'id': None,
-                'name': image_name,
-                'path': None,
-                'parentFolderId': None,
-                'parentFolderPath': image_sub_path,
-            }
-            self.update_asset(image_asset, new_values)
-            self.cascade_connector.create(image_asset)
+            existing_path = add_data.get(field.name + '_path') or add_data.get(field.name + '-path') or ''
+            add_data[field.name] = existing_path
 
-        self.publish(image_path, 'file')
-        return image_path
+        return add_data
 
-    def submit_new_or_edit(self, rform):
+    def submit_new_or_edit(self, form):
 
-        data = rform.data
+        data = form.data
         eid = data.get('event_id')
 
         # Changes the dates to a timestamp, needs to occur after a failure is detected or not
         add_data = self.get_add_data(data)
 
-        # Handle featured visual image upload.
-        # create_event_image returns the Cascade path on success, or None if no
-        # file was uploaded.  Fall back to the hidden "current path" field so
-        # existing images are preserved on edits.
-        # image_path = self.create_event_image(add_data)
-        # if not image_path:
-        #     image_path = add_data.get('featuredVisual-image-path', '')
-        # add_data['featuredVisual-image'] = image_path or ''
+        # Handle all FileField uploads and write resulting paths into add_data.
+        add_data = self.upload_event_images(form, add_data)
 
         # Translate form keys to Cascade v4 data definition identifiers
         add_data = self._apply_v4_cascade_mapping(add_data)
 
         username = session['username']
-        #workflow = self.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + data['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
-        workflow = None
+        workflow = self.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + data['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
         if eid:
             asset = self.update_structure(add_data, username, workflow=workflow, event_id=eid)
 

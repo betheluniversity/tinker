@@ -12,7 +12,6 @@ upgrade.txt
 node_modules/
 tinker/static/bower_components
 tinker/static/scripts/js/
-tinker/.DS_Store
 .DS_Store
 
 .idea
@@ -27,10 +26,6 @@ db_repository/versions/003_migration.py
 redirects.txt.back
 
 config/*.py
-
-tinker/.DS_Store
-
-config/.DS_Store
 flask_profiler.sql
 
 */placeholder.html
