@@ -18,6 +18,7 @@ from tinker.events.events_controller import EventsController
 
 class EventsView(FlaskView):
     route_base = '/events'
+    _multiple_segment_pattern = re.compile(r'^\[multiple\]([^_]+)_(\d+)$')
 
     def __init__(self):
         self.base = EventsController()
@@ -57,45 +58,83 @@ class EventsView(FlaskView):
     def event_in_workflow(self):
         return render_template('events/in-workflow.html')
 
+    def _get_multiple_segments(self, key):
+        segments = []
+        for part in (key or '').split('__'):
+            match = self._multiple_segment_pattern.match(part)
+            if not match:
+                continue
+            segments.append((match.group(1), int(match.group(2)), part))
+        return segments
+
+    def _normalize_group_name_segments(self, group_name):
+        if not group_name:
+            return []
+
+        if '__' in group_name:
+            raw_parts = group_name.split('__')
+        else:
+            # group_name from button classes uses '_' between nested [multiple] segments.
+            raw_parts = re.split(r'_(?=\[multiple\])', group_name)
+
+        return [
+            part for part in raw_parts
+            if self._multiple_segment_pattern.match(part)
+        ]
+
+    def _multiple_count_key(self, parent_instances, base_key):
+        if parent_instances:
+            return '__'.join(parent_instances + [base_key])
+        return base_key
+
     def _build_multiples_from_form(self, rform):
         multiples = {}
         for key in rform.keys():
-            match = re.search(r'\[multiple\]([^_]+)_(\d+)', key)
-            if not match:
-                continue
-            base_key = match.group(1)
-            index = int(match.group(2))
-            if base_key not in multiples or index > multiples[base_key]:
-                multiples[base_key] = index
+            parent_instances = []
+            for base_key, index, concrete_identifier in self._get_multiple_segments(key):
+                count_key = self._multiple_count_key(parent_instances, base_key)
+                if count_key not in multiples or index > multiples[count_key]:
+                    multiples[count_key] = index
+                parent_instances.append(concrete_identifier)
         return multiples
 
     def _remove_multiple_from_form(self, rform, group_name):
-        match = re.search(r'\[multiple\]([^_]+)_(\d+)', group_name or '')
-        if not match:
+        target_segments = self._normalize_group_name_segments(group_name)
+        if not target_segments:
             return MultiDict(rform)
 
-        base_key = match.group(1)
-        remove_index = int(match.group(2))
-        key_pattern = re.compile(r'(\[multiple\]' + re.escape(base_key) + r'_)(\d+)')
+        target_parent = target_segments[:-1]
+        target_match = self._multiple_segment_pattern.match(target_segments[-1])
+        if not target_match:
+            return MultiDict(rform)
+
+        target_base = target_match.group(1)
+        remove_index = int(target_match.group(2))
 
         updated_form = MultiDict()
         for key in rform.keys():
             values = rform.getlist(key)
-            should_skip = False
+            parts = key.split('__')
+            segment_positions = []
+            for idx, part in enumerate(parts):
+                match = self._multiple_segment_pattern.match(part)
+                if match:
+                    segment_positions.append((idx, part, match.group(1), int(match.group(2))))
 
-            def _reindex(matched):
-                nonlocal should_skip
-                idx = int(matched.group(2))
-                if idx == remove_index:
-                    should_skip = True
-                    return matched.group(0)
-                if idx > remove_index:
-                    return matched.group(1) + str(idx - 1)
-                return matched.group(0)
+            new_key = key
+            if len(segment_positions) > len(target_parent):
+                current_parent = [segment[1] for segment in segment_positions[:len(target_parent)]]
+                if current_parent == target_parent:
+                    target_segment = segment_positions[len(target_parent)]
+                    segment_idx = target_segment[3]
+                    segment_base = target_segment[2]
 
-            new_key = key_pattern.sub(_reindex, key)
-            if should_skip:
-                continue
+                    if segment_base == target_base:
+                        if segment_idx == remove_index:
+                            continue
+                        if segment_idx > remove_index:
+                            parts[target_segment[0]] = '[multiple]' + segment_base + '_' + str(segment_idx - 1)
+                            new_key = '__'.join(parts)
 
             for value in values:
                 updated_form.add(new_key, value)
@@ -165,10 +204,16 @@ class EventsView(FlaskView):
         multiples = self._build_multiples_from_form(rform)
 
         group_name = rform.get('group_name', '')
-        group_match = re.search(r'\[multiple\]([^_]+)', group_name)
-        if group_match:
-            base_key = group_match.group(1)
-            multiples[base_key] = multiples.get(base_key, 1) + 1
+        group_segments = self._normalize_group_name_segments(group_name)
+        if group_segments:
+            group_match = self._multiple_segment_pattern.match(group_segments[-1])
+            if group_match:
+                parent_instances = group_segments[:-1]
+                base_key = group_match.group(1)
+                index = int(group_match.group(2))
+                count_key = self._multiple_count_key(parent_instances, base_key)
+                current_count = multiples.get(count_key, index)
+                multiples[count_key] = max(current_count, index) + 1
 
         form = get_event_form(multiples=multiples)
         form.process(formdata=rform)

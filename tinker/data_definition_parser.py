@@ -257,61 +257,51 @@ def get_field_definitions(data_def_id, multiples={}):
         # Output fields as json
         # app.logger.debug('get_field_definitions: parsed fields for id=%s: %s', data_def_id, json.dumps(fields))
         
-        # Build a multiples object by parsing fields and child fields and finding any of type group with multiple="true".
-        initial_multiples = {}
-        def find_multiples(defs):
-            for d in defs:
-                if d.get('type') == 'group':
-                    if d.get('multiple'):
-                        initial_multiples[d['identifier']] = 1
-                    find_multiples(d.get('children', []))
-        find_multiples(fields)
+        multiples = multiples or {}
 
-        if initial_multiples and multiples:
-            # Update initial_multiples with any values from the multiples argument, which may specify counts for some identifiers.
-            for ident, count in multiples.items():
-                if ident in initial_multiples:
-                    initial_multiples[ident] = count
+        def get_multiple_count(parent_multiple_instances, group_identifier):
+            count_key = '__'.join(parent_multiple_instances + [group_identifier]) if parent_multiple_instances else group_identifier
+            raw_count = multiples.get(count_key, multiples.get(group_identifier, 1))
+            try:
+                count = int(raw_count)
+            except (TypeError, ValueError):
+                count = 1
+            return max(count, 1)
 
-        multiples = initial_multiples
+        def expand_group_defs(defs, parent_multiple_instances=None):
+            expanded = []
+            current_parents = parent_multiple_instances or []
 
-        if multiples:
-            # example usage: multiples={'offer': 2} to request 2 sets of 'offer' group fields
-            # finds the group definition for each requested identifier with multiple="true" and duplicates its fields with indexed identifiers
-            def find_group_and_parent_children(defs, ident, parent_children_list_ref):
-                for idx, d in enumerate(defs):
-                    if d.get('identifier') == ident:
-                        return d, parent_children_list_ref, idx
-                    if d.get('type') == 'group':
-                        # Pass the current group's children list as the new parent_children_list_ref
-                        found, found_parent_children, found_idx = find_group_and_parent_children(d.get('children', []), ident, d.get('children', []))
-                        if found:
-                            return found, found_parent_children, found_idx
-                return None, None, None
+            for field_def in defs:
+                if field_def.get('type') != 'group':
+                    expanded.append(field_def)
+                    continue
 
-            for identifier, count in multiples.items():
-                # Initial call for top-level fields: parent_children_list_ref is the top-level 'fields' list
-                group_def, parent_children_list, group_idx = find_group_and_parent_children(fields, identifier, fields)
+                children = field_def.get('children', [])
 
-                # Ensure the definition exists and is explicitly marked as a multiple group
-                if group_def and group_def.get('type') == 'group' and group_def.get('multiple'):
-                    if parent_children_list is not None and group_idx is not None:
-                        # Remove the original group
-                        parent_children_list.pop(group_idx)
-                        
-                        # Insert duplicated groups
-                        for i in range(1, count + 1):
-                            # Create a copy of the group definition and update its identifier and label
-                            duplicated_group = {
-                                **group_def,
-                                'identifier': f"[multiple]{group_def['identifier']}_{i}",
-                                'label': f"{group_def['label']} {i}" # Update label for display in template
-                            }
-                            # The 'multiple' flag should be set to false for the duplicated groups
-                            # as they are now concrete instances, not templates for duplication.
-                            duplicated_group['multiple'] = False
-                            parent_children_list.insert(group_idx + i - 1, duplicated_group) # Insert at correct position
-        return fields
+                if field_def.get('multiple'):
+                    group_identifier = field_def.get('identifier', '')
+                    instance_count = get_multiple_count(current_parents, group_identifier)
+
+                    for i in range(1, instance_count + 1):
+                        instance_identifier = f"[multiple]{group_identifier}_{i}"
+                        duplicated_group = {
+                            **field_def,
+                            'identifier': instance_identifier,
+                            'label': f"{field_def.get('label', group_identifier)} {i}",
+                            'multiple': False,
+                            'children': expand_group_defs(children, current_parents + [instance_identifier]),
+                        }
+                        expanded.append(duplicated_group)
+                else:
+                    expanded.append({
+                        **field_def,
+                        'children': expand_group_defs(children, current_parents),
+                    })
+
+            return expanded
+
+        return expand_group_defs(fields, parent_multiple_instances=[])
     except Exception:
         app.logger.exception(
             'data_definition_parser: failed to parse field definitions for id=%s',
