@@ -1,0 +1,68 @@
+/* Visually hidden elements */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+    border: 0 !important;
+}
+
+/* Card styles */
+.card label, .card legend {
+    color: #444;
+}
+.card.card--multiple {
+    background-color: #d8d8d8;
+}
+.card.card--multiple label, .card.card--multiple legend {
+    color: #1a1a1a;
+}
+.card.card--multiple .card.card--multiple {
+    background-color: #c2c2c2;
+}
+.card.card--multiple .card.card--multiple label,
+.card.card--multiple .card.card--multiple legend {
+    color: #0d0d0d;
+}
+.card.card--multiple .card.card--multiple .card.card--multiple {
+    background-color: #ababab;
+}
+.card.card--multiple .card.card--multiple .card.card--multiple label,
+.card.card--multiple .card.card--multiple .card.card--multiple legend {
+    color: #000;
+}
+
+/* Fieldset template */
+fieldset.fieldset_template {
+    display: none;
+}
+
+/* Legend styles */
+legend {
+    border-bottom-color: #999 !important;
+}
+
+/* Card nesting depth backgrounds */
+.card-depth-1 {
+    background: #f7f7f7;
+    border: 1px solid #e0e0e0;
+}
+.card-depth-2 {
+    background: #e9e9ec;
+    border: 1px solid #cccccc;
+}
+.card-depth-3 {
+    background: #d6d6db;
+    border: 1px solid #bbbbbb;
+}
+.card-depth-4 {
+    background: #bfc0c7;
+    border: 1px solid #aaaaaa;
+}
+.card-depth-5 {
+    background: #a7a8b3;
+    border: 1px solid #999999;
+}
