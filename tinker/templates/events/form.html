@@ -1,4 +1,3 @@
-
 {% extends "tinker_base.html" %}
 {% set title = 'Events' %}
 {% import "events/form_macros.html" as form_macros %}
@@ -296,6 +295,17 @@ function addMultiple(groupName, buttonEl) {
         }
     }
 
+    // Preserve file input values
+    const form = document.querySelector('#eventform');
+    const fileInputs = form.querySelectorAll('input[type="file"]');
+    const fileData = {};
+
+    fileInputs.forEach(input => {
+        if (input.files.length > 0) {
+            fileData[input.name] = input.files;
+        }
+    });
+
     var payload = $('#eventform').serializeArray();
     payload.push({ name: 'group_name', value: groupName });
 
@@ -319,6 +329,18 @@ function addMultiple(groupName, buttonEl) {
             $('#event-form-fields').html(response.html);
             initializeDynamicFormUi();
 
+            // Reapply file input values
+            setTimeout(() => {
+                Object.keys(fileData).forEach(name => {
+                    const input = form.querySelector(`input[name="${name}"]`);
+                    if (input) {
+                        const dataTransfer = new DataTransfer();
+                        Array.from(fileData[name]).forEach(file => dataTransfer.items.add(file));
+                        input.files = dataTransfer.files;
+                    }
+                });
+            }, 100);
+
             if (typeof CKEDITOR !== 'undefined' && CKEDITOR.replaceAll) {
                 CKEDITOR.replaceAll('ckeditor');
             }
@@ -329,7 +351,7 @@ function addMultiple(groupName, buttonEl) {
         complete: function() {
             if ($button.length && document.body.contains($button[0])) {
                 $button
-                    .removeAttr('aria-disabled')
+                    .attr('aria-disabled', 'false')
                     .css('pointer-events', '')
                     .css('opacity', originalOpacity)
                     .text(originalLabel);
