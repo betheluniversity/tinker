@@ -349,7 +349,7 @@ class TinkerController(object):
         return edit_data
     
 
-    def get_edit_data(self, sdata, mdata, multiple=[]):
+def get_edit_data(self, sdata, mdata, multiple=[]):
         """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
         edit_data = {}
 
@@ -357,10 +357,12 @@ class TinkerController(object):
             edit_data[m] = []
 
         for node in find(sdata, 'identifier'):
-            node_identifier = node['identifier'].replace('-', '_')
-            if node_identifier in multiple:
-                edit_data[node_identifier].append(self.inspect_sdata_node(node))
+            if node['identifier'] in multiple:
+                m = node['identifier']
+                edit_data[m].append(self.inspect_sdata_node(node))
+
             else:
+                node_identifier = node['identifier'].replace('-', '_')
                 edit_data[node_identifier] = self.inspect_sdata_node(node)
 
         dynamic_fields = find(mdata, 'dynamicField', False)
