@@ -178,20 +178,20 @@ class EventsView(FlaskView):
         if self.base.asset_in_workflow(event_id, asset_type='page'):
             return redirect(url_for('EventsView:event_in_workflow'), code=302)
 
-        edit_data, dates = self.base.build_edit_form(event_id)
+        edit_data, dates, multiples = self.base.build_edit_form(event_id)
         # todo: fix this with the submit_all() functionality ASK CALEB
         # convert 'On/Off campus' to 'On/Off Campus' for all events
         from tinker.events.forms import get_event_form
-        form = get_event_form(cascade_data=edit_data)
+        form = get_event_form(multiples=multiples, cascade_data=edit_data)
         # if 'location' in edit_data and edit_data['location']:
         #     edit_data['location'].replace(' c', ' C')
 
         return render_template('events/form.html', **locals())
 
     def duplicate(self, event_id):
-        edit_data, dates = self.base.build_edit_form(event_id)
+        edit_data, dates, multiples = self.base.build_edit_form(event_id)
         from tinker.events.forms import get_event_form
-        form = get_event_form(cascade_data=edit_data)
+        form = get_event_form(multiples=multiples, cascade_data=edit_data)
         new_form = True
 
         return render_template('events/form.html', **locals())

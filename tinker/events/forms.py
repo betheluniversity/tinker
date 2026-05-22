@@ -34,6 +34,42 @@ from tinker.data_definition_parser import get_field_definitions
 tinker = TinkerController()
 
 
+def _flatten_event_cascade_data(data, prefix=''):
+    """Flatten nested event edit-data into WTForms field keys.
+
+    Example:
+      {'cost': {'offer': [{'price': '1'}]}}
+      -> {'cost__[multiple]offer_1__price': '1'}
+    """
+    flat = {}
+
+    if not isinstance(data, dict):
+        return flat
+
+    for key, value in data.items():
+        field_key = '{}__{}'.format(prefix, key) if prefix else key
+
+        if isinstance(value, dict):
+            flat.update(_flatten_event_cascade_data(value, field_key))
+            continue
+
+        if isinstance(value, list):
+            # Multiple groups are represented as list[dict] in edit_data.
+            if value and all(isinstance(item, dict) for item in value):
+                for index, item in enumerate(value, start=1):
+                    instance_key = '[multiple]{}_{}'.format(key, index)
+                    nested_prefix = '{}__{}'.format(prefix, instance_key) if prefix else instance_key
+                    flat.update(_flatten_event_cascade_data(item, nested_prefix))
+            else:
+                # SelectMultiple and metadata arrays should remain arrays.
+                flat[field_key] = value
+            continue
+
+        flat[field_key] = value
+
+    return flat
+
+
 # ---------------------------------------------------------------------------
 # Validators
 # ---------------------------------------------------------------------------
@@ -101,7 +137,8 @@ def get_event_form(multiples={}, cascade_data=None):
                     metaDescription, category lists, etc.) that are NOT
                     identifiers in the data definition pass through unchanged.
     """
-    form = _build_event_form_class(multiples=multiples)(**cascade_data if cascade_data else {})
+    form_kwargs = _flatten_event_cascade_data(cascade_data) if cascade_data else {}
+    form = _build_event_form_class(multiples=multiples)(**form_kwargs)
 
     def _json_default(obj):
         from werkzeug.datastructures import FileStorage

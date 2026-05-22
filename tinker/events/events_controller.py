@@ -496,8 +496,31 @@ class EventsController(TinkerController):
             edit_data.setdefault('date', {})
             edit_data['date'].update(date_values)
 
+        multiples = self._build_multiples_from_edit_data(edit_data)
         dates = fjson.dumps([])
-        return convert_asset(edit_data), dates
+        return convert_asset(edit_data), dates, multiples
+
+    def _build_multiples_from_edit_data(self, value, parent_instances=None):
+        multiples = {}
+        current_parents = parent_instances or []
+
+        if not isinstance(value, dict):
+            return multiples
+
+        for key, child in value.items():
+            if isinstance(child, list) and child and all(isinstance(item, dict) for item in child):
+                count_key = '__'.join(current_parents + [key]) if current_parents else key
+                multiples[count_key] = len(child)
+
+                for index, item in enumerate(child, start=1):
+                    instance_identifier = '[multiple]{}_{}'.format(key, index)
+                    nested = self._build_multiples_from_edit_data(item, current_parents + [instance_identifier])
+                    multiples.update(nested)
+            elif isinstance(child, dict):
+                nested = self._build_multiples_from_edit_data(child, current_parents)
+                multiples.update(nested)
+
+        return multiples
 
     def _extract_event_date_values(self, sdata):
         date_group = None
