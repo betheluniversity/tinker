@@ -349,7 +349,7 @@ class TinkerController(object):
         return edit_data
     
 
-def get_edit_data(self, sdata, mdata, multiple=[]):
+    def get_edit_data(self, sdata, mdata, multiple=[]):
         """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
         edit_data = {}
 
