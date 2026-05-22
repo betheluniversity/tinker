@@ -21,6 +21,13 @@ from tinker.tinker_controller import TinkerController
 
 
 class EventsController(TinkerController):
+    _TZ_MAP = {
+        'central': 'America/Chicago',
+        'eastern': 'America/New_York',
+        'mountain': 'America/Denver',
+        'pacific': 'America/Los_Angeles'
+    }
+
     # find_all is currently unused for events (but used for the e-annz)
     def inspect_child(self, child, find_all=False, csv=False):
         try:
@@ -274,11 +281,7 @@ class EventsController(TinkerController):
                 self.cascade_connector.edit(image_asset)
             else:
                 try:
-                    image_asset = self.read(
-                        app.config.get('EVENTS_IMAGE_BASE_ASSET_FILE',
-                                       app.config.get('IMAGE_WITH_DEFAULT_IMAGE_BASE_ASSET')),
-                        'file'
-                    )['asset']
+                    image_asset = self.read(app.config.get('EVENTS_IMAGE_BASE_ASSET'),'file')['asset']
                 except Exception:
                     return None
 
@@ -482,10 +485,49 @@ class EventsController(TinkerController):
 
     def build_edit_form(self, event_id):
         page = self.read_page(event_id)
+        structured_data = page.get_structured_data()
         # Return raw Cascade data; forms.py flattens it against the live data definition.
-        edit_data = self.get_edit_data(page.get_structured_data(), page.get_metadata(), multiple=[])
+        edit_data = self.get_event_edit_data(structured_data, page.get_metadata())
+
+        # get_edit_data converts numeric timestamps using server-local time.
+        # For events, always render eventStart/eventEnd in the event's selected timezone.
+        date_values = self._extract_event_date_values(structured_data)
+        if date_values:
+            edit_data.setdefault('date', {})
+            edit_data['date'].update(date_values)
+
         dates = fjson.dumps([])
         return convert_asset(edit_data), dates
+
+    def _extract_event_date_values(self, sdata):
+        date_group = None
+        for node in find(sdata, 'identifier'):
+            if node.get('identifier') == 'date':
+                date_group = node
+                break
+
+        if not date_group:
+            return {}
+
+        date_values = {}
+        nodes = date_group.get('structuredDataNodes', {}).get('structuredDataNode', [])
+        if isinstance(nodes, dict):
+            nodes = [nodes]
+
+        for node in nodes:
+            identifier = node.get('identifier')
+            if identifier in ('eventStart', 'eventEnd', 'timeZone', 'hideTime'):
+                date_values[identifier] = node.get('text')
+
+        tz_label = date_values.get('timeZone', 'central')
+        tz_name = self._TZ_MAP.get(tz_label, 'America/Chicago')
+
+        for key in ('eventStart', 'eventEnd'):
+            value = date_values.get(key)
+            if value:
+                date_values[key] = self.timestamp_to_date_str(value, tz_name)
+
+        return date_values
 
     def date_str_to_timestamp(self, date_string, timezone='America/Chicago'):
         try:
@@ -506,7 +548,7 @@ class EventsController(TinkerController):
             return None
 
     def update_structure(self, add_data, username, workflow=None, event_id=None):
-        bid = app.config['EVENTS_BASE_ASSET']
+        bid = app.config['EVENTS_PAGE_BASE_ASSET']
 
         if not event_id:
             event_data, metadata, structured_data = self.cascade_connector.load_base_asset_by_id(bid, 'page')

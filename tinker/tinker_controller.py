@@ -320,6 +320,35 @@ class TinkerController(object):
                     return_values.append(md.find('value').text)
         return return_values
 
+
+    def get_event_edit_data(self, sdata, mdata):
+        """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
+        edit_data = {}
+
+        for node in find(sdata, 'identifier'):
+            node_identifier = node['identifier'].replace('-', '_')
+            edit_data[node_identifier] = self.inspect_sdata_node(node)
+
+        dynamic_fields = find(mdata, 'dynamicField', False)
+        # now metadata dynamic fields
+        for field in dynamic_fields:
+            if find(field, 'fieldValue', False):
+                # find(item, 'value', False) was set in order for events md select fields to work
+                items = [find(item, 'value', False) for item in find(field, 'fieldValue', False)]
+                edit_data[field['name'].replace('-', '_')] = items
+
+        # Add the rest of the fields. Can't loop over these kinds of metadata
+        if 'title' in mdata:
+            edit_data['title'] = mdata['title']
+        if 'metaDescription' in mdata:
+            edit_data['metaDescription'] = mdata['metaDescription']
+
+        # get the authors
+        edit_data['author'] = find(mdata, 'author', False)
+
+        return edit_data
+    
+
     def get_edit_data(self, sdata, mdata, multiple=[]):
         """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
         edit_data = {}
@@ -379,7 +408,18 @@ class TinkerController(object):
             group = {}
             for n in node['structuredDataNodes']['structuredDataNode']:
                 node_identifier = n['identifier'].replace('-', '_')
-                group[node_identifier] = self.inspect_sdata_node(n)
+                value = self.inspect_sdata_node(n)
+
+                # Preserve repeated group identifiers as arrays instead of
+                # overwriting earlier items (for example cost.offer,
+                # schedule.scheduleDetails, scheduleDetails.timeDescription).
+                if node_identifier in group:
+                    if isinstance(group[node_identifier], list):
+                        group[node_identifier].append(value)
+                    else:
+                        group[node_identifier] = [group[node_identifier], value]
+                else:
+                    group[node_identifier] = value
             return group
 
         elif node_type == 'text':

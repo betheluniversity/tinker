@@ -128,31 +128,19 @@ def _build_event_form_class(multiples={}):
     """
 
     all_fields = {}
-    built_in_fields, _raw_custom_fields = get_metadata_fields(tinker, '/Event-v4')
+    built_in_fields, _raw_custom_fields = get_metadata_fields(tinker, app.config.get('EVENTS_METADATA_SET', ''))
 
     all_fields.update(built_in_fields)
 
     # Walk the full data definition tree
     # Pass event-specific field config and choice overrides to the generic helper.
-    on_campus_locations = get_structured_data_labels(tinker, app.config.get('EVENTS_ON_CAMPUS_LOCATIONS_DD_ID', ''))
+    on_campus_locations = get_structured_data_labels(tinker, app.config.get('EVENTS_ON_CAMPUS_LOCATIONS', ''))
     dd_fields = _fields_from_def(
         get_field_definitions(app.config.get('EVENTS_DATA_DEF_ID', ''), multiples=multiples),
         field_extra=_FIELD_EXTRA,
         override_choices={'location': on_campus_locations},
     )
     all_fields.update(dd_fields)
-
-    # Remove this?
-    # External Link field (only editable by Event Approvers; not in the metadataset)
-    # if 'Event Approver' in session.get('groups', []):
-    #     link_field = StringField(
-    #         'External Link',
-    #         description="This field only seen by 'Event Approvers'. "
-    #                     "An external link will redirect this event to the external link url.",
-    #     )
-    # else:
-    #     link_field = HiddenField('External Link')
-    # all_fields['link'] = link_field
 
     # Finally, build custom fields from the metadata set
     custom_fields = build_metadata_custom_fields(_raw_custom_fields)
