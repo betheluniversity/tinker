@@ -1,4 +1,4 @@
-{% import "events/form_macros.html" as form_macros %}
+{% import "events/form_macros.html" as form_macros with context %}
 {% if event_id %}
 <input type="hidden" name="event_id" id="event_id" value="{{ event_id }}"/>
 {% endif %}

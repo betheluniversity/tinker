@@ -606,8 +606,99 @@ function validateRequiredRichFields($form) {
     return false;
 }
 
+function openImagePreviewModal(imageUrl, imageAlt) {
+    var $modal = $('#image-preview-modal');
+    var $image = $('#image-preview-modal-image');
+    if (!$modal.length || !$image.length) return;
+
+    $image.attr('src', imageUrl || '');
+    $image.attr('alt', imageAlt || 'Image preview');
+    $modal.removeClass('visually-hidden').attr('aria-hidden', 'false');
+}
+
+function closeImagePreviewModal() {
+    var $modal = $('#image-preview-modal');
+    var $image = $('#image-preview-modal-image');
+    if (!$modal.length) return;
+
+    $modal.addClass('visually-hidden').attr('aria-hidden', 'true');
+    if ($image.length) {
+        $image.attr('src', '');
+    }
+}
+
+function renderSelectedFilePreview(fileInput) {
+    var file = fileInput && fileInput.files && fileInput.files[0];
+    if (!file) return;
+    if (!file.type || file.type.indexOf('image/') !== 0) return;
+
+    var $input = $(fileInput);
+    var $container = $input.closest('.card .content');
+    var labelText = $container.find("label[for='" + ($input.attr('id') || '') + "']").text().trim() || 'Image preview';
+
+    var $previewInline = $container.find('.image-preview-inline').first();
+    if (!$previewInline.length) {
+        $previewInline = $('<div class="image-preview-inline"></div>');
+        $previewInline.insertAfter($input.siblings("input[type='hidden'][name$='_path']").last());
+    }
+
+    var $trigger = $previewInline.find('.image-preview-trigger').first();
+    if (!$trigger.length) {
+        $trigger = $('<a href="#" class="image-preview-trigger" data-preview-url="" data-preview-alt=""></a>');
+        $previewInline.append($trigger);
+    }
+
+    var $img = $trigger.find('.image-preview-thumb').first();
+    if (!$img.length) {
+        $img = $('<img class="image-preview-thumb" alt="" />');
+        $trigger.append($img);
+    }
+
+    var objectUrl = URL.createObjectURL(file);
+    var prevObjectUrl = $trigger.data('objectUrl');
+    if (prevObjectUrl) {
+        URL.revokeObjectURL(prevObjectUrl);
+    }
+
+    $trigger.data('objectUrl', objectUrl);
+    $trigger.attr('data-preview-url', objectUrl);
+    $trigger.attr('data-preview-alt', labelText);
+
+    $img.attr('src', objectUrl);
+    $img.attr('alt', labelText);
+
+    var $small = $previewInline.find('small.small-link').first();
+    if (!$small.length) {
+        $small = $('<small class="small-link"></small>');
+        $previewInline.append($small);
+    }
+    $small.text(file.name);
+}
+
 $(document).ready(function () {
     initializeDynamicFormUi();
+
+    $(document).on('click', '.image-preview-trigger', function (e) {
+        e.preventDefault();
+        var imageUrl = $(this).data('preview-url');
+        var imageAlt = $(this).data('preview-alt') || 'Image preview';
+        openImagePreviewModal(imageUrl, imageAlt);
+    });
+
+    $(document).on('click', '[data-image-preview-close]', function () {
+        closeImagePreviewModal();
+    });
+
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape') {
+            closeImagePreviewModal();
+        }
+    });
+
+    $(document).on('change', '#eventform input[type="file"]', function () {
+        renderSelectedFilePreview(this);
+    });
+
     $('#eventform').on('submit', function (e) {
         if (!validateRequiredRichFields($(this))) {
             e.preventDefault();

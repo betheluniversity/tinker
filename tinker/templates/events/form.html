@@ -1,6 +1,6 @@
 {% extends "tinker_base.html" %}
 {% set title = 'Events' %}
-{% import "events/form_macros.html" as form_macros %}
+{% import "events/form_macros.html" as form_macros with context %}
 
 {% block page_title %}
     {% if new_form %}
@@ -23,6 +23,14 @@
                 </div>
                 <button type="submit" formmethod="post" id="event-submit-btn" class="btn btn-primary">Submit</button>
                 </form>
+
+                <div id="image-preview-modal" class="image-preview-modal visually-hidden" aria-hidden="true">
+                    <div class="image-preview-backdrop" data-image-preview-close="1"></div>
+                    <div class="image-preview-dialog" role="dialog" aria-modal="true" aria-label="Image preview">
+                        <button type="button" class="image-preview-close" data-image-preview-close="1" aria-label="Close preview">&times;</button>
+                        <img id="image-preview-modal-image" src="" alt="Image preview" />
+                    </div>
+                </div>
             </div>
         </div>
     </div>

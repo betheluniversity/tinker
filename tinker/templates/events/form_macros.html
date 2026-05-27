@@ -169,6 +169,8 @@
         {{ render_checkbox(field) }}
     {% elif field.type == "RadioField" %}
         {{ render_radio(field, group) }}
+    {% elif field.type == "FileField" %}
+        {{ render_file_field(field) }}
     {% elif field.type in ["DateField", "DateTimeField"] %}
         {{ render_datepicker(field) }}
     {% else %}
@@ -243,6 +245,32 @@
         {{ field(class="ckeditor") }}
     {% endif %}
     <br />
+{%- endmacro %}
+
+{% macro render_file_field(field) -%}
+{{ render_label(field) }}
+{% set path_field_name = field.name ~ '_path' %}
+{% set existing_path = field.data if field.data is string else '' %}
+{% if not existing_path and request and request.form %}
+    {% set existing_path = request.form.get(path_field_name, '') %}
+{% endif %}
+
+{{ field }}
+<input type="hidden" name="{{ path_field_name }}" value="{{ existing_path }}" />
+
+{% if existing_path %}
+    {% if existing_path.startswith('http://') or existing_path.startswith('https://') %}
+        {% set preview_url = existing_path %}
+    {% else %}
+        {% set preview_url = 'https://www.bethel.edu/' ~ existing_path.lstrip('/') %}
+    {% endif %}
+    <div class="image-preview-inline">
+        <a href="#" class="image-preview-trigger" data-preview-url="{{ preview_url }}" data-preview-alt="{{ field.label.text }}">
+            <img src="{{ preview_url }}" alt="{{ field.label.text }}" class="image-preview-thumb" />
+        </a>
+        <small class="small-link">{{ existing_path }}</small>
+    </div>
+{% endif %}
 {%- endmacro %}
 
 {% macro render_datepicker(field) -%}

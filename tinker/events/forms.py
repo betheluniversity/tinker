@@ -140,6 +140,16 @@ def get_event_form(multiples={}, cascade_data=None):
     form_kwargs = _flatten_event_cascade_data(cascade_data) if cascade_data else {}
     form = _build_event_form_class(multiples=multiples)(**form_kwargs)
 
+    for field in form:
+        if getattr(field, 'type', '') != 'FileField':
+            continue
+        if not isinstance(field.data, str) or not field.data:
+            continue
+
+        path_field = form._fields.get(field.name + '_path')
+        if path_field and not path_field.data:
+            path_field.data = field.data
+
     def _json_default(obj):
         from werkzeug.datastructures import FileStorage
         if isinstance(obj, FileStorage):
@@ -184,12 +194,21 @@ def _build_event_form_class(multiples={}):
     all_fields.update(custom_fields)
 
     # Apply _FIELD_EXTRA and ensure 'order' exists for all fields to support template sorting.
-    for name, field in all_fields.items():
+    for name, field in list(all_fields.items()):
         extra = _FIELD_EXTRA.get(name, {})
         rk = dict(field.kwargs.get('render_kw', {}) or {})
 
         if 'render_kw' in extra:
             rk.update(extra['render_kw'])
+
+        if rk.get('type') == 'hidden' and field.field_class is not HiddenField:
+            rk['order'] = extra.get('order', rk.get('order', 999))
+            all_fields[name] = HiddenField(
+                field.args[0] if field.args else name,
+                default=field.kwargs.get('default', ''),
+                render_kw=rk,
+            )
+            continue
 
         # Ensure 'order' is always present in render_kw for the Jinja sort filter.
         # Priority: _FIELD_EXTRA['order'] > existing field.render_kw['order'] > default 999.

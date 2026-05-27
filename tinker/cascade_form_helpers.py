@@ -211,6 +211,9 @@ def _build_field(field_def, field_extra=None, override_choices=None):
     validators.extend(extra.get('extra_validators', []))
     kw = dict(extra.get('render_kw', {}))
 
+    if kw.get('type') == 'hidden':
+        return HiddenField(label, default=default, render_kw=kw)
+
     if ftype == 'datetime':
         # Use StringField — the datepicker submits "Month Dth YYYY, HH:MM AM/PM"
         # which change_dates() parses server-side.  WTForms' DateTimeField would

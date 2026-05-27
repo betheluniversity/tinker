@@ -325,7 +325,7 @@ class EventsController(TinkerController):
                     add_data[field.name] = uploaded_path
                     continue
 
-            existing_path = add_data.get(field.name + '_path') or add_data.get(field.name + '-path') or ''
+            existing_path = add_data.get(field.name + '_path', '')
             add_data[field.name] = existing_path
 
         return add_data
@@ -508,6 +508,8 @@ class EventsController(TinkerController):
     def build_edit_form(self, event_id):
         page = self.read_page(event_id)
         structured_data = page.get_structured_data()
+        #app.logger.debug('Structured data for event {}: {}'.format(event_id, json.dumps(structured_data)))
+        
         # Return raw Cascade data; forms.py flattens it against the live data definition.
         edit_data = self.get_event_edit_data(structured_data, page.get_metadata())
 
