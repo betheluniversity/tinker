@@ -155,6 +155,38 @@ function stripCostChars(input) {
     input.value = input.value.replace(/[$,]/g, '');
 }
 
+// Normalizes pasted content to plain ASCII text for datepicker inputs.
+function cleanPastedText(text) {
+    var mojibake = [
+        ['\u00e2\u20ac\u201d', '\u2014'],  // em dash
+        ['\u00e2\u20ac\u201c', '\u2013'],  // en dash
+        ['\u00e2\u20ac\u2122', '\u2019'],  // right single quote
+        ['\u00e2\u20ac\u02dc', '\u2018'],  // left single quote
+        ['\u00e2\u20ac\u0153', '\u201c'],  // left double quote
+        ['\u00e2\u20ac\x9d',   '\u201d'],  // right double quote
+        ['\u00e2\u20ac\u00a6', '\u2026'],  // ellipsis
+        ['\u00e2\u20ac\u00a2', '\u2022']   // bullet
+    ];
+
+    text = text || '';
+    for (var i = 0; i < mojibake.length; i++) {
+        text = text.split(mojibake[i][0]).join(mojibake[i][1]);
+    }
+
+    text = text
+        .replace(/\u2014/g, '-')
+        .replace(/\u2013/g, '-')
+        .replace(/\u2018/g, "'")
+        .replace(/\u2019/g, "'")
+        .replace(/\u201c/g, '"')
+        .replace(/\u201d/g, '"')
+        .replace(/\u2026/g, '...')
+        .replace(/\u00a0/g, ' ')
+        .replace(/\u2022/g, '*');
+
+    return text.replace(/[^\x20-\x7E\n\r\t]/g, '');
+}
+
 function addMultiple(groupName, buttonEl) {
     const $button = buttonEl ? $(buttonEl) : $();
     const originalLabel = $button.length ? $button.text() : '';
@@ -678,6 +710,23 @@ function renderSelectedFilePreview(fileInput) {
 $(document).ready(function () {
     initializeDynamicFormUi();
 
+    // Sanitize pasted content for all text inputs and textareas in the event form.
+    $(document).on('paste', '#eventform input[type="text"], #eventform textarea', function (e) {
+        e.preventDefault();
+        var clipboard = e.originalEvent.clipboardData || window.clipboardData;
+        var pastedText = clipboard ? clipboard.getData('text') : '';
+        var cleaned = cleanPastedText(pastedText);
+        var el = e.target;
+        var start = el.selectionStart || 0;
+        var end = el.selectionEnd || 0;
+        var current = el.value || '';
+
+        el.value = current.substring(0, start) + cleaned + current.substring(end);
+        el.selectionStart = el.selectionEnd = start + cleaned.length;
+
+        $(el).trigger('input');
+    });
+
     $(document).on('click', '.image-preview-trigger', function (e) {
         e.preventDefault();
         var imageUrl = $(this).data('preview-url');
@@ -720,6 +769,18 @@ $(document).ready(function () {
     // Clear custom validity for required editors when users type.
     if (typeof CKEDITOR !== 'undefined') {
         CKEDITOR.on('instanceReady', function (ev) {
+            // CKEditor handles clipboard input internally, so sanitize at the editor paste event.
+            ev.editor.on('paste', function (pasteEvent) {
+                pasteEvent.data.dataValue = cleanPastedText(
+                    pasteEvent.data.dataValue
+                        .replace(/<[^>]+>/g, ' ')
+                        .replace(/&amp;/g, '&')
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/&nbsp;/g, ' ')
+                );
+            });
+
             ev.editor.on('change', function () {
                 if (ev.editor.element && ev.editor.element.$) {
                     ev.editor.element.$.setCustomValidity('');
