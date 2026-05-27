@@ -254,18 +254,21 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro render_checkbox(field) -%}
-{% set checked = field.data %}
-{% set field_onclick = 'checkboxClicked(this); ' ~ field.render_kw.get('onclick', '') %}
-<label for="{{ field.id }}" id="{{ field.id }}_label" class="checkbox{{ ' checked' if checked else '' }}" onclick="{{ field_onclick }}">
-    <span class="icons">
-        <span class="first-icon fa fa-square-o"></span>
-        <span class="second-icon fa fa-check-square-o"></span>
-    </span>
-    
-    {{ field.label.text }}
-    <input name="{{ field.name }}" type="checkbox" {{ 'value="Yes"' if checked else 'value="No"' }} {{ 'checked' if checked else '' }} />
-</label>
+{% macro render_checkbox(field, show_description=True) -%}
+{% set field_classes = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
+<div id="{{ field.name }}_label" class="checkbox-inline-field {{ field_classes }}">
+    {% if show_description and field.description %}
+        <small class="extra-required">{{ field.description }}</small>
+    {% endif %}
+    <label for="{{ field.id }}" class="checkbox-inline-control">
+        {{ field(class_='checkbox-inline-input') }}
+        {{ field.label.text }}
+        {% if field.flags.required %}
+        <small class="required">required</small>
+        {% endif %}
+    </label>
+    <br /><br />
+</div>
 {%- endmacro %}
 
 {% macro render_radio(field, group) -%}

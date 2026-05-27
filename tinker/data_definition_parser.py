@@ -151,6 +151,23 @@ def _parse_element(element):
             'help_text': help_text,
         }
     if field_type == 'checkbox':
+        checkbox_choices = [
+            {
+                'value': ci.get('value', ''),
+                'label': ci.get('label', ''),
+                'selected': (
+                    str(ci.get('checked', 'false')).strip().lower() == 'true'
+                ),
+            }
+            for ci in element.findall('checkbox-item')
+        ]
+
+        # Some data definitions mark the default checked item via checkbox-item
+        # selected/selectedByDefault attributes instead of the parent default attr.
+        if not default:
+            selected_values = [c.get('value', '') for c in checkbox_choices if c.get('selected')]
+            default = selected_values[0] if selected_values else default
+
         return {
             'identifier': identifier,
             'label': label,
@@ -158,10 +175,7 @@ def _parse_element(element):
             'required': required,
             'default': default,
             'help_text': help_text,
-            'choices': [
-                {'value': ci.get('value', ''), 'label': ci.get('label', '')}
-                for ci in element.findall('checkbox-item')
-            ],
+            'choices': checkbox_choices,
         }
     if field_type == 'dropdown':
         return {

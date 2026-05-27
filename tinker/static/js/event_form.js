@@ -30,20 +30,6 @@ function setCkeditorInlineError(textareaEl, message) {
     }
 }
 
-// Function to disable or enable hidden inputs based on checkbox state
-// Posts a "No" value when unchecked
-function checkboxClicked(label) {
-    var $checkbox = $(label).find('input[type="checkbox"]');
-    var $card = $(label).closest('.card');
-    var name = $checkbox.attr('name');
-    var $hiddenInput = $card.find("input[type='hidden'][name='" + name + "']");
-    if ($checkbox.is(':checked')) {
-        $hiddenInput.prop('disabled', false);
-    } else {
-        $hiddenInput.prop('disabled', true);
-    }
-}
-
 function selectChanged(select) {
     console.log("select changed: " + select.name);
     var val = $(select).val();
@@ -454,14 +440,14 @@ function initializeDynamicFormUi() {
     });
 }
 
-// When "All-day event?" is checked, set both start and end times to midnight.
-function setAllDayTime(label) {
-    // checkboxClicked hasn't toggled the class yet at onclick time, so
-    // "will be checked" = currently does NOT have class 'checked'.
-    var willBeChecked = !$(label).hasClass('checked');
-    if (!willBeChecked) return;
+// When "All-day event?" is checked, set start to midnight and end to end of day.
+function setAllDayTime(target) {
+    var $target = $(target);
+    var targetIsCheckbox = $target.is('input[type="checkbox"]');
+    var $checkbox = targetIsCheckbox ? $target : $target.find('input[type="checkbox"]');
+    if (!$checkbox.length) return;
 
-    var $card = $(label).closest('.card');
+    var $card = $checkbox.closest('.card');
     var $startInput = $card.find('.date__eventStart_wrap input.datepicker');
     var $endInput   = $card.find('.date__eventEnd_wrap input.datepicker');
     var format = 'MMMM Do YYYY, h:mm a';
@@ -478,8 +464,20 @@ function setAllDayTime(label) {
         }
     }
 
+    function endTime($input) {
+        var val = $input.val();
+        if (!val) return;
+        var m = moment(val, format);
+        if (!m.isValid()) return;
+        m.endOf('day');  // sets time to 23:59:59
+        $input.val(m.format(format));
+        if ($input[0] && $input[0]._pikaday) {
+            $input[0]._pikaday.setDate(m.toDate(), true);
+        }
+    }
+
     zeroTime($startInput);
-    zeroTime($endInput);
+    endTime($endInput);
 }
 
 // Ensures the event end date/time is never before the event start date/time.

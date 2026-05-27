@@ -66,3 +66,25 @@ legend {
     background: #a7a8b3;
     border: 1px solid #999999;
 }
+
+/* Inline native checkbox layout for events form */
+.checkbox-inline-field .checkbox-inline-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    margin-bottom: 0 !important;
+}
+
+.checkbox-inline-field .extra-required {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.checkbox-inline-field .checkbox-inline-input {
+    width: auto;
+    height: auto;
+    margin: 0;
+    vertical-align: middle;
+    flex: 0 0 auto;
+}

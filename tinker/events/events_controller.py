@@ -28,6 +28,10 @@ class EventsController(TinkerController):
         'pacific': 'America/Los_Angeles'
     }
 
+    @staticmethod
+    def _is_yes_value(value):
+        return str(value).strip().lower() in ('yes', 'on', 'true', '1')
+
     # find_all is currently unused for events (but used for the e-annz)
     def inspect_child(self, child, find_all=False, csv=False):
         try:
@@ -390,8 +394,12 @@ class EventsController(TinkerController):
                 timezone = 'America/New_York'
             elif timezone == 'mountain':
                 timezone = 'America/Denver'
+            elif timezone == 'pacific':
+                timezone = 'America/Los_Angeles'
         else:
             timezone = 'America/Chicago'  # default to central if somehow missing
+
+        all_day = self._is_yes_value(date.get('hideTime'))
 
         for key in date:
             if 'start' in key.lower() and date[key]:
@@ -400,7 +408,12 @@ class EventsController(TinkerController):
                 new_start = " ".join(start)
 
                 try:
-                    date[key] = self.date_str_to_timestamp(new_start, timezone)
+                    if all_day:
+                        dt = datetime.datetime.strptime(new_start, '%B %d %Y, %I:%M %p')
+                        new_start = dt.strftime('%B %d %Y, 12:00 PM')
+                        date[key] = self.date_str_to_timestamp(new_start, 'America/Chicago')
+                    else:
+                        date[key] = self.date_str_to_timestamp(new_start, timezone)
                 except ValueError as e:
                     app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
                     date[key] = None
@@ -410,10 +423,19 @@ class EventsController(TinkerController):
                 new_end = " ".join(end)
 
                 try:
-                    date[key] = self.date_str_to_timestamp(new_end, timezone)
+                    if all_day:
+                        dt = datetime.datetime.strptime(new_end, '%B %d %Y, %I:%M %p')
+                        new_end = dt.strftime('%B %d %Y, 12:00 PM')
+                        date[key] = self.date_str_to_timestamp(new_end, 'America/Chicago')
+                    else:
+                        date[key] = self.date_str_to_timestamp(new_end, timezone)
                 except ValueError as e:
                     app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
                     date[key] = None
+
+        # Cascade renders epoch event times as Central. Persist Central to avoid
+        # timezone label/display mismatches after conversion.
+        date['timeZone'] = "central"
             
         return date
     
@@ -491,10 +513,10 @@ class EventsController(TinkerController):
 
         # get_edit_data converts numeric timestamps using server-local time.
         # For events, always render eventStart/eventEnd in the event's selected timezone.
-        date_values = self._extract_event_date_values(structured_data)
-        if date_values:
-            edit_data.setdefault('date', {})
-            edit_data['date'].update(date_values)
+        # date_values = self._extract_event_date_values(structured_data)
+        # if date_values:
+        #     edit_data.setdefault('date', {})
+        #     edit_data['date'].update(date_values)
 
         multiples = self._build_multiples_from_edit_data(edit_data)
         dates = fjson.dumps([])

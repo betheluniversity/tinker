@@ -166,6 +166,14 @@ class CKEditorTextAreaField(TextAreaField):
     pass
 
 
+def _is_truthy_default(value):
+    if isinstance(value, bool):
+        return value
+    if value is None:
+        return False
+    return str(value).strip().lower() in ('yes', 'true', '1', 'on')
+
+
 # ---------------------------------------------------------------------------
 # Data-definition → WTForms field converter
 # ---------------------------------------------------------------------------
@@ -217,12 +225,18 @@ def _build_field(field_def, field_extra=None, override_choices=None):
         choices = field_def.get('choices', [])
         if len(choices) > 1:
             choice_pairs = [(c['value'], c['label'] or c['value']) for c in choices]
+            selected_defaults = [c['value'] for c in choices if c.get('selected')]
+            if not selected_defaults and field_def.get('default'):
+                selected_defaults = [field_def.get('default')]
             kw['_widget'] = 'checkbox-group'
-            return SelectMultipleField(label, choices=choice_pairs, default=[],
+            return SelectMultipleField(label, choices=choice_pairs, default=selected_defaults,
                                        description=help_text, validators=validators, render_kw=kw)
         if choices and 'value' not in kw:
             kw['value'] = choices[0].get('value', '')
-        return BooleanField(label, description=help_text, render_kw=kw)
+        selected_default = any(c.get('selected') for c in choices)
+        bool_default = selected_default or _is_truthy_default(field_def.get('default'))
+        return BooleanField(label, description=help_text,
+                            validators=validators, render_kw=kw, default=bool_default)
 
     if ftype == 'multi-selector':
         choices = [(c['value'], c['label'] or c['value']) for c in field_def.get('choices', [])]

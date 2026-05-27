@@ -14,6 +14,7 @@ from xml.etree import ElementTree as ET
 
 # Packages
 import ldap
+import pytz
 import requests
 # from __future__ import print_function # Python 2/3 compatibiltiy (namedentities) - this might not be needed anymore
 from createsend import Client
@@ -327,7 +328,12 @@ class TinkerController(object):
 
         for node in find(sdata, 'identifier'):
             node_identifier = node['identifier'].replace('-', '_')
-            edit_data[node_identifier] = self.inspect_sdata_node(node)
+            timezone = None
+            if node_identifier == 'date':
+                for child in node['structuredDataNodes']['structuredDataNode']:
+                    if child['identifier'].lower() == 'timezone':
+                        timezone = child['text']
+            edit_data[node_identifier] = self.inspect_sdata_node(node, timezone=timezone)
 
         dynamic_fields = find(mdata, 'dynamicField', False)
         # now metadata dynamic fields
@@ -347,6 +353,27 @@ class TinkerController(object):
         edit_data['author'] = find(mdata, 'author', False)
 
         return edit_data
+
+    def _cascade_checkbox_text_to_bool(self, value):
+        """Convert Cascade checkbox marker text to a python bool.
+
+        Examples:
+          '::CONTENT-XML-CHECKBOX::' -> False
+          '::CONTENT-XML-CHECKBOX::yes' -> True
+        """
+        if isinstance(value, bool):
+            return value
+
+        if value is None:
+            return False
+
+        text = str(value).strip().lower()
+        marker = '::content-xml-checkbox::'
+        if marker in text:
+            suffix = text.split(marker, 1)[1].strip()
+            return suffix in ('yes', 'true', '1', 'on')
+
+        return text in ('yes', 'true', '1', 'on')
     
 
     def get_edit_data(self, sdata, mdata, multiple=[]):
@@ -397,12 +424,30 @@ class TinkerController(object):
 
         return int(date.strftime("%s")) * 1000
 
-    def java_unix_to_date(self, date, date_format=None):
+    def java_unix_to_date(self, date, date_format=None, timezone="central"):
+        timezone_map = {
+            "central": "America/Chicago",
+            "eastern": "America/New_York",
+            "mountain": "America/Denver",
+            "pacific": "America/Los_Angeles"
+        }
+        if timezone in timezone_map:
+            timezone = timezone_map[timezone]
+        else:
+            timezone = "America/Chicago"
+
+        # For testing
+        #timezone = None
+
         if not date_format:
             date_format = self.datetime_format
-        return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
 
-    def inspect_sdata_node(self, node):
+        if not timezone:
+            return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
+        
+        return datetime.datetime.fromtimestamp(int(date) / 1000, tz=pytz.timezone(timezone)).strftime(date_format)
+
+    def inspect_sdata_node(self, node, timezone=None):
 
         node_type = node['type']
 
@@ -410,7 +455,7 @@ class TinkerController(object):
             group = {}
             for n in node['structuredDataNodes']['structuredDataNode']:
                 node_identifier = n['identifier'].replace('-', '_')
-                value = self.inspect_sdata_node(n)
+                value = self.inspect_sdata_node(n, timezone=timezone)
 
                 # Preserve repeated group identifiers as arrays instead of
                 # overwriting earlier items (for example cost.offer,
@@ -438,7 +483,7 @@ class TinkerController(object):
 
             try:
                 if len(node['text']) >= 9:
-                    date = self.java_unix_to_date(node['text'])
+                    date = self.java_unix_to_date(node['text'], timezone=timezone)
                     if not date:
                         date = ''
                     return date
@@ -452,6 +497,8 @@ class TinkerController(object):
 
             if '::CONTENT-XML-SELECTOR::' in node['text']:
                 return node['text'].split('::CONTENT-XML-SELECTOR::')
+            if '::CONTENT-XML-CHECKBOX::' in node['text']:
+                return self._cascade_checkbox_text_to_bool(node['text'])
             return node['text'].replace('&amp;#160;', ' ')
 
         elif node_type == 'asset':
