@@ -34,7 +34,7 @@ from tinker.data_definition_parser import get_field_definitions
 tinker = TinkerController()
 
 
-def _flatten_event_cascade_data(data, prefix=''):
+def _flatten_event_cascade_data(data, prefix='', multiples=None, parent_instances=None):
     """Flatten nested event edit-data into WTForms field keys.
 
     Example:
@@ -42,6 +42,8 @@ def _flatten_event_cascade_data(data, prefix=''):
       -> {'cost__[multiple]offer_1__price': '1'}
     """
     flat = {}
+    multiples = multiples or {}
+    current_parents = parent_instances or []
 
     if not isinstance(data, dict):
         return flat
@@ -50,7 +52,25 @@ def _flatten_event_cascade_data(data, prefix=''):
         field_key = '{}__{}'.format(prefix, key) if prefix else key
 
         if isinstance(value, dict):
-            flat.update(_flatten_event_cascade_data(value, field_key))
+            count_key = '__'.join(current_parents + [key]) if current_parents else key
+            is_multiple_group = count_key in multiples
+
+            if is_multiple_group:
+                instance_key = '[multiple]{}_1'.format(key)
+                nested_prefix = '{}__{}'.format(prefix, instance_key) if prefix else instance_key
+                flat.update(_flatten_event_cascade_data(
+                    value,
+                    nested_prefix,
+                    multiples=multiples,
+                    parent_instances=current_parents + [instance_key],
+                ))
+            else:
+                flat.update(_flatten_event_cascade_data(
+                    value,
+                    field_key,
+                    multiples=multiples,
+                    parent_instances=current_parents,
+                ))
             continue
 
         if isinstance(value, list):
@@ -59,7 +79,12 @@ def _flatten_event_cascade_data(data, prefix=''):
                 for index, item in enumerate(value, start=1):
                     instance_key = '[multiple]{}_{}'.format(key, index)
                     nested_prefix = '{}__{}'.format(prefix, instance_key) if prefix else instance_key
-                    flat.update(_flatten_event_cascade_data(item, nested_prefix))
+                    flat.update(_flatten_event_cascade_data(
+                        item,
+                        nested_prefix,
+                        multiples=multiples,
+                        parent_instances=current_parents + [instance_key],
+                    ))
             else:
                 # SelectMultiple and metadata arrays should remain arrays.
                 flat[field_key] = value
@@ -68,6 +93,37 @@ def _flatten_event_cascade_data(data, prefix=''):
         flat[field_key] = value
 
     return flat
+
+
+def _coerce_to_existing_field_key(key, valid_field_names):
+    """Map a flattened key to an existing field name by inserting single-instance
+    multiple markers when needed (for example timeDescription -> [multiple]timeDescription_1).
+    """
+    if key in valid_field_names:
+        return key
+
+    parts = (key or '').split('__')
+    if not parts:
+        return key
+
+    candidates = ['']
+    for part in parts:
+        next_candidates = []
+        for prefix in candidates:
+            base = '{}__{}'.format(prefix, part) if prefix else part
+            next_candidates.append(base)
+
+            if part and not part.startswith('[multiple]'):
+                multiple_part = '[multiple]{}_1'.format(part)
+                with_multiple = '{}__{}'.format(prefix, multiple_part) if prefix else multiple_part
+                next_candidates.append(with_multiple)
+        candidates = next_candidates
+
+    for candidate in candidates:
+        if candidate in valid_field_names:
+            return candidate
+
+    return key
 
 
 # ---------------------------------------------------------------------------
@@ -137,8 +193,19 @@ def get_event_form(multiples={}, cascade_data=None):
                     metaDescription, category lists, etc.) that are NOT
                     identifiers in the data definition pass through unchanged.
     """
-    form_kwargs = _flatten_event_cascade_data(cascade_data) if cascade_data else {}
-    form = _build_event_form_class(multiples=multiples)(**form_kwargs)
+    form_class = _build_event_form_class(multiples=multiples)
+
+    form_kwargs = _flatten_event_cascade_data(cascade_data, multiples=multiples) if cascade_data else {}
+    if form_kwargs:
+        empty_form = form_class()
+        valid_field_names = set(empty_form._fields.keys())
+        normalized_kwargs = {}
+        for key, value in form_kwargs.items():
+            mapped_key = _coerce_to_existing_field_key(key, valid_field_names)
+            normalized_kwargs[mapped_key] = value
+        form_kwargs = normalized_kwargs
+
+    form = form_class(**form_kwargs)
 
     for field in form:
         if getattr(field, 'type', '') != 'FileField':
