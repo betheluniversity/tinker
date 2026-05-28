@@ -154,8 +154,8 @@ def validate_numeric(form, field):
 _FIELD_EXTRA = {
     # Group built-in fields visually in the template as 'Event basics', and specify order.
     # We use lists for 'groups' and 'group_labels' to support the recursive card rendering logic.
-    'title': {'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']}, 'order': 0, 'extra_validators': [length_checker]},
-    'teaser': {'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']}, 'order': 1},
+    'title': {'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']}, 'order': 100, 'extra_validators': [length_checker]},
+    'teaser': {'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']}, 'order': 101},
     # Date sync — keeps eventEnd >= eventStart
     'eventStart':      {'render_kw': {'onchange': 'syncDates(this)'}},
     'eventEnd':        {'render_kw': {'onchange': 'syncDates(this)'}},
@@ -258,6 +258,10 @@ def _build_event_form_class(multiples={}):
 
     # Finally, build custom fields from the metadata set
     custom_fields = build_metadata_custom_fields(_raw_custom_fields)
+    for order, field in enumerate(custom_fields.values()):
+        rk = dict(field.kwargs.get('render_kw', {}) or {})
+        rk.setdefault('order', order)
+        field.kwargs['render_kw'] = rk
     all_fields.update(custom_fields)
 
     # Apply _FIELD_EXTRA and ensure 'order' exists for all fields to support template sorting.
