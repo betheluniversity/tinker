@@ -90,7 +90,7 @@ def get_metadata_fields(tinker_controller, metadata_path):
     return built_in_fields, metadata_set
 
 
-def build_metadata_custom_fields(metadata_set):
+def build_metadata_custom_fields(metadata_set, order_start=None):
     """
     Build and return a dict of WTForms UnboundFields for the dynamic metadata
     field definitions in *metadata_set* (multiselect → SelectMultipleField,
@@ -104,6 +104,7 @@ def build_metadata_custom_fields(metadata_set):
         raw_defs = [raw_defs]
 
     custom_fields = {}
+    order = 0
     for item in raw_defs:
         if item.get('visibility', '').lower() == 'hidden':
             continue
@@ -120,15 +121,22 @@ def build_metadata_custom_fields(metadata_set):
 
         # Find all values with selectedByDefault true
         default_values = [v['value'] for v in raw_vals if isinstance(v, dict) and v.get('selectedByDefault') in (True, 'true', 'True')]
+        render_kw = {}
+        if order_start is not None:
+            render_kw['order'] = order_start + order
         if field_type == 'multiselect':
             custom_fields[name] = SelectMultipleField(
                 label, choices=choices, default=default_values or ['None'],
-                description=help_text, validators=validators or [DataRequired()])
+                description=help_text, validators=validators or [DataRequired()],
+                render_kw=render_kw)
+            order += 1
         elif field_type == 'radio':
             default_radio = default_values[0] if default_values else None
             custom_fields[name] = RadioField(
                 label, choices=choices, default=default_radio,
-                description=help_text, validators=validators)
+                description=help_text, validators=validators,
+                render_kw=render_kw)
+            order += 1
 
     return custom_fields
 
