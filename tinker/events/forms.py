@@ -22,7 +22,7 @@ from wtforms import (HiddenField, StringField)
 from wtforms.validators import ValidationError, URL
 
 from tinker.cascade_form_helpers import (_fields_from_def,
-                                          get_metadata_fields, build_metadata_custom_fields,
+                                          get_metadata_fields,
                                           get_structured_data_labels)
 
 # Local
@@ -242,9 +242,6 @@ def _build_event_form_class(multiples={}):
     """
 
     all_fields = {}
-    built_in_fields, _raw_custom_fields = get_metadata_fields(tinker, app.config.get('EVENTS_METADATA_SET', ''))
-
-    all_fields.update(built_in_fields)
 
     # Walk the full data definition tree
     # Pass event-specific field config and choice overrides to the generic helper.
@@ -256,9 +253,9 @@ def _build_event_form_class(multiples={}):
     )
     all_fields.update(dd_fields)
 
-    # Finally, build custom fields from the metadata set
-    custom_fields = build_metadata_custom_fields(_raw_custom_fields)
-    all_fields.update(custom_fields)
+    # Create and add the metadata fields
+    metadata_fields = get_metadata_fields(tinker, app.config.get('EVENTS_METADATA_SET', ''))
+    all_fields.update(metadata_fields)
 
     # Apply _FIELD_EXTRA and ensure 'order' exists for all fields to support template sorting.
     for name, field in list(all_fields.items()):
@@ -268,8 +265,13 @@ def _build_event_form_class(multiples={}):
         if 'render_kw' in extra:
             rk.update(extra['render_kw'])
 
+        # Ensure 'order' is always present in render_kw for the Jinja sort filter.
+        # Priority: _FIELD_EXTRA['order'] > existing field.render_kw['order'] > default 999.
+        field_order = extra.get('order', rk.get('order', 999))
+        rk['order'] = field_order
+
+        # Render hidden fields as WTForms HiddenField regardless of their original type.
         if rk.get('type') == 'hidden' and field.field_class is not HiddenField:
-            rk['order'] = extra.get('order', rk.get('order', 999))
             all_fields[name] = HiddenField(
                 field.args[0] if field.args else name,
                 default=field.kwargs.get('default', ''),
@@ -277,9 +279,6 @@ def _build_event_form_class(multiples={}):
             )
             continue
 
-        # Ensure 'order' is always present in render_kw for the Jinja sort filter.
-        # Priority: _FIELD_EXTRA['order'] > existing field.render_kw['order'] > default 999.
-        rk['order'] = extra.get('order', rk.get('order', 999))
         field.kwargs['render_kw'] = rk
 
         # Add extra_validators
