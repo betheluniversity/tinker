@@ -243,6 +243,10 @@ def _build_event_form_class(multiples={}):
 
     all_fields = {}
 
+    # Create and add the metadata fields
+    metadata_fields = get_metadata_fields(tinker, app.config.get('EVENTS_METADATA_SET', ''))
+    all_fields.update(metadata_fields)
+    
     # Walk the full data definition tree
     # Pass event-specific field config and choice overrides to the generic helper.
     on_campus_locations = get_structured_data_labels(tinker, app.config.get('EVENTS_ON_CAMPUS_LOCATIONS', ''))
@@ -252,10 +256,6 @@ def _build_event_form_class(multiples={}):
         override_choices={'location': on_campus_locations},
     )
     all_fields.update(dd_fields)
-
-    # Create and add the metadata fields
-    metadata_fields = get_metadata_fields(tinker, app.config.get('EVENTS_METADATA_SET', ''))
-    all_fields.update(metadata_fields)
 
     # Apply _FIELD_EXTRA and ensure 'order' exists for all fields to support template sorting.
     for name, field in list(all_fields.items()):
