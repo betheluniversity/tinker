@@ -292,7 +292,7 @@ class EventsView(FlaskView):
         self.base.cascade_call_logger(locals())
         self.base.unpublish(event_id, 'page')
         app.logger.debug(time.strftime("%c") + ": Event deleted by " + session['username'] + " " + str(response))
-        self.base.publish(app.config['EVENT_XML_ID'])
+        self.base.publish(app.config['EVENT_XML_PAGE'])
         return render_template('events/delete-confirm.html')
 
     # This is the search for events to pare down what is being shown

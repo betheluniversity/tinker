@@ -749,8 +749,25 @@ $(document).ready(function () {
     });
 
     $('#eventform').on('submit', function (e) {
-        if (!validateRequiredRichFields($(this))) {
+        var $form = $(this);
+        var $submitBtn = $form.find('#event-submit-btn');
+
+        if ($form.data('isSubmitting')) {
             e.preventDefault();
+            return;
+        }
+
+        if (!validateRequiredRichFields($form)) {
+            e.preventDefault();
+            return;
+        }
+
+        $form.data('isSubmitting', true);
+        if ($submitBtn.length) {
+            $submitBtn
+                .addClass('is-submitting')
+                .attr('aria-disabled', 'true')
+                .css('pointer-events', 'none');
         }
     });
 

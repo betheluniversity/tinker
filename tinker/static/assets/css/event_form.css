@@ -102,6 +102,11 @@ legend {
     display: block;
 }
 
+#event-submit-btn.is-submitting {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
 .image-preview-modal {
     position: fixed;
     inset: 0;

@@ -285,7 +285,9 @@ class EventsController(TinkerController):
                 self.cascade_connector.edit(image_asset)
             else:
                 try:
-                    image_asset = self.read(app.config.get('EVENTS_IMAGE_BASE_ASSET'),'file')['asset']
+                    base_asset = app.config.get('EVENTS_IMAGE_BASE_ASSET')
+                    image_raw = self.read(base_asset, 'file')
+                    image_asset = image_raw['asset']
                 except Exception:
                     return None
 
@@ -749,7 +751,8 @@ class EventsController(TinkerController):
     # The search method that does the actual searching for the /search in events/init
     def get_search_results(self, selection, title, start, end):
         # Get the events and then split them into user events and other events for quicker searching
-        events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'event')
+        events_xml_url = app.config['EVENTS_XML_URL']
+        events = self.traverse_xml(events_xml_url, 'event')
         # Quick check with assignment
         if selection and '-'.join(selection) == '2':
             events_to_iterate = events
