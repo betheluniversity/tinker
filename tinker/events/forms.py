@@ -145,19 +145,6 @@ def validate_numeric(form, field):
         raise ValidationError('All Cost fields must be numeric values.')
 
 
-def _metadata_field_names(metadata_set):
-    raw_defs = metadata_set['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
-    if isinstance(raw_defs, dict):
-        raw_defs = [raw_defs]
-
-    names = []
-    for item in raw_defs:
-        if item.get('visibility', '').lower() == 'hidden':
-            continue
-        names.append(item['name'].replace('-', '_'))
-    return names
-
-
 # ---------------------------------------------------------------------------
 # Event-specific field configuration
 # ---------------------------------------------------------------------------
@@ -271,10 +258,7 @@ def _build_event_form_class(multiples={}):
 
     # Finally, build custom fields from the metadata set
     custom_fields = build_metadata_custom_fields(_raw_custom_fields)
-    for order, name in enumerate(_metadata_field_names(_raw_custom_fields)):
-        field = custom_fields.get(name)
-        if field is None:
-            continue
+    for order, field in enumerate(custom_fields.values()):
         rk = dict(field.kwargs.get('render_kw', {}) or {})
         rk.setdefault('order', order)
         field.kwargs['render_kw'] = rk
