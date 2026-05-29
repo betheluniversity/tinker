@@ -75,7 +75,7 @@ def get_metadata_fields(tinker_controller, metadata_path):
     #current_app.logger.debug(f"Metadata for {metadata_path}: {json.dumps(raw, default=str)}")
     metadata_set = convert_asset(raw['asset']['metadataSet'])  # normalize here
 
-    # ── Built-in inline fields ────────────────────────────────────────────
+    # Create the Built-in inline fields
     built_in_fields = {}
     for key, value in metadata_set.items():
         if not key.endswith('FieldVisibility') or value != 'inline':
@@ -87,7 +87,10 @@ def get_metadata_fields(tinker_controller, metadata_path):
         validators = [DataRequired()] if required else []
         built_in_fields[name] = StringField(label, validators=validators, description=help_text)
 
-    return built_in_fields, metadata_set
+    # Create the custom metadata fields
+    custom_fields = build_metadata_custom_fields(metadata_set)
+
+    return {**built_in_fields, **custom_fields}
 
 
 def build_metadata_custom_fields(metadata_set):
