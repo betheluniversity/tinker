@@ -524,13 +524,13 @@ function syncDates(element) {
     var endVal = $endInput.val();
 
     // If start is set but end is empty, copy start to end
-    if (startVal && !endVal) {
-        $endInput.val(startVal);
-        if ($endInput[0] && $endInput[0]._pikaday) {
-            $endInput[0]._pikaday.setDate(moment(startVal, format).toDate(), true);
-        }
-        return;
-    }
+    // if (startVal && !endVal) {
+    //     $endInput.val(startVal);
+    //     if ($endInput[0] && $endInput[0]._pikaday) {
+    //         $endInput[0]._pikaday.setDate(moment(startVal, format).toDate(), true);
+    //     }
+    //     return;
+    // }
 
     if (!startVal || !endVal) return;
 
