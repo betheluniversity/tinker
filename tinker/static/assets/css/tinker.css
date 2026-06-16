@@ -308,10 +308,15 @@ small.extra-required {
 }
 
 .help-text {
-    display: inline-block;
-    background: #ffff3350;
+    display: table;
+    background: #ffff3330;
     margin-bottom: 1em;
     padding: .5em;
+    font-size: 90%;
+}
+
+legend:has(+ .help-text){
+    margin-bottom: .5em;
 }
 
 textarea {
