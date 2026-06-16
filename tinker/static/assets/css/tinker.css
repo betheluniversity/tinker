@@ -307,6 +307,13 @@ small.extra-required {
     font-size: 70%;
 }
 
+.help-text {
+    display: inline-block;
+    background: #ffff3350;
+    margin-bottom: 1em;
+    padding: .5em;
+}
+
 textarea {
     width: 100%;
     min-height: 50px;
@@ -529,7 +536,7 @@ li > .dropdown-menu:after {
 
 /* Fonts */
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, .sans {
     font-family: Muli, Helvetica Neue, sans-serif;
 }
 

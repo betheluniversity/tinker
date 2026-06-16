@@ -55,7 +55,7 @@
                             {% endif %}
                             </legend>
                             {% if field.description %}
-                                <small class="extra-required">{{ field.description }}</small>
+                                <p class="help-text sans">{{ field.description }}</p>
                             {% endif %}
                 {% endif %}
                 {{ render(field, group_path) }}
@@ -156,7 +156,7 @@
                 {% endif %}
                 </legend>
                 {% if field.description %}
-                    <small class="extra-required">{{ field.description }}</small>
+                    <p class="help-text sans">{{ field.description }}</p>
                 {% endif %}
     {% endif %}
     {% if field.type == "CKEditorTextAreaField" %}
@@ -286,13 +286,13 @@
 {% set field_classes = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
 <div id="{{ field.name }}_label" class="checkbox-inline-field {{ field_classes }}">
     {% if show_description and field.description %}
-        <small class="extra-required">{{ field.description }}</small>
+        <p class="help-text sans">{{ field.description }}</p>
     {% endif %}
     <label for="{{ field.id }}" class="checkbox-inline-control">
         {{ field(class_='checkbox-inline-input') }}
         {{ field.label.text }}
         {% if field.flags.required %}
-        <small class="required">required</small>
+        <small class="required">Required</small>
         {% endif %}
     </label>
     <br /><br />
@@ -321,7 +321,7 @@
         {% endif %}
     </label>
     {% if show_description and field.description %}
-        <small class="extra-required">{{ field.description }}</small>
+        <p class="help-text sans">{{ field.description }}</p>
     {% endif %}
 </div>
 {%- endmacro %}
