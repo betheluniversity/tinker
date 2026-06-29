@@ -539,6 +539,10 @@ li > .dropdown-menu:after {
     color: #555555;
 }
 
+.sidebar .nav li.active > a:after, .off-canvas-sidebar .nav li.active > a:after {
+    border-right: 17px solid #ffffff;
+}
+
 /* Fonts */
 
 h1, h2, h3, h4, h5, h6, .sans {
