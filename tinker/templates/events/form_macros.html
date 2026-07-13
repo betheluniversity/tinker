@@ -22,17 +22,20 @@
 {%- endmacro %}
 
 {% macro render_group_level(form, group_path, depth) -%}
-    {% set ns = namespace(rendered_subgroups=[]) %}
+    {% set ns = namespace(rendered_subgroups=[], rendered_external_checkbox_cards=[]) %}
     {% for field in form|sort(attribute='render_kw.order') %}
         {% set groups = field.render_kw.groups if field.render_kw and 'groups' in field.render_kw else [] %}
         {% set is_render_hidden = field.type == "HiddenField" or (field.render_kw and field.render_kw.get('type') == 'hidden') %}
+        {% set is_toggle_control = field.render_kw and field.render_kw.get('is_toggle_control') %}
         {# Only process fields that start with the current group path #}
-        {% if groups[:group_path|length] == group_path %}
+        {% if groups[:group_path|length] == group_path and not is_toggle_control %}
             {% if is_render_hidden %}
                 {{ render_hidden_value(field) }}
             {% else %}
             {# Add show_class as a class to the wrapper div if present #}
-            {% set show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
+            {% set field_show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
+            {% set has_inline_toggle = field.render_kw and field.render_kw.get('toggle_field_name') %}
+            {% set show_class = none if has_inline_toggle else field_show_class %}
             {# Only create a wrapper when this field/subgroup will actually render content #}
             {% set should_render_wrap = groups|length == group_path|length %}
             {% set wrap_base = field.name %}
@@ -44,6 +47,29 @@
                 {% endif %}
             {% endif %}
             {% if should_render_wrap %}
+            {% set external_toggle_field = none %}
+            {% set external_card_label = none %}
+            {% if form and field.render_kw and field.render_kw.get('external_toggle_field_name') %}
+                {% set external_toggle_field = form._fields.get(field.render_kw.get('external_toggle_field_name')) %}
+                {% if external_toggle_field and external_toggle_field.render_kw and 'checkbox_card_label' in external_toggle_field.render_kw %}
+                    {% set external_card_label = external_toggle_field.render_kw.checkbox_card_label %}
+                {% endif %}
+            {% endif %}
+            {% if external_card_label and external_card_label not in ns.rendered_external_checkbox_cards %}
+                {% set ns.rendered_external_checkbox_cards = ns.rendered_external_checkbox_cards + [external_card_label] %}
+                <div class="card">
+                    <div class="content">
+                        <legend>{{ external_card_label }}</legend>
+                        {% for checkbox_field in form|sort(attribute='render_kw.order') %}
+                            {% set checkbox_groups = checkbox_field.render_kw.groups if checkbox_field.render_kw and 'groups' in checkbox_field.render_kw else [] %}
+                            {% set checkbox_label = checkbox_field.render_kw.checkbox_card_label if checkbox_field.render_kw and 'checkbox_card_label' in checkbox_field.render_kw else none %}
+                            {% if checkbox_field.render_kw and checkbox_field.render_kw.get('is_external_checkbox_control') and checkbox_groups[:group_path|length] == group_path and checkbox_groups|length == group_path|length and checkbox_label == external_card_label %}
+                                {{ render_checkbox(checkbox_field) }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
             <div class="{{ wrap_base }}_wrap{% if show_class and show_class != wrap_base %} {{ show_class }}_wrap{% endif %}">
             {% if groups|length == group_path|length %}
                 {% if depth == 1 %}
@@ -58,7 +84,7 @@
                                 <small class="extra-required">{{ field.description }}</small>
                             {% endif %}
                 {% endif %}
-                {{ render(field, group_path) }}
+                {{ render(field, group_path, form) }}
                 {% if depth == 1 %}
                         </div>
                     </div>
@@ -135,7 +161,7 @@
 {%- endmacro %}
 
 {# Macros for field rendering. #}
-{% macro render(field, group) -%}
+{% macro render(field, group, form=None) -%}
 {% set is_render_hidden = field.type == "HiddenField" or (field.render_kw and field.render_kw.get('type') == 'hidden') %}
 {% if is_render_hidden %}
     {{ render_hidden_value(field) }}
@@ -164,7 +190,14 @@
     {% elif field.type == "SelectField" %}
         {{ render_select(field) }}
     {% elif field.type == "SelectMultipleField" %}
-        {{ render_select_multiple(field, group) }}
+        {% set toggle_field = none %}
+        {% if form and field.render_kw and field.render_kw.get('toggle_field_name') %}
+            {% set toggle_field = form._fields.get(field.render_kw.get('toggle_field_name')) %}
+        {% endif %}
+        {% if toggle_field %}
+            {{ render_radio(toggle_field, group, show_label=False) }}
+        {% endif %}
+        {{ render_select_multiple(field, group, field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else none) }}
     {% elif field.type == "BooleanField" %}
         {{ render_checkbox(field) }}
     {% elif field.type == "RadioField" %}
@@ -214,25 +247,31 @@
 </select>
 {%- endmacro %}
 
-{% macro render_select_multiple(field, group) -%}
+{% macro render_select_multiple(field, group, show_class) -%}
 {% if group|length > 0 %}
     {{ render_label(field) }}
 {% endif %}
-{# Use field.data if exists, else field.default for selected values #}
-{% set selected_values = field.data if field.data else field.default %}
-<select name="{{ field.name }}" multiple size="10" class="large-select"
-    {% if field.flags.required %}required{% endif %}
-    {% if field.render_kw and 'onchange' in field.render_kw %}onchange="{{ field.render_kw['onchange'] }}"{% endif %}
-    {% if field.render_kw and 'class' in field.render_kw %}class="{{ field.render_kw['class'] }} large-select"{% endif %}
->
-    {% for value, label in field.choices %}
-        {% if selected_values and value in selected_values %}
-            <option value="{{ value }}" selected>{{ label }}</option>
-        {% else %}
-            <option value="{{ value }}">{{ label }}</option>
-        {% endif %}
-    {% endfor %}
-</select>
+{% if show_class %}
+<div class="{{ show_class }}_wrap">
+{% endif %}
+    {# Use field.data if exists, else field.default for selected values #}
+    {% set selected_values = field.data if field.data else field.default %}
+    <select name="{{ field.name }}" multiple size="10" class="large-select"
+        {% if field.flags.required %}required{% endif %}
+        {% if field.render_kw and 'onchange' in field.render_kw %}onchange="{{ field.render_kw['onchange'] }}"{% endif %}
+        {% if field.render_kw and 'class' in field.render_kw %}class="{{ field.render_kw['class'] }} large-select"{% endif %}
+    >
+        {% for value, label in field.choices %}
+            {% if selected_values and value in selected_values %}
+                <option value="{{ value }}" selected>{{ label }}</option>
+            {% else %}
+                <option value="{{ value }}">{{ label }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+{% if show_class %}
+</div>
+{% endif %}
 {%- endmacro %}
 
 {% macro render_ckeditor(field, group) -%}
@@ -299,14 +338,16 @@
 </div>
 {%- endmacro %}
 
-{% macro render_radio(field, group) -%}
+{% macro render_radio(field, group, show_label=True) -%}
 {% if group|length > 0 %}
-    {{ render_label(field) }}
+    {% if show_label %}
+        {{ render_label(field) }}
+    {% endif %}
 {% endif %}
 {% set selected_value = field.data if field.data else field.default %}
 {% for subfield in field %}
 <div class="radio{{ ' checked' if subfield.data == selected_value else '' }}">
-    {{ subfield() }}{{ subfield.label }}
+    {{ subfield(onchange=field.render_kw['onchange']) if field.render_kw and 'onchange' in field.render_kw else subfield() }}{{ subfield.label }}
 </div>
 {% endfor %}
 {%- endmacro %}

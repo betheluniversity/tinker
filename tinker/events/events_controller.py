@@ -443,46 +443,62 @@ class EventsController(TinkerController):
     
 
     def _clear_hidden_field_errors(self, form):
-        """
-        Dynamically suppress validation errors for fields that are currently
-        hidden by a selectChanged dropdown.
+        """Clear validation errors for fields hidden by conditional controllers.
 
-        _apply_show_fields stamps every conditionally-visible field with
-        render_kw['show_class'] = <option_value> and every controlling
-        SelectField with render_kw['onchange'] = 'selectChanged(this)'.
-        A field is only visible when the controlling SelectField's current
-        value matches its show_class, so errors on all other sections are cleared.
-        """
-        from wtforms.fields import SelectField as _SelectField
+        select/radio mode:
+          - dependent has render_kw['show_class']
+          - controller has render_kw['onchange'] = 'selectChanged(this)'
 
-        # Build: css_class_value -> [field_names] for all conditionally-visible fields
+        external checkbox mode:
+          - controller has render_kw['is_external_checkbox_control']
+          - controller has render_kw['controls_field'] = dependent field name
+        """
+        from wtforms.fields import BooleanField as _BooleanField, RadioField as _RadioField, SelectField as _SelectField
+
         show_class_map = {}
         for field in form:
-            sc = (field.render_kw or {}).get('show_class')
-            if sc:
-                show_class_map.setdefault(sc, []).append(field.name)
+            show_class = (field.render_kw or {}).get('show_class')
+            if show_class:
+                show_class_map.setdefault(show_class, []).append(field.name)
 
-        if not show_class_map:
+        external_checkbox_controls = []
+        for field in form:
+            rk = field.render_kw or {}
+            if rk.get('is_external_checkbox_control') and rk.get('controls_field'):
+                external_checkbox_controls.append((field, rk['controls_field']))
+
+        if not show_class_map and not external_checkbox_controls:
             return
 
         changed = False
+
         for field in form:
-            if not isinstance(field, _SelectField):
+            if not isinstance(field, (_SelectField, _RadioField)):
                 continue
             if (field.render_kw or {}).get('onchange') != 'selectChanged(this)':
                 continue
+
             active_value = field.data or ''
             choice_values = {v for v, _ in (field.choices or [])}
             for option_value, dep_names in show_class_map.items():
-                if option_value not in choice_values:
-                    continue  # this SelectField doesn't control this show_class
-                if option_value == active_value:
-                    continue  # section IS visible — keep its errors
+                if option_value not in choice_values or option_value == active_value:
+                    continue
                 for dep_name in dep_names:
                     dep_field = form._fields.get(dep_name)
                     if dep_field and dep_field.errors:
                         dep_field.errors = []
                         changed = True
+
+        for checkbox_field, dep_name in external_checkbox_controls:
+            if not isinstance(checkbox_field, _BooleanField):
+                continue
+            if checkbox_field.data:
+                continue
+
+            dep_field = form._fields.get(dep_name)
+            if dep_field and dep_field.errors:
+                dep_field.errors = []
+                changed = True
 
         if changed:
             form._errors = None  # force re-computation on next access
