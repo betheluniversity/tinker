@@ -174,6 +174,7 @@ _FIELD_EXTRA = {
     'hide_from_calendar': {'render_kw': {'type': 'hidden'}},
     'hide_from_nav': {'render_kw': {'type': 'hidden'}},
     'hide_site_nav': {'render_kw': {'type': 'hidden'}},
+    # Field toggles — declarative companion controls that show/hide other fields in the template.
     'offices': {
         'toggle_with_yes_no': True,
         'toggle_default': 'No',
