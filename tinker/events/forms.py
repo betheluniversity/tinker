@@ -18,7 +18,7 @@ import json
 
 from flask import current_app, has_request_context, request, session
 from flask_wtf import FlaskForm
-from wtforms import (BooleanField, HiddenField, RadioField, StringField)
+from wtforms import (HiddenField, RadioField, StringField)
 from wtforms.validators import ValidationError, URL
 
 from tinker.cascade_form_helpers import (_fields_from_def,
@@ -212,15 +212,13 @@ def _iter_yes_no_toggle_configs():
 
 
 def _iter_external_checkbox_toggle_configs():
-    """Yield declarative external-checkbox-toggle config from _FIELD_EXTRA."""
+    """Yield declarative grouped-accordion config from _FIELD_EXTRA."""
     for target_name, extra in _FIELD_EXTRA.items():
         if not extra.get('toggle_with_external_checkbox'):
             continue
         yield {
             'target_name': target_name,
-            'toggle_name': '{}_enabled'.format(target_name),
-            'checkbox_card_label': extra.get('checkbox_card_label', 'Additional fields'),
-            'toggle_default': bool(extra.get('checkbox_default', False)),
+            'accordion_card_label': extra.get('checkbox_card_label', 'Additional fields'),
         }
 
 
@@ -282,22 +280,6 @@ def get_event_form(multiples={}, cascade_data=None):
             target_value = target_field.data
             has_value = bool(target_value)
             toggle_field.data = 'Yes' if has_value else toggle_default
-
-        for toggle_cfg in _iter_external_checkbox_toggle_configs():
-            target_name = toggle_cfg['target_name']
-            toggle_name = toggle_cfg['toggle_name']
-            toggle_default = toggle_cfg['toggle_default']
-            target_field = form._fields.get(target_name)
-            toggle_field = form._fields.get(toggle_name)
-            if not target_field or not toggle_field:
-                continue
-
-            if cascade_data is None:
-                toggle_field.data = toggle_default
-                continue
-
-            target_value = target_field.data
-            toggle_field.data = bool(target_value)
 
     for field in form:
         if getattr(field, 'type', '') != 'FileField':
@@ -381,7 +363,7 @@ def _build_event_form_class(multiples={}):
         target_rk['toggle_field_name'] = toggle_name
         target_field.kwargs['render_kw'] = target_rk
 
-    # Build declarative external checkbox controls shown in a shared card.
+    # Mark fields that should render in a shared accordion card.
     for toggle_cfg in _iter_external_checkbox_toggle_configs():
         target_name = toggle_cfg['target_name']
         if target_name not in all_fields:
@@ -389,31 +371,7 @@ def _build_event_form_class(multiples={}):
 
         target_field = all_fields[target_name]
         target_rk = dict(target_field.kwargs.get('render_kw', {}) or {})
-        target_groups = list(target_rk.get('groups', []))
-        target_group_labels = list(target_rk.get('group_labels', []))
-        target_order = target_rk.get('order', _FIELD_EXTRA.get(target_name, {}).get('order', 999))
-
-        toggle_name = toggle_cfg['toggle_name']
-        checkbox_card_label = toggle_cfg['checkbox_card_label']
-        toggle_default = toggle_cfg['toggle_default']
-        toggle_label = target_field.args[0] if target_field.args else target_name.replace('_', ' ').title()
-        all_fields[toggle_name] = BooleanField(
-            toggle_label,
-            default=toggle_default,
-            render_kw={
-                'groups': target_groups,
-                'group_labels': target_group_labels,
-                'order': target_order - 0.01,
-                'onchange': 'toggleExternalCheckboxField(this)',
-                'is_toggle_control': True,
-                'is_external_checkbox_control': True,
-                'checkbox_card_label': checkbox_card_label,
-                'controls_field': target_name,
-                'data-controls-field': target_name,
-            },
-        )
-
-        target_rk['external_toggle_field_name'] = toggle_name
+        target_rk['external_accordion_card_label'] = toggle_cfg['accordion_card_label']
         target_field.kwargs['render_kw'] = target_rk
 
     # Apply _FIELD_EXTRA and ensure 'order' exists for all fields to support template sorting.

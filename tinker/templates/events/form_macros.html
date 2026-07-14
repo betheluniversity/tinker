@@ -27,8 +27,27 @@
         {% set groups = field.render_kw.groups if field.render_kw and 'groups' in field.render_kw else [] %}
         {% set is_render_hidden = field.type == "HiddenField" or (field.render_kw and field.render_kw.get('type') == 'hidden') %}
         {% set is_toggle_control = field.render_kw and field.render_kw.get('is_toggle_control') %}
+        {% set external_accordion_card_label = field.render_kw.external_accordion_card_label if field.render_kw and 'external_accordion_card_label' in field.render_kw else none %}
+
+        {% if groups[:group_path|length] == group_path and external_accordion_card_label and groups|length == group_path|length and external_accordion_card_label not in ns.rendered_external_checkbox_cards %}
+            {% set ns.rendered_external_checkbox_cards = ns.rendered_external_checkbox_cards + [external_accordion_card_label] %}
+            <div class="card">
+                <div class="content">
+                    <legend>{{ external_accordion_card_label }}</legend>
+                    {% for accordion_field in form|sort(attribute='render_kw.order') %}
+                        {% set accordion_groups = accordion_field.render_kw.groups if accordion_field.render_kw and 'groups' in accordion_field.render_kw else [] %}
+                        {% set accordion_label = accordion_field.render_kw.external_accordion_card_label if accordion_field.render_kw and 'external_accordion_card_label' in accordion_field.render_kw else none %}
+                        {% set accordion_hidden = accordion_field.type == "HiddenField" or (accordion_field.render_kw and accordion_field.render_kw.get('type') == 'hidden') %}
+                        {% if accordion_groups[:group_path|length] == group_path and accordion_groups|length == group_path|length and accordion_label == external_accordion_card_label and not accordion_hidden %}
+                            {{ render_accordion_field(accordion_field, group_path, form) }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
         {# Only process fields that start with the current group path #}
-        {% if groups[:group_path|length] == group_path and not is_toggle_control %}
+        {% if groups[:group_path|length] == group_path and not is_toggle_control and not external_accordion_card_label %}
             {% if is_render_hidden %}
                 {{ render_hidden_value(field) }}
             {% else %}
@@ -47,29 +66,6 @@
                 {% endif %}
             {% endif %}
             {% if should_render_wrap %}
-            {% set external_toggle_field = none %}
-            {% set external_card_label = none %}
-            {% if form and field.render_kw and field.render_kw.get('external_toggle_field_name') %}
-                {% set external_toggle_field = form._fields.get(field.render_kw.get('external_toggle_field_name')) %}
-                {% if external_toggle_field and external_toggle_field.render_kw and 'checkbox_card_label' in external_toggle_field.render_kw %}
-                    {% set external_card_label = external_toggle_field.render_kw.checkbox_card_label %}
-                {% endif %}
-            {% endif %}
-            {% if external_card_label and external_card_label not in ns.rendered_external_checkbox_cards %}
-                {% set ns.rendered_external_checkbox_cards = ns.rendered_external_checkbox_cards + [external_card_label] %}
-                <div class="card">
-                    <div class="content">
-                        <legend>{{ external_card_label }}</legend>
-                        {% for checkbox_field in form|sort(attribute='render_kw.order') %}
-                            {% set checkbox_groups = checkbox_field.render_kw.groups if checkbox_field.render_kw and 'groups' in checkbox_field.render_kw else [] %}
-                            {% set checkbox_label = checkbox_field.render_kw.checkbox_card_label if checkbox_field.render_kw and 'checkbox_card_label' in checkbox_field.render_kw else none %}
-                            {% if checkbox_field.render_kw and checkbox_field.render_kw.get('is_external_checkbox_control') and checkbox_groups[:group_path|length] == group_path and checkbox_groups|length == group_path|length and checkbox_label == external_card_label %}
-                                {{ render_checkbox(checkbox_field) }}
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
             <div class="{{ wrap_base }}_wrap{% if show_class and show_class != wrap_base %} {{ show_class }}_wrap{% endif %}">
             {% if groups|length == group_path|length %}
                 {% if depth == 1 %}
@@ -247,8 +243,8 @@
 </select>
 {%- endmacro %}
 
-{% macro render_select_multiple(field, group, show_class) -%}
-{% if group|length > 0 %}
+{% macro render_select_multiple(field, group, show_class, show_label=True) -%}
+{% if show_label and group|length > 0 %}
     {{ render_label(field) }}
 {% endif %}
 {% if show_class %}
@@ -272,6 +268,30 @@
 {% if show_class %}
 </div>
 {% endif %}
+{%- endmacro %}
+
+{% macro render_accordion_field(field, group, form=None) -%}
+<details class="accordion-item event-accordion-item">
+    <summary class="event-accordion-summary">
+        <span class="event-accordion-arrow" aria-hidden="true"></span>
+        <span class="event-accordion-heading">
+            {{ field.label.text }}
+            {% if field.flags.required %}
+            <small class="required">required</small>
+            {% endif %}
+        </span>
+    </summary>
+    <div class="event-accordion-panel">
+        {% if field.description %}
+            <small class="extra-required">{{ field.description }}</small>
+        {% endif %}
+        {% if field.type == "SelectMultipleField" %}
+            {{ render_select_multiple(field, group, none, show_label=False) }}
+        {% else %}
+            {{ render(field, group, form) }}
+        {% endif %}
+    </div>
+</details>
 {%- endmacro %}
 
 {% macro render_ckeditor(field, group) -%}
