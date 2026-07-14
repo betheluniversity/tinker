@@ -181,20 +181,20 @@ _FIELD_EXTRA = {
         'render_kw': {'show_class': 'Yes'},
     },
     'undergraduate_departments': {
-        'toggle_with_external_checkbox': True,
-        'checkbox_card_label': 'Departments and programs',
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
     },
     'adult_undergrad_program': {
-        'toggle_with_external_checkbox': True,
-        'checkbox_card_label': 'Departments and programs',
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
     },
     'graduate_program': {
-        'toggle_with_external_checkbox': True,
-        'checkbox_card_label': 'Departments and programs',
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
     },
     'seminary_program': {
-        'toggle_with_external_checkbox': True,
-        'checkbox_card_label': 'Departments and programs',
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
     }
 }
 
@@ -211,14 +211,14 @@ def _iter_yes_no_toggle_configs():
         }
 
 
-def _iter_external_checkbox_toggle_configs():
+def _iter_accordion_card_toggle_configs():
     """Yield declarative grouped-accordion config from _FIELD_EXTRA."""
     for target_name, extra in _FIELD_EXTRA.items():
-        if not extra.get('toggle_with_external_checkbox'):
+        if not extra.get('toggle_with_accordion_card'):
             continue
         yield {
             'target_name': target_name,
-            'accordion_card_label': extra.get('checkbox_card_label', 'Additional fields'),
+            'accordion_card_label': extra.get('accordion_card_label', 'Additional fields'),
         }
 
 
@@ -364,7 +364,7 @@ def _build_event_form_class(multiples={}):
         target_field.kwargs['render_kw'] = target_rk
 
     # Mark fields that should render in a shared accordion card.
-    for toggle_cfg in _iter_external_checkbox_toggle_configs():
+    for toggle_cfg in _iter_accordion_card_toggle_configs():
         target_name = toggle_cfg['target_name']
         if target_name not in all_fields:
             continue
