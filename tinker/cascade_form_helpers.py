@@ -126,7 +126,7 @@ def build_metadata_custom_fields(metadata_set):
         if field_type == 'multiselect':
             custom_fields[name] = SelectMultipleField(
                 label, choices=choices, default=default_values or ['None'],
-                description=help_text, validators=validators or [DataRequired()])
+                description=help_text, validators=validators)
         elif field_type == 'radio':
             default_radio = default_values[0] if default_values else None
             custom_fields[name] = RadioField(

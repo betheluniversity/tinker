@@ -22,14 +22,15 @@
 {%- endmacro %}
 
 {% macro render_group_level(form, group_path, depth) -%}
-    {% set ns = namespace(rendered_subgroups=[], rendered_external_checkbox_cards=[]) %}
+    {% set ns = namespace(rendered_subgroups=[], rendered_external_checkbox_cards=[], rendered_nested_cards=[]) %}
     {% for field in form|sort(attribute='render_kw.order') %}
         {% set groups = field.render_kw.groups if field.render_kw and 'groups' in field.render_kw else [] %}
         {% set is_render_hidden = field.type == "HiddenField" or (field.render_kw and field.render_kw.get('type') == 'hidden') %}
         {% set is_toggle_control = field.render_kw and field.render_kw.get('is_toggle_control') %}
         {% set external_accordion_card_label = field.render_kw.external_accordion_card_label if field.render_kw and 'external_accordion_card_label' in field.render_kw else none %}
+        {% set nested_card_label = field.render_kw.nested_card_label if field.render_kw and 'nested_card_label' in field.render_kw else none %}
 
-        {% if groups[:group_path|length] == group_path and external_accordion_card_label and groups|length == group_path|length and external_accordion_card_label not in ns.rendered_external_checkbox_cards %}
+        {% if groups[:group_path|length] == group_path and external_accordion_card_label and not nested_card_label and groups|length == group_path|length and external_accordion_card_label not in ns.rendered_external_checkbox_cards %}
             {% set ns.rendered_external_checkbox_cards = ns.rendered_external_checkbox_cards + [external_accordion_card_label] %}
             <div class="card">
                 <div class="content">
@@ -46,8 +47,49 @@
             </div>
         {% endif %}
 
+        {% if groups[:group_path|length] == group_path and nested_card_label and groups|length == group_path|length and nested_card_label not in ns.rendered_nested_cards %}
+            {% set ns.rendered_nested_cards = ns.rendered_nested_cards + [nested_card_label] %}
+            <div class="card card-depth-{{ depth }}">
+                <div class="content">
+                    <legend>{{ nested_card_label }}</legend>
+
+                    {% set nested_ns = namespace(rendered_accordion_cards=[]) %}
+                    {% for nested_field in form|sort(attribute='render_kw.order') %}
+                        {% set nested_groups = nested_field.render_kw.groups if nested_field.render_kw and 'groups' in nested_field.render_kw else [] %}
+                        {% set nested_label = nested_field.render_kw.nested_card_label if nested_field.render_kw and 'nested_card_label' in nested_field.render_kw else none %}
+                        {% set nested_accordion_label = nested_field.render_kw.external_accordion_card_label if nested_field.render_kw and 'external_accordion_card_label' in nested_field.render_kw else none %}
+                        {% set nested_hidden = nested_field.type == "HiddenField" or (nested_field.render_kw and nested_field.render_kw.get('type') == 'hidden') %}
+                        {% set nested_toggle_control = nested_field.render_kw and nested_field.render_kw.get('is_toggle_control') %}
+                        {% if nested_groups[:group_path|length] == group_path and nested_groups|length == group_path|length and nested_label == nested_card_label and not nested_hidden and not nested_toggle_control %}
+                            {% if nested_accordion_label %}
+                                {% if nested_accordion_label not in nested_ns.rendered_accordion_cards %}
+                                    {% set nested_ns.rendered_accordion_cards = nested_ns.rendered_accordion_cards + [nested_accordion_label] %}
+                                    <div class="card card-depth-{{ depth + 1 }}">
+                                        <div class="content">
+                                            <legend>{{ nested_accordion_label }}</legend>
+                                            {% for accordion_field in form|sort(attribute='render_kw.order') %}
+                                                {% set accordion_groups = accordion_field.render_kw.groups if accordion_field.render_kw and 'groups' in accordion_field.render_kw else [] %}
+                                                {% set accordion_nested_label = accordion_field.render_kw.nested_card_label if accordion_field.render_kw and 'nested_card_label' in accordion_field.render_kw else none %}
+                                                {% set accordion_label = accordion_field.render_kw.external_accordion_card_label if accordion_field.render_kw and 'external_accordion_card_label' in accordion_field.render_kw else none %}
+                                                {% set accordion_hidden = accordion_field.type == "HiddenField" or (accordion_field.render_kw and accordion_field.render_kw.get('type') == 'hidden') %}
+                                                {% if accordion_groups[:group_path|length] == group_path and accordion_groups|length == group_path|length and accordion_nested_label == nested_card_label and accordion_label == nested_accordion_label and not accordion_hidden %}
+                                                    {{ render_accordion_field(accordion_field, group_path, form) }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                {{ render_nested_full_field_card(nested_field, group_path, form, depth + 1) }}
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
         {# Only process fields that start with the current group path #}
-        {% if groups[:group_path|length] == group_path and not is_toggle_control and not external_accordion_card_label %}
+        {% if groups[:group_path|length] == group_path and not is_toggle_control and not external_accordion_card_label and not nested_card_label %}
             {% if is_render_hidden %}
                 {{ render_hidden_value(field) }}
             {% else %}
@@ -294,6 +336,27 @@
 </details>
 {%- endmacro %}
 
+{% macro render_nested_full_field_card(field, group, form=None, depth=2) -%}
+{% set field_show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else none %}
+{% set has_inline_toggle = field.render_kw and field.render_kw.get('toggle_field_name') %}
+{% set show_class = none if has_inline_toggle else field_show_class %}
+<div class="{{ field.name }}_wrap{% if show_class and show_class != field.name %} {{ show_class }}_wrap{% endif %}">
+    <div class="card card-depth-{{ depth }}">
+        <div class="content">
+            <legend>{{ field.label.text }}
+            {% if field.flags.required %}
+            <small class="required">required</small>
+            {% endif %}
+            </legend>
+            {% if field.description %}
+                <small class="extra-required">{{ field.description }}</small>
+            {% endif %}
+            {{ render(field, group, form) }}
+        </div>
+    </div>
+</div>
+{%- endmacro %}
+
 {% macro render_ckeditor(field, group) -%}
     {% if group|length > 0 %}
         {{ render_label(field) }}
@@ -365,11 +428,14 @@
     {% endif %}
 {% endif %}
 {% set selected_value = field.data if field.data else field.default %}
+{% set inline_options = field.render_kw and field.render_kw.get('inline_options') %}
+<div class="event-radio-group{% if inline_options %} event-radio-group--inline{% endif %}">
 {% for subfield in field %}
-<div class="radio{{ ' checked' if subfield.data == selected_value else '' }}">
-    {{ subfield(onchange=field.render_kw['onchange']) if field.render_kw and 'onchange' in field.render_kw else subfield() }}{{ subfield.label }}
-</div>
+    <div class="radio{{ ' checked' if subfield.data == selected_value else '' }}">
+        {{ subfield(onchange=field.render_kw['onchange']) if field.render_kw and 'onchange' in field.render_kw else subfield() }}{{ subfield.label }}
+    </div>
 {% endfor %}
+</div>
 {%- endmacro %}
 
 {% macro render_label(field, show_description=True) -%}

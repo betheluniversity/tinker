@@ -154,8 +154,55 @@ def validate_numeric(form, field):
 _FIELD_EXTRA = {
     # Group built-in fields visually in the template as 'Event basics', and specify order.
     # We use lists for 'groups' and 'group_labels' to support the recursive card rendering logic.
-    'title': {'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']}, 'order': 0, 'extra_validators': [length_checker]},
-    'teaser': {'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']}, 'order': 1},
+    'title': {
+        'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']},
+        'order': 0,
+        'extra_validators': [length_checker]
+    },
+    'teaser': {
+        'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']},
+        'order': 1
+    },
+    # Specify metadata fields that should be hidden fields
+    'hide_from_calendar': {'render_kw': {'type': 'hidden'}},
+    'hide_from_nav': {'render_kw': {'type': 'hidden'}},
+    'hide_site_nav': {'render_kw': {'type': 'hidden'}},
+    # Field toggles — declarative companion controls that show/hide other fields in the template.
+    'general': {
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata'
+    },
+    'offices': {
+        'toggle_with_yes_no': True,
+        'toggle_default': 'No',
+        'render_kw': {'show_class': 'Yes'},
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata'
+    },
+    'undergraduate_departments': {
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata'
+    },
+    'adult_undergrad_program': {
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata',
+    },
+    'graduate_program': {
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata',
+    },
+    'seminary_program': {
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata',
+    },
     # Date sync — keeps eventEnd >= eventStart
     'eventStart':      {'render_kw': {'onchange': 'syncDates(this)'}},
     'eventEnd':        {'render_kw': {'onchange': 'syncDates(this)'}},
@@ -169,33 +216,7 @@ _FIELD_EXTRA = {
                         'render_kw': {'onblur': 'stripCostChars(this)'}},
     # Registration
     'ticketingURL':    {'extra_validators': [URL(require_tld=True,
-                                                 message='Please enter a valid URL.')]},
-    # Specify metadata fields that should be hidden fields
-    'hide_from_calendar': {'render_kw': {'type': 'hidden'}},
-    'hide_from_nav': {'render_kw': {'type': 'hidden'}},
-    'hide_site_nav': {'render_kw': {'type': 'hidden'}},
-    # Field toggles — declarative companion controls that show/hide other fields in the template.
-    'offices': {
-        'toggle_with_yes_no': True,
-        'toggle_default': 'No',
-        'render_kw': {'show_class': 'Yes'},
-    },
-    'undergraduate_departments': {
-        'toggle_with_accordion_card': True,
-        'accordion_card_label': 'Departments and programs',
-    },
-    'adult_undergrad_program': {
-        'toggle_with_accordion_card': True,
-        'accordion_card_label': 'Departments and programs',
-    },
-    'graduate_program': {
-        'toggle_with_accordion_card': True,
-        'accordion_card_label': 'Departments and programs',
-    },
-    'seminary_program': {
-        'toggle_with_accordion_card': True,
-        'accordion_card_label': 'Departments and programs',
-    }
+                                                 message='Please enter a valid URL.')]}
 }
 
 
@@ -219,6 +240,17 @@ def _iter_accordion_card_toggle_configs():
         yield {
             'target_name': target_name,
             'accordion_card_label': extra.get('accordion_card_label', 'Additional fields'),
+        }
+
+
+def _iter_nested_card_configs():
+    """Yield declarative nested-card config from _FIELD_EXTRA."""
+    for target_name, extra in _FIELD_EXTRA.items():
+        if not extra.get('nest_within_card'):
+            continue
+        yield {
+            'target_name': target_name,
+            'nested_card_label': extra.get('nest_card_label', 'Additional information'),
         }
 
 
@@ -355,6 +387,7 @@ def _build_event_form_class(multiples={}):
                 'group_labels': target_group_labels,
                 'order': target_order,
                 'onchange': 'selectChanged(this)',
+                'inline_options': True,
                 'is_toggle_control': True,
                 'controls_field': target_name,
             },
@@ -372,6 +405,17 @@ def _build_event_form_class(multiples={}):
         target_field = all_fields[target_name]
         target_rk = dict(target_field.kwargs.get('render_kw', {}) or {})
         target_rk['external_accordion_card_label'] = toggle_cfg['accordion_card_label']
+        target_field.kwargs['render_kw'] = target_rk
+
+    # Mark fields that should render as full cards nested inside a shared parent card.
+    for nested_cfg in _iter_nested_card_configs():
+        target_name = nested_cfg['target_name']
+        if target_name not in all_fields:
+            continue
+
+        target_field = all_fields[target_name]
+        target_rk = dict(target_field.kwargs.get('render_kw', {}) or {})
+        target_rk['nested_card_label'] = nested_cfg['nested_card_label']
         target_field.kwargs['render_kw'] = target_rk
 
     # Apply _FIELD_EXTRA and ensure 'order' exists for all fields to support template sorting.
