@@ -32,17 +32,29 @@
 
         {% if groups[:group_path|length] == group_path and external_accordion_card_label and not nested_card_label and groups|length == group_path|length and external_accordion_card_label not in ns.rendered_external_checkbox_cards %}
             {% set ns.rendered_external_checkbox_cards = ns.rendered_external_checkbox_cards + [external_accordion_card_label] %}
+            {% set accordion_toggle_field = none %}
+            {% if form and field.render_kw and field.render_kw.get('external_accordion_toggle_field_name') %}
+                {% set accordion_toggle_field = form._fields.get(field.render_kw.get('external_accordion_toggle_field_name')) %}
+            {% endif %}
             <div class="card">
                 <div class="content">
-                    <legend>{{ external_accordion_card_label }}</legend>
-                    {% for accordion_field in form|sort(attribute='render_kw.order') %}
-                        {% set accordion_groups = accordion_field.render_kw.groups if accordion_field.render_kw and 'groups' in accordion_field.render_kw else [] %}
-                        {% set accordion_label = accordion_field.render_kw.external_accordion_card_label if accordion_field.render_kw and 'external_accordion_card_label' in accordion_field.render_kw else none %}
-                        {% set accordion_hidden = accordion_field.type == "HiddenField" or (accordion_field.render_kw and accordion_field.render_kw.get('type') == 'hidden') %}
-                        {% if accordion_groups[:group_path|length] == group_path and accordion_groups|length == group_path|length and accordion_label == external_accordion_card_label and not accordion_hidden %}
-                            {{ render_accordion_field(accordion_field, group_path, form) }}
+                    {% if accordion_toggle_field %}
+                        <legend>{{ accordion_toggle_field.label.text }}</legend>
+                        {{ render_radio(accordion_toggle_field, group_path, show_label=False) }}
+                    {% endif %}
+                    <div class="{% if accordion_toggle_field %}Yes_wrap{% endif %}">
+                        {% if not accordion_toggle_field %}
+                            <legend>{{ external_accordion_card_label }}</legend>
                         {% endif %}
-                    {% endfor %}
+                        {% for accordion_field in form|sort(attribute='render_kw.order') %}
+                            {% set accordion_groups = accordion_field.render_kw.groups if accordion_field.render_kw and 'groups' in accordion_field.render_kw else [] %}
+                            {% set accordion_label = accordion_field.render_kw.external_accordion_card_label if accordion_field.render_kw and 'external_accordion_card_label' in accordion_field.render_kw else none %}
+                            {% set accordion_hidden = accordion_field.type == "HiddenField" or (accordion_field.render_kw and accordion_field.render_kw.get('type') == 'hidden') %}
+                            {% if accordion_groups[:group_path|length] == group_path and accordion_groups|length == group_path|length and accordion_label == external_accordion_card_label and not accordion_hidden %}
+                                {{ render_accordion_field(accordion_field, group_path, form) }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         {% endif %}
@@ -63,19 +75,31 @@
                         {% if nested_groups[:group_path|length] == group_path and nested_groups|length == group_path|length and nested_label == nested_card_label and not nested_hidden and not nested_toggle_control %}
                             {% if nested_accordion_label %}
                                 {% if nested_accordion_label not in nested_ns.rendered_accordion_cards %}
+                                    {% set nested_accordion_toggle_field = none %}
+                                    {% if form and nested_field.render_kw and nested_field.render_kw.get('external_accordion_toggle_field_name') %}
+                                        {% set nested_accordion_toggle_field = form._fields.get(nested_field.render_kw.get('external_accordion_toggle_field_name')) %}
+                                    {% endif %}
                                     {% set nested_ns.rendered_accordion_cards = nested_ns.rendered_accordion_cards + [nested_accordion_label] %}
                                     <div class="card card-depth-{{ depth + 1 }}">
                                         <div class="content">
-                                            <legend>{{ nested_accordion_label }}</legend>
-                                            {% for accordion_field in form|sort(attribute='render_kw.order') %}
-                                                {% set accordion_groups = accordion_field.render_kw.groups if accordion_field.render_kw and 'groups' in accordion_field.render_kw else [] %}
-                                                {% set accordion_nested_label = accordion_field.render_kw.nested_card_label if accordion_field.render_kw and 'nested_card_label' in accordion_field.render_kw else none %}
-                                                {% set accordion_label = accordion_field.render_kw.external_accordion_card_label if accordion_field.render_kw and 'external_accordion_card_label' in accordion_field.render_kw else none %}
-                                                {% set accordion_hidden = accordion_field.type == "HiddenField" or (accordion_field.render_kw and accordion_field.render_kw.get('type') == 'hidden') %}
-                                                {% if accordion_groups[:group_path|length] == group_path and accordion_groups|length == group_path|length and accordion_nested_label == nested_card_label and accordion_label == nested_accordion_label and not accordion_hidden %}
-                                                    {{ render_accordion_field(accordion_field, group_path, form) }}
+                                            {% if nested_accordion_toggle_field %}
+                                                <legend>{{ nested_accordion_toggle_field.label.text }}</legend>
+                                                {{ render_radio(nested_accordion_toggle_field, group_path, show_label=False) }}
+                                            {% endif %}
+                                            <div class="{% if nested_accordion_toggle_field %}Yes_wrap{% endif %}">
+                                                {% if not nested_accordion_toggle_field %}
+                                                    <legend>{{ nested_accordion_label }}</legend>
                                                 {% endif %}
-                                            {% endfor %}
+                                                {% for accordion_field in form|sort(attribute='render_kw.order') %}
+                                                    {% set accordion_groups = accordion_field.render_kw.groups if accordion_field.render_kw and 'groups' in accordion_field.render_kw else [] %}
+                                                    {% set accordion_nested_label = accordion_field.render_kw.nested_card_label if accordion_field.render_kw and 'nested_card_label' in accordion_field.render_kw else none %}
+                                                    {% set accordion_label = accordion_field.render_kw.external_accordion_card_label if accordion_field.render_kw and 'external_accordion_card_label' in accordion_field.render_kw else none %}
+                                                    {% set accordion_hidden = accordion_field.type == "HiddenField" or (accordion_field.render_kw and accordion_field.render_kw.get('type') == 'hidden') %}
+                                                    {% if accordion_groups[:group_path|length] == group_path and accordion_groups|length == group_path|length and accordion_nested_label == nested_card_label and accordion_label == nested_accordion_label and not accordion_hidden %}
+                                                        {{ render_accordion_field(accordion_field, group_path, form) }}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
                                         </div>
                                     </div>
                                 {% endif %}
