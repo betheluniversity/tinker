@@ -59,6 +59,15 @@ _ckeditor_required.field_flags = ('required',)
 # Cascade metadataset helpers
 # ---------------------------------------------------------------------------
 
+def get_metadata_set(tinker_controller, metadata_path):
+    """
+    Read the Cascade metadataset at *metadata_path* and return the normalized
+    metadataSet dict.
+    """
+    raw = tinker_controller.read(metadata_path, 'metadataset')
+    #current_app.logger.debug(f"Metadata for {metadata_path}: {json.dumps(raw, default=str)}")
+    return convert_asset(raw['asset']['metadataSet'])  # normalize here
+
 def get_metadata_fields(tinker_controller, metadata_path):
     """
     Read the Cascade metadataset at *metadata_path* and return:
@@ -71,21 +80,11 @@ def get_metadata_fields(tinker_controller, metadata_path):
                          WTForms fields whose creation_counter should be lower
                          (i.e. fields that should appear earlier in the form).
     """
-    raw = tinker_controller.read(metadata_path, 'metadataset')
-    #current_app.logger.debug(f"Metadata for {metadata_path}: {json.dumps(raw, default=str)}")
-    metadata_set = convert_asset(raw['asset']['metadataSet'])  # normalize here
+
+    metadata_set = get_metadata_set(tinker_controller, metadata_path)
 
     # Create the Built-in inline fields
-    built_in_fields = {}
-    for key, value in metadata_set.items():
-        if not key.endswith('FieldVisibility') or value != 'inline':
-            continue
-        name = key[:-len('FieldVisibility')]
-        label = name.capitalize()
-        required = metadata_set.get(name + 'FieldRequired', False)
-        help_text = metadata_set.get(name + 'FieldHelpText', '')
-        validators = [DataRequired()] if required else []
-        built_in_fields[name] = StringField(label, validators=validators, description=help_text)
+    built_in_fields = build_metadata_built_in_fields(metadata_set)
 
     # Create the custom metadata fields
     custom_fields = build_metadata_custom_fields(metadata_set)
@@ -93,7 +92,28 @@ def get_metadata_fields(tinker_controller, metadata_path):
     return {**built_in_fields, **custom_fields}
 
 
-def build_metadata_custom_fields(metadata_set):
+def build_metadata_built_in_fields(metadata_set, field_name=None):
+    """
+    Build and return a dict of WTForms UnboundFields for the built-in metadata
+    fields in *metadata_set* whose visibility is 'inline' (e.g. title, teaser).
+    """
+    built_in_fields = {}
+    for key, value in metadata_set.items():
+        if not key.endswith('FieldVisibility') or value != 'inline':
+            continue
+        name = key[:-len('FieldVisibility')]
+        if field_name and name != field_name:
+            continue
+        label = name.capitalize()
+        required = metadata_set.get(name + 'FieldRequired', False)
+        help_text = metadata_set.get(name + 'FieldHelpText', '')
+        validators = [DataRequired()] if required else []
+        built_in_fields[name] = StringField(label, validators=validators, description=help_text)
+
+    return built_in_fields
+
+
+def build_metadata_custom_fields(metadata_set, field_name=None):
     """
     Build and return a dict of WTForms UnboundFields for the dynamic metadata
     field definitions in *metadata_set* (multiselect → SelectMultipleField,
@@ -111,6 +131,8 @@ def build_metadata_custom_fields(metadata_set):
         if item.get('visibility', '').lower() == 'hidden':
             continue
         name = item['name'].replace('-', '_')
+        if field_name and name != field_name:
+            continue
         label = item.get('label', name)
         required = item.get('required', False)
         help_text = item.get('helpText', '')
@@ -287,7 +309,7 @@ def _build_field(field_def, field_extra=None, override_choices=None):
 # ---------------------------------------------------------------------------
 
 def _fields_from_def(field_defs, prefix='', top_level=False,
-                     field_extra=None, override_choices=None):
+                     field_extra=None, override_choices=None, metadata_set=None):
     """
     Walk a list of field-def dicts and return an ordered dict of
     {form_field_name: UnboundField}.
@@ -333,7 +355,20 @@ def _fields_from_def(field_defs, prefix='', top_level=False,
                 for child_name, field in child_fields.items():
                     res[child_name] = field
             else:
-                field = _build_field(fd, field_extra=fe, override_choices=oc)
+                field = None
+                if identifier.startswith('metadata-field-placeholder-'):
+                    # This is a placeholder for a metadata field; use the actual field from metadata_fields
+                    mf_name = identifier[len('metadata-field-placeholder-'):]
+                    md_custom_fields = build_metadata_custom_fields(metadata_set, field_name=mf_name)
+                    if mf_name in md_custom_fields:
+                        field = md_custom_fields[mf_name]
+                    else:
+                        md_built_in_fields = build_metadata_built_in_fields(metadata_set, field_name=mf_name)
+                        if mf_name in md_built_in_fields:
+                            field = md_built_in_fields[mf_name]
+                else:
+                    field = _build_field(fd, field_extra=fe, override_choices=oc)
+                    
                 if field is not None:
                     # Set ancestry for leaf fields only
                     add_group_ancestry(field, parent_groups, parent_labels)

@@ -22,7 +22,7 @@ from wtforms import (HiddenField, StringField)
 from wtforms.validators import ValidationError, URL
 
 from tinker.cascade_form_helpers import (_fields_from_def,
-                                          get_metadata_fields,
+                                          get_metadata_fields, get_metadata_set,
                                           get_structured_data_labels)
 
 # Local
@@ -154,8 +154,63 @@ def validate_numeric(form, field):
 _FIELD_EXTRA = {
     # Group built-in fields visually in the template as 'Event basics', and specify order.
     # We use lists for 'groups' and 'group_labels' to support the recursive card rendering logic.
-    'title': {'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']}, 'order': 0, 'extra_validators': [length_checker]},
-    'teaser': {'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']}, 'order': 1},
+    # 'title': {
+    #     'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']},
+    #     'order': 0,
+    #     'extra_validators': [length_checker]
+    # },
+    # 'teaser': {
+    #     'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']},
+    #     'order': 1
+    # },
+    # Specify metadata fields that should be hidden fields
+    # 'hide_from_calendar': {'render_kw': {'type': 'hidden'}},
+    # 'hide_from_nav': {'render_kw': {'type': 'hidden'}},
+    # 'hide_site_nav': {'render_kw': {'type': 'hidden'}},
+    # Field toggles — declarative companion controls that show/hide other fields in the template.
+    # 'general': {
+    #     'nest_within_card': True,
+    #     'nest_card_label': 'Event metadata'
+    # },
+    # 'offices': {
+    #     'toggle_with_yes_no': True,
+    #     'toggle_default': 'No',
+    #     'render_kw': {'show_class': 'Yes'},
+    #     'nest_within_card': True,
+    #     'nest_card_label': 'Event metadata'
+    # },
+    # 'undergraduate_departments': {
+    #     'toggle_with_accordion_card': True,
+    #     'accordion_toggle_with_yes_no': True,
+    #     'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
+    #     'accordion_toggle_default': 'No',
+    #     'nest_within_card': True,
+    #     'nest_card_label': 'Event metadata'
+    # },
+    # 'adult_undergrad_program': {
+    #     'toggle_with_accordion_card': True,
+    #     'accordion_toggle_with_yes_no': True,
+    #     'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
+    #     'accordion_toggle_default': 'No',
+    #     'nest_within_card': True,
+    #     'nest_card_label': 'Event metadata',
+    # },
+    # 'graduate_program': {
+    #     'toggle_with_accordion_card': True,
+    #     'accordion_toggle_with_yes_no': True,
+    #     'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
+    #     'accordion_toggle_default': 'No',
+    #     'nest_within_card': True,
+    #     'nest_card_label': 'Event metadata',
+    # },
+    # 'seminary_program': {
+    #     'toggle_with_accordion_card': True,
+    #     'accordion_toggle_with_yes_no': True,
+    #     'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
+    #     'accordion_toggle_default': 'No',
+    #     'nest_within_card': True,
+    #     'nest_card_label': 'Event metadata',
+    # },
     # Date sync — keeps eventEnd >= eventStart
     'eventStart':      {'render_kw': {'onchange': 'syncDates(this)'}},
     'eventEnd':        {'render_kw': {'onchange': 'syncDates(this)'}},
@@ -242,11 +297,10 @@ def _build_event_form_class(multiples={}):
     """
 
     all_fields = {}
-
-    # Create and add the metadata fields
-    metadata_fields = get_metadata_fields(tinker, app.config.get('EVENTS_METADATA_SET', ''))
-    all_fields.update(metadata_fields)
     
+    # Create and add the metadata fields
+    #metadata_fields = get_metadata_fields(tinker, app.config.get('EVENTS_METADATA_SET', ''))
+
     # Walk the full data definition tree
     # Pass event-specific field config and choice overrides to the generic helper.
     on_campus_locations = get_structured_data_labels(tinker, app.config.get('EVENTS_ON_CAMPUS_LOCATIONS', ''))
@@ -254,7 +308,10 @@ def _build_event_form_class(multiples={}):
         get_field_definitions(app.config.get('EVENTS_DATA_DEF_ID', ''), multiples=multiples),
         field_extra=_FIELD_EXTRA,
         override_choices={'location': on_campus_locations},
+        metadata_set=get_metadata_set(tinker, app.config.get('EVENTS_METADATA_SET', ''))
     )
+
+    #all_fields.update(metadata_fields)
     all_fields.update(dd_fields)
 
     # Apply _FIELD_EXTRA and ensure 'order' exists for all fields to support template sorting.
