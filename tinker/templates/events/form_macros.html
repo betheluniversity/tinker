@@ -304,11 +304,13 @@
     {{ render_label(field) }}
 {% endif %}
 {% set selected_value = field.data if field.data else field.default %}
+<div class="radio-group--inline">
 {% for subfield in field %}
 <div class="radio{{ ' checked' if subfield.data == selected_value else '' }}">
     {{ subfield() }}{{ subfield.label }}
 </div>
 {% endfor %}
+</div>
 {%- endmacro %}
 
 {% macro render_label(field, show_description=True) -%}
