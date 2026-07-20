@@ -167,3 +167,42 @@ legend {
 .radio-group--inline .radio input[type='radio'] {
     margin-right: 6px;
 }
+
+.event-accordion-group {
+    margin-top: 8px;
+}
+
+.event-accordion-item {
+    border: 1px solid #cfcfcf;
+    border-radius: 4px;
+    background: #fff;
+    margin-bottom: 10px;
+}
+
+.event-accordion-summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 10px 12px;
+    font-weight: 600;
+    list-style: none;
+}
+
+.event-accordion-summary::-webkit-details-marker {
+    display: none;
+}
+
+.event-accordion-arrow {
+    width: 12px;
+    text-align: center;
+    transition: transform 0.18s ease;
+}
+
+.event-accordion-item[open] .event-accordion-arrow {
+    transform: rotate(180deg);
+}
+
+.event-accordion-body {
+    padding: 0 12px 12px;
+}

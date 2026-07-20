@@ -49,11 +49,13 @@
                 {% if depth == 1 %}
                     <div class="card">
                         <div class="content">
+                            {% if field.label and field.label.text %}
                             <legend>{{ field.label.text }}
                             {% if field.flags.required %}
                             <small class="required">required</small>
                             {% endif %}
                             </legend>
+                            {% endif %}
                             {% if field.description %}
                                 <small class="extra-required">{{ field.description }}</small>
                             {% endif %}
@@ -70,20 +72,22 @@
                     {% set ns.rendered_subgroups = ns.rendered_subgroups + [subgroup] %}
                     {% set card_class = group_path[0] + '_' + subgroup if group_path|length > 0 else subgroup %}
                     {% set group_name_path = (group_path + [subgroup])|join('__') %}
+                    {% set is_accordion_group = subgroup.startswith('accordion-group-') %}
                     <div class="card card-depth-{{ depth }} {{ card_class }}">
                         <div class="content">
-                            <legend>
                                 {% set label_ns = namespace(label=none) %}
                                 {% for f in form %}
                                     {% set f_groups = f.render_kw.groups if f.render_kw and 'groups' in f.render_kw else [] %}
                                     {% set f_labels = f.render_kw.group_labels if f.render_kw and 'group_labels' in f.render_kw else [] %}
-                                    {% if not label_ns.label 
+                                    {% if not label_ns.label
                                         and f_groups[:group_path|length + 1] == (group_path + [subgroup])
                                         and f_labels|length > group_path|length %}
                                         {% set label_ns.label = f_labels[group_path|length] %}
                                     {% endif %}
                                 {% endfor %}
-                                {{ label_ns.label or subgroup|capitalize }}
+                            {% if label_ns.label %}
+                            <legend>
+                                {{ label_ns.label }}
                                 {# For [multiple] groups, show delete icon when series has more than one item #}
                                 {% if subgroup.startswith('[multiple]') %}
                                     {% set series_ns = namespace(items=[]) %}
@@ -101,7 +105,12 @@
                                     {% endif %}
                                 {% endif %}
                             </legend>
-                            {{ render_group_level(form, group_path + [subgroup], depth + 1) }}
+                            {% endif %}
+                            {% if is_accordion_group %}
+                                {{ render_accordion_group(form, group_path + [subgroup], depth + 1) }}
+                            {% else %}
+                                {{ render_group_level(form, group_path + [subgroup], depth + 1) }}
+                            {% endif %}
                         </div>
                     </div>
                     {# For [multiple] groups, only show Add Another after the final subgroup in the series #}
@@ -134,8 +143,70 @@
     {% endfor %}
 {%- endmacro %}
 
+{% macro render_accordion_group(form, group_path, depth) -%}
+    {% set ns = namespace(rendered_children=[]) %}
+    <div class="event-accordion-group">
+    {% for field in form|sort(attribute='render_kw.order') %}
+        {% set groups = field.render_kw.groups if field.render_kw and 'groups' in field.render_kw else [] %}
+        {% if groups[:group_path|length] == group_path %}
+            {% if groups|length == group_path|length %}
+                {% set child_key = '__field__' + field.name %}
+                {% if child_key not in ns.rendered_children %}
+                    {% set ns.rendered_children = ns.rendered_children + [child_key] %}
+                    {% set show_class = field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else None %}
+                    <div class="{{ field.name }}_wrap{% if show_class %} {{ show_class }}_wrap{% endif %}">
+                    <details class="event-accordion-item">
+                        <summary class="event-accordion-summary">
+                            <i class="fa fa-angle-down event-accordion-arrow" aria-hidden="true"></i>
+                            <span>
+                                {{ field.label.text }}
+                                {% if field.flags.required %}
+                                <small class="required">required</small>
+                                {% endif %}
+                            </span>
+                        </summary>
+                        <div class="event-accordion-body">
+                            {{ render(field, group_path, show_label=false) }}
+                        </div>
+                    </details>
+                    </div>
+                {% endif %}
+            {% elif groups|length > group_path|length %}
+                {% set child = groups[group_path|length] %}
+                {% if child not in ns.rendered_children %}
+                    {% set ns.rendered_children = ns.rendered_children + [child] %}
+                    {% set accordion_target = group_path[0] ~ '__' ~ child %}
+                    {% set accordion_target_normalized = group_path[0] ~ '_' ~ child %}
+                    <div class="{{ accordion_target }}_wrap {{ accordion_target_normalized }}_wrap">
+                    {% set child_label_ns = namespace(label=none) %}
+                    {% for f in form %}
+                        {% set f_groups = f.render_kw.groups if f.render_kw and 'groups' in f.render_kw else [] %}
+                        {% set f_labels = f.render_kw.group_labels if f.render_kw and 'group_labels' in f.render_kw else [] %}
+                        {% if not child_label_ns.label
+                            and f_groups[:group_path|length + 1] == (group_path + [child])
+                            and f_labels|length > group_path|length %}
+                            {% set child_label_ns.label = f_labels[group_path|length] %}
+                        {% endif %}
+                    {% endfor %}
+                    <details class="event-accordion-item">
+                        <summary class="event-accordion-summary">
+                            <i class="fa fa-angle-down event-accordion-arrow" aria-hidden="true"></i>
+                            {% if child_label_ns.label %}<span>{{ child_label_ns.label }}</span>{% endif %}
+                        </summary>
+                        <div class="event-accordion-body">
+                            {{ render_group_level(form, group_path + [child], depth + 1) }}
+                        </div>
+                    </details>
+                    </div>
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    </div>
+{%- endmacro %}
+
 {# Macros for field rendering. #}
-{% macro render(field, group) -%}
+{% macro render(field, group, show_label=true) -%}
 {% set is_render_hidden = field.type == "HiddenField" or (field.render_kw and field.render_kw.get('type') == 'hidden') %}
 {% if is_render_hidden %}
     {{ render_hidden_value(field) }}
@@ -150,31 +221,33 @@
     {% if group is none %}
         <div class="card">
             <div class="content">
+                {% if field.label and field.label.text %}
                 <legend>{{ field.label.text }}
                 {% if field.flags.required %}
                 <small class="required">required</small>
                 {% endif %}
                 </legend>
+                {% endif %}
                 {% if field.description %}
                     <small class="extra-required">{{ field.description }}</small>
                 {% endif %}
     {% endif %}
     {% if field.type == "CKEditorTextAreaField" %}
-        {{ render_ckeditor(field, group) }}
+        {{ render_ckeditor(field, group, show_label=show_label) }}
     {% elif field.type == "SelectField" %}
-        {{ render_select(field) }}
+        {{ render_select(field, show_label=show_label) }}
     {% elif field.type == "SelectMultipleField" %}
-        {{ render_select_multiple(field, group) }}
+        {{ render_select_multiple(field, group, show_label=show_label) }}
     {% elif field.type == "BooleanField" %}
-        {{ render_checkbox(field) }}
+        {{ render_checkbox(field, show_description=show_label, show_label_text=show_label) }}
     {% elif field.type == "RadioField" %}
-        {{ render_radio(field, group) }}
+        {{ render_radio(field, group, show_label=show_label) }}
     {% elif field.type == "FileField" %}
-        {{ render_file_field(field) }}
+        {{ render_file_field(field, show_label=show_label) }}
     {% elif field.type in ["DateField", "DateTimeField"] %}
-        {{ render_datepicker(field) }}
+        {{ render_datepicker(field, show_label=show_label) }}
     {% else %}
-        {{ render_field(field) }}
+        {{ render_field(field, show_label=show_label) }}
     {% endif %}
     {% if group is none %}
             </div>
@@ -188,8 +261,10 @@
 <hr/>
 {%- endmacro %}
 
-{% macro render_field(field) -%}
+{% macro render_field(field, show_label=true) -%}
+    {% if show_label %}
     {{ render_label(field) }}
+    {% endif %}
     {% if (not field.data and field.default) %}
         {{ field(value=field.default) }}
     {% else %}
@@ -197,12 +272,15 @@
     {% endif %}
 {%- endmacro %}
 
-{% macro render_select(field) -%}
+{% macro render_select(field, show_label=true) -%}
+{% if show_label %}
 {{ render_label(field) }}
+{% endif %}
 {% set selected_value = field.data if field.data else field.default %}
 <select name="{{ field.name }}"
     {% if field.render_kw and 'onchange' in field.render_kw %}onchange="{{ field.render_kw['onchange'] }}"{% endif %}
     {% if field.render_kw and 'class' in field.render_kw %}class="{{ field.render_kw['class'] }}"{% endif %}
+    {% if field.render_kw and field.render_kw.get('dropdown_show_fields') %}data-select-show-fields='{{ field.render_kw.get("dropdown_show_fields")|tojson }}'{% endif %}
 >
     {% for value, label in field.choices %}
         {% if value == selected_value %}
@@ -214,8 +292,8 @@
 </select>
 {%- endmacro %}
 
-{% macro render_select_multiple(field, group) -%}
-{% if group|length > 0 %}
+{% macro render_select_multiple(field, group, show_label=true) -%}
+{% if show_label and group|length > 0 %}
     {{ render_label(field) }}
 {% endif %}
 {# Use field.data if exists, else field.default for selected values #}
@@ -235,8 +313,8 @@
 </select>
 {%- endmacro %}
 
-{% macro render_ckeditor(field, group) -%}
-    {% if group|length > 0 %}
+{% macro render_ckeditor(field, group, show_label=true) -%}
+    {% if show_label and group|length > 0 %}
         {{ render_label(field) }}
     {% endif %}
     {% if field.flags.required %}
@@ -247,8 +325,10 @@
     <br />
 {%- endmacro %}
 
-{% macro render_file_field(field) -%}
+{% macro render_file_field(field, show_label=true) -%}
+{% if show_label %}
 {{ render_label(field) }}
+{% endif %}
 {% set path_field_name = field.name ~ '_path' %}
 {% set existing_path = field.data if field.data is string else '' %}
 {% if not existing_path and request and request.form %}
@@ -273,8 +353,10 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro render_datepicker(field) -%}
+{% macro render_datepicker(field, show_label=true) -%}
+{% if show_label %}
 {{ render_label(field) }}
+{% endif %}
 {% if field.name in data %}
     {{ field(value=data[field.name], class="datepicker") }}
 {% else %}
@@ -282,7 +364,7 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro render_checkbox(field, show_description=True) -%}
+{% macro render_checkbox(field, show_description=True, show_label_text=True) -%}
 {% set field_classes = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
 <div id="{{ field.name }}_label" class="checkbox-inline-field {{ field_classes }}">
     {% if show_description and field.description %}
@@ -290,24 +372,27 @@
     {% endif %}
     <label for="{{ field.id }}" class="checkbox-inline-control">
         {{ field(class_='checkbox-inline-input') }}
+        {% if show_label_text and field.label and field.label.text %}
         {{ field.label.text }}
         {% if field.flags.required %}
         <small class="required">required</small>
+        {% endif %}
         {% endif %}
     </label>
     <br /><br />
 </div>
 {%- endmacro %}
 
-{% macro render_radio(field, group) -%}
-{% if group|length > 0 %}
+{% macro render_radio(field, group, show_label=true) -%}
+{% if show_label and group|length > 0 %}
     {{ render_label(field) }}
 {% endif %}
 {% set selected_value = field.data if field.data else field.default %}
-<div class="radio-group--inline">
+<div class="radio-group--inline{% if field.render_kw and field.render_kw.get('radio_show_fields') %} has-radio-show-fields{% endif %}"
+     {% if field.render_kw and field.render_kw.get('radio_show_fields') %}data-radio-show-fields='{{ field.render_kw.get("radio_show_fields")|tojson }}'{% endif %}>
 {% for subfield in field %}
 <div class="radio{{ ' checked' if subfield.data == selected_value else '' }}">
-    {{ subfield() }}{{ subfield.label }}
+    {{ subfield(onchange="selectChanged(this)") }}{{ subfield.label }}
 </div>
 {% endfor %}
 </div>
@@ -315,6 +400,7 @@
 
 {% macro render_label(field, show_description=True) -%}
 {% set field_classes = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
+{% if field.label and field.label.text %}
 <div id="{{ field.name }}_label" class="{{ field_classes }}">
     <label for="{{ field.name }}">
         {{ field.label.text }}
@@ -326,4 +412,5 @@
         <small class="extra-required">{{ field.description }}</small>
     {% endif %}
 </div>
+{% endif %}
 {%- endmacro %}

@@ -36,6 +36,39 @@ from wtforms import (BooleanField, HiddenField, RadioField,
 from wtforms.validators import DataRequired, ValidationError
 
 
+def _is_accordion_group(identifier):
+    return isinstance(identifier, str) and identifier.startswith('accordion-group-')
+
+
+def _append_name_segment(prefix, identifier):
+    """Build a field-name path segment, skipping accordion-only group wrappers."""
+    if _is_accordion_group(identifier):
+        return prefix
+    return (prefix + '__' + identifier) if prefix else identifier
+
+
+def _show_fields_path_to_name(path):
+        """Convert a slash path to a show/hide target name.
+
+        Rules:
+            - If the target path itself is an accordion group, keep it so we can
+                target the accordion wrapper class.
+            - Otherwise, omit accordion-group segments to match leaf field names,
+                which intentionally do not include accordion-group identifiers.
+        """
+        raw_parts = [p for p in (path or '').split('/') if p]
+        if not raw_parts:
+                return ''
+
+        # Group-level toggle pointing directly at an accordion wrapper.
+        if _is_accordion_group(raw_parts[-1]):
+                return '__'.join(raw_parts)
+
+        # Leaf/inner target: strip accordion container identifiers.
+        parts = [p for p in raw_parts if not _is_accordion_group(p)]
+        return '__'.join(parts)
+
+
 def _ckeditor_required(form, field):
     """
     Validator for CKEditor wysiwyg fields.
@@ -148,7 +181,7 @@ def build_metadata_custom_fields(metadata_set, field_name=None):
         if field_type == 'multiselect':
             custom_fields[name] = SelectMultipleField(
                 label, choices=choices, default=default_values or ['None'],
-                description=help_text, validators=validators or [DataRequired()])
+                description=help_text, validators=validators)
         elif field_type == 'radio':
             default_radio = default_values[0] if default_values else None
             custom_fields[name] = RadioField(
@@ -338,7 +371,11 @@ def _fields_from_def(field_defs, prefix='', top_level=False,
         res = {}
         for fd in field_defs:
             identifier = fd.get('identifier', '')
-            name = (prefix + '__' + identifier) if prefix else identifier
+            resolved_identifier = identifier
+            if identifier.startswith('metadata-field-placeholder-'):
+                # Replace placeholder identifiers with the real metadata field key.
+                resolved_identifier = identifier[len('metadata-field-placeholder-'):].replace('-', '_')
+            name = _append_name_segment(prefix, resolved_identifier)
 
             if fd['type'] == 'group':
                 children = fd.get('children', [])
@@ -348,7 +385,7 @@ def _fields_from_def(field_defs, prefix='', top_level=False,
                 new_parent_labels = (parent_labels or []) + [group_label]
                 child_fields = _fields_from_def_inner(
                     children,
-                    prefix=name,
+                    prefix=_append_name_segment(prefix, identifier),
                     parent_groups=new_parent_groups,
                     parent_labels=new_parent_labels,
                 )
@@ -358,7 +395,7 @@ def _fields_from_def(field_defs, prefix='', top_level=False,
                 field = None
                 if identifier.startswith('metadata-field-placeholder-'):
                     # This is a placeholder for a metadata field; use the actual field from metadata_fields
-                    mf_name = identifier[len('metadata-field-placeholder-'):]
+                    mf_name = resolved_identifier
                     md_custom_fields = build_metadata_custom_fields(metadata_set, field_name=mf_name)
                     if mf_name in md_custom_fields:
                         field = md_custom_fields[mf_name]
@@ -412,11 +449,11 @@ def _apply_show_fields(result, field_defs, prefix=''):
     """
     for fd in field_defs:
         identifier = fd.get('identifier', '')
-        name = (prefix + '__' + identifier) if prefix else identifier
+        name = _append_name_segment(prefix, identifier)
 
         if fd['type'] == 'group':
             _apply_show_fields(result, fd.get('children', []), prefix=name)
-        elif fd['type'] == 'dropdown':
+        elif fd['type'] in ('dropdown', 'radiobutton'):
             show_choices = [c for c in fd.get('choices', []) if c.get('show_fields')]
             if not show_choices:
                 continue
@@ -428,11 +465,15 @@ def _apply_show_fields(result, field_defs, prefix=''):
                     rk = dict(field.kwargs.get('render_kw', {}))
                     if 'onchange' not in rk:
                         rk['onchange'] = 'selectChanged(this)'
+                    if fd['type'] == 'radiobutton':
+                        rk.setdefault('radio_show_fields', {})
+                    elif fd['type'] == 'dropdown':
+                        rk.setdefault('dropdown_show_fields', {})
                         field.kwargs['render_kw'] = rk
 
             # Apply show_class to each target field (or group of fields)
             for choice in show_choices:
-                target_name = choice['show_fields'].replace('/', '__')
+                target_name = _show_fields_path_to_name(choice['show_fields'])
                 option_value = choice['value']
                 if target_name in result:
                     _set_field_show_class(result[target_name], option_value)
@@ -442,3 +483,20 @@ def _apply_show_fields(result, field_defs, prefix=''):
                     for field_name, field in result.items():
                         if field_name.startswith(child_prefix):
                             _set_field_show_class(field, option_value)
+
+                if fd['type'] == 'radiobutton':
+                    for field_name, field in result.items():
+                        if field_name.endswith(suffix) and hasattr(field, 'kwargs'):
+                            rk = dict(field.kwargs.get('render_kw', {}))
+                            radio_show_fields = dict(rk.get('radio_show_fields', {}))
+                            radio_show_fields[option_value] = target_name
+                            rk['radio_show_fields'] = radio_show_fields
+                            field.kwargs['render_kw'] = rk
+                elif fd['type'] == 'dropdown':
+                    for field_name, field in result.items():
+                        if field_name.endswith(suffix) and hasattr(field, 'kwargs'):
+                            rk = dict(field.kwargs.get('render_kw', {}))
+                            dropdown_show_fields = dict(rk.get('dropdown_show_fields', {}))
+                            dropdown_show_fields[option_value] = target_name
+                            rk['dropdown_show_fields'] = dropdown_show_fields
+                            field.kwargs['render_kw'] = rk

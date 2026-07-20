@@ -49,7 +49,8 @@ def _flatten_event_cascade_data(data, prefix='', multiples=None, parent_instance
         return flat
 
     for key, value in data.items():
-        field_key = '{}__{}'.format(prefix, key) if prefix else key
+        is_accordion_group = key.startswith('accordion-group-') if isinstance(key, str) else False
+        field_key = prefix if is_accordion_group else ('{}__{}'.format(prefix, key) if prefix else key)
 
         if isinstance(value, dict):
             count_key = '__'.join(current_parents + [key]) if current_parents else key
@@ -65,9 +66,10 @@ def _flatten_event_cascade_data(data, prefix='', multiples=None, parent_instance
                     parent_instances=current_parents + [instance_key],
                 ))
             else:
+                nested_prefix = prefix if is_accordion_group else field_key
                 flat.update(_flatten_event_cascade_data(
                     value,
-                    field_key,
+                    nested_prefix,
                     multiples=multiples,
                     parent_instances=current_parents,
                 ))
@@ -87,10 +89,12 @@ def _flatten_event_cascade_data(data, prefix='', multiples=None, parent_instance
                     ))
             else:
                 # SelectMultiple and metadata arrays should remain arrays.
-                flat[field_key] = value
+                if field_key:
+                    flat[field_key] = value
             continue
 
-        flat[field_key] = value
+        if field_key:
+            flat[field_key] = value
 
     return flat
 

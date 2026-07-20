@@ -453,7 +453,7 @@ class EventsController(TinkerController):
         A field is only visible when the controlling SelectField's current
         value matches its show_class, so errors on all other sections are cleared.
         """
-        from wtforms.fields import SelectField as _SelectField
+        from wtforms.fields import SelectField as _SelectField, RadioField as _RadioField
 
         # Build: css_class_value -> [field_names] for all conditionally-visible fields
         show_class_map = {}
@@ -467,7 +467,7 @@ class EventsController(TinkerController):
 
         changed = False
         for field in form:
-            if not isinstance(field, _SelectField):
+            if not isinstance(field, (_SelectField, _RadioField)):
                 continue
             if (field.render_kw or {}).get('onchange') != 'selectChanged(this)':
                 continue

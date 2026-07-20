@@ -32,38 +32,127 @@ function setCkeditorInlineError(textareaEl, message) {
 
 function selectChanged(select) {
     console.log("select changed: " + select.name);
-    var val = $(select).val();
-    var selectOptions = $(select).find("option").map(function () {
-        return $(this).val();
-    }).get();
+    var $control = $(select);
+    var isRadio = $control.is("input[type='radio']");
+    var val = $control.val();
+    var selectOptions = [];
+    var radioShowFields = {};
+    var dropdownShowFields = {};
+
+    if (isRadio) {
+        // Always resolve the active value from the group state, not the event target.
+        // Some browsers fire change on the radio being unchecked.
+        var checkedVal = $("input[type='radio'][name='" + $control.attr('name') + "']:checked").val();
+        val = (checkedVal !== undefined && checkedVal !== null) ? checkedVal : '';
+
+        var radioMapJson = $control.closest('.radio-group--inline').attr('data-radio-show-fields');
+        console.log("radioMapJson: " + radioMapJson);
+        if (radioMapJson) {
+            try {
+                radioShowFields = JSON.parse(radioMapJson);
+            } catch (e) {
+                radioShowFields = {};
+            }
+        }
+        // For radios, evaluate only options that actually map to show-fields targets.
+        selectOptions = Object.keys(radioShowFields || {});
+        if (!selectOptions.length) {
+            return;
+        }
+    } else {
+        var dropdownMapJson = $control.attr('data-select-show-fields');
+        if (dropdownMapJson) {
+            try {
+                dropdownShowFields = JSON.parse(dropdownMapJson);
+            } catch (e) {
+                dropdownShowFields = {};
+            }
+        }
+
+        if (Object.keys(dropdownShowFields).length) {
+            selectOptions = Object.keys(dropdownShowFields);
+        } else {
+            selectOptions = $control.find("option").map(function () {
+                return $(this).val();
+            }).get();
+        }
+    }
+
     selectOptions.forEach(function(option) {
         if (!option) return;
-        if (!/^[A-Za-z0-9_-]+$/.test(option)) return;
         var element = $();
-        var parentCard = $(select).closest('.card, .content');
-        var candidates = parentCard.find('.' + option + '_wrap');
-        candidates.each(function() {
-            if ($(this).find(select).length === 0) {
-                element = element.add(this);
+        var parentCard = $control.closest('.card, .content');
+        var formScope = $control.closest('#event-form-fields, #eventform, form');
+        if (!formScope.length) {
+            formScope = $(document);
+        }
+        var targetClass = option;
+        var targetCandidates = [];
+
+        if (isRadio) {
+            targetClass = radioShowFields[option];
+        } else if (Object.keys(dropdownShowFields).length) {
+            if (!dropdownShowFields[option]) {
+                return;
             }
+            targetClass = dropdownShowFields[option];
+        }
+
+        if (!/^[A-Za-z0-9_\-]+(?:__?[A-Za-z0-9_\-]+)*$/.test(targetClass)) return;
+
+        // Try exact mapped class plus deterministic normalizations only.
+        // Keep radio matching strict to avoid collisions with generic accordion classes.
+        targetCandidates.push(targetClass);
+        targetCandidates.push(targetClass.replace(/__/g, '_'));
+        targetCandidates.push(targetClass.replace(/-/g, '_'));
+        targetCandidates.push(targetClass.replace(/__/g, '_').replace(/-/g, '_'));
+        targetCandidates = Array.from(new Set(targetCandidates.filter(Boolean)));
+
+        // First try inside the nearest card/content, then widen to form scope.
+        targetCandidates.forEach(function(tc) {
+            parentCard.find('.' + tc + '_wrap').each(function() {
+                if ($(this).find(select).length === 0) {
+                    element = element.add(this);
+                }
+            });
         });
+
         if (element.length === 0) {
-            parentCard.find('div[class$="_wrap"]').each(function() {
+            targetCandidates.forEach(function(tc) {
+                formScope.find('.' + tc + '_wrap').each(function() {
+                    if ($(this).find(select).length === 0) {
+                        element = element.add(this);
+                    }
+                });
+            });
+        }
+
+        if (!isRadio && element.length === 0) {
+            // Last resort fuzzy lookup within form scope only.
+            formScope.find('div[class$="_wrap"]').each(function() {
                 var classList = this.className.split(/\s+/);
                 for (var i = 0; i < classList.length; i++) {
-                    if (classList[i].endsWith('_wrap')) {
-                        var base = classList[i].slice(0, -5).toLowerCase();
-                        if (base.indexOf(option.toLowerCase()) !== -1 || option.toLowerCase().indexOf(base) !== -1) {
-                            if ($(this).find(select).length === 0) {
-                                element = element.add(this);
-                            }
-                        }
+                    if (!classList[i].endsWith('_wrap')) continue;
+                    var base = classList[i].slice(0, -5).toLowerCase();
+                    var matched = targetCandidates.some(function(tc) {
+                        var lc = tc.toLowerCase();
+                        return base.indexOf(lc) !== -1 || lc.indexOf(base) !== -1;
+                    });
+                    if (matched && $(this).find(select).length === 0) {
+                        element = element.add(this);
                     }
                 }
             });
         }
+
+        element = element.filter(function() { return $(this).find(select).length === 0; });
         if (!element || element.length === 0) return;
         if (option !== val) {
+            // Avoid repeatedly clearing values when the section is already hidden.
+            var wasVisible = element.filter(function () {
+                return !$(this).hasClass('visually-hidden');
+            }).length > 0;
+
             element.addClass('visually-hidden');
             element.find('*').each(function () {
                 if ($(this).is('input, select, textarea')) {
@@ -72,7 +161,9 @@ function selectChanged(select) {
                     $(this).attr('disabled', true);
                 }
             });
-            clearValuesWithin(element);
+            if (wasVisible) {
+                clearValuesWithin(element);
+            }
         } else {
             element.removeClass('visually-hidden');
             element.find('*').each(function () {
@@ -418,6 +509,10 @@ function updateFieldsets(name, scope, displayPrefix) {
 
 function initializeDynamicFormUi() {
     $("select[onchange*='selectChanged']").each(function() {
+        selectChanged(this);
+    });
+
+    $("input[type='radio'][onchange*='selectChanged']:checked").each(function() {
         selectChanged(this);
     });
 

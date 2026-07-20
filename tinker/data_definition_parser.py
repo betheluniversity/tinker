@@ -108,7 +108,7 @@ def _parse_element(element):
     """
     tag = element.tag
     identifier = element.get('identifier', '')
-    label = element.get('label', identifier)
+    label = element.get('label', '')
     required = element.get('required', 'false') == 'true'
     default = element.get('default', '')
 
@@ -190,7 +190,7 @@ def _parse_element(element):
                 {
                     'value': di.get('value', ''),
                     'label': di.get('label', ''),
-                    'show_fields': di.get('show-fields', ''),
+                    'show_fields': di.get('show-fields', '').replace('metadata-field-placeholder-', ''),
                 }
                 for di in element.findall('dropdown-item')
             ],
@@ -204,7 +204,11 @@ def _parse_element(element):
             'default': default,
             'help_text': help_text,
             'choices': [
-                {'value': ri.get('value', ''), 'label': ri.get('label', ri.get('value', ''))}
+                {
+                    'value': ri.get('value', ''),
+                    'label': ri.get('label', ri.get('value', '')),
+                    'show_fields': ri.get('show-fields', '').replace('metadata-field-placeholder-', ''),
+                }
                 for ri in element.findall('radio-item')
             ],
         }
@@ -296,13 +300,14 @@ def get_field_definitions(data_def_id, multiples={}):
                 if field_def.get('multiple'):
                     group_identifier = field_def.get('identifier', '')
                     instance_count = get_multiple_count(current_parents, group_identifier)
+                    base_label = field_def.get('label', '') or ''
 
                     for i in range(1, instance_count + 1):
                         instance_identifier = f"[multiple]{group_identifier}_{i}"
                         duplicated_group = {
                             **field_def,
                             'identifier': instance_identifier,
-                            'label': f"{field_def.get('label', group_identifier)} {i}",
+                            'label': f"{base_label} {i}" if base_label else '',
                             'multiple': False,
                             'children': expand_group_defs(children, current_parents + [instance_identifier]),
                         }
