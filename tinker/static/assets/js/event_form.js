@@ -80,108 +80,114 @@ function selectChanged(select) {
 
     selectOptions.forEach(function(option) {
         if (!option) return;
-        var element = $();
         var parentCard = $control.closest('.card, .content');
         var formScope = $control.closest('#event-form-fields, #eventform, form');
         if (!formScope.length) {
             formScope = $(document);
         }
-        var targetClass = option;
-        var targetCandidates = [];
+        var mappedTargets = [];
 
         if (isRadio) {
-            targetClass = radioShowFields[option];
+            mappedTargets = Array.isArray(radioShowFields[option]) ? radioShowFields[option] : [radioShowFields[option]];
         } else if (Object.keys(dropdownShowFields).length) {
             if (!dropdownShowFields[option]) {
                 return;
             }
-            targetClass = dropdownShowFields[option];
+            mappedTargets = Array.isArray(dropdownShowFields[option]) ? dropdownShowFields[option] : [dropdownShowFields[option]];
+        } else {
+            mappedTargets = [option];
         }
 
-        if (!/^[A-Za-z0-9_\-]+(?:__?[A-Za-z0-9_\-]+)*$/.test(targetClass)) return;
+        mappedTargets.forEach(function(targetClass) {
+            if (!targetClass) return;
+            var element = $();
+            var targetCandidates = [];
 
-        // Try exact mapped class plus deterministic normalizations only.
-        // Keep radio matching strict to avoid collisions with generic accordion classes.
-        targetCandidates.push(targetClass);
-        targetCandidates.push(targetClass.replace(/__/g, '_'));
-        targetCandidates.push(targetClass.replace(/-/g, '_'));
-        targetCandidates.push(targetClass.replace(/__/g, '_').replace(/-/g, '_'));
-        targetCandidates = Array.from(new Set(targetCandidates.filter(Boolean)));
+            if (!/^[A-Za-z0-9_\-]+(?:__?[A-Za-z0-9_\-]+)*$/.test(targetClass)) return;
 
-        // First try inside the nearest card/content, then widen to form scope.
-        targetCandidates.forEach(function(tc) {
-            parentCard.find('.' + tc + '_wrap').each(function() {
-                if ($(this).find(select).length === 0) {
-                    element = element.add(this);
-                }
-            });
-        });
+            // Try exact mapped class plus deterministic normalizations only.
+            // Keep radio matching strict to avoid collisions with generic accordion classes.
+            targetCandidates.push(targetClass);
+            targetCandidates.push(targetClass.replace(/__/g, '_'));
+            targetCandidates.push(targetClass.replace(/-/g, '_'));
+            targetCandidates.push(targetClass.replace(/__/g, '_').replace(/-/g, '_'));
+            targetCandidates = Array.from(new Set(targetCandidates.filter(Boolean)));
 
-        if (element.length === 0) {
+            // First try inside the nearest card/content, then widen to form scope.
             targetCandidates.forEach(function(tc) {
-                formScope.find('.' + tc + '_wrap').each(function() {
+                parentCard.find('.' + tc + '_wrap').each(function() {
                     if ($(this).find(select).length === 0) {
                         element = element.add(this);
                     }
                 });
             });
-        }
 
-        if (!isRadio && element.length === 0) {
-            // Last resort fuzzy lookup within form scope only.
-            formScope.find('div[class$="_wrap"]').each(function() {
-                var classList = this.className.split(/\s+/);
-                for (var i = 0; i < classList.length; i++) {
-                    if (!classList[i].endsWith('_wrap')) continue;
-                    var base = classList[i].slice(0, -5).toLowerCase();
-                    var matched = targetCandidates.some(function(tc) {
-                        var lc = tc.toLowerCase();
-                        return base.indexOf(lc) !== -1 || lc.indexOf(base) !== -1;
+            if (element.length === 0) {
+                targetCandidates.forEach(function(tc) {
+                    formScope.find('.' + tc + '_wrap').each(function() {
+                        if ($(this).find(select).length === 0) {
+                            element = element.add(this);
+                        }
                     });
-                    if (matched && $(this).find(select).length === 0) {
-                        element = element.add(this);
-                    }
-                }
-            });
-        }
-
-        element = element.filter(function() { return $(this).find(select).length === 0; });
-        if (!element || element.length === 0) return;
-        if (option !== val) {
-            // Avoid repeatedly clearing values when the section is already hidden.
-            var wasVisible = element.filter(function () {
-                return !$(this).hasClass('visually-hidden');
-            }).length > 0;
-
-            element.addClass('visually-hidden');
-            element.find('*').each(function () {
-                if ($(this).is('input, select, textarea')) {
-                    $(this).attr('required', false);
-                    $(this).addClass('visually-hidden');
-                    $(this).attr('disabled', true);
-                }
-            });
-            if (wasVisible) {
-                clearValuesWithin(element);
+                });
             }
-        } else {
-            element.removeClass('visually-hidden');
-            element.find('*').each(function () {
-                if ($(this).attr('name') && $(this).attr('name').indexOf('[]') === -1) {
-                    lookupClass = '.' + $(this).attr('name') + '_wrap';
-                } else {
-                    lookupClass = '.card';
-                }
-                if ($(this).is('input, select, textarea')) {
-                    var label = $(this).closest(lookupClass).find("label[for='" + $(this).attr('name') + "']");
-                    if (label.find('small.required').length > 0) {
-                        $(this).attr('required', true);
+
+            if (!isRadio && element.length === 0) {
+                // Last resort fuzzy lookup within form scope only.
+                formScope.find('div[class$="_wrap"]').each(function() {
+                    var classList = this.className.split(/\s+/);
+                    for (var i = 0; i < classList.length; i++) {
+                        if (!classList[i].endsWith('_wrap')) continue;
+                        var base = classList[i].slice(0, -5).toLowerCase();
+                        var matched = targetCandidates.some(function(tc) {
+                            var lc = tc.toLowerCase();
+                            return base.indexOf(lc) !== -1 || lc.indexOf(base) !== -1;
+                        });
+                        if (matched && $(this).find(select).length === 0) {
+                            element = element.add(this);
+                        }
                     }
+                });
+            }
+
+            element = element.filter(function() { return $(this).find(select).length === 0; });
+            if (!element || element.length === 0) return;
+            if (option !== val) {
+                // Avoid repeatedly clearing values when the section is already hidden.
+                var wasVisible = element.filter(function () {
+                    return !$(this).hasClass('visually-hidden');
+                }).length > 0;
+
+                element.addClass('visually-hidden');
+                element.find('*').each(function () {
+                    if ($(this).is('input, select, textarea')) {
+                        $(this).attr('required', false);
+                        $(this).addClass('visually-hidden');
+                        $(this).attr('disabled', true);
+                    }
+                });
+                if (wasVisible) {
+                    clearValuesWithin(element);
                 }
-                $(this).removeClass('visually-hidden');
-                $(this).attr('disabled', false);
-            });
-        }
+            } else {
+                element.removeClass('visually-hidden');
+                element.find('*').each(function () {
+                    if ($(this).attr('name') && $(this).attr('name').indexOf('[]') === -1) {
+                        lookupClass = '.' + $(this).attr('name') + '_wrap';
+                    } else {
+                        lookupClass = '.card';
+                    }
+                    if ($(this).is('input, select, textarea')) {
+                        var label = $(this).closest(lookupClass).find("label[for='" + $(this).attr('name') + "']");
+                        if (label.find('small.required').length > 0) {
+                            $(this).attr('required', true);
+                        }
+                    }
+                    $(this).removeClass('visually-hidden');
+                    $(this).attr('disabled', false);
+                });
+            }
+        });
     });
 }
 

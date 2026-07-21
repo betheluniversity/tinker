@@ -48,25 +48,33 @@ def _append_name_segment(prefix, identifier):
 
 
 def _show_fields_path_to_name(path):
-        """Convert a slash path to a show/hide target name.
+    """Convert a slash path to a show/hide target name.
 
-        Rules:
-            - If the target path itself is an accordion group, keep it so we can
-                target the accordion wrapper class.
-            - Otherwise, omit accordion-group segments to match leaf field names,
-                which intentionally do not include accordion-group identifiers.
-        """
-        raw_parts = [p for p in (path or '').split('/') if p]
-        if not raw_parts:
-                return ''
+    Rules:
+      - If the target path itself is an accordion group, keep it so we can
+        target the accordion wrapper class.
+      - Otherwise, omit accordion-group segments to match leaf field names,
+        which intentionally do not include accordion-group identifiers.
+    """
+    raw_parts = [p for p in (path or '').split('/') if p]
+    if not raw_parts:
+        return ''
 
-        # Group-level toggle pointing directly at an accordion wrapper.
-        if _is_accordion_group(raw_parts[-1]):
-                return '__'.join(raw_parts)
+    # Group-level toggle pointing directly at an accordion wrapper.
+    if _is_accordion_group(raw_parts[-1]):
+        return '__'.join(raw_parts)
 
-        # Leaf/inner target: strip accordion container identifiers.
-        parts = [p for p in raw_parts if not _is_accordion_group(p)]
-        return '__'.join(parts)
+    # Leaf/inner target: strip accordion container identifiers.
+    parts = [p for p in raw_parts if not _is_accordion_group(p)]
+    return '__'.join(parts)
+
+
+def _normalize_show_fields_targets(raw_show_fields):
+    if isinstance(raw_show_fields, (list, tuple)):
+        return [item for item in raw_show_fields if item]
+    if isinstance(raw_show_fields, str):
+        return [item.strip() for item in raw_show_fields.split(',') if item.strip()]
+    return []
 
 
 def _ckeditor_required(form, field):
@@ -460,8 +468,10 @@ def _apply_show_fields(result, field_defs, prefix=''):
 
             # Add onchange to the dropdown itself
             suffix = '__' + identifier
+            controlling_fields = []
             for field_name, field in result.items():
                 if field_name.endswith(suffix) and hasattr(field, 'kwargs'):
+                    controlling_fields.append(field)
                     rk = dict(field.kwargs.get('render_kw', {}))
                     if 'onchange' not in rk:
                         rk['onchange'] = 'selectChanged(this)'
@@ -469,34 +479,48 @@ def _apply_show_fields(result, field_defs, prefix=''):
                         rk.setdefault('radio_show_fields', {})
                     elif fd['type'] == 'dropdown':
                         rk.setdefault('dropdown_show_fields', {})
-                        field.kwargs['render_kw'] = rk
+                    field.kwargs['render_kw'] = rk
+
+            option_to_targets = {}
 
             # Apply show_class to each target field (or group of fields)
             for choice in show_choices:
-                target_name = _show_fields_path_to_name(choice['show_fields'])
                 option_value = choice['value']
-                if target_name in result:
-                    _set_field_show_class(result[target_name], option_value)
-                else:
-                    # Group was inline-expanded — apply show_class to all children
-                    child_prefix = target_name + '__'
-                    for field_name, field in result.items():
-                        if field_name.startswith(child_prefix):
-                            _set_field_show_class(field, option_value)
+                target_paths = _normalize_show_fields_targets(choice.get('show_fields'))
+                target_names = []
 
+                for target_path in target_paths:
+                    target_name = _show_fields_path_to_name(target_path)
+                    if not target_name:
+                        continue
+
+                    target_names.append(target_name)
+
+                    if target_name in result:
+                        _set_field_show_class(result[target_name], option_value)
+                    else:
+                        # Group was inline-expanded — apply show_class to all children
+                        child_prefix = target_name + '__'
+                        for field_name, field in result.items():
+                            if field_name.startswith(child_prefix):
+                                _set_field_show_class(field, option_value)
+
+                if target_names:
+                    option_to_targets.setdefault(option_value, [])
+                    for target_name in target_names:
+                        if target_name not in option_to_targets[option_value]:
+                            option_to_targets[option_value].append(target_name)
+
+            for field in controlling_fields:
+                rk = dict(field.kwargs.get('render_kw', {}))
                 if fd['type'] == 'radiobutton':
-                    for field_name, field in result.items():
-                        if field_name.endswith(suffix) and hasattr(field, 'kwargs'):
-                            rk = dict(field.kwargs.get('render_kw', {}))
-                            radio_show_fields = dict(rk.get('radio_show_fields', {}))
-                            radio_show_fields[option_value] = target_name
-                            rk['radio_show_fields'] = radio_show_fields
-                            field.kwargs['render_kw'] = rk
+                    radio_show_fields = dict(rk.get('radio_show_fields', {}))
+                    for option_value, target_names in option_to_targets.items():
+                        radio_show_fields[option_value] = target_names if len(target_names) > 1 else target_names[0]
+                    rk['radio_show_fields'] = radio_show_fields
                 elif fd['type'] == 'dropdown':
-                    for field_name, field in result.items():
-                        if field_name.endswith(suffix) and hasattr(field, 'kwargs'):
-                            rk = dict(field.kwargs.get('render_kw', {}))
-                            dropdown_show_fields = dict(rk.get('dropdown_show_fields', {}))
-                            dropdown_show_fields[option_value] = target_name
-                            rk['dropdown_show_fields'] = dropdown_show_fields
-                            field.kwargs['render_kw'] = rk
+                    dropdown_show_fields = dict(rk.get('dropdown_show_fields', {}))
+                    for option_value, target_names in option_to_targets.items():
+                        dropdown_show_fields[option_value] = target_names if len(target_names) > 1 else target_names[0]
+                    rk['dropdown_show_fields'] = dropdown_show_fields
+                field.kwargs['render_kw'] = rk
