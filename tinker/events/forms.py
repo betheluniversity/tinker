@@ -16,9 +16,9 @@ Field-naming conventions (must match bu_cascade get_add_data / get_edit_data):
 # Packages
 import json
 
-from flask import current_app, request, session
+from flask import current_app, has_request_context, request, session
 from flask_wtf import FlaskForm
-from wtforms import (HiddenField, StringField)
+from wtforms import (HiddenField, RadioField, StringField)
 from wtforms.validators import ValidationError, URL
 
 from tinker.cascade_form_helpers import (_fields_from_def,
@@ -174,7 +174,59 @@ _FIELD_EXTRA = {
     'hide_from_calendar': {'render_kw': {'type': 'hidden'}},
     'hide_from_nav': {'render_kw': {'type': 'hidden'}},
     'hide_site_nav': {'render_kw': {'type': 'hidden'}},
+    # Field toggles — declarative companion controls that show/hide other fields in the template.
+    'offices': {
+        'toggle_with_yes_no': True,
+        'toggle_default': 'No',
+        'render_kw': {'show_class': 'Yes'},
+    },
+    'undergraduate_departments': {
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
+    },
+    'adult_undergrad_program': {
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
+    },
+    'graduate_program': {
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
+    },
+    'seminary_program': {
+        'toggle_with_accordion_card': True,
+        'accordion_card_label': 'Departments and programs',
+    }
 }
+
+
+def _iter_yes_no_toggle_configs():
+    """Yield declarative yes/no companion-toggle config from _FIELD_EXTRA."""
+    for target_name, extra in _FIELD_EXTRA.items():
+        if not extra.get('toggle_with_yes_no'):
+            continue
+        yield {
+            'target_name': target_name,
+            'toggle_name': '{}_enabled'.format(target_name),
+            'toggle_default': extra.get('toggle_default', 'No'),
+        }
+
+
+def _iter_accordion_card_toggle_configs():
+    """Yield declarative grouped-accordion config from _FIELD_EXTRA."""
+    for target_name, extra in _FIELD_EXTRA.items():
+        if not extra.get('toggle_with_accordion_card'):
+            continue
+        yield {
+            'target_name': target_name,
+            'accordion_card_label': extra.get('accordion_card_label', 'Additional fields'),
+        }
+
+
+def _yes_no_choices(default_value):
+    """Return Yes/No choices with the configured default option first."""
+    default_value = default_value if default_value in ('Yes', 'No') else 'No'
+    other_value = 'No' if default_value == 'Yes' else 'Yes'
+    return [(default_value, default_value), (other_value, other_value)]
 
 
 # ---------------------------------------------------------------------------
@@ -206,6 +258,28 @@ def get_event_form(multiples={}, cascade_data=None):
         form_kwargs = normalized_kwargs
 
     form = form_class(**form_kwargs)
+
+    # Keep companion yes/no toggles in sync with existing target values on initial load.
+    # On submit, Flask-WTF binds posted toggle values directly from request.form.
+    if not has_request_context() or not request.form:
+        for toggle_cfg in _iter_yes_no_toggle_configs():
+            target_name = toggle_cfg['target_name']
+            toggle_name = toggle_cfg['toggle_name']
+            toggle_default = toggle_cfg['toggle_default']
+            target_field = form._fields.get(target_name)
+            toggle_field = form._fields.get(toggle_name)
+            if not target_field or not toggle_field:
+                continue
+
+            # For new forms, always honor declarative toggle_default.
+            # For edit forms (cascade_data provided), infer Yes only when values exist.
+            if cascade_data is None:
+                toggle_field.data = toggle_default
+                continue
+
+            target_value = target_field.data
+            has_value = bool(target_value)
+            toggle_field.data = 'Yes' if has_value else toggle_default
 
     for field in form:
         if getattr(field, 'type', '') != 'FileField':
@@ -256,6 +330,49 @@ def _build_event_form_class(multiples={}):
         override_choices={'location': on_campus_locations},
     )
     all_fields.update(dd_fields)
+
+    # Build declarative yes/no companion toggle controls.
+    for toggle_cfg in _iter_yes_no_toggle_configs():
+        target_name = toggle_cfg['target_name']
+        if target_name not in all_fields:
+            continue
+
+        target_field = all_fields[target_name]
+        target_rk = dict(target_field.kwargs.get('render_kw', {}) or {})
+        target_groups = list(target_rk.get('groups', []))
+        target_group_labels = list(target_rk.get('group_labels', []))
+        target_order = target_rk.get('order', _FIELD_EXTRA.get(target_name, {}).get('order', 999))
+
+        toggle_name = toggle_cfg['toggle_name']
+        toggle_default = toggle_cfg['toggle_default']
+        toggle_label = '{}?'.format(target_field.args[0] if target_field.args else target_name.replace('_', ' ').title())
+        all_fields[toggle_name] = RadioField(
+            toggle_label,
+            choices=_yes_no_choices(toggle_default),
+            default=toggle_default,
+            render_kw={
+                'groups': target_groups,
+                'group_labels': target_group_labels,
+                'order': target_order,
+                'onchange': 'selectChanged(this)',
+                'is_toggle_control': True,
+                'controls_field': target_name,
+            },
+        )
+
+        target_rk['toggle_field_name'] = toggle_name
+        target_field.kwargs['render_kw'] = target_rk
+
+    # Mark fields that should render in a shared accordion card.
+    for toggle_cfg in _iter_accordion_card_toggle_configs():
+        target_name = toggle_cfg['target_name']
+        if target_name not in all_fields:
+            continue
+
+        target_field = all_fields[target_name]
+        target_rk = dict(target_field.kwargs.get('render_kw', {}) or {})
+        target_rk['external_accordion_card_label'] = toggle_cfg['accordion_card_label']
+        target_field.kwargs['render_kw'] = target_rk
 
     # Apply _FIELD_EXTRA and ensure 'order' exists for all fields to support template sorting.
     for name, field in list(all_fields.items()):

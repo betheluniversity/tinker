@@ -148,3 +148,62 @@ legend {
     cursor: pointer;
     color: #333;
 }
+
+/* Accordion styles for grouped metadata multi-select fields */
+.event-accordion-item {
+    border-top: 1px solid #c8c8c8;
+    margin: 0;
+}
+
+.event-accordion-item:first-of-type {
+    border-top: 0;
+}
+
+.event-accordion-summary {
+    list-style: none;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+.event-accordion-summary::-webkit-details-marker {
+    display: none;
+}
+
+.event-accordion-summary::marker {
+    content: '';
+}
+
+.event-accordion-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2f2f2f;
+}
+
+.event-accordion-arrow {
+    order: -1;
+}
+
+.event-accordion-arrow::before {
+    content: '\25be';
+    color: #4a4a4a;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.event-accordion-item[open] .event-accordion-arrow::before {
+    content: '\25b4';
+}
+
+.event-accordion-panel {
+    padding: 0 0 12px 0;
+}
+
+.event-accordion-panel .extra-required {
+    display: block;
+    margin-bottom: 8px;
+}

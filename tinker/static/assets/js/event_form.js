@@ -32,15 +32,21 @@ function setCkeditorInlineError(textareaEl, message) {
 
 function selectChanged(select) {
     console.log("select changed: " + select.name);
-    var val = $(select).val();
-    var selectOptions = $(select).find("option").map(function () {
-        return $(this).val();
-    }).get();
+    var $controller = $(select);
+    var isRadio = $controller.is('input[type="radio"]');
+    var val = isRadio ? $('input[name="' + select.name + '"]:checked').val() : $controller.val();
+    var selectOptions = isRadio
+        ? $('input[name="' + select.name + '"]').map(function () {
+            return $(this).val();
+        }).get()
+        : $controller.find("option").map(function () {
+            return $(this).val();
+        }).get();
     selectOptions.forEach(function(option) {
         if (!option) return;
         if (!/^[A-Za-z0-9_-]+$/.test(option)) return;
         var element = $();
-        var parentCard = $(select).closest('.card, .content');
+        var parentCard = $controller.closest('.card, .content');
         var candidates = parentCard.find('.' + option + '_wrap');
         candidates.each(function() {
             if ($(this).find(select).length === 0) {
@@ -92,6 +98,44 @@ function selectChanged(select) {
             });
         }
     });
+}
+
+function toggleExternalCheckboxField(checkbox) {
+    var $checkbox = $(checkbox);
+    var controlsField = $checkbox.attr('data-controls-field') || $checkbox.attr('controls_field') || $checkbox.attr('controls-field');
+    if (!controlsField) return;
+
+    var wrap = $('#eventform').find('.' + controlsField + '_wrap').first();
+    if (!wrap.length) return;
+
+    if ($checkbox.is(':checked')) {
+        wrap.removeClass('visually-hidden');
+        wrap.find('*').each(function () {
+            if ($(this).attr('name') && $(this).attr('name').indexOf('[]') === -1) {
+                lookupClass = '.' + $(this).attr('name') + '_wrap';
+            } else {
+                lookupClass = '.card';
+            }
+            if ($(this).is('input, select, textarea')) {
+                var label = $(this).closest(lookupClass).find("label[for='" + $(this).attr('name') + "']");
+                if (label.find('small.required').length > 0) {
+                    $(this).attr('required', true);
+                }
+                $(this).attr('disabled', false);
+            }
+            $(this).removeClass('visually-hidden');
+        });
+    } else {
+        wrap.addClass('visually-hidden');
+        wrap.find('*').each(function () {
+            if ($(this).is('input, select, textarea')) {
+                $(this).removeAttr('required');
+                $(this).attr('disabled', true);
+            }
+            $(this).addClass('visually-hidden');
+        });
+        clearValuesWithin(wrap);
+    }
 }
 
 function toggleFieldsetField(element, className, checkedAction, isInit) {
@@ -419,6 +463,14 @@ function updateFieldsets(name, scope, displayPrefix) {
 function initializeDynamicFormUi() {
     $("select[onchange*='selectChanged']").each(function() {
         selectChanged(this);
+    });
+
+    $("input[type='radio'][onchange*='selectChanged']:checked").each(function() {
+        selectChanged(this);
+    });
+
+    $("input[type='checkbox'][onchange*='toggleExternalCheckboxField']").each(function() {
+        toggleExternalCheckboxField(this);
     });
 
     $('label.checkbox').each(function () {
