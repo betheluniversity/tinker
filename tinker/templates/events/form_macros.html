@@ -208,6 +208,7 @@
 {# Macros for field rendering. #}
 {% macro render(field, group, show_label=true) -%}
 {% set is_render_hidden = field.type == "HiddenField" or (field.render_kw and field.render_kw.get('type') == 'hidden') %}
+{% set show_label = show_label and (field.render_kw.get('showLabel', True) if field.render_kw else True) %}
 {% if is_render_hidden %}
     {{ render_hidden_value(field) }}
 {% elif field is string %}
@@ -400,7 +401,8 @@
 
 {% macro render_label(field, show_description=True) -%}
 {% set field_classes = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
-{% if field.label and field.label.text %}
+{% set should_show_label = (field.render_kw.get('showLabel', True) if field.render_kw else True) %}
+{% if should_show_label and field.label and field.label.text %}
 <div id="{{ field.name }}_label" class="{{ field_classes }}">
     <label for="{{ field.name }}">
         {{ field.label.text }}

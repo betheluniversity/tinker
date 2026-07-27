@@ -157,19 +157,20 @@ def validate_numeric(form, field):
 # This is the ONLY place event-specific knowledge about individual fields lives.
 _FIELD_EXTRA = {
     # Date sync — keeps eventEnd >= eventStart
-    'eventStart':      {'render_kw': {'onchange': 'syncDates(this)'}},
-    'eventEnd':        {'render_kw': {'onchange': 'syncDates(this)'}},
+    'eventStart':       {'render_kw': {'onchange': 'syncDates(this)'}},
+    'eventEnd':         {'render_kw': {'onchange': 'syncDates(this)'}},
     # All-day event — zeros out time on both date fields
-    'hideTime':        {'render_kw': {'onclick': 'setAllDayTime(this)'}},
+    'hideTime':         {'render_kw': {'onclick': 'setAllDayTime(this)'}},
     # URL validators
-    'url':             {'extra_validators': [URL(require_tld=True,
+    'url':              {'extra_validators': [URL(require_tld=True,
                                                  message='Please enter a valid URL.')]},
     # Cost
-    'price':           {'extra_validators': [validate_numeric],
-                        'render_kw': {'onblur': 'stripCostChars(this)'}},
+    'price':            {'extra_validators': [validate_numeric],
+                         'render_kw': {'onblur': 'stripCostChars(this)'}},
     # Registration
-    'ticketingURL':    {'extra_validators': [URL(require_tld=True,
+    'ticketingURL':     {'extra_validators': [URL(require_tld=True,
                                                  message='Please enter a valid URL.')]},
+    'offices':          {'render_kw': {'showLabel': False}},
 }
 
 
@@ -257,7 +258,8 @@ def _build_event_form_class(multiples={}):
 
     # Apply _FIELD_EXTRA and ensure 'order' exists for all fields to support template sorting.
     for name, field in list(all_fields.items()):
-        extra = _FIELD_EXTRA.get(name, {})
+        leaf_identifier = name.split('__')[-1] if '__' in name else name
+        extra = _FIELD_EXTRA.get(name, _FIELD_EXTRA.get(leaf_identifier, {}))
         rk = dict(field.kwargs.get('render_kw', {}) or {})
 
         if 'render_kw' in extra:
