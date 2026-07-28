@@ -207,3 +207,23 @@ legend {
     display: block;
     margin-bottom: 8px;
 }
+
+/* Inline yes/no radio options for companion toggle controls */
+.event-radio-group--inline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 14px;
+    padding-bottom: 4px;
+}
+
+.event-radio-group--inline .radio {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+.event-radio-group--inline .radio input[type='radio'] {
+    margin-right: 6px;
+}
