@@ -672,11 +672,7 @@ class EventsController(TinkerController):
         else:
             offices = []
 
-        if 'Athletics' in general:
-            hide_site_nav = "Hide"
-            path = "events/%s/athletics" % max_year
-
-        elif common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'], general):
+        if common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'], general):
             hide_site_nav = "Do not hide"
             path = "events/arts/galleries/exhibits/%s" % max_year
 
@@ -687,10 +683,6 @@ class EventsController(TinkerController):
         elif 'Theatre' in general:
             hide_site_nav = "Do not hide"
             path = 'events/arts/theatre/%s' % max_year
-
-        elif any("Chapel" in s for s in general):
-            hide_site_nav = "Hide"
-            path = 'events/%s/chapel' % max_year
 
         elif 'Library' in general:
             hide_site_nav = "Hide"
