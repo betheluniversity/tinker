@@ -43,6 +43,9 @@
                         {{ render_radio(accordion_toggle_field, group_path, show_label=False) }}
                     {% endif %}
                     <div class="{% if accordion_toggle_field %}Yes_wrap{% endif %}">
+                        {% if accordion_toggle_field and accordion_toggle_field.render_kw.get('conditional_help_text') %}
+                            <p class="help-text sans">{{ accordion_toggle_field.render_kw.get('conditional_help_text') }}</p>
+                        {% endif %}
                         {% if not accordion_toggle_field %}
                             <legend>{{ external_accordion_card_label }}</legend>
                         {% endif %}
@@ -87,6 +90,9 @@
                                                 {{ render_radio(nested_accordion_toggle_field, group_path, show_label=False) }}
                                             {% endif %}
                                             <div class="{% if nested_accordion_toggle_field %}Yes_wrap{% endif %}">
+                                                {% if nested_accordion_toggle_field and nested_accordion_toggle_field.render_kw.get('conditional_help_text') %}
+                                                    <p class="help-text sans">{{ nested_accordion_toggle_field.render_kw.get('conditional_help_text') }}</p>
+                                                {% endif %}
                                                 {% if not nested_accordion_toggle_field %}
                                                     <legend>{{ nested_accordion_label }}</legend>
                                                 {% endif %}
@@ -315,6 +321,9 @@
 {% endif %}
 {% if show_class %}
 <div class="{{ show_class }}_wrap">
+    {% if field.render_kw and field.render_kw.get('conditional_help_text') %}
+        <p class="help-text sans">{{ field.render_kw.get('conditional_help_text') }}</p>
+    {% endif %}
 {% endif %}
     {# Use field.data if exists, else field.default for selected values #}
     {% set selected_values = field.data if field.data else field.default %}

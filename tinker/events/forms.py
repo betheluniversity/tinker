@@ -175,6 +175,7 @@ _FIELD_EXTRA = {
     'offices': {
         'toggle_with_yes_no': True,
         'toggle_default': 'No',
+        'toggle_help_text': 'Select all that apply.',
         'render_kw': {'show_class': 'Yes'},
         'nest_within_card': True,
         'nest_card_label': 'Event metadata'
@@ -184,6 +185,7 @@ _FIELD_EXTRA = {
         'accordion_toggle_with_yes_no': True,
         'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
         'accordion_toggle_default': 'No',
+        'accordion_toggle_help_text': 'Select all that apply.',
         'nest_within_card': True,
         'nest_card_label': 'Event metadata'
     },
@@ -192,6 +194,7 @@ _FIELD_EXTRA = {
         'accordion_toggle_with_yes_no': True,
         'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
         'accordion_toggle_default': 'No',
+        'accordion_toggle_help_text': 'Select all that apply.',
         'nest_within_card': True,
         'nest_card_label': 'Event metadata',
     },
@@ -200,6 +203,7 @@ _FIELD_EXTRA = {
         'accordion_toggle_with_yes_no': True,
         'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
         'accordion_toggle_default': 'No',
+        'accordion_toggle_help_text': 'Select all that apply.',
         'nest_within_card': True,
         'nest_card_label': 'Event metadata',
     },
@@ -208,6 +212,7 @@ _FIELD_EXTRA = {
         'accordion_toggle_with_yes_no': True,
         'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
         'accordion_toggle_default': 'No',
+        'accordion_toggle_help_text': 'Select all that apply.',
         'nest_within_card': True,
         'nest_card_label': 'Event metadata',
     },
@@ -237,6 +242,7 @@ def _iter_yes_no_toggle_configs():
             'target_name': target_name,
             'toggle_name': '{}_enabled'.format(target_name),
             'toggle_default': extra.get('toggle_default', 'No'),
+            'toggle_help_text': extra.get('toggle_help_text', ''),
         }
 
 
@@ -252,6 +258,7 @@ def _iter_accordion_card_toggle_configs():
             'accordion_toggle_with_yes_no': bool(extra.get('accordion_toggle_with_yes_no', False)),
             'accordion_toggle_label': extra.get('accordion_toggle_label', ''),
             'accordion_toggle_default': extra.get('accordion_toggle_default', 'No'),
+            'accordion_toggle_help_text': extra.get('accordion_toggle_help_text', ''),
         }
 
 
@@ -430,6 +437,7 @@ def _build_event_form_class(multiples={}):
         )
 
         target_rk['toggle_field_name'] = toggle_name
+        target_rk['conditional_help_text'] = toggle_cfg.get('toggle_help_text', '')
         target_field.kwargs['render_kw'] = target_rk
 
     # Mark fields that should render in a shared accordion card.
@@ -467,6 +475,7 @@ def _build_event_form_class(multiples={}):
                         'is_toggle_control': True,
                         'is_accordion_group_toggle': True,
                         'accordion_toggle_default': toggle_default,
+                        'conditional_help_text': toggle_cfg.get('accordion_toggle_help_text', ''),
                     },
                 )
                 accordion_group_toggles[group_key] = toggle_name
