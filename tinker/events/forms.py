@@ -175,7 +175,6 @@ _FIELD_EXTRA = {
     'offices': {
         'toggle_with_yes_no': True,
         'toggle_default': 'No',
-        'toggle_help_text': 'Select all that apply.',
         'render_kw': {'show_class': 'Yes'},
         'nest_within_card': True,
         'nest_card_label': 'Event metadata'
@@ -242,7 +241,6 @@ def _iter_yes_no_toggle_configs():
             'target_name': target_name,
             'toggle_name': '{}_enabled'.format(target_name),
             'toggle_default': extra.get('toggle_default', 'No'),
-            'toggle_help_text': extra.get('toggle_help_text', ''),
         }
 
 
@@ -437,7 +435,6 @@ def _build_event_form_class(multiples={}):
         )
 
         target_rk['toggle_field_name'] = toggle_name
-        target_rk['conditional_help_text'] = toggle_cfg.get('toggle_help_text', '')
         target_field.kwargs['render_kw'] = target_rk
 
     # Mark fields that should render in a shared accordion card.

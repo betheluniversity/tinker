@@ -148,7 +148,7 @@
                             <small class="required">required</small>
                             {% endif %}
                             </legend>
-                            {% if field.description %}
+                            {% if field.description and not has_inline_toggle %}
                                 <p class="help-text sans">{{ field.description }}</p>
                             {% endif %}
                 {% endif %}
@@ -321,8 +321,8 @@
 {% endif %}
 {% if show_class %}
 <div class="{{ show_class }}_wrap">
-    {% if field.render_kw and field.render_kw.get('conditional_help_text') %}
-        <p class="help-text sans">{{ field.render_kw.get('conditional_help_text') }}</p>
+    {% if field.description %}
+        <p class="help-text sans">{{ field.description }}</p>
     {% endif %}
 {% endif %}
     {# Use field.data if exists, else field.default for selected values #}
@@ -381,8 +381,8 @@
             <small class="required">required</small>
             {% endif %}
             </legend>
-            {% if field.description %}
-                <small class="extra-required">{{ field.description }}</small>
+            {% if field.description and not has_inline_toggle %}
+                <p class="help-text sans">{{ field.description }}</p>
             {% endif %}
             {{ render(field, group, form) }}
         </div>
