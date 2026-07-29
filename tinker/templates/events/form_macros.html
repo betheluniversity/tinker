@@ -334,8 +334,8 @@
     {% set toggle_value = toggle_field.data or toggle_field.default %}
 {% endif %}
 <div class="{{ show_class }}_wrap{% if toggle_field and toggle_value != show_class %} visually-hidden{% endif %}">
-    {% if field.description %}
-        <p class="help-text sans">{{ field.description }}</p>
+    {% if field.render_kw and field.render_kw.get('conditional_help_text') %}
+        <p class="help-text sans">{{ field.render_kw.get('conditional_help_text') }}</p>
     {% endif %}
 {% endif %}
     {# Use field.data if exists, else field.default for selected values #}
@@ -371,7 +371,7 @@
     </summary>
     <div class="event-accordion-panel">
         {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
+            <p class="help-text sans">{{ field.description }}</p>
         {% endif %}
         {% if field.type == "SelectMultipleField" %}
             {{ render_select_multiple(field, group, none, show_label=False) }}
