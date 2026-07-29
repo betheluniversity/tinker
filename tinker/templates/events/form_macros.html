@@ -48,7 +48,7 @@
                     {% endif %}
                     <div class="{% if accordion_toggle_field %}Yes_wrap{% if accordion_toggle_value != 'Yes' %} visually-hidden{% endif %}{% endif %}">
                         {% if accordion_toggle_field and accordion_toggle_field.render_kw.get('conditional_help_text') %}
-                            <small class="extra-required">{{ accordion_toggle_field.render_kw.get('conditional_help_text') }}</small>
+                            <p class="help-text sans">{{ accordion_toggle_field.render_kw.get('conditional_help_text') }}</p>
                         {% endif %}
                         {% if not accordion_toggle_field %}
                             <legend>{{ external_accordion_card_label }}</legend>
@@ -99,7 +99,7 @@
                                             {% endif %}
                                             <div class="{% if nested_accordion_toggle_field %}Yes_wrap{% if nested_accordion_toggle_value != 'Yes' %} visually-hidden{% endif %}{% endif %}">
                                                 {% if nested_accordion_toggle_field and nested_accordion_toggle_field.render_kw.get('conditional_help_text') %}
-                                                    <small class="extra-required">{{ nested_accordion_toggle_field.render_kw.get('conditional_help_text') }}</small>
+                                                    <p class="help-text sans">{{ nested_accordion_toggle_field.render_kw.get('conditional_help_text') }}</p>
                                                 {% endif %}
                                                 {% if not nested_accordion_toggle_field %}
                                                     <legend>{{ nested_accordion_label }}</legend>
@@ -335,7 +335,7 @@
 {% endif %}
 <div class="{{ show_class }}_wrap{% if toggle_field and toggle_value != show_class %} visually-hidden{% endif %}">
     {% if field.description %}
-        <small class="extra-required">{{ field.description }}</small>
+        <p class="help-text sans">{{ field.description }}</p>
     {% endif %}
 {% endif %}
     {# Use field.data if exists, else field.default for selected values #}
@@ -395,7 +395,7 @@
             {% endif %}
             </legend>
             {% if field.description and not has_inline_toggle %}
-                <small class="extra-required">{{ field.description }}</small>
+                <p class="help-text sans">{{ field.description }}</p>
             {% endif %}
             {{ render(field, group, form) }}
         </div>
