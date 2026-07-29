@@ -92,6 +92,7 @@ graduate_programs = [
     "Play Therapy Certificate",
     "Social Work (M.S.W.)",
     "Special Education (M.A.)",
+    "Speech-Language Pathology (M.S.)",
     "STEM in K-12 Education Certificate",
     "Strategic Leadership (M.A.)",
     "Superintendent License",
