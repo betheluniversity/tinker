@@ -48,7 +48,7 @@
                     {% endif %}
                     <div class="{% if accordion_toggle_field %}Yes_wrap{% if accordion_toggle_value != 'Yes' %} visually-hidden{% endif %}{% endif %}">
                         {% if accordion_toggle_field and accordion_toggle_field.render_kw.get('conditional_help_text') %}
-                            <p class="help-text">{{ accordion_toggle_field.render_kw.get('conditional_help_text') }}</p>
+                            <p class="help-text sans">{{ accordion_toggle_field.render_kw.get('conditional_help_text') }}</p>
                         {% endif %}
                         {% if not accordion_toggle_field %}
                             <legend>{{ external_accordion_card_label }}</legend>
@@ -99,7 +99,7 @@
                                             {% endif %}
                                             <div class="{% if nested_accordion_toggle_field %}Yes_wrap{% if nested_accordion_toggle_value != 'Yes' %} visually-hidden{% endif %}{% endif %}">
                                                 {% if nested_accordion_toggle_field and nested_accordion_toggle_field.render_kw.get('conditional_help_text') %}
-                                                    <p class="help-text">{{ nested_accordion_toggle_field.render_kw.get('conditional_help_text') }}</p>
+                                                    <p class="help-text sans">{{ nested_accordion_toggle_field.render_kw.get('conditional_help_text') }}</p>
                                                 {% endif %}
                                                 {% if not nested_accordion_toggle_field %}
                                                     <legend>{{ nested_accordion_label }}</legend>
@@ -158,7 +158,7 @@
                             {% endif %}
                             </legend>
                             {% if field.description and not description_after_toggle %}
-                                <p class="help-text">{{ field.description }}</p>
+                                <p class="help-text sans">{{ field.description }}</p>
                             {% endif %}
                 {% endif %}
                 {{ render(field, group_path, form) }}
@@ -261,7 +261,7 @@
                 {% endif %}
                 </legend>
                 {% if field.description and not description_after_toggle %}
-                    <p class="help-text">{{ field.description }}</p>
+                    <p class="help-text sans">{{ field.description }}</p>
                 {% endif %}
     {% endif %}
     {% if field.type == "CKEditorTextAreaField" %}
@@ -337,7 +337,7 @@
 {% endif %}
 <div class="{{ show_class }}_wrap{% if toggle_field and toggle_value != show_class %} visually-hidden{% endif %}">
     {% if field.description %}
-        <p class="help-text">{{ field.description }}</p>
+        <p class="help-text sans">{{ field.description }}</p>
     {% endif %}
 {% endif %}
     {# Use field.data if exists, else field.default for selected values #}
@@ -373,7 +373,7 @@
     </summary>
     <div class="event-accordion-panel">
         {% if field.description %}
-            <p class="help-text">{{ field.description }}</p>
+            <p class="help-text sans">{{ field.description }}</p>
         {% endif %}
         {% if field.type == "SelectMultipleField" %}
             {{ render_select_multiple(field, group, none, show_label=False) }}
@@ -398,7 +398,7 @@
             {% endif %}
             </legend>
             {% if field.description and not description_after_toggle %}
-                <p class="help-text">{{ field.description }}</p>
+                <p class="help-text sans">{{ field.description }}</p>
             {% endif %}
             {{ render(field, group, form) }}
         </div>
@@ -457,7 +457,7 @@
 {% set field_classes = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
 <div id="{{ field.name }}_label" class="checkbox-inline-field {{ field_classes }}">
     {% if show_description and field.description %}
-        <p class="help-text">{{ field.description }}</p>
+        <p class="help-text sans">{{ field.description }}</p>
     {% endif %}
     <label for="{{ field.id }}" class="checkbox-inline-control">
         {{ field(class_='checkbox-inline-input') }}
@@ -497,7 +497,7 @@
         {% endif %}
     </label>
     {% if show_description and field.description %}
-        <p class="help-text">{{ field.description }}</p>
+        <p class="help-text sans">{{ field.description }}</p>
     {% endif %}
 </div>
 {%- endmacro %}
