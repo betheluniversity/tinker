@@ -42,9 +42,13 @@
                         <legend>{{ accordion_toggle_field.label.text }}</legend>
                         {{ render_radio(accordion_toggle_field, group_path, show_label=False) }}
                     {% endif %}
-                    <div class="{% if accordion_toggle_field %}Yes_wrap{% endif %}">
+                    {% set accordion_toggle_value = none %}
+                    {% if accordion_toggle_field %}
+                        {% set accordion_toggle_value = accordion_toggle_field.data or accordion_toggle_field.default %}
+                    {% endif %}
+                    <div class="{% if accordion_toggle_field %}Yes_wrap{% if accordion_toggle_value != 'Yes' %} visually-hidden{% endif %}{% endif %}">
                         {% if accordion_toggle_field and accordion_toggle_field.render_kw.get('conditional_help_text') %}
-                            <p class="help-text sans">{{ accordion_toggle_field.render_kw.get('conditional_help_text') }}</p>
+                            <small class="extra-required">{{ accordion_toggle_field.render_kw.get('conditional_help_text') }}</small>
                         {% endif %}
                         {% if not accordion_toggle_field %}
                             <legend>{{ external_accordion_card_label }}</legend>
@@ -89,9 +93,13 @@
                                                 <legend>{{ nested_accordion_toggle_field.label.text }}</legend>
                                                 {{ render_radio(nested_accordion_toggle_field, group_path, show_label=False) }}
                                             {% endif %}
-                                            <div class="{% if nested_accordion_toggle_field %}Yes_wrap{% endif %}">
+                                            {% set nested_accordion_toggle_value = none %}
+                                            {% if nested_accordion_toggle_field %}
+                                                {% set nested_accordion_toggle_value = nested_accordion_toggle_field.data or nested_accordion_toggle_field.default %}
+                                            {% endif %}
+                                            <div class="{% if nested_accordion_toggle_field %}Yes_wrap{% if nested_accordion_toggle_value != 'Yes' %} visually-hidden{% endif %}{% endif %}">
                                                 {% if nested_accordion_toggle_field and nested_accordion_toggle_field.render_kw.get('conditional_help_text') %}
-                                                    <p class="help-text sans">{{ nested_accordion_toggle_field.render_kw.get('conditional_help_text') }}</p>
+                                                    <small class="extra-required">{{ nested_accordion_toggle_field.render_kw.get('conditional_help_text') }}</small>
                                                 {% endif %}
                                                 {% if not nested_accordion_toggle_field %}
                                                     <legend>{{ nested_accordion_label }}</legend>
@@ -231,6 +239,7 @@
 {# Macros for field rendering. #}
 {% macro render(field, group, form=None) -%}
 {% set is_render_hidden = field.type == "HiddenField" or (field.render_kw and field.render_kw.get('type') == 'hidden') %}
+{% set has_inline_toggle = field.render_kw and field.render_kw.get('toggle_field_name') %}
 {% if is_render_hidden %}
     {{ render_hidden_value(field) }}
 {% elif field is string %}
@@ -249,7 +258,7 @@
                 <small class="required">required</small>
                 {% endif %}
                 </legend>
-                {% if field.description %}
+                {% if field.description and not has_inline_toggle %}
                     <p class="help-text sans">{{ field.description }}</p>
                 {% endif %}
     {% endif %}
@@ -265,7 +274,7 @@
         {% if toggle_field %}
             {{ render_radio(toggle_field, group, show_label=False) }}
         {% endif %}
-        {{ render_select_multiple(field, group, field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else none) }}
+        {{ render_select_multiple(field, group, field.render_kw.show_class if field.render_kw and 'show_class' in field.render_kw else none, toggle_field=toggle_field) }}
     {% elif field.type == "BooleanField" %}
         {{ render_checkbox(field) }}
     {% elif field.type == "RadioField" %}
@@ -315,14 +324,18 @@
 </select>
 {%- endmacro %}
 
-{% macro render_select_multiple(field, group, show_class, show_label=True) -%}
+{% macro render_select_multiple(field, group, show_class, show_label=True, toggle_field=None) -%}
 {% if show_label and group|length > 0 %}
-    {{ render_label(field) }}
+    {{ render_label(field, show_description=not toggle_field) }}
 {% endif %}
 {% if show_class %}
-<div class="{{ show_class }}_wrap">
+{% set toggle_value = none %}
+{% if toggle_field %}
+    {% set toggle_value = toggle_field.data or toggle_field.default %}
+{% endif %}
+<div class="{{ show_class }}_wrap{% if toggle_field and toggle_value != show_class %} visually-hidden{% endif %}">
     {% if field.description %}
-        <p class="help-text sans">{{ field.description }}</p>
+        <small class="extra-required">{{ field.description }}</small>
     {% endif %}
 {% endif %}
     {# Use field.data if exists, else field.default for selected values #}
@@ -382,7 +395,7 @@
             {% endif %}
             </legend>
             {% if field.description and not has_inline_toggle %}
-                <p class="help-text sans">{{ field.description }}</p>
+                <small class="extra-required">{{ field.description }}</small>
             {% endif %}
             {{ render(field, group, form) }}
         </div>
