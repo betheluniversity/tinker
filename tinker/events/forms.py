@@ -435,11 +435,9 @@ def _build_event_form_class(multiples={}):
         )
 
         target_rk['toggle_field_name'] = toggle_name
-        # Keep Cascade-provided help text with the dependent field, but render it
-        # only inside the selected option's wrapper rather than in the generic
-        # field-description locations.
-        target_rk['conditional_help_text'] = target_field.kwargs.get('description', '')
-        target_field.kwargs['description'] = ''
+        # Keep the Cascade-provided description on the field, but render it only
+        # beneath the companion toggle when the selected option is visible.
+        target_rk['description_after_toggle'] = True
         target_field.kwargs['render_kw'] = target_rk
 
     # Mark fields that should render in a shared accordion card.
