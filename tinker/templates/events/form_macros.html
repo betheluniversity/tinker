@@ -143,7 +143,7 @@
                             {% endif %}
                             </legend>
                             {% if field.description %}
-                                <small class="extra-required">{{ field.description }}</small>
+                                <p class="help-text sans">{{ field.description }}</p>
                             {% endif %}
                 {% endif %}
                 {{ render(field, group_path, form) }}
@@ -244,7 +244,7 @@
                 {% endif %}
                 </legend>
                 {% if field.description %}
-                    <small class="extra-required">{{ field.description }}</small>
+                    <p class="help-text sans">{{ field.description }}</p>
                 {% endif %}
     {% endif %}
     {% if field.type == "CKEditorTextAreaField" %}
@@ -349,7 +349,7 @@
     </summary>
     <div class="event-accordion-panel">
         {% if field.description %}
-            <small class="extra-required">{{ field.description }}</small>
+            <p class="help-text sans">{{ field.description }}</p>
         {% endif %}
         {% if field.type == "SelectMultipleField" %}
             {{ render_select_multiple(field, group, none, show_label=False) }}
@@ -373,7 +373,7 @@
             {% endif %}
             </legend>
             {% if field.description %}
-                <small class="extra-required">{{ field.description }}</small>
+                <p class="help-text sans">{{ field.description }}</p>
             {% endif %}
             {{ render(field, group, form) }}
         </div>
@@ -432,7 +432,7 @@
 {% set field_classes = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
 <div id="{{ field.name }}_label" class="checkbox-inline-field {{ field_classes }}">
     {% if show_description and field.description %}
-        <small class="extra-required">{{ field.description }}</small>
+        <p class="help-text sans">{{ field.description }}</p>
     {% endif %}
     <label for="{{ field.id }}" class="checkbox-inline-control">
         {{ field(class_='checkbox-inline-input') }}
@@ -472,7 +472,7 @@
         {% endif %}
     </label>
     {% if show_description and field.description %}
-        <small class="extra-required">{{ field.description }}</small>
+        <p class="help-text sans">{{ field.description }}</p>
     {% endif %}
 </div>
 {%- endmacro %}
