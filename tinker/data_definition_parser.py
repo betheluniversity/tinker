@@ -112,6 +112,10 @@ def _parse_element(element):
     required = element.get('required', 'false') == 'true'
     default = element.get('default', '')
 
+    def _parse_show_fields(value):
+        cleaned = (value or '').replace('metadata-field-placeholder-', '')
+        return [part.strip() for part in cleaned.split(',') if part.strip()]
+
     if tag == 'group':
         return {
             'identifier': identifier,
@@ -190,7 +194,7 @@ def _parse_element(element):
                 {
                     'value': di.get('value', ''),
                     'label': di.get('label', ''),
-                    'show_fields': di.get('show-fields', ''),
+                    'show_fields': _parse_show_fields(di.get('show-fields', '')),
                 }
                 for di in element.findall('dropdown-item')
             ],
@@ -204,7 +208,11 @@ def _parse_element(element):
             'default': default,
             'help_text': help_text,
             'choices': [
-                {'value': ri.get('value', ''), 'label': ri.get('label', ri.get('value', ''))}
+                {
+                    'value': ri.get('value', ''),
+                    'label': ri.get('label', ri.get('value', '')),
+                    'show_fields': _parse_show_fields(ri.get('show-fields', '')),
+                }
                 for ri in element.findall('radio-item')
             ],
         }

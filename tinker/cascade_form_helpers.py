@@ -362,6 +362,15 @@ def _set_field_show_class(field, show_class):
         field.kwargs['render_kw'] = rk
 
 
+def _normalize_show_fields(show_fields):
+    """Return a list of show-fields paths from either string or list input."""
+    if isinstance(show_fields, str):
+        return [p.strip() for p in show_fields.split(',') if p and p.strip()]
+    if isinstance(show_fields, (list, tuple)):
+        return [str(p).strip() for p in show_fields if str(p).strip()]
+    return []
+
+
 def _apply_show_fields(result, field_defs, prefix=''):
     """
     Walk field_defs and for every dropdown that has show_fields on any choice:
@@ -381,7 +390,7 @@ def _apply_show_fields(result, field_defs, prefix=''):
 
         if fd['type'] == 'group':
             _apply_show_fields(result, fd.get('children', []), prefix=name)
-        elif fd['type'] == 'dropdown':
+        elif fd['type'] in ('dropdown', 'radiobutton'):
             show_choices = [c for c in fd.get('choices', []) if c.get('show_fields')]
             if not show_choices:
                 continue
@@ -397,13 +406,15 @@ def _apply_show_fields(result, field_defs, prefix=''):
 
             # Apply show_class to each target field (or group of fields)
             for choice in show_choices:
-                target_name = choice['show_fields'].replace('/', '__')
                 option_value = choice['value']
-                if target_name in result:
-                    _set_field_show_class(result[target_name], option_value)
-                else:
-                    # Group was inline-expanded — apply show_class to all children
-                    child_prefix = target_name + '__'
-                    for field_name, field in result.items():
-                        if field_name.startswith(child_prefix):
-                            _set_field_show_class(field, option_value)
+                target_paths = _normalize_show_fields(choice.get('show_fields'))
+                for target_path in target_paths:
+                    target_name = target_path.replace('/', '__')
+                    if target_name in result:
+                        _set_field_show_class(result[target_name], option_value)
+                    else:
+                        # Group was inline-expanded — apply show_class to all children
+                        child_prefix = target_name + '__'
+                        for field_name, field in result.items():
+                            if field_name.startswith(child_prefix):
+                                _set_field_show_class(field, option_value)
