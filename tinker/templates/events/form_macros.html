@@ -46,12 +46,31 @@
                         {% if not accordion_toggle_field %}
                             <legend>{{ external_accordion_card_label }}</legend>
                         {% endif %}
+                                                {% set shared_desc = namespace(first=none, all_same=true, count=0) %}
+                                                {% for accordion_field in form|sort(attribute='render_kw.order') %}
+                                                    {% set accordion_groups = accordion_field.render_kw.groups if accordion_field.render_kw and 'groups' in accordion_field.render_kw else [] %}
+                                                    {% set accordion_label = accordion_field.render_kw.external_accordion_card_label if accordion_field.render_kw and 'external_accordion_card_label' in accordion_field.render_kw else none %}
+                                                    {% set accordion_hidden = accordion_field.type == "HiddenField" or (accordion_field.render_kw and accordion_field.render_kw.get('type') == 'hidden') %}
+                                                    {% if accordion_groups[:group_path|length] == group_path and accordion_groups|length == group_path|length and accordion_label == external_accordion_card_label and not accordion_hidden %}
+                                                        {% set desc_value = (accordion_field.description or '')|trim %}
+                                                        {% if shared_desc.first is none %}
+                                                            {% set shared_desc.first = desc_value %}
+                                                        {% elif desc_value != shared_desc.first %}
+                                                            {% set shared_desc.all_same = false %}
+                                                        {% endif %}
+                                                        {% set shared_desc.count = shared_desc.count + 1 %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% set use_shared_desc = shared_desc.count > 1 and shared_desc.all_same and shared_desc.first %}
+                                                {% if use_shared_desc %}
+                                                    <p class="help-text sans">{{ shared_desc.first }}</p>
+                                                {% endif %}
                         {% for accordion_field in form|sort(attribute='render_kw.order') %}
                             {% set accordion_groups = accordion_field.render_kw.groups if accordion_field.render_kw and 'groups' in accordion_field.render_kw else [] %}
                             {% set accordion_label = accordion_field.render_kw.external_accordion_card_label if accordion_field.render_kw and 'external_accordion_card_label' in accordion_field.render_kw else none %}
                             {% set accordion_hidden = accordion_field.type == "HiddenField" or (accordion_field.render_kw and accordion_field.render_kw.get('type') == 'hidden') %}
                             {% if accordion_groups[:group_path|length] == group_path and accordion_groups|length == group_path|length and accordion_label == external_accordion_card_label and not accordion_hidden %}
-                                {{ render_accordion_field(accordion_field, group_path, form) }}
+                                                        {{ render_accordion_field(accordion_field, group_path, form, show_description=not use_shared_desc) }}
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -90,13 +109,33 @@
                                                 {% if not nested_accordion_toggle_field %}
                                                     <legend>{{ nested_accordion_label }}</legend>
                                                 {% endif %}
+                                                {% set shared_desc = namespace(first=none, all_same=true, count=0) %}
                                                 {% for accordion_field in form|sort(attribute='render_kw.order') %}
                                                     {% set accordion_groups = accordion_field.render_kw.groups if accordion_field.render_kw and 'groups' in accordion_field.render_kw else [] %}
                                                     {% set accordion_nested_label = accordion_field.render_kw.nested_card_label if accordion_field.render_kw and 'nested_card_label' in accordion_field.render_kw else none %}
                                                     {% set accordion_label = accordion_field.render_kw.external_accordion_card_label if accordion_field.render_kw and 'external_accordion_card_label' in accordion_field.render_kw else none %}
                                                     {% set accordion_hidden = accordion_field.type == "HiddenField" or (accordion_field.render_kw and accordion_field.render_kw.get('type') == 'hidden') %}
                                                     {% if accordion_groups[:group_path|length] == group_path and accordion_groups|length == group_path|length and accordion_nested_label == nested_card_label and accordion_label == nested_accordion_label and not accordion_hidden %}
-                                                        {{ render_accordion_field(accordion_field, group_path, form) }}
+                                                        {% set desc_value = (accordion_field.description or '')|trim %}
+                                                        {% if shared_desc.first is none %}
+                                                            {% set shared_desc.first = desc_value %}
+                                                        {% elif desc_value != shared_desc.first %}
+                                                            {% set shared_desc.all_same = false %}
+                                                        {% endif %}
+                                                        {% set shared_desc.count = shared_desc.count + 1 %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                                {% set use_shared_desc = shared_desc.count > 1 and shared_desc.all_same and shared_desc.first %}
+                                                {% if use_shared_desc %}
+                                                    <p class="help-text sans">{{ shared_desc.first }}</p>
+                                                {% endif %}
+                                                {% for accordion_field in form|sort(attribute='render_kw.order') %}
+                                                    {% set accordion_groups = accordion_field.render_kw.groups if accordion_field.render_kw and 'groups' in accordion_field.render_kw else [] %}
+                                                    {% set accordion_nested_label = accordion_field.render_kw.nested_card_label if accordion_field.render_kw and 'nested_card_label' in accordion_field.render_kw else none %}
+                                                    {% set accordion_label = accordion_field.render_kw.external_accordion_card_label if accordion_field.render_kw and 'external_accordion_card_label' in accordion_field.render_kw else none %}
+                                                    {% set accordion_hidden = accordion_field.type == "HiddenField" or (accordion_field.render_kw and accordion_field.render_kw.get('type') == 'hidden') %}
+                                                    {% if accordion_groups[:group_path|length] == group_path and accordion_groups|length == group_path|length and accordion_nested_label == nested_card_label and accordion_label == nested_accordion_label and not accordion_hidden %}
+                                                        {{ render_accordion_field(accordion_field, group_path, form, show_description=not use_shared_desc) }}
                                                     {% endif %}
                                                 {% endfor %}
                                             </div>
@@ -339,7 +378,7 @@
 {% endif %}
 {%- endmacro %}
 
-{% macro render_accordion_field(field, group, form=None) -%}
+{% macro render_accordion_field(field, group, form=None, show_description=True) -%}
 <details class="accordion-item event-accordion-item">
     <summary class="event-accordion-summary">
         <span class="event-accordion-arrow" aria-hidden="true"></span>
@@ -351,7 +390,7 @@
         </span>
     </summary>
     <div class="event-accordion-panel">
-        {% if field.description %}
+        {% if show_description and field.description %}
             <p class="help-text sans">{{ field.description }}</p>
         {% endif %}
         {% if field.type == "SelectMultipleField" %}
