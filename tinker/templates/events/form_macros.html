@@ -142,7 +142,7 @@
                             <small class="required">required</small>
                             {% endif %}
                             </legend>
-                            {% if field.description %}
+                            {% if field.description and not has_inline_toggle and field_show_class != 'Yes' %}
                                 <p class="help-text sans">{{ field.description }}</p>
                             {% endif %}
                 {% endif %}
@@ -316,6 +316,9 @@
 {% if show_class %}
 <div class="{{ show_class }}_wrap">
 {% endif %}
+    {% if show_class == 'Yes' and field.description %}
+    <p class="help-text sans">{{ field.description }}</p>
+    {% endif %}
     {# Use field.data if exists, else field.default for selected values #}
     {% set selected_values = field.data if field.data else field.default %}
     <select name="{{ field.name }}" multiple size="10" class="large-select"
@@ -372,7 +375,7 @@
             <small class="required">required</small>
             {% endif %}
             </legend>
-            {% if field.description %}
+            {% if field.description and not has_inline_toggle and field_show_class != 'Yes' %}
                 <p class="help-text sans">{{ field.description }}</p>
             {% endif %}
             {{ render(field, group, form) }}
