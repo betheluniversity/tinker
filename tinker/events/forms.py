@@ -164,10 +164,17 @@ _FIELD_EXTRA = {
         'order': 1
     },
     # Specify metadata fields that should be hidden fields
-    'hide_from_calendar': {'render_kw': {'type': 'hidden'}},
     'hide_from_nav': {'render_kw': {'type': 'hidden'}},
     'hide_site_nav': {'render_kw': {'type': 'hidden'}},
     # Field toggles — declarative companion controls that show/hide other fields in the template.
+    'hide_from_calendar': {
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata'
+    },
+    'internal': {
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata'
+    },
     'general': {
         'nest_within_card': True,
         'nest_card_label': 'Event metadata'

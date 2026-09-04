@@ -455,8 +455,7 @@
     {% endif %}
 {% endif %}
 {% set selected_value = field.data if field.data else field.default %}
-{% set inline_options = field.render_kw and field.render_kw.get('inline_options') %}
-<div class="event-radio-group{% if inline_options %} event-radio-group--inline{% endif %}">
+<div class="event-radio-group event-radio-group--inline">
 {% for subfield in field %}
     <div class="radio{{ ' checked' if subfield.data == selected_value else '' }}">
         {{ subfield(onchange=field.render_kw['onchange']) if field.render_kw and 'onchange' in field.render_kw else subfield() }}{{ subfield.label }}
