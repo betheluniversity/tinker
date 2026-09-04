@@ -174,7 +174,7 @@ _FIELD_EXTRA = {
     'internal': {
         'nest_within_card': True,
         'nest_card_label': 'Event metadata',
-        'render_kw': {'size': '2'}
+        'render_kw': {'size': '3'}
     },
     'general': {
         'nest_within_card': True,
