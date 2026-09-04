@@ -159,7 +159,7 @@ _FIELD_EXTRA = {
         'order': 0,
         'extra_validators': [length_checker]
     },
-    'teaser': {
+    'description': {
         'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']},
         'order': 1
     },
