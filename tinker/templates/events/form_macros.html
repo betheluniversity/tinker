@@ -321,10 +321,11 @@
     {% endif %}
     {# Use field.data if exists, else field.default for selected values #}
     {% set selected_values = field.data if field.data else field.default %}
-    <select name="{{ field.name }}" multiple size="10" class="large-select"
+    {% set select_size = field.render_kw['size'] if field.render_kw and 'size' in field.render_kw else '10' %}
+    {% set select_class = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else 'large-select' %}
+    <select name="{{ field.name }}" multiple size="{{ select_size }}" class="{{ select_class }}"
         {% if field.flags.required %}required{% endif %}
         {% if field.render_kw and 'onchange' in field.render_kw %}onchange="{{ field.render_kw['onchange'] }}"{% endif %}
-        {% if field.render_kw and 'class' in field.render_kw %}class="{{ field.render_kw['class'] }} large-select"{% endif %}
     >
         {% for value, label in field.choices %}
             {% if selected_values and value in selected_values %}
