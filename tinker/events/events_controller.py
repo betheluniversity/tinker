@@ -637,10 +637,10 @@ class EventsController(TinkerController):
         else:
             add_data['author'] = username
 
-        # Add 'teaser' to metadata for new event compatibility
-        if event_data and 'page' in event_data:
-            if 'metadata' in event_data['page']:
-                event_data['page']['metadata']['teaser'] = ''
+        # The 'description' field comes across as 'metaDescription' from the base asset coming from Cascade.
+        if add_data.get('description'):
+            if not add_data.get('metaDescription'):
+                add_data['metaDescription'] = add_data['description']
 
         self.update_asset(event_data, add_data)
         self.add_workflow_to_asset(workflow, event_data)
