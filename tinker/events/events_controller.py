@@ -725,8 +725,12 @@ class EventsController(TinkerController):
             if 'end' in key.lower() and date[key]:
                 end_date = date[key]
                 break
-        else:
-            return None
+
+        if not end_date:
+            for key in date:
+                if 'start' in key.lower() and date[key]:
+                    end_date = date[key]
+                    break
 
         max_year = 0
         date_str = self.timestamp_to_date_str(end_date)
