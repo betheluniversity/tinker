@@ -684,18 +684,6 @@ class EventsController(TinkerController):
             hide_site_nav = "Do not hide"
             path = 'events/arts/theatre/%s' % max_year
 
-        elif 'Library' in general:
-            hide_site_nav = "Hide"
-            path = "events/%s/library" % max_year
-
-        elif 'Bethel Student Government' in offices:
-            hide_site_nav = "Hide"
-            path = "events/%s/bsg" % max_year
-
-        elif any("Admissions" in s for s in offices):
-            hide_site_nav = "Hide"
-            path = 'events/%s/admissions' % max_year
-
         if app.config['UNIT_TESTING']:
             path = "/_testing/events-tests"
 
