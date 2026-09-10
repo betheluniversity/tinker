@@ -37,6 +37,7 @@ class FacultyBioController(TinkerController):
             'Math & Computer Science':                      'Math CS',
             'Music':                                        'Music',
             'Music and Theatre':                            'Music and Theatre',
+            'Music and Performing Arts':                    'Music and Performing Arts',
             'Nursing':                                      'Nursing',
             'Philosophy':                                   'Philosophy',
             'Physics & Engineering':                        'Physics',
