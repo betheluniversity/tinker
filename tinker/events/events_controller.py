@@ -764,6 +764,9 @@ class EventsController(TinkerController):
     def get_search_results(self, selection, title, start, end):
         # Get the events and then split them into user events and other events for quicker searching
         events_xml_url = app.config['EVENTS_XML_URL']
+        if not events_xml_url.endswith('.xml'):
+            events_xml_url += '.xml'
+
         events = self.traverse_xml(events_xml_url, 'event')
         # Quick check with assignment
         if selection and '-'.join(selection) == '2':
