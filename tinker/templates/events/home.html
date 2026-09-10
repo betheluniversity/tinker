@@ -194,8 +194,6 @@
             var picker = new Pikaday(starting_values);
         });
 
-        {# Search EVENT #}
-
         function search_events() {
             search_url = "{{ url_for('EventsView:search') }}";
             $('#spinner').show();
