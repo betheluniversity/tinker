@@ -346,8 +346,8 @@ class TinkerController(object):
         # Add the rest of the fields. Can't loop over these kinds of metadata
         if 'title' in mdata:
             edit_data['title'] = mdata['title']
-        if 'teaser' in mdata:
-            edit_data['teaser'] = mdata['teaser']
+        if 'metaDescription' in mdata:
+            edit_data['description'] = mdata['metaDescription']
 
         # get the authors
         edit_data['author'] = find(mdata, 'author', False)
