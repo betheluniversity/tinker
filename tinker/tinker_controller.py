@@ -346,8 +346,8 @@ class TinkerController(object):
         # Add the rest of the fields. Can't loop over these kinds of metadata
         if 'title' in mdata:
             edit_data['title'] = mdata['title']
-        if 'teaser' in mdata:
-            edit_data['teaser'] = mdata['teaser']
+        if 'metaDescription' in mdata:
+            edit_data['description'] = mdata['metaDescription']
 
         # get the authors
         edit_data['author'] = find(mdata, 'author', False)
@@ -509,7 +509,39 @@ class TinkerController(object):
                 else:
                     return ''
 
-    def get_add_data(self, data):
+    def get_add_data(self, lists, form):
+        # A dict to populate with all the interesting data.
+        add_data = {}
+
+        for key in form.keys():
+            if key in lists:
+                add_data[key] = form.getlist(key)
+            else:
+                add_data[key] = form[key]
+
+        if 'title' in add_data:
+            # strip() is called on the title to eliminate whitespace before and after the title
+            title = add_data['title'].strip()
+        elif 'first' in add_data and 'last' in add_data:
+            # strip() is called on the title to eliminate whitespace before and after the title
+            title = add_data['first'].strip() + ' ' + add_data['last'].strip()
+        else:
+            title = None
+
+        if title:
+            add_data['title'] = title
+            # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
+            system_name = title.lower().replace(' ', '-')
+            system_name = unidecode(system_name)
+            add_data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+            add_data['name'] = add_data['system_name']
+
+        # add author
+        add_data['author'] = session['username']
+
+        return add_data
+
+    def get_events_add_data(self, data):
 
         if 'title' in data:
             # strip() is called on the title to eliminate whitespace before and after the title
@@ -530,35 +562,6 @@ class TinkerController(object):
 
         # add author
         data['author'] = session['username']
-
-        # new_data = {}
-        # # Convert all keys to use hyphens instead of underscores
-        # # This is because Cascade uses hyphens in the XML, but the form uses underscores
-        # for key in data:
-        #     try:
-        #         if isinstance(data[key], list):
-        #             # Handle list of dicts
-        #             new_data[key.replace('_', '-')] = []
-        #             for item in data[key]:
-        #                 if isinstance(item, dict):
-        #                     new_item = {}
-        #                     for k, v in item.items():
-        #                         new_item[k.replace('_', '-')] = v
-        #                     new_data[key.replace('_', '-')].append(new_item)
-        #                 else:
-        #                     new_data[key.replace('_', '-')].append(item)
-        #         elif isinstance(data[key], dict):
-        #             # Handle nested dict
-        #             new_item = {}
-        #             for k, v in data[key].items():
-        #                 new_item[k.replace('_', '-')] = v
-        #             new_data[key.replace('_', '-')] = new_item
-        #         else:
-        #             new_data[key.replace('_', '-')] = data[key]
-        #     except:
-        #         pass
-
-        # return new_data
         return data
 
     def create_block(self, asset):

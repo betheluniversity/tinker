@@ -338,7 +338,7 @@ class EventsController(TinkerController):
         eid = data.get('event_id')
 
         # Changes the dates to a timestamp, needs to occur after a failure is detected or not
-        add_data = self.get_add_data(data)
+        add_data = self.get_events_add_data(data)
 
         # Handle all FileField uploads and write resulting paths into add_data.
         add_data = self.upload_event_images(form, add_data)
@@ -632,7 +632,7 @@ class EventsController(TinkerController):
 
         if event_id:
             add_data['id'] = event_id
-            # delete author, as we don't want it to change. But, it gets set in get_add_data()
+            # delete author, as we don't want it to change.
             add_data.pop('author', None)
         else:
             add_data['author'] = username
@@ -752,6 +752,9 @@ class EventsController(TinkerController):
     def get_search_results(self, selection, title, start, end):
         # Get the events and then split them into user events and other events for quicker searching
         events_xml_url = app.config['EVENTS_XML_URL']
+        if not events_xml_url.endswith('.xml'):
+            events_xml_url += '.xml'
+
         events = self.traverse_xml(events_xml_url, 'event')
         # Quick check with assignment
         if selection and '-'.join(selection) == '2':
