@@ -333,7 +333,19 @@ class TinkerController(object):
                 for child in node['structuredDataNodes']['structuredDataNode']:
                     if child['identifier'].lower() == 'timezone':
                         timezone = child['text']
-            edit_data[node_identifier] = self.inspect_sdata_node(node, timezone=timezone)
+            elif node_identifier == 'event_dates':
+                for child in node['structuredDataNodes']['structuredDataNode']:
+                    if child['identifier'].lower() == 'time-zone':
+                        timezone = child.get('text', 'Central')
+            node_data = self.inspect_sdata_node(node, timezone=timezone)
+            edit_data[node_identifier] = node_data
+            
+        if edit_data.get('event_dates') and not edit_data.get('date'):
+            edit_data['date'] = {
+                'eventStart': edit_data['event_dates'].get('start_date'),
+                'eventEnd': edit_data['event_dates'].get('end_date'),
+            }
+
 
         dynamic_fields = find(mdata, 'dynamicField', False)
         # now metadata dynamic fields
