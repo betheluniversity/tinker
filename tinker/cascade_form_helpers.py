@@ -132,6 +132,25 @@ def build_metadata_custom_fields(metadata_set):
             custom_fields[name] = RadioField(
                 label, choices=choices, default=default_radio,
                 description=help_text, validators=validators)
+        elif field_type == 'text':
+            custom_fields[name] = StringField(
+                label, default=default_values[0] if default_values else '',
+                description=help_text, validators=validators)
+        elif field_type == 'dropdown':
+            default_dropdown = default_values[0] if default_values else None
+            custom_fields[name] = SelectField(
+                label, choices=choices, default=default_dropdown,
+                description=help_text, validators=validators)
+        elif field_type == 'checkbox':
+            bool_default = any(v.get('selectedByDefault') in (True, 'true', 'True') for v in raw_vals)
+            custom_fields[name] = BooleanField(
+                label, default=bool_default,
+                description=help_text, validators=validators)
+        elif field_type == 'date-time':
+            custom_fields[name] = StringField(
+                label, default=default_values[0] if default_values else '',
+                description=help_text, validators=validators,
+                render_kw={'class': 'datepicker'})
 
     return custom_fields
 

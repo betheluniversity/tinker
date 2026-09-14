@@ -164,6 +164,7 @@ _FIELD_EXTRA = {
         'order': 1
     },
     # Specify metadata fields that should be hidden fields
+    'urlOverride': {'render_kw': {'type': 'hidden'}},
     'hide_from_nav': {'render_kw': {'type': 'hidden'}},
     'hide_site_nav': {'render_kw': {'type': 'hidden'}},
     # Field toggles — declarative companion controls that show/hide other fields in the template.
