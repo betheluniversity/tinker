@@ -14,6 +14,7 @@ from xml.etree import ElementTree as ET
 
 # Packages
 import ldap
+import pytz
 import requests
 # from __future__ import print_function # Python 2/3 compatibiltiy (namedentities) - this might not be needed anymore
 from createsend import Client
@@ -320,6 +321,73 @@ class TinkerController(object):
                     return_values.append(md.find('value').text)
         return return_values
 
+
+    def get_event_edit_data(self, sdata, mdata):
+        """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
+        edit_data = {}
+
+        for node in find(sdata, 'identifier'):
+            node_identifier = node['identifier'].replace('-', '_')
+            timezone = None
+            if node_identifier == 'date':
+                for child in node['structuredDataNodes']['structuredDataNode']:
+                    if child['identifier'].lower() == 'timezone':
+                        timezone = child['text']
+            elif node_identifier == 'event_dates':
+                for child in node['structuredDataNodes']['structuredDataNode']:
+                    if child['identifier'].lower() == 'time-zone':
+                        timezone = child.get('text', 'Central')
+            node_data = self.inspect_sdata_node(node, timezone=timezone)
+            edit_data[node_identifier] = node_data
+            
+        if edit_data.get('event_dates') and not edit_data.get('date'):
+            edit_data['date'] = {
+                'eventStart': edit_data['event_dates'].get('start_date'),
+                'eventEnd': edit_data['event_dates'].get('end_date'),
+            }
+
+
+        dynamic_fields = find(mdata, 'dynamicField', False)
+        # now metadata dynamic fields
+        for field in dynamic_fields:
+            if find(field, 'fieldValue', False):
+                # find(item, 'value', False) was set in order for events md select fields to work
+                items = [find(item, 'value', False) for item in find(field, 'fieldValue', False)]
+                edit_data[field['name'].replace('-', '_')] = items
+
+        # Add the rest of the fields. Can't loop over these kinds of metadata
+        if 'title' in mdata:
+            edit_data['title'] = mdata['title']
+        if 'metaDescription' in mdata:
+            edit_data['description'] = mdata['metaDescription']
+
+        # get the authors
+        edit_data['author'] = find(mdata, 'author', False)
+
+        return edit_data
+
+    def _cascade_checkbox_text_to_bool(self, value):
+        """Convert Cascade checkbox marker text to a python bool.
+
+        Examples:
+          '::CONTENT-XML-CHECKBOX::' -> False
+          '::CONTENT-XML-CHECKBOX::yes' -> True
+        """
+        if isinstance(value, bool):
+            return value
+
+        if value is None:
+            return False
+
+        text = str(value).strip().lower()
+        marker = '::content-xml-checkbox::'
+        if marker in text:
+            suffix = text.split(marker, 1)[1].strip()
+            return suffix in ('yes', 'true', '1', 'on')
+
+        return text in ('yes', 'true', '1', 'on')
+    
+
     def get_edit_data(self, sdata, mdata, multiple=[]):
         """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
         edit_data = {}
@@ -368,12 +436,30 @@ class TinkerController(object):
 
         return int(date.strftime("%s")) * 1000
 
-    def java_unix_to_date(self, date, date_format=None):
+    def java_unix_to_date(self, date, date_format=None, timezone="central"):
+        timezone_map = {
+            "central": "America/Chicago",
+            "eastern": "America/New_York",
+            "mountain": "America/Denver",
+            "pacific": "America/Los_Angeles"
+        }
+        if timezone in timezone_map:
+            timezone = timezone_map[timezone]
+        else:
+            timezone = "America/Chicago"
+
+        # For testing
+        #timezone = None
+
         if not date_format:
             date_format = self.datetime_format
-        return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
 
-    def inspect_sdata_node(self, node):
+        if not timezone:
+            return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
+        
+        return datetime.datetime.fromtimestamp(int(date) / 1000, tz=pytz.timezone(timezone)).strftime(date_format)
+
+    def inspect_sdata_node(self, node, timezone=None):
 
         node_type = node['type']
 
@@ -381,7 +467,18 @@ class TinkerController(object):
             group = {}
             for n in node['structuredDataNodes']['structuredDataNode']:
                 node_identifier = n['identifier'].replace('-', '_')
-                group[node_identifier] = self.inspect_sdata_node(n)
+                value = self.inspect_sdata_node(n, timezone=timezone)
+
+                # Preserve repeated group identifiers as arrays instead of
+                # overwriting earlier items (for example cost.offer,
+                # schedule.scheduleDetails, scheduleDetails.timeDescription).
+                if node_identifier in group:
+                    if isinstance(group[node_identifier], list):
+                        group[node_identifier].append(value)
+                    else:
+                        group[node_identifier] = [group[node_identifier], value]
+                else:
+                    group[node_identifier] = value
             return group
 
         elif node_type == 'text':
@@ -398,7 +495,7 @@ class TinkerController(object):
 
             try:
                 if len(node['text']) >= 9:
-                    date = self.java_unix_to_date(node['text'])
+                    date = self.java_unix_to_date(node['text'], timezone=timezone)
                     if not date:
                         date = ''
                     return date
@@ -412,6 +509,8 @@ class TinkerController(object):
 
             if '::CONTENT-XML-SELECTOR::' in node['text']:
                 return node['text'].split('::CONTENT-XML-SELECTOR::')
+            if '::CONTENT-XML-CHECKBOX::' in node['text']:
+                return self._cascade_checkbox_text_to_bool(node['text'])
             return node['text'].replace('&amp;#160;', ' ')
 
         elif node_type == 'asset':
@@ -453,6 +552,29 @@ class TinkerController(object):
         add_data['author'] = session['username']
 
         return add_data
+
+    def get_events_add_data(self, data):
+
+        if 'title' in data:
+            # strip() is called on the title to eliminate whitespace before and after the title
+            title = data['title'].strip()
+        elif 'first' in data and 'last' in data:
+            # strip() is called on the title to eliminate whitespace before and after the title
+            title = data['first'].strip() + ' ' + data['last'].strip()
+        else:
+            title = None
+
+        if title:
+            data['title'] = title
+            # Create the system-name from title, all lowercase, remove any non a-z, A-Z, 0-9
+            system_name = title.lower().replace(' ', '-')
+            system_name = unidecode(system_name)
+            data['system_name'] = re.sub(r'[^a-zA-Z0-9-]', '', system_name)
+            data['name'] = data['system_name']
+
+        # add author
+        data['author'] = session['username']
+        return data
 
     def create_block(self, asset):
         b = Block(self.cascade_connector, asset=asset)

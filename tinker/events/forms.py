@@ -1,198 +1,538 @@
 # coding: utf-8
-# Global
-from datetime import datetime
+"""
+Event form — built dynamically from the Cascade data definition.
+
+The only fields that are NOT sourced from the data definition are Cascade page
+metadata fields (title, metaDescription, link, image) and the category
+SelectMultipleFields (from the /Event metadataset).  Every structured-data
+field is created by walking the parsed data definition tree.
+
+Field-naming conventions (must match bu_cascade get_add_data / get_edit_data):
+  - Top-level text/asset:   <identifier>          e.g. guestInstructions
+  - Group child (flat):     <group>_<child>        e.g. date_eventStart
+  - Nested group:           <outer>_<inner>_<child>
+"""
 
 # Packages
-from bu_cascade.asset_tools import find, convert_asset
-from flask import session
-from flask_wtf import Form
-from wtforms import DateTimeField, Field, HiddenField, SelectField, SelectMultipleField, StringField, TextAreaField
-from wtforms.validators import DataRequired, ValidationError
+import json
+
+from flask import current_app, has_request_context, request, session
+from flask_wtf import FlaskForm
+from wtforms import (HiddenField, RadioField, StringField)
+from wtforms.validators import ValidationError, URL
+
+from tinker.cascade_form_helpers import (_fields_from_def,
+                                          get_metadata_fields,
+                                          get_structured_data_labels)
 
 # Local
 from tinker.tinker_controller import TinkerController
+from tinker import app
+from tinker.data_definition_parser import get_field_definitions
+
 
 tinker = TinkerController()
 
 
-def get_md(metadata_path):
-    md = tinker.read(metadata_path, 'metadataset')
-    return md['asset']['metadataSet']['dynamicMetadataFieldDefinitions']['dynamicMetadataFieldDefinition']
+def _flatten_event_cascade_data(data, prefix='', multiples=None, parent_instances=None):
+    """Flatten nested event edit-data into WTForms field keys.
 
-def get_event_choices():
-    data = get_md("/Event")
+    Example:
+      {'cost': {'offer': [{'price': '1'}]}}
+      -> {'cost__[multiple]offer_1__price': '1'}
+    """
+    flat = {}
+    multiples = multiples or {}
+    current_parents = parent_instances or []
 
-    md = {}
-    for item in data:
-        try:
-            md[item['name']] = item['possibleValues']['possibleValue']
-        except:
+    if not isinstance(data, dict):
+        return flat
+
+    for key, value in data.items():
+        field_key = '{}__{}'.format(prefix, key) if prefix else key
+
+        if isinstance(value, dict):
+            count_key = '__'.join(current_parents + [key]) if current_parents else key
+            is_multiple_group = count_key in multiples
+
+            if is_multiple_group:
+                instance_key = '[multiple]{}_1'.format(key)
+                nested_prefix = '{}__{}'.format(prefix, instance_key) if prefix else instance_key
+                flat.update(_flatten_event_cascade_data(
+                    value,
+                    nested_prefix,
+                    multiples=multiples,
+                    parent_instances=current_parents + [instance_key],
+                ))
+            else:
+                flat.update(_flatten_event_cascade_data(
+                    value,
+                    field_key,
+                    multiples=multiples,
+                    parent_instances=current_parents,
+                ))
             continue
 
-    md = convert_asset(md)
+        if isinstance(value, list):
+            # Multiple groups are represented as list[dict] in edit_data.
+            if value and all(isinstance(item, dict) for item in value):
+                for index, item in enumerate(value, start=1):
+                    instance_key = '[multiple]{}_{}'.format(key, index)
+                    nested_prefix = '{}__{}'.format(prefix, instance_key) if prefix else instance_key
+                    flat.update(_flatten_event_cascade_data(
+                        item,
+                        nested_prefix,
+                        multiples=multiples,
+                        parent_instances=current_parents + [instance_key],
+                    ))
+            else:
+                # SelectMultiple and metadata arrays should remain arrays.
+                flat[field_key] = value
+            continue
 
-    general = []
-    for item in md['general']:
-        general.append((item['value'], item['value']))
+        flat[field_key] = value
 
-    offices = []
-    for item in md['offices']:
-        offices.append((item['value'], item['value']))
-
-    internal = []
-    for item in md['internal']:
-        internal.append((item['value'], item['value']))
-
-    cas_departments = []
-    for item in md['cas-departments']:
-        cas_departments.append((item['value'], item['value']))
-
-    adult_undergrad_program = []
-    for item in md['adult-undergrad-program']:
-        adult_undergrad_program.append((item['value'], item['value']))
-
-    graduate_program = []
-    for item in md['graduate-program']:
-        graduate_program.append((item['value'], item['value']))
-
-    seminary_program = []
-    for item in md['seminary-program']:
-        seminary_program.append((item['value'], item['value']))
-
-    # Get the building choices from the block
-    building_choices = get_buildings()
-
-    return {'general': general,
-            'offices': offices,
-            'internal': internal,
-            'cas_departments': cas_departments,
-            'adult_undergrad_program': adult_undergrad_program,
-            'graduate_program': graduate_program,
-            'seminary_program': seminary_program,
-            'buildings': building_choices
-            }
+    return flat
 
 
-def get_buildings():
-    labels = [("none", '-select-')]
-    block = convert_asset(tinker.read('951e3c9f8c5865fc76c04caaa5925bb6', type="block"))
-    buildings = find(block, 'buildings')
-    for building in buildings:
-        label = building['structuredDataNodes']['structuredDataNode'][0]['text']
-        labels.append((label, label))
+def _coerce_to_existing_field_key(key, valid_field_names):
+    """Map a flattened key to an existing field name by inserting single-instance
+    multiple markers when needed (for example timeDescription -> [multiple]timeDescription_1).
+    """
+    if key in valid_field_names:
+        return key
 
-    return labels
+    parts = (key or '').split('__')
+    if not parts:
+        return key
+
+    candidates = ['']
+    for part in parts:
+        next_candidates = []
+        for prefix in candidates:
+            base = '{}__{}'.format(prefix, part) if prefix else part
+            next_candidates.append(base)
+
+            if part and not part.startswith('[multiple]'):
+                multiple_part = '[multiple]{}_1'.format(part)
+                with_multiple = '{}__{}'.format(prefix, multiple_part) if prefix else multiple_part
+                next_candidates.append(with_multiple)
+        candidates = next_candidates
+
+    for candidate in candidates:
+        if candidate in valid_field_names:
+            return candidate
+
+    return key
 
 
-# Special class to know when to include the class for a ckeditor wysiwyg, doesn't need to do anything
-# aside from be a marker label
-class CKEditorTextAreaField(TextAreaField):
-    pass
+# ---------------------------------------------------------------------------
+# Validators
+# ---------------------------------------------------------------------------
 
-
-class HeadingField(Field):
-    def __init__(self, label=None, validators=None, filters=tuple(),
-                 description='', id=None, default=None, widget=None,
-                 _form=None, _name=None, _prefix='', _translations=None):
-        self.default = default
-        self.description = description
-        self.filters = filters
-        self.flags = None
-        self.name = _prefix + _name
-        self.short_name = _name
-        self.type = type(self).__name__
-        self.validators = validators or list(self.validators)
-
-        self.id = id or self.name
-        self.label = label
-
-    def __unicode__(self):
-        return None
-
-    def __str__(self):
-        return None
-
-    def __html__(self):
-        return None
-
-# Long words throw off formatting in Calendar
-def length_checker(Form, field):
-    word_split = field.data.split(" ")
-    for word in word_split:
+def length_checker(form, field):
+    for word in field.data.split(' '):
         if len(word) > 15:
             raise ValidationError('Words in the title must be 15 characters or less')
 
 
-class EventForm(Form):
-    image = HiddenField("Image path")
+def validate_numeric(form, field):
+    if not field.data:
+        return
+    try:
+        float(field.data)
+    except ValueError:
+        raise ValidationError('All Cost fields must be numeric values.')
 
-    choices = get_event_choices()
-    general_choices = choices['general']
-    offices_choices = choices['offices']
-    internal_choices = choices['internal']
-    cas_departments_choices = choices['cas_departments']
-    adult_undergrad_program_choices = choices['adult_undergrad_program']
-    graduate_program = choices['graduate_program']
-    seminary_program_choices = choices['seminary_program']
-    building_choices = choices['buildings']
 
-    location_choices = (('On Campus', 'On Campus'), ('Other On Campus', 'Other On Campus'), ('Off Campus', 'Off Campus'), ('Online', 'Online'))
-    heading_choices = (('', '-select-'), ('Registration', 'Registration'), ('Ticketing', 'Ticketing'))
+# ---------------------------------------------------------------------------
+# Event-specific field configuration
+# ---------------------------------------------------------------------------
 
-    what = HeadingField(label="What is your event?")
-    title = StringField('Event name', validators=[DataRequired() , length_checker], description="This will be the title of your webpage")
+# Per-identifier extra config passed to _build_field / _fields_from_def.
+# This is the ONLY place event-specific knowledge about individual fields lives.
+_FIELD_EXTRA = {
+    # Group built-in fields visually in the template as 'Event basics', and specify order.
+    # We use lists for 'groups' and 'group_labels' to support the recursive card rendering logic.
+    'title': {
+        'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']},
+        'order': 0,
+        'extra_validators': [length_checker]
+    },
+    'description': {
+        'render_kw': {'groups': ['event_basics'], 'group_labels': ['Event basics']},
+        'order': 1
+    },
+    # Specify metadata fields that should be hidden fields
+    'urlOverride': {'render_kw': {'type': 'hidden'}},
+    'hide_from_nav': {'render_kw': {'type': 'hidden'}},
+    'hide_site_nav': {'render_kw': {'type': 'hidden'}},
+    # Field toggles — declarative companion controls that show/hide other fields in the template.
+    'hide_from_calendar': {
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata'
+    },
+    'internal': {
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata',
+        'render_kw': {'size': '3'}
+    },
+    'general': {
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata'
+    },
+    'offices': {
+        'toggle_with_yes_no': True,
+        'toggle_default': 'No',
+        'render_kw': {'show_class': 'Yes'},
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata'
+    },
+    'undergraduate_departments': {
+        'toggle_with_accordion_card': True,
+        'accordion_toggle_with_yes_no': True,
+        'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
+        'accordion_toggle_default': 'No',
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata'
+    },
+    'adult_undergrad_program': {
+        'toggle_with_accordion_card': True,
+        'accordion_toggle_with_yes_no': True,
+        'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
+        'accordion_toggle_default': 'No',
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata',
+    },
+    'graduate_program': {
+        'toggle_with_accordion_card': True,
+        'accordion_toggle_with_yes_no': True,
+        'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
+        'accordion_toggle_default': 'No',
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata',
+    },
+    'seminary_program': {
+        'toggle_with_accordion_card': True,
+        'accordion_toggle_with_yes_no': True,
+        'accordion_toggle_label': 'Is this event hosted by a specific department or program?',
+        'accordion_toggle_default': 'No',
+        'nest_within_card': True,
+        'nest_card_label': 'Event metadata',
+    },
+    # Date sync — keeps eventEnd >= eventStart
+    'eventStart':      {'render_kw': {'onchange': 'syncDates(this)'}},
+    'eventEnd':        {'render_kw': {'onchange': 'syncDates(this)'}},
+    # All-day event — zeros out time on both date fields
+    'hideTime':        {'render_kw': {'onclick': 'setAllDayTime(this)'}},
+    # URL validators
+    'url':             {'extra_validators': [URL(require_tld=True,
+                                                 message='Please enter a valid URL.')]},
+    # Cost
+    'price':           {'extra_validators': [validate_numeric],
+                        'render_kw': {'onblur': 'stripCostChars(this)'}},
+    # Registration
+    'ticketingURL':    {'extra_validators': [URL(require_tld=True,
+                                                 message='Please enter a valid URL.')]}
+}
 
-    metaDescription = StringField('Teaser',
-                                  description=u'Short (1 sentence) description. What will the attendees expect? This will appear in event viewers and on the calendar.',
-                                  validators=[DataRequired()])
 
-    if 'Event Approver' in session['groups']:
-        link = StringField("External Link",
-                           description="This field only seen by 'Event Approvers'. An external link will redirect this event to the external link url.")
-    else:
-        link = HiddenField("External Link")
+def _iter_yes_no_toggle_configs():
+    """Yield declarative yes/no companion-toggle config from _FIELD_EXTRA."""
+    for target_name, extra in _FIELD_EXTRA.items():
+        if not extra.get('toggle_with_yes_no'):
+            continue
+        yield {
+            'target_name': target_name,
+            'toggle_name': '{}_enabled'.format(target_name),
+            'toggle_default': extra.get('toggle_default', 'No'),
+        }
 
-    featuring = StringField('Featuring')
-    sponsors = CKEditorTextAreaField('Sponsors')
-    main_content = CKEditorTextAreaField('Event description')
 
-    when = HeadingField(label="When is your event?")
-    start = DateTimeField("", default=datetime.now)
+def _iter_accordion_card_toggle_configs():
+    """Yield declarative grouped-accordion config from _FIELD_EXTRA."""
+    for target_name, extra in _FIELD_EXTRA.items():
+        if not extra.get('toggle_with_accordion_card'):
+            continue
+        yield {
+            'target_name': target_name,
+            'accordion_card_label': extra.get('accordion_card_label', 'Additional fields'),
+            'nested_card_label': extra.get('nest_card_label', ''),
+            'accordion_toggle_with_yes_no': bool(extra.get('accordion_toggle_with_yes_no', False)),
+            'accordion_toggle_label': extra.get('accordion_toggle_label', ''),
+            'accordion_toggle_default': extra.get('accordion_toggle_default', 'No'),
+        }
 
-    where = HeadingField(label="Where is your event?")
-    location = SelectField('Location', choices=location_choices)
-    on_campus_location = SelectField('On campus location', choices=building_choices)
-    other_on_campus = StringField('Other on campus location')
-    off_campus_location = StringField("Off campus location")
-    maps_directions = CKEditorTextAreaField('Instructions for Guests',
-                                            description=u"Information or links to directions and parking information (if applicable). (ex: Get directions to Bethel University. Please park in the Seminary student and visitor lot.)")
 
-    why = HeadingField(label="Does your event require registration or payment?")
-    registration_heading = SelectField('Select a heading for the registration section', choices=heading_choices)
-    registration_details = CKEditorTextAreaField('Registration/ticketing details',
-                                                 description=u"How do attendees get tickets? Is it by phone, through Bethel’s site, or through an external site? When is the deadline?")
-    wufoo_code = StringField('Approved wufoo hash code')
-    ticketing_url = StringField('Ticketing URL')
-    cost = TextAreaField('Cost')
-    cancellations = TextAreaField('Cancellations and refunds')
+def _iter_nested_card_configs():
+    """Yield declarative nested-card config from _FIELD_EXTRA."""
+    for target_name, extra in _FIELD_EXTRA.items():
+        if not extra.get('nest_within_card'):
+            continue
+        yield {
+            'target_name': target_name,
+            'nested_card_label': extra.get('nest_card_label', 'Additional information'),
+        }
 
-    other = HeadingField(label="Who should folks contact with questions?")
-    questions = CKEditorTextAreaField('Questions',
-                                      description=u"Contact info for questions. (ex: Contact the Office of Church Relations at 651.638.6301 or church-relations@bethel.edu.)",
-                                  validators=[DataRequired()])
 
-    categories = HeadingField(label="Categories")
+def _yes_no_choices(default_value):
+    """Return Yes/No choices with the configured default option first."""
+    default_value = default_value if default_value in ('Yes', 'No') else 'No'
+    other_value = 'No' if default_value == 'Yes' else 'Yes'
+    return [(default_value, default_value), (other_value, other_value)]
 
-    general = SelectMultipleField('General categories', choices=general_choices, default=['None'],
-                                  validators=[DataRequired()])
-    offices = SelectMultipleField('Offices', choices=offices_choices, default=['None'], validators=[DataRequired()])
-    cas_departments = SelectMultipleField('CAS academic department', default=['None'], choices=cas_departments_choices,
-                                          validators=[DataRequired()])
-    adult_undergrad_program = SelectMultipleField('CAPS programs', default=['None'],
-                                                  choices=adult_undergrad_program_choices, validators=[DataRequired()])
-    seminary_program = SelectMultipleField('Seminary programs', default=['None'], choices=seminary_program_choices,
-                                           validators=[DataRequired()])
-    graduate_program = SelectMultipleField('GS Programs', default=['None'], choices=graduate_program,
-                                           validators=[DataRequired()])
-    internal = SelectMultipleField('Internal only', default=['None'], choices=internal_choices,
-                                   validators=[DataRequired()])
+
+def _normalize_yes_no_default(value):
+    return value if value in ('Yes', 'No') else 'No'
+
+
+# ---------------------------------------------------------------------------
+# Form factory
+# ---------------------------------------------------------------------------
+
+def get_event_form(multiples={}, cascade_data=None):
+    """
+    Build and return an EventForm, optionally pre-populated from raw Cascade
+    structured data (the dict returned by get_edit_data).
+
+    cascade_data -- dict from get_edit_data() containing structured-data and
+                    metadata fields.  Structured-data fields are flattened
+                    using the live data definition so that any data definition
+                    file works automatically.  Metadata / fixed fields (title,
+                    metaDescription, category lists, etc.) that are NOT
+                    identifiers in the data definition pass through unchanged.
+    """
+    form_class = _build_event_form_class(multiples=multiples)
+
+    form_kwargs = _flatten_event_cascade_data(cascade_data, multiples=multiples) if cascade_data else {}
+    if form_kwargs:
+        empty_form = form_class()
+        valid_field_names = set(empty_form._fields.keys())
+        normalized_kwargs = {}
+        for key, value in form_kwargs.items():
+            mapped_key = _coerce_to_existing_field_key(key, valid_field_names)
+            normalized_kwargs[mapped_key] = value
+        form_kwargs = normalized_kwargs
+
+    form = form_class(**form_kwargs)
+
+    # Keep companion yes/no toggles in sync with existing target values on initial load.
+    # On submit, Flask-WTF binds posted toggle values directly from request.form.
+    if not has_request_context() or not request.form:
+        for toggle_cfg in _iter_yes_no_toggle_configs():
+            target_name = toggle_cfg['target_name']
+            toggle_name = toggle_cfg['toggle_name']
+            toggle_default = toggle_cfg['toggle_default']
+            target_field = form._fields.get(target_name)
+            toggle_field = form._fields.get(toggle_name)
+            if not target_field or not toggle_field:
+                continue
+
+            # For new forms, always honor declarative toggle_default.
+            # For edit forms (cascade_data provided), infer Yes only when values exist.
+            if cascade_data is None:
+                toggle_field.data = toggle_default
+                continue
+
+            target_value = target_field.data
+            has_value = bool(target_value)
+            toggle_field.data = 'Yes' if has_value else toggle_default
+
+        for field in form:
+            rk = field.render_kw or {}
+            if not rk.get('is_accordion_group_toggle'):
+                continue
+
+            controls_fields = rk.get('controls_fields') or []
+            toggle_default = _normalize_yes_no_default(rk.get('accordion_toggle_default', field.default or 'No'))
+
+            if cascade_data is None:
+                field.data = toggle_default
+                continue
+
+            has_value = False
+            for dep_name in controls_fields:
+                dep_field = form._fields.get(dep_name)
+                if dep_field and dep_field.data:
+                    has_value = True
+                    break
+            field.data = 'Yes' if has_value else toggle_default
+
+    for field in form:
+        if getattr(field, 'type', '') != 'FileField':
+            continue
+        if not isinstance(field.data, str) or not field.data:
+            continue
+
+        path_field = form._fields.get(field.name + '_path')
+        if path_field and not path_field.data:
+            path_field.data = field.data
+
+    def _json_default(obj):
+        from werkzeug.datastructures import FileStorage
+        if isinstance(obj, FileStorage):
+            return obj.filename
+        return str(obj)
+    current_app.logger.debug('form.data: %s', json.dumps(form.data, default=_json_default))
+
+    return form
+
+
+# ---------------------------------------------------------------------------
+# EventForm
+#
+# Fields derived from the data definition are injected into the class dict
+# before the class is defined using type().  This means the class body only
+# contains the fixed Cascade metadata fields.
+# ---------------------------------------------------------------------------
+
+def _build_event_form_class(multiples={}):
+    """
+    Build and return the EventForm class with all data-definition fields
+    injected alongside the fixed Cascade metadata fields.
+    """
+
+    all_fields = {}
+
+    # Create and add the metadata fields
+    metadata_fields = get_metadata_fields(tinker, app.config.get('EVENTS_METADATA_SET', ''))
+    all_fields.update(metadata_fields)
+    
+    # Walk the full data definition tree
+    # Pass event-specific field config and choice overrides to the generic helper.
+    on_campus_locations = get_structured_data_labels(tinker, app.config.get('EVENTS_ON_CAMPUS_LOCATIONS', ''))
+    dd_fields = _fields_from_def(
+        get_field_definitions(app.config.get('EVENTS_DATA_DEF_ID', ''), multiples=multiples),
+        field_extra=_FIELD_EXTRA,
+        override_choices={'location': on_campus_locations},
+    )
+    all_fields.update(dd_fields)
+
+    # Build declarative yes/no companion toggle controls.
+    for toggle_cfg in _iter_yes_no_toggle_configs():
+        target_name = toggle_cfg['target_name']
+        if target_name not in all_fields:
+            continue
+
+        target_field = all_fields[target_name]
+        target_rk = dict(target_field.kwargs.get('render_kw', {}) or {})
+        target_groups = list(target_rk.get('groups', []))
+        target_group_labels = list(target_rk.get('group_labels', []))
+        target_order = target_rk.get('order', _FIELD_EXTRA.get(target_name, {}).get('order', 999))
+
+        toggle_name = toggle_cfg['toggle_name']
+        toggle_default = toggle_cfg['toggle_default']
+        toggle_label = '{}?'.format(target_field.args[0] if target_field.args else target_name.replace('_', ' ').title())
+        all_fields[toggle_name] = RadioField(
+            toggle_label,
+            choices=_yes_no_choices(toggle_default),
+            default=toggle_default,
+            render_kw={
+                'groups': target_groups,
+                'group_labels': target_group_labels,
+                'order': target_order,
+                'onchange': 'selectChanged(this)',
+                'inline_options': True,
+                'is_toggle_control': True,
+                'controls_field': target_name,
+            },
+        )
+
+        target_rk['toggle_field_name'] = toggle_name
+        target_field.kwargs['render_kw'] = target_rk
+
+    # Mark fields that should render in a shared accordion card.
+    accordion_group_toggles = {}
+    accordion_group_controls = {}
+    for toggle_cfg in _iter_accordion_card_toggle_configs():
+        target_name = toggle_cfg['target_name']
+        if target_name not in all_fields:
+            continue
+
+        target_field = all_fields[target_name]
+        target_rk = dict(target_field.kwargs.get('render_kw', {}) or {})
+        group_key = '{}::{}'.format(toggle_cfg['nested_card_label'], toggle_cfg['accordion_card_label'])
+
+        if toggle_cfg['accordion_toggle_with_yes_no']:
+            accordion_group_controls.setdefault(group_key, []).append(target_name)
+            if group_key not in accordion_group_toggles:
+                target_groups = list(target_rk.get('groups', []))
+                target_group_labels = list(target_rk.get('group_labels', []))
+                target_order = target_rk.get('order', _FIELD_EXTRA.get(target_name, {}).get('order', 999))
+
+                toggle_name = '{}_accordion_enabled'.format(target_name)
+                toggle_default = _normalize_yes_no_default(toggle_cfg.get('accordion_toggle_default'))
+                toggle_label = toggle_cfg.get('accordion_toggle_label') or '{}?'.format(toggle_cfg['accordion_card_label'])
+                all_fields[toggle_name] = RadioField(
+                    toggle_label,
+                    choices=_yes_no_choices(toggle_default),
+                    default=toggle_default,
+                    render_kw={
+                        'groups': target_groups,
+                        'group_labels': target_group_labels,
+                        'order': target_order - 0.01,
+                        'onchange': 'selectChanged(this)',
+                        'inline_options': True,
+                        'is_toggle_control': True,
+                        'is_accordion_group_toggle': True,
+                        'accordion_toggle_default': toggle_default,
+                    },
+                )
+                accordion_group_toggles[group_key] = toggle_name
+
+        target_rk['external_accordion_card_label'] = toggle_cfg['accordion_card_label']
+        if toggle_cfg['accordion_toggle_with_yes_no'] and group_key in accordion_group_toggles:
+            target_rk['external_accordion_toggle_field_name'] = accordion_group_toggles[group_key]
+            target_rk.setdefault('show_class', 'Yes')
+        target_field.kwargs['render_kw'] = target_rk
+
+    for group_key, toggle_name in accordion_group_toggles.items():
+        toggle_field = all_fields.get(toggle_name)
+        if not toggle_field:
+            continue
+        controls_fields = accordion_group_controls.get(group_key, [])
+        toggle_rk = dict(toggle_field.kwargs.get('render_kw', {}) or {})
+        toggle_rk['controls_fields'] = controls_fields
+        toggle_field.kwargs['render_kw'] = toggle_rk
+
+    # Mark fields that should render as full cards nested inside a shared parent card.
+    for nested_cfg in _iter_nested_card_configs():
+        target_name = nested_cfg['target_name']
+        if target_name not in all_fields:
+            continue
+
+        target_field = all_fields[target_name]
+        target_rk = dict(target_field.kwargs.get('render_kw', {}) or {})
+        target_rk['nested_card_label'] = nested_cfg['nested_card_label']
+        target_field.kwargs['render_kw'] = target_rk
+
+    # Apply _FIELD_EXTRA and ensure 'order' exists for all fields to support template sorting.
+    for name, field in list(all_fields.items()):
+        extra = _FIELD_EXTRA.get(name, {})
+        rk = dict(field.kwargs.get('render_kw', {}) or {})
+
+        if 'render_kw' in extra:
+            rk.update(extra['render_kw'])
+
+        # Ensure 'order' is always present in render_kw for the Jinja sort filter.
+        # Priority: _FIELD_EXTRA['order'] > existing field.render_kw['order'] > default 999.
+        field_order = extra.get('order', rk.get('order', 999))
+        rk['order'] = field_order
+
+        # Render hidden fields as WTForms HiddenField regardless of their original type.
+        if rk.get('type') == 'hidden' and field.field_class is not HiddenField:
+            all_fields[name] = HiddenField(
+                field.args[0] if field.args else name,
+                default=field.kwargs.get('default', ''),
+                render_kw=rk,
+            )
+            continue
+
+        field.kwargs['render_kw'] = rk
+
+        # Add extra_validators
+        if 'extra_validators' in extra:
+            field.kwargs.setdefault('validators', []).extend(extra['extra_validators'])
+
+    # Build the class dynamically so WTForms metaclass processes all fields
+    return type('EventForm', (FlaskForm,), all_fields)

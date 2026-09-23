@@ -94,6 +94,24 @@ if app.config['SENTRY_URL']:
 
 from tinker import error
 from tinker.tinker_controller import TinkerController
+from config.helpers import get_config_from_block
+
+# Get Configs from Cascade blocks
+try:
+    _config_loader_controller = TinkerController()
+    config_block_variables = [
+        'EVENTS_CONFIG_BLOCK'
+    ]
+    for variable in config_block_variables:
+        block_id = app.config.get(variable)
+        if block_id:
+            loaded_values = get_config_from_block.load_config_from_block(_config_loader_controller, block_id)
+            app.config.update(loaded_values)
+        else:
+            app.logger.warning(f'Config variable {variable} not found in app config; skipping loading of that block.')
+
+except Exception:
+    app.logger.exception('Unable to load config blocks from Cascade')
 
 
 # This method is placed here to fix an import dependency problem; must be above the UnitTestBlueprint import

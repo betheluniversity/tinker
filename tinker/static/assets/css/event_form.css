@@ -1,0 +1,229 @@
+/* Visually hidden elements */
+.visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0,0,0,0) !important;
+    border: 0 !important;
+}
+
+/* Card styles */
+.card label, .card legend {
+    color: #444;
+}
+.card.card--multiple {
+    background-color: #d8d8d8;
+}
+.card.card--multiple label, .card.card--multiple legend {
+    color: #1a1a1a;
+}
+.card.card--multiple .card.card--multiple {
+    background-color: #c2c2c2;
+}
+.card.card--multiple .card.card--multiple label,
+.card.card--multiple .card.card--multiple legend {
+    color: #0d0d0d;
+}
+.card.card--multiple .card.card--multiple .card.card--multiple {
+    background-color: #ababab;
+}
+.card.card--multiple .card.card--multiple .card.card--multiple label,
+.card.card--multiple .card.card--multiple .card.card--multiple legend {
+    color: #000;
+}
+
+/* Fieldset template */
+fieldset.fieldset_template {
+    display: none;
+}
+
+/* Legend styles */
+legend {
+    border-bottom-color: #999 !important;
+}
+
+/* Card nesting depth backgrounds */
+.card-depth-1 {
+    background: #f7f7f7;
+    border: 1px solid #e0e0e0;
+}
+.card-depth-2 {
+    background: #e9e9ec;
+    border: 1px solid #cccccc;
+}
+.card-depth-3 {
+    background: #d6d6db;
+    border: 1px solid #bbbbbb;
+}
+.card-depth-4 {
+    background: #bfc0c7;
+    border: 1px solid #aaaaaa;
+}
+.card-depth-5 {
+    background: #a7a8b3;
+    border: 1px solid #999999;
+}
+
+/* Inline native checkbox layout for events form */
+.checkbox-inline-field .checkbox-inline-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: auto;
+    margin-bottom: 0 !important;
+}
+
+.checkbox-inline-field .extra-required {
+    display: block;
+    margin-bottom: 6px;
+}
+
+.checkbox-inline-field .checkbox-inline-input {
+    width: auto;
+    height: auto;
+    margin: 0;
+    vertical-align: middle;
+    flex: 0 0 auto;
+}
+
+.image-preview-inline {
+    margin-top: 8px;
+    margin-bottom: 8px;
+}
+
+.image-preview-thumb {
+    width: 120px;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    display: block;
+}
+
+#event-submit-btn.is-submitting {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.image-preview-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+}
+
+.image-preview-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.image-preview-dialog {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    max-height: 90vh;
+    margin: 5vh auto;
+    padding: 36px 12px 12px 12px;
+    background: #fff;
+    border-radius: 6px;
+    text-align: center;
+}
+
+#image-preview-modal-image {
+    max-width: 100%;
+    max-height: 78vh;
+    object-fit: contain;
+}
+
+.image-preview-close {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    border: 0;
+    background: transparent;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+    color: #333;
+}
+
+/* Accordion styles for grouped metadata multi-select fields */
+.event-accordion-item {
+    border-top: 1px solid #c8c8c8;
+    margin: 0;
+}
+
+.event-accordion-item:first-of-type {
+    border-top: 0;
+}
+
+.event-accordion-summary {
+    list-style: none;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    cursor: pointer;
+    user-select: none;
+}
+
+.event-accordion-summary::-webkit-details-marker {
+    display: none;
+}
+
+.event-accordion-summary::marker {
+    content: '';
+}
+
+.event-accordion-heading {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2f2f2f;
+}
+
+.event-accordion-arrow {
+    order: -1;
+}
+
+.event-accordion-arrow::before {
+    content: '\25be';
+    color: #4a4a4a;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.event-accordion-item[open] .event-accordion-arrow::before {
+    content: '\25b4';
+}
+
+.event-accordion-panel {
+    padding: 0 0 12px 0;
+}
+
+.event-accordion-panel .extra-required {
+    display: block;
+    margin-bottom: 8px;
+}
+
+/* Inline yes/no radio options for companion toggle controls */
+.event-radio-group--inline {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 14px;
+    padding-bottom: 4px;
+}
+
+.event-radio-group--inline .radio {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+}
+
+.event-radio-group--inline .radio input[type='radio'] {
+    margin-right: 6px;
+}

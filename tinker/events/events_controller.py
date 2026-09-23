@@ -1,8 +1,14 @@
 # Global
+import base64
 import datetime
+import pytz
 import json
+import os
 import re
 import time
+import tempfile
+import shutil
+import uuid
 
 # Packages
 from bu_cascade.asset_tools import find, convert_asset
@@ -15,6 +21,17 @@ from tinker.tinker_controller import TinkerController
 
 
 class EventsController(TinkerController):
+    _TZ_MAP = {
+        'central': 'America/Chicago',
+        'eastern': 'America/New_York',
+        'mountain': 'America/Denver',
+        'pacific': 'America/Los_Angeles'
+    }
+
+    @staticmethod
+    def _is_yes_value(value):
+        return str(value).strip().lower() in ('yes', 'on', 'true', '1')
+
     # find_all is currently unused for events (but used for the e-annz)
     def inspect_child(self, child, find_all=False, csv=False):
         try:
@@ -121,52 +138,232 @@ class EventsController(TinkerController):
     """
     Submitting a new or edited event form combined into one method
     """
+    def _apply_v4_cascade_mapping(self, add_data):
+        """Translates form add_data keys to Cascade v4 data definition identifiers, in-place."""
+        # Translate add_data['location__onCampusLocation__location'] = value
+        # to data['location']['onCampusLocation']['location'] = value
+        # or add_data['title'] = value to data['title'] = value, etc.
+        # No hard-coded field names
+        for key in list(add_data.keys()):
+            if '__' in key:
+                parts = key.split('__')
+                value = add_data.pop(key)
+                target = add_data
+                for i, part in enumerate(parts):
+                    if i == len(parts) - 1:
+                        # Convert boolean to 'Yes'/'No' for Cascade v4 checkbox fields
+                        if isinstance(value, bool):
+                            value = 'Yes' if value else 'No'
+                        target[part] = value
+                    else:
+                        # Create nested dicts/lists as needed
+                        if part.startswith('[multiple]'):
+                            part_name = part[len('[multiple]'):]
+                            index = int(part_name.split('_')[-1]) - 1  # offer_1 -> 0, offer_2 -> 1, etc.
+                            part = part_name.rsplit('_', 1)[0]  # offer_1 -> offer, offer_2 -> offer, etc.
+                            target = target.setdefault(part, [])
+                            while len(target) <= index:
+                                target.append({})
+                            target = target[index]
+                        else:
+                            target = target.setdefault(part, {})
+            else:
+                # No nesting — just move the value
+                add_data[key] = add_data.pop(key)
 
-    def submit_new_or_edit(self, rform, username, eid, dates, num_dates, metadata_list, workflow):
+        if add_data.get('date'):
+            # Single date from the form, convert to list for the data definition
+            add_data['date'] = self.change_dates(add_data['date'])
+
+        new_data = {}
+        for key, value in add_data.items():
+            if '_' in key:
+                new_data[key.replace('_', '-')] = value
+            else:
+                new_data[key] = value
+
+        return new_data
+
+    def _cascade_v4_to_form_data(self, edit_data):
+        """Translates Cascade v4 get_edit_data() output to form field names for pre-population."""
+        # Date group
+        date_data = edit_data.pop('date', {}) or {}
+        edit_data['event_dates'] = [{
+            'start_date': date_data.get('eventStart', ''),
+            'end_date': date_data.get('eventEnd', ''),
+            'all_day': date_data.get('hideTime', ''),
+            'time_zone': date_data.get('timeZone', 'central'),
+        }]
+        # Featured visual
+        fv = edit_data.pop('featuredVisual', {}) or {}
+        edit_data['visualSelect'] = fv.get('visualSelect', 'image')
+        edit_data['featured_image'] = fv.get('image', '')
+        edit_data['featured_video'] = fv.get('video', '')
+        # Location
+        loc = edit_data.pop('location', {}) or {}
+        edit_data['location_name'] = loc.get('locationSelect', '')
+        on_campus = loc.get('onCampusLocation', {}) or {}
+        edit_data['on_campus_location'] = on_campus.get('location', '') if isinstance(on_campus, dict) else ''
+        off_campus = loc.get('offCampusLocation', {}) or {}
+        if isinstance(off_campus, dict):
+            edit_data['off_campus_location'] = {
+                'off_campus_name': off_campus.get('name', ''),
+                'off_campus_address': off_campus.get('address', ''),
+                'off_campus_city': off_campus.get('city', ''),
+                'off_campus_state': off_campus.get('state', ''),
+                'off_campus_zip': off_campus.get('zip', ''),
+            }
+        online = loc.get('online', {}) or {}
+        edit_data['online_url'] = online.get('url', '') if isinstance(online, dict) else ''
+        # Content
+        if 'guestInstructions' in edit_data:
+            edit_data['maps_directions'] = edit_data.pop('guestInstructions')
+        if 'longDescription' in edit_data:
+            edit_data['main_content'] = edit_data.pop('longDescription')
+        # Cost
+        cost = edit_data.pop('cost', {}) or {}
+        if isinstance(cost, dict):
+            offer = cost.get('offer', [])
+            if isinstance(offer, dict):
+                offer = [offer]
+            edit_data['cost'] = [{'price': o.get('price', '0'), 'audience': o.get('audience', '')} for o in offer] or [{}]
+            edit_data['costDetails'] = cost.get('costDetails', '')
+        # Registration
+        reg = edit_data.pop('registration', {}) or {}
+        if isinstance(reg, dict):
+            edit_data['registration_heading'] = reg.get('registrationChoice', 'none')
+            edit_data['wufoo_code'] = reg.get('formhash', '')
+            edit_data['ticketing_url'] = reg.get('ticketingURL', '')
+        # Schedule
+        sched = edit_data.pop('schedule', {}) or {}
+        if isinstance(sched, dict):
+            details = sched.get('scheduleDetails', [])
+            if isinstance(details, dict):
+                details = [details]
+            schedule_list = []
+            for sd in details:
+                td = sd.get('timeDescription', [])
+                if isinstance(td, dict):
+                    td = [td]
+                time_val = td[0].get('time', '') if td else ''
+                desc_val = td[0].get('description', '') if td else ''
+                schedule_list.append({'schedule_date': sd.get('date', ''), 'schedule_time': time_val, 'schedule_description': desc_val})
+            edit_data['schedule'] = schedule_list or [{}]
+        # Featuring
+        feat = edit_data.pop('featuring', {}) or {}
+        if isinstance(feat, dict):
+            edit_data['featuring'] = [{
+                'featuring_image': feat.get('image', ''),
+                'featuring_name': feat.get('name', ''),
+                'featuring_credentials': feat.get('credentials', ''),
+                'featuring_description': feat.get('description', ''),
+            }]
+        return edit_data
+
+    def _upload_event_file(self, file_storage):
+        """Upload a single file to Cascade and return its file path."""
+        original_filename = getattr(file_storage, 'filename', '') or ''
+        file_ext = os.path.splitext(original_filename)[1].lower() or '.jpg'
+        file_name = '{}{}'.format(uuid.uuid4().hex, file_ext)
+        file_sub_path = app.config.get('EVENTS_IMAGE_FOLDER')
+        file_path = file_sub_path + '/' + file_name
+
+        temp_dir = tempfile.mkdtemp(prefix='tinker_upload_')
+        temp_file_path = os.path.join(temp_dir, file_name)
+
+        try:
+            file_storage.save(temp_file_path)
+            with open(temp_file_path, 'rb') as tmp_file:
+                if os.fstat(tmp_file.fileno()).st_size <= 0:
+                    return None
+                encoded_stream = base64.b64encode(tmp_file.read())
+
+            file_asset = self.read(file_path, 'file')
+            if file_asset['success'] == 'true':
+                image_asset = file_asset['asset']
+                self.update_asset(image_asset, {'data': encoded_stream})
+                self.cascade_connector.edit(image_asset)
+            else:
+                try:
+                    base_asset = app.config.get('EVENTS_IMAGE_BASE_ASSET')
+                    image_raw = self.read(base_asset, 'file')
+                    image_asset = image_raw['asset']
+                except Exception:
+                    return None
+
+                new_values = {
+                    'createdBy': 'tinker',
+                    'createdDate': None,
+                    'data': encoded_stream,
+                    'id': None,
+                    'name': file_name,
+                    'path': None,
+                    'parentFolderId': None,
+                    'parentFolderPath': file_sub_path,
+                }
+                self.update_asset(image_asset, new_values)
+                self.cascade_connector.create(image_asset)
+
+            self.publish(file_path, 'file')
+            return file_path
+        finally:
+            shutil.rmtree(temp_dir)
+
+    def upload_event_images(self, form, add_data):
+        """
+        Iterate through form fields, upload files for all FileField fields,
+        and update add_data with resulting file paths.
+        """
+        from flask_wtf.file import FileField as _FileField
+
+        for field in form:
+            if not isinstance(field, _FileField):
+                continue
+
+            filename = getattr(field.data, 'filename', '') if field.data else ''
+            if filename:
+                uploaded_path = self._upload_event_file(field.data)
+                if uploaded_path:
+                    add_data[field.name] = uploaded_path
+                    continue
+
+            existing_path = add_data.get(field.name + '_path', '')
+            add_data[field.name] = existing_path
+
+        return add_data
+
+    def submit_new_or_edit(self, form):
+
+        data = form.data
+        eid = data.get('event_id')
+
         # Changes the dates to a timestamp, needs to occur after a failure is detected or not
-        add_data = self.get_add_data(metadata_list, rform)
-        add_data['event-dates'] = self.change_dates(dates)
-        if not eid:
-            bid = app.config['EVENTS_BASE_ASSET']
-            event_data, metadata, structured_data = self.cascade_connector.load_base_asset_by_id(bid, 'page')
-            asset = self.update_structure(event_data, metadata, structured_data, add_data, username, num_dates,
-                                          workflow=workflow)
-            resp = self.create_page(asset)
-            eid = resp.asset['page']['id']
-            self.log_sentry("New event submission", "createdAssetId = " + eid)
-        else:
-            page = self.read_page(eid)
-            event_data, metadata, structured_data = page.get_asset()
-            asset = self.update_structure(event_data, metadata, structured_data, add_data, username, num_dates,
-                                          workflow=workflow, event_id=eid)
+        add_data = self.get_events_add_data(data)
+
+        # Handle all FileField uploads and write resulting paths into add_data.
+        add_data = self.upload_event_images(form, add_data)
+
+        # Translate form keys to Cascade v4 data definition identifiers
+        add_data = self._apply_v4_cascade_mapping(add_data)
+
+        username = session['username']
+        workflow = self.create_workflow(app.config['EVENTS_WORKFLOW_ID'], session['username'] + '--' + data['title'] + ', ' + datetime.datetime.now().strftime("%m/%d/%Y %I:%M %p"))
+        if eid:
+            asset = self.update_structure(add_data, username, workflow=workflow, event_id=eid)
 
             self.check_new_year_folder(eid, add_data, username)
             proxy_page = self.read_page(eid)
             resp = proxy_page.edit_asset(asset)
             self.log_sentry("Event edit submission", resp)
+        else:
+            asset = self.update_structure(add_data, username, workflow=workflow)
+            resp = self.create_page(asset)
+            eid = resp.asset['page']['id']
+            self.log_sentry("New event submission", "createdAssetId = " + eid)
 
         self.cascade_call_logger(locals())
         return add_data, asset, eid
-
-    def get_event_dates(self, form):
-        event_dates = []
-
-        num_dates = int(form['num_dates'])
-        for i in range(1, num_dates + 1):  # the page doesn't use 0-based indexing
-            i = str(i)
-            new_date = {
-                'start_date': form.get('start' + i, ''),
-                'end_date': form.get('end' + i, ''),
-                'all_day': form.get('allday' + i, ''),
-                'outside_of_minnesota': form.get('outsideofminnesota' + i, ''),
-                'time_zone': form.get('timezone' + i, ''),
-                'no_end_date': form.get('noenddate' + i, '')
-            }
-
-            event_dates.append(new_date)
-
-        # convert event dates to JSON
-        return event_dates, num_dates
+    
 
     def check_event_dates(self, event_dates):
         dates_good = True
@@ -189,125 +386,267 @@ class EventsController(TinkerController):
 
         return json.dumps(event_dates), dates_good
 
-    def change_dates(self, event_dates):
-        for i in range(len(event_dates)):
-            # Get rid of the fancy formatting so we just have normal numbers
-            start = event_dates[i]['start_date'].split(' ')
-            end = event_dates[i]['end_date'].split(' ')
-            start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
-            end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
+    def change_dates(self, date):
 
-            start = " ".join(start)
-            end = " ".join(end)
+        if 'timeZone' in date:
+            timezone = date['timeZone']
+            if timezone == 'central':
+                timezone = 'America/Chicago'
+            elif timezone == 'eastern':
+                timezone = 'America/New_York'
+            elif timezone == 'mountain':
+                timezone = 'America/Denver'
+            elif timezone == 'pacific':
+                timezone = 'America/Los_Angeles'
+        else:
+            timezone = 'America/Chicago'  # default to central if somehow missing
 
-            event_dates[i]['start_date'] = start
-            event_dates[i]['end_date'] = end
+        all_day = self._is_yes_value(date.get('hideTime'))
 
-            # Convert to a unix timestamp, and then multiply by 1000 because Cascade uses Java dates
-            # which use milliseconds instead of seconds
-            try:
-                event_dates[i]['start_date'] = self.date_str_to_timestamp(event_dates[i]['start_date'])
-            except ValueError as e:
-                app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
-                event_dates[i]['start_date'] = None
-            try:
-                event_dates[i]['end_date'] = self.date_str_to_timestamp(event_dates[i]['end_date'])
-            except ValueError as e:
-                app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
-                event_dates[i]['end_date'] = None
+        for key in date:
+            if 'start' in key.lower() and date[key]:
+                start = date[key].split(' ')
+                start[1] = start[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
+                new_start = " ".join(start)
 
-            # As long as the value for these checkboxes are NOT '' or 'False'
-            # the value in event_dates will be set to 'Yes'
-            if event_dates[i]['all_day']:
-                event_dates[i]['all_day'] = 'Yes'
-            else:
-                event_dates[i]['all_day'] = 'No'
-            if event_dates[i]['outside_of_minnesota']:
-                event_dates[i]['outside_of_minnesota'] = 'Yes'
-            else:
-                event_dates[i]['outside_of_minnesota'] = 'No'
+                try:
+                    if all_day:
+                        dt = datetime.datetime.strptime(new_start, '%B %d %Y, %I:%M %p')
+                        new_start = dt.strftime('%B %d %Y, 12:00 PM')
+                        date[key] = self.date_str_to_timestamp(new_start, 'America/Chicago')
+                    else:
+                        date[key] = self.date_str_to_timestamp(new_start, timezone)
+                except ValueError as e:
+                    app.logger.error(time.strftime("%c") + ": error converting start date " + str(e))
+                    date[key] = None
+            elif 'end' in key.lower() and date[key]:
+                end = date[key].split(' ')
+                end[1] = end[1].replace('th', '').replace('st', '').replace('rd', '').replace('nd', '').replace('.', '')
+                new_end = " ".join(end)
 
-        return event_dates
+                try:
+                    if all_day:
+                        dt = datetime.datetime.strptime(new_end, '%B %d %Y, %I:%M %p')
+                        new_end = dt.strftime('%B %d %Y, 12:00 PM')
+                        date[key] = self.date_str_to_timestamp(new_end, 'America/Chicago')
+                    else:
+                        date[key] = self.date_str_to_timestamp(new_end, timezone)
+                except ValueError as e:
+                    app.logger.error(time.strftime("%c") + ": error converting end date " + str(e))
+                    date[key] = None
 
-    def validate_form(self, rform, dates_good):
-        from tinker.events.forms import EventForm
-        form = EventForm(rform)
+        # Cascade renders epoch event times as Central. Persist Central to avoid
+        # timezone label/display mismatches after conversion.
+        date['timeZone'] = "central"
+            
+        return date
+    
 
-        return form, form.validate_on_submit() and dates_good
+    def _clear_hidden_field_errors(self, form):
+        """Clear validation errors for fields hidden by conditional controllers.
+
+        select/radio mode:
+          - dependent has render_kw['show_class']
+          - controller has render_kw['onchange'] = 'selectChanged(this)'
+
+        external checkbox mode:
+          - controller has render_kw['is_external_checkbox_control']
+          - controller has render_kw['controls_field'] = dependent field name
+        """
+        from wtforms.fields import BooleanField as _BooleanField, RadioField as _RadioField, SelectField as _SelectField
+
+        show_class_map = {}
+        for field in form:
+            show_class = (field.render_kw or {}).get('show_class')
+            if show_class:
+                show_class_map.setdefault(show_class, []).append(field.name)
+
+        external_checkbox_controls = []
+        for field in form:
+            rk = field.render_kw or {}
+            if rk.get('is_external_checkbox_control') and rk.get('controls_field'):
+                external_checkbox_controls.append((field, rk['controls_field']))
+
+        if not show_class_map and not external_checkbox_controls:
+            return
+
+        changed = False
+
+        for field in form:
+            if not isinstance(field, (_SelectField, _RadioField)):
+                continue
+            if (field.render_kw or {}).get('onchange') != 'selectChanged(this)':
+                continue
+
+            active_value = field.data or ''
+            choice_values = {v for v, _ in (field.choices or [])}
+            for option_value, dep_names in show_class_map.items():
+                if option_value not in choice_values or option_value == active_value:
+                    continue
+                for dep_name in dep_names:
+                    dep_field = form._fields.get(dep_name)
+                    if dep_field and dep_field.errors:
+                        dep_field.errors = []
+                        changed = True
+
+        for checkbox_field, dep_name in external_checkbox_controls:
+            if not isinstance(checkbox_field, _BooleanField):
+                continue
+            if checkbox_field.data:
+                continue
+
+            dep_field = form._fields.get(dep_name)
+            if dep_field and dep_field.errors:
+                dep_field.errors = []
+                changed = True
+
+        if changed:
+            form._errors = None  # force re-computation on next access
+
+    def validate_form(self, multiples={}):
+        from tinker.events.forms import get_event_form
+        # Do not pass rform as cascade_data — that path builds form_kwargs from the
+        # lossy edit_data dict (rform[key] drops multi-select duplicates) and then
+        # Flask-WTF re-injects request.form as formdata, causing object_data/data
+        # mismatches for SelectMultipleField.  Calling with no args lets Flask-WTF
+        # read request.form directly via getlist(), which is lossless.
+        form = get_event_form(multiples=multiples)
+
+        valid = form.validate_on_submit()
+        if not valid:
+            # Strip errors for fields that are hidden based on the current
+            # state of their controlling SelectField.
+            self._clear_hidden_field_errors(form)
+            valid = not bool(form.errors)
+            if not valid:
+                print(form.errors)
+
+        return form, valid
 
     def build_edit_form(self, event_id):
         page = self.read_page(event_id)
-        multiple = ['event-dates']
-        edit_data = self.get_edit_data(page.get_structured_data(), page.get_metadata(), multiple)
-        # set dates and return for use in form
-        # convert dates to json so we can use Javascript to create custom DateTime fields on the form
-        dates = self.sanitize_dates(edit_data['event-dates'])
-        dates = fjson.dumps(dates)
+        structured_data = page.get_structured_data()
+        #app.logger.debug('Structured data for event {}: {}'.format(event_id, json.dumps(structured_data)))
+        
+        # Return raw Cascade data; forms.py flattens it against the live data definition.
+        edit_data = self.get_event_edit_data(structured_data, page.get_metadata())
 
-        return convert_asset(edit_data), dates
+        # get_edit_data converts numeric timestamps using server-local time.
+        # For events, always render eventStart/eventEnd in the event's selected timezone.
+        # date_values = self._extract_event_date_values(structured_data)
+        # if date_values:
+        #     edit_data.setdefault('date', {})
+        #     edit_data['date'].update(date_values)
 
-    def date_str_to_timestamp(self, date_string):
+        multiples = self._build_multiples_from_edit_data(edit_data)
+        dates = fjson.dumps([])
+        return convert_asset(edit_data), dates, multiples
+
+    def _build_multiples_from_edit_data(self, value, parent_instances=None):
+        multiples = {}
+        current_parents = parent_instances or []
+
+        if not isinstance(value, dict):
+            return multiples
+
+        for key, child in value.items():
+            if isinstance(child, list) and child and all(isinstance(item, dict) for item in child):
+                count_key = '__'.join(current_parents + [key]) if current_parents else key
+                multiples[count_key] = len(child)
+
+                for index, item in enumerate(child, start=1):
+                    instance_identifier = '[multiple]{}_{}'.format(key, index)
+                    nested = self._build_multiples_from_edit_data(item, current_parents + [instance_identifier])
+                    multiples.update(nested)
+            elif isinstance(child, dict):
+                nested = self._build_multiples_from_edit_data(child, current_parents)
+                multiples.update(nested)
+
+        return multiples
+
+    def _extract_event_date_values(self, sdata):
+        date_group = None
+        for node in find(sdata, 'identifier'):
+            if node.get('identifier') == 'date':
+                date_group = node
+                break
+
+        if not date_group:
+            return {}
+
+        date_values = {}
+        nodes = date_group.get('structuredDataNodes', {}).get('structuredDataNode', [])
+        if isinstance(nodes, dict):
+            nodes = [nodes]
+
+        for node in nodes:
+            identifier = node.get('identifier')
+            if identifier in ('eventStart', 'eventEnd', 'timeZone', 'hideTime'):
+                date_values[identifier] = node.get('text')
+
+        tz_label = date_values.get('timeZone', 'central')
+        tz_name = self._TZ_MAP.get(tz_label, 'America/Chicago')
+
+        for key in ('eventStart', 'eventEnd'):
+            value = date_values.get(key)
+            if value:
+                date_values[key] = self.timestamp_to_date_str(value, tz_name)
+
+        return date_values
+
+    def date_str_to_timestamp(self, date_string, timezone='America/Chicago'):
         try:
-            return int(datetime.datetime.strptime(date_string, '%B %d %Y, %I:%M %p').strftime("%s")) * 1000
+            dt = datetime.datetime.strptime(date_string, '%B %d %Y, %I:%M %p')
+            p_timezone = pytz.timezone(timezone)
+            dt_zoned = p_timezone.localize(dt)
+            timestamp_ms = int(dt_zoned.timestamp()) * 1000
+            return timestamp_ms
         except TypeError:
             return None
 
-    def timestamp_to_date_str(self, timestamp_date):
+    def timestamp_to_date_str(self, timestamp_date, timezone='America/Chicago'):
         try:
-            return datetime.datetime.fromtimestamp(int(timestamp_date) / 1000).strftime('%B %d %Y, %I:%M %p')
+            p_timezone = pytz.timezone(timezone)
+            dt = datetime.datetime.fromtimestamp(int(timestamp_date) / 1000, tz=p_timezone)
+            return dt.strftime('%B %d %Y, %I:%M %p')
         except TypeError:
             return None
 
-    def update_structure(self, event_data, metadata, structured_data, add_data, username, num_dates, workflow=None,
-                         event_id=None):
-        """
-         Could this be cleaned up at all?
-        """
-        new_data = {}
-        for key in add_data:
-            try:
-                # Changes date's value names to be hyphens
-                if key == 'event-dates':
-                    new_data[key.replace('_', '-')] = add_data[key]
-                    for i in range(0, num_dates):
-                        # The temp dict is made to later replace new_data's dict
-                        temp_data = {
-                            'start-date': None,
-                            'end-date': None,
-                            'all-day': None,
-                            'outside-of-minnesota': None,
-                            'time-zone': None,
-                            'no-end-date': None
-                        }
-                        for val in add_data[key][i]:
-                            temp_data[val.replace('_', '-')] = add_data['event-dates'][i][val]
-                        new_data[key.replace('_', '-')][i] = temp_data
-                else:
-                    new_data[key.replace('_', '-')] = add_data[key]
-            except:
-                pass
+    def update_structure(self, add_data, username, workflow=None, event_id=None):
+        bid = app.config['EVENTS_PAGE_BASE_ASSET']
+
+        if not event_id:
+            event_data, metadata, structured_data = self.cascade_connector.load_base_asset_by_id(bid, 'page')
+        else:
+            page = self.read_page(event_id)
+            event_data, metadata, structured_data = page.get_asset()
 
         # put it all into the final asset with the rest of the SOAP structure
-        hide_site_nav, parent_folder_path = self.get_event_folder_path(new_data)
+        hide_site_nav, parent_folder_path = self.get_event_folder_path(add_data)
 
-        new_data['parentFolderID'] = ''
-        new_data['parentFolderPath'] = parent_folder_path
+        add_data['parentFolderID'] = ''
+        add_data['parentFolderPath'] = parent_folder_path
 
-        new_data['hide-site-nav'] = [hide_site_nav]
-        new_data['tinker-edits'] = 1
+        add_data['hide-site-nav'] = [hide_site_nav]
+        add_data['tinker-edits'] = 1
 
         if event_id:
-            new_data['id'] = event_id
-            # delete author, as we don't want it to change. But, it gets set in get_add_data()
-            new_data.pop('author', None)
+            add_data['id'] = event_id
+            # delete author, as we don't want it to change.
+            add_data.pop('author', None)
         else:
-            new_data['author'] = username
+            add_data['author'] = username
 
-        self.update_asset(event_data, new_data)
+        # The 'description' field comes across as 'metaDescription' from the base asset coming from Cascade.
+        if add_data.get('description'):
+            if not add_data.get('metaDescription'):
+                add_data['metaDescription'] = add_data['description']
 
+        self.update_asset(event_data, add_data)
         self.add_workflow_to_asset(workflow, event_data)
 
         return event_data
+    
 
     # Returns (content/config path, parent path)
     def get_event_folder_path(self, data):
@@ -333,11 +672,7 @@ class EventsController(TinkerController):
         else:
             offices = []
 
-        if 'Athletics' in general:
-            hide_site_nav = "Hide"
-            path = "events/%s/athletics" % max_year
-
-        elif common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'], general):
+        if common_elements(['Johnson Gallery', 'Olson Gallery', 'Art Galleries'], general):
             hide_site_nav = "Do not hide"
             path = "events/arts/galleries/exhibits/%s" % max_year
 
@@ -349,24 +684,8 @@ class EventsController(TinkerController):
             hide_site_nav = "Do not hide"
             path = 'events/arts/theatre/%s' % max_year
 
-        elif any("Chapel" in s for s in general):
-            hide_site_nav = "Hide"
-            path = 'events/%s/chapel' % max_year
-
-        elif 'Library' in general:
-            hide_site_nav = "Hide"
-            path = "events/%s/library" % max_year
-
-        elif 'Bethel Student Government' in offices:
-            hide_site_nav = "Hide"
-            path = "events/%s/bsg" % max_year
-
-        elif any("Admissions" in s for s in offices):
-            hide_site_nav = "Hide"
-            path = 'events/%s/admissions' % max_year
-
         if app.config['UNIT_TESTING']:
-            path = "/_testing/philip-gibbens/events-tests"
+            path = "/_testing/events-tests"
 
         self.copy(app.config['BASE_ASSET_EVENT_FOLDER'], path, 'folder')
 
@@ -384,19 +703,33 @@ class EventsController(TinkerController):
             return None
 
     def get_year_folder_value(self, data):
-        dates = data['event-dates']
+        date = data.get('date', {})
+
+        if not date:
+            return None
+        
+        end_date = None
+        for key in date:
+            if 'end' in key.lower() and date[key]:
+                end_date = date[key]
+                break
+
+        if not end_date:
+            for key in date:
+                if 'start' in key.lower() and date[key]:
+                    end_date = date[key]
+                    break
 
         max_year = 0
-        for date in dates:
-            date_str = self.timestamp_to_date_str(date['end-date'])
-            try:
-                end_date = datetime.datetime.strptime(date_str, '%B %d %Y, %I:%M %p').date()
-                year = end_date.year
-            except Exception:
-                # if end_date is none and this fails, revert to current year.
-                year = datetime.date.today().year
-            if year > max_year:
-                max_year = year
+        date_str = self.timestamp_to_date_str(end_date)
+        try:
+            end_date = datetime.datetime.strptime(date_str, '%B %d %Y, %I:%M %p').date()
+            year = end_date.year
+        except Exception:
+            # if end_date is none and this fails, revert to current year.
+            year = datetime.date.today().year
+        if year > max_year:
+            max_year = year
 
         return max_year
 
@@ -418,7 +751,11 @@ class EventsController(TinkerController):
     # The search method that does the actual searching for the /search in events/init
     def get_search_results(self, selection, title, start, end):
         # Get the events and then split them into user events and other events for quicker searching
-        events = self.traverse_xml(app.config['EVENTS_XML_URL'], 'event')
+        events_xml_url = app.config['EVENTS_XML_URL']
+        if not events_xml_url.endswith('.xml'):
+            events_xml_url += '.xml'
+
+        events = self.traverse_xml(events_xml_url, 'event')
         # Quick check with assignment
         if selection and '-'.join(selection) == '2':
             events_to_iterate = events

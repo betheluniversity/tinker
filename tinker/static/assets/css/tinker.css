@@ -307,6 +307,18 @@ small.extra-required {
     font-size: 70%;
 }
 
+.help-text {
+    display: table;
+    background: #ffff3330;
+    margin-bottom: 1em;
+    padding: .5em;
+    font-size: 90%;
+}
+
+legend:has(+ .help-text){
+    margin-bottom: .5em;
+}
+
 textarea {
     width: 100%;
     min-height: 50px;
@@ -527,9 +539,13 @@ li > .dropdown-menu:after {
     color: #555555;
 }
 
+.sidebar .nav li.active > a:after, .off-canvas-sidebar .nav li.active > a:after {
+    border-right: 17px solid #ffffff;
+}
+
 /* Fonts */
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2, h3, h4, h5, h6, .sans {
     font-family: Muli, Helvetica Neue, sans-serif;
 }
 
