@@ -769,8 +769,9 @@ class EventsController(TinkerController):
             else:
                 events_to_iterate = other_events
                 forms_header = "Other Events"
-        # Early return if no parameters to check in the search
-        if not title and not start and not end:
+        # A blank title shows every event in the selected view, regardless of date filters.
+        title = (title or '').strip()
+        if not title:
             return events_to_iterate, forms_header
 
         # to_return will hold all of the events that match the search criteria

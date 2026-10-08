@@ -62,20 +62,19 @@
                     {# in action add the url calling the post method for search#}
                     <div>
                         <h3 class="first-subtitle">View:</h3>
-                        <select class="horizontal-scroll" size="{{ all_schools|length }}" id="school-selector"
-                                multiple>
+                        <select class="horizontal-scroll" size="{{ 2 if all_schools|length > 1 else 1 }}" id="school-selector">
                             {% for school_code, school in all_schools.items() %}
                                 {% if loop.first %}
-                                    <option id="{{ school_code }}" value="{{ school_code }}"
+                                    <option value="{{ school_code }}"
                                             selected="selected">{{ school }}</option>
-                                {% elif not loop.last %}
-                                    <option id="{{ school_code }}" value="{{ school_code }}">{{ school }}</option>
+                                {% elif school_code == 2 %}
+                                    <option value="{{ school_code }}">{{ school }}</option>
                                 {% endif %}
                             {% endfor %}
                         </select>
                         <br>
-                        <button id="search-filters" class="show btn btn-primary">- Less Search Filters</button>
-                        <div id="additional-search-params">
+                        <button id="search-filters" class="no-show btn btn-primary" aria-expanded="false" aria-controls="additional-search-params">+ More Search Filters</button>
+                        <div id="additional-search-params" style="display:none;">
                             <div class="card">
                                 <div id="search-box" class="content">
                                     <label for="event-title">Event Title:</label>
@@ -144,13 +143,6 @@
         $(".delete-press").click(function () {
             $("#modal-confirm").attr("href", "/events/delete/" + $(this).data('event-id'));
         });
-        $("#school-selector").change(function () {
-            $('.school-bios').hide();
-            var array_of_values = $("#school-selector").val();
-            for (i = 0; i < array_of_values.length; i++) {
-                $('.' + array_of_values[i]).show();
-            }
-        });
         $('.datepicker').each(function () {
             var current_element = $(this);
             let maxDate = new Date();
@@ -213,7 +205,7 @@
                 "title": $("#event-title").val(),
                 "start": $("#start-date").val(),
                 "end": $("#end-date").val(),
-                "selection": $("#school-selector").val()
+                "selection": [$("#school-selector").val()]
             };
             $.ajax({
                 type: "POST",
@@ -223,7 +215,7 @@
                 success: function (result) {
                     document.getElementById('results').innerHTML = result;
                     $('#spinner').hide();
-                    window.onLoad(pagination("event"));
+                    pagination("event");
                 }
             });
         }

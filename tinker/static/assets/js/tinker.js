@@ -1,97 +1,132 @@
 // General File for Tinker's JavaScript
 
 $(document).ready(function () {
+    if ($("#event-submit-btn").length) {
+        $("#additional-search-params").hide();
+        $("#search-filters").removeClass("show").addClass("no-show")
+            .attr("aria-expanded", "false").text("+ More Search Filters");
+        $("#school-selector").children('option[value="3"]').remove();
+        $("#school-selector").attr("size", $("#school-selector").children().length).prop("multiple", false)
+            .off("change.eventView").on("change.eventView", function () {
+                $("#event-submit-btn").trigger("click");
+            });
+    }
     $("#search-filters").click(function () {
         if($(this).hasClass("show")) {
             $("#additional-search-params").slideUp();
             $(this).removeClass("show");
             $(this).addClass("no-show");
-            $(this).text("+ More Search Filters")
+            $(this).attr("aria-expanded", "false").text("+ More Search Filters")
         }else{
             $("#additional-search-params").slideDown();
             $(this).removeClass("no-show");
             $(this).addClass("show");
-            $(this).text("- Less Search Filters")
+            $(this).attr("aria-expanded", "true").text("- Less Search Filters")
         }
     });
 });
 
 function searchCookie(prevInputs, type, groups) {
+    function splitInputs(value) {
+        let parts = value.split("-");
+        return type === "event" && parts.length > 4 ? [parts.slice(0, -3).join("-")].concat(parts.slice(-3)) : parts;
+    }
     let inputs = prevInputs;
-    if (Cookies.get(type + "-search-cookie") != null) {
+    let restoreSavedInputs = type !== "event" || $("#school-selector").data("event-search-initialized") !== true;
+    if (restoreSavedInputs && Cookies.get(type + "-search-cookie") != null) {
         inputs = Cookies.get(type + "-search-cookie");
+    }
+    if (type === "event") {
+        $("#school-selector").data("event-search-initialized", true);
+        // Cached event pages used numeric option IDs that collide with pagination IDs.
+        $("#school-selector").children("option").removeAttr("id");
+        // Start each visit in My Events, while allowing view changes during the visit.
+        let savedInputs = splitInputs(inputs);
+        let savedView = restoreSavedInputs ? "1" : savedInputs[savedInputs.length - 1].split(",")[0];
+        if (savedView === "3") {
+            savedView = $("#school-selector").children('option[value="2"]').length ? "2" : "1";
+        }
+        savedInputs[savedInputs.length - 1] = savedView;
+        inputs = savedInputs.join("-");
     }
     Cookies.set(type + "-search-cookie", inputs, { expires: 1, path: '/' });
     let viewList = []
     if (type === "event") {
-        viewList = ['My Events', 'All Events', 'Other Events', 'User Events'];
+        viewList = ['My Events', 'All Events', 'User Events'];
 
-        $("#event-title").val(inputs.split("-")[0]);
-        $("#start-date").val(inputs.split("-")[1]);
-        $("#end-date").val(inputs.split("-")[2]);
+        $("#event-title").val(splitInputs(inputs)[0]);
+        $("#start-date").val(splitInputs(inputs)[1]);
+        $("#end-date").val(splitInputs(inputs)[2]);
     } else if (type === "e-announcement") {
         viewList = ['My E-Announcements', 'All E-Announcements', 'Other E-Announcements', 'User E-Announcements'];
 
-        $("#e-annz-title").val(inputs.split("-")[0]);
-        $("#e-annz-date").val(inputs.split("-")[1]);
+        $("#e-annz-title").val(splitInputs(inputs)[0]);
+        $("#e-annz-date").val(splitInputs(inputs)[1]);
     }
 
-    let lastInput = inputs.split("-").length - 1;
+    let lastInput = splitInputs(inputs).length - 1;
     let selected = 0;
-    if (!inputs.split("-")[lastInput]) {
+    if (!splitInputs(inputs)[lastInput]) {
         selected = $("#school-selector").children("option:selected").attr("value");
     }
     if ((type === "event" && (groups.includes('Tinker Events - CAS') || groups.includes('Event Approver'))) || (type === "e-announcement" && (groups.includes('Tinker E-Announcements - CAS') || groups.includes('E-Announcement Approver')))) {
         for (let i = 0; i < viewList.length - 1; i ++) {
-            let id = "#" + (i + 1);
             $("#school-selector").children().removeAttr("selected");
-            if (inputs.split("-")[lastInput] - 1 == i || selected - 1 == i) {
-                $(id).prop("selected", true);
+            if (splitInputs(inputs)[lastInput] - 1 == i || selected - 1 == i) {
+                $("#school-selector").children('option[value="' + (i + 1) + '"]').prop("selected", true);
                 break;
             }
         }
     }
 
-    $("#event-title").change(function(e) {
+    function bindCookieChange(selector, handler) {
+        if (type === "event") {
+            $(selector).off("change.eventSearchCookie").on("change.eventSearchCookie", handler);
+        } else {
+            $(selector).change(handler);
+        }
+    }
+
+    bindCookieChange("#event-title", function(e) {
         let currentValue = $(this).val();
-        let newInputs = (currentValue + "-" + inputs.split("-")[1] + "-" + inputs.split("-")[2] + "-" + inputs.split("-")[3]);
+        let newInputs = (currentValue + "-" + splitInputs(inputs)[1] + "-" + splitInputs(inputs)[2] + "-" + splitInputs(inputs)[3]);
         inputs = newInputs;
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 
-    $("#start-date").change(function(e) {
+    bindCookieChange("#start-date", function(e) {
         let currentValue = $(this).val();
-        let newInputs = (inputs.split("-")[0] + "-" + currentValue + "-" + inputs.split("-")[2] + "-" + inputs.split("-")[3]);
+        let newInputs = (splitInputs(inputs)[0] + "-" + currentValue + "-" + splitInputs(inputs)[2] + "-" + splitInputs(inputs)[3]);
         inputs = newInputs;
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 
-    $("#end-date").change(function(e) {
+    bindCookieChange("#end-date", function(e) {
         let currentValue = $(this).val();
-        let newInputs = (inputs.split("-")[0] + "-" + inputs.split("-")[1] + "-" + currentValue + "-" + inputs.split("-")[3]);
+        let newInputs = (splitInputs(inputs)[0] + "-" + splitInputs(inputs)[1] + "-" + currentValue + "-" + splitInputs(inputs)[3]);
         inputs = newInputs;
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 
-    $("#e-annz-title").change(function(e) {
+    bindCookieChange("#e-annz-title", function(e) {
         let currentValue = $(this).val();
-        let newInputs = (currentValue + "-" + inputs.split("-")[1] + "-" + inputs.split("-")[2]);
+        let newInputs = (currentValue + "-" + splitInputs(inputs)[1] + "-" + splitInputs(inputs)[2]);
         inputs = newInputs;
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 
-    $("#e-annz-date").change(function(e) {
+    bindCookieChange("#e-annz-date", function(e) {
         let currentValue = $(this).val();
-        let newInputs = (inputs.split("-")[0] + "-" + currentValue + "-" + inputs.split("-")[2]);
+        let newInputs = (splitInputs(inputs)[0] + "-" + currentValue + "-" + splitInputs(inputs)[2]);
         inputs = newInputs;
         Cookies.set(type + "-search-cookie", newInputs, { expires: 1, path: '/' })
     });
 
-    $("#school-selector").change(function() {
+    bindCookieChange("#school-selector", function() {
         let selected = $("#school-selector").children("option:selected").attr("value");
         let newInputs = "";
-        for (let i = 0; i < inputs.split("-").length - 1; i ++) {
-            newInputs += inputs.split("-")[i] + "-";
+        for (let i = 0; i < splitInputs(inputs).length - 1; i ++) {
+            newInputs += splitInputs(inputs)[i] + "-";
         }
         newInputs += "" + selected;
         inputs = newInputs;
@@ -108,6 +143,16 @@ const paginationRange = 10;
 // ~~~~~~~~~~~~~ For a specific example look at the comments of the function switchPageClick(limitPerPage) ~~~~~~~~~~~~~
 let maxPages = 0;
 function pagination(type) {
+    if (type === "event") {
+        let eventList = $("#loop");
+        // The server returns oldest first; prepend cards to reverse them and keep navigation last.
+        if (eventList.data("events-newest-first") !== true) {
+            eventList.children(".items-to-paginate").get().forEach(function (eventCard) {
+                eventList.prepend(eventCard);
+            });
+            eventList.data("events-newest-first", true);
+        }
+    }
     let numberOfItems = $(" #loop .items-to-paginate").length;
     if (numberOfItems > 10) {
         let limitPerPage = 10;
