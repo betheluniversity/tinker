@@ -214,6 +214,22 @@ a#remove_new_job_button {
     margin-top: -2px;
 }
 
+.field-error-indicator {
+    margin-top: 6px;
+    color: #f04124;
+    font-size: 12px;
+    font-family: 'Muli', Arial, sans-serif;
+}
+
+.field-invalid {
+    border-color: #f04124 !important;
+}
+
+.field-has-error label,
+.field-has-error legend {
+    color: #f04124;
+}
+
 ul.btn-group-horizontal {
     padding: 0px;
 }

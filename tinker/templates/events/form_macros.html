@@ -21,6 +21,16 @@
     {% endif %}
 {%- endmacro %}
 
+{% macro render_field_errors(field) -%}
+{% if field.errors %}
+    <div class="field-error-indicator" role="alert">
+        {% for error in field.errors %}
+            <div>{{ error }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+{%- endmacro %}
+
 {% macro render_group_level(form, group_path, depth) -%}
     {% set ns = namespace(rendered_subgroups=[], rendered_external_checkbox_cards=[], rendered_nested_cards=[]) %}
     {% for field in form|sort(attribute='render_kw.order') %}
@@ -132,7 +142,7 @@
                 {% endif %}
             {% endif %}
             {% if should_render_wrap %}
-            <div class="{{ wrap_base }}_wrap{% if show_class and show_class != wrap_base %} {{ show_class }}_wrap{% endif %}">
+            <div class="{{ wrap_base }}_wrap{% if show_class and show_class != wrap_base %} {{ show_class }}_wrap{% endif %}{% if field.errors %} field-has-error{% endif %}">
             {% if groups|length == group_path|length %}
                 {% if depth == 1 %}
                     <div class="card">
@@ -285,19 +295,35 @@
 
 {% macro render_field(field) -%}
     {{ render_label(field) }}
+    {% set base_class = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
+    {% set invalid_class = ' field-invalid' if field.errors else '' %}
+    {% set input_class = (base_class ~ invalid_class)|trim %}
     {% if (not field.data and field.default) %}
-        {{ field(value=field.default) }}
+        {% if input_class %}
+            {{ field(value=field.default, class_=input_class) }}
+        {% else %}
+            {{ field(value=field.default) }}
+        {% endif %}
     {% else %}
-        {{ field }}
+        {% if input_class %}
+            {{ field(class_=input_class) }}
+        {% else %}
+            {{ field }}
+        {% endif %}
     {% endif %}
+    {{ render_field_errors(field) }}
 {%- endmacro %}
 
 {% macro render_select(field) -%}
 {{ render_label(field) }}
 {% set selected_value = field.data if field.data else field.default %}
+{% set select_class = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
+{% if field.errors %}
+    {% set select_class = (select_class ~ ' field-invalid')|trim %}
+{% endif %}
 <select name="{{ field.name }}"
     {% if field.render_kw and 'onchange' in field.render_kw %}onchange="{{ field.render_kw['onchange'] }}"{% endif %}
-    {% if field.render_kw and 'class' in field.render_kw %}class="{{ field.render_kw['class'] }}"{% endif %}
+    {% if select_class %}class="{{ select_class }}"{% endif %}
 >
     {% for value, label in field.choices %}
         {% if value == selected_value %}
@@ -307,6 +333,7 @@
         {% endif %}
     {% endfor %}
 </select>
+{{ render_field_errors(field) }}
 {%- endmacro %}
 
 {% macro render_select_multiple(field, group, show_class, show_label=True, show_description=True) -%}
@@ -323,6 +350,9 @@
     {% set selected_values = field.data if field.data else field.default %}
     {% set select_size = field.render_kw['size'] if field.render_kw and 'size' in field.render_kw else '10' %}
     {% set select_class = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else 'large-select' %}
+    {% if field.errors %}
+        {% set select_class = (select_class ~ ' field-invalid')|trim %}
+    {% endif %}
     <select name="{{ field.name }}" multiple size="{{ select_size }}" class="{{ select_class }}"
         {% if field.flags.required %}required{% endif %}
         {% if field.render_kw and 'onchange' in field.render_kw %}onchange="{{ field.render_kw['onchange'] }}"{% endif %}
@@ -335,6 +365,7 @@
             {% endif %}
         {% endfor %}
     </select>
+    {{ render_field_errors(field) }}
 {% if show_class %}
 </div>
 {% endif %}
@@ -389,11 +420,13 @@
     {% if group|length > 0 %}
         {{ render_label(field) }}
     {% endif %}
+    {% set editor_class = 'ckeditor field-invalid' if field.errors else 'ckeditor' %}
     {% if field.flags.required %}
-        {{ field(class="ckeditor", required="required", data_required_ckeditor="1") }}
+        {{ field(class=editor_class, required="required", data_required_ckeditor="1") }}
     {% else %}
-        {{ field(class="ckeditor") }}
+        {{ field(class=editor_class) }}
     {% endif %}
+    {{ render_field_errors(field) }}
     <br />
 {%- endmacro %}
 
@@ -405,7 +438,12 @@
     {% set existing_path = request.form.get(path_field_name, '') %}
 {% endif %}
 
-{{ field }}
+{% set file_class = 'field-invalid' if field.errors else none %}
+{% if file_class %}
+    {{ field(class_=file_class) }}
+{% else %}
+    {{ field }}
+{% endif %}
 <input type="hidden" name="{{ path_field_name }}" value="{{ existing_path }}" />
 
 {% if existing_path %}
@@ -421,20 +459,23 @@
         <small class="small-link">{{ existing_path }}</small>
     </div>
 {% endif %}
+{{ render_field_errors(field) }}
 {%- endmacro %}
 
 {% macro render_datepicker(field) -%}
 {{ render_label(field) }}
+{% set datepicker_class = 'datepicker field-invalid' if field.errors else 'datepicker' %}
 {% if field.name in data %}
-    {{ field(value=data[field.name], class="datepicker") }}
+    {{ field(value=data[field.name], class=datepicker_class) }}
 {% else %}
-    {{ field(value="", class="datepicker") }}
+    {{ field(value="", class=datepicker_class) }}
 {% endif %}
+{{ render_field_errors(field) }}
 {%- endmacro %}
 
 {% macro render_checkbox(field, show_description=True) -%}
 {% set field_classes = field.render_kw['class'] if field.render_kw and 'class' in field.render_kw else '' %}
-<div id="{{ field.name }}_label" class="checkbox-inline-field {{ field_classes }}">
+<div id="{{ field.name }}_label" class="checkbox-inline-field {{ field_classes }}{% if field.errors %} field-has-error{% endif %}">
     {% if show_description and field.description %}
         <p class="help-text sans">{{ field.description }}</p>
     {% endif %}
@@ -445,6 +486,7 @@
         <small class="required">required</small>
         {% endif %}
     </label>
+    {{ render_field_errors(field) }}
     <br /><br />
 </div>
 {%- endmacro %}
@@ -456,13 +498,14 @@
     {% endif %}
 {% endif %}
 {% set selected_value = field.data if field.data else field.default %}
-<div class="event-radio-group event-radio-group--inline">
+<div class="event-radio-group event-radio-group--inline{% if field.errors %} field-has-error{% endif %}">
 {% for subfield in field %}
     <div class="radio{{ ' checked' if subfield.data == selected_value else '' }}">
         {{ subfield(onchange=field.render_kw['onchange']) if field.render_kw and 'onchange' in field.render_kw else subfield() }}{{ subfield.label }}
     </div>
 {% endfor %}
 </div>
+{{ render_field_errors(field) }}
 {%- endmacro %}
 
 {% macro render_label(field, show_description=True) -%}
