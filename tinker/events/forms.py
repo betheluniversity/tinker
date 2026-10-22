@@ -19,7 +19,7 @@ import json
 from flask import current_app, has_request_context, request, session
 from flask_wtf import FlaskForm
 from wtforms import (HiddenField, RadioField, StringField)
-from wtforms.validators import ValidationError, URL
+from wtforms.validators import Optional, ValidationError, URL
 
 from tinker.cascade_form_helpers import (_fields_from_def,
                                           get_metadata_fields,
@@ -226,7 +226,8 @@ _FIELD_EXTRA = {
     # All-day event — zeros out time on both date fields
     'hideTime':        {'render_kw': {'onclick': 'setAllDayTime(this)'}},
     # URL validators
-    'url':             {'extra_validators': [URL(require_tld=True,
+    'url':             {'extra_validators': [Optional(),
+                                             URL(require_tld=True,
                                                  message='Please enter a valid URL.')]},
     # Cost
     'price':           {'extra_validators': [validate_numeric],
