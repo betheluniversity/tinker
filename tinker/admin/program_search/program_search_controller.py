@@ -16,16 +16,15 @@ from tinker.tinker_controller import TinkerController
 class ProgramSearchController(TinkerController):
 
     def create_new_csv_file(self):
-        outfile = open(app.config['PROGRAM_SEARCH_CSV_LOCAL'], 'wb')
-        outcsv = csv.writer(outfile)
-        rows = []
-        records = ProgramTag.query.all()
-        rows.append(['key', 'tag', 'outcome', 'other', 'topic'])
-        for record in records:
-            rows.append([record.key, record.tag, record.outcome, record.other, record.topic])
+        with open(app.config['PROGRAM_SEARCH_CSV_LOCAL'], 'w', newline='', encoding='utf-8') as outfile:
+            outcsv = csv.writer(outfile)
+            rows = []
+            records = ProgramTag.query.all()
+            rows.append(['key', 'tag', 'outcome', 'other', 'topic'])
+            for record in records:
+                rows.append([record.key, record.tag, record.outcome, record.other, record.topic])
 
-        outcsv.writerows(iter(rows))
-        outfile.close()
+            outcsv.writerows(rows)
 
         # SFTP
         self.write_to_sftp(app.config['PROGRAM_SEARCH_CSV_LOCAL'], app.config['PROGRAM_SEARCH_CSV_SFTP'], False, True)
