@@ -69,6 +69,9 @@ def requires_auth(f):
 def admin_permissions(flask_view_class):
     # program search menu
     if flask_view_class.route_base == '/admin/program-search':
+        if '/public/' in request.path:
+            return
+
         # give access to admins and lauren
         if 'Administrators' not in session['groups'] and 'parlau' not in session['groups'] and session['username'] != 'kaj66635':
             abort(403)
@@ -339,7 +342,7 @@ class TinkerController(object):
                         timezone = child.get('text', 'Central')
             node_data = self.inspect_sdata_node(node, timezone=timezone)
             edit_data[node_identifier] = node_data
-            
+
         if edit_data.get('event_dates') and not edit_data.get('date'):
             edit_data['date'] = {
                 'eventStart': edit_data['event_dates'].get('start_date'),
@@ -386,7 +389,7 @@ class TinkerController(object):
             return suffix in ('yes', 'true', '1', 'on')
 
         return text in ('yes', 'true', '1', 'on')
-    
+
 
     def get_edit_data(self, sdata, mdata, multiple=[]):
         """ Takes in data from a Cascade connector 'read' and turns into a dict of key:value pairs for a form."""
@@ -456,7 +459,7 @@ class TinkerController(object):
 
         if not timezone:
             return datetime.datetime.fromtimestamp(int(date) / 1000).strftime(date_format)
-        
+
         return datetime.datetime.fromtimestamp(int(date) / 1000, tz=pytz.timezone(timezone)).strftime(date_format)
 
     def inspect_sdata_node(self, node, timezone=None):
